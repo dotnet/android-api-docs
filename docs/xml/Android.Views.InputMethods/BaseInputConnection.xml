@@ -91,7 +91,8 @@
         <summary>
         </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/BaseInputConnection#BaseInputConnection(android.view.View,%20boolean)" title="Reference documentation">Android reference for <code>android.view.inputmethod.BaseInputConnection.BaseInputConnection</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
       </Docs>
@@ -144,7 +145,7 @@
       <Parameters />
       <Docs>
         <summary>Default implementation does nothing.</summary>
-        <returns>To be added.</returns>
+        <returns>true if a batch edit is now in progress, false otherwise. Since this method starts a batch edit, that means it will always return true unless the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation does nothing.</para>
           <para>
@@ -198,7 +199,7 @@
  per <see cref="P:Android.Views.KeyEvent.MetaState" />.</param>
         <summary>Default implementation uses <c>MetaKeyKeyListener#clearMetaKeyState(long, int)
             MetaKeyKeyListener.clearMetaKeyState(long, int)</c> to clear the state.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation uses <c>MetaKeyKeyListener#clearMetaKeyState(long, int)
             MetaKeyKeyListener.clearMetaKeyState(long, int)</c> to clear the state.</para>
@@ -288,7 +289,7 @@
       <Docs>
         <param name="text">The committed completion.</param>
         <summary>Default implementation does nothing and returns false.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation does nothing and returns false.</para>
           <para>
@@ -344,13 +345,13 @@
         <Parameter Name="opts" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="inputContentInfo">To be added.</param>
-        <param name="flags">To be added.</param>
-        <param name="opts">To be added.</param>
+        <param name="inputContentInfo">Content to be inserted. This value cannot be null.</param>
+        <param name="flags">InputConnection.INPUT_CONTENT_GRANT_READ_URI_PERMISSION if the content provider allows grantUriPermissions or 0 if the application does not need to call InputContentInfo.requestPermission().</param>
+        <param name="opts">optional bundle data. This can be null.</param>
         <summary>Default implementation which invokes <c>View#performReceiveContent</c> on the target view if
             the view <c>View#getReceiveContentMimeTypes allows</c> content insertion; otherwise returns
             false without any side effects.</summary>
-        <returns>To be added.</returns>
+        <returns>true if this request is accepted by the application, whether the request is already handled or still being handled in background, false otherwise.</returns>
         <remarks>
           <para>Default implementation which invokes <c>View#performReceiveContent</c> on the target view if
             the view <c>View#getReceiveContentMimeTypes allows</c> content insertion; otherwise returns
@@ -396,7 +397,7 @@
       <Docs>
         <param name="correctionInfo">Detailed information about the correction.</param>
         <summary>Default implementation does nothing and returns false.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid. Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
         <remarks>
           <para>Default implementation does nothing and returns false.</para>
           <para>
@@ -451,7 +452,7 @@
         you are providing so it is not possible to correctly specify
         locations there.</param>
         <summary>Default implementation replaces any existing composing text with the given text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation replaces any existing composing text with the given text. In addition,
             only if fallback mode, a key event is sent for the new text and the current editable buffer
@@ -488,10 +489,10 @@
         <Parameter Name="newCursorPosition" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="newCursorPosition">To be added.</param>
+        <param name="text">The text to commit. This may include styles.</param>
+        <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <summary>Default implementation replaces any existing composing text with the given text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation replaces any existing composing text with the given text. In addition,
             only if fallback mode, a key event is sent for the new text and the current editable buffer
@@ -606,7 +607,7 @@
                 of the text, then this method does not fail but deletes all the characters in that range.</param>
         <summary>The default implementation performs the deletion around the current selection position of the
             editable text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid. Before Android Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
         <remarks>
           <para>The default implementation performs the deletion around the current selection position of the
             editable text.</para>
@@ -689,7 +690,7 @@
       <Parameters />
       <Docs>
         <summary>Default implementation does nothing.</summary>
-        <returns>To be added.</returns>
+        <returns>For editor authors, you must return true if a batch edit is still in progress after closing the latest one (in other words, if the nesting count is still a positive number). Return false otherwise. For IME authors, you will always receive true as long as the request was sent to the editor, and receive false only if the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation does nothing.</para>
           <para>
@@ -731,7 +732,7 @@
       <Parameters />
       <Docs>
         <summary>The default implementation removes the composing state from the current editable text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>The default implementation removes the composing state from the current editable text. In
             addition, only if fallback mode, a key event is sent for the new text and the current
@@ -881,7 +882,7 @@
  <see cref="P:Android.Views.InputMethods.EditorInfo.InputType" /> value
  directly in to here.</param>
         <summary>The default implementation uses TextUtils.</summary>
-        <returns>To be added.</returns>
+        <returns>the caps mode flags that are in effect at the current cursor position. See TYPE_TEXT_FLAG_CAPS_* in InputType.</returns>
         <remarks>
           <para>The default implementation uses TextUtils.getCapsMode to get the cursor caps mode for the
             current selection position in the editable text, unless in fallback mode in which case 0 is
@@ -939,7 +940,7 @@
         <param name="flags">Additional options to control the client, either 0 or
  <see cref="F:Android.Views.InputMethods.InputConnection.GetExtractedTextMonitor" />.</param>
         <summary>The default implementation always returns null.</summary>
-        <returns>To be added.</returns>
+        <returns>an ExtractedText object describing the state of the text view and containing the extracted text itself, or null if the input connection is no longer valid of the editor can't comply with the request for some reason.</returns>
         <remarks>
           <para>The default implementation always returns null.</para>
           <para>
@@ -1034,7 +1035,7 @@
         <param name="flags">Supplies additional options controlling how the text is
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
         <summary>The default implementation returns the text currently selected, or null if none is selected.</summary>
-        <returns>To be added.</returns>
+        <returns>the text that is currently selected, if any, or null if no text is selected.</returns>
         <remarks>
           <para>The default implementation returns the text currently selected, or null if none is selected.</para>
           <para>
@@ -1083,9 +1084,9 @@
         <Parameter Name="flags" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="beforeLength">To be added.</param>
-        <param name="afterLength">To be added.</param>
-        <param name="flags">To be added.</param>
+        <param name="beforeLength">Value is 0 or greater</param>
+        <param name="afterLength">Value is 0 or greater</param>
+        <param name="flags">Supplies additional options controlling how the text is returned. May be either 0 or InputConnection.GET_TEXT_WITH_STYLES. Value is either 0 or InputConnection.GET_TEXT_WITH_STYLES</param>
         <summary>The default implementation returns the given amount of text around the current cursor
             position in the buffer.</summary>
         <returns>To be added.</returns>
@@ -1338,9 +1339,13 @@
         <ReturnType>Android.OS.Handler</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Called by the system to enable application developers to specify a dedicated thread on which InputConnection methods are called back.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Called by the system to enable application developers to specify a dedicated thread on which InputConnection methods are called back.</para>
+          <para>Editor authors: although you can return your custom subclasses of Handler, the system only uses Looper returned from Handler.getLooper(). You cannot intercept or cancel InputConnection callbacks by implementing this method.</para>
+          <para>IME authors: This method is not intended to be called from the IME. You will always receive null.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/BaseInputConnection#getHandler()" title="Reference documentation">Android reference for <code>android.view.inputmethod.BaseInputConnection.getHandler</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1491,7 +1496,7 @@
  <see cref="P:Android.Views.InputMethods.EditorInfo.ImeOptions" />, such as
  <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='Android Views InputMethods EditorInfo IME_ACTION_GO';scope=Xamarin" title="Android.Views.InputMethods.EditorInfo.IME_ACTION_GO">Android.Views.InputMethods.EditorInfo.IME_ACTION_GO</a></format>.</param>
         <summary>The default implementation turns this into the enter key.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>The default implementation turns this into the enter key.</para>
           <para>
@@ -1540,7 +1545,7 @@
  different developers will not create conflicting commands.</param>
         <param name="data">Any data to include with the command.</param>
         <summary>The default implementation does nothing.</summary>
-        <returns>To be added.</returns>
+        <returns>true if the command was sent (whether or not the associated editor understood it), false if the input connection is no longer valid.</returns>
         <remarks>
           <para>The default implementation does nothing.</para>
           <para>
@@ -1647,14 +1652,18 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
+        <param name="start">Value is 0 or greater</param>
+        <param name="end">Value is 0 or greater</param>
         <param name="text">To be added.</param>
-        <param name="newCursorPosition">To be added.</param>
+        <param name="newCursorPosition">the new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text.</param>
         <param name="textAttribute">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Replace the specific range in the editor with suggested text.</summary>
+        <returns>true if the replace command was sent to the associated editor (regardless of whether the replacement is success or not), false otherwise.</returns>
+        <remarks>
+          <para>Replace the specific range in the editor with suggested text.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/BaseInputConnection#replaceText(int,%20int,%20java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Android reference for <code>android.view.inputmethod.BaseInputConnection.replaceText</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReplaceText">
@@ -1698,14 +1707,18 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
+        <param name="start">Value is 0 or greater</param>
+        <param name="end">Value is 0 or greater</param>
         <param name="text">To be added.</param>
-        <param name="newCursorPosition">To be added.</param>
+        <param name="newCursorPosition">the new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text.</param>
         <param name="textAttribute">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Replace the specific range in the editor with suggested text.</summary>
+        <returns>true if the replace command was sent to the associated editor (regardless of whether the replacement is success or not), false otherwise.</returns>
+        <remarks>
+          <para>Replace the specific range in the editor with suggested text.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/BaseInputConnection#replaceText(int,%20int,%20java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Android reference for <code>android.view.inputmethod.BaseInputConnection.replaceText</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ReportFullscreenMode">
@@ -1736,7 +1749,7 @@
       <Docs>
         <param name="enabled">To be added.</param>
         <summary>Updates InputMethodManager with the current fullscreen mode.</summary>
-        <returns>To be added.</returns>
+        <returns>For editor authors, the return value will always be ignored. For IME authors, this always returns true on Build.VERSION_CODES.N_MR1 and prior devices and false on Build.VERSION_CODES.O and later devices.</returns>
         <remarks>
           <para>Updates InputMethodManager with the current fullscreen mode.</para>
           <para>
@@ -1786,7 +1799,7 @@
  <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='Android Views InputMethods InputConnection CURSOR_UPDATE_MONITOR';scope=Xamarin" title="Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR">Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR</a></format>. Pass <c>0</c> to disable the effect of
  <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='Android Views InputMethods InputConnection CURSOR_UPDATE_MONITOR';scope=Xamarin" title="Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR">Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR</a></format>.</param>
         <summary>The default implementation does nothing.</summary>
-        <returns>To be added.</returns>
+        <returns>true if the request is scheduled. false to indicate that when the application will not call InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo). Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
         <remarks>
           <para>The default implementation does nothing.</para>
           <para>
@@ -1831,7 +1844,7 @@
         <param name="e">The key event.</param>
         <summary>Provides standard implementation for sending a key event to the window attached to the input
             connection's view.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>Provides standard implementation for sending a key event to the window attached to the input
             connection's view.</para>
@@ -1879,8 +1892,13 @@
         <param name="start">the position in the text at which the composing region begins</param>
         <param name="end">the position in the text at which the composing region ends</param>
         <summary>Mark a certain region of text as composing text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid. Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
         <remarks>
+          <para>Mark a certain region of text as composing text. If there was a composing region, the characters are left as they were and the composing span removed, as if finishComposingText() has been called. The default style for composing text is used.</para>
+          <para>The passed indices are clipped to the contents bounds. If the resulting region is zero-sized, no region is marked and the effect is the same as that of calling finishComposingText(). The order of start and end is not important. In effect, the region from start to end and the region from end to start is the same. Editor authors, be ready to accept a start that is greater than end.</para>
+          <para>Since this does not change the contents of the text, editors should not call InputMethodManager.updateSelection(android.view.View,int,int,int,int) and IMEs should not receive InputMethodService.onUpdateSelection(int, int, int, int, int, int).</para>
+          <para>This has no impact on the cursor/selection position. It may result in the cursor being anywhere inside or outside the composing region, including cases where the selection and the composing region overlap partially or entirely.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/BaseInputConnection#setComposingRegion(int,%20int)" title="Reference documentation">Android reference for <code>android.view.inputmethod.BaseInputConnection.setComposingRegion</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 9" />
@@ -1974,7 +1992,7 @@
         specify locations there.</param>
         <summary>The default implementation places the given text into the editable, replacing any existing
             composing text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>The default implementation places the given text into the editable, replacing any existing
             composing text. The new text is marked as in a composing state with the composing style.</para>
@@ -2010,11 +2028,11 @@
         <Parameter Name="newCursorPosition" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="newCursorPosition">To be added.</param>
+        <param name="text">The composing text with styles if necessary. If no style object attached to the text, the default style for composing text is used. See Spanned for how to attach style object to the text. SpannableString and SpannableStringBuilder are two implementations of the interface Spanned.</param>
+        <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <summary>The default implementation places the given text into the editable, replacing any existing
             composing text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>The default implementation places the given text into the editable, replacing any existing
             composing text. The new text is marked as in a composing state with the composing style.</para>
@@ -2061,7 +2079,7 @@
         <param name="start">the character index where the selection should start.</param>
         <param name="end">the character index where the selection should end.</param>
         <summary>The default implementation changes the selection position in the current editable text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>The default implementation changes the selection position in the current editable text.</para>
           <para>
