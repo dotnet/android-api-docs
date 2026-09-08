@@ -2951,7 +2951,7 @@ static class ImporterProgram
                 StringComparison.Ordinal);
             channelOnlyText = Regex.Replace(
                 channelOnlyText,
-                @"<remarks>\s*<para>Keep this existing prose\.</para>\s*</remarks>",
+                @"<remarks>.*?</remarks>",
                 "<remarks>To be added.</remarks>",
                 RegexOptions.Singleline | RegexOptions.CultureInvariant);
             var channelOnlyPath = Path.Combine(tempDirectory, "channel-only.xml");
@@ -2971,9 +2971,15 @@ static class ImporterProgram
                 channelOnlyDocs,
                 addMetadataForChannelOnlyMember: true);
             Assert(
-                channelOnlyRepaired.Contains(mappedDocs.SourceUrl, StringComparison.Ordinal) &&
-                !channelOnlyRepaired.Contains("<remarks>To be added.", StringComparison.Ordinal),
-                "channel-only source import adds metadata without retaining a remarks placeholder");
+                channelOnlyRepaired.Contains(mappedDocs.SourceUrl, StringComparison.Ordinal),
+                "channel-only source import adds metadata");
+            var channelOnlyRemarks = XDocument.Parse(channelOnlyRepaired)
+                .Root!.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "SetTitle")
+                .Element("Docs")!.Element("remarks")!;
+            Assert(
+                !NormalizeText(channelOnlyRemarks.Value).Contains("To be added.", StringComparison.Ordinal),
+                "channel-only source import clears the remarks placeholder");
 
             var repairFailureDocument = XDocument.Parse(
                 legacyEnumText,
