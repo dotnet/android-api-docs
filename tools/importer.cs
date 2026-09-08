@@ -157,7 +157,6 @@ static class ImporterProgram
                     {
                         if (remaining == 0)
                         {
-                            deferredRemarksPlaceholder |= placeholder.Name is "remarks" or "para";
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
@@ -206,6 +205,7 @@ static class ImporterProgram
 
                         if (remaining == 0)
                         {
+                            deferredRemarksPlaceholder |= placeholder.Name is "remarks" or "para";
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
