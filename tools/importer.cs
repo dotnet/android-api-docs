@@ -931,8 +931,17 @@ static class ImporterProgram
         blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
         blockText = RemoveAugmentedRemarksPlaceholder(blockText);
         var metadataOnly = HasMetadataOnlyRemarks(blockText);
-        if (ContainsSourceUrl(blockText, docs.SourceUrl) && !metadataOnly)
-            return text[..block.Start] + blockText + text[block.End..];
+        if (ContainsSourceUrl(blockText, docs.SourceUrl))
+        {
+            if (!metadataOnly)
+                return text[..block.Start] + blockText + text[block.End..];
+            if (docs.Paragraphs.Count == 0)
+            {
+                blockText = RemoveDuplicateSourceLinks(blockText, docs.SourceUrl);
+                return text[..block.Start] + blockText + text[block.End..];
+            }
+            blockText = RemoveMatchingSourceLinks(blockText, docs.SourceUrl);
+        }
 
         var remarks = owner.Docs.Element("remarks");
         var remarksText = remarks is null ? "" : NormalizeText(remarks.Value);
@@ -1197,6 +1206,50 @@ static class ImporterProgram
                     SourceAnchorMember(existingUrl).Equals(expectedMember, StringComparison.Ordinal)
                     ? ""
                     : match.Value;
+            },
+            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+    }
+
+    static string RemoveMatchingSourceLinks(string blockText, string sourceUrl) =>
+        Regex.Replace(
+            blockText,
+            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            match =>
+            {
+                var href = Regex.Match(
+                    match.Value,
+                    @"\bhref=""(?<url>[^""]+)""",
+                    RegexOptions.CultureInvariant);
+                return href.Success && UrlsEqual(
+                    WebUtility.HtmlDecode(href.Groups["url"].Value),
+                    sourceUrl)
+                    ? ""
+                    : match.Value;
+            },
+            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+
+    static string RemoveDuplicateSourceLinks(string blockText, string sourceUrl)
+    {
+        var found = false;
+        return Regex.Replace(
+            blockText,
+            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            match =>
+            {
+                var href = Regex.Match(
+                    match.Value,
+                    @"\bhref=""(?<url>[^""]+)""",
+                    RegexOptions.CultureInvariant);
+                if (!href.Success || !UrlsEqual(
+                    WebUtility.HtmlDecode(href.Groups["url"].Value),
+                    sourceUrl))
+                    return match.Value;
+                if (!found)
+                {
+                    found = true;
+                    return match.Value;
+                }
+                return "";
             },
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
     }
@@ -1942,6 +1995,29 @@ static class ImporterProgram
                     "<para>Sets the widget title. The exact JNI overload is required.</para>",
                     StringComparison.Ordinal),
             "metadata-only remarks are refreshed from source");
+        Assert(
+            Regex.Matches(
+                restoredMetadataOnlyText,
+                Regex.Escape($"href=\"{mappedDocs.SourceUrl}\""),
+                RegexOptions.CultureInvariant).Count == 1,
+            "metadata-only remarks retain one source link after refresh");
+        var duplicateMetadataOnlyText = Regex.Replace(
+            metadataOnlyText,
+            @"(?<source><para><format type=""text/html""><a href=""[^""]+"" title=""Reference documentation"">.*?</a></format></para>)",
+            "${source}\n          ${source}",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        file.UpdateBlockOffsets(setTitle.Order, duplicateMetadataOnlyText);
+        var deduplicatedMetadataOnlyText = AddSourceDocumentationIfSafe(
+            duplicateMetadataOnlyText,
+            file,
+            setTitle,
+            mappedDocs with { Paragraphs = [] });
+        Assert(
+            Regex.Matches(
+                deduplicatedMetadataOnlyText,
+                Regex.Escape($"href=\"{mappedDocs.SourceUrl}\""),
+                RegexOptions.CultureInvariant).Count == 1,
+            "metadata-only remarks without source prose de-duplicate source links");
         file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var truncatedSummaryText = file.Text.Replace(
             "<summary>To be added.</summary>",
