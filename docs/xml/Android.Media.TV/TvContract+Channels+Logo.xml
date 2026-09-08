@@ -22,13 +22,25 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>A sub-directory of a single TV channel that represents its primary logo.</summary>
     <remarks>
-      <para>
-        <format type="text/html">
-          <a href="https://developer.android.com/reference/android/media/tv/TvContract$Channels$Logo" title="Reference documentation">Android platform documentation</a>
-        </format>
-      </para>
+      <para>A sub-directory of a single TV channel that represents its primary logo.</para>
+      <para>To access this directory, append Channels.Logo.CONTENT_DIRECTORY to the raw channel URI. The resulting URI represents an image file, and should be interacted using ContentResolver.openAssetFileDescriptor.</para>
+      <para>Note that this sub-directory also supports opening the logo as an asset file in write mode. Callers can create or replace the primary logo associated with this channel by opening the asset file and writing the full-size photo contents into it. (Make sure there is no padding around the logo image.) When the file is closed, the image will be parsed, sized down if necessary, and stored.</para>
+      <code lang="text/java">public void writeChannelLogo(long channelId, byte[] logo) {
+    Uri channelLogoUri = TvContract.buildChannelLogoUri(channelId);
+    try {
+        AssetFileDescriptor fd =
+            getContentResolver().openAssetFileDescriptor(channelLogoUri, "rw");
+        OutputStream os = fd.createOutputStream();
+        os.write(logo);
+        os.close();
+        fd.close();
+    } catch (IOException e) {
+        // Handle error cases.
+    }
+}</code>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/TvContract.Channels.Logo" title="Reference documentation">Android reference for <code>android.media.tv.TvContract.Channels.Logo</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
@@ -53,8 +65,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The directory twig for this sub-table.</summary>
         <remarks>
+          <para>The directory twig for this sub-table.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/TvContract.Channels.Logo#CONTENT_DIRECTORY" title="Reference documentation">Android reference for <code>android.media.tv.TvContract.Channels.Logo.CONTENT_DIRECTORY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
