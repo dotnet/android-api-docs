@@ -149,6 +149,7 @@ static class ImporterProgram
                 {
                     var ownerChanged = false;
                     var replacedRemarksPlaceholder = false;
+                    var deferredRemarksPlaceholder = false;
                     var normalized = NormalizeStaleNestedConstructorLinks(
                         text,
                         file.DocsBlocks[owner.Order]);
@@ -156,6 +157,7 @@ static class ImporterProgram
                     {
                         if (remaining == 0)
                         {
+                            deferredRemarksPlaceholder |= placeholder.Name is "remarks" or "para";
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
@@ -307,7 +309,9 @@ static class ImporterProgram
 
                     if (ownerChanged &&
                         mapping.Docs is not null &&
-                        ShouldAddSourceDocumentation(remaining, replacedRemarksPlaceholder))
+                        ShouldAddSourceDocumentation(
+                            deferredRemarksPlaceholder,
+                            replacedRemarksPlaceholder))
                     {
                         text = AddSourceDocumentationIfSafe(text, file, owner, mapping.Docs);
                         file.UpdateBlockOffsets(owner.Order, text);
@@ -1047,8 +1051,10 @@ static class ImporterProgram
             RegexOptions.CultureInvariant);
     }
 
-    static bool ShouldAddSourceDocumentation(int remaining, bool replacedRemarksPlaceholder) =>
-        remaining > 0 || replacedRemarksPlaceholder;
+    static bool ShouldAddSourceDocumentation(
+        bool deferredRemarksPlaceholder,
+        bool replacedRemarksPlaceholder) =>
+        !deferredRemarksPlaceholder || replacedRemarksPlaceholder;
 
     static bool HasTruncatedImporterSummary(LoadedFile file, DocsOwner owner)
     {
@@ -2063,10 +2069,10 @@ static class ImporterProgram
         Assert(mappedDocs.Returns == "the number of displayed characters", "Android return");
         Assert(mappedDocs.Exceptions["IllegalArgumentException"] == "if title is empty", "Android exception");
         Assert(
-            !ShouldAddSourceDocumentation(0, false) &&
-                ShouldAddSourceDocumentation(0, true) &&
-                ShouldAddSourceDocumentation(1, false),
-            "exhausted batches do not augment skipped remarks placeholders");
+            !ShouldAddSourceDocumentation(true, false) &&
+                ShouldAddSourceDocumentation(true, true) &&
+                ShouldAddSourceDocumentation(false, false),
+            "deferred remarks placeholders do not receive source metadata");
 
         var mismatch = file.Owners.Single(owner => owner.Id.Contains("SetCount", StringComparison.Ordinal));
         var mismatchResult = MapOwner(mismatch, pages);
