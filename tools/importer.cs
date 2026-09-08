@@ -2947,7 +2947,7 @@ static class ImporterProgram
         {
             var channelOnlyText = fixtureText.Replace(
                 "<param name=\"title\">To be added.</param>",
-                $"<param name=\"title\">{mappedDocs.Parameters["title"]}</param>",
+                $"<param name=\"title\">{RemoveLeadingJavaType(mappedDocs.Parameters["title"])}</param>",
                 StringComparison.Ordinal);
             var channelOnlyPath = Path.Combine(tempDirectory, "channel-only.xml");
             File.WriteAllText(channelOnlyPath, channelOnlyText, new UTF8Encoding(false));
