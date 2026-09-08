@@ -1809,6 +1809,12 @@ static class ImporterProgram
                 {
                     Registration: { Name: "setComposingText", Descriptor: "(ILjava/lang/CharSequence;)Landroid/view/inputmethod/CursorAnchorInfo$Builder;" },
                     SourceRequest.JavaPath: "android/view/inputmethod/CursorAnchorInfo$Builder",
+                } &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Views.InputMethods.InputConnectionWrapper.CommitText(System.String,System.Int32,Android.Views.InputMethods.TextAttribute)") is
+                {
+                    Registration: { Name: "commitText", Descriptor: "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z" },
+                    SourceRequest.JavaPath: "android/view/inputmethod/InputConnectionWrapper",
                 },
             "InputMethods string aliases map to their exact JNI counterparts");
 
@@ -3430,6 +3436,16 @@ static class ImporterProgram
                     Mapping("android/view/inputmethod/BaseInputConnection", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.CursorAnchorInfo.Builder.SetComposingText(System.Int32,System.String)"] =
                     Mapping("android/view/inputmethod/CursorAnchorInfo$Builder", "setComposingText", "(ILjava/lang/CharSequence;)Landroid/view/inputmethod/CursorAnchorInfo$Builder;"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.CommitText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "commitText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.CommitText(System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "commitText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "replaceText", "(IILjava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.SetComposingText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.SetComposingText(System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "setComposingText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
