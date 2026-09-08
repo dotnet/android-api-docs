@@ -74,7 +74,7 @@
           <para>Create a builder for <c>TextBoundsInfo</c>.</para>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/view/inputmethod/TextBoundsInfo.Builder#TextBoundsInfo$Builder(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.TextBoundsInfo.Builder.TextBoundsInfo$Builder(int, int)</code>.</a>
+              <a href="https://developer.android.com/reference/android/view/inputmethod/TextBoundsInfo.Builder#Builder(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.TextBoundsInfo.Builder.Builder(int, int)</code>.</a>
             </format>
           </para>
           <para>
@@ -152,9 +152,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Clear all the parameters set on this Builder to reuse it.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Clear all the parameters set on this Builder to reuse it.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/TextBoundsInfo.Builder#clear()" title="Reference documentation">Android reference for <code>android.view.inputmethod.TextBoundsInfo.Builder.clear</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -213,10 +217,14 @@
         <Parameter Name="characterBidiLevels" Type="System.Int32[]" />
       </Parameters>
       <Docs>
-        <param name="characterBidiLevels">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="characterBidiLevels">the array of the character's BiDi level. This value cannot be null.</param>
+        <summary>Set the BiDi levels for the character.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Set the BiDi levels for the character. The bidiLevel of the i-th character in the editor is stored at index (i - start). The length of the given array must equal to (end - start). BiDi level is defined by the unicode bidirectional algorithm. One can determine whether a character's direction is right-to-left (RTL) or left-to-right (LTR) by checking the last bit of the BiDi level. If it's 1, the character is RTL, otherwise the character is LTR. The BiDi level of a character must be in the range of [0, 125].</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/TextBoundsInfo.Builder#setCharacterBidiLevel(int[])" title="Reference documentation">Android reference for <code>android.view.inputmethod.TextBoundsInfo.Builder.setCharacterBidiLevel</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetCharacterBounds">
@@ -246,10 +254,14 @@
         <Parameter Name="characterBounds" Type="System.Single[]" />
       </Parameters>
       <Docs>
-        <param name="characterBounds">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="characterBounds">the array of the flattened character bounds. This value cannot be null.</param>
+        <summary>Set the characters bounds, in the coordinates of the editor.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Set the characters bounds, in the coordinates of the editor. The given array should be divided into groups of four where each element represents left, top, right and bottom of the character bounds respectively. The bounds of the i-th character in the editor should be stored at index 4 * (i - start). The length of the given array must equal to 4 * (end - start). Sometimes multiple characters in a single grapheme are rendered as one symbol on the screen. So those characters only have one shared bounds. In this case, we recommend the editor to assign all the width to the bounds of the first character in the grapheme, and make the rest characters' bounds zero-width. For example, the string "'0xD83D' '0xDE00'" is rendered as one grapheme - a grinning face emoji. If the bounds of the grapheme is: Rect(5, 10, 15, 20), the character bounds of the string should be: [ Rect(5, 10, 15, 20), Rect(15, 10, 15, 20) ].</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/TextBoundsInfo.Builder#setCharacterBounds(float[])" title="Reference documentation">Android reference for <code>android.view.inputmethod.TextBoundsInfo.Builder.setCharacterBounds</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetCharacterFlags">
@@ -279,10 +291,14 @@
         <Parameter Name="characterFlags" Type="System.Int32[]" />
       </Parameters>
       <Docs>
-        <param name="characterFlags">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="characterFlags">the array of the character's flags. This value cannot be null.</param>
+        <summary>Set the flags of the characters.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Set the flags of the characters. The flags of the i-th character in the editor is stored at index (i - start). The length of the given array must equal to (end - start). The flags contain the following information: The TextBoundsInfo.FLAG_CHARACTER_WHITESPACE flag, indicating the character is a whitespace; The TextBoundsInfo.FLAG_CHARACTER_LINEFEED flag, indicating the character is a linefeed; The TextBoundsInfo.FLAG_CHARACTER_PUNCTUATION flag, indicating the character is a punctuation; The TextBoundsInfo.FLAG_LINE_IS_RTL flag, indicating the line this character belongs to is RTL. All all character in the same line must have the same line direction. Check TextBoundsInfo.getLineSegmentFinder() for more information of line boundaries.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/TextBoundsInfo.Builder#setCharacterFlags(int[])" title="Reference documentation">Android reference for <code>android.view.inputmethod.TextBoundsInfo.Builder.setCharacterFlags</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetGraphemeSegmentFinder">
@@ -312,10 +328,12 @@
         <Parameter Name="graphemeSegmentFinder" Type="Android.Text.SegmentFinder" />
       </Parameters>
       <Docs>
-        <param name="graphemeSegmentFinder">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="graphemeSegmentFinder">the SegmentFinder that locates the grapheme cluster boundaries. This value cannot be null.</param>
+        <summary>Set the SegmentFinder that locates the grapheme cluster boundaries.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks><para>Set the SegmentFinder that locates the grapheme cluster boundaries. Grapheme is defined in the unicode annex #29: unicode text segmentation. It's a user-perspective character. And it's usually the minimal unit for selection, backspace, deletion etc. Please note that only the grapheme segments within the range from start to end will be available to the IME. The remaining information will be discarded during serialization for better performance.</para><para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/TextBoundsInfo.Builder#setGraphemeSegmentFinder(android.text.SegmentFinder)" title="Reference documentation">Android reference for <code>android.view.inputmethod.TextBoundsInfo.Builder.setGraphemeSegmentFinder</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLineSegmentFinder">
