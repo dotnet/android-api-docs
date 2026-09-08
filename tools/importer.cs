@@ -1739,6 +1739,15 @@ static class ImporterProgram
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
         Assert(file.Owners.Count == 14, "fixture owner count");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Text.TextUtils.IndexOf(System.String,System.Char,System.Int32,System.Int32)") is
+            {
+                Registration.Name: "indexOf",
+                Registration.Descriptor: "(Ljava/lang/CharSequence;CII)I",
+                SourceRequest.JavaPath: "android/text/TextUtils",
+            },
+            "String convenience overload maps to the exact CharSequence JNI descriptor");
         var jniTypeSignature = XElement.Parse(
             """
             <Type>
@@ -3461,6 +3470,18 @@ static class ImporterProgram
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
                 ["M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)"] =
                     Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.Char)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;C)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.String)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.Char,System.Int32)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;CI)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.String,System.Int32)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.Char,System.Int32,System.Int32)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;CII)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.String,System.Int32,System.Int32)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;II)I"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
