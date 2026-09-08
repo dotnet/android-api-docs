@@ -91,7 +91,8 @@
         <summary>
         </summary>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/BaseInputConnection#BaseInputConnection(android.view.View,%20boolean)" title="Reference documentation">Android reference for <code>android.view.inputmethod.BaseInputConnection.BaseInputConnection</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
       </Docs>
@@ -144,7 +145,7 @@
       <Parameters />
       <Docs>
         <summary>Default implementation does nothing.</summary>
-        <returns>To be added.</returns>
+        <returns>true if a batch edit is now in progress, false otherwise. Since this method starts a batch edit, that means it will always return true unless the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation does nothing.</para>
           <para>
@@ -198,7 +199,7 @@
  per <see cref="P:Android.Views.KeyEvent.MetaState" />.</param>
         <summary>Default implementation uses <c>MetaKeyKeyListener#clearMetaKeyState(long, int)
             MetaKeyKeyListener.clearMetaKeyState(long, int)</c> to clear the state.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation uses <c>MetaKeyKeyListener#clearMetaKeyState(long, int)
             MetaKeyKeyListener.clearMetaKeyState(long, int)</c> to clear the state.</para>
@@ -288,7 +289,7 @@
       <Docs>
         <param name="text">The committed completion.</param>
         <summary>Default implementation does nothing and returns false.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation does nothing and returns false.</para>
           <para>
@@ -344,13 +345,13 @@
         <Parameter Name="opts" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="inputContentInfo">To be added.</param>
-        <param name="flags">To be added.</param>
-        <param name="opts">To be added.</param>
+        <param name="inputContentInfo">Content to be inserted. This value cannot be null.</param>
+        <param name="flags">InputConnection.INPUT_CONTENT_GRANT_READ_URI_PERMISSION if the content provider allows grantUriPermissions or 0 if the application does not need to call InputContentInfo.requestPermission().</param>
+        <param name="opts">optional bundle data. This can be null.</param>
         <summary>Default implementation which invokes <c>View#performReceiveContent</c> on the target view if
             the view <c>View#getReceiveContentMimeTypes allows</c> content insertion; otherwise returns
             false without any side effects.</summary>
-        <returns>To be added.</returns>
+        <returns>true if this request is accepted by the application, whether the request is already handled or still being handled in background, false otherwise.</returns>
         <remarks>
           <para>Default implementation which invokes <c>View#performReceiveContent</c> on the target view if
             the view <c>View#getReceiveContentMimeTypes allows</c> content insertion; otherwise returns
@@ -396,7 +397,7 @@
       <Docs>
         <param name="correctionInfo">Detailed information about the correction.</param>
         <summary>Default implementation does nothing and returns false.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid. Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
         <remarks>
           <para>Default implementation does nothing and returns false.</para>
           <para>
@@ -451,7 +452,7 @@
         you are providing so it is not possible to correctly specify
         locations there.</param>
         <summary>Default implementation replaces any existing composing text with the given text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation replaces any existing composing text with the given text. In addition,
             only if fallback mode, a key event is sent for the new text and the current editable buffer
@@ -606,7 +607,7 @@
                 of the text, then this method does not fail but deletes all the characters in that range.</param>
         <summary>The default implementation performs the deletion around the current selection position of the
             editable text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid. Before Android Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
         <remarks>
           <para>The default implementation performs the deletion around the current selection position of the
             editable text.</para>
@@ -689,7 +690,7 @@
       <Parameters />
       <Docs>
         <summary>Default implementation does nothing.</summary>
-        <returns>To be added.</returns>
+        <returns>For editor authors, you must return true if a batch edit is still in progress after closing the latest one (in other words, if the nesting count is still a positive number). Return false otherwise. For IME authors, you will always receive true as long as the request was sent to the editor, and receive false only if the input connection is no longer valid.</returns>
         <remarks>
           <para>Default implementation does nothing.</para>
           <para>
@@ -731,7 +732,7 @@
       <Parameters />
       <Docs>
         <summary>The default implementation removes the composing state from the current editable text.</summary>
-        <returns>To be added.</returns>
+        <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
           <para>The default implementation removes the composing state from the current editable text. In
             addition, only if fallback mode, a key event is sent for the new text and the current
@@ -881,7 +882,7 @@
  <see cref="P:Android.Views.InputMethods.EditorInfo.InputType" /> value
  directly in to here.</param>
         <summary>The default implementation uses TextUtils.</summary>
-        <returns>To be added.</returns>
+        <returns>the caps mode flags that are in effect at the current cursor position. See TYPE_TEXT_FLAG_CAPS_* in InputType.</returns>
         <remarks>
           <para>The default implementation uses TextUtils.getCapsMode to get the cursor caps mode for the
             current selection position in the editable text, unless in fallback mode in which case 0 is
@@ -939,7 +940,7 @@
         <param name="flags">Additional options to control the client, either 0 or
  <see cref="F:Android.Views.InputMethods.InputConnection.GetExtractedTextMonitor" />.</param>
         <summary>The default implementation always returns null.</summary>
-        <returns>To be added.</returns>
+        <returns>an ExtractedText object describing the state of the text view and containing the extracted text itself, or null if the input connection is no longer valid of the editor can't comply with the request for some reason.</returns>
         <remarks>
           <para>The default implementation always returns null.</para>
           <para>
@@ -1034,7 +1035,7 @@
         <param name="flags">Supplies additional options controlling how the text is
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
         <summary>The default implementation returns the text currently selected, or null if none is selected.</summary>
-        <returns>To be added.</returns>
+        <returns>the text that is currently selected, if any, or null if no text is selected.</returns>
         <remarks>
           <para>The default implementation returns the text currently selected, or null if none is selected.</para>
           <para>
@@ -1083,9 +1084,9 @@
         <Parameter Name="flags" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="beforeLength">To be added.</param>
-        <param name="afterLength">To be added.</param>
-        <param name="flags">To be added.</param>
+        <param name="beforeLength">Value is 0 or greater</param>
+        <param name="afterLength">Value is 0 or greater</param>
+        <param name="flags">Supplies additional options controlling how the text is returned. May be either 0 or InputConnection.GET_TEXT_WITH_STYLES. Value is either 0 or InputConnection.GET_TEXT_WITH_STYLES</param>
         <summary>The default implementation returns the given amount of text around the current cursor
             position in the buffer.</summary>
         <returns>To be added.</returns>
