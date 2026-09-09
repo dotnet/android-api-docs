@@ -151,38 +151,6 @@ static class ImporterProgram
                     var importedSourceChannel = false;
                     var replacedRemarksPlaceholder = false;
                     var deferredRemarksPlaceholder = false;
-                    var normalized = NormalizeStaleNestedConstructorLinks(
-                        text,
-                        file.DocsBlocks[owner.Order]);
-                    if (!normalized.Equals(text, StringComparison.Ordinal))
-                    {
-                        if (remaining == 0)
-                        {
-                            file.UpdateBlockOffsets(owner.Order, text);
-                            report.Entries.Add(ReportEntry.Skipped(
-                                file.RelativePath,
-                                owner.Id,
-                                "remarks",
-                                "max_changes_reached",
-                                $"The --max-changes limit of {options.MaxChanges} was reached.",
-                                owner.SourceRequest?.Url ?? ""));
-                        }
-                        else
-                        {
-                            text = normalized;
-                            file.UpdateBlockOffsets(owner.Order, text);
-                            fileChanged = true;
-                            ownerChanged = true;
-                            remaining--;
-                            report.Entries.Add(ReportEntry.Changed(
-                                "would_apply",
-                                file.RelativePath,
-                                owner.Id,
-                                "remarks",
-                                owner.SourceRequest?.Url ?? ""));
-                        }
-                    }
-
                     var mapping = MapOwner(owner, pages);
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
@@ -253,52 +221,20 @@ static class ImporterProgram
                     }
 
                     var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
-                    var augmentedRemarksRepair = HasAugmentedRemarksPlaceholder(file, owner);
-                    var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
-                    var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
-                    var metadataOnlyRemarksRepair = HasMetadataOnlyRemarks(file, owner);
-                    var channelOnlyMetadataRepair = HasChannelOnlySourceMetadata(
-                        file,
-                        owner,
-                        mapping.Docs!);
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
-                        (enumSummaryRepair ||
-                         augmentedRemarksRepair ||
-                         truncatedSummaryRepair ||
-                         codeExampleRepair ||
-                         metadataOnlyRemarksRepair ||
-                         channelOnlyMetadataRepair))
+                        enumSummaryRepair)
                     {
-                        var refreshed = truncatedSummaryRepair
-                            ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
-                            : text;
-                        if (!refreshed.Equals(text, StringComparison.Ordinal))
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        if (codeExampleRepair)
-                        {
-                            refreshed = ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        }
-                        if (enumSummaryRepair ||
-                            augmentedRemarksRepair ||
-                            metadataOnlyRemarksRepair ||
-                            channelOnlyMetadataRepair)
-                        {
-                            refreshed = AddSourceDocumentationIfSafe(
-                                refreshed,
-                                file,
-                                owner,
-                                mapping.Docs,
-                                allowEnumCreation: false,
-                                addMetadataForChannelOnlyMember: channelOnlyMetadataRepair);
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        }
+                        var refreshed = AddSourceDocumentationIfSafe(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs,
+                            allowEnumCreation: false);
+                        file.UpdateBlockOffsets(owner.Order, refreshed);
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
-                            var repairTarget = enumSummaryRepair || truncatedSummaryRepair
-                                ? "summary"
-                                : "remarks";
+                            var repairTarget = "summary";
                             if (remaining == 0)
                             {
                                 RestoreOffsetsAfterSkippedRepair(file, owner, text);
