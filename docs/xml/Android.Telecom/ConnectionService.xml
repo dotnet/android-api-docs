@@ -970,9 +970,9 @@
       <Docs>
         <param name="intent">The Intent that was used to bind to this service, as given to Context.bindService. Note that any extras that were included with the Intent at that point will not be seen here.</param>
         <summary>Return the communication channel to the service.</summary>
-        <returns>To be added.</returns>
+        <returns>Return an IBinder through which clients can call on to the service.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telecom/ConnectionService#onBind(android.content.Intent)" title="Reference documentation">Java documentation for <code>android.telecom.ConnectionService.onBind(android.content.Intent)</code>.</a>
@@ -1486,45 +1486,22 @@
         <returns>
           <c>Connection</c> instance corresponding to the handover call.</returns>
         <remarks>
-          <para>Called by Telecom to request that a <c>ConnectionService</c> creates an instance of an
-            incoming handover <c>Connection</c>.</para>
-          <para>A call handover is the process where an ongoing call is transferred from one app (i.e.
-            <c>ConnectionService</c> to another app.  The user could, for example, choose to continue a
-            mobile network call in a video calling app.  The mobile network call via the Telephony stack
-            is referred to as the source of the handover, and the video calling app is referred to as the
-            destination.</para>
-          <para>When considering a handover scenario the &lt;em&gt;initiating&lt;/em&gt; device is where a user initiated
-            the handover process (e.g. by calling <c>android.telecom.Call#handoverTo(
-            PhoneAccountHandle, int, Bundle)</c>, and the other device is considered the &lt;em&gt;receiving&lt;/em&gt;
-            device.</para>
-          <para>This method is called on the destination app on the &lt;em&gt;receiving&lt;/em&gt; device when the
-            destination app calls <c>TelecomManager#acceptHandover(Uri, int, PhoneAccountHandle)</c> to
-            accept an incoming handover from the &lt;em&gt;initiating&lt;/em&gt; device.</para>
-          <para>For a full discussion of the handover process and the APIs involved, see
-            <c>android.telecom.Call#handoverTo(PhoneAccountHandle, int, Bundle)</c>.</para>
-          <para>Implementations of this method should return an instance of <c>Connection</c> which
-            represents the handover.  The code below shows an example of how this is done.</para>
-          <code lang="text/java">{@code
-            public Connection onCreateIncomingHandoverConnection(PhoneAccountHandle
-                fromPhoneAccountHandle, ConnectionRequest request) {
-              // Given that your app requested to accept the handover, you should not return null here.
-              MyConnection connection = new MyConnection();
-              connection.setAddress(request.getAddress(), TelecomManager.PRESENTATION_ALLOWED);
-              connection.setVideoState(request.getVideoState());
-              return connection;
-            }
-            }
-            </code>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/telecom/ConnectionService#onCreateIncomingHandoverConnection(android.telecom.PhoneAccountHandle,%20android.telecom.ConnectionRequest)" title="Reference documentation">Java documentation for <code>android.telecom.ConnectionService.onCreateIncomingHandoverConnection(android.telecom.PhoneAccountHandle, android.telecom.ConnectionRequest)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called by Telecom to request that a ConnectionService creates an instance of an incoming handover Connection.</para>
+          <para>A call handover is the process where an ongoing call is transferred from one app (i.e. ConnectionService to another app. The user could, for example, choose to continue a mobile network call in a video calling app. The mobile network call via the Telephony stack is referred to as the source of the handover, and the video calling app is referred to as the destination.</para>
+          <para>When considering a handover scenario the initiating device is where a user initiated the handover process (e.g. by calling android.telecom.Call.handoverTo(PhoneAccountHandle,int,Bundle), and the other device is considered the receiving device.</para>
+          <para>This method is called on the destination app on the receiving device when the destination app calls TelecomManager.acceptHandover(Uri,int,PhoneAccountHandle) to accept an incoming handover from the initiating device.</para>
+          <para>For a full discussion of the handover process and the APIs involved, see android.telecom.Call.handoverTo(PhoneAccountHandle,int,Bundle).</para>
+          <para>Implementations of this method should return an instance of Connection which represents the handover. The code below shows an example of how this is done.</para>
+          <code lang="text/java">public Connection onCreateIncomingHandoverConnection(PhoneAccountHandle
+    fromPhoneAccountHandle, ConnectionRequest request) {
+  // Given that your app requested to accept the handover, you should not return null here.
+  MyConnection connection = new MyConnection();
+  connection.setAddress(request.getAddress(), TelecomManager.PRESENTATION_ALLOWED);
+  connection.setVideoState(request.getVideoState());
+  return connection;
+}</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/ConnectionService#onCreateIncomingHandoverConnection(android.telecom.PhoneAccountHandle,%20android.telecom.ConnectionRequest)" title="Reference documentation">Android reference for <code>android.telecom.ConnectionService.onCreateIncomingHandoverConnection</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
@@ -1816,49 +1793,24 @@
         <returns>
           <c>Connection</c> instance corresponding to the handover call.</returns>
         <remarks>
-          <para>Called by Telecom to request that a <c>ConnectionService</c> creates an instance of an
-            outgoing handover <c>Connection</c>.</para>
-          <para>A call handover is the process where an ongoing call is transferred from one app (i.e.
-            <c>ConnectionService</c> to another app.  The user could, for example, choose to continue a
-            mobile network call in a video calling app.  The mobile network call via the Telephony stack
-            is referred to as the source of the handover, and the video calling app is referred to as the
-            destination.</para>
-          <para>When considering a handover scenario the &lt;em&gt;initiating&lt;/em&gt; device is where a user initiated
-            the handover process (e.g. by calling <c>android.telecom.Call#handoverTo(
-            PhoneAccountHandle, int, Bundle)</c>, and the other device is considered the &lt;em&gt;receiving&lt;/em&gt;
-            device.</para>
-          <para>This method is called on the destination <c>ConnectionService</c> on &lt;em&gt;initiating&lt;/em&gt;
-            device when the user initiates a handover request from one app to another.  The user request
-            originates in the <c>InCallService</c> via
-            <c>android.telecom.Call#handoverTo(PhoneAccountHandle, int, Bundle)</c>.</para>
-          <para>For a full discussion of the handover process and the APIs involved, see
-            <c>android.telecom.Call#handoverTo(PhoneAccountHandle, int, Bundle)</c>.</para>
-          <para>Implementations of this method should return an instance of <c>Connection</c> which
-            represents the handover.  If your app does not wish to accept a handover to it at this time,
-            you can return <c>null</c>.  The code below shows an example of how this is done.</para>
-          <code lang="text/java">{@code
-            public Connection onCreateIncomingHandoverConnection(PhoneAccountHandle
-                fromPhoneAccountHandle, ConnectionRequest request) {
-              if (!isHandoverAvailable()) {
-                  return null;
-              }
-              MyConnection connection = new MyConnection();
-              connection.setAddress(request.getAddress(), TelecomManager.PRESENTATION_ALLOWED);
-              connection.setVideoState(request.getVideoState());
-              return connection;
-            }
-            }
-            </code>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/telecom/ConnectionService#onCreateOutgoingHandoverConnection(android.telecom.PhoneAccountHandle,%20android.telecom.ConnectionRequest)" title="Reference documentation">Java documentation for <code>android.telecom.ConnectionService.onCreateOutgoingHandoverConnection(android.telecom.PhoneAccountHandle, android.telecom.ConnectionRequest)</code>.</a>
-            </format>
-          </para>
-          <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Called by Telecom to request that a ConnectionService creates an instance of an outgoing handover Connection.</para>
+          <para>A call handover is the process where an ongoing call is transferred from one app (i.e. ConnectionService to another app. The user could, for example, choose to continue a mobile network call in a video calling app. The mobile network call via the Telephony stack is referred to as the source of the handover, and the video calling app is referred to as the destination.</para>
+          <para>When considering a handover scenario the initiating device is where a user initiated the handover process (e.g. by calling android.telecom.Call.handoverTo(PhoneAccountHandle,int,Bundle), and the other device is considered the receiving device.</para>
+          <para>This method is called on the destination ConnectionService on initiating device when the user initiates a handover request from one app to another. The user request originates in the InCallService via android.telecom.Call.handoverTo(PhoneAccountHandle,int,Bundle).</para>
+          <para>For a full discussion of the handover process and the APIs involved, see android.telecom.Call.handoverTo(PhoneAccountHandle,int,Bundle).</para>
+          <para>Implementations of this method should return an instance of Connection which represents the handover. If your app does not wish to accept a handover to it at this time, you can return null. The code below shows an example of how this is done.</para>
+          <code lang="text/java">public Connection onCreateIncomingHandoverConnection(PhoneAccountHandle
+    fromPhoneAccountHandle, ConnectionRequest request) {
+  if (!isHandoverAvailable()) {
+      return null;
+  }
+  MyConnection connection = new MyConnection();
+  connection.setAddress(request.getAddress(), TelecomManager.PRESENTATION_ALLOWED);
+  connection.setVideoState(request.getVideoState());
+  return connection;
+}</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/ConnectionService#onCreateOutgoingHandoverConnection(android.telecom.PhoneAccountHandle,%20android.telecom.ConnectionRequest)" title="Reference documentation">Android reference for <code>android.telecom.ConnectionService.onCreateOutgoingHandoverConnection</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>
