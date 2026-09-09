@@ -231,9 +231,9 @@ static class ImporterProgram
                             owner,
                             mapping.Docs,
                             allowEnumCreation: false);
-                        file.UpdateBlockOffsets(owner.Order, refreshed);
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
                             var repairTarget = "summary";
                             if (remaining == 0)
                             {
