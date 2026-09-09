@@ -152,38 +152,6 @@ static class ImporterProgram
                     var importedSourceChannel = false;
                     var replacedRemarksPlaceholder = false;
                     var deferredRemarksPlaceholder = false;
-                    var normalized = NormalizeStaleNestedConstructorLinks(
-                        text,
-                        file.DocsBlocks[owner.Order]);
-                    if (!normalized.Equals(text, StringComparison.Ordinal))
-                    {
-                        if (remaining == 0)
-                        {
-                            file.UpdateBlockOffsets(owner.Order, text);
-                            report.Entries.Add(ReportEntry.Skipped(
-                                file.RelativePath,
-                                owner.Id,
-                                "remarks",
-                                "max_changes_reached",
-                                $"The --max-changes limit of {options.MaxChanges} was reached.",
-                                owner.SourceRequest?.Url ?? ""));
-                        }
-                        else
-                        {
-                            text = normalized;
-                            file.UpdateBlockOffsets(owner.Order, text);
-                            fileChanged = true;
-                            ownerChanged = true;
-                            remaining--;
-                            report.Entries.Add(ReportEntry.Changed(
-                                "would_apply",
-                                file.RelativePath,
-                                owner.Id,
-                                "remarks",
-                                owner.SourceRequest?.Url ?? ""));
-                        }
-                    }
-
                     var mapping = MapOwner(owner, pages);
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
@@ -306,9 +274,8 @@ static class ImporterProgram
                         }
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
-                            var repairTarget = enumSummaryRepair || truncatedSummaryRepair
-                                ? "summary"
-                                : "remarks";
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
+                            var repairTarget = "summary";
                             if (remaining == 0)
                             {
                                 RestoreOffsetsAfterSkippedRepair(file, owner, text);
@@ -1316,8 +1283,7 @@ static class ImporterProgram
         }
 
         var summaryElement = XElement.Parse(summary.Value, LoadOptions.PreserveWhitespace);
-        var isTruncated = HasTruncatedSummaryEnding(summaryElement.Value.TrimEnd()) ||
-            summaryElement.Elements("para")
+        var hasIncompleteContentParagraph = summaryElement.Elements("para")
                 .Where(paragraph => !paragraph.Descendants("a").Any(link =>
                     (string?)link.Attribute("title") == "Reference documentation" ||
                     ((string?)link.Attribute("href"))?.Equals(
@@ -1326,8 +1292,21 @@ static class ImporterProgram
                 .Any(paragraph =>
                     HasTruncatedSummaryEnding(paragraph.Value.TrimEnd()) ||
                     paragraph.Value.Contains(":;", StringComparison.Ordinal));
+        var isTruncated = HasTruncatedSummaryEnding(summaryElement.Value.TrimEnd()) ||
+            hasIncompleteContentParagraph;
         if (!isTruncated)
             return text;
+
+        if (!hasIncompleteContentParagraph)
+        {
+            var existingSummary = NormalizeText(summary.Groups["value"].Value);
+            var sourceSummary = NormalizeText(docs.Summary);
+            if (sourceSummary.Length <= existingSummary.Length ||
+                !sourceSummary.StartsWith(existingSummary, StringComparison.Ordinal))
+            {
+                return text;
+            }
+        }
 
         var valueStart = summary.Groups["value"].Index;
         var valueEnd = valueStart + summary.Groups["value"].Length;
@@ -1336,10 +1315,10 @@ static class ImporterProgram
     }
 
     static bool HasTruncatedSummaryEnding(string summary) =>
-        summary.EndsWith("e.g.", StringComparison.OrdinalIgnoreCase) ||
-        summary.EndsWith("i.e.", StringComparison.OrdinalIgnoreCase) ||
-        summary.EndsWith("vs.", StringComparison.OrdinalIgnoreCase) ||
-        summary.EndsWith("...", StringComparison.Ordinal);
+        Regex.IsMatch(
+            summary,
+            @"\b(?:e\.g\.|i\.e\.|vs\.|etc\.|\.\.\.)[\)\]\}]?$",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     static bool HasImporterSourceReference(LoadedFile file, DocsOwner owner)
     {
@@ -1961,6 +1940,52 @@ static class ImporterProgram
             },
             "String convenience overload maps to the exact CharSequence JNI descriptor");
         Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Telecom.PhoneAccount.Builder.SetShortDescription(System.String)") is
+            {
+                Registration.Name: "setShortDescription",
+                Registration.Descriptor: "(Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;",
+                SourceRequest.JavaPath: "android/telecom/PhoneAccount$Builder",
+            } &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Telecom.PhoneAccount.InvokeBuilder(Android.Telecom.PhoneAccountHandle,System.String)") is
+            {
+                Registration.Name: "builder",
+                Registration.Descriptor: "(Landroid/telecom/PhoneAccountHandle;Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;",
+                SourceRequest.JavaPath: "android/telecom/PhoneAccount",
+            },
+            "Telecom String convenience overloads map to exact CharSequence JNI counterparts");
+        var telecomStringPropertyMappings = new Dictionary<string, (string JavaPath, string JavaName)>
+        {
+            ["P:Android.Telecom.CallAttributes.DisplayName"] =
+                ("android/telecom/CallAttributes", "getDisplayName"),
+            ["P:Android.Telecom.CallEndpoint.EndpointName"] =
+                ("android/telecom/CallEndpoint", "getEndpointName"),
+            ["P:Android.Telecom.DisconnectCause.Description"] =
+                ("android/telecom/DisconnectCause", "getDescription"),
+            ["P:Android.Telecom.DisconnectCause.Label"] =
+                ("android/telecom/DisconnectCause", "getLabel"),
+            ["P:Android.Telecom.PhoneAccount.Label"] =
+                ("android/telecom/PhoneAccount", "getLabel"),
+            ["P:Android.Telecom.PhoneAccount.ShortDescription"] =
+                ("android/telecom/PhoneAccount", "getShortDescription"),
+            ["P:Android.Telecom.RemoteConnection.CallerDisplayName"] =
+                ("android/telecom/RemoteConnection", "getCallerDisplayName"),
+            ["P:Android.Telecom.StatusHints.Label"] =
+                ("android/telecom/StatusHints", "getLabel"),
+        };
+        Assert(
+            telecomStringPropertyMappings.All(item =>
+                SourceVerifiedMemberMappings.Resolve(item.Key) is
+                {
+                    Registration.Name: var name,
+                    Registration.Descriptor: "()Ljava/lang/CharSequence;",
+                    SourceRequest.JavaPath: var path,
+                } &&
+                name == item.Value.JavaName &&
+                path == item.Value.JavaPath),
+            "Telecom String property aliases map to exact CharSequence getter counterparts");
+        Assert(
             LoadedFile.SelectNewline("first\nsecond\r\nthird\n") == "\n",
             "mixed-newline files preserve their predominant line ending");
         var jniTypeSignature = XElement.Parse(
@@ -2197,6 +2222,25 @@ static class ImporterProgram
         Assert(
             terminalAbbreviationPage.TypeDocs?.Summary == "Uses a value (e.g.)",
             "sentence-ending abbreviations with closing delimiters do not over-merge");
+        var lowercaseContinuationPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "Represents a fixture widget. The widget is used only by local importer tests.",
+                "Returns the index (e.g. 1st event, 2nd event, etc.) of this event in the selection session.",
+                StringComparison.Ordinal));
+        Assert(
+            lowercaseContinuationPage.TypeDocs?.Summary ==
+                "Returns the index (e.g. 1st event, 2nd event, etc.) of this event in the selection session.",
+            "abbreviations before a closing delimiter retain lowercase continuations");
+        var nonAbbreviationDelimiterPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "Represents a fixture widget. The widget is used only by local importer tests.",
+                "Completes the operation (value.). callback is then invoked.",
+                StringComparison.Ordinal));
+        Assert(
+            nonAbbreviationDelimiterPage.TypeDocs?.Summary == "Completes the operation (value.).",
+            "closing delimiters do not extend non-abbreviation sentences");
 
         var setTitle = file.Owners.Single(owner => owner.Id.Contains("SetTitle", StringComparison.Ordinal));
         var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
@@ -2214,6 +2258,24 @@ static class ImporterProgram
                 MapOwner(implementedComparator, pages).Docs?.Summary ==
                     "Compares two fixture objects.",
             "implemented interface resolves through the exact canonical registration");
+        var textClassifierExtension = SourceVerifiedMemberMappings.Resolve(
+            "M:Android.Views.TextClassifiers.ITextClassifierExtensions.ClassifyText(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)");
+        Assert(
+            textClassifierExtension is not null &&
+                textClassifierExtension.Registration.Name == "classifyText" &&
+                textClassifierExtension.Registration.Descriptor ==
+                    "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextClassification;" &&
+                textClassifierExtension.SourceRequest.JavaPath == "android/view/textclassifier/TextClassifier",
+            "TextClassifier string extension resolves to the receiver's exact CharSequence member");
+        var textSelectionExtension = SourceVerifiedMemberMappings.Resolve(
+            "M:Android.Views.TextClassifiers.ITextClassifierExtensions.SuggestSelection(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)");
+        Assert(
+            textSelectionExtension is not null &&
+                textSelectionExtension.Registration.Name == "suggestSelection" &&
+                textSelectionExtension.Registration.Descriptor ==
+                    "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;" &&
+                textSelectionExtension.SourceRequest.JavaPath == "android/view/textclassifier/TextClassifier",
+            "TextClassifier selection extension resolves to the receiver's exact CharSequence member");
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
@@ -2325,16 +2387,31 @@ static class ImporterProgram
             "<summary>To be added.</summary>",
             "<summary>Distinguishes fixtures...</summary>",
             StringComparison.Ordinal);
+        var truncatedSummaryDocs = mappedDocs with
+        {
+            Summary = "Distinguishes fixtures... with the exact source mapping.",
+        };
+        file.UpdateBlockOffsets(setTitle.Order, truncatedSummaryText);
         var repairedSummaryText = ReplaceTruncatedSummary(
             truncatedSummaryText,
             file,
             setTitle,
-            mappedDocs);
+            truncatedSummaryDocs);
         Assert(
             repairedSummaryText.Contains(
-                "<summary>Sets the widget title.</summary>",
+                "<summary>Distinguishes fixtures... with the exact source mapping.</summary>",
                 StringComparison.Ordinal),
             "ellipsis-truncated importer summary is replaced from source");
+        var completeSummaryText = file.Text.Replace(
+            "<summary>To be added.</summary>",
+            "<summary>Locally authored complete summary (etc.)</summary>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, completeSummaryText);
+        Assert(
+            ReplaceTruncatedSummary(completeSummaryText, file, setTitle, mappedDocs)
+                .Equals(completeSummaryText, StringComparison.Ordinal),
+            "non-prefix source summaries do not overwrite existing documentation");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var titleParameter = setTitle.Placeholders.Single(item => item.Name == "param");
         Assert(
             ReplacementFor(titleParameter, mappedDocs).Text == "the title to display",
@@ -3947,6 +4024,26 @@ static class ImporterProgram
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CI)I"),
                 ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32,System.Int32)"] =
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CII)I"),
+                ["M:Android.Telecom.PhoneAccount.Builder.SetShortDescription(System.String)"] =
+                    Mapping("android/telecom/PhoneAccount$Builder", "setShortDescription", "(Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
+                ["M:Android.Telecom.PhoneAccount.InvokeBuilder(Android.Telecom.PhoneAccountHandle,System.String)"] =
+                    Mapping("android/telecom/PhoneAccount", "builder", "(Landroid/telecom/PhoneAccountHandle;Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
+                ["P:Android.Telecom.CallAttributes.DisplayName"] =
+                    Mapping("android/telecom/CallAttributes", "getDisplayName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.CallEndpoint.EndpointName"] =
+                    Mapping("android/telecom/CallEndpoint", "getEndpointName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.DisconnectCause.Description"] =
+                    Mapping("android/telecom/DisconnectCause", "getDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.DisconnectCause.Label"] =
+                    Mapping("android/telecom/DisconnectCause", "getLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.PhoneAccount.Label"] =
+                    Mapping("android/telecom/PhoneAccount", "getLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.PhoneAccount.ShortDescription"] =
+                    Mapping("android/telecom/PhoneAccount", "getShortDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.RemoteConnection.CallerDisplayName"] =
+                    Mapping("android/telecom/RemoteConnection", "getCallerDisplayName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.StatusHints.Label"] =
+                    Mapping("android/telecom/StatusHints", "getLabel", "()Ljava/lang/CharSequence;"),
                 ["M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/BaseInputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.BaseInputConnection.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
@@ -3969,6 +4066,10 @@ static class ImporterProgram
                     Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setLayoutLabelNonLocalized", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
                 ["M:Android.Views.InputMethods.InputMethodSubtype.InputMethodSubtypeBuilder.SetSubtypeNameOverride(System.String)"] =
                     Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setSubtypeNameOverride", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
+                ["M:Android.Views.TextClassifiers.ITextClassifierExtensions.ClassifyText(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)"] =
+                    Mapping("android/view/textclassifier/TextClassifier", "classifyText", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextClassification;"),
+                ["M:Android.Views.TextClassifiers.ITextClassifierExtensions.SuggestSelection(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)"] =
+                    Mapping("android/view/textclassifier/TextClassifier", "suggestSelection", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
@@ -4980,14 +5081,12 @@ static class ImporterProgram
 
         static bool IsAbbreviation(string text, int periodIndex)
         {
-            if (HasClosingDelimiterBoundary(text, periodIndex))
-                return false;
             var tokenStart = periodIndex;
             while (tokenStart > 0 && !char.IsWhiteSpace(text[tokenStart - 1]))
                 tokenStart--;
             var token = text[tokenStart..(periodIndex + 1)]
                 .Trim('(', ')', '[', ']', '{', '}', '"', '\'');
-            return token.Equals("e.g.", StringComparison.OrdinalIgnoreCase) ||
+            var isAbbreviation = token.Equals("e.g.", StringComparison.OrdinalIgnoreCase) ||
                 token.Equals("i.e.", StringComparison.OrdinalIgnoreCase) ||
                 token.Equals("vs.", StringComparison.OrdinalIgnoreCase) ||
                 token.Equals("etc.", StringComparison.OrdinalIgnoreCase) ||
@@ -4995,6 +5094,16 @@ static class ImporterProgram
                     token,
                     @"^(?:[A-Za-z]\.){2,}$",
                     RegexOptions.CultureInvariant);
+            if (HasClosingDelimiterBoundary(text, periodIndex))
+            {
+                var next = periodIndex + 1;
+                while (next < text.Length && text[next] is ')' or ']' or '}')
+                    next++;
+                while (next < text.Length && char.IsWhiteSpace(text[next]))
+                    next++;
+                return isAbbreviation && next < text.Length && char.IsLower(text[next]);
+            }
+            return isAbbreviation;
         }
 
         static bool HasClosingDelimiterBoundary(string text, int periodIndex)
