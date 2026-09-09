@@ -2503,6 +2503,16 @@ static class ImporterProgram
         Assert(length.ArgumentDescriptors?.Count == 0, "Java no-argument descriptor");
         Assert(length.Docs?.Returns == "the length of this string", "Java return extraction");
         Assert(
+            Descriptor.FromAnchor(
+                "set(android.hardware.camera2.CaptureRequest.Key<T>,T)",
+                "android/hardware/camera2/CaptureRequest$Builder")?.SequenceEqual(
+                    [
+                        "Landroid/hardware/camera2/CaptureRequest$Key;",
+                        "Ljava/lang/Object;",
+                    ],
+                    StringComparer.Ordinal) == true,
+            "generic Java type variables erase to Object descriptors");
+        Assert(
             length.Docs?.Summary == "Returns the length of this string." &&
                 !length.Docs.Paragraphs.Any(
                     paragraph => paragraph.Text.Contains("Deprecated", StringComparison.Ordinal)),
@@ -5089,6 +5099,13 @@ static class ImporterProgram
             if (Primitive.TryGetValue(value, out var primitive))
             {
                 descriptor = primitive;
+            }
+            else if (Regex.IsMatch(
+                value,
+                @"^[A-Z]$",
+                RegexOptions.CultureInvariant))
+            {
+                descriptor = "Ljava/lang/Object;";
             }
             else
             {
