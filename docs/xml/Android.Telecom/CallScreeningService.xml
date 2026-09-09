@@ -34,80 +34,40 @@
             <c>TelecomManager#getDefaultDialerPackage()</c>) or a third party app to allow or disallow
             incoming calls before they are shown to a user.</summary>
     <remarks>
-      <para>This service can be implemented by the default dialer (see
-            <c>TelecomManager#getDefaultDialerPackage()</c>) or a third party app to allow or disallow
-            incoming calls before they are shown to a user. A <c>CallScreeningService</c> can also see
-            outgoing calls for the purpose of providing caller ID services for those calls.</para>
-      <para>Below is an example manifest registration for a <c>CallScreeningService</c>.</para>
-      <code lang="text/java">{@code
-            &lt;service android:name="your.package.YourCallScreeningServiceImplementation"
-                     android:permission="android.permission.BIND_SCREENING_SERVICE"&gt;
-                 &lt;intent-filter&gt;
-                     &lt;action android:name="android.telecom.CallScreeningService"/&gt;
-                 &lt;/intent-filter&gt;
-            &lt;/service&gt;
-            }
-            </code>
-      <para>A CallScreeningService performs two functions:
-            &lt;ol&gt;
-                &lt;li&gt;Call blocking/screening - the service can choose which calls will ring on the user's
-                device, and which will be silently sent to voicemail.&lt;/li&gt;
-                &lt;li&gt;Call identification - services which provide call identification functionality can
-                display a user-interface of their choosing which contains identifying information for a call.
-                &lt;/li&gt;
-            &lt;/ol&gt;</para>
-      <para>&lt;h2&gt;Becoming the CallScreeningService&lt;/h2&gt;
-            Telecom will bind to a single app chosen by the user which implements the
-            <c>CallScreeningService</c> API when there are new incoming and outgoing calls.</para>
-      <para>The code snippet below illustrates how your app can request that it fills the call screening
-            role.</para>
-      <code lang="text/java">{@code
-            private static final int REQUEST_ID = 1;
-            
-            public void requestRole() {
-                RoleManager roleManager = (RoleManager) getSystemService(ROLE_SERVICE);
-                Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING);
-                startActivityForResult(intent, REQUEST_ID);
-            }
-            
-            &amp;#64;Override
-            public void onActivityResult(int requestCode, int resultCode, Intent data) {
-                if (requestCode == REQUEST_ID) {
-                    if (resultCode == android.app.Activity.RESULT_OK) {
-                        // Your app is now the call screening app
-                    } else {
-                        // Your app is not the call screening app
-                    }
-                }
-            }
-            }
-            </code>
-      <para>&lt;h2&gt;CallScreeningService Lifecycle&lt;/h2&gt;
-            
-            The framework binds to the <c>CallScreeningService</c> implemented by the user-chosen app
-            filling the <c>android.app.role.RoleManager#ROLE_CALL_SCREENING</c> role when incoming calls are
-            received (prior to ringing) and when outgoing calls are placed.  The platform calls the
-            <c>#onScreenCall(Call.Details)</c> method to provide your service with details about the call.</para>
-      <para>For incoming calls, the <c>CallScreeningService</c> must call
-            <c>#respondToCall(Call.Details, CallResponse)</c> within 5 seconds of being bound to indicate to
-            the platform whether the call should be blocked or not.  Your app must do this even if it is
-            primarily performing caller ID operations and not screening calls.  It is important to perform
-            screening operations in a timely matter as the user's device will not begin ringing until the
-            response is received (or the timeout is hit).  A <c>CallScreeningService</c> may choose to
-            perform local database lookups to help determine if a call should be screened or not; care should
-            be taken to ensure the timeout is not repeatedly hit, causing delays in the incoming call flow.</para>
-      <para>If your app provides a caller ID experience, it should launch an activity to show the caller ID
-            information from <c>#onScreenCall(Call.Details)</c>.</para>
-      <para>
-        <format type="text/html">
-          <a href="https://developer.android.com/reference/android/telecom/CallScreeningService" title="Reference documentation">Java documentation for <code>android.telecom.CallScreeningService</code>.</a>
-        </format>
-      </para>
-      <para>
-                    Portions of this page are modifications based on work created and shared by the 
-                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
-                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>This service can be implemented by the default dialer (see TelecomManager.getDefaultDialerPackage()) or a third party app to allow or disallow incoming calls before they are shown to a user. A CallScreeningService can also see outgoing calls for the purpose of providing caller ID services for those calls.</para>
+      <para>Below is an example manifest registration for a CallScreeningService.</para>
+      <code lang="text/java">&lt;service android:name="your.package.YourCallScreeningServiceImplementation"
+         android:permission="android.permission.BIND_SCREENING_SERVICE"&gt;
+     &lt;intent-filter&gt;
+         &lt;action android:name="android.telecom.CallScreeningService"/&gt;
+     &lt;/intent-filter&gt;
+&lt;/service&gt;</code>
+      <para>A CallScreeningService performs two functions: Call blocking/screening - the service can choose which calls will ring on the user's device, and which will be silently sent to voicemail; Call identification - services which provide call identification functionality can display a user-interface of their choosing which contains identifying information for a call.</para>
+      <para>Becoming the CallScreeningService Telecom will bind to a single app chosen by the user which implements the CallScreeningService API when there are new incoming and outgoing calls.</para>
+      <para>The code snippet below illustrates how your app can request that it fills the call screening role.</para>
+      <code lang="text/java">private static final int REQUEST_ID = 1;
+
+public void requestRole() {
+    RoleManager roleManager = (RoleManager) getSystemService(ROLE_SERVICE);
+    Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING);
+    startActivityForResult(intent, REQUEST_ID);
+}
+
+&amp;#64;Override
+public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == REQUEST_ID) {
+        if (resultCode == android.app.Activity.RESULT_OK) {
+            // Your app is now the call screening app
+        } else {
+            // Your app is not the call screening app
+        }
+    }
+}</code>
+      <para>CallScreeningService Lifecycle The framework binds to the CallScreeningService implemented by the user-chosen app filling the RoleManager.ROLE_CALL_SCREENING role when incoming calls are received (prior to ringing) and when outgoing calls are placed. The platform calls the onScreenCall(Call.Details) method to provide your service with details about the call.</para>
+      <para>For incoming calls, the CallScreeningService must call respondToCall(Call.Details,CallResponse) within 5 seconds of being bound to indicate to the platform whether the call should be blocked or not. Your app must do this even if it is primarily performing caller ID operations and not screening calls. It is important to perform screening operations in a timely matter as the user's device will not begin ringing until the response is received (or the timeout is hit). A CallScreeningService may choose to perform local database lookups to help determine if a call should be screened or not; care should be taken to ensure the timeout is not repeatedly hit, causing delays in the incoming call flow.</para>
+      <para>If your app provides a caller ID experience, it should launch an activity to show the caller ID information from onScreenCall(Call.Details).</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/CallScreeningService" title="Reference documentation">Android reference for <code>android.telecom.CallScreeningService</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -223,10 +183,13 @@
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="intent">The Intent that was used to bind to this service, as given to Context.bindService. Note that any extras that were included with the Intent at that point will not be seen here.</param>
+        <summary>Return the communication channel to the service.</summary>
+        <returns>Return an IBinder through which clients can call on to the service.</returns>
         <remarks>
+          <para>Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.</para>
+          <para>Note that unlike other application components, calls on to the IBinder interface returned here may not happen on the main thread of the process. More information about the main thread can be found in Processes and Threads.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/CallScreeningService#onBind(android.content.Intent)" title="Reference documentation">Android reference for <code>android.telecom.CallScreeningService.onBind</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
