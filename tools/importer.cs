@@ -1843,6 +1843,36 @@ static class ImporterProgram
                 SourceRequest.JavaPath: "android/telecom/PhoneAccount",
             },
             "Telecom String convenience overloads map to exact CharSequence JNI counterparts");
+        var telecomStringPropertyMappings = new Dictionary<string, (string JavaPath, string JavaName)>
+        {
+            ["P:Android.Telecom.CallAttributes.DisplayName"] =
+                ("android/telecom/CallAttributes", "getDisplayName"),
+            ["P:Android.Telecom.CallEndpoint.EndpointName"] =
+                ("android/telecom/CallEndpoint", "getEndpointName"),
+            ["P:Android.Telecom.DisconnectCause.Description"] =
+                ("android/telecom/DisconnectCause", "getDescription"),
+            ["P:Android.Telecom.DisconnectCause.Label"] =
+                ("android/telecom/DisconnectCause", "getLabel"),
+            ["P:Android.Telecom.PhoneAccount.Label"] =
+                ("android/telecom/PhoneAccount", "getLabel"),
+            ["P:Android.Telecom.PhoneAccount.ShortDescription"] =
+                ("android/telecom/PhoneAccount", "getShortDescription"),
+            ["P:Android.Telecom.RemoteConnection.CallerDisplayName"] =
+                ("android/telecom/RemoteConnection", "getCallerDisplayName"),
+            ["P:Android.Telecom.StatusHints.Label"] =
+                ("android/telecom/StatusHints", "getLabel"),
+        };
+        Assert(
+            telecomStringPropertyMappings.All(item =>
+                SourceVerifiedMemberMappings.Resolve(item.Key) is
+                {
+                    Registration.Name: var name,
+                    Registration.Descriptor: "()Ljava/lang/CharSequence;",
+                    SourceRequest.JavaPath: var path,
+                } &&
+                name == item.Value.JavaName &&
+                path == item.Value.JavaPath),
+            "Telecom String property aliases map to exact CharSequence getter counterparts");
         Assert(
             LoadedFile.SelectNewline("first\nsecond\r\nthird\n") == "\n",
             "mixed-newline files preserve their predominant line ending");
@@ -3819,6 +3849,22 @@ static class ImporterProgram
                     Mapping("android/telecom/PhoneAccount$Builder", "setShortDescription", "(Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
                 ["M:Android.Telecom.PhoneAccount.InvokeBuilder(Android.Telecom.PhoneAccountHandle,System.String)"] =
                     Mapping("android/telecom/PhoneAccount", "builder", "(Landroid/telecom/PhoneAccountHandle;Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
+                ["P:Android.Telecom.CallAttributes.DisplayName"] =
+                    Mapping("android/telecom/CallAttributes", "getDisplayName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.CallEndpoint.EndpointName"] =
+                    Mapping("android/telecom/CallEndpoint", "getEndpointName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.DisconnectCause.Description"] =
+                    Mapping("android/telecom/DisconnectCause", "getDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.DisconnectCause.Label"] =
+                    Mapping("android/telecom/DisconnectCause", "getLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.PhoneAccount.Label"] =
+                    Mapping("android/telecom/PhoneAccount", "getLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.PhoneAccount.ShortDescription"] =
+                    Mapping("android/telecom/PhoneAccount", "getShortDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.RemoteConnection.CallerDisplayName"] =
+                    Mapping("android/telecom/RemoteConnection", "getCallerDisplayName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.StatusHints.Label"] =
+                    Mapping("android/telecom/StatusHints", "getLabel", "()Ljava/lang/CharSequence;"),
                 ["M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/BaseInputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.BaseInputConnection.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
