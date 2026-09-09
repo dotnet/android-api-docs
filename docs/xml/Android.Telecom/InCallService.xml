@@ -33,107 +33,202 @@
     <summary>This service is implemented by an app that wishes to provide functionality for managing
             phone calls.</summary>
     <remarks>
-      <para>This service is implemented by an app that wishes to provide functionality for managing phone calls. Becoming the Default Phone App The default dialer/phone app is one which provides the in-call user interface while the device is in a call. It also provides the user with a means to initiate calls and see a history of calls on their device. A device is bundled with a system provided default dialer/phone app. The user may choose a single app to take over this role from the system app. An app which wishes to fulfill this role uses the RoleManager to request that they fill the RoleManager.ROLE_DIALER role.</para>
-      <para>The default phone app provides a user interface while the device is in a call, and the device is not in car mode (i.e. UiModeManager.getCurrentModeType() is not Configuration.UI_MODE_TYPE_CAR).</para>
-      <para>In order to fill the RoleManager.ROLE_DIALER role, an app must meet a number of requirements: It must handle the Intent.ACTION_DIAL intent. This means the app must provide a dial pad UI for the user to initiate outgoing calls; It must fully implement the InCallService API and provide both an incoming call UI, as well as an ongoing call UI</para>
-      <para>Note: If the app filling the RoleManager.ROLE_DIALER returns a null InCallService during binding, the Telecom framework will automatically fall back to using the dialer app preloaded on the device. The system will display a notification to the user to let them know that their call was continued using the preloaded dialer app. Your app should never return a null binding; doing so means it does not fulfil the requirements of RoleManager.ROLE_DIALER.</para>
-      <para>Note: If your app fills RoleManager.ROLE_DIALER and makes changes at runtime which cause it to no longer fulfil the requirements of this role, RoleManager will automatically remove your app from the role and close your app. For example, if you use android.content.pm.PackageManager.setComponentEnabledSetting(ComponentName,int,int) to programmatically disable the InCallService your app declares in its manifest, your app will no longer fulfil the requirements expected of RoleManager.ROLE_DIALER.</para>
-      <para>The preloaded dialer will ALWAYS be used when the user places an emergency call, even if your app fills the RoleManager.ROLE_DIALER role. To ensure an optimal experience when placing an emergency call, the default dialer should ALWAYS use android.telecom.TelecomManager.placeCall(Uri,Bundle) to place calls (including emergency calls). This ensures that the platform is able to verify that the request came from the default dialer. If a non-preloaded dialer app uses Intent.ACTION_CALL to place an emergency call, it will be raised to the preloaded dialer app using Intent.ACTION_DIAL for confirmation; this is a suboptimal user experience.</para>
-      <para>Below is an example manifest registration for an InCallService. The meta-data TelecomManager.METADATA_IN_CALL_SERVICE_UI indicates that this particular InCallService implementation intends to replace the built-in in-call UI. The meta-data TelecomManager.METADATA_IN_CALL_SERVICE_RINGING indicates that this InCallService will play the ringtone for incoming calls. See below for more information on showing the incoming call UI and playing the ringtone in your app.</para>
-      <code lang="text/java">&lt;service android:name="your.package.YourInCallServiceImplementation"
-         android:permission="android.permission.BIND_INCALL_SERVICE"
-         android:exported="true"&gt;
-     &lt;meta-data android:name="android.telecom.IN_CALL_SERVICE_UI" android:value="true" /&gt;
-     &lt;meta-data android:name="android.telecom.IN_CALL_SERVICE_RINGING"
-         android:value="true" /&gt;
-     &lt;intent-filter&gt;
-         &lt;action android:name="android.telecom.InCallService"/&gt;
-     &lt;/intent-filter&gt;
-&lt;/service&gt;</code>
-      <para>Note: You should NOT mark your InCallService with the attribute android:exported="false"; doing so can result in a failure to bind to your implementation during calls.</para>
-      <para>In addition to implementing the InCallService API, you must also declare an activity in your manifest which handles the Intent.ACTION_DIAL intent.</para>
-      <code lang="text/java">&lt;activity android:name="your.package.YourDialerActivity"
-          android:label="@string/yourDialerActivityLabel"&gt;
-     &lt;intent-filter&gt;
-          &lt;action android:name="android.intent.action.DIAL" /&gt;
-          &lt;category android:name="android.intent.category.DEFAULT" /&gt;
-     &lt;/intent-filter&gt;
-     &lt;intent-filter&gt;
-          &lt;action android:name="android.intent.action.DIAL" /&gt;
-          &lt;category android:name="android.intent.category.DEFAULT" /&gt;
-          &lt;data android:scheme="tel" /&gt;
-     &lt;/intent-filter&gt;
-&lt;/activity&gt;</code>
-      <para>When a user installs your application and runs it for the first time, you should use the RoleManager to prompt the user to see if they would like your app to be the new default phone app.</para>
-      <code lang="text/java">private static final int REQUEST_ID = 1;
-
-public void requestRole() {
-    RoleManager roleManager = (RoleManager) getSystemService(ROLE_SERVICE);
-    Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
-    startActivityForResult(intent, REQUEST_ID);
-}
-
-&amp;#64;Override
-public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == REQUEST_ID) {
-        if (resultCode == android.app.Activity.RESULT_OK) {
-            // Your app is now the default dialer app
-        } else {
-            // Your app is not the default dialer app
-        }
-    }
-}</code>
-      <para>Access to InCallService for Wearable Devices If your app is a third-party companion app and wants to access InCallService APIs, what your app could do are:; Declare MANAGE_ONGOING_CALLS permission in your manifest; Associate with a physical wearable device via the CompanionDeviceManager API as a companion app. See: https://developer.android.com/guide/topics/connectivity/companion-device-pairing; Implement this InCallService with BIND_INCALL_SERVICE permission</para>
-      <para>Showing the Incoming Call Notification When your app receives a new incoming call via InCallService.onCallAdded(Call), it is responsible for displaying an incoming call UI for the incoming call. It should do this using NotificationManager APIs to post a new incoming call notification.</para>
-      <para>Where your app declares the meta-data TelecomManager.METADATA_IN_CALL_SERVICE_RINGING, it is responsible for playing the ringtone for incoming calls. Your app should create a NotificationChannel which specifies the desired ringtone.</para>
-      <code lang="text/java">NotificationChannel channel = new NotificationChannel(YOUR_CHANNEL_ID, "Incoming Calls",
-         NotificationManager.IMPORTANCE_MAX);
-// other channel setup stuff goes here.
-
-// We'll use the default system ringtone for our incoming call notification channel.  You can
-// use your own audio resource here.
-Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-channel.setSound(ringtoneUri, new AudioAttributes.Builder()
-         // Setting the AudioAttributes is important as it identifies the purpose of your
-         // notification sound.
-         .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-     .build());
-
-NotificationManager mgr = getSystemService(NotificationManager.class);
-mgr.createNotificationChannel(channel);</code>
-      <para>When your app receives a new incoming call, it creates a Notification for the incoming call and associates it with your incoming call notification channel. You can specify a PendingIntent on the notification which will launch your full screen incoming call UI. The notification manager framework will display your notification as a heads-up notification if the user is actively using the phone. When the user is not using the phone, your full-screen incoming call UI is used instead.</para>
-      <code lang="text/java">// Create an intent which triggers your fullscreen incoming call user interface.
-Intent intent = new Intent(Intent.ACTION_MAIN, null);
-intent.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION | Intent.FLAG_ACTIVITY_NEW_TASK);
-intent.setClass(context, YourIncomingCallActivity.class);
-PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_MUTABLE_UNAUDITED);
-
-// Build the notification as an ongoing high priority item; this ensures it will show as
-// a heads up notification which slides down over top of the current content.
-final Notification.Builder builder = new Notification.Builder(context);
-builder.setOngoing(true);
-builder.setPriority(Notification.PRIORITY_HIGH);
-
-// Set notification content intent to take user to the fullscreen UI if user taps on the
-// notification body.
-builder.setContentIntent(pendingIntent);
-// Set full screen intent to trigger display of the fullscreen UI when the notification
-// manager deems it appropriate.
-builder.setFullScreenIntent(pendingIntent, true);
-
-// Setup notification content.
-builder.setSmallIcon( yourIconResourceId );
-builder.setContentTitle("Your notification title");
-builder.setContentText("Your notification content.");
-
-// Use builder.addAction(..) to add buttons to answer or reject the call.
-
-NotificationManager notificationManager = mContext.getSystemService(
-    NotificationManager.class);
-notificationManager.notify(YOUR_CHANNEL_ID, YOUR_TAG, YOUR_ID, builder.build());</code>
-      <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/InCallService" title="Reference documentation">Android reference for <code>android.telecom.InCallService</code>.</a></format></para>
-      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+      <para>This service is implemented by an app that wishes to provide functionality for managing
+            phone calls.
+            &lt;h2&gt;Becoming the Default Phone App&lt;/h2&gt;
+            The default dialer/phone app is one which provides the in-call user interface while the device is
+            in a call.  It also provides the user with a means to initiate calls and see a history of calls
+            on their device.  A device is bundled with a system provided default dialer/phone app.  The user
+            may choose a single app to take over this role from the system app.  An app which wishes to
+            fulfill this role uses the <c>android.app.role.RoleManager</c> to request that they fill the
+            <c>android.app.role.RoleManager#ROLE_DIALER</c> role.</para>
+      <para>The default phone app provides a user interface while the device is in a call, and the device is
+            not in car mode (i.e. <c>UiModeManager#getCurrentModeType()</c> is not
+            <c>android.content.res.Configuration#UI_MODE_TYPE_CAR</c>).</para>
+      <para>In order to fill the <c>android.app.role.RoleManager#ROLE_DIALER</c> role, an app must meet a
+            number of requirements:
+            &lt;ul&gt;
+                &lt;li&gt;It must handle the <c>Intent#ACTION_DIAL</c> intent.  This means the app must provide
+                a dial pad UI for the user to initiate outgoing calls.&lt;/li&gt;
+                &lt;li&gt;It must fully implement the <c>InCallService</c> API and provide both an incoming call
+                UI, as well as an ongoing call UI.&lt;/li&gt;
+            &lt;/ul&gt;</para>
+      <para>Note: If the app filling the <c>android.app.role.RoleManager#ROLE_DIALER</c> returns a
+            <c>null</c><c>InCallService</c> during binding, the Telecom framework will automatically fall
+            back to using the dialer app preloaded on the device.  The system will display a notification to
+            the user to let them know that their call was continued using the preloaded dialer app.  Your
+            app should never return a <c>null</c> binding; doing so means it does not fulfil the
+            requirements of <c>android.app.role.RoleManager#ROLE_DIALER</c>.</para>
+      <para>Note: If your app fills <c>android.app.role.RoleManager#ROLE_DIALER</c> and makes changes at
+            runtime which cause it to no longer fulfil the requirements of this role,
+            <c>android.app.role.RoleManager</c> will automatically remove your app from the role and close
+            your app.  For example, if you use
+            <c>android.content.pm.PackageManager#setComponentEnabledSetting(ComponentName, int, int)</c> to
+            programmatically disable the <c>InCallService</c> your app declares in its manifest, your app
+            will no longer fulfil the requirements expected of
+            <c>android.app.role.RoleManager#ROLE_DIALER</c>.</para>
+      <para>The preloaded dialer will ALWAYS be used when the user places an emergency call, even if your
+            app fills the <c>android.app.role.RoleManager#ROLE_DIALER</c> role.  To ensure an optimal
+            experience when placing an emergency call, the default dialer should ALWAYS use
+            <c>android.telecom.TelecomManager#placeCall(Uri, Bundle)</c> to place calls (including
+            emergency calls).  This ensures that the platform is able to verify that the request came from
+            the default dialer.  If a non-preloaded dialer app uses <c>Intent#ACTION_CALL</c> to place an
+            emergency call, it will be raised to the preloaded dialer app using <c>Intent#ACTION_DIAL</c>
+            for confirmation; this is a suboptimal user experience.</para>
+      <para>Below is an example manifest registration for an <c>InCallService</c>. The meta-data
+            <c>TelecomManager#METADATA_IN_CALL_SERVICE_UI</c> indicates that this particular
+            <c>InCallService</c> implementation intends to replace the built-in in-call UI.
+            The meta-data <c>TelecomManager#METADATA_IN_CALL_SERVICE_RINGING</c> indicates that this
+            <c>InCallService</c> will play the ringtone for incoming calls.  See
+            below for more information on showing the incoming call
+            UI and playing the ringtone in your app.</para>
+      <code lang="text/java">{@code
+            &lt;service android:name="your.package.YourInCallServiceImplementation"
+                     android:permission="android.permission.BIND_INCALL_SERVICE"
+                     android:exported="true"&gt;
+                 &lt;meta-data android:name="android.telecom.IN_CALL_SERVICE_UI" android:value="true" /&gt;
+                 &lt;meta-data android:name="android.telecom.IN_CALL_SERVICE_RINGING"
+                     android:value="true" /&gt;
+                 &lt;intent-filter&gt;
+                     &lt;action android:name="android.telecom.InCallService"/&gt;
+                 &lt;/intent-filter&gt;
+            &lt;/service&gt;
+            }
+            </code>
+      <para>&lt;em&gt;Note: You should NOT mark your <c>InCallService</c> with the attribute
+            <c>android:exported="false"</c>; doing so can result in a failure to bind to your implementation
+            during calls.&lt;/em&gt;</para>
+      <para>In addition to implementing the <c>InCallService</c> API, you must also declare an activity in
+            your manifest which handles the <c>Intent#ACTION_DIAL</c> intent.  The example below illustrates
+            how this is done:</para>
+      <code lang="text/java">{@code
+            &lt;activity android:name="your.package.YourDialerActivity"
+                      android:label="@string/yourDialerActivityLabel"&gt;
+                 &lt;intent-filter&gt;
+                      &lt;action android:name="android.intent.action.DIAL" /&gt;
+                      &lt;category android:name="android.intent.category.DEFAULT" /&gt;
+                 &lt;/intent-filter&gt;
+                 &lt;intent-filter&gt;
+                      &lt;action android:name="android.intent.action.DIAL" /&gt;
+                      &lt;category android:name="android.intent.category.DEFAULT" /&gt;
+                      &lt;data android:scheme="tel" /&gt;
+                 &lt;/intent-filter&gt;
+            &lt;/activity&gt;
+            }
+            </code>
+      <para>When a user installs your application and runs it for the first time, you should use the
+            <c>android.app.role.RoleManager</c> to prompt the user to see if they would like your app to
+            be the new default phone app.</para>
+      <para>The code below shows how your app can request to become the default phone/dialer app:</para>
+      <code lang="text/java">{@code
+            private static final int REQUEST_ID = 1;
+            
+            public void requestRole() {
+                RoleManager roleManager = (RoleManager) getSystemService(ROLE_SERVICE);
+                Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
+                startActivityForResult(intent, REQUEST_ID);
+            }
+            
+            &amp;#64;Override
+            public void onActivityResult(int requestCode, int resultCode, Intent data) {
+                if (requestCode == REQUEST_ID) {
+                    if (resultCode == android.app.Activity.RESULT_OK) {
+                        // Your app is now the default dialer app
+                    } else {
+                        // Your app is not the default dialer app
+                    }
+                }
+            }
+            }
+            
+            </code>
+      <para>&lt;h3&gt;Access to InCallService for Wearable Devices&lt;/h3&gt;
+            &lt;ol&gt;
+            If your app is a third-party companion app and wants to access InCallService APIs, what your
+            app could do are:</para>
+      <para>&lt;ol&gt;
+                &lt;li&gt; Declare MANAGE_ONGOING_CALLS permission in your manifest
+                &lt;li&gt; Associate with a physical wearable device via the
+                     <c>android.companion.CompanionDeviceManager</c> API as a companion app. See:
+                     https://developer.android.com/guide/topics/connectivity/companion-device-pairing
+                &lt;li&gt; Implement this InCallService with BIND_INCALL_SERVICE permission
+              &lt;/ol&gt;
+            &lt;/ol&gt;</para>
+      <para>&lt;/pre&gt;</para>
+      <para>&lt;h3&gt;Showing the Incoming Call Notification&lt;/h3&gt;
+            When your app receives a new incoming call via <c>InCallService#onCallAdded(Call)</c>, it is
+            responsible for displaying an incoming call UI for the incoming call.  It should do this using
+            <c>android.app.NotificationManager</c> APIs to post a new incoming call notification.</para>
+      <para>Where your app declares the meta-data <c>TelecomManager#METADATA_IN_CALL_SERVICE_RINGING</c>, it
+            is responsible for playing the ringtone for incoming calls.  Your app should create a
+            <c>android.app.NotificationChannel</c> which specifies the desired ringtone.  For example:</para>
+      <code lang="text/java">&lt;code&gt;
+            NotificationChannel channel = new NotificationChannel(YOUR_CHANNEL_ID, "Incoming Calls",
+                     NotificationManager.IMPORTANCE_MAX);
+            // other channel setup stuff goes here.
+            
+            // We'll use the default system ringtone for our incoming call notification channel.  You can
+            // use your own audio resource here.
+            Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+            channel.setSound(ringtoneUri, new AudioAttributes.Builder()
+                     // Setting the AudioAttributes is important as it identifies the purpose of your
+                     // notification sound.
+                     .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                 .build());
+            
+            NotificationManager mgr = getSystemService(NotificationManager.class);
+            mgr.createNotificationChannel(channel);
+            &lt;/code&gt;</code>
+      <para>When your app receives a new incoming call, it creates a <c>android.app.Notification</c> for the
+            incoming call and associates it with your incoming call notification channel. You can specify a
+            <c>android.app.PendingIntent</c> on the notification which will launch your full screen
+            incoming call UI.  The notification manager framework will display your notification as a
+            heads-up notification if the user is actively using the phone.  When the user is not using the
+            phone, your full-screen incoming call UI is used instead.
+            For example:</para>
+      <code lang="text/java">&lt;code&gt;{@code
+            // Create an intent which triggers your fullscreen incoming call user interface.
+            Intent intent = new Intent(Intent.ACTION_MAIN, null);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setClass(context, YourIncomingCallActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_MUTABLE_UNAUDITED);
+            
+            // Build the notification as an ongoing high priority item; this ensures it will show as
+            // a heads up notification which slides down over top of the current content.
+            final Notification.Builder builder = new Notification.Builder(context);
+            builder.setOngoing(true);
+            builder.setPriority(Notification.PRIORITY_HIGH);
+            
+            // Set notification content intent to take user to the fullscreen UI if user taps on the
+            // notification body.
+            builder.setContentIntent(pendingIntent);
+            // Set full screen intent to trigger display of the fullscreen UI when the notification
+            // manager deems it appropriate.
+            builder.setFullScreenIntent(pendingIntent, true);
+            
+            // Setup notification content.
+            builder.setSmallIcon( yourIconResourceId );
+            builder.setContentTitle("Your notification title");
+            builder.setContentText("Your notification content.");
+            
+            // Use builder.addAction(..) to add buttons to answer or reject the call.
+            
+            NotificationManager notificationManager = mContext.getSystemService(
+                NotificationManager.class);
+            notificationManager.notify(YOUR_CHANNEL_ID, YOUR_TAG, YOUR_ID, builder.build());
+            }</code>
+      <para />
+      <para>
+        <format type="text/html">
+          <a href="https://developer.android.com/reference/android/telecom/InCallService" title="Reference documentation">Java documentation for <code>android.telecom.InCallService</code>.</a>
+        </format>
+      </para>
+      <para>
+                    Portions of this page are modifications based on work created and shared by the 
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the 
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
   <Members>
@@ -478,13 +573,10 @@ notificationManager.notify(YOUR_CHANNEL_ID, YOUR_TAG, YOUR_ID, builder.build());
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">The Intent that was used to bind to this service, as given to Context.bindService. Note that any extras that were included with the Intent at that point will not be seen here.</param>
-        <summary>Return the communication channel to the service.</summary>
-        <returns>Return an IBinder through which clients can call on to the service.</returns>
+        <param name="intent">To be added.</param>
+        <summary>To be added.</summary>
+        <returns>To be added.</returns>
         <remarks>
-          <para>Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.</para>
-          <para>Note that unlike other application components, calls on to the IBinder interface returned here may not happen on the main thread of the process. More information about the main thread can be found in Processes and Threads.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/InCallService#onBind(android.content.Intent)" title="Reference documentation">Android reference for <code>android.telecom.InCallService.onBind</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
