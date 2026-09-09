@@ -518,7 +518,51 @@ static class ImporterProgram
                 "source_documentation_empty",
                 "The exact source member had no usable prose.",
                 exact[0].Url);
+        var sourceVerifiedMapping = SourceVerifiedMemberMappings.Resolve(owner.Id);
+        if (sourceVerifiedMapping is { UseFirstMeaningfulSummary: true })
+        {
+            docs = WithFirstMeaningfulSummary(docs);
+        }
+        if (sourceVerifiedMapping is { FilterSynchronousGeocoderBoilerplate: true })
+        {
+            docs = WithoutSynchronousGeocoderBoilerplate(docs);
+        }
         return MappingResult.Success(docs);
+    }
+
+    static SourceDocs WithFirstMeaningfulSummary(SourceDocs docs)
+    {
+        var summary = docs.Paragraphs
+            .Where(paragraph => !paragraph.IsCode)
+            .Select(paragraph => SourcePage.FirstSentence(paragraph.Text))
+            .FirstOrDefault(paragraph => IsMeaningfulChannel(paragraph, "summary"));
+        return summary is null ? docs : docs with { Summary = summary };
+    }
+
+    static SourceDocs WithoutSynchronousGeocoderBoilerplate(SourceDocs docs) =>
+        docs with
+        {
+            Paragraphs = docs.Paragraphs
+                .Where(paragraph => !IsSynchronousGeocoderBoilerplate(paragraph.Text))
+                .ToList(),
+        };
+
+    static bool IsSynchronousGeocoderBoilerplate(string text)
+    {
+        var normalized = NormalizeText(text);
+        return
+            (normalized.StartsWith(
+                "This method was deprecated in API level 33.",
+                StringComparison.Ordinal) &&
+             normalized.Contains(
+                 "instead to avoid blocking a thread waiting for results.",
+                 StringComparison.Ordinal)) ||
+            (normalized.StartsWith(
+                "Warning: This API may hit the network, and may block for excessive amounts of time.",
+                StringComparison.Ordinal) &&
+             normalized.Contains(
+                 "encouraged to use the asynchronous version of this API.",
+                 StringComparison.Ordinal));
     }
 
     static bool ReportMappingFailure(
@@ -2010,6 +2054,143 @@ static class ImporterProgram
                     SourceRequest.JavaPath: "android/view/inputmethod/InputConnectionWrapper",
                 },
             "InputMethods string aliases map to their exact JNI counterparts");
+
+        var asyncSourcePath = Path.Combine(fixtureRoot, "geocoder-async-source.xml");
+        var asyncAndroidHtml = File.ReadAllText(
+            Path.Combine(fixtureRoot, "geocoder-async-android-reference.html"));
+        var asyncFile = LoadedFile.Load(repositoryRoot, asyncSourcePath);
+        asyncFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+        var asyncOwners = asyncFile.Owners
+            .Where(owner => owner.Placeholders.Count > 0)
+            .ToList();
+        Assert(asyncOwners.Count == 6, "Geocoder async fixture owner count");
+        var directGeocoderMembers = asyncFile.Root
+            .Element("Members")?
+            .Elements("Member")
+            .Select(member => new
+            {
+                Id = (string?)member.Elements("MemberSignature")
+                    .FirstOrDefault(signature =>
+                        (string?)signature.Attribute("Language") == "DocId")?
+                    .Attribute("Value"),
+                Registration = Registration.Member(member),
+            })
+            .Where(member => member.Id is not null && member.Registration is not null)
+            .ToDictionary(member => member.Id!, member => member.Registration!, StringComparer.Ordinal)
+            ?? throw new InvalidOperationException("SELF-TEST FAIL: Geocoder direct fixture registrations");
+        var geocoderAsyncDirectMembers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32)"] =
+                "M:Android.Locations.Geocoder.GetFromLocation(System.Double,System.Double,System.Int32)",
+            ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "M:Android.Locations.Geocoder.GetFromLocation(System.Double,System.Double,System.Int32,Android.Locations.Geocoder.IGeocodeListener)",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32)"] =
+                "M:Android.Locations.Geocoder.GetFromLocationName(System.String,System.Int32)",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "M:Android.Locations.Geocoder.GetFromLocationName(System.String,System.Int32,Android.Locations.Geocoder.IGeocodeListener)",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double)"] =
+                "M:Android.Locations.Geocoder.GetFromLocationName(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double)",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "M:Android.Locations.Geocoder.GetFromLocationName(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double,Android.Locations.Geocoder.IGeocodeListener)",
+        };
+        foreach (var (asyncId, directId) in geocoderAsyncDirectMembers)
+        {
+            var mapping = SourceVerifiedMemberMappings.Resolve(asyncId);
+            Assert(
+                mapping is not null &&
+                mapping.SourceRequest.JavaPath == "android/location/Geocoder" &&
+                mapping.Registration == directGeocoderMembers[directId],
+                $"Geocoder Task wrapper maps to the registered Java overload: {asyncId}");
+        }
+        var asyncRequest = asyncOwners[0].SourceRequest ??
+            throw new InvalidOperationException("SELF-TEST FAIL: Geocoder async source request");
+        var asyncPages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+        {
+            [asyncRequest.Url] = SourceLoadResult.Success(
+                SourcePage.Parse(asyncRequest, asyncAndroidHtml)),
+        };
+        var expectedGeocoderAsyncSummaries = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32)"] =
+                "Returns reverse geocoding results.",
+            ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "Delivers reverse geocoding results to the listener.",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32)"] =
+                "Returns geocoding results.",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "Delivers geocoding results to the listener.",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double)"] =
+                "Returns bounded geocoding results.",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "Delivers bounded geocoding results to the listener.",
+        };
+        Assert(
+            asyncOwners.All(owner =>
+                MapOwner(owner, asyncPages).Docs?.Summary ==
+                expectedGeocoderAsyncSummaries[owner.Id]),
+            "Geocoder Task wrappers resolve to exact official overload documentation");
+        var taskResultOwners = asyncOwners
+            .Where(owner => SourceVerifiedMemberMappings.Resolve(owner.Id) is
+                { FilterSynchronousGeocoderBoilerplate: true })
+            .ToList();
+        Assert(taskResultOwners.Count == 3, "Geocoder Task<T> boilerplate filter scope");
+        foreach (var taskResultOwner in taskResultOwners)
+        {
+            var taskResultFile = LoadedFile.Load(repositoryRoot, asyncSourcePath);
+            taskResultFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+            var owner = taskResultFile.Owners.Single(item => item.Id == taskResultOwner.Id);
+            var taskResultDocs = MapOwner(owner, asyncPages).Docs ??
+                throw new InvalidOperationException(
+                    $"SELF-TEST FAIL: Geocoder Task<T> source mapping: {owner.Id}");
+            var summaryPlaceholder = owner.Placeholders.Single(
+                placeholder => placeholder.Name == "summary");
+            Assert(
+                TryReplacePlaceholder(
+                    taskResultFile.Text,
+                    taskResultFile.DocsBlocks[owner.Order],
+                    summaryPlaceholder,
+                    ReplacementFor(summaryPlaceholder, taskResultDocs).Text!,
+                    out var withSummary,
+                    out var replacementError),
+                $"Geocoder Task<T> summary replacement: {replacementError}");
+            taskResultFile.UpdateBlockOffsets(owner.Order, withSummary);
+            var completed = AddSourceDocumentationIfSafe(
+                withSummary,
+                taskResultFile,
+                owner,
+                taskResultDocs);
+            taskResultFile.UpdateBlockOffsets(owner.Order, completed);
+            var completedBlock = taskResultFile.DocsBlocks[owner.Order];
+            var completedDocs = XElement.Parse(
+                completed[completedBlock.Start..completedBlock.End],
+                LoadOptions.PreserveWhitespace);
+            var completedMarkup = completed[completedBlock.Start..completedBlock.End];
+            var completedRemarks = completedDocs.Element("remarks")?.Value ?? "";
+            Assert(
+                completedDocs.Element("summary")?.Value ==
+                    expectedGeocoderAsyncSummaries[owner.Id],
+                $"Geocoder Task<T> summary retains semantic source prose: {owner.Id}");
+            Assert(
+                completedRemarks.Contains(expectedGeocoderAsyncSummaries[owner.Id], StringComparison.Ordinal) &&
+                completedRemarks.Contains(
+                    "Warning: Geocoding services may provide no guarantees.",
+                    StringComparison.Ordinal),
+                $"Geocoder Task<T> remarks retain semantic source prose: {owner.Id}");
+            Assert(
+                !completedRemarks.Contains(
+                    "This method was deprecated in API level 33.",
+                    StringComparison.Ordinal) &&
+                !completedRemarks.Contains(
+                    "encouraged to use the asynchronous version of this API.",
+                    StringComparison.Ordinal),
+                $"Geocoder Task<T> remarks exclude synchronous Java boilerplate: {owner.Id}");
+            Assert(
+                completedMarkup.Contains(taskResultDocs.SourceUrl, StringComparison.Ordinal) &&
+                completedMarkup.Contains(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal),
+                $"Geocoder Task<T> remarks retain source metadata: {owner.Id}");
+        }
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
@@ -3859,7 +4040,9 @@ static class ImporterProgram
 
     sealed record InterfaceMemberMapping(
         MemberRegistration Registration,
-        SourceRequest SourceRequest);
+        SourceRequest SourceRequest,
+        bool UseFirstMeaningfulSummary = false,
+        bool FilterSynchronousGeocoderBoilerplate = false);
 
     static class SourceVerifiedMemberMappings
     {
@@ -3884,6 +4067,24 @@ static class ImporterProgram
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
                 ["M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)"] =
                     Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
+                ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32)"] =
+                    Mapping("android/location/Geocoder", "getFromLocation", "(DDI)Ljava/util/List;",
+                        useFirstMeaningfulSummary: true,
+                        filterSynchronousGeocoderBoilerplate: true),
+                ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                    Mapping("android/location/Geocoder", "getFromLocation", "(DDILandroid/location/Geocoder$GeocodeListener;)V"),
+                ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32)"] =
+                    Mapping("android/location/Geocoder", "getFromLocationName", "(Ljava/lang/String;I)Ljava/util/List;",
+                        useFirstMeaningfulSummary: true,
+                        filterSynchronousGeocoderBoilerplate: true),
+                ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                    Mapping("android/location/Geocoder", "getFromLocationName", "(Ljava/lang/String;ILandroid/location/Geocoder$GeocodeListener;)V"),
+                ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double)"] =
+                    Mapping("android/location/Geocoder", "getFromLocationName", "(Ljava/lang/String;IDDDD)Ljava/util/List;",
+                        useFirstMeaningfulSummary: true,
+                        filterSynchronousGeocoderBoilerplate: true),
+                ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double,Android.Locations.Geocoder.IGeocodeListener)"] =
+                    Mapping("android/location/Geocoder", "getFromLocationName", "(Ljava/lang/String;IDDDDLandroid/location/Geocoder$GeocodeListener;)V"),
                 ["M:Android.Text.TextUtils.IndexOf(System.String,System.Char)"] =
                     Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;C)I"),
                 ["M:Android.Text.TextUtils.IndexOf(System.String,System.String)"] =
@@ -3972,12 +4173,16 @@ static class ImporterProgram
         static InterfaceMemberMapping Mapping(
             string javaPath,
             string name,
-            string descriptor) =>
+            string descriptor,
+            bool useFirstMeaningfulSummary = false,
+            bool filterSynchronousGeocoderBoilerplate = false) =>
             new(
                 new MemberRegistration(name, descriptor, false),
                 SourceRequest.Create(javaPath) ??
                     throw new InvalidOperationException(
-                        $"Unsupported source-verified Java path '{javaPath}'."));
+                        $"Unsupported source-verified Java path '{javaPath}'."),
+                useFirstMeaningfulSummary,
+                filterSynchronousGeocoderBoilerplate);
     }
 
     sealed class InterfaceMemberResolver
@@ -4920,7 +5125,7 @@ static class ImporterProgram
             return text.ToString();
         }
 
-        static string FirstSentence(string text)
+        internal static string FirstSentence(string text)
         {
             for (var index = 0; index < text.Length; index++)
             {
