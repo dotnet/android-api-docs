@@ -1828,6 +1828,22 @@ static class ImporterProgram
             },
             "String convenience overload maps to the exact CharSequence JNI descriptor");
         Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Telecom.PhoneAccount.Builder.SetShortDescription(System.String)") is
+            {
+                Registration.Name: "setShortDescription",
+                Registration.Descriptor: "(Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;",
+                SourceRequest.JavaPath: "android/telecom/PhoneAccount$Builder",
+            } &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Telecom.PhoneAccount.InvokeBuilder(Android.Telecom.PhoneAccountHandle,System.String)") is
+            {
+                Registration.Name: "builder",
+                Registration.Descriptor: "(Landroid/telecom/PhoneAccountHandle;Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;",
+                SourceRequest.JavaPath: "android/telecom/PhoneAccount",
+            },
+            "Telecom String convenience overloads map to exact CharSequence JNI counterparts");
+        Assert(
             LoadedFile.SelectNewline("first\nsecond\r\nthird\n") == "\n",
             "mixed-newline files preserve their predominant line ending");
         var jniTypeSignature = XElement.Parse(
@@ -3799,6 +3815,10 @@ static class ImporterProgram
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CI)I"),
                 ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32,System.Int32)"] =
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CII)I"),
+                ["M:Android.Telecom.PhoneAccount.Builder.SetShortDescription(System.String)"] =
+                    Mapping("android/telecom/PhoneAccount$Builder", "setShortDescription", "(Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
+                ["M:Android.Telecom.PhoneAccount.InvokeBuilder(Android.Telecom.PhoneAccountHandle,System.String)"] =
+                    Mapping("android/telecom/PhoneAccount", "builder", "(Landroid/telecom/PhoneAccountHandle;Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
                 ["M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/BaseInputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.BaseInputConnection.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
