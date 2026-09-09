@@ -148,6 +148,9 @@ static class ImporterProgram
                 foreach (var owner in file.Owners.OrderBy(item => item.Order))
                 {
                     var ownerChanged = false;
+                    var importedSourceChannel = false;
+                    var replacedRemarksPlaceholder = false;
+                    var deferredRemarksPlaceholder = false;
                     var normalized = NormalizeStaleNestedConstructorLinks(
                         text,
                         file.DocsBlocks[owner.Order]);
@@ -155,6 +158,7 @@ static class ImporterProgram
                     {
                         if (remaining == 0)
                         {
+                            file.UpdateBlockOffsets(owner.Order, text);
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
@@ -203,6 +207,8 @@ static class ImporterProgram
 
                         if (remaining == 0)
                         {
+                            deferredRemarksPlaceholder |= placeholder.Name is "remarks" or "para";
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
@@ -235,6 +241,8 @@ static class ImporterProgram
                         file.UpdateBlockOffsets(owner.Order, text);
                         fileChanged = true;
                         ownerChanged = true;
+                        importedSourceChannel = true;
+                        replacedRemarksPlaceholder |= placeholder.Name is "remarks" or "para";
                         remaining--;
                         report.Entries.Add(ReportEntry.Changed(
                             "would_apply",
@@ -249,27 +257,42 @@ static class ImporterProgram
                     var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
                     var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
                     var metadataOnlyRemarksRepair = HasMetadataOnlyRemarks(file, owner);
+                    var channelOnlyMetadataRepair = HasChannelOnlySourceMetadata(
+                        file,
+                        owner,
+                        mapping.Docs!);
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
                         (enumSummaryRepair ||
                          augmentedRemarksRepair ||
                          truncatedSummaryRepair ||
                          codeExampleRepair ||
-                         metadataOnlyRemarksRepair))
+                         metadataOnlyRemarksRepair ||
+                         channelOnlyMetadataRepair))
                     {
                         var refreshed = truncatedSummaryRepair
                             ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
                             : text;
-                        if (codeExampleRepair || metadataOnlyRemarksRepair)
+                        if (!refreshed.Equals(text, StringComparison.Ordinal))
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
+                        if (codeExampleRepair)
+                        {
                             refreshed = ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
-                        if (enumSummaryRepair || augmentedRemarksRepair)
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
+                        }
+                        if (enumSummaryRepair ||
+                            augmentedRemarksRepair ||
+                            metadataOnlyRemarksRepair ||
+                            channelOnlyMetadataRepair)
                         {
                             refreshed = AddSourceDocumentationIfSafe(
                                 refreshed,
                                 file,
                                 owner,
                                 mapping.Docs,
-                                allowEnumCreation: false);
+                                allowEnumCreation: false,
+                                addMetadataForChannelOnlyMember: channelOnlyMetadataRepair);
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
                         }
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
@@ -278,6 +301,7 @@ static class ImporterProgram
                                 : "remarks";
                             if (remaining == 0)
                             {
+                                RestoreOffsetsAfterSkippedRepair(file, owner, text);
                                 report.Entries.Add(ReportEntry.Skipped(
                                     file.RelativePath,
                                     owner.Id,
@@ -303,9 +327,18 @@ static class ImporterProgram
                         }
                     }
 
-                    if (ownerChanged && mapping.Docs is not null)
+                    if (ownerChanged &&
+                        mapping.Docs is not null &&
+                        ShouldAddSourceDocumentation(
+                            deferredRemarksPlaceholder,
+                            replacedRemarksPlaceholder))
                     {
-                        text = AddSourceDocumentationIfSafe(text, file, owner, mapping.Docs);
+                        text = AddSourceDocumentationIfSafe(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs,
+                            addMetadataForChannelOnlyMember: importedSourceChannel);
                         file.UpdateBlockOffsets(owner.Order, text);
                     }
                 }
@@ -584,6 +617,12 @@ static class ImporterProgram
         return true;
     }
 
+    static void RestoreOffsetsAfterSkippedRepair(
+        LoadedFile file,
+        DocsOwner owner,
+        string unchangedText) =>
+        file.UpdateBlockOffsets(owner.Order, unchangedText);
+
     static bool MemberNameMatches(SourceMember member, string name, bool constructor) =>
         constructor
             ? member.IsConstructor && (
@@ -622,8 +661,12 @@ static class ImporterProgram
                 : Replacement.Skip(
                     "source_parameter_missing",
                     $"The exact source member did not document parameter '{placeholder.Key}'."),
-            "returns" or "value" => ChannelValueOrSkip(
+            "returns" => ChannelValueOrSkip(
                 docs.Returns,
+                placeholder.Name,
+                "source_return_missing"),
+            "value" => ChannelValueOrSkip(
+                string.IsNullOrWhiteSpace(docs.Returns) ? docs.Summary : docs.Returns,
                 placeholder.Name,
                 "source_return_missing"),
             "exception" => ExceptionReplacement(placeholder, docs),
@@ -910,7 +953,8 @@ static class ImporterProgram
         LoadedFile file,
         DocsOwner owner,
         SourceDocs docs,
-        bool allowEnumCreation = true)
+        bool allowEnumCreation = true,
+        bool addMetadataForChannelOnlyMember = false)
     {
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
@@ -928,11 +972,32 @@ static class ImporterProgram
             return text[..block.Start] + updatedBlock + text[block.End..];
         }
 
+        var hasRemarksPlaceholder = owner.Placeholders.Any(
+            placeholder => placeholder.Name is "remarks" or "para");
+        if (docs.Paragraphs.Count == 0 && hasRemarksPlaceholder)
+        {
+            if (HasAugmentedRemarksPlaceholder(file, owner))
+                blockText = RemoveImporterRemarksMetadata(blockText);
+            if (!addMetadataForChannelOnlyMember)
+                return text[..block.Start] + blockText + text[block.End..];
+            blockText = RemoveStandaloneRemarksPlaceholder(blockText);
+        }
+
         blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
+        blockText = RemoveDuplicateSourceLinks(blockText, docs.SourceUrl);
         blockText = RemoveAugmentedRemarksPlaceholder(blockText);
         var metadataOnly = HasMetadataOnlyRemarks(blockText);
-        if (ContainsSourceUrl(blockText, docs.SourceUrl) && !metadataOnly)
-            return text[..block.Start] + blockText + text[block.End..];
+        if (ContainsSourceUrl(blockText, docs.SourceUrl))
+        {
+            if (!metadataOnly)
+                return text[..block.Start] + blockText + text[block.End..];
+            if (docs.Paragraphs.Count == 0)
+            {
+                blockText = RemoveDuplicateSourceLinks(blockText, docs.SourceUrl);
+                return text[..block.Start] + blockText + text[block.End..];
+            }
+            blockText = RemoveMatchingSourceLinks(blockText, docs.SourceUrl);
+        }
 
         var remarks = owner.Docs.Element("remarks");
         var remarksText = remarks is null ? "" : NormalizeText(remarks.Value);
@@ -1025,6 +1090,53 @@ static class ImporterProgram
             RegexOptions.CultureInvariant);
     }
 
+    static bool HasChannelOnlySourceMetadata(
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        if (docs.Paragraphs.Count > 0 ||
+            !owner.Placeholders.Any(placeholder => placeholder.Name is "remarks" or "para"))
+        {
+            return false;
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        if (ContainsSourceUrl(file.Text[block.Start..block.End], docs.SourceUrl))
+            return false;
+
+        return docs.Parameters.Any(parameter =>
+            IsMeaningfulChannel(RemoveLeadingJavaType(parameter.Value), "param") &&
+            owner.Docs.Elements("param").Any(element =>
+                (string?)element.Attribute("name") == parameter.Key &&
+                NormalizeText(element.Value) == RemoveLeadingJavaType(parameter.Value))) ||
+            (IsMeaningfulChannel(RemoveLeadingJavaType(docs.Returns), "returns") &&
+             owner.Docs.Element("returns") is XElement returns &&
+             NormalizeText(returns.Value) == RemoveLeadingJavaType(docs.Returns)) ||
+            (ReplacementFor(
+                 new Placeholder(0, "value", "", "value"),
+                 docs).Text is string value &&
+             owner.Docs.Element("value") is XElement valueElement &&
+             NormalizeText(valueElement.Value) == value) ||
+            owner.Docs.Elements("exception").Any(element =>
+            {
+                var replacement = ReplacementFor(
+                    new Placeholder(
+                        0,
+                        "exception",
+                        (string?)element.Attribute("cref") ?? "",
+                        "exception"),
+                    docs);
+                return replacement.Text is not null &&
+                    NormalizeText(element.Value) == replacement.Text;
+            });
+    }
+
+    static bool ShouldAddSourceDocumentation(
+        bool deferredRemarksPlaceholder,
+        bool replacedRemarksPlaceholder) =>
+        !deferredRemarksPlaceholder || replacedRemarksPlaceholder;
+
     static bool HasTruncatedImporterSummary(LoadedFile file, DocsOwner owner)
     {
         var summary = owner.Docs.Element("summary")?.Value.Trim();
@@ -1082,16 +1194,26 @@ static class ImporterProgram
 
         var withoutMetadata = Regex.Replace(
             remarks.Groups["body"].Value,
-            @"<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>",
-            "",
+            @"<para\b[^>]*>(?:(?!</para>).)*?</para>",
+            match => IsImporterMetadataParagraph(match.Value) ? "" : match.Value,
             RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        return NormalizeText(
-            Regex.Replace(
-                withoutMetadata,
-                @"<[^>]*>",
-                " ",
-                RegexOptions.Singleline | RegexOptions.CultureInvariant)).Length == 0;
+        return NormalizeText(Regex.Replace(
+            withoutMetadata,
+            @"<[^>]*>",
+            " ",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant)).Length == 0;
     }
+
+    static bool IsImporterMetadataParagraph(string paragraph) =>
+        TryGetImporterSourceReferenceUrl(paragraph, out _) ||
+        Regex.IsMatch(
+            paragraph,
+            @"^\s*<para>\s*<format type=""text/html""><a href=""https://(?:developer\.android\.com/reference|docs\.oracle\.com/en/java/javase/21/docs/api)/[^""]+"" title=""Reference documentation"">(?:Android|Java) reference\.</a></format>\s*</para>\s*$",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant) ||
+        Regex.IsMatch(
+            paragraph,
+            @"^\s*<para\b[^>]*>.*?https://developers\.google\.com/terms/site-policies.*?</para>\s*$",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
     static string ReplaceIncompleteCodeExampleRemarks(
         string text,
@@ -1135,6 +1257,13 @@ static class ImporterProgram
             blockText,
             @"(?<open><remarks\b[^>]*>)[ \t\r\n]*To be added\.?(?<separator>[ \t\r\n]*)(?=<para\b)",
             match => match.Groups["open"].Value + match.Groups["separator"].Value,
+            RegexOptions.CultureInvariant);
+
+    static string RemoveStandaloneRemarksPlaceholder(string blockText) =>
+        Regex.Replace(
+            blockText,
+            @"<remarks(?<attrs>\b[^>]*)>[ \t\r\n]*To be added\.?[ \t\r\n]*</remarks>",
+            "<remarks${attrs} />",
             RegexOptions.CultureInvariant);
 
     static string ReplaceTruncatedSummary(
@@ -1181,7 +1310,7 @@ static class ImporterProgram
         var expectedMember = SourceAnchorMember(sourceUrl);
         return Regex.Replace(
             blockText,
-            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            @"(?:^[ \t]*)?<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
             match =>
             {
                 var href = Regex.Match(
@@ -1199,6 +1328,76 @@ static class ImporterProgram
                     : match.Value;
             },
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+    }
+
+    static string RemoveMatchingSourceLinks(string blockText, string sourceUrl) =>
+        Regex.Replace(
+            blockText,
+            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            match =>
+            {
+                var href = Regex.Match(
+                    match.Value,
+                    @"\bhref=""(?<url>[^""]+)""",
+                    RegexOptions.CultureInvariant);
+                return href.Success && UrlsEqual(
+                    WebUtility.HtmlDecode(href.Groups["url"].Value),
+                    sourceUrl)
+                    ? ""
+                    : match.Value;
+            },
+            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+
+    static string RemoveDuplicateSourceLinks(string blockText, string sourceUrl)
+    {
+        var found = false;
+        return Regex.Replace(
+            blockText,
+            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
+            match =>
+            {
+                var href = Regex.Match(
+                    match.Value,
+                    @"\bhref=""(?<url>[^""]+)""",
+                    RegexOptions.CultureInvariant);
+                if (!href.Success || !UrlsEqual(
+                    WebUtility.HtmlDecode(href.Groups["url"].Value),
+                    sourceUrl))
+                    return match.Value;
+                if (!found)
+                {
+                    found = true;
+                    return match.Value;
+                }
+                return "";
+            },
+            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+    }
+
+    static string RemoveImporterRemarksMetadata(string blockText) =>
+        Regex.Replace(
+            blockText,
+            @"[ \t\r\n]*<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>",
+            "",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+
+    static int CountImporterSourceReferences(string blockText, string sourceUrl) =>
+        Regex.Matches(
+            blockText,
+            @"<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant)
+            .Count(match =>
+                TryGetImporterSourceReferenceUrl(match.Value, out var importerSourceUrl) &&
+                UrlsEqual(importerSourceUrl, sourceUrl));
+
+    static bool TryGetImporterSourceReferenceUrl(string paragraph, out string sourceUrl)
+    {
+        var match = Regex.Match(
+            paragraph,
+            @"^\s*<para>\s*<format type=""text/html""><a href=""(?<url>[^""]+)"" title=""Reference documentation"">(?:Android|Java) reference for <code>[^<]+</code>\.</a></format>\s*</para>\s*$",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        sourceUrl = match.Success ? WebUtility.HtmlDecode(match.Groups["url"].Value) : "";
+        return match.Success;
     }
 
     static string NormalizeStaleNestedConstructorLinks(
@@ -1504,6 +1703,23 @@ static class ImporterProgram
             "optional intent to start a follow up action required to facilitate the unarchival flow",
             "intent to start a follow up action required to facilitate the unarchival flow",
             StringComparison.Ordinal);
+        text = text.Replace(
+            "The availability for \"paid content, either to-own or rental (user has not purchased/rented).",
+            "The availability for \"paid content\", either to-own or rental (user has not purchased/rented).",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Time shift is handle locally",
+            "Time shift is handled locally",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Time shift is handle remotely",
+            "Time shift is handled remotely",
+            StringComparison.Ordinal);
+        text = Regex.Replace(
+            text,
+            @"\s+TODO Link: Tuner#Tuner\(Context, string, int\)\.",
+            "",
+            RegexOptions.CultureInvariant);
         text = Regex.Replace(text, @"\s+([,.:;])", "$1");
         return NormalizeText(text);
     }
@@ -1657,6 +1873,27 @@ static class ImporterProgram
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
         Assert(file.Owners.Count == 14, "fixture owner count");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Text.TextUtils.IndexOf(System.String,System.Char,System.Int32,System.Int32)") is
+            {
+                Registration.Name: "indexOf",
+                Registration.Descriptor: "(Ljava/lang/CharSequence;CII)I",
+                SourceRequest.JavaPath: "android/text/TextUtils",
+            },
+            "String convenience overload maps to the exact CharSequence JNI descriptor");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32)") is
+            {
+                Registration.Name: "lastIndexOf",
+                Registration.Descriptor: "(Ljava/lang/CharSequence;CI)I",
+                SourceRequest.JavaPath: "android/text/TextUtils",
+            },
+            "String convenience overload maps to the exact CharSequence JNI descriptor");
+        Assert(
+            LoadedFile.SelectNewline("first\nsecond\r\nthird\n") == "\n",
+            "mixed-newline files preserve their predominant line ending");
         var jniTypeSignature = XElement.Parse(
             """
             <Type>
@@ -1766,10 +2003,40 @@ static class ImporterProgram
                 "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null &&
                 SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is null,
             "managed-only overloads are not source-mapped");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)") is
+                {
+                    Registration: { Name: "commitText", Descriptor: "(Ljava/lang/CharSequence;I)Z" },
+                    SourceRequest.JavaPath: "android/view/inputmethod/BaseInputConnection",
+                } &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Views.InputMethods.CursorAnchorInfo.Builder.SetComposingText(System.Int32,System.String)") is
+                {
+                    Registration: { Name: "setComposingText", Descriptor: "(ILjava/lang/CharSequence;)Landroid/view/inputmethod/CursorAnchorInfo$Builder;" },
+                    SourceRequest.JavaPath: "android/view/inputmethod/CursorAnchorInfo$Builder",
+                } &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Views.InputMethods.InputConnectionWrapper.CommitText(System.String,System.Int32,Android.Views.InputMethods.TextAttribute)") is
+                {
+                    Registration: { Name: "commitText", Descriptor: "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z" },
+                    SourceRequest.JavaPath: "android/view/inputmethod/InputConnectionWrapper",
+                },
+            "InputMethods string aliases map to their exact JNI counterparts");
 
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
         Assert(androidPage.TypeDocs?.Summary == "Represents a fixture widget.", "Android type summary");
+        var comparisonPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "<p>Sets the widget title. The exact JNI overload is required.</p>",
+                "<p>Sets the widget title if <= 0. The exact JNI overload is required.</p>",
+                StringComparison.Ordinal));
+        Assert(
+            comparisonPage.Members.Single(member => member.Name == "setTitle").Docs?.Summary ==
+                "Sets the widget title if <= 0.",
+            "literal comparisons in Android HTML text are preserved");
         var abbreviationPage = SourcePage.Parse(
             request,
             androidHtml.Replace(
@@ -1942,6 +2209,48 @@ static class ImporterProgram
                     "<para>Sets the widget title. The exact JNI overload is required.</para>",
                     StringComparison.Ordinal),
             "metadata-only remarks are refreshed from source");
+        Assert(
+            Regex.Matches(
+                restoredMetadataOnlyText,
+                Regex.Escape($"href=\"{mappedDocs.SourceUrl}\""),
+                RegexOptions.CultureInvariant).Count == 1,
+            "metadata-only remarks retain one source link after refresh");
+        var duplicateMetadataOnlyText = Regex.Replace(
+            metadataOnlyText,
+            @"(?<source><para><format type=""text/html""><a href=""[^""]+"" title=""Reference documentation"">.*?</a></format></para>)",
+            "${source}\n          ${source}",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        file.UpdateBlockOffsets(setTitle.Order, duplicateMetadataOnlyText);
+        var deduplicatedMetadataOnlyText = AddSourceDocumentationIfSafe(
+            duplicateMetadataOnlyText,
+            file,
+            setTitle,
+            mappedDocs with { Paragraphs = [] });
+        Assert(
+            Regex.Matches(
+                deduplicatedMetadataOnlyText,
+                Regex.Escape($"href=\"{mappedDocs.SourceUrl}\""),
+                RegexOptions.CultureInvariant).Count == 1,
+            "metadata-only remarks without source prose de-duplicate source links");
+        var metadataOnlySource = mappedDocs with { Paragraphs = [] };
+        file.UpdateBlockOffsets(setTitle.Order, metadataOnlyText);
+        var metadataOnlyOnce = AddSourceDocumentationIfSafe(
+            metadataOnlyText,
+            file,
+            setTitle,
+            metadataOnlySource);
+        file.UpdateBlockOffsets(setTitle.Order, metadataOnlyOnce);
+        var metadataOnlyTwice = AddSourceDocumentationIfSafe(
+            metadataOnlyOnce,
+            file,
+            setTitle,
+            metadataOnlySource);
+        Assert(
+            Regex.Matches(
+                metadataOnlyTwice,
+                Regex.Escape(mappedDocs.SourceUrl),
+                RegexOptions.CultureInvariant).Count == 1,
+            "metadata-only remarks do not duplicate an existing source reference");
         file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var truncatedSummaryText = file.Text.Replace(
             "<summary>To be added.</summary>",
@@ -1963,6 +2272,11 @@ static class ImporterProgram
             "Android parameter type-prefix cleanup");
         Assert(mappedDocs.Returns == "the number of displayed characters", "Android return");
         Assert(mappedDocs.Exceptions["IllegalArgumentException"] == "if title is empty", "Android exception");
+        Assert(
+            !ShouldAddSourceDocumentation(true, false) &&
+                ShouldAddSourceDocumentation(true, true) &&
+                ShouldAddSourceDocumentation(false, false),
+            "deferred remarks placeholders do not receive source metadata");
 
         var mismatch = file.Owners.Single(owner => owner.Id.Contains("SetCount", StringComparison.Ordinal));
         var mismatchResult = MapOwner(mismatch, pages);
@@ -2062,6 +2376,12 @@ static class ImporterProgram
             new Placeholder(0, "returns", "", "returns"),
             favoriteResult.Docs! with { Returns = "String" });
         Assert(typeOnly.Reason == "source_channel_not_meaningful", "type-only return skip");
+        var valueSummaryFallback = ReplacementFor(
+            new Placeholder(0, "value", "", "value"),
+            favoriteResult.Docs! with { Returns = "" });
+        Assert(
+            valueSummaryFallback.Text == favoriteResult.Docs.Summary,
+            "property value falls back to exact source summary");
         var simpleTypeOnly = ReplacementFor(
             new Placeholder(0, "param", "items", "param:items"),
             favoriteResult.Docs! with
@@ -2092,6 +2412,16 @@ static class ImporterProgram
                 "optional intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.") ==
                     "intent to start a follow up action required to facilitate the unarchival flow. This value cannot be null.",
             "contradictory optional unarchival intent cleanup");
+        Assert(
+            CleanSourceText(
+                "The availability for \"paid content, either to-own or rental (user has not purchased/rented).") ==
+                    "The availability for \"paid content\", either to-own or rental (user has not purchased/rented).",
+            "unbalanced Android content quote cleanup");
+        Assert(
+            CleanSourceText(
+                "Time shift is handle locally. TODO Link: Tuner#Tuner(Context, string, int).") ==
+                    "Time shift is handled locally.",
+            "Android time-shift and TODO metadata cleanup");
         Assert(
             RemoveLeadingJavaType(
                 "long: ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
@@ -2262,6 +2592,59 @@ static class ImporterProgram
         Assert(
             repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
             "importer metadata remarks preserves reference metadata");
+        var cleanedMissingRemarksText = RemoveImporterRemarksMetadata(metadataRepairText);
+        var cleanedMissingRemarks = XDocument.Parse(cleanedMissingRemarksText)
+            .Root!.Element("remarks")!;
+        Assert(
+            NormalizeText(cleanedMissingRemarks.Value).Equals(
+                "To be added.",
+                StringComparison.Ordinal) &&
+                !cleanedMissingRemarks.Descendants("a").Any(),
+            "missing source remarks retain their placeholder without importer metadata");
+        Assert(
+            RemoveStandaloneRemarksPlaceholder("<Docs><remarks>To be added.</remarks></Docs>") ==
+                "<Docs><remarks /></Docs>",
+            "channel-only source imports clear a standalone remarks placeholder before metadata insertion");
+
+        var duplicateMetadataReference =
+            $"<para><format type=\"text/html\"><a href=\"{favoriteResult.Docs!.SourceUrl}\" " +
+            $"title=\"Reference documentation\">Android reference for <code>{favoriteResult.Docs.SourceLabel}</code>.</a></format></para>";
+        const string userReference =
+            "<para><format type=\"text/html\"><a href=\"https://example.invalid/reference\" title=\"Reference documentation\">User-authored reference.</a></format></para>";
+        var duplicateMetadataRepairText =
+            $"<Docs><remarks>\n{duplicateMetadataReference}\n{userReference}\n{duplicateMetadataReference}\n" +
+            $"<para>{AndroidAttribution}</para>\n</remarks></Docs>";
+        Assert(
+            TryGetImporterSourceReferenceUrl(duplicateMetadataReference, out var duplicateSourceUrl) &&
+                UrlsEqual(duplicateSourceUrl, favoriteResult.Docs.SourceUrl),
+            "metadata-only fixture uses importer reference syntax");
+        Assert(
+            CountImporterSourceReferences(
+                duplicateMetadataRepairText,
+                favoriteResult.Docs.SourceUrl) == 2,
+            "metadata-only fixture contains duplicate importer references");
+        Assert(
+            !HasMetadataOnlyRemarks(duplicateMetadataRepairText) &&
+            HasMetadataOnlyRemarks(duplicateMetadataRepairText.Replace(
+                userReference,
+                "",
+                StringComparison.Ordinal)),
+            "metadata-only repair preserves user-authored reference content");
+        var deduplicatedMetadataRepairText = RemoveDuplicateSourceLinks(
+            duplicateMetadataRepairText,
+            favoriteResult.Docs.SourceUrl);
+        Assert(
+            CountImporterSourceReferences(
+                deduplicatedMetadataRepairText,
+                favoriteResult.Docs.SourceUrl) == 1 &&
+            deduplicatedMetadataRepairText.Contains(userReference, StringComparison.Ordinal) &&
+            deduplicatedMetadataRepairText.Contains(AndroidAttribution, StringComparison.Ordinal) &&
+            RemoveDuplicateSourceLinks(
+                deduplicatedMetadataRepairText,
+                favoriteResult.Docs.SourceUrl).Equals(
+                    deduplicatedMetadataRepairText,
+                    StringComparison.Ordinal),
+            "metadata-only repairs deduplicate importer references without removing user content");
         const string emptyMetadataRepairText =
             "<Docs>\n  <remarks>\n    <para></para>\n    \n" +
             "    <para><format type=\"text/html\"><a " +
@@ -2693,6 +3076,21 @@ static class ImporterProgram
             emptyRemarksDocs.Elements("remarks").Count() == 1 &&
                 emptyRemarksDocs.Element("remarks")!.Descendants("a").Any(),
             "self-closing remarks expanded in place");
+        var firstOwner = file.Owners[0];
+        var laterOwner = file.Owners[1];
+        var expectedLaterBlock = emptyRemarksText[
+            file.DocsBlocks[laterOwner.Order].Start..file.DocsBlocks[laterOwner.Order].End];
+        var speculativeCappedRepairText = emptyRemarksText.Replace(
+            "<Docs>",
+            "<Docs> ",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(firstOwner.Order, speculativeCappedRepairText);
+        RestoreOffsetsAfterSkippedRepair(file, firstOwner, emptyRemarksText);
+        Assert(
+            emptyRemarksText[
+                file.DocsBlocks[laterOwner.Order].Start..file.DocsBlocks[laterOwner.Order].End] ==
+                expectedLaterBlock,
+            "capped repair restores later documentation block offsets");
 
         var tempDirectory = Path.Combine(
             Path.GetTempPath(),
@@ -2700,6 +3098,105 @@ static class ImporterProgram
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            var channelOnlyText = fixtureText.Replace(
+                "<param name=\"title\">To be added.</param>",
+                $"<param name=\"title\">{RemoveLeadingJavaType(mappedDocs.Parameters["title"])}</param>",
+                StringComparison.Ordinal);
+            channelOnlyText = Regex.Replace(
+                channelOnlyText,
+                @"<remarks>.*?</remarks>",
+                "<remarks>To be added.</remarks>",
+                RegexOptions.Singleline | RegexOptions.CultureInvariant);
+            var channelOnlyPath = Path.Combine(tempDirectory, "channel-only.xml");
+            File.WriteAllText(channelOnlyPath, channelOnlyText, new UTF8Encoding(false));
+            var channelOnlyFile = LoadedFile.Load(repositoryRoot, channelOnlyPath);
+            channelOnlyFile.SelectOwners(null);
+            var channelOnlyOwner = channelOnlyFile.Owners.Single(owner =>
+                owner.Id.Contains("SetTitle", StringComparison.Ordinal));
+            var channelOnlyDocs = mappedDocs with { Paragraphs = [] };
+            Assert(
+                HasChannelOnlySourceMetadata(channelOnlyFile, channelOnlyOwner, channelOnlyDocs),
+                "channel-only source import is eligible for metadata repair");
+            var channelOnlyRepaired = AddSourceDocumentationIfSafe(
+                channelOnlyFile.Text,
+                channelOnlyFile,
+                channelOnlyOwner,
+                channelOnlyDocs,
+                addMetadataForChannelOnlyMember: true);
+            Assert(
+                channelOnlyRepaired.Contains(mappedDocs.SourceUrl, StringComparison.Ordinal),
+                "channel-only source import adds metadata");
+            var channelOnlyRemarks = XDocument.Parse(channelOnlyRepaired)
+                .Root!.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "SetTitle")
+                .Element("Docs")!.Element("remarks")!;
+            Assert(
+                !NormalizeText(channelOnlyRemarks.Value).Contains("To be added.", StringComparison.Ordinal),
+                "channel-only source import clears the remarks placeholder");
+            var valueAndExceptionDocs = mappedDocs with
+            {
+                Paragraphs = [],
+                Parameters = [],
+                Returns = "int: the stored value",
+                Exceptions = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["IllegalArgumentException"] = "if the title is invalid",
+                },
+            };
+            var valueAndExceptionText = channelOnlyText
+                .Replace(
+                    "<returns>To be added.</returns>",
+                    "<returns>To be added.</returns><value>the stored value</value>",
+                    StringComparison.Ordinal)
+                .Replace(
+                    "<exception cref=\"T:Java.Lang.IllegalArgumentException\">To be added.</exception>",
+                    "<exception cref=\"T:Java.Lang.IllegalArgumentException\">if the title is invalid</exception>",
+                    StringComparison.Ordinal);
+            var valueAndExceptionPath = Path.Combine(tempDirectory, "value-exception-only.xml");
+            File.WriteAllText(valueAndExceptionPath, valueAndExceptionText, new UTF8Encoding(false));
+            var valueAndExceptionFile = LoadedFile.Load(repositoryRoot, valueAndExceptionPath);
+            valueAndExceptionFile.SelectOwners(null);
+            var valueAndExceptionOwner = valueAndExceptionFile.Owners.Single(owner =>
+                owner.Id.Contains("SetTitle", StringComparison.Ordinal));
+            Assert(
+                valueAndExceptionOwner.Docs.Element("value")?.Value == "the stored value",
+                "value-only fixture contains the exact source value");
+            Assert(
+                valueAndExceptionOwner.Docs.Element("exception")?.Value == "if the title is invalid",
+                "exception-only fixture contains the exact source exception");
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "value", "", "value"),
+                    valueAndExceptionDocs).Text == "the stored value" &&
+                ReplacementFor(
+                    new Placeholder(
+                        0,
+                        "exception",
+                        "T:Java.Lang.IllegalArgumentException",
+                        "exception"),
+                    valueAndExceptionDocs).Text == "if the title is invalid",
+                "value and exception-only fixture matches exact source channels");
+            Assert(
+                valueAndExceptionDocs.Paragraphs.Count == 0,
+                "value and exception-only fixture has no source paragraphs");
+            Assert(
+                valueAndExceptionOwner.Placeholders.Any(placeholder =>
+                    placeholder.Name is "remarks" or "para"),
+                "value and exception-only fixture retains its remarks placeholder");
+            Assert(
+                !ContainsSourceUrl(
+                    valueAndExceptionFile.Text[
+                        valueAndExceptionFile.DocsBlocks[valueAndExceptionOwner.Order].Start..
+                        valueAndExceptionFile.DocsBlocks[valueAndExceptionOwner.Order].End],
+                    valueAndExceptionDocs.SourceUrl),
+                "value and exception-only fixture has no source metadata");
+            Assert(
+                HasChannelOnlySourceMetadata(
+                    valueAndExceptionFile,
+                    valueAndExceptionOwner,
+                    valueAndExceptionDocs),
+                "value and exception-only source imports are eligible for metadata repair");
+
             var repairFailureDocument = XDocument.Parse(
                 legacyEnumText,
                 LoadOptions.PreserveWhitespace);
@@ -3014,12 +3511,18 @@ static class ImporterProgram
                 Path = path,
                 RelativePath = Relative(repositoryRoot, path),
                 Text = text,
-                Newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n",
+                Newline = SelectNewline(text),
                 HasUtf8Bom = hasBom,
                 Root = root,
                 DocsBlocks = FindDocsBlocks(text),
             };
         }
+
+        public static string SelectNewline(string text) =>
+            Regex.Matches(text, "\r\n", RegexOptions.CultureInvariant).Count >
+                Regex.Matches(text, "(?<!\r)\n", RegexOptions.CultureInvariant).Count
+                ? "\r\n"
+                : "\n";
 
         public void SelectOwners(
             string? memberFilter,
@@ -3342,6 +3845,62 @@ static class ImporterProgram
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
                 ["M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)"] =
                     Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.Char)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;C)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.String)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.Char,System.Int32)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;CI)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.String,System.Int32)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.Char,System.Int32,System.Int32)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;CII)I"),
+                ["M:Android.Text.TextUtils.IndexOf(System.String,System.String,System.Int32,System.Int32)"] =
+                    Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;Ljava/lang/CharSequence;II)I"),
+                ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char)"] =
+                    Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;C)I"),
+                ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32)"] =
+                    Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CI)I"),
+                ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32,System.Int32)"] =
+                    Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CII)I"),
+                ["M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/BaseInputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.BaseInputConnection.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/BaseInputConnection", "replaceText", "(IILjava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.BaseInputConnection.SetComposingText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/BaseInputConnection", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.CursorAnchorInfo.Builder.SetComposingText(System.Int32,System.String)"] =
+                    Mapping("android/view/inputmethod/CursorAnchorInfo$Builder", "setComposingText", "(ILjava/lang/CharSequence;)Landroid/view/inputmethod/CursorAnchorInfo$Builder;"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.CommitText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "commitText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.CommitText(System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "commitText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "replaceText", "(IILjava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.SetComposingText(System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.InputConnectionWrapper.SetComposingText(System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnectionWrapper", "setComposingText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.InputMethodSubtype.InputMethodSubtypeBuilder.SetLayoutLabelNonLocalized(System.String)"] =
+                    Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setLayoutLabelNonLocalized", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
+                ["M:Android.Views.InputMethods.InputMethodSubtype.InputMethodSubtypeBuilder.SetSubtypeNameOverride(System.String)"] =
+                    Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setSubtypeNameOverride", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.GetSelectedText(Android.Views.InputMethods.IInputConnection,Android.Views.InputMethods.GetTextFlags)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "getSelectedText", "(I)Ljava/lang/CharSequence;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.GetTextAfterCursor(Android.Views.InputMethods.IInputConnection,System.Int32,Android.Views.InputMethods.GetTextFlags)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "getTextAfterCursor", "(II)Ljava/lang/CharSequence;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.GetTextBeforeCursor(Android.Views.InputMethods.IInputConnection,System.Int32,Android.Views.InputMethods.GetTextFlags)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "getTextBeforeCursor", "(II)Ljava/lang/CharSequence;"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.ReplaceText(Android.Views.InputMethods.IInputConnection,System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "replaceText", "(IILjava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.SetComposingText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
+                ["M:Android.Views.InputMethods.IInputConnectionExtensions.SetComposingText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
+                    Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
@@ -4259,11 +4818,15 @@ static class ImporterProgram
             var text = new StringBuilder(html.Length);
             var inTag = false;
             var quote = '\0';
-            foreach (var character in html)
+            for (var index = 0; index < html.Length; index++)
             {
+                var character = html[index];
                 if (!inTag)
                 {
-                    if (character == '<')
+                    if (character == '<' &&
+                        index + 1 < html.Length &&
+                        (char.IsLetter(html[index + 1]) ||
+                         html[index + 1] is '/' or '!' or '?'))
                     {
                         inTag = true;
                         quote = '\0';
