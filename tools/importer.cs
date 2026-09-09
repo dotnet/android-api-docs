@@ -1080,11 +1080,7 @@ static class ImporterProgram
         {
             return false;
         }
-        return HasTruncatedSummaryEnding(summary) ||
-            Regex.IsMatch(
-                summary,
-                @"\b(?:e\.g\.|i\.e\.|vs\.|etc\.|\.\.\.)[\)\]\}]?$",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        return HasTruncatedSummaryEnding(summary);
     }
 
     static bool HasIncompleteCodeExampleRemarks(LoadedFile file, DocsOwner owner)
@@ -1219,6 +1215,14 @@ static class ImporterProgram
             return text;
         }
 
+        var existingSummary = NormalizeText(summary.Groups["value"].Value);
+        var sourceSummary = NormalizeText(docs.Summary);
+        if (sourceSummary.Length <= existingSummary.Length ||
+            !sourceSummary.StartsWith(existingSummary, StringComparison.Ordinal))
+        {
+            return text;
+        }
+
         var valueStart = summary.Groups["value"].Index;
         var valueEnd = valueStart + summary.Groups["value"].Length;
         var updatedBlock = blockText[..valueStart] + XmlEscape(docs.Summary) + blockText[valueEnd..];
@@ -1226,9 +1230,10 @@ static class ImporterProgram
     }
 
     static bool HasTruncatedSummaryEnding(string summary) =>
-        summary.EndsWith("e.g.", StringComparison.OrdinalIgnoreCase) ||
-        summary.EndsWith("vs.", StringComparison.OrdinalIgnoreCase) ||
-        summary.EndsWith("...", StringComparison.Ordinal);
+        Regex.IsMatch(
+            summary,
+            @"\b(?:e\.g\.|i\.e\.|vs\.|etc\.|\.\.\.)[\)\]\}]?$",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     static bool HasImporterSourceReference(LoadedFile file, DocsOwner owner)
     {
@@ -2110,6 +2115,25 @@ static class ImporterProgram
         Assert(
             terminalAbbreviationPage.TypeDocs?.Summary == "Uses a value (e.g.)",
             "sentence-ending abbreviations with closing delimiters do not over-merge");
+        var lowercaseContinuationPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "Represents a fixture widget. The widget is used only by local importer tests.",
+                "Returns the index (e.g. 1st event, 2nd event, etc.) of this event in the selection session.",
+                StringComparison.Ordinal));
+        Assert(
+            lowercaseContinuationPage.TypeDocs?.Summary ==
+                "Returns the index (e.g. 1st event, 2nd event, etc.) of this event in the selection session.",
+            "abbreviations before a closing delimiter retain lowercase continuations");
+        var nonAbbreviationDelimiterPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "Represents a fixture widget. The widget is used only by local importer tests.",
+                "Completes the operation (value.). callback is then invoked.",
+                StringComparison.Ordinal));
+        Assert(
+            nonAbbreviationDelimiterPage.TypeDocs?.Summary == "Completes the operation (value.).",
+            "closing delimiters do not extend non-abbreviation sentences");
 
         var setTitle = file.Owners.Single(owner => owner.Id.Contains("SetTitle", StringComparison.Ordinal));
         var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
@@ -2127,6 +2151,24 @@ static class ImporterProgram
                 MapOwner(implementedComparator, pages).Docs?.Summary ==
                     "Compares two fixture objects.",
             "implemented interface resolves through the exact canonical registration");
+        var textClassifierExtension = SourceVerifiedMemberMappings.Resolve(
+            "M:Android.Views.TextClassifiers.ITextClassifierExtensions.ClassifyText(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)");
+        Assert(
+            textClassifierExtension is not null &&
+                textClassifierExtension.Registration.Name == "classifyText" &&
+                textClassifierExtension.Registration.Descriptor ==
+                    "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextClassification;" &&
+                textClassifierExtension.SourceRequest.JavaPath == "android/view/textclassifier/TextClassifier",
+            "TextClassifier string extension resolves to the receiver's exact CharSequence member");
+        var textSelectionExtension = SourceVerifiedMemberMappings.Resolve(
+            "M:Android.Views.TextClassifiers.ITextClassifierExtensions.SuggestSelection(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)");
+        Assert(
+            textSelectionExtension is not null &&
+                textSelectionExtension.Registration.Name == "suggestSelection" &&
+                textSelectionExtension.Registration.Descriptor ==
+                    "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;" &&
+                textSelectionExtension.SourceRequest.JavaPath == "android/view/textclassifier/TextClassifier",
+            "TextClassifier selection extension resolves to the receiver's exact CharSequence member");
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
@@ -2238,16 +2280,31 @@ static class ImporterProgram
             "<summary>To be added.</summary>",
             "<summary>Distinguishes fixtures...</summary>",
             StringComparison.Ordinal);
+        var truncatedSummaryDocs = mappedDocs with
+        {
+            Summary = "Distinguishes fixtures... with the exact source mapping.",
+        };
+        file.UpdateBlockOffsets(setTitle.Order, truncatedSummaryText);
         var repairedSummaryText = ReplaceTruncatedSummary(
             truncatedSummaryText,
             file,
             setTitle,
-            mappedDocs);
+            truncatedSummaryDocs);
         Assert(
             repairedSummaryText.Contains(
-                "<summary>Sets the widget title.</summary>",
+                "<summary>Distinguishes fixtures... with the exact source mapping.</summary>",
                 StringComparison.Ordinal),
             "ellipsis-truncated importer summary is replaced from source");
+        var completeSummaryText = file.Text.Replace(
+            "<summary>To be added.</summary>",
+            "<summary>Locally authored complete summary (etc.)</summary>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, completeSummaryText);
+        Assert(
+            ReplaceTruncatedSummary(completeSummaryText, file, setTitle, mappedDocs)
+                .Equals(completeSummaryText, StringComparison.Ordinal),
+            "non-prefix source summaries do not overwrite existing documentation");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var titleParameter = setTitle.Placeholders.Single(item => item.Name == "param");
         Assert(
             ReplacementFor(titleParameter, mappedDocs).Text == "the title to display",
@@ -3887,6 +3944,10 @@ static class ImporterProgram
                     Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setLayoutLabelNonLocalized", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
                 ["M:Android.Views.InputMethods.InputMethodSubtype.InputMethodSubtypeBuilder.SetSubtypeNameOverride(System.String)"] =
                     Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setSubtypeNameOverride", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
+                ["M:Android.Views.TextClassifiers.ITextClassifierExtensions.ClassifyText(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)"] =
+                    Mapping("android/view/textclassifier/TextClassifier", "classifyText", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextClassification;"),
+                ["M:Android.Views.TextClassifiers.ITextClassifierExtensions.SuggestSelection(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)"] =
+                    Mapping("android/view/textclassifier/TextClassifier", "suggestSelection", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
@@ -4893,14 +4954,12 @@ static class ImporterProgram
 
         static bool IsAbbreviation(string text, int periodIndex)
         {
-            if (HasClosingDelimiterBoundary(text, periodIndex))
-                return false;
             var tokenStart = periodIndex;
             while (tokenStart > 0 && !char.IsWhiteSpace(text[tokenStart - 1]))
                 tokenStart--;
             var token = text[tokenStart..(periodIndex + 1)]
                 .Trim('(', ')', '[', ']', '{', '}', '"', '\'');
-            return token.Equals("e.g.", StringComparison.OrdinalIgnoreCase) ||
+            var isAbbreviation = token.Equals("e.g.", StringComparison.OrdinalIgnoreCase) ||
                 token.Equals("i.e.", StringComparison.OrdinalIgnoreCase) ||
                 token.Equals("vs.", StringComparison.OrdinalIgnoreCase) ||
                 token.Equals("etc.", StringComparison.OrdinalIgnoreCase) ||
@@ -4908,6 +4967,16 @@ static class ImporterProgram
                     token,
                     @"^(?:[A-Za-z]\.){2,}$",
                     RegexOptions.CultureInvariant);
+            if (HasClosingDelimiterBoundary(text, periodIndex))
+            {
+                var next = periodIndex + 1;
+                while (next < text.Length && text[next] is ')' or ']' or '}')
+                    next++;
+                while (next < text.Length && char.IsWhiteSpace(text[next]))
+                    next++;
+                return isAbbreviation && next < text.Length && char.IsLower(text[next]);
+            }
+            return isAbbreviation;
         }
 
         static bool HasClosingDelimiterBoundary(string text, int periodIndex)
