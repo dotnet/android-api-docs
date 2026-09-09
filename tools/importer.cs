@@ -254,7 +254,8 @@ static class ImporterProgram
                     }
 
                     var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
-                    var enumDiscardedMetadataRepair = owner.IsEnumField &&
+                    var enumDiscardedMetadataRepair = mapping.Docs is not null &&
+                        owner.IsEnumField &&
                         !RemoveEnumDiscardedMetadata(
                             text[file.DocsBlocks[owner.Order].Start..file.DocsBlocks[owner.Order].End],
                             mapping.Docs!).Equals(
@@ -1159,14 +1160,24 @@ static class ImporterProgram
 
     static bool HasTruncatedImporterSummary(LoadedFile file, DocsOwner owner)
     {
-        var summary = owner.Docs.Element("summary")?.Value.Trim();
+        var summary = owner.Docs.Element("summary");
         if (summary is null || !HasImporterSourceReference(file, owner))
         {
             return false;
         }
-        return HasTruncatedSummaryEnding(summary) ||
+        var contentParagraphs = summary.Elements("para")
+            .Where(paragraph => !paragraph.Descendants("a").Any(link =>
+                (string?)link.Attribute("title") == "Reference documentation" ||
+                ((string?)link.Attribute("href"))?.Equals(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal) == true))
+            .Select(paragraph => paragraph.Value.Trim());
+        return contentParagraphs.Any(paragraph =>
+                HasTruncatedSummaryEnding(paragraph) ||
+                paragraph.Contains(":;", StringComparison.Ordinal)) ||
+            HasTruncatedSummaryEnding(summary.Value.Trim()) ||
             Regex.IsMatch(
-                summary,
+                summary.Value,
                 @"\b(?:e\.g\.|i\.e\.|vs\.|etc\.|\.\.\.)[\)\]\}]?$",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
@@ -1297,12 +1308,26 @@ static class ImporterProgram
         var blockText = text[block.Start..block.End];
         var summary = Regex.Match(
             blockText,
-            @"<summary\b[^>]*>(?<value>[^<]*)</summary>",
-            RegexOptions.CultureInvariant);
-        if (!summary.Success || !HasTruncatedSummaryEnding(summary.Groups["value"].Value.TrimEnd()))
+            @"<summary\b[^>]*>(?<value>.*?)</summary>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        if (!summary.Success)
         {
             return text;
         }
+
+        var summaryElement = XElement.Parse(summary.Value, LoadOptions.PreserveWhitespace);
+        var isTruncated = HasTruncatedSummaryEnding(summaryElement.Value.TrimEnd()) ||
+            summaryElement.Elements("para")
+                .Where(paragraph => !paragraph.Descendants("a").Any(link =>
+                    (string?)link.Attribute("title") == "Reference documentation" ||
+                    ((string?)link.Attribute("href"))?.Equals(
+                        "https://developers.google.com/terms/site-policies",
+                        StringComparison.Ordinal) == true))
+                .Any(paragraph =>
+                    HasTruncatedSummaryEnding(paragraph.Value.TrimEnd()) ||
+                    paragraph.Value.Contains(":;", StringComparison.Ordinal));
+        if (!isTruncated)
+            return text;
 
         var valueStart = summary.Groups["value"].Index;
         var valueEnd = valueStart + summary.Groups["value"].Length;
@@ -1312,6 +1337,7 @@ static class ImporterProgram
 
     static bool HasTruncatedSummaryEnding(string summary) =>
         summary.EndsWith("e.g.", StringComparison.OrdinalIgnoreCase) ||
+        summary.EndsWith("i.e.", StringComparison.OrdinalIgnoreCase) ||
         summary.EndsWith("vs.", StringComparison.OrdinalIgnoreCase) ||
         summary.EndsWith("...", StringComparison.Ordinal);
 
@@ -4621,7 +4647,6 @@ static class ImporterProgram
             var paragraphs = new List<(int Position, SourceParagraph Paragraph)>();
             var codeRanges = new List<(int Start, int End, SourceParagraph Paragraph)>();
             var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
-            var listDepth = 0;
 
             void CompleteElement(
                 (string Tag, int TagStart, int ContentStart) open,
@@ -4664,16 +4689,12 @@ static class ImporterProgram
                 if (name.Equals("ul", StringComparison.OrdinalIgnoreCase) ||
                     name.Equals("ol", StringComparison.OrdinalIgnoreCase))
                 {
-                    listDepth = tag.Groups["close"].Success
-                        ? Math.Max(0, listDepth - 1)
-                        : listDepth + 1;
                     continue;
                 }
                 if (!tag.Groups["close"].Success)
                 {
                     // HTML permits omitted </p>; a nested paragraph starts a new block.
                     if (name.Equals("p", StringComparison.OrdinalIgnoreCase) &&
-                        listDepth == 0 &&
                         stack.Count > 0 &&
                         stack.Peek().Tag.Equals("p", StringComparison.OrdinalIgnoreCase))
                     {
@@ -4683,8 +4704,6 @@ static class ImporterProgram
                     continue;
                 }
 
-                if (name.Equals("p", StringComparison.OrdinalIgnoreCase) && listDepth > 0)
-                    continue;
                 if (stack.Count == 0)
                     continue;
                 var open = stack.Pop();
@@ -4795,6 +4814,18 @@ static class ImporterProgram
                     },
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             }
+            html = Regex.Replace(
+                html,
+                @"</p>\s*<(?<tag>ul|ol)\b[^>]*>(?<body>.*?)</\k<tag>\s*>\s*<p\b[^>]*>",
+                match =>
+                    "; " + CleanSourceText(
+                        StripHtmlTags(match.Groups["body"].Value, addWhitespace: true)) + " ",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            html = Regex.Replace(
+                html,
+                @":\s*;\s*",
+                ": ",
+                RegexOptions.CultureInvariant);
             return html;
         }
 
