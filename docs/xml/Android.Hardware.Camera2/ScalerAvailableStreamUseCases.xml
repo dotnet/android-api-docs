@@ -40,7 +40,16 @@
       </ReturnValue>
       <MemberValue>6</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Cropped RAW stream when the client chooses to crop the field of view.</para>
+          <para>Certain types of image sensors can run in binned modes in order to improve signal to noise ratio while capturing frames. However, at certain zoom levels and / or when other scene conditions are deemed fit, the camera sub-system may choose to un-bin and remosaic the sensor's output. This results in a RAW frame which is cropped in field of view and yet has the same number of pixels as full field of view RAW, thereby improving image detail.</para>
+          <para>The resultant field of view of the RAW stream will be greater than or equal to croppable non-RAW streams. The effective crop region for this RAW stream will be reflected in the CaptureResult key android.scaler.rawCropRegion.</para>
+          <para>If this stream use case is set on a non-RAW stream, i.e.</para>
+          <para>session configuration is not guaranteed to succeed.</para>
+          <para>This stream use case may not be supported on some devices.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#SCALER_AVAILABLE_STREAM_USE_CASES_CROPPED_RAW" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_CROPPED_RAW</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Default">
@@ -68,7 +77,12 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Default stream use case.</para>
+          <para>This use case is the same as when the application doesn't set any use case for the stream. The camera device uses the properties of the output target, such as format, dataSpace, or surface class type, to optimize the image processing pipeline.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Preview">
@@ -96,7 +110,13 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Live stream shown to the user.</para>
+          <para>Optimized for performance and usability as a viewfinder, but not necessarily for image quality. The output is not meant to be persisted as saved images or video.</para>
+          <para>No stall if android.control.* are set to FAST. There may be stall if they are set to HIGH_QUALITY. This use case has the same behavior as the default SurfaceView and SurfaceTexture targets. Additionally, this use case can be used for in-app image analysis.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="PreviewVideoStill">
@@ -124,7 +144,13 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>One single stream used for combined purposes of preview, video, and still capture.</para>
+          <para>For such multi-purpose streams, the camera device aims to make the best tradeoff between the individual use cases. For example, the STILL_CAPTURE use case by itself may have stalls for achieving best image quality. But if combined with PREVIEW and VIDEO_RECORD, the camera device needs to trade off the additional image processing for speed so that preview and video recording aren't slowed down.</para>
+          <para>Similarly, VIDEO_RECORD may produce frames with a substantial lag, but PREVIEW_VIDEO_STILL must have minimal output delay. This means that to enable video stabilization with this use case, the device must support and the app must select the PREVIEW_STABILIZATION mode for video stabilization.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="StillCapture">
@@ -152,7 +178,13 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Still photo capture.</para>
+          <para>Optimized for high-quality high-resolution capture, and not expected to maintain preview-like frame rates.</para>
+          <para>The stream may have stalls regardless of whether android.control.* is HIGH_QUALITY. This use case has the same behavior as the default JPEG and RAW related formats.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="VideoCall">
@@ -180,7 +212,12 @@
       </ReturnValue>
       <MemberValue>5</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Long-running video call optimized for both power efficiency and video quality.</para>
+          <para>The camera sensor may run in a lower-resolution mode to reduce power consumption at the cost of some image and digital zoom quality. Unlike VIDEO_RECORD, VIDEO_CALL outputs are expected to work in dark conditions, so are usually accompanied with variable frame rate settings to allow sufficient exposure time in low light.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="VideoRecord">
@@ -208,7 +245,13 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Recording video clips.</para>
+          <para>Optimized for high-quality video capture, including high-quality image stabilization if supported by the device and enabled by the application. As a result, may produce output frames with a substantial lag from real time, to allow for highest-quality stabilization or other processing. As such, such an output is not suitable for drawing to screen directly, and is expected to be persisted to disk or similar for later playback or processing. Only streams that set the VIDEO_RECORD use case are guaranteed to have video stabilization applied when the video stabilization control is set to ON, as opposed to PREVIEW_STABILIZATION.</para>
+          <para>This use case has the same behavior as the default MediaRecorder and MediaCodec targets.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
   </Members>

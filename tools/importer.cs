@@ -92,6 +92,7 @@ static class ImporterProgram
                 .Where(item =>
                     item.Owner.Placeholders.Count > 0 ||
                     IsEnumSummaryRepairCandidate(item.Owner) ||
+                    HasEnumDiscardedMetadataCandidate(item.File, item.Owner) ||
                     HasAugmentedRemarksPlaceholder(item.File, item.Owner) ||
                     HasTruncatedImporterSummary(item.File, item.Owner) ||
                     HasIncompleteCodeExampleRemarks(item.File, item.Owner) ||
@@ -253,6 +254,12 @@ static class ImporterProgram
                     }
 
                     var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
+                    var enumDiscardedMetadataRepair = owner.IsEnumField &&
+                        !RemoveEnumDiscardedMetadata(
+                            text[file.DocsBlocks[owner.Order].Start..file.DocsBlocks[owner.Order].End],
+                            mapping.Docs!).Equals(
+                                text[file.DocsBlocks[owner.Order].Start..file.DocsBlocks[owner.Order].End],
+                                StringComparison.Ordinal);
                     var augmentedRemarksRepair = HasAugmentedRemarksPlaceholder(file, owner);
                     var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
                     var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
@@ -264,6 +271,7 @@ static class ImporterProgram
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
                         (enumSummaryRepair ||
+                         enumDiscardedMetadataRepair ||
                          augmentedRemarksRepair ||
                          truncatedSummaryRepair ||
                          codeExampleRepair ||
@@ -281,6 +289,7 @@ static class ImporterProgram
                             file.UpdateBlockOffsets(owner.Order, refreshed);
                         }
                         if (enumSummaryRepair ||
+                            enumDiscardedMetadataRepair ||
                             augmentedRemarksRepair ||
                             metadataOnlyRemarksRepair ||
                             channelOnlyMetadataRepair)
@@ -331,7 +340,9 @@ static class ImporterProgram
                         mapping.Docs is not null &&
                         ShouldAddSourceDocumentation(
                             deferredRemarksPlaceholder,
-                            replacedRemarksPlaceholder))
+                            replacedRemarksPlaceholder,
+                            importedSourceChannel,
+                            mapping.Docs))
                     {
                         text = AddSourceDocumentationIfSafe(
                             text,
@@ -597,11 +608,13 @@ static class ImporterProgram
         var targets = owner.Placeholders
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
-        if (IsEnumSummaryRepairCandidate(owner) || HasTruncatedImporterSummary(file, owner))
+        if (IsEnumSummaryRepairCandidate(owner) ||
+            HasTruncatedImporterSummary(file, owner))
             targets.Add("summary");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
-            HasMetadataOnlyRemarks(file, owner))
+            HasMetadataOnlyRemarks(file, owner) ||
+            HasEnumDiscardedMetadataCandidate(file, owner))
             targets.Add("remarks");
 
         foreach (var target in targets.OrderBy(target => target, StringComparer.Ordinal))
@@ -1015,7 +1028,10 @@ static class ImporterProgram
         var additions = new List<string>();
         var replacedRemarksPlaceholder = owner.Placeholders.Any(
             placeholder => placeholder.Name is "remarks" or "para");
-        if (attributionOnly && !replacedRemarksPlaceholder && docs.Paragraphs.Count > 0)
+        if (attributionOnly &&
+            !replacedRemarksPlaceholder &&
+            !hasRemarksPlaceholder &&
+            docs.Paragraphs.Count > 0)
         {
             foreach (var paragraph in docs.Paragraphs)
                 additions.Add(RenderDocumentationParagraph(paragraph, paraIndent));
@@ -1134,8 +1150,12 @@ static class ImporterProgram
 
     static bool ShouldAddSourceDocumentation(
         bool deferredRemarksPlaceholder,
-        bool replacedRemarksPlaceholder) =>
-        !deferredRemarksPlaceholder || replacedRemarksPlaceholder;
+        bool replacedRemarksPlaceholder,
+        bool importedSourceChannel,
+        SourceDocs docs) =>
+        !deferredRemarksPlaceholder ||
+        replacedRemarksPlaceholder ||
+        importedSourceChannel;
 
     static bool HasTruncatedImporterSummary(LoadedFile file, DocsOwner owner)
     {
@@ -1180,7 +1200,8 @@ static class ImporterProgram
         if (owner.IsEnumField)
             return false;
         var block = file.DocsBlocks[owner.Order];
-        return HasMetadataOnlyRemarks(file.Text[block.Start..block.End]);
+        return HasImporterSourceReference(file, owner) &&
+            HasMetadataOnlyRemarks(file.Text[block.Start..block.End]);
     }
 
     static bool HasMetadataOnlyRemarks(string blockText)
@@ -1472,7 +1493,13 @@ static class ImporterProgram
                         var element = XElement.Parse(paragraph.Value.Trim());
                         var isTransferredSource = XNode.DeepEquals(element, expectedSource);
                         var isTransferredAttribution = expectedAttribution is not null &&
-                            XNode.DeepEquals(element, expectedAttribution);
+                            NormalizeText(element.Value).Equals(
+                                NormalizeText(expectedAttribution.Value),
+                                StringComparison.Ordinal) &&
+                            element.Descendants("a").Any(link =>
+                                ((string?)link.Attribute("href"))?.Equals(
+                                    "https://developers.google.com/terms/site-policies",
+                                    StringComparison.Ordinal) == true);
                         return isTransferredSource || isTransferredAttribution
                             ? ""
                             : paragraph.Value;
@@ -1483,6 +1510,22 @@ static class ImporterProgram
                     : $"<remarks{match.Groups["attrs"].Value}>{body}</remarks>";
             },
             RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+    }
+
+    static bool HasEnumDiscardedMetadataCandidate(LoadedFile file, DocsOwner owner)
+    {
+        if (!owner.IsEnumField)
+            return false;
+
+        var block = file.Text[file.DocsBlocks[owner.Order].Start..file.DocsBlocks[owner.Order].End];
+        return Regex.IsMatch(
+                   block,
+                   @"<summary\b[^>]*>.*?title=""Reference documentation"".*?</summary>",
+                   RegexOptions.Singleline | RegexOptions.CultureInvariant) &&
+            Regex.IsMatch(
+                block,
+                @"<remarks\b[^>]*>.*?https://developers\.google\.com/terms/site-policies.*?</remarks>",
+                RegexOptions.Singleline | RegexOptions.CultureInvariant);
     }
 
     static string AddEnumSummaryMetadata(
@@ -2273,9 +2316,14 @@ static class ImporterProgram
         Assert(mappedDocs.Returns == "the number of displayed characters", "Android return");
         Assert(mappedDocs.Exceptions["IllegalArgumentException"] == "if title is empty", "Android exception");
         Assert(
-            !ShouldAddSourceDocumentation(true, false) &&
-                ShouldAddSourceDocumentation(true, true) &&
-                ShouldAddSourceDocumentation(false, false),
+            !ShouldAddSourceDocumentation(true, false, false, mappedDocs) &&
+                ShouldAddSourceDocumentation(true, true, false, mappedDocs) &&
+                ShouldAddSourceDocumentation(false, false, false, mappedDocs) &&
+                ShouldAddSourceDocumentation(
+                    true,
+                    false,
+                    true,
+                    mappedDocs),
             "deferred remarks placeholders do not receive source metadata");
 
         var mismatch = file.Owners.Single(owner => owner.Id.Contains("SetCount", StringComparison.Ordinal));

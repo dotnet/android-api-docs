@@ -38,10 +38,15 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The camera device's autoexposure routine is disabled.</para>
+          <para>The application-selected android.sensor.exposureTime, android.sensor.sensitivity and android.sensor.frameDuration are used by the camera device, along with android.flash.* fields, if there's a flash unit for this camera device.</para>
+          <para>Note that auto-white balance (AWB) and auto-focus (AF) behavior is device dependent when AE is in OFF mode. To have consistent behavior across different devices, it is recommended to either set AWB and AF to OFF mode or lock AWB and AF before setting AE to OFF. See android.control.awbMode, android.control.afMode, android.control.awbLock, and android.control.afTrigger for more details.</para>
+          <para>LEGACY devices do not support the OFF mode and will override attempts to use this value to ON.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_AE_MODE_OFF" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="On">
@@ -65,10 +70,14 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The camera device's autoexposure routine is active, with no flash control.</para>
+          <para>The application's values for android.sensor.exposureTime, android.sensor.sensitivity, and android.sensor.frameDuration are ignored. The application has control over the various android.flash.* fields.</para>
+          <para>If the device supports manual flash strength control, i.e., if android.flash.singleStrengthMaxLevel and android.flash.torchStrengthMaxLevel are greater than 1, then the auto-exposure (AE) precapture metering sequence should be triggered for the configured flash mode and strength to avoid the image being incorrectly exposed at different android.flash.strengthLevel.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_AE_MODE_ON" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="OnAlwaysFlash">
@@ -92,10 +101,14 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>Like ON, except that the camera device also controls the camera's flash unit, always firing it for still captures.</para>
+          <para>The flash may be fired during a precapture sequence (triggered by android.control.aePrecaptureTrigger) and will always be fired for captures for which the android.control.captureIntent field is set to STILL_CAPTURE.</para>
+          <para>It's important to wait for the precapture sequence to complete (i.e., android.control.aeState reaches FLASH_REQUIRED, CONVERGED, or LOCKED) Dbefore submitting a STILL_CAPTURE request. Otherwise, in low-light conditions, the image captures with flash fired won't have correct exposures.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_AE_MODE_ON_ALWAYS_FLASH" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="OnAutoFlash">
@@ -119,10 +132,14 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>Like ON, except that the camera device also controls the camera's flash unit, firing it in low-light conditions.</para>
+          <para>The flash may be fired during a precapture sequence (triggered by android.control.aePrecaptureTrigger) and may be fired for captures for which the android.control.captureIntent field is set to STILL_CAPTURE.</para>
+          <para>It's important to wait for the precapture sequence to complete (i.e., android.control.aeState reaches FLASH_REQUIRED, CONVERGED, or LOCKED) before submitting a STILL_CAPTURE request. Otherwise, in low-light conditions, the image captures with flash fired won't have correct exposures.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_AE_MODE_ON_AUTO_FLASH" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="OnAutoFlashRedeye">
@@ -146,10 +163,13 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>Like ON_AUTO_FLASH, but with automatic red eye reduction.</para>
+          <para>If deemed necessary by the camera device, a red eye reduction flash will fire during the precapture sequence.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="OnExternalFlash">
@@ -177,7 +197,14 @@
       </ReturnValue>
       <MemberValue>5</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>An external flash has been turned on.</para>
+          <para>It informs the camera device that an external flash has been turned on, and that metering (and continuous focus if active) should be quickly recalculated to account for the external flash. Otherwise, this mode acts like ON.</para>
+          <para>When the external flash is turned off, AE mode should be changed to one of the other available AE modes.</para>
+          <para>If the camera device supports AE external flash mode, android.control.aeState must be FLASH_REQUIRED after the camera device finishes AE scan and it's too dark without flash.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_AE_MODE_ON_EXTERNAL_FLASH" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_EXTERNAL_FLASH</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="OnLowLightBoostBrightnessPriority">
@@ -205,7 +232,18 @@
       </ReturnValue>
       <MemberValue>6</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Like 'ON' but applies additional brightness boost in low light scenes.</para>
+          <para>When the scene lighting conditions are within the range defined by android.control.lowLightBoostInfoLuminanceRange this mode will apply additional brightness boost.</para>
+          <para>This mode will automatically adjust the intensity of low light boost applied according to the scene lighting conditions. A darker scene will receive more boost while a brighter scene will receive less boost.</para>
+          <para>This mode can ignore the set target frame rate to allow more light to be captured which can result in choppier motion. The frame rate can extend to lower than the android.control.aeAvailableTargetFpsRanges but will not go below 10 FPS. This mode can also increase the sensor sensitivity gain which can result in increased luma and chroma noise. The sensor sensitivity gain can extend to higher values beyond android.sensor.info.sensitivityRange. This mode may also apply additional processing to recover details in dark and bright areas of the image,and noise reduction at high sensitivity gain settings to manage the trade-off between light sensitivity and capture noise.</para>
+          <para>This mode is restricted to two output surfaces. One output surface type can either be SurfaceView or TextureView. Another output surface type can either be MediaCodec or MediaRecorder. This mode cannot be used with a target FPS range higher than 30 FPS.</para>
+          <para>If the session configuration is not supported, the AE mode reported in the CaptureResult will be 'ON' instead of 'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY'.</para>
+          <para>When this AE mode is enabled, the CaptureResult field android.control.lowLightBoostState will indicate when low light boost is 'ACTIVE' or 'INACTIVE'. By default android.control.lowLightBoostState will be 'INACTIVE'.</para>
+          <para>The low light boost is 'ACTIVE' once the scene lighting condition is less than the upper bound lux value defined by android.control.lowLightBoostInfoLuminanceRange. This mode will be 'INACTIVE' once the scene lighting condition is greater than the upper bound lux value defined by android.control.lowLightBoostInfoLuminanceRange.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
   </Members>
