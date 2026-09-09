@@ -151,38 +151,6 @@ static class ImporterProgram
                     var importedSourceChannel = false;
                     var replacedRemarksPlaceholder = false;
                     var deferredRemarksPlaceholder = false;
-                    var normalized = NormalizeStaleNestedConstructorLinks(
-                        text,
-                        file.DocsBlocks[owner.Order]);
-                    if (!normalized.Equals(text, StringComparison.Ordinal))
-                    {
-                        if (remaining == 0)
-                        {
-                            file.UpdateBlockOffsets(owner.Order, text);
-                            report.Entries.Add(ReportEntry.Skipped(
-                                file.RelativePath,
-                                owner.Id,
-                                "remarks",
-                                "max_changes_reached",
-                                $"The --max-changes limit of {options.MaxChanges} was reached.",
-                                owner.SourceRequest?.Url ?? ""));
-                        }
-                        else
-                        {
-                            text = normalized;
-                            file.UpdateBlockOffsets(owner.Order, text);
-                            fileChanged = true;
-                            ownerChanged = true;
-                            remaining--;
-                            report.Entries.Add(ReportEntry.Changed(
-                                "would_apply",
-                                file.RelativePath,
-                                owner.Id,
-                                "remarks",
-                                owner.SourceRequest?.Url ?? ""));
-                        }
-                    }
-
                     var mapping = MapOwner(owner, pages);
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
@@ -253,52 +221,20 @@ static class ImporterProgram
                     }
 
                     var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
-                    var augmentedRemarksRepair = HasAugmentedRemarksPlaceholder(file, owner);
-                    var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
-                    var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
-                    var metadataOnlyRemarksRepair = HasMetadataOnlyRemarks(file, owner);
-                    var channelOnlyMetadataRepair = HasChannelOnlySourceMetadata(
-                        file,
-                        owner,
-                        mapping.Docs!);
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
-                        (enumSummaryRepair ||
-                         augmentedRemarksRepair ||
-                         truncatedSummaryRepair ||
-                         codeExampleRepair ||
-                         metadataOnlyRemarksRepair ||
-                         channelOnlyMetadataRepair))
+                        enumSummaryRepair)
                     {
-                        var refreshed = truncatedSummaryRepair
-                            ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
-                            : text;
-                        if (!refreshed.Equals(text, StringComparison.Ordinal))
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        if (codeExampleRepair)
-                        {
-                            refreshed = ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        }
-                        if (enumSummaryRepair ||
-                            augmentedRemarksRepair ||
-                            metadataOnlyRemarksRepair ||
-                            channelOnlyMetadataRepair)
-                        {
-                            refreshed = AddSourceDocumentationIfSafe(
-                                refreshed,
-                                file,
-                                owner,
-                                mapping.Docs,
-                                allowEnumCreation: false,
-                                addMetadataForChannelOnlyMember: channelOnlyMetadataRepair);
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        }
+                        var refreshed = AddSourceDocumentationIfSafe(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs,
+                            allowEnumCreation: false);
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
-                            var repairTarget = enumSummaryRepair || truncatedSummaryRepair
-                                ? "summary"
-                                : "remarks";
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
+                            var repairTarget = "summary";
                             if (remaining == 0)
                             {
                                 RestoreOffsetsAfterSkippedRepair(file, owner, text);
@@ -1891,6 +1827,52 @@ static class ImporterProgram
                 SourceRequest.JavaPath: "android/text/TextUtils",
             },
             "String convenience overload maps to the exact CharSequence JNI descriptor");
+        Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Telecom.PhoneAccount.Builder.SetShortDescription(System.String)") is
+            {
+                Registration.Name: "setShortDescription",
+                Registration.Descriptor: "(Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;",
+                SourceRequest.JavaPath: "android/telecom/PhoneAccount$Builder",
+            } &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Telecom.PhoneAccount.InvokeBuilder(Android.Telecom.PhoneAccountHandle,System.String)") is
+            {
+                Registration.Name: "builder",
+                Registration.Descriptor: "(Landroid/telecom/PhoneAccountHandle;Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;",
+                SourceRequest.JavaPath: "android/telecom/PhoneAccount",
+            },
+            "Telecom String convenience overloads map to exact CharSequence JNI counterparts");
+        var telecomStringPropertyMappings = new Dictionary<string, (string JavaPath, string JavaName)>
+        {
+            ["P:Android.Telecom.CallAttributes.DisplayName"] =
+                ("android/telecom/CallAttributes", "getDisplayName"),
+            ["P:Android.Telecom.CallEndpoint.EndpointName"] =
+                ("android/telecom/CallEndpoint", "getEndpointName"),
+            ["P:Android.Telecom.DisconnectCause.Description"] =
+                ("android/telecom/DisconnectCause", "getDescription"),
+            ["P:Android.Telecom.DisconnectCause.Label"] =
+                ("android/telecom/DisconnectCause", "getLabel"),
+            ["P:Android.Telecom.PhoneAccount.Label"] =
+                ("android/telecom/PhoneAccount", "getLabel"),
+            ["P:Android.Telecom.PhoneAccount.ShortDescription"] =
+                ("android/telecom/PhoneAccount", "getShortDescription"),
+            ["P:Android.Telecom.RemoteConnection.CallerDisplayName"] =
+                ("android/telecom/RemoteConnection", "getCallerDisplayName"),
+            ["P:Android.Telecom.StatusHints.Label"] =
+                ("android/telecom/StatusHints", "getLabel"),
+        };
+        Assert(
+            telecomStringPropertyMappings.All(item =>
+                SourceVerifiedMemberMappings.Resolve(item.Key) is
+                {
+                    Registration.Name: var name,
+                    Registration.Descriptor: "()Ljava/lang/CharSequence;",
+                    SourceRequest.JavaPath: var path,
+                } &&
+                name == item.Value.JavaName &&
+                path == item.Value.JavaPath),
+            "Telecom String property aliases map to exact CharSequence getter counterparts");
         Assert(
             LoadedFile.SelectNewline("first\nsecond\r\nthird\n") == "\n",
             "mixed-newline files preserve their predominant line ending");
@@ -3863,6 +3845,26 @@ static class ImporterProgram
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CI)I"),
                 ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32,System.Int32)"] =
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CII)I"),
+                ["M:Android.Telecom.PhoneAccount.Builder.SetShortDescription(System.String)"] =
+                    Mapping("android/telecom/PhoneAccount$Builder", "setShortDescription", "(Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
+                ["M:Android.Telecom.PhoneAccount.InvokeBuilder(Android.Telecom.PhoneAccountHandle,System.String)"] =
+                    Mapping("android/telecom/PhoneAccount", "builder", "(Landroid/telecom/PhoneAccountHandle;Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
+                ["P:Android.Telecom.CallAttributes.DisplayName"] =
+                    Mapping("android/telecom/CallAttributes", "getDisplayName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.CallEndpoint.EndpointName"] =
+                    Mapping("android/telecom/CallEndpoint", "getEndpointName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.DisconnectCause.Description"] =
+                    Mapping("android/telecom/DisconnectCause", "getDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.DisconnectCause.Label"] =
+                    Mapping("android/telecom/DisconnectCause", "getLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.PhoneAccount.Label"] =
+                    Mapping("android/telecom/PhoneAccount", "getLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.PhoneAccount.ShortDescription"] =
+                    Mapping("android/telecom/PhoneAccount", "getShortDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.RemoteConnection.CallerDisplayName"] =
+                    Mapping("android/telecom/RemoteConnection", "getCallerDisplayName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.StatusHints.Label"] =
+                    Mapping("android/telecom/StatusHints", "getLabel", "()Ljava/lang/CharSequence;"),
                 ["M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/BaseInputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.BaseInputConnection.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
