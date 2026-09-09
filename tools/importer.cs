@@ -2169,6 +2169,24 @@ static class ImporterProgram
                 MapOwner(implementedComparator, pages).Docs?.Summary ==
                     "Compares two fixture objects.",
             "implemented interface resolves through the exact canonical registration");
+        var textClassifierExtension = SourceVerifiedMemberMappings.Resolve(
+            "M:Android.Views.TextClassifiers.ITextClassifierExtensions.ClassifyText(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)");
+        Assert(
+            textClassifierExtension is not null &&
+                textClassifierExtension.Registration.Name == "classifyText" &&
+                textClassifierExtension.Registration.Descriptor ==
+                    "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextClassification;" &&
+                textClassifierExtension.SourceRequest.JavaPath == "android/view/textclassifier/TextClassifier",
+            "TextClassifier string extension resolves to the receiver's exact CharSequence member");
+        var textSelectionExtension = SourceVerifiedMemberMappings.Resolve(
+            "M:Android.Views.TextClassifiers.ITextClassifierExtensions.SuggestSelection(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)");
+        Assert(
+            textSelectionExtension is not null &&
+                textSelectionExtension.Registration.Name == "suggestSelection" &&
+                textSelectionExtension.Registration.Descriptor ==
+                    "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;" &&
+                textSelectionExtension.SourceRequest.JavaPath == "android/view/textclassifier/TextClassifier",
+            "TextClassifier selection extension resolves to the receiver's exact CharSequence member");
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
@@ -3924,6 +3942,10 @@ static class ImporterProgram
                     Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setLayoutLabelNonLocalized", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
                 ["M:Android.Views.InputMethods.InputMethodSubtype.InputMethodSubtypeBuilder.SetSubtypeNameOverride(System.String)"] =
                     Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setSubtypeNameOverride", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
+                ["M:Android.Views.TextClassifiers.ITextClassifierExtensions.ClassifyText(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)"] =
+                    Mapping("android/view/textclassifier/TextClassifier", "classifyText", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextClassification;"),
+                ["M:Android.Views.TextClassifiers.ITextClassifierExtensions.SuggestSelection(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)"] =
+                    Mapping("android/view/textclassifier/TextClassifier", "suggestSelection", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
