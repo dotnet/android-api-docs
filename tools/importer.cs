@@ -3010,11 +3010,11 @@ static class ImporterProgram
                 "<p>Use:</p><ul><li><code>__INLINE_CODE_1__</code></li><li><code>for (;;) { process(); }</code></li></ul><p>continue.</p>") ==
                 "Use: __INLINE_CODE_1__; for (;;) { process(); } continue.",
             "inline code markers cannot collide with source text");
+        var inlineCodePeriodText = SourcePage.HtmlText(
+            "<p>Versions:</p><ul><li><code>Version 1.</code></li><li>Other</li></ul><p>continue.</p>");
         Assert(
-            SourcePage.HtmlText(
-                "<p>Versions:</p><ul><li><code>Version 1.</code></li><li>Other</li></ul><p>continue.</p>") ==
-                "Versions: Version 1.; Other continue.",
-            "terminal punctuation in inline code is preserved");
+            inlineCodePeriodText == "Versions: Version 1.; Other continue.",
+            $"terminal punctuation in inline code is preserved: {inlineCodePeriodText}");
         Assert(
             SourcePage.HtmlText(
                 "<p>Versions:</p><ul><li><code><span>Version 1.</span></code></li><li>Other</li></ul><p>continue.</p>") ==
@@ -3025,6 +3025,13 @@ static class ImporterProgram
                 "<p><strong>Types:</strong></p><ul><li>First</li><li>Second</li></ul><p>continue.</p>") ==
                 "Types: First; Second continue.",
             "formatted list introductions retain colon punctuation");
+        var bridgedListParagraphs = SourcePage.ExtractParagraphs(
+            "<p>Types:</p><ul><li>List&lt;String&gt;</li><li><pre>for (;;) { process(); }</pre></li></ul><p>Continue.</p>");
+        Assert(
+            bridgedListParagraphs.Count == 2 &&
+                bridgedListParagraphs[0].Text == "Types: List<String>; for (;;) { process(); }" &&
+                bridgedListParagraphs[1].Text == "Continue.",
+            "list bridge retains payload and following prose as paragraphs");
 
         var enumFile = LoadedFile.Load(
             repositoryRoot,
@@ -4829,7 +4836,7 @@ static class ImporterProgram
             return match.Success ? match.Groups["body"].Value : "";
         }
 
-        static List<SourceParagraph> ExtractParagraphs(string html)
+        internal static List<SourceParagraph> ExtractParagraphs(string html)
         {
             html = NormalizeHtmlLists(html);
             html = NormalizeNestedListParagraphs(html);
@@ -4986,83 +4993,68 @@ static class ImporterProgram
                 @"<ul\b[^>]*\bclass=""[^""]*\bnolist\b[^""]*""[^>]*>.*?</ul>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            html = Regex.Replace(
+                html,
+                @"(?<introOpen><p\b[^>]*>)(?<introBody>.*?)</p>\s*<(?<tag>ul|ol)\b[^>]*>(?<body>.*?)</\k<tag>\s*>\s*(?<nextOpen><p\b[^>]*>)",
+                match =>
+                {
+                    var introduction = HtmlTextCore(match.Groups["introBody"].Value);
+                    var separator = introduction.EndsWith(":", StringComparison.Ordinal) ? " " : "; ";
+                    var items = Regex.Matches(
+                        match.Groups["body"].Value,
+                        @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</li\b|</(?:ul|ol)\b|$)",
+                        RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                        .Select(item =>
+                        {
+                            var value = HtmlTextCore(
+                                item.Groups["body"].Value,
+                                includeCode: true);
+                            return Regex.IsMatch(
+                                item.Groups["body"].Value,
+                                @"</code>\s*$",
+                                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                                ? value
+                                : value.TrimEnd('.', ' ');
+                        })
+                        .Where(value => value.Length > 0)
+                        .ToList();
+                    var listText = string.Join("; ", items);
+                    return match.Groups["introOpen"].Value +
+                        match.Groups["introBody"].Value +
+                        separator +
+                        WebUtility.HtmlEncode(listText) +
+                        "</p>" +
+                        match.Groups["nextOpen"].Value;
+                },
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var listMatches = Regex.Matches(
                 html,
-                @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</(?:ul|ol)\b|$)",
+                @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</li\b|</(?:ul|ol)\b|$)",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             if (listMatches.Count > 0)
             {
                 var listItemIndex = 0;
                 html = Regex.Replace(
                     html,
-                    @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</(?:ul|ol)\b|$)",
+                    @"<li\b[^>]*>(?<body>.*?)(?=<li\b|</li\b|</(?:ul|ol)\b|$)",
                     match =>
                     {
-                        var item = HtmlTextCore(match.Groups["body"].Value);
+                        var item = HtmlTextCore(
+                            match.Groups["body"].Value,
+                            includeCode: true);
                         if (item.Length == 0)
                             return "";
-                        var protectedCode = new List<(string Marker, string Html)>();
-                        var protectedBody = Regex.Replace(
-                            match.Groups["body"].Value,
-                            @"<code\b[^>]*>.*?</code>",
-                            code =>
-                            {
-                                var marker = $"__RAW_INLINE_CODE_{Guid.NewGuid():N}__";
-                                protectedCode.Add((marker, code.Value));
-                                return marker;
-                            },
-                            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-                        var body = listItemIndex + 1 < listMatches.Count
-                            ? Regex.Replace(
-                                protectedBody,
-                                @"\.(?=(?:\s*</[^>]+>)*\s*$)",
-                                "",
-                                RegexOptions.CultureInvariant)
-                            : protectedBody;
-                        foreach (var code in protectedCode)
-                            body = body.Replace(code.Marker, code.Html, StringComparison.Ordinal);
+                        if (listItemIndex + 1 < listMatches.Count &&
+                            !Regex.IsMatch(
+                                match.Groups["body"].Value,
+                                @"</code>\s*$",
+                                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                            item = item.TrimEnd('.', ' ');
                         return (listItemIndex++ == 0 ? " " : "; ") +
-                            body;
+                            WebUtility.HtmlEncode(item);
                     },
                     RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             }
-            html = Regex.Replace(
-                html,
-                @"(?<intro><p\b[^>]*>(?<introBody>.*?)</p>)\s*<(?<tag>ul|ol)\b[^>]*>(?<body>.*?)</\k<tag>\s*>\s*<p\b[^>]*>",
-                match =>
-                {
-                    var codeValues = new List<string>();
-                    var listBody = Regex.Replace(
-                        match.Groups["body"].Value,
-                        @"<code\b[^>]*>(?<code>.*?)</code>",
-                        code =>
-                        {
-                            var marker = $"__INLINE_CODE_{Guid.NewGuid():N}__";
-                            codeValues.Add(marker + "\0" + HtmlTextCore(
-                                code.Groups["code"].Value,
-                                includeCode: true));
-                            return marker;
-                        },
-                        RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-                    var listText = Regex.Replace(
-                        CleanSourceText(StripHtmlTags(listBody, addWhitespace: true))
-                            .TrimStart(';', ' '),
-                        @";\s*;\s*",
-                        "; ",
-                        RegexOptions.CultureInvariant);
-                    foreach (var codeValue in codeValues)
-                    {
-                        var separatorIndex = codeValue.IndexOf('\0');
-                        listText = listText.Replace(
-                            codeValue[..separatorIndex],
-                            WebUtility.HtmlEncode(codeValue[(separatorIndex + 1)..]),
-                            StringComparison.Ordinal);
-                    }
-                    var introduction = HtmlTextCore(match.Groups["introBody"].Value);
-                    var separator = introduction.EndsWith(":", StringComparison.Ordinal) ? " " : "; ";
-                    return match.Groups["intro"].Value + separator + listText + " ";
-                },
-                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             return html;
         }
 
