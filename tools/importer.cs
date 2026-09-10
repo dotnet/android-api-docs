@@ -1249,11 +1249,11 @@ static class ImporterProgram
         HasCopiedDescriptionRemarksRepairCandidate(docs, blockText);
 
     static bool HasCopiedDescriptionSummaryRepairCandidate(XElement docs, string blockText) =>
-        blockText.Contains("title=\"Reference documentation\"", StringComparison.Ordinal) &&
+        HasImporterSourceReference(blockText) &&
         IsImporterCopiedDescriptionLabel(docs.Element("summary")?.Value);
 
     static bool HasCopiedDescriptionRemarksRepairCandidate(XElement docs, string blockText) =>
-        blockText.Contains("title=\"Reference documentation\"", StringComparison.Ordinal) &&
+        HasImporterSourceReference(blockText) &&
         docs.Element("remarks")?.Elements("para").Any(
             paragraph => IsImporterCopiedDescriptionLabel(paragraph.Value)) == true;
 
@@ -1267,7 +1267,7 @@ static class ImporterProgram
         targets = [];
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
-        if (!ContainsSourceUrl(blockText, docs.SourceUrl))
+        if (CountImporterSourceReferences(blockText, docs.SourceUrl) == 0)
             return text;
         var summary = Regex.Match(
             blockText,
@@ -1467,10 +1467,15 @@ static class ImporterProgram
     static bool HasImporterSourceReference(LoadedFile file, DocsOwner owner)
     {
         var block = file.DocsBlocks[owner.Order];
-        return file.Text[block.Start..block.End].Contains(
-            "title=\"Reference documentation\"",
-            StringComparison.Ordinal);
+        return HasImporterSourceReference(file.Text[block.Start..block.End]);
     }
+
+    static bool HasImporterSourceReference(string blockText) =>
+        Regex.Matches(
+            blockText,
+            @"<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant)
+            .Any(match => TryGetImporterSourceReferenceUrl(match.Value, out _));
 
     static string RemoveStaleSourceLinks(
         string blockText,
@@ -2580,22 +2585,22 @@ static class ImporterProgram
         Assert(
             noPeriodPlaceholderReplacement.Text == noPeriodPlaceholderDocs.Summary,
             "no-period remarks placeholders do not trigger overlap detection");
-        var copiedDescriptionRepairText = file.Text.Replace(
-            "<summary>To be added.</summary>",
-            "<summary>Description copied from interface: Fixture</summary>",
-            StringComparison.Ordinal).Replace(
-            $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
-            $"<remarks>{file.Newline}          <para>Description copied from interface: Fixture</para>{file.Newline}          <para>Keep this existing prose.</para>",
-            StringComparison.Ordinal);
-        file.UpdateBlockOffsets(setTitle.Order, copiedDescriptionRepairText);
-        Assert(
-            IsImporterCopiedDescriptionLabel("Description copied from interface: Fixture"),
-            "copied-description repair label is detected");
         var copiedDescriptionRepairDocs = mappedDocs with
         {
             SourceUrl =
                 "https://developer.android.com/reference/android/example/Widget#setTitle(java.lang.String)",
         };
+        var copiedDescriptionRepairText = file.Text.Replace(
+            "<summary>To be added.</summary>",
+            "<summary>Description copied from interface: Fixture</summary>",
+            StringComparison.Ordinal).Replace(
+            $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
+            $"<remarks>{file.Newline}          <para>Description copied from interface: Fixture</para>{file.Newline}          <para>Keep this existing prose.</para>{file.Newline}          <para><format type=\"text/html\"><a href=\"{copiedDescriptionRepairDocs.SourceUrl}\" title=\"Reference documentation\">Android reference for <code>android.example.Widget.setTitle</code>.</a></format></para>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, copiedDescriptionRepairText);
+        Assert(
+            IsImporterCopiedDescriptionLabel("Description copied from interface: Fixture"),
+            "copied-description repair label is detected");
         var mismatchedCopiedDescriptionRepair = RepairCopiedDescriptionLabels(
             copiedDescriptionRepairText,
             file,
@@ -2608,6 +2613,23 @@ static class ImporterProgram
                     copiedDescriptionRepairText,
                     StringComparison.Ordinal),
             "copied-description repairs require the exact resolved source URL");
+        var authoredSourceReferenceText = copiedDescriptionRepairText.Replace(
+            "Android reference for <code>android.example.Widget.setTitle</code>.",
+            "Authored reference for <code>android.example.Widget.setTitle</code>.",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, authoredSourceReferenceText);
+        var authoredSourceReferenceRepair = RepairCopiedDescriptionLabels(
+            authoredSourceReferenceText,
+            file,
+            setTitle,
+            copiedDescriptionRepairDocs,
+            out var authoredSourceReferenceTargets);
+        Assert(
+            authoredSourceReferenceTargets.Count == 0 &&
+                authoredSourceReferenceRepair.Equals(
+                    authoredSourceReferenceText,
+                    StringComparison.Ordinal),
+            "copied-description repairs require an importer-owned source reference");
         var authoredCopiedDescriptionText = copiedDescriptionRepairText.Replace(
             "Description copied from interface: Fixture",
             "Description copied from interface: Fixture — keep this authored prose.",
