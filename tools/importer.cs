@@ -721,12 +721,7 @@ static class ImporterProgram
                 docs.Returns,
                 placeholder.Name,
                 "source_return_missing"),
-            "value" => ChannelValueOrSkip(
-                string.IsNullOrWhiteSpace(docs.Returns)
-                    ? DeprecationAwareValueText(docs)
-                    : docs.Returns,
-                placeholder.Name,
-                "source_return_missing"),
+            "value" => ValueReplacement(docs),
             "exception" => ExceptionReplacement(placeholder, docs),
             _ => Replacement.Skip(
                 "unsupported_placeholder_target",
@@ -981,6 +976,34 @@ static class ImporterProgram
                 "source_channel_not_meaningful",
                 $"The official {channel} text was only a type, nullability marker, cross-reference heading, or deprecation boilerplate.");
         return Replacement.Use(cleaned);
+    }
+
+    static Replacement ValueReplacement(SourceDocs docs)
+    {
+        var returns = ChannelValueOrSkip(
+            docs.Returns,
+            "value",
+            "source_return_missing");
+        return returns.Text is not null
+            ? returns
+            : IsTypeOnlyReturnChannel(docs.Returns)
+                ? ChannelValueOrSkip(
+                    DeprecationAwareValueText(docs),
+                    "value",
+                    "source_return_missing")
+                : returns;
+    }
+
+    static bool IsTypeOnlyReturnChannel(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        var normalized = NormalizeText(CleanSourceText(value)).TrimEnd('.').Trim();
+        return Regex.IsMatch(
+            normalized,
+            @"^(?:boolean|byte|char|double|float|int|long|short|void|[A-Z][\w$]*(?:<[^>]+>)?(?:\[\])?|[\w$]+(?:\.[\w$]+)+(?:<[^>]+>)?(?:\[\])?)$",
+            RegexOptions.CultureInvariant);
     }
 
     static string RemoveLeadingJavaType(string value)
@@ -1969,6 +1992,10 @@ static class ImporterProgram
             "Value is milliseconds since January 1, 2001.",
             "Value is seconds since January 1, 2001.",
             StringComparison.Ordinal);
+        text = text.Replace(
+            "Federated Compute Server documentation..",
+            "Federated Compute Server documentation.",
+            StringComparison.Ordinal);
         text = Regex.Replace(
             text,
             @"\s+TODO Link: Tuner#Tuner\(Context, string, int\)\.",
@@ -2145,6 +2172,146 @@ static class ImporterProgram
                 SourceRequest.JavaPath: "android/text/TextUtils",
             },
             "String convenience overload maps to the exact CharSequence JNI descriptor");
+        var androidTextStyleInterfaceMembers =
+            new Dictionary<string, InterfaceMemberMapping>(StringComparer.Ordinal);
+        foreach (var interfaceFile in new[]
+        {
+            Path.Combine(docsRoot, "Android.Text.Style", "ILeadingMarginSpan.xml"),
+            Path.Combine(docsRoot, "Android.Text.Style", "ILineBackgroundSpan.xml"),
+            Path.Combine(docsRoot, "Android.Text.Style", "ILineHeightSpan.xml"),
+            Path.Combine(docsRoot, "Android.Text.Style", "ILineHeightSpanWithDensity.xml"),
+        })
+        {
+            var interfaceRoot = XDocument.Load(interfaceFile).Root ??
+                throw new InvalidOperationException(
+                    $"SELF-TEST FAIL: missing interface root for {interfaceFile}");
+            var interfaceRequest = SourceRequest.Create(Registration.Type(interfaceRoot)) ??
+                throw new InvalidOperationException(
+                    $"SELF-TEST FAIL: missing interface registration for {interfaceFile}");
+            foreach (var member in interfaceRoot.Element("Members")?.Elements("Member") ?? [])
+            {
+                var memberId = (string?)member.Elements("MemberSignature")
+                    .FirstOrDefault(signature =>
+                        (string?)signature.Attribute("Language") == "DocId")?
+                    .Attribute("Value");
+                var registration = Registration.Member(member);
+                if (memberId is not null && registration is not null)
+                    androidTextStyleInterfaceMembers.Add(
+                        memberId,
+                        new InterfaceMemberMapping(registration, interfaceRequest));
+            }
+        }
+        var androidTextStyleStringAliases =
+            new Dictionary<string, (string InterfaceMemberId, string JavaPath)>(
+                StringComparer.Ordinal)
+            {
+                ["M:Android.Text.Style.ILeadingMarginSpanExtensions.DrawLeadingMargin(Android.Text.Style.ILeadingMarginSpan,Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    ("M:Android.Text.Style.ILeadingMarginSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,Java.Lang.ICharSequence,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)",
+                        "android/text/style/LeadingMarginSpan"),
+                ["M:Android.Text.Style.ILineBackgroundSpanExtensions.DrawBackground(Android.Text.Style.ILineBackgroundSpan,Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Int32)"] =
+                    ("M:Android.Text.Style.ILineBackgroundSpan.DrawBackground(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,Java.Lang.ICharSequence,System.Int32,System.Int32,System.Int32)",
+                        "android/text/style/LineBackgroundSpan"),
+                ["M:Android.Text.Style.ILineHeightSpanExtensions.ChooseHeight(Android.Text.Style.ILineHeightSpan,System.String,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)"] =
+                    ("M:Android.Text.Style.ILineHeightSpan.ChooseHeight(Java.Lang.ICharSequence,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)",
+                        "android/text/style/LineHeightSpan"),
+                ["M:Android.Text.Style.ILineHeightSpanWithDensityExtensions.ChooseHeight(Android.Text.Style.ILineHeightSpanWithDensity,System.String,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt,Android.Text.TextPaint)"] =
+                    ("M:Android.Text.Style.ILineHeightSpanWithDensity.ChooseHeight(Java.Lang.ICharSequence,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt,Android.Text.TextPaint)",
+                        "android/text/style/LineHeightSpan$WithDensity"),
+            };
+        Assert(
+            androidTextStyleStringAliases.All(alias =>
+                SourceVerifiedMemberMappings.Resolve(alias.Key) is
+                {
+                    Registration: var registration,
+                    SourceRequest: var sourceRequest,
+                } &&
+                androidTextStyleInterfaceMembers.TryGetValue(
+                    alias.Value.InterfaceMemberId,
+                    out var interfaceMember) &&
+                registration == interfaceMember.Registration &&
+                sourceRequest == interfaceMember.SourceRequest &&
+                sourceRequest.JavaPath == alias.Value.JavaPath &&
+                registration.Descriptor?.Contains(
+                    "Ljava/lang/CharSequence;",
+                    StringComparison.Ordinal) == true),
+            "Android.Text.Style string extensions map only to their associated interfaces' exact CharSequence JNI registrations and Android reference identities");
+        var androidTextStyleConcreteStringAliases =
+            new Dictionary<string, (string FileName, string RegisteredMemberId, string JavaPath)>(
+                StringComparer.Ordinal)
+            {
+                ["M:Android.Text.Style.BulletSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    ("BulletSpan.xml",
+                        "M:Android.Text.Style.BulletSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,Java.Lang.ICharSequence,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)",
+                        "android/text/style/BulletSpan"),
+                ["M:Android.Text.Style.DrawableMarginSpan.ChooseHeight(System.String,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)"] =
+                    ("DrawableMarginSpan.xml",
+                        "M:Android.Text.Style.DrawableMarginSpan.ChooseHeight(Java.Lang.ICharSequence,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)",
+                        "android/text/style/DrawableMarginSpan"),
+                ["M:Android.Text.Style.DrawableMarginSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    ("DrawableMarginSpan.xml",
+                        "M:Android.Text.Style.DrawableMarginSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,Java.Lang.ICharSequence,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)",
+                        "android/text/style/DrawableMarginSpan"),
+                ["M:Android.Text.Style.IconMarginSpan.ChooseHeight(System.String,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)"] =
+                    ("IconMarginSpan.xml",
+                        "M:Android.Text.Style.IconMarginSpan.ChooseHeight(Java.Lang.ICharSequence,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)",
+                        "android/text/style/IconMarginSpan"),
+                ["M:Android.Text.Style.IconMarginSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    ("IconMarginSpan.xml",
+                        "M:Android.Text.Style.IconMarginSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,Java.Lang.ICharSequence,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)",
+                        "android/text/style/IconMarginSpan"),
+                ["M:Android.Text.Style.LeadingMarginSpanStandard.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    ("LeadingMarginSpanStandard.xml",
+                        "M:Android.Text.Style.LeadingMarginSpanStandard.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,Java.Lang.ICharSequence,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)",
+                        "android/text/style/LeadingMarginSpan$Standard"),
+                ["M:Android.Text.Style.LineBackgroundSpanStandard.DrawBackground(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Int32)"] =
+                    ("LineBackgroundSpanStandard.xml",
+                        "M:Android.Text.Style.LineBackgroundSpanStandard.DrawBackground(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,Java.Lang.ICharSequence,System.Int32,System.Int32,System.Int32)",
+                        "android/text/style/LineBackgroundSpan$Standard"),
+                ["M:Android.Text.Style.LineHeightSpanStandard.ChooseHeight(System.String,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)"] =
+                    ("LineHeightSpanStandard.xml",
+                        "M:Android.Text.Style.LineHeightSpanStandard.ChooseHeight(Java.Lang.ICharSequence,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)",
+                        "android/text/style/LineHeightSpan$Standard"),
+                ["M:Android.Text.Style.QuoteSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    ("QuoteSpan.xml",
+                        "M:Android.Text.Style.QuoteSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,Java.Lang.ICharSequence,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)",
+                        "android/text/style/QuoteSpan"),
+                ["P:Android.Text.Style.ReplacementSpan.ContentDescription"] =
+                    ("ReplacementSpan.xml",
+                        "P:Android.Text.Style.ReplacementSpan.ContentDescriptionFormatted",
+                        "android/text/style/ReplacementSpan"),
+            };
+        Assert(
+            androidTextStyleConcreteStringAliases.All(alias =>
+            {
+                var root = XDocument.Load(Path.Combine(
+                    docsRoot, "Android.Text.Style", alias.Value.FileName)).Root;
+                var registeredMember = root?
+                    .Element("Members")?
+                    .Elements("Member")
+                    .SingleOrDefault(member => member.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == alias.Value.RegisteredMemberId));
+                var registration = registeredMember is null
+                    ? null
+                    : Registration.Member(registeredMember);
+                var sourceRequest = root is null
+                    ? null
+                    : SourceRequest.Create(Registration.Type(root));
+                return SourceVerifiedMemberMappings.Resolve(alias.Key) is
+                    {
+                        Registration: var mappedRegistration,
+                        SourceRequest: var mappedSourceRequest,
+                    } &&
+                    registration is not null &&
+                    sourceRequest is not null &&
+                    mappedRegistration == registration &&
+                    mappedSourceRequest == sourceRequest &&
+                    mappedSourceRequest.JavaPath == alias.Value.JavaPath &&
+                    mappedRegistration.Descriptor?.Contains(
+                        "Ljava/lang/CharSequence;",
+                        StringComparison.Ordinal) == true;
+            }),
+            "Android.Text.Style concrete String aliases map only to adjacent CharSequence JNI registrations and Android reference identities");
         Assert(
             SourceVerifiedMemberMappings.Resolve(
                 "M:Android.Telecom.PhoneAccount.Builder.SetShortDescription(System.String)") is
@@ -2804,9 +2971,7 @@ static class ImporterProgram
             deprecatedPropertyDocs.Summary == "Identifies the deprecated fixture value.",
             "deprecated source summary selects semantic prose");
         Assert(
-            ReplacementFor(
-                deprecatedProperty.Placeholders.Single(placeholder => placeholder.Name == "value"),
-                deprecatedPropertyDocs).Text ==
+            FirstDocumentationParagraph(deprecatedPropertyDocs) ==
                 "This constant was deprecated in API level 31. Use FAVORITE instead. Identifies the deprecated fixture value.",
             "deprecated property value retains caution and semantic prose");
         var deprecatedValueRepairText = Regex.Replace(
@@ -2973,8 +3138,33 @@ static class ImporterProgram
             new Placeholder(0, "value", "", "value"),
             favoriteResult.Docs! with { Returns = "" });
         Assert(
-            valueSummaryFallback.Text == favoriteResult.Docs.Summary,
-            "property value falls back to exact source summary");
+            valueSummaryFallback.Reason == "source_return_missing",
+            "property value does not fall back when the source return channel is missing");
+        var valueTypeOnlyFallback = ReplacementFor(
+            new Placeholder(0, "value", "", "value"),
+            favoriteResult.Docs! with { Returns = "Widget" });
+        Assert(
+            valueTypeOnlyFallback.Text == favoriteResult.Docs.Summary,
+            "property value falls back to exact source summary when return text is only a type");
+        var valueNullabilityOnly = ReplacementFor(
+            new Placeholder(0, "value", "", "value"),
+            favoriteResult.Docs! with { Returns = "This value cannot be null." });
+        Assert(
+            valueNullabilityOnly.Reason == "source_channel_not_meaningful",
+            "property value does not fall back when return text is only a nullability marker");
+        var parsedTypeOnlyValueDocs = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "the number of displayed characters",
+                "Widget",
+                StringComparison.Ordinal))
+            .Members.Single(member => member.Name == "setTitle").Docs!;
+        Assert(
+            parsedTypeOnlyValueDocs.Returns == "Widget" &&
+            ReplacementFor(
+                new Placeholder(0, "value", "", "value"),
+                parsedTypeOnlyValueDocs).Text == parsedTypeOnlyValueDocs.Summary,
+            "property value uses the exact source summary only for a parsed type-only return channel");
         var simpleTypeOnly = ReplacementFor(
             new Placeholder(0, "param", "items", "param:items"),
             favoriteResult.Docs! with
@@ -3015,6 +3205,11 @@ static class ImporterProgram
                 "Time shift is handle locally. TODO Link: Tuner#Tuner(Context, string, int).") ==
                     "Time shift is handled locally.",
             "Android time-shift and TODO metadata cleanup");
+        Assert(
+            CleanSourceText(
+                "Federated Compute Server documentation.. This value cannot be null.") ==
+                    "Federated Compute Server documentation. This value cannot be null.",
+            "Android federated compute parameter punctuation cleanup");
         Assert(
             RemoveLeadingJavaType(
                 "long: ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
@@ -4171,9 +4366,13 @@ static class ImporterProgram
                     ? SourceVerifiedMemberMappings.Resolve(id)
                     : null;
                 memberRegistration ??= sourceVerifiedMember?.Registration;
+                var sourceOverride = member is null
+                    ? null
+                    : SourceVerifiedMemberMappings.ResolveSourceOverride(id);
                 var request = member is null
                     ? typeRequest
-                    : SourceRequest.Create(memberField?.Owner) ??
+                    : sourceOverride ??
+                        SourceRequest.Create(memberField?.Owner) ??
                         interfaceMember?.SourceRequest ??
                         sourceVerifiedMember?.SourceRequest ??
                         typeRequest;
@@ -4419,6 +4618,15 @@ static class ImporterProgram
 
     static class SourceVerifiedMemberMappings
     {
+        static readonly IReadOnlyDictionary<string, SourceRequest> SourceOverrides =
+            new Dictionary<string, SourceRequest>(StringComparer.Ordinal)
+            {
+                ["F:Java.Util.Regex.RegexOptions.UnicodeCharacterClass"] =
+                    SourceRequest.CreateAndroid("java/util/regex/Pattern") ??
+                        throw new InvalidOperationException(
+                            "Could not create the Android Pattern source request."),
+            };
+
         static readonly IReadOnlyDictionary<string, InterfaceMemberMapping> Mappings =
             new Dictionary<string, InterfaceMemberMapping>(StringComparer.Ordinal)
             {
@@ -4476,6 +4684,34 @@ static class ImporterProgram
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CI)I"),
                 ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32,System.Int32)"] =
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CII)I"),
+                ["M:Android.Text.Style.BulletSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    Mapping("android/text/style/BulletSpan", "drawLeadingMargin", "(Landroid/graphics/Canvas;Landroid/graphics/Paint;IIIIILjava/lang/CharSequence;IIZLandroid/text/Layout;)V"),
+                ["M:Android.Text.Style.DrawableMarginSpan.ChooseHeight(System.String,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)"] =
+                    Mapping("android/text/style/DrawableMarginSpan", "chooseHeight", "(Ljava/lang/CharSequence;IIIILandroid/graphics/Paint$FontMetricsInt;)V"),
+                ["M:Android.Text.Style.DrawableMarginSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    Mapping("android/text/style/DrawableMarginSpan", "drawLeadingMargin", "(Landroid/graphics/Canvas;Landroid/graphics/Paint;IIIIILjava/lang/CharSequence;IIZLandroid/text/Layout;)V"),
+                ["M:Android.Text.Style.IconMarginSpan.ChooseHeight(System.String,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)"] =
+                    Mapping("android/text/style/IconMarginSpan", "chooseHeight", "(Ljava/lang/CharSequence;IIIILandroid/graphics/Paint$FontMetricsInt;)V"),
+                ["M:Android.Text.Style.IconMarginSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    Mapping("android/text/style/IconMarginSpan", "drawLeadingMargin", "(Landroid/graphics/Canvas;Landroid/graphics/Paint;IIIIILjava/lang/CharSequence;IIZLandroid/text/Layout;)V"),
+                ["M:Android.Text.Style.LeadingMarginSpanStandard.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    Mapping("android/text/style/LeadingMarginSpan$Standard", "drawLeadingMargin", "(Landroid/graphics/Canvas;Landroid/graphics/Paint;IIIIILjava/lang/CharSequence;IIZLandroid/text/Layout;)V"),
+                ["M:Android.Text.Style.LineBackgroundSpanStandard.DrawBackground(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Int32)"] =
+                    Mapping("android/text/style/LineBackgroundSpan$Standard", "drawBackground", "(Landroid/graphics/Canvas;Landroid/graphics/Paint;IIIIILjava/lang/CharSequence;III)V"),
+                ["M:Android.Text.Style.LineHeightSpanStandard.ChooseHeight(System.String,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)"] =
+                    Mapping("android/text/style/LineHeightSpan$Standard", "chooseHeight", "(Ljava/lang/CharSequence;IIIILandroid/graphics/Paint$FontMetricsInt;)V"),
+                ["M:Android.Text.Style.QuoteSpan.DrawLeadingMargin(Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    Mapping("android/text/style/QuoteSpan", "drawLeadingMargin", "(Landroid/graphics/Canvas;Landroid/graphics/Paint;IIIIILjava/lang/CharSequence;IIZLandroid/text/Layout;)V"),
+                ["P:Android.Text.Style.ReplacementSpan.ContentDescription"] =
+                    Mapping("android/text/style/ReplacementSpan", "getContentDescription", "()Ljava/lang/CharSequence;"),
+                ["M:Android.Text.Style.ILeadingMarginSpanExtensions.DrawLeadingMargin(Android.Text.Style.ILeadingMarginSpan,Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,Android.Text.Layout)"] =
+                    Mapping("android/text/style/LeadingMarginSpan", "drawLeadingMargin", "(Landroid/graphics/Canvas;Landroid/graphics/Paint;IIIIILjava/lang/CharSequence;IIZLandroid/text/Layout;)V"),
+                ["M:Android.Text.Style.ILineBackgroundSpanExtensions.DrawBackground(Android.Text.Style.ILineBackgroundSpan,Android.Graphics.Canvas,Android.Graphics.Paint,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Int32)"] =
+                    Mapping("android/text/style/LineBackgroundSpan", "drawBackground", "(Landroid/graphics/Canvas;Landroid/graphics/Paint;IIIIILjava/lang/CharSequence;III)V"),
+                ["M:Android.Text.Style.ILineHeightSpanExtensions.ChooseHeight(Android.Text.Style.ILineHeightSpan,System.String,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt)"] =
+                    Mapping("android/text/style/LineHeightSpan", "chooseHeight", "(Ljava/lang/CharSequence;IIIILandroid/graphics/Paint$FontMetricsInt;)V"),
+                ["M:Android.Text.Style.ILineHeightSpanWithDensityExtensions.ChooseHeight(Android.Text.Style.ILineHeightSpanWithDensity,System.String,System.Int32,System.Int32,System.Int32,System.Int32,Android.Graphics.Paint.FontMetricsInt,Android.Text.TextPaint)"] =
+                    Mapping("android/text/style/LineHeightSpan$WithDensity", "chooseHeight", "(Ljava/lang/CharSequence;IIIILandroid/graphics/Paint$FontMetricsInt;Landroid/text/TextPaint;)V"),
                 ["M:Android.Telecom.PhoneAccount.Builder.SetShortDescription(System.String)"] =
                     Mapping("android/telecom/PhoneAccount$Builder", "setShortDescription", "(Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
                 ["M:Android.Telecom.PhoneAccount.InvokeBuilder(Android.Telecom.PhoneAccountHandle,System.String)"] =
@@ -4542,6 +4778,9 @@ static class ImporterProgram
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
             Mappings.GetValueOrDefault(memberId);
+
+        public static SourceRequest? ResolveSourceOverride(string memberId) =>
+            SourceOverrides.GetValueOrDefault(memberId);
 
         static InterfaceMemberMapping Mapping(
             string javaPath,
@@ -4658,6 +4897,14 @@ static class ImporterProgram
                 return new SourceRequest(javaPath, $"{JavaReference}{module}/{urlPath}.html", "java");
             }
             return null;
+        }
+
+        public static SourceRequest? CreateAndroid(string? javaPath)
+        {
+            if (string.IsNullOrWhiteSpace(javaPath))
+                return null;
+            var urlPath = javaPath.Replace('$', '.');
+            return new SourceRequest(javaPath, AndroidReference + urlPath, "android");
         }
 
         static string JavaModule(string path)
