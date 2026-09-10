@@ -824,11 +824,33 @@ static class ImporterProgram
         string elementName,
         out int contentStart,
         out int contentEnd)
+        => TryFindTextElementContentSpan(
+            blockText,
+            elementName,
+            1,
+            _ => true,
+            _ => true,
+            out _,
+            out contentStart,
+            out contentEnd);
+
+    static bool TryFindTextElementContentSpan(
+        string blockText,
+        string elementName,
+        int parentDepth,
+        Func<string, bool> openingTagMatches,
+        Func<string, bool> contentMatches,
+        out int elementStart,
+        out int contentStart,
+        out int contentEnd)
     {
+        elementStart = 0;
         contentStart = 0;
         contentEnd = 0;
         var depth = 0;
         var targetDepth = -1;
+        var candidateElementStart = -1;
+        var candidateContentStart = -1;
 
         for (var index = 0; index < blockText.Length;)
         {
@@ -851,12 +873,20 @@ static class ImporterProgram
                 index = cdataEnd + 3;
                 continue;
             }
+            if (blockText.AsSpan(tagStart).StartsWith("<?", StringComparison.Ordinal))
+            {
+                var instructionEnd = blockText.IndexOf("?>", tagStart + 2, StringComparison.Ordinal);
+                if (instructionEnd < 0)
+                    return false;
+                index = instructionEnd + 2;
+                continue;
+            }
 
             var tagEnd = FindXmlTagEnd(blockText, tagStart);
             if (tagEnd < 0)
                 return false;
             var tag = blockText[(tagStart + 1)..tagEnd].TrimStart();
-            if (tag.StartsWith('!') || tag.StartsWith('?'))
+            if (tag.StartsWith('!'))
             {
                 index = tagEnd + 1;
                 continue;
@@ -882,16 +912,27 @@ static class ImporterProgram
                 if (targetDepth == depth &&
                     name.Equals(elementName, StringComparison.Ordinal))
                 {
-                    contentEnd = tagStart;
-                    return true;
+                    var candidateContent = blockText[candidateContentStart..tagStart];
+                    if (contentMatches(candidateContent))
+                    {
+                        elementStart = candidateElementStart;
+                        contentStart = candidateContentStart;
+                        contentEnd = tagStart;
+                        return true;
+                    }
+                    targetDepth = -1;
                 }
                 depth--;
             }
             else if (!tag.EndsWith("/", StringComparison.Ordinal))
             {
-                if (depth == 1 && name.Equals(elementName, StringComparison.Ordinal))
+                if (targetDepth < 0 &&
+                    depth == parentDepth &&
+                    name.Equals(elementName, StringComparison.Ordinal) &&
+                    openingTagMatches(tag))
                 {
-                    contentStart = tagEnd + 1;
+                    candidateElementStart = tagStart;
+                    candidateContentStart = tagEnd + 1;
                     targetDepth = depth + 1;
                 }
                 depth++;
@@ -1165,19 +1206,15 @@ static class ImporterProgram
             return true;
         }
 
-        var attributeLookahead = placeholder.Name switch
-        {
-            "param" => $@"(?=[^>]*\bname\s*=\s*""{Regex.Escape(placeholder.Key)}"")",
-            "exception" => $@"(?=[^>]*\bcref\s*=\s*""{Regex.Escape(placeholder.Key)}"")",
-            _ => "",
-        };
-        var pattern =
-            $@"(<{placeholder.Name}\b{attributeLookahead}[^>]*>)" +
-            @"(?<value>\s*To be added\.?\s*)" +
-            $@"(</{placeholder.Name}>)";
-        var regex = new Regex(pattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        var match = regex.Match(blockText);
-        if (!match.Success)
+        if (!TryFindTextElementContentSpan(
+                blockText,
+                placeholder.Name,
+                placeholder.Name == "para" ? 2 : 1,
+                tag => MatchesPlaceholderTag(tag, placeholder),
+                value => NormalizeText(value) is "To be added" or "To be added.",
+                out var elementStart,
+                out var localStart,
+                out var localEnd))
         {
             updated = text;
             error = $"Could not locate the structurally identified {placeholder.Target} placeholder in its <Docs> block.";
@@ -1188,9 +1225,9 @@ static class ImporterProgram
         if (placeholder.Name == "remarks")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-            var lineStart = blockText.LastIndexOf(newline, match.Index, StringComparison.Ordinal);
+            var lineStart = blockText.LastIndexOf(newline, elementStart, StringComparison.Ordinal);
             lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
-            var indent = blockText[lineStart..match.Index];
+            var indent = blockText[lineStart..elementStart];
             if (string.IsNullOrWhiteSpace(indent))
             {
                 escaped =
@@ -1198,13 +1235,25 @@ static class ImporterProgram
                     newline + indent;
             }
         }
-        var localStart = match.Groups["value"].Index;
-        var localEnd = localStart + match.Groups["value"].Length;
         var replacementBlock = blockText[..localStart] + escaped + blockText[localEnd..];
         updated = text[..block.Start] + replacementBlock + text[block.End..];
         error = "";
         return true;
     }
+
+    static bool MatchesPlaceholderTag(string tag, Placeholder placeholder) =>
+        placeholder.Name switch
+        {
+            "param" => Regex.IsMatch(
+                    tag,
+                    $@"\bname\s*=\s*""{Regex.Escape(placeholder.Key)}""",
+                    RegexOptions.CultureInvariant),
+            "exception" => Regex.IsMatch(
+                    tag,
+                    $@"\bcref\s*=\s*""{Regex.Escape(placeholder.Key)}""",
+                    RegexOptions.CultureInvariant),
+            _ => true,
+        };
 
     static string AddSourceDocumentationIfSafe(
         string text,
@@ -3028,6 +3077,37 @@ static class ImporterProgram
                     "<value>This constant was deprecated in API level 31. Use FAVORITE instead. Identifies the deprecated fixture value.</value>",
                     StringComparison.Ordinal),
                 "deprecated property value repair targets the direct value element");
+            foreach (var instruction in new[]
+            {
+                "<?example compare > <value>This constant was deprecated in API level 31.</value> ?>",
+                "<?review Don't change this?>",
+            })
+            {
+                var instructionFixture = Regex.Replace(
+                    deprecatedValueRepairText,
+                    @"(?<summary></summary>)(?<value>\s*<value>This constant was deprecated in API level 31\.</value>)",
+                    match => match.Groups["summary"].Value + instruction + match.Groups["value"].Value,
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant);
+                File.WriteAllText(
+                    deprecatedValueRepairPath,
+                    instructionFixture,
+                    new UTF8Encoding(false));
+                var instructionFile = LoadedFile.Load(repositoryRoot, deprecatedValueRepairPath);
+                instructionFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+                var instructionOwner = instructionFile.Owners.Single(owner =>
+                    owner.Id.Contains("DeprecatedProperty", StringComparison.Ordinal));
+                var instructionRepaired = RepairDeprecatedValue(
+                    instructionFile.Text,
+                    instructionFile,
+                    instructionOwner,
+                    deprecatedPropertyDocs);
+                Assert(
+                    instructionRepaired.Contains(instruction, StringComparison.Ordinal) &&
+                    instructionRepaired.Contains(
+                        "<value>This constant was deprecated in API level 31. Use FAVORITE instead. Identifies the deprecated fixture value.</value>",
+                        StringComparison.Ordinal),
+                    "processing instructions do not hide or replace a direct deprecated value");
+            }
             var repairFailureReport = new ImportReport
             {
                 Mode = "dry-run",
@@ -3263,6 +3343,27 @@ static class ImporterProgram
             "summary was replaced");
         Assert(updated.Contains("<para>Keep this existing prose.</para>", StringComparison.Ordinal),
             "existing prose was preserved");
+        var cdataSummaryFixture = fixtureText.Replace(
+            "<param name=\"title\">To be added.</param>",
+            "<param name=\"title\"><![CDATA[Example XML: <summary>To be added.</summary>]]></param>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, cdataSummaryFixture);
+        Assert(
+            TryReplacePlaceholder(
+                cdataSummaryFixture,
+                file.DocsBlocks[setTitle.Order],
+                summary,
+                mappedDocs.Summary,
+                out var cdataSummaryReplaced,
+                out _) &&
+            cdataSummaryReplaced.Contains(
+                "<param name=\"title\"><![CDATA[Example XML: <summary>To be added.</summary>]]></param>",
+                StringComparison.Ordinal) &&
+            cdataSummaryReplaced.Contains(
+                "<summary>Sets the widget title.</summary>",
+                StringComparison.Ordinal),
+            "summary replacement targets the structural placeholder outside CDATA");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         file.UpdateBlockOffsets(setTitle.Order, updated);
         var withRemarks = AddSourceDocumentationIfSafe(updated, file, setTitle, mappedDocs);
         Assert(withRemarks.Contains(mappedDocs.SourceUrl, StringComparison.Ordinal), "source link was added");
