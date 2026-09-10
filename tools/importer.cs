@@ -1107,7 +1107,7 @@ static class ImporterProgram
             normalized.EndsWith("i.e.", StringComparison.OrdinalIgnoreCase) ||
             Regex.IsMatch(
                 normalized,
-                @"\b(?:and|or)$",
+                @"\b(?:and|or|as|at|by|from|in|of|on|to|with)$",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             return false;
         return true;
@@ -2045,6 +2045,14 @@ static class ImporterProgram
             "Federated Compute Server documentation..",
             "Federated Compute Server documentation.",
             StringComparison.Ordinal);
+        text = text.Replace(
+            "groups (delimited by ( and ()",
+            "groups (delimited by ( and ))",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "selected (getChangedFields();",
+            "selected (getChangedFields());",
+            StringComparison.Ordinal);
         text = Regex.Replace(
             text,
             @"\s+TODO Link: Tuner#Tuner\(Context, string, int\)\.",
@@ -2551,6 +2559,115 @@ static class ImporterProgram
                     SourceRequest.JavaPath: "android/view/inputmethod/InputConnectionWrapper",
                 },
             "InputMethods string aliases map to their exact JNI counterparts");
+
+        var autofillResidualSourcePath = Path.Combine(
+            fixtureRoot,
+            "autofill-residual-source.xml");
+        var autofillResidualHtml = File.ReadAllText(Path.Combine(
+            fixtureRoot,
+            "autofill-residual-android-reference.html"));
+        var autofillResidualFile = LoadedFile.Load(repositoryRoot, autofillResidualSourcePath);
+        autofillResidualFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+        var autofillResidualOwners = autofillResidualFile.Owners
+            .Where(owner => owner.Placeholders.Count > 0)
+            .ToList();
+        Assert(autofillResidualOwners.Count == 6, "Autofill residual fixture owner count");
+        var expectedAutofillMappings = new Dictionary<string, (string JavaPath, string Name, string Descriptor, bool UseFirstMeaningfulSummary)>(StringComparer.Ordinal)
+        {
+            ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32,System.String)"] =
+                ("android/service/autofill/ImageTransformation$Builder", "addOption", "(Ljava/util/regex/Pattern;ILjava/lang/CharSequence;)Landroid/service/autofill/ImageTransformation$Builder;", false),
+            ["M:Android.Service.Autofill.SaveInfo.Builder.SetDescription(System.String)"] =
+                ("android/service/autofill/SaveInfo$Builder", "setDescription", "(Ljava/lang/CharSequence;)Landroid/service/autofill/SaveInfo$Builder;", false),
+            ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32)"] =
+                ("android/service/autofill/ImageTransformation$Builder", "addOption", "(Ljava/util/regex/Pattern;I)Landroid/service/autofill/ImageTransformation$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetInlinePresentation(Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setInlinePresentation", "(Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetInlinePresentation(Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setInlinePresentation", "(Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews)"] =
+                ("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;)Landroid/service/autofill/FillResponse$Builder;", true),
+            ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/FillResponse$Builder;", true),
+            ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/FillResponse$Builder;", true),
+        };
+        Assert(
+            expectedAutofillMappings.All(item =>
+            {
+                var mapping = SourceVerifiedMemberMappings.Resolve(item.Key);
+                return mapping is not null &&
+                    mapping.SourceRequest.JavaPath == item.Value.JavaPath &&
+                    mapping.Registration.Name == item.Value.Name &&
+                    mapping.Registration.Descriptor == item.Value.Descriptor &&
+                    mapping.UseFirstMeaningfulSummary == item.Value.UseFirstMeaningfulSummary;
+            }) &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Service.Autofill.Presentations)") is null,
+            "Autofill aliases and deprecated-summary mappings are exact");
+        var autofillResidualPages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal);
+        foreach (var sourceRequest in autofillResidualOwners
+            .Select(owner => owner.SourceRequest)
+            .Where(request => request is not null)
+            .Cast<SourceRequest>())
+        {
+            autofillResidualPages[sourceRequest.Url] = SourceLoadResult.Success(
+                SourcePage.Parse(sourceRequest, autofillResidualHtml));
+        }
+        var expectedAutofillSummaries = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32,System.String)"] =
+                "Adds an image option with a content description.",
+            ["M:Android.Service.Autofill.SaveInfo.Builder.SetDescription(System.String)"] =
+                "Sets the description displayed in the save UI.",
+            ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32)"] =
+                "Adds an image option when the regular expression matches.",
+            ["M:Android.Service.Autofill.Dataset.Builder.SetInlinePresentation(Android.Service.Autofill.InlinePresentation)"] =
+                "Sets an inline presentation for the dataset.",
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue)"] =
+                "Sets the value for an autofill field.",
+            ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews)"] =
+                "Sets authentication for the response.",
+        };
+        Assert(
+            autofillResidualOwners.All(owner =>
+                MapOwner(owner, autofillResidualPages).Docs?.Summary ==
+                expectedAutofillSummaries[owner.Id]),
+            "Autofill aliases and deprecated overloads import exact semantic summaries");
+        var autofillBuilderRequest = SourceRequest.Create(
+            "android/service/autofill/CharSequenceTransformation$Builder") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: Autofill builder source request");
+        var autofillBuilderPage = SourcePage.Parse(autofillBuilderRequest, autofillResidualHtml);
+        Assert(
+            autofillBuilderPage.Members.Single(member => member.Name == "addField")
+                .Docs?.Parameters["regex"] ==
+                "regular expression with groups (delimited by ( and )) that are used to substitute parts of the value.",
+            "Autofill regex source repair");
+        var eventRequest = SourceRequest.Create(
+            "android/service/autofill/FillEventHistory$Event") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: Autofill event source request");
+        var eventPage = SourcePage.Parse(eventRequest, autofillResidualHtml);
+        var eventSourceText = eventPage.Members.Single(member =>
+            member.Name == "TYPE_CONTEXT_COMMITTED").Docs?.Paragraphs.Single().Text;
+        Assert(
+            eventSourceText ==
+                "The selected dataset was selected (getChangedFields());",
+            "Autofill event source repair");
 
         var asyncSourcePath = Path.Combine(fixtureRoot, "geocoder-async-source.xml");
         var asyncAndroidHtml = File.ReadAllText(
@@ -3259,6 +3376,29 @@ static class ImporterProgram
         Assert(
             annotationOnly.Reason == "source_channel_not_meaningful",
             "standalone source annotation skip");
+        var incompleteSummary = ChannelValueOrSkip(
+            "Credential Manager is invoked instead of Autofill. When that happens, Save Dialog cannot be shown, and this will be populated in",
+            "summary",
+            "source_summary_missing");
+        Assert(
+            incompleteSummary.Reason == "source_channel_not_meaningful",
+            "incomplete source summary skip");
+        var completeGenericSummary = ChannelValueOrSkip(
+            "Type used when the service can save the contents of a screen, but cannot describe what the content is for.",
+            "summary",
+            "source_summary_missing");
+        Assert(
+            completeGenericSummary.Text ==
+                "Type used when the service can save the contents of a screen, but cannot describe what the content is for.",
+            "complete SaveDataType.Generic summary ending in for");
+        var completeGenericCardSummary = ChannelValueOrSkip(
+            "Type used when the FillResponse represents a card that does not a specified card or cannot identify what the card is for.",
+            "summary",
+            "source_summary_missing");
+        Assert(
+            completeGenericCardSummary.Text ==
+                "Type used when the FillResponse represents a card that does not a specified card or cannot identify what the card is for.",
+            "complete SaveDataType.GenericCard summary ending in for");
         Assert(
             CleanSourceText(@"the user\u2019s \u201cvalue\u201d") == "the user\u2019s \u201cvalue\u201d",
             "literal Unicode escape decoding");
@@ -3290,6 +3430,16 @@ static class ImporterProgram
                 "Federated Compute Server documentation.. This value cannot be null.") ==
                     "Federated Compute Server documentation. This value cannot be null.",
             "Android federated compute parameter punctuation cleanup");
+        Assert(
+            CleanSourceText(
+                "regular expression with groups (delimited by ( and () that are used to substitute parts of the value.") ==
+                    "regular expression with groups (delimited by ( and )) that are used to substitute parts of the value.",
+            "Autofill regex parenthesis cleanup");
+        Assert(
+            CleanSourceText(
+                "The selected dataset was selected (getChangedFields();") ==
+                    "The selected dataset was selected (getChangedFields());",
+            "Autofill event parenthesis cleanup");
         Assert(
             RemoveLeadingJavaType(
                 "long: ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
@@ -4767,6 +4917,52 @@ static class ImporterProgram
                         filterSynchronousGeocoderBoilerplate: true),
                 ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double,Android.Locations.Geocoder.IGeocodeListener)"] =
                     Mapping("android/location/Geocoder", "getFromLocationName", "(Ljava/lang/String;IDDDDLandroid/location/Geocoder$GeocodeListener;)V"),
+                ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32)"] =
+                    Mapping("android/service/autofill/ImageTransformation$Builder", "addOption", "(Ljava/util/regex/Pattern;I)Landroid/service/autofill/ImageTransformation$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32,System.String)"] =
+                    Mapping("android/service/autofill/ImageTransformation$Builder", "addOption", "(Ljava/util/regex/Pattern;ILjava/lang/CharSequence;)Landroid/service/autofill/ImageTransformation$Builder;"),
+                ["M:Android.Service.Autofill.SaveInfo.Builder.SetDescription(System.String)"] =
+                    Mapping("android/service/autofill/SaveInfo$Builder", "setDescription", "(Ljava/lang/CharSequence;)Landroid/service/autofill/SaveInfo$Builder;"),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetInlinePresentation(Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setInlinePresentation", "(Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetInlinePresentation(Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setInlinePresentation", "(Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews)"] =
+                    Mapping("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;)Landroid/service/autofill/FillResponse$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/FillResponse$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/FillResponse$Builder;",
+                        useFirstMeaningfulSummary: true),
                 ["M:Android.Text.TextUtils.IndexOf(System.String,System.Char)"] =
                     Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;C)I"),
                 ["M:Android.Text.TextUtils.IndexOf(System.String,System.String)"] =
