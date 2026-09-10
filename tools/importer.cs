@@ -620,12 +620,12 @@ static class ImporterProgram
             .ToHashSet(StringComparer.Ordinal);
         if (IsEnumSummaryRepairCandidate(owner) ||
             HasTruncatedImporterSummary(file, owner) ||
-            HasCopiedDescriptionRepairCandidate(file, owner))
+            HasCopiedDescriptionSummaryRepairCandidate(file, owner))
             targets.Add("summary");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
             HasMetadataOnlyRemarks(file, owner) ||
-            HasCopiedDescriptionRepairCandidate(file, owner))
+            HasCopiedDescriptionRemarksRepairCandidate(file, owner))
             targets.Add("remarks");
 
         foreach (var target in targets.OrderBy(target => target, StringComparer.Ordinal))
@@ -1228,11 +1228,34 @@ static class ImporterProgram
             file.Text[block.Start..block.End]);
     }
 
+    static bool HasCopiedDescriptionSummaryRepairCandidate(LoadedFile file, DocsOwner owner)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return HasCopiedDescriptionSummaryRepairCandidate(
+            owner.Docs,
+            file.Text[block.Start..block.End]);
+    }
+
+    static bool HasCopiedDescriptionRemarksRepairCandidate(LoadedFile file, DocsOwner owner)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return HasCopiedDescriptionRemarksRepairCandidate(
+            owner.Docs,
+            file.Text[block.Start..block.End]);
+    }
+
     static bool HasCopiedDescriptionRepairCandidate(XElement docs, string blockText) =>
+        HasCopiedDescriptionSummaryRepairCandidate(docs, blockText) ||
+        HasCopiedDescriptionRemarksRepairCandidate(docs, blockText);
+
+    static bool HasCopiedDescriptionSummaryRepairCandidate(XElement docs, string blockText) =>
         blockText.Contains("title=\"Reference documentation\"", StringComparison.Ordinal) &&
-        (IsImporterCopiedDescriptionLabel(docs.Element("summary")?.Value) ||
-            docs.Element("remarks")?.Elements("para").Any(
-                paragraph => IsImporterCopiedDescriptionLabel(paragraph.Value)) == true);
+        IsImporterCopiedDescriptionLabel(docs.Element("summary")?.Value);
+
+    static bool HasCopiedDescriptionRemarksRepairCandidate(XElement docs, string blockText) =>
+        blockText.Contains("title=\"Reference documentation\"", StringComparison.Ordinal) &&
+        docs.Element("remarks")?.Elements("para").Any(
+            paragraph => IsImporterCopiedDescriptionLabel(paragraph.Value)) == true;
 
     static string RepairCopiedDescriptionLabels(
         string text,
@@ -2644,6 +2667,40 @@ static class ImporterProgram
             !IsImporterCopiedDescriptionLabel(
                 "Description copied from interface: Fixture — keep this note."),
             "copied-description repair preserves labels with authored prose");
+        var summaryOnlyRepairFailure = new ImportReport
+        {
+            Mode = "dry-run",
+            Offline = true,
+            MaxChanges = 1,
+        };
+        Assert(
+            ReportMappingFailure(
+                summaryOnlyRepairFailure,
+                file,
+                repairOnlyOwner,
+                MappingResult.Skip("source_not_loaded", "fixture mapping failure")) &&
+                summaryOnlyRepairFailure.Entries.Select(entry => entry.Target).SequenceEqual(["summary"]),
+            "summary-only copied-description failures report only summary");
+        var remarksOnlyRepairOwner = setTitle with
+        {
+            Docs = XElement.Parse(
+                "<Docs><summary>Existing fixture prose.</summary><remarks><para>Description copied from interface: Fixture</para></remarks></Docs>"),
+            Placeholders = [],
+        };
+        var remarksOnlyRepairFailure = new ImportReport
+        {
+            Mode = "dry-run",
+            Offline = true,
+            MaxChanges = 1,
+        };
+        Assert(
+            ReportMappingFailure(
+                remarksOnlyRepairFailure,
+                file,
+                remarksOnlyRepairOwner,
+                MappingResult.Skip("source_not_loaded", "fixture mapping failure")) &&
+                remarksOnlyRepairFailure.Entries.Select(entry => entry.Target).SequenceEqual(["remarks"]),
+            "remarks-only copied-description failures report only remarks");
         file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var rawSignatureText = file.Text.Replace(
             $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
