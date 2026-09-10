@@ -203,7 +203,27 @@
         <returns>this builder. This value cannot be null.</returns>
         <remarks>
           <para>Adds a sanitizer for one or more field.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#addSanitizer(android.service.autofill.Sanitizer,%20android.view.autofill.AutofillId[])" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.addSanitizer</code>.</a></format></para>
+          <para>When a sanitizer is set for a field, the AutofillValue is sent to the sanitizer before a save request is triggered.</para>
+          <para>Typically used to avoid displaying the save UI for values that are autofilled but reformattedby the app.</para>
+          <code lang="text/java">builder.addSanitizer(new TextValueSanitizer(
+    Pattern.compile("^(\\d{4})\\s?(\\d{4})\\s?(\\d{4})\\s?(\\d{4})$", "$1$2$3$4")),
+    ccNumberId);</code>
+          <code lang="text/java">builder.addSanitizer(new TextValueSanitizer(
+    Pattern.compile("^(\\d{4})\\s?(\\d{4})\\s?(\\d{4})\\s?(\\d{4})$", "$1$2$3$4")),
+    ccNumberId);</code>
+          <para>The same sanitizer can be reused to sanitize multiple fields.</para>
+          <code lang="text/java">builder.addSanitizer(
+    new TextValueSanitizer(Pattern.compile("^\\s*(.*)\\s*$"), "$1"),
+        usernameId, passwordId);</code>
+          <code lang="text/java">builder.addSanitizer(
+    new TextValueSanitizer(Pattern.compile("^\\s*(.*)\\s*$"), "$1"),
+        usernameId, passwordId);</code>
+          <para>The sanitizer can also be used as an alternative for a validator. If any of the ids is a required id and the sanitizer fails because of it, then the save UI is not shown.</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#addSanitizer(android.service.autofill.Sanitizer,%20android.view.autofill.AutofillId[])" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.addSanitizer</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -582,7 +602,12 @@
         <returns>This builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets the style for the positive save action.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setPositiveAction(int)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setPositiveAction</code>.</a></format></para>
+          <para>This allows an autofill service to customize the style of the positive action in the save UI. Note that selecting the positive action regardless of its style would dismiss the save UI and calling into the save request. The service should take the next action if selecting style SaveInfo.POSITIVE_BUTTON_STYLE_CONTINUE. The default style is SaveInfo.POSITIVE_BUTTON_STYLE_SAVE</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setPositiveAction(int)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setPositiveAction</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -619,7 +644,13 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Explicitly defines the view that should commit the autofill context when clicked.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setTriggerId(android.view.autofill.AutofillId)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setTriggerId</code>.</a></format></para>
+          <para>Usually, the save request is only automatically triggered after the activity is finished or all relevant views become invisible, but there are scenarios where the autofill context is automatically commited too late —for example, when the activity manually clears the autofillable views when a button is tapped. This method can be used to trigger the autofill save UI earlier in these scenarios.</para>
+          <para>Note: This method should only be used in scenarios where the automatic workflow is not enough, otherwise it could trigger the autofill save UI when it should not— for example, when the user entered invalid credentials for the autofillable views.</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setTriggerId(android.view.autofill.AutofillId)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setTriggerId</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -658,6 +689,18 @@
           <para>Sets an object used to validate the user input - if the input is not valid, the autofill save UI is not shown.</para>
           <para>Typically used to validate credit card numbers.</para>
           <code lang="text/java">Validator validator = new RegexValidator(ccNumberId, Pattern.compile(""^\\d{16}$"))</code>
+          <code lang="text/java">Validator validator = new RegexValidator(ccNumberId, Pattern.compile(""^\\d{16}$"))</code>
+          <code lang="text/java">import static android.service.autofill.Validators.and;
+import static android.service.autofill.Validators.or;
+
+Validator validator =
+  and(
+    new LuhnChecksumValidator(ccNumberId),
+    or(
+      new RegexValidator(ccNumberId, Pattern.compile("^\\d{16}$")),
+      new RegexValidator(ccNumberId, Pattern.compile("^108\\d{12}$"))
+    )
+  );</code>
           <code lang="text/java">import static android.service.autofill.Validators.and;
 import static android.service.autofill.Validators.or;
 
@@ -674,6 +717,11 @@ Validator validator =
     new LuhnChecksumValidator(ccNumberId),
     new RegexValidator(ccNumberId, Pattern.compile(""^(\\d{16}|108\\d{12})$"))
   );</code>
+          <code lang="text/java">Validator validator =
+  and(
+    new LuhnChecksumValidator(ccNumberId),
+    new RegexValidator(ccNumberId, Pattern.compile(""^(\\d{16}|108\\d{12})$"))
+  );</code>
           <code lang="text/java">import static android.service.autofill.Validators.and;
 
 Validator validator =
@@ -683,8 +731,21 @@ Validator validator =
     new RegexValidator(ccNumberId3, Pattern.compile("^\\d{4}$")),
     new RegexValidator(ccNumberId4, Pattern.compile("^\\d{4}$"))
   );</code>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setValidator(android.service.autofill.Validator)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setValidator</code>.</a></format></para>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <code lang="text/java">import static android.service.autofill.Validators.and;
+
+Validator validator =
+  and(
+    new RegexValidator(ccNumberId1, Pattern.compile("^\\d{4}$")),
+    new RegexValidator(ccNumberId2, Pattern.compile("^\\d{4}$")),
+    new RegexValidator(ccNumberId3, Pattern.compile("^\\d{4}$")),
+    new RegexValidator(ccNumberId4, Pattern.compile("^\\d{4}$"))
+  );</code>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setValidator(android.service.autofill.Validator)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setValidator</code>.</a>
+  </format>
+</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

@@ -193,7 +193,15 @@
         <returns>this builder. This value cannot be null.</returns>
         <remarks>
           <para>Disables autofill for the app or activity.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#disableAutofill(long)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.disableAutofill</code>.</a></format></para>
+          <para>This method is useful to optimize performance in cases where the service knows it can not autofill an app—for example, when the service has a list of "denylisted" apps such as office suites.</para>
+          <para>By default, it disables autofill for all activities in the app, unless the response is flagged with FillResponse.FLAG_DISABLE_ACTIVITY_ONLY.</para>
+          <para>Autofill for the app or activity is automatically re-enabled after any of the following conditions: duration milliseconds have passed; The autofill service for the user has changed; The device has rebooted.</para>
+          <para>Note: Activities that are running when autofill is re-enabled remain disabled for autofill until they finish and restart.</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#disableAutofill(long)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.disableAutofill</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -279,7 +287,18 @@
         <returns>This builder.</returns>
         <remarks>
           <para>Triggers a custom UI before autofilling the screen with any data set in this response.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setAuthentication(android.view.autofill.AutofillId[],%20android.content.IntentSender,%20android.service.autofill.Presentations)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setAuthentication</code>.</a></format></para>
+          <para>Note: Although the name of this method suggests that it should be used just for authentication flow, it can be used for other advanced flows; see AutofillService for examples.</para>
+          <para>This is typically useful when a user interaction is required to unlock their data vault if you encrypt the data set labels and data set data. It is recommended to encrypt only the sensitive data and not the data set labels which would allow auth on the data set level leading to a better user experience. Note that if you use sensitive data as a label, for example an email address, then it should also be encrypted. The provided intent must be an Activity which implements your authentication flow. Also if you provide an auth intent you also need to specify the presentation view to be shown in the fill UI for the user to trigger your authentication flow.</para>
+          <para>When a user triggers autofill, the system launches the provided intent whose extras will have the screen content and your client state. Once you complete your authentication flow you should set the Activity result to Activity.RESULT_OK and set the AutofillManager.EXTRA_AUTHENTICATION_RESULT extra with the fully populated response (or null if the screen cannot be autofilled).</para>
+          <para>For example, if you provided an empty response because the user's data was locked and marked that the response needs an authentication then in the response returned if authentication succeeds you need to provide all available data sets some of which may need to be further authenticated, for example a credit card whose CVV needs to be entered.</para>
+          <para>If you provide an authentication intent you must also provide a presentation which is used to visualize the response for triggering the authentication flow.</para>
+          <para>Note: Do not make the provided pending intent immutable by using PendingIntent.FLAG_IMMUTABLE as the platform needs to fill in the authentication arguments.</para>
+          <para>Note: setHeader(RemoteViews) or setFooter(RemoteViews) does not work with InlinePresentation.</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setAuthentication(android.view.autofill.AutofillId[],%20android.content.IntentSender,%20android.service.autofill.Presentations)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setAuthentication</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -411,7 +430,15 @@
         <returns>This builder. This value cannot be null.</returns>
         <remarks>
           <para>This method was deprecated in API level 33. Use setAuthentication(AutofillId[],IntentSender,Presentations) instead.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setAuthentication(android.view.autofill.AutofillId[],%20android.content.IntentSender,%20android.widget.RemoteViews,%20android.service.autofill.InlinePresentation)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setAuthentication</code>.</a></format></para>
+          <para>Triggers a custom UI before autofilling the screen with any data set in this response.</para>
+          <para>Note: Although the name of this method suggests that it should be used just for authentication flow, it can be used for other advanced flows; see AutofillService for examples.</para>
+          <para>This method is similar to setAuthentication(AutofillId[],IntentSender,RemoteViews), but also accepts an InlinePresentation presentation which is required for authenticating through the inline autofill flow.</para>
+          <para>Note: setHeader(RemoteViews) or setFooter(RemoteViews) does not work with InlinePresentation.</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setAuthentication(android.view.autofill.AutofillId[],%20android.content.IntentSender,%20android.widget.RemoteViews,%20android.service.autofill.InlinePresentation)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setAuthentication</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -477,7 +504,13 @@
         <returns>To be added.</returns>
         <remarks>
           <para>This method was deprecated in API level 33. Use setAuthentication(AutofillId[],IntentSender,Presentations) instead.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setAuthentication(android.view.autofill.AutofillId[],%20android.content.IntentSender,%20android.widget.RemoteViews,%20android.service.autofill.InlinePresentation,%20android.service.autofill.InlinePresentation)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setAuthentication</code>.</a></format></para>
+          <para>Triggers a custom UI before autofilling the screen with any data set in this response.</para>
+          <para>This method like setAuthentication(AutofillId[],IntentSender,RemoteViews,InlinePresentation) but allows setting an InlinePresentation for the inline suggestion tooltip.</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setAuthentication(android.view.autofill.AutofillId[],%20android.content.IntentSender,%20android.widget.RemoteViews,%20android.service.autofill.InlinePresentation,%20android.service.autofill.InlinePresentation)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setAuthentication</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -641,7 +674,12 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Sets which fields are used for field classification</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setFieldClassificationIds(android.view.autofill.AutofillId[])" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setFieldClassificationIds</code>.</a></format></para>
+          <para>Note: This method automatically adds the FillResponse.FLAG_TRACK_CONTEXT_COMMITED to the flags.</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setFieldClassificationIds(android.view.autofill.AutofillId[])" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setFieldClassificationIds</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -766,7 +804,13 @@
         <returns>this builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets a footer to be shown as the last element in the list of datasets.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setFooter(android.widget.RemoteViews)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setFooter</code>.</a></format></para>
+          <para>When this method is called, you must also add a dataset, otherwise build() throws an IllegalStateException. Similarly, this method should only be used on FillResponses that do not require authentication (as the footer could have been set directly in the main presentation in these cases).</para>
+          <para>Theme does not work with RemoteViews layout. Avoid hardcoded text color or background color: Autofill on different platforms may have different themes.</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setFooter(android.widget.RemoteViews)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setFooter</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -803,7 +847,13 @@
         <returns>this builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets a header to be shown as the first element in the list of datasets.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setHeader(android.widget.RemoteViews)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setHeader</code>.</a></format></para>
+          <para>When this method is called, you must also add a dataset, otherwise build() throws an IllegalStateException. Similarly, this method should only be used on FillResponses that do not require authentication (as the header could have been set directly in the main presentation in these cases).</para>
+          <para>Theme does not work with RemoteViews layout. Avoid hardcoded text color or background color: Autofill on different platforms may have different themes.</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setHeader(android.widget.RemoteViews)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setHeader</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1118,7 +1168,12 @@
         <returns>this builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets a specific UserData for field classification for this request only.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setUserData(android.service.autofill.UserData)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setUserData</code>.</a></format></para>
+          <para>Any fields in this UserData will override corresponding fields in the generic UserData object</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/FillResponse.Builder#setUserData(android.service.autofill.UserData)" title="Reference documentation">Android reference for <code>android.service.autofill.FillResponse.Builder.setUserData</code>.</a>
+  </format>
+</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
