@@ -92,6 +92,7 @@ static class ImporterProgram
                 .Where(item =>
                     item.Owner.Placeholders.Count > 0 ||
                     IsEnumSummaryRepairCandidate(item.Owner) ||
+                    HasDeprecatedValueRepairCandidate(item.File, item.Owner) ||
                     HasAugmentedRemarksPlaceholder(item.File, item.Owner) ||
                     HasTruncatedImporterSummary(item.File, item.Owner) ||
                     HasIncompleteCodeExampleRemarks(item.File, item.Owner) ||
@@ -258,6 +259,46 @@ static class ImporterProgram
                                     file.RelativePath,
                                     owner.Id,
                                     repairTarget,
+                                    mapping.SourceUrl));
+                            }
+                        }
+                    }
+
+                    if (!ownerChanged &&
+                        mapping.Docs is not null &&
+                        HasDeprecatedValueRepairCandidate(file, owner))
+                    {
+                        var refreshed = RepairDeprecatedValue(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs);
+                        if (!refreshed.Equals(text, StringComparison.Ordinal))
+                        {
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
+                            if (remaining == 0)
+                            {
+                                RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "value",
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                            else
+                            {
+                                text = refreshed;
+                                file.UpdateBlockOffsets(owner.Order, text);
+                                fileChanged = true;
+                                ownerChanged = true;
+                                remaining--;
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "value",
                                     mapping.SourceUrl));
                             }
                         }
@@ -446,7 +487,8 @@ static class ImporterProgram
             return MappingResult.Success(page.TypeDocs);
         }
 
-        var registration = owner.MemberRegistration ?? Registration.Member(owner.Member);
+        var registration = owner.MemberRegistration ??
+            (owner.Member is null ? null : Registration.Member(owner.Member));
         if (registration is null)
             return MappingResult.Skip(
                 "missing_member_registration",
@@ -475,7 +517,7 @@ static class ImporterProgram
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
                     fields[0].Url);
-            return MappingResult.Success(fieldDocs);
+            return MappingResult.Success(WithSemanticSummaryIfNecessary(fieldDocs));
         }
 
         var expectedArguments = Descriptor.ParseArguments(registration.Descriptor!);
@@ -527,8 +569,13 @@ static class ImporterProgram
         {
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
-        return MappingResult.Success(docs);
+        return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
+
+    static SourceDocs WithSemanticSummaryIfNecessary(SourceDocs docs) =>
+        IsMeaningfulChannel(docs.Summary, "summary")
+            ? docs
+            : WithFirstMeaningfulSummary(docs);
 
     static SourceDocs WithFirstMeaningfulSummary(SourceDocs docs)
     {
@@ -538,6 +585,33 @@ static class ImporterProgram
             .FirstOrDefault(paragraph => IsMeaningfulChannel(paragraph, "summary"));
         return summary is null ? docs : docs with { Summary = summary };
     }
+
+    static string? FirstDocumentationParagraph(SourceDocs docs)
+    {
+        var paragraphs = docs.Paragraphs
+            .Where(paragraph => !paragraph.IsCode)
+            .Where(paragraph => IsMeaningfulChannel(paragraph.Text, "remarks"))
+            .ToList();
+        if (paragraphs.Count == 0)
+            return null;
+
+        var first = CleanSourceText(paragraphs[0].Text);
+        if (!IsDeprecationParagraph(first))
+            return first;
+
+        var semantic = paragraphs
+            .Skip(1)
+            .Select(paragraph => CleanSourceText(paragraph.Text))
+            .FirstOrDefault(paragraph => !IsDeprecationParagraph(paragraph));
+        return semantic is null ? first : $"{EnsureSentenceEnding(first)} {semantic}";
+    }
+
+    static string EnsureSentenceEnding(string value) =>
+        value.EndsWith('.', StringComparison.Ordinal) ||
+        value.EndsWith('!', StringComparison.Ordinal) ||
+        value.EndsWith('?', StringComparison.Ordinal)
+            ? value
+            : value + ".";
 
     static SourceDocs WithoutSynchronousGeocoderBoilerplate(SourceDocs docs) =>
         docs with
@@ -617,7 +691,7 @@ static class ImporterProgram
     {
         if (placeholder.IsImporterMetadataRepair)
             return ChannelValueOrSkip(
-                docs.Paragraphs.FirstOrDefault()?.Text,
+                FirstDocumentationParagraph(docs),
                 "remarks",
                 "source_remarks_missing");
 
@@ -633,7 +707,7 @@ static class ImporterProgram
                 "summary",
                 "source_summary_missing"),
             "remarks" or "para" => ChannelValueOrSkip(
-                docs.Paragraphs.FirstOrDefault()?.Text,
+                FirstDocumentationParagraph(docs),
                 "remarks",
                 "source_remarks_missing"),
             "param" => docs.Parameters.TryGetValue(placeholder.Key, out var parameter)
@@ -646,7 +720,9 @@ static class ImporterProgram
                 placeholder.Name,
                 "source_return_missing"),
             "value" => ChannelValueOrSkip(
-                string.IsNullOrWhiteSpace(docs.Returns) ? docs.Summary : docs.Returns,
+                string.IsNullOrWhiteSpace(docs.Returns)
+                    ? DeprecationAwareValueText(docs)
+                    : docs.Returns,
                 placeholder.Name,
                 "source_return_missing"),
             "exception" => ExceptionReplacement(placeholder, docs),
@@ -654,6 +730,15 @@ static class ImporterProgram
                 "unsupported_placeholder_target",
                 $"Placeholder element <{placeholder.Name}> is not imported."),
         };
+    }
+
+    static string? DeprecationAwareValueText(SourceDocs docs)
+    {
+        var first = docs.Paragraphs.FirstOrDefault(paragraph =>
+            !paragraph.IsCode && IsMeaningfulChannel(paragraph.Text, "remarks"));
+        return first is not null && IsDeprecationParagraph(first.Text)
+            ? FirstDocumentationParagraph(docs)
+            : docs.Summary;
     }
 
     static bool IsEnumSummaryRepairCandidate(DocsOwner owner)
@@ -667,11 +752,71 @@ static class ImporterProgram
         {
             return false;
         }
+
         return IsEnumSummaryRepairCandidate(
             summary,
             owner.SourceRequest.Url + "#" + registration.Name,
             $"{owner.SourceRequest.JavaPath.Replace('/', '.').Replace('$', '.')}.{registration.Name}",
             owner.SourceRequest.Kind);
+    }
+
+    static bool HasDeprecatedValueRepairCandidate(LoadedFile file, DocsOwner owner)
+    {
+        var registration = owner.MemberRegistration ??
+            (owner.Member is null ? null : Registration.Member(owner.Member));
+        if (owner.IsEnumField ||
+            owner.SourceRequest is null ||
+            registration is not { IsField: true })
+            return false;
+
+        var block = file.Text[
+            file.DocsBlocks[owner.Order].Start..
+            file.DocsBlocks[owner.Order].End];
+        var memberUrl = owner.SourceRequest.Url + "#" + registration.Name;
+        return ContainsSourceUrl(block, memberUrl) &&
+            Regex.IsMatch(
+                block,
+                @"<value\b[^>]*>\s*This (?:field|constant|member) (?:is|was) deprecated(?: in API level \d+)?\.\s*</value>",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    }
+
+    static string RepairDeprecatedValue(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var replacement = FirstDocumentationParagraph(docs);
+        var first = docs.Paragraphs.FirstOrDefault(paragraph =>
+            !paragraph.IsCode && IsMeaningfulChannel(paragraph.Text, "remarks"));
+        if (replacement is null ||
+            first is null ||
+            !IsDeprecationParagraph(first.Text) ||
+            NormalizeText(replacement).Equals(NormalizeText(first.Text), StringComparison.Ordinal))
+        {
+            return text;
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!ContainsSourceUrl(blockText, docs.SourceUrl))
+            return text;
+        var value = Regex.Match(
+            blockText,
+            @"<value\b[^>]*>(?<value>[^<]*)</value>",
+            RegexOptions.CultureInvariant);
+        if (!value.Success ||
+            !NormalizeText(value.Groups["value"].Value).Equals(
+                NormalizeText(SourcePage.FirstSentence(first.Text)),
+                StringComparison.Ordinal))
+        {
+            return text;
+        }
+
+        var valueStart = value.Groups["value"].Index;
+        var valueEnd = valueStart + value.Groups["value"].Length;
+        var updatedBlock = blockText[..valueStart] + XmlEscape(replacement) + blockText[valueEnd..];
+        return text[..block.Start] + updatedBlock + text[block.End..];
     }
 
     static bool IsEnumSummaryRepairCandidate(
@@ -1857,7 +2002,7 @@ static class ImporterProgram
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
-        Assert(file.Owners.Count == 14, "fixture owner count");
+        Assert(file.Owners.Count == 15, "fixture owner count");
         Assert(
             SourceVerifiedMemberMappings.Resolve(
                 "M:Android.Text.TextUtils.IndexOf(System.String,System.Char,System.Int32,System.Int32)") is
@@ -2514,6 +2659,46 @@ static class ImporterProgram
         Assert(
             favoritePropertyResult.Docs?.Summary == favoriteResult.Docs?.Summary,
             "descriptor-less property registration maps to an exact source field");
+        var deprecatedProperty = file.Owners.Single(owner =>
+            owner.Id.Contains("DeprecatedProperty", StringComparison.Ordinal));
+        var deprecatedPropertyDocs = MapOwner(deprecatedProperty, pages).Docs ??
+            throw new InvalidOperationException(
+                "SELF-TEST FAIL: deprecated property did not map to fixture source documentation.");
+        Assert(
+            deprecatedPropertyDocs.Summary == "Identifies the deprecated fixture value.",
+            "deprecated source summary selects semantic prose");
+        Assert(
+            ReplacementFor(
+                deprecatedProperty.Placeholders.Single(placeholder => placeholder.Name == "value"),
+                deprecatedPropertyDocs).Text ==
+                "This constant was deprecated in API level 31. Use FAVORITE instead. Identifies the deprecated fixture value.",
+            "deprecated property value retains caution and semantic prose");
+        var deprecatedValueRepairText = Regex.Replace(
+            fixtureText,
+            @"(?<open><Member MemberName=""DeprecatedProperty"">.*?<value>)To be added\.(?<close></value>)",
+            match =>
+                match.Groups["open"].Value +
+                "This constant was deprecated in API level 31." +
+                match.Groups["close"].Value +
+                "<remarks><para><format type=\"text/html\"><a href=\"" +
+                deprecatedPropertyDocs.SourceUrl +
+                "\" title=\"Reference documentation\">Android reference.</a></format></para></remarks>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        file.UpdateBlockOffsets(deprecatedProperty.Order, deprecatedValueRepairText);
+        Assert(
+            HasDeprecatedValueRepairCandidate(file, deprecatedProperty),
+            "deprecated property value with an exact member source URL is repairable");
+        var repairedDeprecatedValueText = RepairDeprecatedValue(
+            deprecatedValueRepairText,
+            file,
+            deprecatedProperty,
+            deprecatedPropertyDocs);
+        Assert(
+            repairedDeprecatedValueText.Contains(
+                "<value>This constant was deprecated in API level 31. Use FAVORITE instead. Identifies the deprecated fixture value.</value>",
+                StringComparison.Ordinal),
+            "deprecated property value repair preserves caution and semantic prose");
+        file.UpdateBlockOffsets(deprecatedProperty.Order, fixtureText);
         var tableOnly = file.Owners.Single(owner =>
             owner.Id.EndsWith(".TableOnly(System.Int32)", StringComparison.Ordinal));
         var tableOnlyResult = MapOwner(tableOnly, pages);
