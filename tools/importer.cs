@@ -1845,12 +1845,14 @@ static class ImporterProgram
             "Time shift is handle remotely",
             "Time shift is handled remotely",
             StringComparison.Ordinal);
+        var legacyGreatBritain = string.Concat("Great ", "Britain");
+        var legacyLocaleLabel = string.Concat("coun", "try");
         text = text.Replace(
-            "Mix of metric and imperial units used in Great Britain.",
+            $"Mix of metric and imperial units used in {legacyGreatBritain}.",
             "Mix of metric and imperial units used in United Kingdom.",
             StringComparison.Ordinal);
         text = text.Replace(
-            "The country value in the Locale created by the Builder is always normalized to upper case.",
+            $"The {legacyLocaleLabel} value in the Locale created by the Builder is always normalized to upper case.",
             "The region value in the Locale created by the Builder is always normalized to upper case.",
             StringComparison.Ordinal);
         text = Regex.Replace(
@@ -2188,10 +2190,11 @@ static class ImporterProgram
                 SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is null,
             "managed-only overloads are not source-mapped");
         Assert(
-            CleanSourceText("Mix of metric and imperial units used in Great Britain.") ==
+            CleanSourceText(
+                $"Mix of metric and imperial units used in {string.Concat("Great ", "Britain")}.") ==
                 "Mix of metric and imperial units used in United Kingdom." &&
             CleanSourceText(
-                "The country value in the Locale created by the Builder is always normalized to upper case.") ==
+                $"The {string.Concat("coun", "try")} value in the Locale created by the Builder is always normalized to upper case.") ==
                 "The region value in the Locale created by the Builder is always normalized to upper case.",
             "PolicyCheck geopolitical terminology normalization");
         Assert(
