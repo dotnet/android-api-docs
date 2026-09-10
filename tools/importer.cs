@@ -2677,8 +2677,9 @@ static class ImporterProgram
         Assert(
             length.Docs?.Summary == "Returns the length of this string." &&
                 !length.Docs.Paragraphs.Any(
-                    paragraph => paragraph.Text.Contains("Deprecated", StringComparison.Ordinal)),
-            "Java deprecated member block excluded");
+                    paragraph => paragraph.Text.Contains("Deprecated", StringComparison.Ordinal) ||
+                        paragraph.Text.Contains("Description copied from", StringComparison.Ordinal)),
+            "Java deprecated and copied-description member blocks excluded");
         var empty = javaPage.Members.Single(member => member.Name == "EMPTY");
         Assert(empty.IsField && empty.Docs?.Summary == "An empty fixture string.", "Java field extraction");
 
@@ -4956,9 +4957,16 @@ static class ImporterProgram
                         !classTokens.Contains("deprecation-block", StringComparer.Ordinal);
                 })
                 .Select(match => new SourceParagraph(HtmlText(match.Groups["body"].Value), IsCode: false))
-                .Where(paragraph => paragraph.Text.Length > 0)
+                .Where(paragraph => paragraph.Text.Length > 0 &&
+                    !IsJavaDescriptionCopiedLabel(paragraph.Text))
                 .Distinct()
                 .ToList();
+
+        static bool IsJavaDescriptionCopiedLabel(string text) =>
+            Regex.IsMatch(
+                NormalizeText(text).Trim(),
+                @"^Description copied from (?:class|interface):\s+\S",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         static Dictionary<string, string> ParseAttributes(string attributes)
         {
