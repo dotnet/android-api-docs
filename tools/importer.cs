@@ -3997,9 +3997,13 @@ static class ImporterProgram
                     ? SourceVerifiedMemberMappings.Resolve(id)
                     : null;
                 memberRegistration ??= sourceVerifiedMember?.Registration;
+                var sourceOverride = member is null
+                    ? null
+                    : SourceVerifiedMemberMappings.ResolveSourceOverride(id);
                 var request = member is null
                     ? typeRequest
-                    : SourceRequest.Create(memberField?.Owner) ??
+                    : sourceOverride ??
+                        SourceRequest.Create(memberField?.Owner) ??
                         interfaceMember?.SourceRequest ??
                         sourceVerifiedMember?.SourceRequest ??
                         typeRequest;
@@ -4245,6 +4249,15 @@ static class ImporterProgram
 
     static class SourceVerifiedMemberMappings
     {
+        static readonly IReadOnlyDictionary<string, SourceRequest> SourceOverrides =
+            new Dictionary<string, SourceRequest>(StringComparer.Ordinal)
+            {
+                ["F:Java.Util.Regex.RegexOptions.UnicodeCharacterClass"] =
+                    SourceRequest.CreateAndroid("java/util/regex/Pattern") ??
+                        throw new InvalidOperationException(
+                            "Could not create the Android Pattern source request."),
+            };
+
         static readonly IReadOnlyDictionary<string, InterfaceMemberMapping> Mappings =
             new Dictionary<string, InterfaceMemberMapping>(StringComparer.Ordinal)
             {
@@ -4397,6 +4410,9 @@ static class ImporterProgram
         public static InterfaceMemberMapping? Resolve(string memberId) =>
             Mappings.GetValueOrDefault(memberId);
 
+        public static SourceRequest? ResolveSourceOverride(string memberId) =>
+            SourceOverrides.GetValueOrDefault(memberId);
+
         static InterfaceMemberMapping Mapping(
             string javaPath,
             string name,
@@ -4512,6 +4528,14 @@ static class ImporterProgram
                 return new SourceRequest(javaPath, $"{JavaReference}{module}/{urlPath}.html", "java");
             }
             return null;
+        }
+
+        public static SourceRequest? CreateAndroid(string? javaPath)
+        {
+            if (string.IsNullOrWhiteSpace(javaPath))
+                return null;
+            var urlPath = javaPath.Replace('$', '.');
+            return new SourceRequest(javaPath, AndroidReference + urlPath, "android");
         }
 
         static string JavaModule(string path)
