@@ -2053,6 +2053,27 @@ static class ImporterProgram
             "selected (getChangedFields();",
             "selected (getChangedFields());",
             StringComparison.Ordinal);
+        text = text.Replace(
+            "before before autofilling",
+            "before autofilling",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Altough similiarly",
+            "Although similarly",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "a combination of FillResponse.FLAG_TRACK_CONTEXT_COMMITED and FillResponse.FLAG_DISABLE_ACTIVITY_ONLY, or 0. Value is either 0 or a combination of the following:",
+            "a combination of FillResponse.FLAG_TRACK_CONTEXT_COMMITED, FillResponse.FLAG_DISABLE_ACTIVITY_ONLY, and FillResponse.FLAG_DELAY_FILL, or 0. Value is either 0 or a combination of the following:",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Resoure Id",
+            "Resource Id",
+            StringComparison.Ordinal);
+        text = Regex.Replace(
+            text,
+            @"\bthis build\b",
+            "this builder",
+            RegexOptions.CultureInvariant);
         text = Regex.Replace(
             text,
             @"\s+TODO Link: Tuner#Tuner\(Context, string, int\)\.",
@@ -3425,6 +3446,26 @@ static class ImporterProgram
                 "Time shift is handle locally. TODO Link: Tuner#Tuner(Context, string, int).") ==
                     "Time shift is handled locally.",
             "Android time-shift and TODO metadata cleanup");
+        Assert(
+            CleanSourceText("Triggers a custom UI before before autofilling the screen.") ==
+                "Triggers a custom UI before autofilling the screen.",
+            "Android duplicate word cleanup");
+        Assert(
+            CleanSourceText("Altough similiarly named with another method.") ==
+                "Although similarly named with another method.",
+            "Android spelling cleanup");
+        Assert(
+            CleanSourceText(
+                "a combination of FillResponse.FLAG_TRACK_CONTEXT_COMMITED and FillResponse.FLAG_DISABLE_ACTIVITY_ONLY, or 0. Value is either 0 or a combination of the following:") ==
+                    "a combination of FillResponse.FLAG_TRACK_CONTEXT_COMMITED, FillResponse.FLAG_DISABLE_ACTIVITY_ONLY, and FillResponse.FLAG_DELAY_FILL, or 0. Value is either 0 or a combination of the following:",
+            "Android FillResponse flags cleanup");
+        Assert(
+            CleanSourceText("Resoure Id of the custom string.") ==
+                "Resource Id of the custom string.",
+            "Android resource spelling cleanup");
+        Assert(
+            CleanSourceText("this build") == "this builder",
+            "Android builder return cleanup");
         Assert(
             CleanSourceText(
                 "Federated Compute Server documentation.. This value cannot be null.") ==
