@@ -273,10 +273,10 @@
         <Parameter Name="asyncMode" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="parallelism">To be added.</param>
-        <param name="factory">To be added.</param>
-        <param name="handler">To be added.</param>
-        <param name="asyncMode">To be added.</param>
+        <param name="parallelism">the parallelism level. For default value, use Runtime.availableProcessors().</param>
+        <param name="factory">the factory for creating new threads. For default value, use defaultForkJoinWorkerThreadFactory.</param>
+        <param name="handler">the handler for internal worker threads that terminate due to unrecoverable errors encountered while executing tasks. For default value, use null.</param>
+        <param name="asyncMode">if true, establishes local first-in-first-out scheduling mode for forked tasks that are never joined. This mode may be more appropriate than default locally stack-based mode in applications in which worker threads only process event-style asynchronous tasks. For default value, use false.</param>
         <summary>Creates a <c>ForkJoinPool</c> with parallelism equal to <c>java.lang.Runtime#availableProcessors</c>, using the #defaultForkJoinWorkerThreadFactory default thread factory,
             no UncaughtExceptionHandler, and non-async LIFO processing mode.</summary>
         <remarks>
@@ -285,6 +285,7 @@
               <a href="https://developer.android.com/reference/java/util/concurrent/ForkJoinPool#ForkJoinPool()" title="Reference documentation">Java documentation for <code>java.util.concurrent.ForkJoinPool.ForkJoinPool()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ForkJoinPool.html#&lt;init&gt;(int,java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory,java.lang.Thread.UncaughtExceptionHandler,boolean)" title="Reference documentation">Java reference for <code>java.util.concurrent.ForkJoinPool.ForkJoinPool</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -330,18 +331,21 @@
         <Parameter Name="unit" Type="Java.Util.Concurrent.TimeUnit" />
       </Parameters>
       <Docs>
-        <param name="parallelism">To be added.</param>
-        <param name="factory">To be added.</param>
-        <param name="handler">To be added.</param>
-        <param name="asyncMode">To be added.</param>
-        <param name="corePoolSize">To be added.</param>
-        <param name="maximumPoolSize">To be added.</param>
-        <param name="minimumRunnable">To be added.</param>
-        <param name="saturate">To be added.</param>
-        <param name="keepAliveTime">To be added.</param>
-        <param name="unit">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="parallelism">the parallelism level. For default value, use Runtime.availableProcessors().</param>
+        <param name="factory">the factory for creating new threads. For default value, use defaultForkJoinWorkerThreadFactory.</param>
+        <param name="handler">the handler for internal worker threads that terminate due to unrecoverable errors encountered while executing tasks. For default value, use null.</param>
+        <param name="asyncMode">if true, establishes local first-in-first-out scheduling mode for forked tasks that are never joined. This mode may be more appropriate than default locally stack-based mode in applications in which worker threads only process event-style asynchronous tasks. For default value, use false.</param>
+        <param name="corePoolSize">the number of threads to keep in the pool (unless timed out after an elapsed keep-alive). Normally (and by default) this is the same value as the parallelism level, but may be set to a larger value to reduce dynamic overhead if tasks regularly block. Using a smaller value (for example 0) has the same effect as the default.</param>
+        <param name="maximumPoolSize">the maximum number of threads allowed. When the maximum is reached, attempts to replace blocked threads fail. (However, because creation and termination of different threads may overlap, and may be managed by the given thread factory, this value may be transiently exceeded.) To arrange the same value as is used by default for the common pool, use 256 plus the parallelism level. (By default, the common pool allows a maximum of 256 spare threads.) Using a value (for example Integer.MAX_VALUE) larger than the implementation's total thread limit has the same effect as using this limit (which is the default).</param>
+        <param name="minimumRunnable">the minimum allowed number of core threads not blocked by a join or ForkJoinPool.ManagedBlocker. To ensure progress, when too few unblocked threads exist and unexecuted tasks may exist, new threads are constructed, up to the given maximumPoolSize. For the default value, use 1, that ensures liveness. A larger value might improve throughput in the presence of blocked activities, but might not, due to increased overhead. A value of zero may be acceptable when submitted tasks cannot have dependencies requiring additional threads.</param>
+        <param name="saturate">if non-null, a predicate invoked upon attempts to create more than the maximum total allowed threads. By default, when a thread is about to block on a join or ForkJoinPool.ManagedBlocker, but cannot be replaced because the maximumPoolSize would be exceeded, a RejectedExecutionException is thrown. But if this predicate returns true, then no exception is thrown, so the pool continues to operate with fewer than the target number of runnable threads, which might not ensure progress.</param>
+        <param name="keepAliveTime">the elapsed time since last use before a thread is terminated (and then later replaced if needed). For the default value, use 60, TimeUnit.SECONDS.</param>
+        <param name="unit">the time unit for the keepAliveTime argument</param>
+        <summary>Creates a ForkJoinPool with the given parameters.</summary>
+        <remarks>
+          <para>Creates a ForkJoinPool with the given parameters.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ForkJoinPool.html#&lt;init&gt;(int,java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory,java.lang.Thread.UncaughtExceptionHandler,boolean,int,int,int,java.util.function.Predicate,long,java.util.concurrent.TimeUnit)" title="Reference documentation">Java reference for <code>java.util.concurrent.ForkJoinPool.ForkJoinPool</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ActiveThreadCount">
@@ -691,13 +695,10 @@
       </ReturnValue>
       <Docs>
         <summary>Creates a new ForkJoinWorkerThread.</summary>
-        <value>To be added.</value>
+        <value>Creates a new ForkJoinWorkerThread.</value>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ForkJoinPool#defaultForkJoinWorkerThreadFactory" title="Reference documentation">Java documentation for <code>java.util.concurrent.ForkJoinPool.defaultForkJoinWorkerThreadFactory</code>.</a>
-            </format>
-          </para>
+          <para>Creates a new ForkJoinWorkerThread. This factory is used unless overridden in ForkJoinPool constructors.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ForkJoinPool.html#defaultForkJoinWorkerThreadFactory" title="Reference documentation">Java reference for <code>java.util.concurrent.ForkJoinPool.defaultForkJoinWorkerThreadFactory</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -790,15 +791,12 @@
         <Parameter Name="task" Type="Java.Lang.IRunnable" />
       </Parameters>
       <Docs>
-        <param name="task">To be added.</param>
+        <param name="task">the runnable task</param>
         <summary>
         </summary>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ForkJoinPool#execute(java.lang.Runnable)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ForkJoinPool.execute(java.lang.Runnable)</code>.</a>
-            </format>
-          </para>
+          <para>Executes the given command at some time in the future. The command may execute in a new thread, in a pooled thread, or in the calling thread, at the discretion of the Executor implementation.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ForkJoinPool.html#execute(java.lang.Runnable)" title="Reference documentation">Java reference for <code>java.util.concurrent.ForkJoinPool.execute</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
