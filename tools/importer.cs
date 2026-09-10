@@ -151,38 +151,6 @@ static class ImporterProgram
                     var importedSourceChannel = false;
                     var replacedRemarksPlaceholder = false;
                     var deferredRemarksPlaceholder = false;
-                    var normalized = NormalizeStaleNestedConstructorLinks(
-                        text,
-                        file.DocsBlocks[owner.Order]);
-                    if (!normalized.Equals(text, StringComparison.Ordinal))
-                    {
-                        if (remaining == 0)
-                        {
-                            file.UpdateBlockOffsets(owner.Order, text);
-                            report.Entries.Add(ReportEntry.Skipped(
-                                file.RelativePath,
-                                owner.Id,
-                                "remarks",
-                                "max_changes_reached",
-                                $"The --max-changes limit of {options.MaxChanges} was reached.",
-                                owner.SourceRequest?.Url ?? ""));
-                        }
-                        else
-                        {
-                            text = normalized;
-                            file.UpdateBlockOffsets(owner.Order, text);
-                            fileChanged = true;
-                            ownerChanged = true;
-                            remaining--;
-                            report.Entries.Add(ReportEntry.Changed(
-                                "would_apply",
-                                file.RelativePath,
-                                owner.Id,
-                                "remarks",
-                                owner.SourceRequest?.Url ?? ""));
-                        }
-                    }
-
                     var mapping = MapOwner(owner, pages);
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
@@ -253,52 +221,20 @@ static class ImporterProgram
                     }
 
                     var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
-                    var augmentedRemarksRepair = HasAugmentedRemarksPlaceholder(file, owner);
-                    var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
-                    var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
-                    var metadataOnlyRemarksRepair = HasMetadataOnlyRemarks(file, owner);
-                    var channelOnlyMetadataRepair = HasChannelOnlySourceMetadata(
-                        file,
-                        owner,
-                        mapping.Docs!);
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
-                        (enumSummaryRepair ||
-                         augmentedRemarksRepair ||
-                         truncatedSummaryRepair ||
-                         codeExampleRepair ||
-                         metadataOnlyRemarksRepair ||
-                         channelOnlyMetadataRepair))
+                        enumSummaryRepair)
                     {
-                        var refreshed = truncatedSummaryRepair
-                            ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
-                            : text;
-                        if (!refreshed.Equals(text, StringComparison.Ordinal))
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        if (codeExampleRepair)
-                        {
-                            refreshed = ReplaceIncompleteCodeExampleRemarks(refreshed, file, owner, mapping.Docs);
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        }
-                        if (enumSummaryRepair ||
-                            augmentedRemarksRepair ||
-                            metadataOnlyRemarksRepair ||
-                            channelOnlyMetadataRepair)
-                        {
-                            refreshed = AddSourceDocumentationIfSafe(
-                                refreshed,
-                                file,
-                                owner,
-                                mapping.Docs,
-                                allowEnumCreation: false,
-                                addMetadataForChannelOnlyMember: channelOnlyMetadataRepair);
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                        }
+                        var refreshed = AddSourceDocumentationIfSafe(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs,
+                            allowEnumCreation: false);
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
-                            var repairTarget = enumSummaryRepair || truncatedSummaryRepair
-                                ? "summary"
-                                : "remarks";
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
+                            var repairTarget = "summary";
                             if (remaining == 0)
                             {
                                 RestoreOffsetsAfterSkippedRepair(file, owner, text);
@@ -582,7 +518,51 @@ static class ImporterProgram
                 "source_documentation_empty",
                 "The exact source member had no usable prose.",
                 exact[0].Url);
+        var sourceVerifiedMapping = SourceVerifiedMemberMappings.Resolve(owner.Id);
+        if (sourceVerifiedMapping is { UseFirstMeaningfulSummary: true })
+        {
+            docs = WithFirstMeaningfulSummary(docs);
+        }
+        if (sourceVerifiedMapping is { FilterSynchronousGeocoderBoilerplate: true })
+        {
+            docs = WithoutSynchronousGeocoderBoilerplate(docs);
+        }
         return MappingResult.Success(docs);
+    }
+
+    static SourceDocs WithFirstMeaningfulSummary(SourceDocs docs)
+    {
+        var summary = docs.Paragraphs
+            .Where(paragraph => !paragraph.IsCode)
+            .Select(paragraph => SourcePage.FirstSentence(paragraph.Text))
+            .FirstOrDefault(paragraph => IsMeaningfulChannel(paragraph, "summary"));
+        return summary is null ? docs : docs with { Summary = summary };
+    }
+
+    static SourceDocs WithoutSynchronousGeocoderBoilerplate(SourceDocs docs) =>
+        docs with
+        {
+            Paragraphs = docs.Paragraphs
+                .Where(paragraph => !IsSynchronousGeocoderBoilerplate(paragraph.Text))
+                .ToList(),
+        };
+
+    static bool IsSynchronousGeocoderBoilerplate(string text)
+    {
+        var normalized = NormalizeText(text);
+        return
+            (normalized.StartsWith(
+                "This method was deprecated in API level 33.",
+                StringComparison.Ordinal) &&
+             normalized.Contains(
+                 "instead to avoid blocking a thread waiting for results.",
+                 StringComparison.Ordinal)) ||
+            (normalized.StartsWith(
+                "Warning: This API may hit the network, and may block for excessive amounts of time.",
+                StringComparison.Ordinal) &&
+             normalized.Contains(
+                 "encouraged to use the asynchronous version of this API.",
+                 StringComparison.Ordinal));
     }
 
     static bool ReportMappingFailure(
@@ -1144,11 +1124,7 @@ static class ImporterProgram
         {
             return false;
         }
-        return HasTruncatedSummaryEnding(summary) ||
-            Regex.IsMatch(
-                summary,
-                @"\b(?:e\.g\.|i\.e\.|vs\.|etc\.|\.\.\.)[\)\]\}]?$",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        return HasTruncatedSummaryEnding(summary);
     }
 
     static bool HasIncompleteCodeExampleRemarks(LoadedFile file, DocsOwner owner)
@@ -1283,6 +1259,14 @@ static class ImporterProgram
             return text;
         }
 
+        var existingSummary = NormalizeText(summary.Groups["value"].Value);
+        var sourceSummary = NormalizeText(docs.Summary);
+        if (sourceSummary.Length <= existingSummary.Length ||
+            !sourceSummary.StartsWith(existingSummary, StringComparison.Ordinal))
+        {
+            return text;
+        }
+
         var valueStart = summary.Groups["value"].Index;
         var valueEnd = valueStart + summary.Groups["value"].Length;
         var updatedBlock = blockText[..valueStart] + XmlEscape(docs.Summary) + blockText[valueEnd..];
@@ -1290,9 +1274,10 @@ static class ImporterProgram
     }
 
     static bool HasTruncatedSummaryEnding(string summary) =>
-        summary.EndsWith("e.g.", StringComparison.OrdinalIgnoreCase) ||
-        summary.EndsWith("vs.", StringComparison.OrdinalIgnoreCase) ||
-        summary.EndsWith("...", StringComparison.Ordinal);
+        Regex.IsMatch(
+            summary,
+            @"\b(?:e\.g\.|i\.e\.|vs\.|etc\.|\.\.\.)[\)\]\}]?$",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     static bool HasImporterSourceReference(LoadedFile file, DocsOwner owner)
     {
@@ -1892,6 +1877,52 @@ static class ImporterProgram
             },
             "String convenience overload maps to the exact CharSequence JNI descriptor");
         Assert(
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Telecom.PhoneAccount.Builder.SetShortDescription(System.String)") is
+            {
+                Registration.Name: "setShortDescription",
+                Registration.Descriptor: "(Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;",
+                SourceRequest.JavaPath: "android/telecom/PhoneAccount$Builder",
+            } &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Telecom.PhoneAccount.InvokeBuilder(Android.Telecom.PhoneAccountHandle,System.String)") is
+            {
+                Registration.Name: "builder",
+                Registration.Descriptor: "(Landroid/telecom/PhoneAccountHandle;Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;",
+                SourceRequest.JavaPath: "android/telecom/PhoneAccount",
+            },
+            "Telecom String convenience overloads map to exact CharSequence JNI counterparts");
+        var telecomStringPropertyMappings = new Dictionary<string, (string JavaPath, string JavaName)>
+        {
+            ["P:Android.Telecom.CallAttributes.DisplayName"] =
+                ("android/telecom/CallAttributes", "getDisplayName"),
+            ["P:Android.Telecom.CallEndpoint.EndpointName"] =
+                ("android/telecom/CallEndpoint", "getEndpointName"),
+            ["P:Android.Telecom.DisconnectCause.Description"] =
+                ("android/telecom/DisconnectCause", "getDescription"),
+            ["P:Android.Telecom.DisconnectCause.Label"] =
+                ("android/telecom/DisconnectCause", "getLabel"),
+            ["P:Android.Telecom.PhoneAccount.Label"] =
+                ("android/telecom/PhoneAccount", "getLabel"),
+            ["P:Android.Telecom.PhoneAccount.ShortDescription"] =
+                ("android/telecom/PhoneAccount", "getShortDescription"),
+            ["P:Android.Telecom.RemoteConnection.CallerDisplayName"] =
+                ("android/telecom/RemoteConnection", "getCallerDisplayName"),
+            ["P:Android.Telecom.StatusHints.Label"] =
+                ("android/telecom/StatusHints", "getLabel"),
+        };
+        Assert(
+            telecomStringPropertyMappings.All(item =>
+                SourceVerifiedMemberMappings.Resolve(item.Key) is
+                {
+                    Registration.Name: var name,
+                    Registration.Descriptor: "()Ljava/lang/CharSequence;",
+                    SourceRequest.JavaPath: var path,
+                } &&
+                name == item.Value.JavaName &&
+                path == item.Value.JavaPath),
+            "Telecom String property aliases map to exact CharSequence getter counterparts");
+        Assert(
             LoadedFile.SelectNewline("first\nsecond\r\nthird\n") == "\n",
             "mixed-newline files preserve their predominant line ending");
         var jniTypeSignature = XElement.Parse(
@@ -2024,6 +2055,143 @@ static class ImporterProgram
                 },
             "InputMethods string aliases map to their exact JNI counterparts");
 
+        var asyncSourcePath = Path.Combine(fixtureRoot, "geocoder-async-source.xml");
+        var asyncAndroidHtml = File.ReadAllText(
+            Path.Combine(fixtureRoot, "geocoder-async-android-reference.html"));
+        var asyncFile = LoadedFile.Load(repositoryRoot, asyncSourcePath);
+        asyncFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+        var asyncOwners = asyncFile.Owners
+            .Where(owner => owner.Placeholders.Count > 0)
+            .ToList();
+        Assert(asyncOwners.Count == 6, "Geocoder async fixture owner count");
+        var directGeocoderMembers = asyncFile.Root
+            .Element("Members")?
+            .Elements("Member")
+            .Select(member => new
+            {
+                Id = (string?)member.Elements("MemberSignature")
+                    .FirstOrDefault(signature =>
+                        (string?)signature.Attribute("Language") == "DocId")?
+                    .Attribute("Value"),
+                Registration = Registration.Member(member),
+            })
+            .Where(member => member.Id is not null && member.Registration is not null)
+            .ToDictionary(member => member.Id!, member => member.Registration!, StringComparer.Ordinal)
+            ?? throw new InvalidOperationException("SELF-TEST FAIL: Geocoder direct fixture registrations");
+        var geocoderAsyncDirectMembers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32)"] =
+                "M:Android.Locations.Geocoder.GetFromLocation(System.Double,System.Double,System.Int32)",
+            ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "M:Android.Locations.Geocoder.GetFromLocation(System.Double,System.Double,System.Int32,Android.Locations.Geocoder.IGeocodeListener)",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32)"] =
+                "M:Android.Locations.Geocoder.GetFromLocationName(System.String,System.Int32)",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "M:Android.Locations.Geocoder.GetFromLocationName(System.String,System.Int32,Android.Locations.Geocoder.IGeocodeListener)",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double)"] =
+                "M:Android.Locations.Geocoder.GetFromLocationName(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double)",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "M:Android.Locations.Geocoder.GetFromLocationName(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double,Android.Locations.Geocoder.IGeocodeListener)",
+        };
+        foreach (var (asyncId, directId) in geocoderAsyncDirectMembers)
+        {
+            var mapping = SourceVerifiedMemberMappings.Resolve(asyncId);
+            Assert(
+                mapping is not null &&
+                mapping.SourceRequest.JavaPath == "android/location/Geocoder" &&
+                mapping.Registration == directGeocoderMembers[directId],
+                $"Geocoder Task wrapper maps to the registered Java overload: {asyncId}");
+        }
+        var asyncRequest = asyncOwners[0].SourceRequest ??
+            throw new InvalidOperationException("SELF-TEST FAIL: Geocoder async source request");
+        var asyncPages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+        {
+            [asyncRequest.Url] = SourceLoadResult.Success(
+                SourcePage.Parse(asyncRequest, asyncAndroidHtml)),
+        };
+        var expectedGeocoderAsyncSummaries = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32)"] =
+                "Returns reverse geocoding results.",
+            ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "Delivers reverse geocoding results to the listener.",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32)"] =
+                "Returns geocoding results.",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "Delivers geocoding results to the listener.",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double)"] =
+                "Returns bounded geocoding results.",
+            ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double,Android.Locations.Geocoder.IGeocodeListener)"] =
+                "Delivers bounded geocoding results to the listener.",
+        };
+        Assert(
+            asyncOwners.All(owner =>
+                MapOwner(owner, asyncPages).Docs?.Summary ==
+                expectedGeocoderAsyncSummaries[owner.Id]),
+            "Geocoder Task wrappers resolve to exact official overload documentation");
+        var taskResultOwners = asyncOwners
+            .Where(owner => SourceVerifiedMemberMappings.Resolve(owner.Id) is
+                { FilterSynchronousGeocoderBoilerplate: true })
+            .ToList();
+        Assert(taskResultOwners.Count == 3, "Geocoder Task<T> boilerplate filter scope");
+        foreach (var taskResultOwner in taskResultOwners)
+        {
+            var taskResultFile = LoadedFile.Load(repositoryRoot, asyncSourcePath);
+            taskResultFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+            var owner = taskResultFile.Owners.Single(item => item.Id == taskResultOwner.Id);
+            var taskResultDocs = MapOwner(owner, asyncPages).Docs ??
+                throw new InvalidOperationException(
+                    $"SELF-TEST FAIL: Geocoder Task<T> source mapping: {owner.Id}");
+            var summaryPlaceholder = owner.Placeholders.Single(
+                placeholder => placeholder.Name == "summary");
+            Assert(
+                TryReplacePlaceholder(
+                    taskResultFile.Text,
+                    taskResultFile.DocsBlocks[owner.Order],
+                    summaryPlaceholder,
+                    ReplacementFor(summaryPlaceholder, taskResultDocs).Text!,
+                    out var withSummary,
+                    out var replacementError),
+                $"Geocoder Task<T> summary replacement: {replacementError}");
+            taskResultFile.UpdateBlockOffsets(owner.Order, withSummary);
+            var completed = AddSourceDocumentationIfSafe(
+                withSummary,
+                taskResultFile,
+                owner,
+                taskResultDocs);
+            taskResultFile.UpdateBlockOffsets(owner.Order, completed);
+            var completedBlock = taskResultFile.DocsBlocks[owner.Order];
+            var completedDocs = XElement.Parse(
+                completed[completedBlock.Start..completedBlock.End],
+                LoadOptions.PreserveWhitespace);
+            var completedMarkup = completed[completedBlock.Start..completedBlock.End];
+            var completedRemarks = completedDocs.Element("remarks")?.Value ?? "";
+            Assert(
+                completedDocs.Element("summary")?.Value ==
+                    expectedGeocoderAsyncSummaries[owner.Id],
+                $"Geocoder Task<T> summary retains semantic source prose: {owner.Id}");
+            Assert(
+                completedRemarks.Contains(expectedGeocoderAsyncSummaries[owner.Id], StringComparison.Ordinal) &&
+                completedRemarks.Contains(
+                    "Warning: Geocoding services may provide no guarantees.",
+                    StringComparison.Ordinal),
+                $"Geocoder Task<T> remarks retain semantic source prose: {owner.Id}");
+            Assert(
+                !completedRemarks.Contains(
+                    "This method was deprecated in API level 33.",
+                    StringComparison.Ordinal) &&
+                !completedRemarks.Contains(
+                    "encouraged to use the asynchronous version of this API.",
+                    StringComparison.Ordinal),
+                $"Geocoder Task<T> remarks exclude synchronous Java boilerplate: {owner.Id}");
+            Assert(
+                completedMarkup.Contains(taskResultDocs.SourceUrl, StringComparison.Ordinal) &&
+                completedMarkup.Contains(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal),
+                $"Geocoder Task<T> remarks retain source metadata: {owner.Id}");
+        }
+
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
         Assert(androidPage.TypeDocs?.Summary == "Represents a fixture widget.", "Android type summary");
@@ -2128,6 +2296,25 @@ static class ImporterProgram
         Assert(
             terminalAbbreviationPage.TypeDocs?.Summary == "Uses a value (e.g.)",
             "sentence-ending abbreviations with closing delimiters do not over-merge");
+        var lowercaseContinuationPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "Represents a fixture widget. The widget is used only by local importer tests.",
+                "Returns the index (e.g. 1st event, 2nd event, etc.) of this event in the selection session.",
+                StringComparison.Ordinal));
+        Assert(
+            lowercaseContinuationPage.TypeDocs?.Summary ==
+                "Returns the index (e.g. 1st event, 2nd event, etc.) of this event in the selection session.",
+            "abbreviations before a closing delimiter retain lowercase continuations");
+        var nonAbbreviationDelimiterPage = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "Represents a fixture widget. The widget is used only by local importer tests.",
+                "Completes the operation (value.). callback is then invoked.",
+                StringComparison.Ordinal));
+        Assert(
+            nonAbbreviationDelimiterPage.TypeDocs?.Summary == "Completes the operation (value.).",
+            "closing delimiters do not extend non-abbreviation sentences");
 
         var setTitle = file.Owners.Single(owner => owner.Id.Contains("SetTitle", StringComparison.Ordinal));
         var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
@@ -2145,6 +2332,24 @@ static class ImporterProgram
                 MapOwner(implementedComparator, pages).Docs?.Summary ==
                     "Compares two fixture objects.",
             "implemented interface resolves through the exact canonical registration");
+        var textClassifierExtension = SourceVerifiedMemberMappings.Resolve(
+            "M:Android.Views.TextClassifiers.ITextClassifierExtensions.ClassifyText(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)");
+        Assert(
+            textClassifierExtension is not null &&
+                textClassifierExtension.Registration.Name == "classifyText" &&
+                textClassifierExtension.Registration.Descriptor ==
+                    "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextClassification;" &&
+                textClassifierExtension.SourceRequest.JavaPath == "android/view/textclassifier/TextClassifier",
+            "TextClassifier string extension resolves to the receiver's exact CharSequence member");
+        var textSelectionExtension = SourceVerifiedMemberMappings.Resolve(
+            "M:Android.Views.TextClassifiers.ITextClassifierExtensions.SuggestSelection(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)");
+        Assert(
+            textSelectionExtension is not null &&
+                textSelectionExtension.Registration.Name == "suggestSelection" &&
+                textSelectionExtension.Registration.Descriptor ==
+                    "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;" &&
+                textSelectionExtension.SourceRequest.JavaPath == "android/view/textclassifier/TextClassifier",
+            "TextClassifier selection extension resolves to the receiver's exact CharSequence member");
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
@@ -2256,16 +2461,31 @@ static class ImporterProgram
             "<summary>To be added.</summary>",
             "<summary>Distinguishes fixtures...</summary>",
             StringComparison.Ordinal);
+        var truncatedSummaryDocs = mappedDocs with
+        {
+            Summary = "Distinguishes fixtures... with the exact source mapping.",
+        };
+        file.UpdateBlockOffsets(setTitle.Order, truncatedSummaryText);
         var repairedSummaryText = ReplaceTruncatedSummary(
             truncatedSummaryText,
             file,
             setTitle,
-            mappedDocs);
+            truncatedSummaryDocs);
         Assert(
             repairedSummaryText.Contains(
-                "<summary>Sets the widget title.</summary>",
+                "<summary>Distinguishes fixtures... with the exact source mapping.</summary>",
                 StringComparison.Ordinal),
             "ellipsis-truncated importer summary is replaced from source");
+        var completeSummaryText = file.Text.Replace(
+            "<summary>To be added.</summary>",
+            "<summary>Locally authored complete summary (etc.)</summary>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, completeSummaryText);
+        Assert(
+            ReplaceTruncatedSummary(completeSummaryText, file, setTitle, mappedDocs)
+                .Equals(completeSummaryText, StringComparison.Ordinal),
+            "non-prefix source summaries do not overwrite existing documentation");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var titleParameter = setTitle.Placeholders.Single(item => item.Name == "param");
         Assert(
             ReplacementFor(titleParameter, mappedDocs).Text == "the title to display",
@@ -3820,7 +4040,9 @@ static class ImporterProgram
 
     sealed record InterfaceMemberMapping(
         MemberRegistration Registration,
-        SourceRequest SourceRequest);
+        SourceRequest SourceRequest,
+        bool UseFirstMeaningfulSummary = false,
+        bool FilterSynchronousGeocoderBoilerplate = false);
 
     static class SourceVerifiedMemberMappings
     {
@@ -3845,6 +4067,24 @@ static class ImporterProgram
                     Mapping("java/lang/Object", "toString", "()Ljava/lang/String;"),
                 ["M:Java.Interop.JniEnvironment.References.GetIdentityHashCode(Java.Interop.JniObjectReference)"] =
                     Mapping("java/lang/System", "identityHashCode", "(Ljava/lang/Object;)I"),
+                ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32)"] =
+                    Mapping("android/location/Geocoder", "getFromLocation", "(DDI)Ljava/util/List;",
+                        useFirstMeaningfulSummary: true,
+                        filterSynchronousGeocoderBoilerplate: true),
+                ["M:Android.Locations.Geocoder.GetFromLocationAsync(System.Double,System.Double,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                    Mapping("android/location/Geocoder", "getFromLocation", "(DDILandroid/location/Geocoder$GeocodeListener;)V"),
+                ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32)"] =
+                    Mapping("android/location/Geocoder", "getFromLocationName", "(Ljava/lang/String;I)Ljava/util/List;",
+                        useFirstMeaningfulSummary: true,
+                        filterSynchronousGeocoderBoilerplate: true),
+                ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,Android.Locations.Geocoder.IGeocodeListener)"] =
+                    Mapping("android/location/Geocoder", "getFromLocationName", "(Ljava/lang/String;ILandroid/location/Geocoder$GeocodeListener;)V"),
+                ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double)"] =
+                    Mapping("android/location/Geocoder", "getFromLocationName", "(Ljava/lang/String;IDDDD)Ljava/util/List;",
+                        useFirstMeaningfulSummary: true,
+                        filterSynchronousGeocoderBoilerplate: true),
+                ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double,Android.Locations.Geocoder.IGeocodeListener)"] =
+                    Mapping("android/location/Geocoder", "getFromLocationName", "(Ljava/lang/String;IDDDDLandroid/location/Geocoder$GeocodeListener;)V"),
                 ["M:Android.Text.TextUtils.IndexOf(System.String,System.Char)"] =
                     Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;C)I"),
                 ["M:Android.Text.TextUtils.IndexOf(System.String,System.String)"] =
@@ -3863,6 +4103,26 @@ static class ImporterProgram
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CI)I"),
                 ["M:Android.Text.TextUtils.LastIndexOf(System.String,System.Char,System.Int32,System.Int32)"] =
                     Mapping("android/text/TextUtils", "lastIndexOf", "(Ljava/lang/CharSequence;CII)I"),
+                ["M:Android.Telecom.PhoneAccount.Builder.SetShortDescription(System.String)"] =
+                    Mapping("android/telecom/PhoneAccount$Builder", "setShortDescription", "(Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
+                ["M:Android.Telecom.PhoneAccount.InvokeBuilder(Android.Telecom.PhoneAccountHandle,System.String)"] =
+                    Mapping("android/telecom/PhoneAccount", "builder", "(Landroid/telecom/PhoneAccountHandle;Ljava/lang/CharSequence;)Landroid/telecom/PhoneAccount$Builder;"),
+                ["P:Android.Telecom.CallAttributes.DisplayName"] =
+                    Mapping("android/telecom/CallAttributes", "getDisplayName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.CallEndpoint.EndpointName"] =
+                    Mapping("android/telecom/CallEndpoint", "getEndpointName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.DisconnectCause.Description"] =
+                    Mapping("android/telecom/DisconnectCause", "getDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.DisconnectCause.Label"] =
+                    Mapping("android/telecom/DisconnectCause", "getLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.PhoneAccount.Label"] =
+                    Mapping("android/telecom/PhoneAccount", "getLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.PhoneAccount.ShortDescription"] =
+                    Mapping("android/telecom/PhoneAccount", "getShortDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.RemoteConnection.CallerDisplayName"] =
+                    Mapping("android/telecom/RemoteConnection", "getCallerDisplayName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Telecom.StatusHints.Label"] =
+                    Mapping("android/telecom/StatusHints", "getLabel", "()Ljava/lang/CharSequence;"),
                 ["M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/BaseInputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.BaseInputConnection.ReplaceText(System.Int32,System.Int32,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
@@ -3885,6 +4145,10 @@ static class ImporterProgram
                     Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setLayoutLabelNonLocalized", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
                 ["M:Android.Views.InputMethods.InputMethodSubtype.InputMethodSubtypeBuilder.SetSubtypeNameOverride(System.String)"] =
                     Mapping("android/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder", "setSubtypeNameOverride", "(Ljava/lang/CharSequence;)Landroid/view/inputmethod/InputMethodSubtype$InputMethodSubtypeBuilder;"),
+                ["M:Android.Views.TextClassifiers.ITextClassifierExtensions.ClassifyText(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)"] =
+                    Mapping("android/view/textclassifier/TextClassifier", "classifyText", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextClassification;"),
+                ["M:Android.Views.TextClassifiers.ITextClassifierExtensions.SuggestSelection(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)"] =
+                    Mapping("android/view/textclassifier/TextClassifier", "suggestSelection", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
@@ -3909,12 +4173,16 @@ static class ImporterProgram
         static InterfaceMemberMapping Mapping(
             string javaPath,
             string name,
-            string descriptor) =>
+            string descriptor,
+            bool useFirstMeaningfulSummary = false,
+            bool filterSynchronousGeocoderBoilerplate = false) =>
             new(
                 new MemberRegistration(name, descriptor, false),
                 SourceRequest.Create(javaPath) ??
                     throw new InvalidOperationException(
-                        $"Unsupported source-verified Java path '{javaPath}'."));
+                        $"Unsupported source-verified Java path '{javaPath}'."),
+                useFirstMeaningfulSummary,
+                filterSynchronousGeocoderBoilerplate);
     }
 
     sealed class InterfaceMemberResolver
@@ -4857,7 +5125,7 @@ static class ImporterProgram
             return text.ToString();
         }
 
-        static string FirstSentence(string text)
+        internal static string FirstSentence(string text)
         {
             for (var index = 0; index < text.Length; index++)
             {
@@ -4891,14 +5159,12 @@ static class ImporterProgram
 
         static bool IsAbbreviation(string text, int periodIndex)
         {
-            if (HasClosingDelimiterBoundary(text, periodIndex))
-                return false;
             var tokenStart = periodIndex;
             while (tokenStart > 0 && !char.IsWhiteSpace(text[tokenStart - 1]))
                 tokenStart--;
             var token = text[tokenStart..(periodIndex + 1)]
                 .Trim('(', ')', '[', ']', '{', '}', '"', '\'');
-            return token.Equals("e.g.", StringComparison.OrdinalIgnoreCase) ||
+            var isAbbreviation = token.Equals("e.g.", StringComparison.OrdinalIgnoreCase) ||
                 token.Equals("i.e.", StringComparison.OrdinalIgnoreCase) ||
                 token.Equals("vs.", StringComparison.OrdinalIgnoreCase) ||
                 token.Equals("etc.", StringComparison.OrdinalIgnoreCase) ||
@@ -4906,6 +5172,16 @@ static class ImporterProgram
                     token,
                     @"^(?:[A-Za-z]\.){2,}$",
                     RegexOptions.CultureInvariant);
+            if (HasClosingDelimiterBoundary(text, periodIndex))
+            {
+                var next = periodIndex + 1;
+                while (next < text.Length && text[next] is ')' or ']' or '}')
+                    next++;
+                while (next < text.Length && char.IsWhiteSpace(text[next]))
+                    next++;
+                return isAbbreviation && next < text.Length && char.IsLower(text[next]);
+            }
+            return isAbbreviation;
         }
 
         static bool HasClosingDelimiterBoundary(string text, int periodIndex)
