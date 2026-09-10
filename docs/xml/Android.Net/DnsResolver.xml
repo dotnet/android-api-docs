@@ -88,7 +88,11 @@
             separate thread is already being used for <c>DnsResolver</c> interactions, it is sufficient
             to use <c>Runnable#run()</c> as the <c>Executor</c> for <c>#query</c> and <c>#rawQuery</c>.</param>
         <summary>Creates a <c>DnsResolver</c> instance.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a DnsResolver instance.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/DnsResolver#DnsResolver(android.content.Context,%20android.os.Looper)" title="Reference documentation">Android reference for <code>android.net.DnsResolver.DnsResolver</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ClassIn">
@@ -392,7 +396,11 @@
       <MemberValue>-1</MemberValue>
       <Docs>
         <summary>Indicates that the default wait time should be used for the HTTPS query.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Indicates that the default wait time should be used for the HTTPS query.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/DnsResolver#HTTPS_QUERY_WAIT_AUTO" title="Reference documentation">Android reference for <code>android.net.DnsResolver.HTTPS_QUERY_WAIT_AUTO</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="HttpsQueryWaitNone">
@@ -421,7 +429,11 @@
       <MemberValue>0</MemberValue>
       <Docs>
         <summary>Indicates that no additional wait should be used for the HTTPS query.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Indicates that no additional wait should be used for the HTTPS query.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/DnsResolver#HTTPS_QUERY_WAIT_NONE" title="Reference documentation">Android reference for <code>android.net.DnsResolver.HTTPS_QUERY_WAIT_NONE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="HttpsQueryWaitUntilTimeout">
@@ -451,7 +463,11 @@
       <Docs>
         <summary>Indicates that the HTTPS query will be retransmitted until it gets a response, or until it
             times out.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Indicates that the HTTPS query will be retransmitted until it gets a response, or until it times out.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/DnsResolver#HTTPS_QUERY_WAIT_UNTIL_TIMEOUT" title="Reference documentation">Android reference for <code>android.net.DnsResolver.HTTPS_QUERY_WAIT_UNTIL_TIMEOUT</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Instance">
@@ -650,15 +666,19 @@
         <Parameter Name="callback" Type="Android.Net.DnsResolver+ICallback" />
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <param name="domain">To be added.</param>
-        <param name="flags">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="httpsTimeoutMillis">To be added.</param>
-        <param name="cancellationSignal">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="network">Network specifying which network to query on. null for query on default network.</param>
+        <param name="domain">domain name to query. This value cannot be null.</param>
+        <param name="flags">flags as a combination of the FLAGS_* constants. Value is one of the following: FLAG_EMPTY; FLAG_NO_RETRY; FLAG_NO_CACHE_STORE; FLAG_NO_CACHE_LOOKUP</param>
+        <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="httpsTimeoutMillis">the timeout in milliseconds to wait for the HTTPS query to complete after the A/AAAA queries have already completed. May be set to HTTPS_QUERY_WAIT_NONE to disable any additional wait, HTTPS_QUERY_WAIT_AUTO to use the default wait time, HTTPS_QUERY_WAIT_UNTIL_TIMEOUT to wait for the HTTPS query to complete, or a specific value in milliseconds.</param>
+        <param name="cancellationSignal">used by the caller to signal if all the queries should be cancelled. May be null.</param>
+        <param name="callback">a Callback which will be called to notify the caller of the results of the A/AAAA/HTTPS DNS queries. Will return a ERROR_PARSE if any of the DNS records cannot be parsed, and should be treated as a resolution failure. This value cannot be null.</param>
+        <summary>Send concurrent A/AAAA/HTTPS DNS queries with the specified name on a network.</summary>
+        <remarks>
+          <para>Send concurrent A/AAAA/HTTPS DNS queries with the specified name on a network. The answer to all queries will be provided asynchronously through the provided callback Callback, which provides a HttpsEndpoint.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/DnsResolver#query(android.net.Network,%20java.lang.String,%20int,%20java.util.concurrent.Executor,%20int,%20android.os.CancellationSignal,%20android.net.DnsResolver.Callback&lt;android.net.dns.HttpsEndpoint&gt;)" title="Reference documentation">Android reference for <code>android.net.DnsResolver.query</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Query">

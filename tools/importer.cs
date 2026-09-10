@@ -77,7 +77,7 @@ static class ImporterProgram
                     var file = LoadedFile.Load(repositoryRoot, path);
                     if (!MatchesNamespace(file.Root, options.Namespace))
                         continue;
-                    file.SelectOwners(options.Member, interfaceMemberResolver);
+                    file.SelectOwners(options.Member, interfaceMemberResolver, options.ApiSince);
                     loadedFiles.Add(file);
                 }
                 catch (Exception error) when (error is XmlException or IOException or UnauthorizedAccessException)
@@ -2743,6 +2743,14 @@ static class ImporterProgram
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
         Assert(file.Owners.Count == 15, "fixture owner count");
+        var apiSinceFile = LoadedFile.Load(repositoryRoot, sourcePath);
+        apiSinceFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot), apiSince: 1);
+        Assert(
+            apiSinceFile.Owners is
+            [
+                { Id: "P:Android.Example.Widget.FavoriteProperty" },
+            ],
+            "API level filter selects only matching owners");
         Assert(
             SourceVerifiedMemberMappings.Resolve(
                 "M:Android.Text.TextUtils.IndexOf(System.String,System.Char,System.Int32,System.Int32)") is
@@ -5300,6 +5308,7 @@ static class ImporterProgram
         public int MaxChanges { get; private set; } = 25;
         public int Concurrency { get; private set; } = 4;
         public int Retries { get; private set; } = 3;
+        public int? ApiSince { get; private set; }
         public string? Namespace { get; private set; }
         public string? Member { get; private set; }
         public string? CacheDirectory { get; private set; }
@@ -5341,6 +5350,9 @@ static class ImporterProgram
                         break;
                     case "--member":
                         options.Member = Value();
+                        break;
+                    case "--api-since":
+                        options.ApiSince = PositiveInt(Value(), argument, 10_000);
                         break;
                     case "--cache":
                         options.CacheDirectory = Value();
@@ -5393,6 +5405,7 @@ static class ImporterProgram
               --path <path>          XML file or directory under docs/xml; repeatable
               --namespace <name>     Exact managed namespace/type prefix
               --member <text>        Exact managed member name or DocId substring
+              --api-since <level>    Owners declared with the exact Android API level
 
             Safety and I/O:
               --dry-run              Preview only (default)
@@ -5454,7 +5467,8 @@ static class ImporterProgram
 
         public void SelectOwners(
             string? memberFilter,
-            InterfaceMemberResolver? interfaceMemberResolver = null)
+            InterfaceMemberResolver? interfaceMemberResolver = null,
+            int? apiSince = null)
         {
             Owners.Clear();
             var typeRegistration = Registration.Type(Root);
@@ -5482,12 +5496,15 @@ static class ImporterProgram
                 var (docs, member) = ordered[order];
                 var id = member is null ? $"T:{typeName}" : MemberId(typeName, member);
                 var name = (string?)member?.Attribute("MemberName");
+                var owner = member ?? Root;
                 if (memberFilter is not null &&
                     !string.Equals(name, memberFilter, StringComparison.Ordinal) &&
                     !id.Contains(memberFilter, StringComparison.Ordinal))
                 {
                     continue;
                 }
+                if (apiSince is not null && !HasApiSince(owner, apiSince.Value))
+                    continue;
 
                 var placeholders = docs
                     .Descendants()
@@ -5527,6 +5544,16 @@ static class ImporterProgram
                     isEnum && (string?)member?.Element("MemberType") == "Field"));
             }
         }
+
+        static bool HasApiSince(XElement owner, int apiSince) =>
+            owner.Element("Attributes")?
+                .Elements("Attribute")
+                .Elements("AttributeName")
+                .Any(attribute =>
+                    Regex.IsMatch(
+                        attribute.Value,
+                        $@"\bApiSince\s*=\s*{apiSince}\b",
+                        RegexOptions.CultureInvariant)) == true;
 
         static string MemberId(string typeName, XElement member)
         {
