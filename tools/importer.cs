@@ -89,13 +89,7 @@ static class ImporterProgram
 
             var sourceRequests = loadedFiles
                 .SelectMany(file => file.Owners.Select(owner => (File: file, Owner: owner)))
-                .Where(item =>
-                    item.Owner.Placeholders.Count > 0 ||
-                    IsEnumSummaryRepairCandidate(item.Owner) ||
-                    HasAugmentedRemarksPlaceholder(item.File, item.Owner) ||
-                    HasTruncatedImporterSummary(item.File, item.Owner) ||
-                    HasIncompleteCodeExampleRemarks(item.File, item.Owner) ||
-                    HasMetadataOnlyRemarks(item.File, item.Owner))
+                .Where(item => RequiresSourceLoad(item.File, item.Owner))
                 .Select(item => item.Owner.SourceRequest)
                 .Where(request => request is not null)
                 .Cast<SourceRequest>()
@@ -154,6 +148,48 @@ static class ImporterProgram
                     var mapping = MapOwner(owner, pages);
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
+
+                    var repairedCopiedDescription = RepairCopiedDescriptionLabels(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!,
+                        out var copiedDescriptionRepairTargets);
+                    if (copiedDescriptionRepairTargets.Count > 0)
+                    {
+                        if (remaining < copiedDescriptionRepairTargets.Count)
+                        {
+                            foreach (var target in copiedDescriptionRepairTargets)
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                        }
+                        else
+                        {
+                            text = repairedCopiedDescription;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining -= copiedDescriptionRepairTargets.Count;
+                            foreach (var target in copiedDescriptionRepairTargets)
+                            {
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    mapping.SourceUrl,
+                                    "importer_copied_description_repair",
+                                    "Replaced an exact importer-generated Javadoc copied-description label."));
+                            }
+                        }
+                    }
 
                     foreach (var placeholder in owner.Placeholders.OrderBy(item => item.Order))
                     {
@@ -582,11 +618,14 @@ static class ImporterProgram
         var targets = owner.Placeholders
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
-        if (IsEnumSummaryRepairCandidate(owner) || HasTruncatedImporterSummary(file, owner))
+        if (IsEnumSummaryRepairCandidate(owner) ||
+            HasTruncatedImporterSummary(file, owner) ||
+            HasCopiedDescriptionRepairCandidate(file, owner))
             targets.Add("summary");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
-            HasMetadataOnlyRemarks(file, owner))
+            HasMetadataOnlyRemarks(file, owner) ||
+            HasCopiedDescriptionRepairCandidate(file, owner))
             targets.Add("remarks");
 
         foreach (var target in targets.OrderBy(target => target, StringComparer.Ordinal))
@@ -601,6 +640,15 @@ static class ImporterProgram
         }
         return true;
     }
+
+    static bool RequiresSourceLoad(LoadedFile file, DocsOwner owner) =>
+        owner.Placeholders.Count > 0 ||
+        IsEnumSummaryRepairCandidate(owner) ||
+        HasAugmentedRemarksPlaceholder(file, owner) ||
+        HasTruncatedImporterSummary(file, owner) ||
+        HasIncompleteCodeExampleRemarks(file, owner) ||
+        HasMetadataOnlyRemarks(file, owner) ||
+        HasCopiedDescriptionRepairCandidate(file, owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
         LoadedFile file,
@@ -1171,6 +1219,57 @@ static class ImporterProgram
         bool deferredRemarksPlaceholder,
         bool replacedRemarksPlaceholder) =>
         !deferredRemarksPlaceholder || replacedRemarksPlaceholder;
+
+    static bool HasCopiedDescriptionRepairCandidate(LoadedFile file, DocsOwner owner)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return IsImporterCopiedDescriptionLabel(owner.Docs.Element("summary")?.Value) ||
+            owner.Docs.Element("remarks")?.Elements("para").Any(
+                paragraph => IsImporterCopiedDescriptionLabel(paragraph.Value)) == true;
+    }
+
+    static string RepairCopiedDescriptionLabels(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs,
+        out List<string> targets)
+    {
+        targets = [];
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var summary = Regex.Match(
+            blockText,
+            @"<summary\b[^>]*>(?<value>\s*Description copied from (?:class|interface):\s+[A-Za-z_$][\w.$]*\s*)</summary>",
+            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        if (summary.Success &&
+            ChannelValueOrSkip(docs.Summary, "summary", "source_summary_missing").Text is string replacement)
+        {
+            blockText = blockText[..summary.Groups["value"].Index] +
+                XmlEscape(replacement) +
+                blockText[(summary.Groups["value"].Index + summary.Groups["value"].Length)..];
+            targets.Add("summary");
+        }
+
+        var remarks = Regex.Matches(
+            blockText,
+            @"(?<line>\s*)<para>\s*Description copied from (?:class|interface):\s+[A-Za-z_$][\w.$]*\s*</para>",
+            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        foreach (Match remark in remarks.Cast<Match>().Reverse())
+        {
+            blockText = blockText[..remark.Index] + blockText[(remark.Index + remark.Length)..];
+            targets.Add("remarks");
+        }
+
+        return text[..block.Start] + blockText + text[block.End..];
+    }
+
+    static bool IsImporterCopiedDescriptionLabel(string? value) =>
+        value is not null &&
+        Regex.IsMatch(
+            NormalizeText(value).Trim(),
+            @"^Description copied from (?:class|interface):\s+[A-Za-z_$][\w.$]*$",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     static bool HasTruncatedImporterSummary(LoadedFile file, DocsOwner owner)
     {
@@ -2450,6 +2549,53 @@ static class ImporterProgram
         Assert(
             noPeriodPlaceholderReplacement.Text == noPeriodPlaceholderDocs.Summary,
             "no-period remarks placeholders do not trigger overlap detection");
+        var copiedDescriptionRepairText = file.Text.Replace(
+            "<summary>To be added.</summary>",
+            "<summary>Description copied from interface: Fixture</summary>",
+            StringComparison.Ordinal).Replace(
+            $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
+            $"<remarks>{file.Newline}          <para>Description copied from interface: Fixture</para>{file.Newline}          <para>Keep this existing prose.</para>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, copiedDescriptionRepairText);
+        Assert(
+            IsImporterCopiedDescriptionLabel("Description copied from interface: Fixture"),
+            "copied-description repair label is detected");
+        var repairedCopiedDescriptionText = RepairCopiedDescriptionLabels(
+            copiedDescriptionRepairText,
+            file,
+            setTitle,
+            mappedDocs,
+            out var copiedDescriptionTargets);
+        var repairedCopiedDescriptionSummary = repairedCopiedDescriptionText.Contains(
+            "<summary>Sets the widget title.</summary>",
+            StringComparison.Ordinal);
+        var copiedDescriptionCount = Regex.Matches(
+            copiedDescriptionRepairText,
+            "Description copied from interface:",
+            RegexOptions.CultureInvariant).Count;
+        var repairedCopiedDescriptionCount = Regex.Matches(
+            repairedCopiedDescriptionText,
+            "Description copied from interface:",
+            RegexOptions.CultureInvariant).Count;
+        Assert(
+            copiedDescriptionTargets.Count == 2 &&
+                repairedCopiedDescriptionSummary &&
+                repairedCopiedDescriptionCount == copiedDescriptionCount - 2,
+            $"exact importer-generated copied-description labels are repaired (targets={copiedDescriptionTargets.Count}, summary={repairedCopiedDescriptionSummary}, labels={copiedDescriptionCount}/{repairedCopiedDescriptionCount})");
+        var repairOnlyOwner = setTitle with
+        {
+            Docs = XElement.Parse(
+                "<Docs><summary>Description copied from interface: Fixture</summary></Docs>"),
+            Placeholders = [],
+        };
+        Assert(
+            RequiresSourceLoad(file, repairOnlyOwner),
+            "copied-description repair-only owners load their source page");
+        Assert(
+            !IsImporterCopiedDescriptionLabel(
+                "Description copied from interface: Fixture — keep this note."),
+            "copied-description repair preserves labels with authored prose");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var rawSignatureText = file.Text.Replace(
             $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
             $"<remarks>{file.Newline}          <code lang=\"text/java\">public int setTitle (CharSequence title)</code>{file.Newline}          <para>Keep this existing prose.</para>",
@@ -5621,15 +5767,17 @@ static class ImporterProgram
             string path,
             string member,
             string target,
-            string sourceUrl) =>
+            string sourceUrl,
+            string reason = "exact_structural_match",
+            string detail = "") =>
             new()
             {
                 Status = status,
                 Path = path,
                 Member = member,
                 Target = target,
-                Reason = "exact_structural_match",
-                Detail = "",
+                Reason = reason,
+                Detail = detail,
                 SourceUrl = sourceUrl,
             };
 
