@@ -36,9 +36,11 @@ are removed with quoted attributes intact, and empty table description cells rem
 empty rather than shifting Java types into prose. Java `deprecation-block` containers
 are excluded before selecting exact `block` documentation. Android return tables are
 selected only by an exact `Returns` heading cell, not by prose containing that word.
-Imported remarks use `<para>` elements, with stale links for the same source
-member replaced and current links placed before existing attribution. Enum field
-prose, source links, and attribution are emitted in `<summary>` because their
+Remarks placeholder replacements retain every usable official source fragment in
+order, rendering prose as `<para>` and Java code examples as
+`<code lang="text/java">`. Stale links for the same source member are replaced
+and current links are placed before existing attribution. Enum field prose,
+source links, and attribution are emitted in `<summary>` because their
 `<remarks>` are not published by ECMA2Yaml. A deprecated enum summary retains
 both its caution and subsequent semantic value prose. The importer never creates
 generic prose or falls back to AOSP. Existing non-placeholder documentation is

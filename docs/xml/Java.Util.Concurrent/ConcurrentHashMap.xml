@@ -1613,6 +1613,11 @@
                     or <c>null</c> if there was no mapping for the key</returns>
         <remarks>
           <para>If the specified key is not already associated with a value, associates it with the given value.</para>
+          <code lang="text/java"> if (!map.containsKey(key))
+   return map.put(key, value);
+ else
+   return map.get(key);</code>
+          <para>except that the action is performed atomically.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html#putIfAbsent(K,V)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentHashMap.putIfAbsent</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
@@ -2816,6 +2821,14 @@
                     <c>null</c> if there was no mapping for <c>key</c></returns>
         <remarks>
           <para>Removes the entry for a key only if currently mapped to a given value.</para>
+          <code lang="text/java"> if (map.containsKey(key)
+     &amp;&amp; Objects.equals(map.get(key), value)) {
+   map.remove(key);
+   return true;
+ } else {
+   return false;
+ }</code>
+          <para>except that the action is performed atomically.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html#remove(java.lang.Object,java.lang.Object)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentHashMap.remove</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
@@ -2868,6 +2881,11 @@
                     or <c>null</c> if there was no mapping for the key</returns>
         <remarks>
           <para>Replaces the entry for a key only if currently mapped to some value.</para>
+          <code lang="text/java"> if (map.containsKey(key))
+   return map.put(key, value);
+ else
+   return null;</code>
+          <para>except that the action is performed atomically.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html#replace(K,V)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentHashMap.replace</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
@@ -2913,6 +2931,14 @@
                     or <c>null</c> if there was no mapping for the key</returns>
         <remarks>
           <para>Replaces the entry for a key only if currently mapped to a given value.</para>
+          <code lang="text/java"> if (map.containsKey(key)
+     &amp;&amp; Objects.equals(map.get(key), oldValue)) {
+   map.put(key, newValue);
+   return true;
+ } else {
+   return false;
+ }</code>
+          <para>except that the action is performed atomically.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html#replace(K,V,V)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentHashMap.replace</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 

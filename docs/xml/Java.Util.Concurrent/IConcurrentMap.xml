@@ -109,6 +109,11 @@
         <remarks>
           <para>Attempts to compute a mapping for the specified key and its current mapped value (or null if there is no current mapping).</para>
           <para>Added in 1.8.</para>
+          <code lang="text/java"> map.compute(key, (k, v) -&gt; (v == null) ? msg : v.concat(msg))</code>
+          <para>(Method merge() is often simpler to use for such purposes.)</para>
+          <para>If the remapping function returns null, the mapping is removed (or remains absent if initially absent).</para>
+          <para>If the remapping function itself throws an (unchecked) exception, the exception is rethrown, and the current mapping is left unchanged.</para>
+          <para>The remapping function should not modify this map during computation.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentMap.html#compute(K,java.util.function.BiFunction)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentMap.compute</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
@@ -156,6 +161,9 @@
         <remarks>
           <para>If the specified key is not already associated with a value (or is mapped to null), attempts to compute its value using the given mapping function and enters it into this map unless null. If the mapping function returns null, no mapping is recorded. If the mapping function itself throws an (unchecked) exception, the exception is rethrown, and no mapping is recorded.</para>
           <para>Added in 1.8.</para>
+          <code lang="text/java"> map.computeIfAbsent(key, k -&gt; new Value(f(k)));</code>
+          <code lang="text/java"> map.computeIfAbsent(key, k -&gt; new HashSet&lt;V&gt;()).add(v);</code>
+          <para>The mapping function should not modify this map during computation.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentMap.html#computeIfAbsent(K,java.util.function.Function)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentMap.computeIfAbsent</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
@@ -343,6 +351,10 @@
         <remarks>
           <para>If the specified key is not already associated with a value or is associated with null, associates it with the given non-null value. Otherwise, replaces the associated value with the results of the given remapping function, or removes if the result is null. This method may be of use when combining multiple mapped values for a key.</para>
           <para>Added in 1.8.</para>
+          <code lang="text/java"> map.merge(key, msg, String::concat)</code>
+          <para>If the remapping function returns null, the mapping is removed.</para>
+          <para>If the remapping function itself throws an (unchecked) exception, the exception is rethrown, and the current mapping is left unchanged.</para>
+          <para>The remapping function should not modify this map during computation.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentMap.html#merge(K,V,java.util.function.BiFunction)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentMap.merge</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 

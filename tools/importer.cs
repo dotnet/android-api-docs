@@ -232,7 +232,7 @@ static class ImporterProgram
                             text,
                             file.DocsBlocks[owner.Order],
                             placeholder,
-                            replacement.Text,
+                            replacement,
                             out var replacedText,
                             out var replacementError))
                         {
@@ -259,6 +259,56 @@ static class ImporterProgram
                             owner.Id,
                             placeholder.Target,
                             mapping.SourceUrl));
+                    }
+
+                    if (!ownerChanged &&
+                        mapping.Docs is not null &&
+                        HasPotentialImporterOwnedRemarksRefresh(file, owner))
+                    {
+                        var remarksRefresh = RefreshIncompleteImporterRemarks(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs);
+                        if (remarksRefresh.Reason is not null)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                remarksRefresh.Reason,
+                                remarksRefresh.Detail!,
+                                mapping.SourceUrl));
+                        }
+                        else if (!remarksRefresh.Text.Equals(text, StringComparison.Ordinal))
+                        {
+                            if (remaining == 0)
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "remarks",
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                            else
+                            {
+                                text = remarksRefresh.Text;
+                                file.UpdateBlockOffsets(owner.Order, text);
+                                fileChanged = true;
+                                ownerChanged = true;
+                                remaining--;
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "remarks",
+                                    mapping.SourceUrl,
+                                    "importer_remarks_refresh",
+                                    "Added exact source fragments missing from structurally verified importer-owned remarks."));
+                            }
+                        }
                     }
 
                     var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
@@ -623,6 +673,7 @@ static class ImporterProgram
             HasCopiedDescriptionSummaryRepairCandidate(file, owner))
             targets.Add("summary");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
+            HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
             HasMetadataOnlyRemarks(file, owner) ||
             HasCopiedDescriptionRemarksRepairCandidate(file, owner))
@@ -645,6 +696,7 @@ static class ImporterProgram
         owner.Placeholders.Count > 0 ||
         IsEnumSummaryRepairCandidate(owner) ||
         HasAugmentedRemarksPlaceholder(file, owner) ||
+        HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
         HasTruncatedImporterSummary(file, owner) ||
         HasIncompleteCodeExampleRemarks(file, owner) ||
         HasMetadataOnlyRemarks(file, owner) ||
@@ -669,10 +721,7 @@ static class ImporterProgram
         bool isEnumField = false)
     {
         if (placeholder.IsImporterMetadataRepair)
-            return ChannelValueOrSkip(
-                docs.Paragraphs.FirstOrDefault()?.Text,
-                "remarks",
-                "source_remarks_missing");
+            return RemarksReplacementOrSkip(docs.Paragraphs, "source_remarks_missing");
 
         if (isEnumField && placeholder.Name is "remarks" or "para")
             return Replacement.Skip(
@@ -685,9 +734,8 @@ static class ImporterProgram
                 isEnumField ? docs.Paragraphs.FirstOrDefault()?.Text : docs.Summary,
                 "summary",
                 "source_summary_missing"),
-            "remarks" or "para" => ChannelValueOrSkip(
-                docs.Paragraphs.FirstOrDefault()?.Text,
-                "remarks",
+            "remarks" or "para" => RemarksReplacementOrSkip(
+                docs.Paragraphs,
                 "source_remarks_missing"),
             "param" => docs.Parameters.TryGetValue(placeholder.Key, out var parameter)
                 ? ChannelValueOrSkip(parameter, "param", "source_parameter_missing")
@@ -709,6 +757,25 @@ static class ImporterProgram
         };
     }
 
+    static Replacement RemarksReplacementOrSkip(
+        IEnumerable<SourceParagraph> paragraphs,
+        string missingReason)
+    {
+        var usable = paragraphs
+            .Select(paragraph => paragraph.IsCode
+                ? paragraph
+                : paragraph with { Text = CleanSourceText(paragraph.Text) })
+            .Where(paragraph => paragraph.IsCode
+                ? !string.IsNullOrWhiteSpace(paragraph.Text)
+                : IsMeaningfulChannel(paragraph.Text, "remarks"))
+            .ToList();
+        return usable.Count > 0
+            ? Replacement.UseRemarks(usable)
+            : Replacement.Skip(
+                missingReason,
+                "The exact source member did not provide this documentation channel.");
+    }
+
     static Replacement LimitOverlappingRemarksReplacement(
         Placeholder placeholder,
         SourceDocs docs,
@@ -716,48 +783,70 @@ static class ImporterProgram
         XElement? existingRemarks)
     {
         if (placeholder.Name != "para" ||
-            replacement.Text is null ||
+            replacement.Remarks is null ||
             existingRemarks is null)
         {
             return replacement;
         }
 
-        var replacementText = NormalizeText(replacement.Text);
         var existingParagraphs = existingRemarks
             .Elements("para")
-            .Select(paragraph => NormalizeText(CleanSourceText(paragraph.Value)))
+            .Select(paragraph => NormalizeRemarksText(paragraph.Value))
             .Where(text => text.Length > 0 &&
                 !text.Equals("To be added", StringComparison.Ordinal) &&
                 !text.Equals("To be added.", StringComparison.Ordinal))
             .ToList();
-        var sourceSummary = NormalizeText(docs.Summary);
-        if (existingParagraphs.Any(paragraph =>
-                paragraph.Equals(sourceSummary, StringComparison.OrdinalIgnoreCase) ||
-                paragraph.StartsWith(sourceSummary + " ", StringComparison.OrdinalIgnoreCase)))
+        var limited = new List<SourceParagraph>();
+        foreach (var paragraph in replacement.Remarks)
         {
-            return Replacement.Skip(
+            if (paragraph.IsCode)
+            {
+                limited.Add(paragraph);
+                continue;
+            }
+
+            foreach (var sentence in SplitSourceSentences(paragraph.Text))
+            {
+                if (!existingParagraphs.Any(existing =>
+                        existing.Contains(
+                            NormalizeText(sentence),
+                            StringComparison.OrdinalIgnoreCase)))
+                {
+                    limited.Add(new SourceParagraph(sentence, IsCode: false));
+                }
+            }
+        }
+
+        return limited.Count > 0
+            ? Replacement.UseRemarks(limited)
+            : Replacement.Skip(
                 "source_remarks_overlap_existing_documentation",
-                "Existing remarks already contain the exact source summary; no duplicate prose was inserted.");
-        }
-
-        var sourceRemainder = replacementText[
-            Math.Min(
-                replacementText.Length,
-                SourcePage.FirstSentence(replacementText).Length)..].Trim();
-        if (!existingParagraphs.Any(paragraph =>
-                replacementText.Contains(paragraph, StringComparison.OrdinalIgnoreCase) ||
-                sourceRemainder.Contains(
-                    SourcePage.FirstSentence(paragraph),
-                    StringComparison.OrdinalIgnoreCase)))
-        {
-            return replacement;
-        }
-
-        return ChannelValueOrSkip(
-            docs.Summary,
-            "remarks",
-            "source_remarks_missing");
+                "Existing remarks already contain every exact source prose fragment.");
     }
+
+    static List<string> SplitSourceSentences(string text)
+    {
+        var remaining = CleanSourceText(text);
+        var sentences = new List<string>();
+        while (remaining.Length > 0)
+        {
+            var sentence = SourcePage.FirstSentence(remaining).Trim();
+            if (sentence.Length == 0)
+                break;
+            sentences.Add(sentence);
+            if (sentence.Length >= remaining.Length)
+                break;
+            remaining = remaining[sentence.Length..].TrimStart();
+        }
+        return sentences;
+    }
+
+    static string NormalizeRemarksText(string value) =>
+        NormalizeText(Regex.Replace(
+            value,
+            @"</?[A-Za-z][^>]*>",
+            " ",
+            RegexOptions.CultureInvariant));
 
     static bool IsEnumSummaryRepairCandidate(DocsOwner owner)
     {
@@ -928,7 +1017,48 @@ static class ImporterProgram
         string text,
         DocsBlock block,
         Placeholder placeholder,
+        Replacement replacement,
+        out string updated,
+        out string error)
+    {
+        if (replacement.Text is null)
+        {
+            updated = text;
+            error = replacement.Detail;
+            return false;
+        }
+        return TryReplacePlaceholder(
+            text,
+            block,
+            placeholder,
+            replacement.Text,
+            replacement.Remarks,
+            out updated,
+            out error);
+    }
+
+    static bool TryReplacePlaceholder(
+        string text,
+        DocsBlock block,
+        Placeholder placeholder,
         string replacement,
+        out string updated,
+        out string error) =>
+        TryReplacePlaceholder(
+            text,
+            block,
+            placeholder,
+            replacement,
+            null,
+            out updated,
+            out error);
+
+    static bool TryReplacePlaceholder(
+        string text,
+        DocsBlock block,
+        Placeholder placeholder,
+        string replacement,
+        IReadOnlyList<SourceParagraph>? remarksReplacement,
         out string updated,
         out string error)
     {
@@ -970,7 +1100,16 @@ static class ImporterProgram
             }
 
             if (directPlaceholder is not null)
-                directPlaceholder.ReplaceWith(new XElement("para", replacement));
+            {
+                directPlaceholder.ReplaceWith(remarksReplacement is null
+                    ? new[] { new XElement("para", replacement) }
+                    : remarksReplacement.Select(DocumentationElement).ToArray());
+            }
+            else if (remarksReplacement is not null)
+            {
+                emptyParagraph!.ReplaceWith(
+                    remarksReplacement.Select(DocumentationElement).ToArray());
+            }
             else
                 emptyParagraph!.Value = replacement;
             var repairedRemarks = remarksElement.ToString(SaveOptions.DisableFormatting);
@@ -1010,13 +1149,42 @@ static class ImporterProgram
         }
 
         var escaped = XmlEscape(replacement);
+        if (remarksReplacement is not null && placeholder.Name == "para")
+        {
+            var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+            var lineStart = blockText.LastIndexOf(newline, match.Index, StringComparison.Ordinal);
+            lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
+            var indent = blockText[lineStart..match.Index];
+            var replacementMarkup = string.Join(
+                newline,
+                remarksReplacement.Select(paragraph => RenderDocumentationParagraph(paragraph, indent)));
+            var replacementParagraphBlock = blockText[..match.Index] + replacementMarkup +
+                blockText[(match.Index + match.Length)..];
+            updated = text[..block.Start] + replacementParagraphBlock + text[block.End..];
+            error = "";
+            return true;
+        }
         if (placeholder.Name == "remarks")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
             var lineStart = blockText.LastIndexOf(newline, match.Index, StringComparison.Ordinal);
             lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
             var indent = blockText[lineStart..match.Index];
-            if (string.IsNullOrWhiteSpace(indent))
+            if (remarksReplacement is not null)
+            {
+                escaped = string.IsNullOrWhiteSpace(indent)
+                    ? newline +
+                      string.Join(
+                          newline,
+                          remarksReplacement.Select(paragraph =>
+                              RenderDocumentationParagraph(paragraph, indent + "  "))) +
+                      newline + indent
+                    : string.Join(
+                        "",
+                        remarksReplacement.Select(paragraph =>
+                            RenderDocumentationParagraph(paragraph, "")));
+            }
+            else if (string.IsNullOrWhiteSpace(indent))
             {
                 escaped =
                     newline + indent + "  " + $"<para>{escaped}</para>" +
@@ -1310,6 +1478,290 @@ static class ImporterProgram
             return false;
         }
         return HasTruncatedSummaryEnding(summary);
+    }
+
+    sealed record RemarksRefreshResult(string Text, string? Reason, string? Detail);
+
+    static bool HasPotentialImporterOwnedRemarksRefresh(LoadedFile file, DocsOwner owner)
+    {
+        if (owner.IsEnumField || owner.SourceRequest is null)
+            return false;
+
+        var remarks = owner.Docs.Element("remarks");
+        return remarks is not null &&
+            !remarks.HasAttributes &&
+            !remarks.Nodes().OfType<XText>().Any(text => !string.IsNullOrWhiteSpace(text.Value)) &&
+            remarks.Elements("para").Any(paragraph =>
+                TryGetImporterSourceReferenceUrl(
+                    paragraph.ToString(SaveOptions.DisableFormatting),
+                    out _));
+    }
+
+    static RemarksRefreshResult RefreshIncompleteImporterRemarks(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var document = XElement.Parse(blockText, LoadOptions.PreserveWhitespace);
+        var remarks = document.Element("remarks");
+        if (remarks is null || !HasPotentialImporterOwnedRemarksRefresh(file, owner))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The existing remarks did not have the strict importer source-reference structure.");
+        }
+
+        var elements = remarks.Elements().ToList();
+        var sourceReferenceIndexes = elements
+            .Select((element, index) => (element, index))
+            .Where(item => TryGetImporterSourceReferenceUrl(
+                item.element.ToString(SaveOptions.DisableFormatting),
+                out _))
+            .Select(item => item.index)
+            .ToList();
+        if (sourceReferenceIndexes.Count != 1 || sourceReferenceIndexes[0] == 0)
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The existing remarks did not have one importer source reference after source prose.");
+        }
+
+        var sourceReferenceIndex = sourceReferenceIndexes[0];
+        if (!ImporterMarkupEquals(
+                elements[sourceReferenceIndex],
+                ImporterSourceReference(docs)))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The existing importer source reference did not exactly match the mapped source member.");
+        }
+
+        var sourceFragments = ExpandRemarksFragments(docs.Paragraphs);
+        if (sourceFragments.Count == 0)
+        {
+            return new RemarksRefreshResult(
+                text,
+                "source_remarks_missing",
+                "The exact source member did not provide usable remarks to refresh.");
+        }
+
+        var existingSourceElements = elements.Take(sourceReferenceIndex).ToList();
+        var represented = new HashSet<int>();
+        var lastFragmentIndex = -1;
+        var elementFragments = new List<List<int>>();
+        foreach (var element in existingSourceElements)
+        {
+            var matches = MatchingSourceFragmentIndexes(element, sourceFragments);
+            if (matches.Count == 0)
+            {
+                if (IsRetainedRemarksParagraph(element))
+                {
+                    elementFragments.Add(matches);
+                    continue;
+                }
+                return new RemarksRefreshResult(
+                    text,
+                    "existing_remarks_not_importer_owned",
+                    "Existing remarks prose was not an ordered subset of the exact mapped source.");
+            }
+            if (matches[0] <= lastFragmentIndex ||
+                matches.Zip(matches.Skip(1), (left, right) => right == left + 1)
+                    .Any(isConsecutive => !isConsecutive))
+            {
+                return new RemarksRefreshResult(
+                    text,
+                    "existing_remarks_not_importer_owned",
+                    "Existing remarks prose was not an ordered contiguous subset of the exact mapped source.");
+            }
+            represented.UnionWith(matches);
+            lastFragmentIndex = matches[^1];
+            elementFragments.Add(matches);
+        }
+
+        var missing = Enumerable.Range(0, sourceFragments.Count)
+            .Where(index => !represented.Contains(index))
+            .ToList();
+        if (missing.Count == 0)
+            return new RemarksRefreshResult(text, null, null);
+
+        var remarksMatch = Regex.Match(
+            blockText,
+            @"<remarks>.*?</remarks>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        var childMatches = remarksMatch.Success
+            ? Regex.Matches(
+                    remarksMatch.Value,
+                    @"<para\b[^>]*>(?:(?!</para>).)*</para>|<code\b[^>]*>(?:(?!</code>).)*</code>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
+                .Cast<Match>()
+                .ToList()
+            : [];
+        if (childMatches.Count != elements.Count)
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The structurally eligible remarks could not be located without reformatting existing XML.");
+        }
+
+        var additions = new SortedDictionary<int, List<SourceParagraph>>();
+        foreach (var missingIndex in missing)
+        {
+            var insertionIndex = elementFragments
+                .Select((fragments, index) => (fragments, index))
+                .FirstOrDefault(item => item.fragments.Count > 0 &&
+                    item.fragments[0] > missingIndex);
+            var targetIndex = insertionIndex.fragments is null
+                ? sourceReferenceIndex
+                : insertionIndex.index;
+            if (!additions.TryGetValue(targetIndex, out var paragraphs))
+                additions.Add(targetIndex, paragraphs = []);
+            paragraphs.Add(sourceFragments[missingIndex]);
+        }
+
+        var newline = file.Newline;
+        foreach (var (insertionIndex, paragraphs) in additions.Reverse())
+        {
+            var child = childMatches[insertionIndex];
+            var childIndex = remarksMatch.Index + child.Index;
+            var lineStart = blockText.LastIndexOf(newline, childIndex, StringComparison.Ordinal);
+            lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
+            var indent = blockText[lineStart..childIndex];
+            var insertion = string.Join(
+                newline,
+                paragraphs.Select(paragraph => RenderDocumentationParagraph(paragraph, indent))) +
+                newline;
+            var insertionOffset = string.IsNullOrWhiteSpace(indent) ? lineStart : childIndex;
+            blockText = blockText[..insertionOffset] + insertion + blockText[insertionOffset..];
+        }
+
+        return new RemarksRefreshResult(
+            text[..block.Start] + blockText + text[block.End..],
+            null,
+            null);
+    }
+
+    static List<SourceParagraph> ExpandRemarksFragments(
+        IEnumerable<SourceParagraph> paragraphs)
+    {
+        var fragments = new List<SourceParagraph>();
+        foreach (var paragraph in RemarksReplacementOrSkip(
+                     paragraphs,
+                     "source_remarks_missing").Remarks ?? [])
+        {
+            if (paragraph.IsCode)
+                fragments.Add(paragraph);
+            else
+                fragments.AddRange(SplitSourceSentences(paragraph.Text)
+                    .Select(sentence => new SourceParagraph(sentence, IsCode: false)));
+        }
+        return fragments;
+    }
+
+    static List<int> MatchingSourceFragmentIndexes(
+        XElement element,
+        IReadOnlyList<SourceParagraph> sourceFragments)
+    {
+        if (element.Name.LocalName == "code" &&
+            (string?)element.Attribute("lang") == "text/java" &&
+            !element.HasElements)
+        {
+            var code = NormalizeText(element.Value);
+            return sourceFragments
+                .Select((fragment, index) => (fragment, index))
+                .Where(item => item.fragment.IsCode &&
+                    NormalizeText(item.fragment.Text).Equals(code, StringComparison.Ordinal))
+                .Select(item => item.index)
+                .ToList();
+        }
+
+        if (element.Name.LocalName != "para" || element.HasAttributes)
+            return [];
+
+        var prose = NormalizeRemarksText(element.Value);
+        return sourceFragments
+            .Select((fragment, index) => (fragment, index))
+            .Where(item => !item.fragment.IsCode &&
+                prose.Contains(
+                    NormalizeText(item.fragment.Text),
+                    StringComparison.OrdinalIgnoreCase))
+            .Select(item => item.index)
+            .ToList();
+    }
+
+    static bool IsRetainedRemarksParagraph(XElement element) =>
+        element.Name.LocalName == "para" &&
+        !element.HasAttributes &&
+        Regex.IsMatch(
+            NormalizeRemarksText(element.Value),
+            @"^Added in \d+\.\d+\.$",
+            RegexOptions.CultureInvariant);
+
+    static XElement ImporterSourceReference(SourceDocs docs)
+    {
+        var sourceName = docs.SourceKind == "android" ? "Android" : "Java";
+        return XElement.Parse(
+            $"<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
+            $"title=\"Reference documentation\">{sourceName} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
+            "</a></format></para>");
+    }
+
+    static bool ImporterMarkupEquals(XElement actual, XElement expected)
+    {
+        if (actual.Name != expected.Name ||
+            actual.Attributes().Count() != expected.Attributes().Count() ||
+            actual.Attributes().OrderBy(attribute => attribute.Name.ToString(), StringComparer.Ordinal)
+                .Zip(
+                    expected.Attributes().OrderBy(
+                        attribute => attribute.Name.ToString(),
+                        StringComparer.Ordinal),
+                    (left, right) =>
+                        left.Name == right.Name &&
+                        WebUtility.HtmlDecode(left.Value) == WebUtility.HtmlDecode(right.Value))
+                .Any(equal => !equal))
+        {
+            return false;
+        }
+
+        var actualNodes = actual.Nodes()
+            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
+            .ToList();
+        var expectedNodes = expected.Nodes()
+            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
+            .ToList();
+        if (actualNodes.Count != expectedNodes.Count)
+            return false;
+
+        for (var index = 0; index < actualNodes.Count; index++)
+        {
+            if (actualNodes[index] is XElement actualElement &&
+                expectedNodes[index] is XElement expectedElement)
+            {
+                if (!ImporterMarkupEquals(actualElement, expectedElement))
+                    return false;
+            }
+            else if (actualNodes[index] is XText actualText &&
+                     expectedNodes[index] is XText expectedText)
+            {
+                if (!NormalizeText(actualText.Value).Equals(
+                        NormalizeText(expectedText.Value),
+                        StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     static bool HasIncompleteCodeExampleRemarks(LoadedFile file, DocsOwner owner)
@@ -1840,6 +2292,9 @@ static class ImporterProgram
         paragraph.IsCode
             ? $"{indent}<code lang=\"text/java\">{new XText(paragraph.Text).ToString(SaveOptions.DisableFormatting)}</code>"
             : $"{indent}<para>{XmlEscape(paragraph.Text)}</para>";
+
+    static XElement DocumentationElement(SourceParagraph paragraph) =>
+        XElement.Parse(RenderDocumentationParagraph(paragraph, ""));
 
     static string XmlAttributeEscape(string value) =>
         SecurityElementEscape(value).Replace("\"", "&quot;", StringComparison.Ordinal);
@@ -2552,8 +3007,9 @@ static class ImporterProgram
             XElement.Parse(
                 "<remarks><para>To be added.</para><para>The exact JNI overload is required.</para></remarks>"));
         Assert(
-            overlappingRemarksReplacement.Text == mappedDocs.Summary,
-            "remarks placeholders avoid duplicating existing source prose");
+            overlappingRemarksReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual([mappedDocs.Summary]) == true,
+            "remarks placeholders omit only existing source prose");
         var duplicateSummaryReplacement = LimitOverlappingRemarksReplacement(
             new Placeholder(0, "para", "", "para"),
             mappedDocs,
@@ -2563,8 +3019,30 @@ static class ImporterProgram
             XElement.Parse(
                 "<remarks><para>To be added.</para><para>Sets the widget title.</para></remarks>"));
         Assert(
-            duplicateSummaryReplacement.Reason == "source_remarks_overlap_existing_documentation",
-            "remarks placeholders skip summaries already documented");
+            duplicateSummaryReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual(["The exact JNI overload is required."]) == true,
+            "remarks placeholders retain source prose not already documented");
+        var partialOverlapDocs = mappedDocs with
+        {
+            Paragraphs =
+            [
+                new SourceParagraph(
+                    "The first contract sentence. The second contract sentence. The third contract sentence.",
+                    IsCode: false),
+            ],
+        };
+        var partialOverlapReplacement = LimitOverlappingRemarksReplacement(
+            new Placeholder(0, "para", "", "para"),
+            partialOverlapDocs,
+            ReplacementFor(
+                new Placeholder(0, "para", "", "para"),
+                partialOverlapDocs),
+            XElement.Parse("<remarks><para>The second contract sentence.</para></remarks>"));
+        Assert(
+            partialOverlapReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual(
+                    ["The first contract sentence.", "The third contract sentence."]) == true,
+            "remarks overlap retains non-overlapping source sentences");
         var noPeriodPlaceholderDocs = mappedDocs with
         {
             Summary = "This documentation is to be added when the fixture is ready.",
@@ -3073,6 +3551,60 @@ static class ImporterProgram
                     new SourceParagraph("except that the update is atomic.", IsCode: false),
                 ]) == true,
             "Java blocks preserve prose surrounding code examples");
+        var equivalentDocs = equivalent.Docs ??
+            throw new InvalidOperationException("SELF-TEST FAIL: Java equivalent source documentation");
+        const string directEquivalentRemarksText =
+            "<Docs>\n  <remarks>To be added.</remarks>\n</Docs>";
+        var directEquivalentRemarks = XDocument.Parse(directEquivalentRemarksText)
+            .Root!.Element("remarks")!;
+        var directEquivalentPlaceholder = Placeholder.Create(directEquivalentRemarks, 0);
+        var directEquivalentReplacement = ReplacementFor(
+            directEquivalentPlaceholder,
+            equivalentDocs);
+        Assert(
+            directEquivalentReplacement.Remarks?.SequenceEqual(equivalentDocs.Paragraphs) == true,
+            "direct remarks replacement retains ordered prose, code, and prose source fragments");
+        Assert(
+            TryReplacePlaceholder(
+                directEquivalentRemarksText,
+                new DocsBlock(0, 0, directEquivalentRemarksText.Length),
+                directEquivalentPlaceholder,
+                directEquivalentReplacement,
+                out var directEquivalentCompleted,
+                out _),
+            "direct remarks placeholder replacement succeeds");
+        var renderedDirectEquivalent = XDocument.Parse(directEquivalentCompleted)
+            .Root!.Element("remarks")!;
+        Assert(
+            renderedDirectEquivalent.Elements().Select(element => element.Name.LocalName)
+                .SequenceEqual(["para", "code", "para"]) &&
+            renderedDirectEquivalent.Elements("para").Last().Value ==
+                "except that the update is atomic.",
+            "direct remarks placeholder preserves trailing atomicity prose");
+        const string nestedEquivalentRemarksText =
+            "<Docs>\n  <remarks>\n    <para>To be added.</para>\n  </remarks>\n</Docs>";
+        var nestedEquivalentRemarks = XDocument.Parse(nestedEquivalentRemarksText)
+            .Root!.Element("remarks")!;
+        var nestedEquivalentPlaceholder = Placeholder.Create(
+            nestedEquivalentRemarks.Element("para")!,
+            0);
+        Assert(
+            TryReplacePlaceholder(
+                nestedEquivalentRemarksText,
+                new DocsBlock(0, 0, nestedEquivalentRemarksText.Length),
+                nestedEquivalentPlaceholder,
+                ReplacementFor(nestedEquivalentPlaceholder, equivalentDocs),
+                out var nestedEquivalentCompleted,
+                out _),
+            "nested remarks placeholder replacement succeeds");
+        var renderedNestedEquivalent = XDocument.Parse(nestedEquivalentCompleted)
+            .Root!.Element("remarks")!;
+        Assert(
+            renderedNestedEquivalent.Elements().Select(element => element.Name.LocalName)
+                .SequenceEqual(["para", "code", "para"]) &&
+            renderedNestedEquivalent.Elements("para").Last().Value ==
+                "except that the update is atomic.",
+            "nested remarks placeholder preserves trailing atomicity prose");
 
         var block = file.DocsBlocks[setTitle.Order];
         var summary = setTitle.Placeholders.Single(item => item.Name == "summary");
@@ -3171,6 +3703,25 @@ static class ImporterProgram
         Assert(
             favoriteDocument.Root is not null,
             "inline remarks source-link insertion produced valid XML");
+        file.UpdateBlockOffsets(favorite.Order, favoriteText);
+        var selfClosingRemarksOwner = file.Owners.Single(owner =>
+            owner.Id.Contains("EmptyRemarks", StringComparison.Ordinal));
+        var completedEmptyRemarks = AddSourceDocumentationIfSafe(
+            favoriteText,
+            file,
+            selfClosingRemarksOwner,
+            equivalentDocs);
+        var renderedEmptyRemarks = XDocument.Parse(completedEmptyRemarks)
+            .Root!.Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "EmptyRemarks")
+            .Element("Docs")!.Element("remarks")!;
+        Assert(
+            renderedEmptyRemarks.Elements().Take(3).Select(element => element.Name.LocalName)
+                .SequenceEqual(["para", "code", "para"]) &&
+            renderedEmptyRemarks.Elements("para").Take(2).Last().Value ==
+                "except that the update is atomic.",
+            "self-closing remarks control preserves all ordered source fragments");
+        file.UpdateBlockOffsets(setTitle.Order, favoriteText);
 
         const string metadataRepairText =
             "<Docs><remarks>To be added.<para><format type=\"text/html\">" +
@@ -5808,9 +6359,15 @@ static class ImporterProgram
             new(null, reason, detail, sourceUrl);
     }
 
-    sealed record Replacement(string? Text, string? Reason, string Detail)
+    sealed record Replacement(
+        string? Text,
+        string? Reason,
+        string Detail,
+        IReadOnlyList<SourceParagraph>? Remarks = null)
     {
         public static Replacement Use(string text) => new(text, null, "");
+        public static Replacement UseRemarks(IReadOnlyList<SourceParagraph> remarks) =>
+            new(remarks[0].Text, null, "", remarks);
         public static Replacement Skip(string reason, string detail) => new(null, reason, detail);
     }
 
