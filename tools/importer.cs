@@ -161,6 +161,11 @@ static class ImporterProgram
                             placeholder,
                             mapping.Docs!,
                             owner.IsEnumField);
+                        replacement = LimitOverlappingRemarksReplacement(
+                            placeholder,
+                            mapping.Docs!,
+                            replacement,
+                            owner.Docs.Element("remarks"));
                         if (replacement.Text is null)
                         {
                             report.Entries.Add(ReportEntry.Skipped(
@@ -654,6 +659,56 @@ static class ImporterProgram
                 "unsupported_placeholder_target",
                 $"Placeholder element <{placeholder.Name}> is not imported."),
         };
+    }
+
+    static Replacement LimitOverlappingRemarksReplacement(
+        Placeholder placeholder,
+        SourceDocs docs,
+        Replacement replacement,
+        XElement? existingRemarks)
+    {
+        if (placeholder.Name != "para" ||
+            replacement.Text is null ||
+            existingRemarks is null)
+        {
+            return replacement;
+        }
+
+        var replacementText = NormalizeText(replacement.Text);
+        var existingParagraphs = existingRemarks
+            .Elements("para")
+            .Select(paragraph => NormalizeText(CleanSourceText(paragraph.Value)))
+            .Where(text => text.Length > 0 &&
+                !text.Equals("To be added", StringComparison.Ordinal) &&
+                !text.Equals("To be added.", StringComparison.Ordinal))
+            .ToList();
+        var sourceSummary = NormalizeText(docs.Summary);
+        if (existingParagraphs.Any(paragraph =>
+                paragraph.Equals(sourceSummary, StringComparison.OrdinalIgnoreCase) ||
+                paragraph.StartsWith(sourceSummary + " ", StringComparison.OrdinalIgnoreCase)))
+        {
+            return Replacement.Skip(
+                "source_remarks_overlap_existing_documentation",
+                "Existing remarks already contain the exact source summary; no duplicate prose was inserted.");
+        }
+
+        var sourceRemainder = replacementText[
+            Math.Min(
+                replacementText.Length,
+                SourcePage.FirstSentence(replacementText).Length)..].Trim();
+        if (!existingParagraphs.Any(paragraph =>
+                replacementText.Contains(paragraph, StringComparison.OrdinalIgnoreCase) ||
+                sourceRemainder.Contains(
+                    SourcePage.FirstSentence(paragraph),
+                    StringComparison.OrdinalIgnoreCase)))
+        {
+            return replacement;
+        }
+
+        return ChannelValueOrSkip(
+            docs.Summary,
+            "remarks",
+            "source_remarks_missing");
     }
 
     static bool IsEnumSummaryRepairCandidate(DocsOwner owner)
@@ -2353,6 +2408,48 @@ static class ImporterProgram
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
+        var overlappingRemarksReplacement = LimitOverlappingRemarksReplacement(
+            new Placeholder(0, "para", "", "para"),
+            mappedDocs,
+            ReplacementFor(
+                new Placeholder(0, "para", "", "para"),
+                mappedDocs),
+            XElement.Parse(
+                "<remarks><para>To be added.</para><para>The exact JNI overload is required.</para></remarks>"));
+        Assert(
+            overlappingRemarksReplacement.Text == mappedDocs.Summary,
+            "remarks placeholders avoid duplicating existing source prose");
+        var duplicateSummaryReplacement = LimitOverlappingRemarksReplacement(
+            new Placeholder(0, "para", "", "para"),
+            mappedDocs,
+            ReplacementFor(
+                new Placeholder(0, "para", "", "para"),
+                mappedDocs),
+            XElement.Parse(
+                "<remarks><para>To be added.</para><para>Sets the widget title.</para></remarks>"));
+        Assert(
+            duplicateSummaryReplacement.Reason == "source_remarks_overlap_existing_documentation",
+            "remarks placeholders skip summaries already documented");
+        var noPeriodPlaceholderDocs = mappedDocs with
+        {
+            Summary = "This documentation is to be added when the fixture is ready.",
+            Paragraphs =
+            [
+                new SourceParagraph(
+                    "This documentation is to be added when the fixture is ready.",
+                    IsCode: false),
+            ],
+        };
+        var noPeriodPlaceholderReplacement = LimitOverlappingRemarksReplacement(
+            new Placeholder(0, "para", "", "para"),
+            noPeriodPlaceholderDocs,
+            ReplacementFor(
+                new Placeholder(0, "para", "", "para"),
+                noPeriodPlaceholderDocs),
+            XElement.Parse("<remarks><para>To be added</para></remarks>"));
+        Assert(
+            noPeriodPlaceholderReplacement.Text == noPeriodPlaceholderDocs.Summary,
+            "no-period remarks placeholders do not trigger overlap detection");
         var rawSignatureText = file.Text.Replace(
             $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
             $"<remarks>{file.Newline}          <code lang=\"text/java\">public int setTitle (CharSequence title)</code>{file.Newline}          <para>Keep this existing prose.</para>",
