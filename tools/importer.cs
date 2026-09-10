@@ -1223,10 +1223,16 @@ static class ImporterProgram
     static bool HasCopiedDescriptionRepairCandidate(LoadedFile file, DocsOwner owner)
     {
         var block = file.DocsBlocks[owner.Order];
-        return IsImporterCopiedDescriptionLabel(owner.Docs.Element("summary")?.Value) ||
-            owner.Docs.Element("remarks")?.Elements("para").Any(
-                paragraph => IsImporterCopiedDescriptionLabel(paragraph.Value)) == true;
+        return HasCopiedDescriptionRepairCandidate(
+            owner.Docs,
+            file.Text[block.Start..block.End]);
     }
+
+    static bool HasCopiedDescriptionRepairCandidate(XElement docs, string blockText) =>
+        blockText.Contains("title=\"Reference documentation\"", StringComparison.Ordinal) &&
+        (IsImporterCopiedDescriptionLabel(docs.Element("summary")?.Value) ||
+            docs.Element("remarks")?.Elements("para").Any(
+                paragraph => IsImporterCopiedDescriptionLabel(paragraph.Value)) == true);
 
     static string RepairCopiedDescriptionLabels(
         string text,
@@ -1238,6 +1244,8 @@ static class ImporterProgram
         targets = [];
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
+        if (!ContainsSourceUrl(blockText, docs.SourceUrl))
+            return text;
         var summary = Regex.Match(
             blockText,
             @"<summary\b[^>]*>(?<value>\s*Description copied from (?:class|interface):\s+[A-Za-z_$][\w.$]*\s*)</summary>",
@@ -2560,11 +2568,46 @@ static class ImporterProgram
         Assert(
             IsImporterCopiedDescriptionLabel("Description copied from interface: Fixture"),
             "copied-description repair label is detected");
+        var copiedDescriptionRepairDocs = mappedDocs with
+        {
+            SourceUrl =
+                "https://developer.android.com/reference/android/example/Widget#setTitle(java.lang.String)",
+        };
+        var mismatchedCopiedDescriptionRepair = RepairCopiedDescriptionLabels(
+            copiedDescriptionRepairText,
+            file,
+            setTitle,
+            copiedDescriptionRepairDocs with { SourceUrl = "https://example.invalid/Widget" },
+            out var mismatchedCopiedDescriptionTargets);
+        Assert(
+            mismatchedCopiedDescriptionTargets.Count == 0 &&
+                mismatchedCopiedDescriptionRepair.Equals(
+                    copiedDescriptionRepairText,
+                    StringComparison.Ordinal),
+            "copied-description repairs require the exact resolved source URL");
+        var authoredCopiedDescriptionText = copiedDescriptionRepairText.Replace(
+            "Description copied from interface: Fixture",
+            "Description copied from interface: Fixture — keep this authored prose.",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, authoredCopiedDescriptionText);
+        var authoredCopiedDescriptionRepair = RepairCopiedDescriptionLabels(
+            authoredCopiedDescriptionText,
+            file,
+            setTitle,
+            copiedDescriptionRepairDocs,
+            out var authoredCopiedDescriptionTargets);
+        Assert(
+            authoredCopiedDescriptionTargets.Count == 0 &&
+                authoredCopiedDescriptionRepair.Equals(
+                    authoredCopiedDescriptionText,
+                    StringComparison.Ordinal),
+            "copied-description repairs preserve labels with authored prose");
+        file.UpdateBlockOffsets(setTitle.Order, copiedDescriptionRepairText);
         var repairedCopiedDescriptionText = RepairCopiedDescriptionLabels(
             copiedDescriptionRepairText,
             file,
             setTitle,
-            mappedDocs,
+            copiedDescriptionRepairDocs,
             out var copiedDescriptionTargets);
         var repairedCopiedDescriptionSummary = repairedCopiedDescriptionText.Contains(
             "<summary>Sets the widget title.</summary>",
@@ -2591,6 +2634,12 @@ static class ImporterProgram
         Assert(
             RequiresSourceLoad(file, repairOnlyOwner),
             "copied-description repair-only owners load their source page");
+        Assert(
+            !HasCopiedDescriptionRepairCandidate(
+                XElement.Parse(
+                    "<Docs><summary>Description copied from interface: Fixture</summary></Docs>"),
+                "<Docs><summary>Description copied from interface: Fixture</summary></Docs>"),
+            "copied-description repairs require importer source metadata");
         Assert(
             !IsImporterCopiedDescriptionLabel(
                 "Description copied from interface: Fixture — keep this note."),
@@ -2909,6 +2958,12 @@ static class ImporterProgram
             JavaReference + "java.base/java/lang/String.html",
             "java");
         var javaPage = SourcePage.Parse(javaRequest, javaHtml);
+        var copiedLabelWithProsePage = SourcePage.Parse(
+            javaRequest,
+            javaHtml.Replace(
+                "Description copied from interface: <code>CharSequence</code>",
+                "Description copied from interface: CharSequence retains fixture semantics.",
+                StringComparison.Ordinal));
         Assert(
             javaPage.TypeDocs?.Summary == "Represents a sequence of characters." &&
                 !javaPage.TypeDocs.Paragraphs.Any(
@@ -2923,6 +2978,11 @@ static class ImporterProgram
                     paragraph => paragraph.Text.Contains("Deprecated", StringComparison.Ordinal) ||
                         paragraph.Text.Contains("Description copied from", StringComparison.Ordinal)),
             "Java deprecated and copied-description member blocks excluded");
+        Assert(
+            copiedLabelWithProsePage.Members.Single(member => member.Name == "length").Docs?.Paragraphs.Any(
+                paragraph => paragraph.Text ==
+                    "Description copied from interface: CharSequence retains fixture semantics.") == true,
+            "Java copied-description prefixes with authored prose are preserved");
         var empty = javaPage.Members.Single(member => member.Name == "EMPTY");
         Assert(empty.IsField && empty.Docs?.Summary == "An empty fixture string.", "Java field extraction");
         var equivalent = javaPage.Members.Single(member => member.Name == "equivalent");
@@ -5247,7 +5307,7 @@ static class ImporterProgram
         static bool IsJavaDescriptionCopiedLabel(string text) =>
             Regex.IsMatch(
                 NormalizeText(text).Trim(),
-                @"^Description copied from (?:class|interface):\s+\S",
+                @"^Description copied from (?:class|interface):\s+\S+$",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         static Dictionary<string, string> ParseAttributes(string attributes)
