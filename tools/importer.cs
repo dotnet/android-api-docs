@@ -1350,7 +1350,10 @@ static class ImporterProgram
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
             var lineStart = blockText.LastIndexOf(newline, elementStart, StringComparison.Ordinal);
             lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
-            var indent = blockText[lineStart..elementStart];
+            var indent = Regex.Match(
+                blockText[lineStart..elementStart],
+                @"[ \t]*$",
+                RegexOptions.CultureInvariant).Value;
             var replacementMarkup = string.Join(
                 newline,
                 remarksReplacement.Select(paragraph => RenderDocumentationParagraph(paragraph, indent)));
@@ -1600,7 +1603,11 @@ static class ImporterProgram
         var existingSourceParagraphs = existing.Take(sourceReferenceIndex).ToList();
         if (!MatchesSourceParagraphSubsequence(
                 existingSourceParagraphs,
-                expectedSourceParagraphs))
+                expectedSourceParagraphs) &&
+            (!HasLegacyFormattedSourceReference(existing[sourceReferenceIndex]) ||
+             !MatchesSourceParagraphSubsequence(
+                 CoalesceLegacyNestedCodeContainers(existingSourceParagraphs),
+                 expectedSourceParagraphs)))
         {
             return new RemarksRefreshResult(
                 text,
@@ -1687,6 +1694,32 @@ static class ImporterProgram
             .All(IsImporterRenderedSourceParagraph);
     }
 
+    static bool HasLegacyFormattedSourceReference(XElement sourceReference) =>
+        sourceReference.DescendantNodes()
+            .OfType<XText>()
+            .Any(text => string.IsNullOrWhiteSpace(text.Value) &&
+                (text.Value.Contains('\n') || text.Value.Contains('\r')));
+
+    static IReadOnlyList<XElement> CoalesceLegacyNestedCodeContainers(
+        IReadOnlyList<XElement> sourceParagraphs)
+    {
+        var coalesced = new List<XElement>();
+        foreach (var paragraph in sourceParagraphs)
+        {
+            if (paragraph.Name == "code" &&
+                coalesced.LastOrDefault() is XElement previous &&
+                previous.Name == "code" &&
+                paragraph.ToString(SaveOptions.DisableFormatting).Equals(
+                    previous.ToString(SaveOptions.DisableFormatting),
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+            coalesced.Add(paragraph);
+        }
+        return coalesced;
+    }
+
     static bool IsImporterRenderedSourceParagraph(XElement element) =>
         (element.Name.LocalName == "para" &&
          !element.HasAttributes &&
@@ -1742,7 +1775,8 @@ static class ImporterProgram
         var paragraphs = sourceParagraphs
             .Select(paragraph => RenderDocumentationParagraph(paragraph, paragraphIndent))
             .ToList();
-        paragraphs.Add($"{paragraphIndent}{ImporterSourceReference(docs)}");
+        paragraphs.Add(
+            $"{paragraphIndent}{ImporterSourceReference(docs).ToString(SaveOptions.DisableFormatting)}");
         if (docs.SourceKind == "android")
             paragraphs.Add($"{paragraphIndent}<para>{AndroidAttribution}</para>");
         return $"<remarks>{newline}" +
@@ -2118,12 +2152,64 @@ static class ImporterProgram
 
     static bool TryGetImporterSourceReferenceUrl(string paragraph, out string sourceUrl)
     {
-        var match = Regex.Match(
-            paragraph,
-            @"^\s*<para>\s*<format type=""text/html""><a href=""(?<url>[^""]+)"" title=""Reference documentation"">(?:Android|Java) reference for <code>[^<]+</code>\.</a></format>\s*</para>\s*$",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        sourceUrl = match.Success ? WebUtility.HtmlDecode(match.Groups["url"].Value) : "";
-        return match.Success;
+        sourceUrl = "";
+        XElement sourceReference;
+        try
+        {
+            sourceReference = XElement.Parse(paragraph, LoadOptions.PreserveWhitespace);
+        }
+        catch (XmlException)
+        {
+            return false;
+        }
+
+        var formats = sourceReference.Elements().ToList();
+        if (formats.Count != 1)
+            return false;
+        var format = formats[0];
+        var links = format.Elements().ToList();
+        if (links.Count != 1)
+            return false;
+        var link = links[0];
+        if (sourceReference.Name != "para" ||
+            sourceReference.HasAttributes ||
+            format.Name != "format" ||
+            format.Attributes().Count() != 1 ||
+            (string?)format.Attribute("type") != "text/html" ||
+            sourceReference.Nodes().Any(node =>
+                !ReferenceEquals(node, format) &&
+                (node is not XText text || !string.IsNullOrWhiteSpace(text.Value))) ||
+            link.Name != "a" ||
+            link.Attributes().Count() != 2 ||
+            string.IsNullOrWhiteSpace((string?)link.Attribute("href")) ||
+            (string?)link.Attribute("title") != "Reference documentation" ||
+            format.Nodes().Any(node =>
+                !ReferenceEquals(node, link) &&
+                (node is not XText text || !string.IsNullOrWhiteSpace(text.Value))))
+        {
+            return false;
+        }
+
+        var linkNodes = link.Nodes().ToList();
+        if (linkNodes.Count != 3 ||
+            linkNodes[0] is not XText prefix ||
+            !Regex.IsMatch(
+                prefix.Value,
+                @"^(?:Android|Java) reference for $",
+                RegexOptions.CultureInvariant) ||
+            linkNodes[1] is not XElement code ||
+            code.Name != "code" ||
+            code.HasAttributes ||
+            code.HasElements ||
+            string.IsNullOrWhiteSpace(code.Value) ||
+            linkNodes[2] is not XText suffix ||
+            suffix.Value != ".")
+        {
+            return false;
+        }
+
+        sourceUrl = WebUtility.HtmlDecode((string)link.Attribute("href")!);
+        return true;
     }
 
     static string NormalizeStaleNestedConstructorLinks(
@@ -3187,6 +3273,79 @@ static class ImporterProgram
                         "para:Do not use an immutable pending intent.",
                     ]),
             "strict importer-owned remarks refreshes complete parsed source prose and code");
+        var renderedImporterOwnedRemarks = RenderImporterOwnedRemarks(
+            UsableRemarks(autofillAuthenticationDocs.Paragraphs),
+            autofillAuthenticationDocs,
+            "\n",
+            "  ",
+            "    ");
+        var reloadedImporterOwnedRemarks = XElement.Parse(
+            renderedImporterOwnedRemarks,
+            LoadOptions.PreserveWhitespace);
+        var renderedSourceReference = reloadedImporterOwnedRemarks.Elements()
+            .ElementAt(reloadedImporterOwnedRemarks.Elements().Count() - 2)
+            .ToString(SaveOptions.DisableFormatting);
+        Assert(
+            renderedImporterOwnedRemarks.Contains(
+                "<format type=\"text/html\"><a href=",
+                StringComparison.Ordinal) &&
+            TryGetImporterSourceReferenceUrl(
+                renderedSourceReference,
+                out var renderedSourceUrl) &&
+            UrlsEqual(renderedSourceUrl, autofillAuthenticationDocs.SourceUrl) &&
+            IsPotentialImporterOwnedRemarks(
+                reloadedImporterOwnedRemarks,
+                autofillAuthenticationDocs.SourceKind),
+            "rendered importer-owned remarks round-trip through structural ownership recognition");
+        var legacyFormattedImporterOwnedRemarks = new XElement("remarks");
+        foreach (var paragraph in UsableRemarks(autofillAuthenticationDocs.Paragraphs))
+        {
+            legacyFormattedImporterOwnedRemarks.Add(DocumentationElement(paragraph));
+            if (paragraph.IsCode)
+                legacyFormattedImporterOwnedRemarks.Add(DocumentationElement(paragraph));
+        }
+        var legacySourceReference = XElement.Parse(
+            ImporterSourceReference(autofillAuthenticationDocs).ToString(),
+            LoadOptions.PreserveWhitespace);
+        legacyFormattedImporterOwnedRemarks.Add(legacySourceReference);
+        legacyFormattedImporterOwnedRemarks.Add(
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        var legacyFormattedImporterOwnedBlock = new XElement(
+            "Docs",
+            new XElement("summary", "Existing fixture summary."),
+            legacyFormattedImporterOwnedRemarks).ToString(SaveOptions.DisableFormatting);
+        var legacyFormattedImporterOwnedText =
+            completedAutofillAuthenticationText[..completedAuthenticationBlock.Start] +
+            legacyFormattedImporterOwnedBlock +
+            completedAutofillAuthenticationText[completedAuthenticationBlock.End..];
+        autofillResidualFile.UpdateBlockOffsets(
+            autofillAuthenticationOwner.Order,
+            legacyFormattedImporterOwnedText);
+        var refreshedLegacyFormattedImporterOwnedRemarks = RefreshImporterOwnedRemarks(
+            legacyFormattedImporterOwnedText,
+            autofillResidualFile,
+            autofillAuthenticationOwner,
+            autofillAuthenticationDocs);
+        autofillResidualFile.UpdateBlockOffsets(
+            autofillAuthenticationOwner.Order,
+            refreshedLegacyFormattedImporterOwnedRemarks.Text);
+        var refreshedLegacyFormattedRemarks = XElement.Parse(
+            refreshedLegacyFormattedImporterOwnedRemarks.Text[
+                autofillResidualFile.DocsBlocks[autofillAuthenticationOwner.Order].Start..
+                autofillResidualFile.DocsBlocks[autofillAuthenticationOwner.Order].End],
+            LoadOptions.PreserveWhitespace).Element("remarks")!;
+        Assert(
+            IsPotentialImporterOwnedRemarks(
+                legacyFormattedImporterOwnedRemarks,
+                autofillAuthenticationDocs.SourceKind) &&
+            HasLegacyFormattedSourceReference(legacySourceReference) &&
+            refreshedLegacyFormattedImporterOwnedRemarks.Reason is null &&
+            refreshedLegacyFormattedRemarks.Elements("code").Count() == 1 &&
+            refreshedLegacyFormattedRemarks.Elements()
+                .Any(element => TryGetImporterSourceReferenceUrl(
+                    element.ToString(SaveOptions.DisableFormatting),
+                    out _)),
+            "legacy formatted importer-owned remarks regenerate nested code containers once");
         var authoredRefreshText = importerOwnedRefreshText.Replace(
             "Sets authentication for the response.",
             "Author-authored remarks are preserved.",
@@ -3393,6 +3552,19 @@ static class ImporterProgram
                         new SourceParagraph("widget.setTitle(title);", IsCode: true),
                     ]) == true,
             "parsed Android source retains repeated visible prose and code blocks in order");
+        var nestedCodeContainersAndroidPage = SourcePage.Parse(
+            request,
+            File.ReadAllText(Path.Combine(
+                fixtureRoot,
+                "nested-code-containers-android-reference.html")));
+        Assert(
+            nestedCodeContainersAndroidPage.Members.Single(member => member.Name == "setTitle").Docs?.Paragraphs
+                .SequenceEqual(
+                    [
+                        new SourceParagraph("Nested code containers remain one sample.", IsCode: false),
+                        new SourceParagraph("widget.setTitle(title);", IsCode: true),
+                    ]) == true,
+            "parsed Android source coalesces nested devsite and pre code containers");
         var repeatedJavaPage = SourcePage.Parse(
             new SourceRequest(
                 "java/lang/String",
@@ -4258,6 +4430,32 @@ static class ImporterProgram
             renderedCompleteRemarks.Element("code")?.Value == "result.setAuthentication(authentication);" &&
             (string?)renderedCompleteRemarks.Element("code")?.Attribute("lang") == "text/java",
             "complete remarks replacement renders source prose and code in order");
+        const string compactParaRemarksText =
+            "<Docs><remarks><para>To be added.</para></remarks></Docs>";
+        var compactParaRemarks = XDocument.Parse(compactParaRemarksText)
+            .Root!.Element("remarks")!;
+        var compactParaPlaceholder = Placeholder.Create(
+            compactParaRemarks.Element("para")!,
+            0);
+        Assert(
+            TryReplacePlaceholder(
+                compactParaRemarksText,
+                new DocsBlock(0, 0, compactParaRemarksText.Length),
+                compactParaPlaceholder,
+                ReplacementFor(compactParaPlaceholder, completeRemarksDocs),
+                out var completedCompactParaRemarksText,
+                out _),
+            "compact para remarks replacement succeeds");
+        var completedCompactParaRemarks = XDocument.Parse(completedCompactParaRemarksText)
+            .Root!.Element("remarks")!;
+        Assert(
+            completedCompactParaRemarks.Elements().Select(element => element.Name.LocalName).SequenceEqual(
+                ["para", "para", "code"]) &&
+            completedCompactParaRemarks.Elements("para").Select(element => element.Value).SequenceEqual(
+                ["The first complete contract paragraph.", "The second complete contract paragraph."]) &&
+            completedCompactParaRemarks.Element("code")?.Value ==
+                "result.setAuthentication(authentication);",
+            "compact para remarks replacement has structured XML without ancestor markup");
 
         const string metadataRepairText =
             "<Docs><remarks>To be added.<para><format type=\"text/html\">" +
@@ -6412,6 +6610,15 @@ static class ImporterProgram
             var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
             var listDepth = 0;
 
+            IReadOnlyList<(int Start, int End, SourceParagraph Paragraph)> VisibleCodeRanges() =>
+                codeRanges
+                    .Where(candidate => !codeRanges.Any(container =>
+                        container.Start <= candidate.Start &&
+                        container.End >= candidate.End &&
+                        (container.Start < candidate.Start || container.End > candidate.End)))
+                    .OrderBy(code => code.Start)
+                    .ToList();
+
             void CompleteElement(
                 (string Tag, int TagStart, int ContentStart) open,
                 int contentEnd,
@@ -6427,9 +6634,8 @@ static class ImporterProgram
                     return;
                 }
 
-                var nestedCode = codeRanges
+                var nestedCode = VisibleCodeRanges()
                     .Where(code => code.Start >= open.ContentStart && code.End <= contentEnd)
-                    .OrderBy(code => code.Start)
                     .ToList();
                 var textStart = open.ContentStart;
                 foreach (var code in nestedCode)
@@ -6481,7 +6687,7 @@ static class ImporterProgram
                     continue;
                 CompleteElement(open, tag.Index, tag.Index + tag.Length);
             }
-            foreach (var code in codeRanges.Where(code =>
+            foreach (var code in VisibleCodeRanges().Where(code =>
                 !paragraphs.Any(paragraph => paragraph.Position == code.Start &&
                     paragraph.Paragraph == code.Paragraph)))
             {

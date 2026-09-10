@@ -58,7 +58,8 @@ element, followed only by the exact mapped source-reference paragraph and Androi
 attribution (when applicable). Any extra nodes, markup, source mismatch, or
 out-of-order content preserves the remarks verbatim. Eligible remarks are rebuilt
 from the complete ordered visible source paragraphs and code blocks, rather than
-having text appended.
+having text appended. Nested Android code-container markup for one physical
+sample is coalesced, while separate repeated visible blocks remain in order.
 
 Official pages are cached by URL hash. Network requests use a clear user agent,
 bounded concurrency, a size limit, and deterministic retry/backoff. `--offline`
