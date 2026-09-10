@@ -2682,6 +2682,15 @@ static class ImporterProgram
             "Java deprecated and copied-description member blocks excluded");
         var empty = javaPage.Members.Single(member => member.Name == "EMPTY");
         Assert(empty.IsField && empty.Docs?.Summary == "An empty fixture string.", "Java field extraction");
+        var equivalent = javaPage.Members.Single(member => member.Name == "equivalent");
+        Assert(
+            equivalent.Docs?.Paragraphs.SequenceEqual(
+                [
+                    new SourceParagraph("Updates the fixture value.", IsCode: false),
+                    new SourceParagraph("map.put(key, value);", IsCode: true),
+                    new SourceParagraph("except that the update is atomic.", IsCode: false),
+                ]) == true,
+            "Java blocks preserve prose surrounding code examples");
 
         var block = file.DocsBlocks[setTitle.Order];
         var summary = setTitle.Placeholders.Single(item => item.Name == "summary");
@@ -4956,11 +4965,41 @@ static class ImporterProgram
                     return classTokens.Contains("block", StringComparer.Ordinal) &&
                         !classTokens.Contains("deprecation-block", StringComparer.Ordinal);
                 })
-                .Select(match => new SourceParagraph(HtmlText(match.Groups["body"].Value), IsCode: false))
+                .SelectMany(match => ExtractBlockParagraphs(match.Groups["body"].Value))
                 .Where(paragraph => paragraph.Text.Length > 0 &&
                     !IsJavaDescriptionCopiedLabel(paragraph.Text))
                 .Distinct()
                 .ToList();
+
+        static List<SourceParagraph> ExtractBlockParagraphs(string html)
+        {
+            var codeExamples = Regex.Matches(
+                html,
+                @"<pre\b[^>]*>(?<body>.*?)</pre>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (codeExamples.Count == 0)
+                return [new SourceParagraph(HtmlText(html), IsCode: false)];
+
+            var paragraphs = new List<SourceParagraph>();
+            var position = 0;
+            foreach (Match codeExample in codeExamples)
+            {
+                AddBlockTextParagraph(html[position..codeExample.Index], paragraphs);
+                var code = HtmlCodeText(codeExample.Groups["body"].Value);
+                if (code.Length > 0)
+                    paragraphs.Add(new SourceParagraph(code, IsCode: true));
+                position = codeExample.Index + codeExample.Length;
+            }
+            AddBlockTextParagraph(html[position..], paragraphs);
+            return paragraphs;
+        }
+
+        static void AddBlockTextParagraph(string html, List<SourceParagraph> paragraphs)
+        {
+            var text = CleanSourceParagraph(HtmlText(html));
+            if (text.Length > 0)
+                paragraphs.Add(new SourceParagraph(text, IsCode: false));
+        }
 
         static bool IsJavaDescriptionCopiedLabel(string text) =>
             Regex.IsMatch(
