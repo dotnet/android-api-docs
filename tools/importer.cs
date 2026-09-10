@@ -607,9 +607,9 @@ static class ImporterProgram
     }
 
     static string EnsureSentenceEnding(string value) =>
-        value.EndsWith('.', StringComparison.Ordinal) ||
-        value.EndsWith('!', StringComparison.Ordinal) ||
-        value.EndsWith('?', StringComparison.Ordinal)
+        value.EndsWith('.') ||
+        value.EndsWith('!') ||
+        value.EndsWith('?')
             ? value
             : value + ".";
 
@@ -653,6 +653,8 @@ static class ImporterProgram
             .ToHashSet(StringComparer.Ordinal);
         if (IsEnumSummaryRepairCandidate(owner) || HasTruncatedImporterSummary(file, owner))
             targets.Add("summary");
+        if (HasDeprecatedValueRepairCandidate(file, owner))
+            targets.Add("value");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
             HasMetadataOnlyRemarks(file, owner))
@@ -766,18 +768,23 @@ static class ImporterProgram
             (owner.Member is null ? null : Registration.Member(owner.Member));
         if (owner.IsEnumField ||
             owner.SourceRequest is null ||
-            registration is not { IsField: true })
+            registration is not { IsField: true } ||
+            owner.Docs.Element("value") is not XElement value ||
+            value.HasElements ||
+            !Regex.IsMatch(
+                NormalizeText(value.Value),
+                @"^This (?:field|constant|member) (?:is|was) deprecated(?: in API level \d+)?\.$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             return false;
 
-        var block = file.Text[
-            file.DocsBlocks[owner.Order].Start..
-            file.DocsBlocks[owner.Order].End];
         var memberUrl = owner.SourceRequest.Url + "#" + registration.Name;
-        return ContainsSourceUrl(block, memberUrl) &&
-            Regex.IsMatch(
-                block,
-                @"<value\b[^>]*>\s*This (?:field|constant|member) (?:is|was) deprecated(?: in API level \d+)?\.\s*</value>",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        return owner.Docs.Element("remarks")?
+            .Elements("para")
+            .Any(paragraph =>
+                TryGetImporterSourceReferenceUrl(
+                    paragraph.ToString(SaveOptions.DisableFormatting),
+                    out var sourceUrl) &&
+                UrlsEqual(sourceUrl, memberUrl)) == true;
     }
 
     static string RepairDeprecatedValue(
@@ -801,22 +808,125 @@ static class ImporterProgram
         var blockText = text[block.Start..block.End];
         if (!ContainsSourceUrl(blockText, docs.SourceUrl))
             return text;
-        var value = Regex.Match(
-            blockText,
-            @"<value\b[^>]*>(?<value>[^<]*)</value>",
-            RegexOptions.CultureInvariant);
-        if (!value.Success ||
-            !NormalizeText(value.Groups["value"].Value).Equals(
+        if (!TryFindDirectTextElementContentSpan(
+                blockText,
+                "value",
+                out var valueStart,
+                out var valueEnd) ||
+            !NormalizeText(blockText[valueStart..valueEnd]).Equals(
                 NormalizeText(SourcePage.FirstSentence(first.Text)),
                 StringComparison.Ordinal))
         {
             return text;
         }
 
-        var valueStart = value.Groups["value"].Index;
-        var valueEnd = valueStart + value.Groups["value"].Length;
         var updatedBlock = blockText[..valueStart] + XmlEscape(replacement) + blockText[valueEnd..];
         return text[..block.Start] + updatedBlock + text[block.End..];
+    }
+
+    static bool TryFindDirectTextElementContentSpan(
+        string blockText,
+        string elementName,
+        out int contentStart,
+        out int contentEnd)
+    {
+        contentStart = 0;
+        contentEnd = 0;
+        var depth = 0;
+        var targetDepth = -1;
+
+        for (var index = 0; index < blockText.Length;)
+        {
+            var tagStart = blockText.IndexOf('<', index);
+            if (tagStart < 0)
+                return false;
+            if (blockText.AsSpan(tagStart).StartsWith("<!--", StringComparison.Ordinal))
+            {
+                var commentEnd = blockText.IndexOf("-->", tagStart + 4, StringComparison.Ordinal);
+                if (commentEnd < 0)
+                    return false;
+                index = commentEnd + 3;
+                continue;
+            }
+            if (blockText.AsSpan(tagStart).StartsWith("<![CDATA[", StringComparison.Ordinal))
+            {
+                var cdataEnd = blockText.IndexOf("]]>", tagStart + 9, StringComparison.Ordinal);
+                if (cdataEnd < 0)
+                    return false;
+                index = cdataEnd + 3;
+                continue;
+            }
+
+            var tagEnd = FindXmlTagEnd(blockText, tagStart);
+            if (tagEnd < 0)
+                return false;
+            var tag = blockText[(tagStart + 1)..tagEnd].TrimStart();
+            if (tag.StartsWith('!') || tag.StartsWith('?'))
+            {
+                index = tagEnd + 1;
+                continue;
+            }
+
+            var closing = tag.StartsWith('/');
+            var nameStart = closing ? 1 : 0;
+            while (nameStart < tag.Length && char.IsWhiteSpace(tag[nameStart]))
+                nameStart++;
+            var nameEnd = nameStart;
+            while (nameEnd < tag.Length &&
+                !char.IsWhiteSpace(tag[nameEnd]) &&
+                tag[nameEnd] != '/')
+            {
+                nameEnd++;
+            }
+            if (nameStart == nameEnd)
+                return false;
+            var name = tag[nameStart..nameEnd];
+
+            if (closing)
+            {
+                if (targetDepth == depth &&
+                    name.Equals(elementName, StringComparison.Ordinal))
+                {
+                    contentEnd = tagStart;
+                    return true;
+                }
+                depth--;
+            }
+            else if (!tag.EndsWith("/", StringComparison.Ordinal))
+            {
+                if (depth == 1 && name.Equals(elementName, StringComparison.Ordinal))
+                {
+                    contentStart = tagEnd + 1;
+                    targetDepth = depth + 1;
+                }
+                depth++;
+            }
+            index = tagEnd + 1;
+        }
+        return false;
+    }
+
+    static int FindXmlTagEnd(string text, int tagStart)
+    {
+        var quote = '\0';
+        for (var index = tagStart + 1; index < text.Length; index++)
+        {
+            var character = text[index];
+            if (quote != '\0')
+            {
+                if (character == quote)
+                    quote = '\0';
+            }
+            else if (character is '"' or '\'')
+            {
+                quote = character;
+            }
+            else if (character == '>')
+            {
+                return index;
+            }
+        }
+        return -1;
     }
 
     static bool IsEnumSummaryRepairCandidate(
@@ -1855,6 +1965,10 @@ static class ImporterProgram
             $"The {legacyLocaleLabel} value in the Locale created by the Builder is always normalized to upper case.",
             "The region value in the Locale created by the Builder is always normalized to upper case.",
             StringComparison.Ordinal);
+        text = text.Replace(
+            "Value is milliseconds since January 1, 2001.",
+            "Value is seconds since January 1, 2001.",
+            StringComparison.Ordinal);
         text = Regex.Replace(
             text,
             @"\s+TODO Link: Tuner#Tuner\(Context, string, int\)\.",
@@ -2197,6 +2311,10 @@ static class ImporterProgram
                 $"The {string.Concat("coun", "try")} value in the Locale created by the Builder is always normalized to upper case.") ==
                 "The region value in the Locale created by the Builder is always normalized to upper case.",
             "PolicyCheck geopolitical terminology normalization");
+        Assert(
+            CleanSourceText("Value is milliseconds since January 1, 2001.") ==
+                "Value is seconds since January 1, 2001.",
+            "MAC_TIME uses seconds, not milliseconds");
         Assert(
             SourceVerifiedMemberMappings.Resolve(
                 "M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)") is
@@ -2700,23 +2818,75 @@ static class ImporterProgram
                 match.Groups["close"].Value +
                 "<remarks><para><format type=\"text/html\"><a href=\"" +
                 deprecatedPropertyDocs.SourceUrl +
-                "\" title=\"Reference documentation\">Android reference.</a></format></para></remarks>",
+                "\" title=\"Reference documentation\">Android reference for <code>" +
+                deprecatedPropertyDocs.SourceLabel +
+                "</code>.</a></format></para></remarks>",
             RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        file.UpdateBlockOffsets(deprecatedProperty.Order, deprecatedValueRepairText);
-        Assert(
-            HasDeprecatedValueRepairCandidate(file, deprecatedProperty),
-            "deprecated property value with an exact member source URL is repairable");
-        var repairedDeprecatedValueText = RepairDeprecatedValue(
+        deprecatedValueRepairText = Regex.Replace(
             deprecatedValueRepairText,
-            file,
-            deprecatedProperty,
-            deprecatedPropertyDocs);
-        Assert(
-            repairedDeprecatedValueText.Contains(
-                "<value>This constant was deprecated in API level 31. Use FAVORITE instead. Identifies the deprecated fixture value.</value>",
-                StringComparison.Ordinal),
-            "deprecated property value repair preserves caution and semantic prose");
-        file.UpdateBlockOffsets(deprecatedProperty.Order, fixtureText);
+            @"(?<open><Member MemberName=""DeprecatedProperty"">.*?<summary>)To be added\.(?<close></summary>)",
+            match =>
+                match.Groups["open"].Value +
+                "<![CDATA[Example <value>This constant was deprecated in API level 31.</value>]]>" +
+                match.Groups["close"].Value,
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        var deprecatedValueRepairPath = Path.Combine(
+            Path.GetTempPath(),
+            $"android-api-doc-importer-deprecated-value-{Environment.ProcessId}.xml");
+        File.WriteAllText(
+            deprecatedValueRepairPath,
+            deprecatedValueRepairText,
+            new UTF8Encoding(false));
+        try
+        {
+            var deprecatedValueRepairFile = LoadedFile.Load(
+                repositoryRoot,
+                deprecatedValueRepairPath);
+            deprecatedValueRepairFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+            var deprecatedValueRepairOwner = deprecatedValueRepairFile.Owners.Single(owner =>
+                owner.Id.Contains("DeprecatedProperty", StringComparison.Ordinal));
+            Assert(
+                HasDeprecatedValueRepairCandidate(
+                    deprecatedValueRepairFile,
+                    deprecatedValueRepairOwner),
+                "deprecated property value with an exact member source URL is repairable");
+            var repairedDeprecatedValueText = RepairDeprecatedValue(
+                deprecatedValueRepairFile.Text,
+                deprecatedValueRepairFile,
+                deprecatedValueRepairOwner,
+                deprecatedPropertyDocs);
+            Assert(
+                repairedDeprecatedValueText.Contains(
+                    "<summary><![CDATA[Example <value>This constant was deprecated in API level 31.</value>]]></summary>",
+                    StringComparison.Ordinal) &&
+                repairedDeprecatedValueText.Contains(
+                    "<value>This constant was deprecated in API level 31. Use FAVORITE instead. Identifies the deprecated fixture value.</value>",
+                    StringComparison.Ordinal),
+                "deprecated property value repair targets the direct value element");
+            var repairFailureReport = new ImportReport
+            {
+                Mode = "dry-run",
+                Offline = true,
+                MaxChanges = 1,
+            };
+            Assert(
+                ReportMappingFailure(
+                    repairFailureReport,
+                    deprecatedValueRepairFile,
+                    deprecatedValueRepairOwner,
+                    MappingResult.Skip(
+                        "offline_cache_miss",
+                        "No cached official page exists for the fixture.",
+                        deprecatedValueRepairOwner.SourceRequest!.Url)) &&
+                repairFailureReport.Entries.Any(entry =>
+                    entry.Target == "value" &&
+                    entry.Reason == "offline_cache_miss"),
+                "repair-only deprecated value source failures are reported");
+        }
+        finally
+        {
+            File.Delete(deprecatedValueRepairPath);
+        }
         var tableOnly = file.Owners.Single(owner =>
             owner.Id.EndsWith(".TableOnly(System.Int32)", StringComparison.Ordinal));
         var tableOnlyResult = MapOwner(tableOnly, pages);
