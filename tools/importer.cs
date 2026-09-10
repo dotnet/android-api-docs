@@ -645,10 +645,7 @@ static class ImporterProgram
                 docs.Returns,
                 placeholder.Name,
                 "source_return_missing"),
-            "value" => ChannelValueOrSkip(
-                string.IsNullOrWhiteSpace(docs.Returns) ? docs.Summary : docs.Returns,
-                placeholder.Name,
-                "source_return_missing"),
+            "value" => ValueReplacement(docs),
             "exception" => ExceptionReplacement(placeholder, docs),
             _ => Replacement.Skip(
                 "unsupported_placeholder_target",
@@ -726,6 +723,34 @@ static class ImporterProgram
                 "source_channel_not_meaningful",
                 $"The official {channel} text was only a type, nullability marker, cross-reference heading, or deprecation boilerplate.");
         return Replacement.Use(cleaned);
+    }
+
+    static Replacement ValueReplacement(SourceDocs docs)
+    {
+        var returns = ChannelValueOrSkip(
+            docs.Returns,
+            "value",
+            "source_return_missing");
+        return returns.Text is not null
+            ? returns
+            : IsTypeOnlyReturnChannel(docs.Returns)
+                ? ChannelValueOrSkip(
+                docs.Summary,
+                "value",
+                "source_return_missing")
+                : returns;
+    }
+
+    static bool IsTypeOnlyReturnChannel(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        var normalized = NormalizeText(CleanSourceText(value)).TrimEnd('.').Trim();
+        return Regex.IsMatch(
+            normalized,
+            @"^(?:boolean|byte|char|double|float|int|long|short|void|[A-Z][\w$]*(?:<[^>]+>)?(?:\[\])?|[\w$]+(?:\.[\w$]+)+(?:<[^>]+>)?(?:\[\])?)$",
+            RegexOptions.CultureInvariant);
     }
 
     static string RemoveLeadingJavaType(string value)
@@ -1700,6 +1725,10 @@ static class ImporterProgram
             "Time shift is handle remotely",
             "Time shift is handled remotely",
             StringComparison.Ordinal);
+        text = text.Replace(
+            "Federated Compute Server documentation..",
+            "Federated Compute Server documentation.",
+            StringComparison.Ordinal);
         text = Regex.Replace(
             text,
             @"\s+TODO Link: Tuner#Tuner\(Context, string, int\)\.",
@@ -2600,8 +2629,33 @@ static class ImporterProgram
             new Placeholder(0, "value", "", "value"),
             favoriteResult.Docs! with { Returns = "" });
         Assert(
-            valueSummaryFallback.Text == favoriteResult.Docs.Summary,
-            "property value falls back to exact source summary");
+            valueSummaryFallback.Reason == "source_return_missing",
+            "property value does not fall back when the source return channel is missing");
+        var valueTypeOnlyFallback = ReplacementFor(
+            new Placeholder(0, "value", "", "value"),
+            favoriteResult.Docs! with { Returns = "Widget" });
+        Assert(
+            valueTypeOnlyFallback.Text == favoriteResult.Docs.Summary,
+            "property value falls back to exact source summary when return text is only a type");
+        var valueNullabilityOnly = ReplacementFor(
+            new Placeholder(0, "value", "", "value"),
+            favoriteResult.Docs! with { Returns = "This value cannot be null." });
+        Assert(
+            valueNullabilityOnly.Reason == "source_channel_not_meaningful",
+            "property value does not fall back when return text is only a nullability marker");
+        var parsedTypeOnlyValueDocs = SourcePage.Parse(
+            request,
+            androidHtml.Replace(
+                "the number of displayed characters",
+                "Widget",
+                StringComparison.Ordinal))
+            .Members.Single(member => member.Name == "setTitle").Docs!;
+        Assert(
+            parsedTypeOnlyValueDocs.Returns == "Widget" &&
+            ReplacementFor(
+                new Placeholder(0, "value", "", "value"),
+                parsedTypeOnlyValueDocs).Text == parsedTypeOnlyValueDocs.Summary,
+            "property value uses the exact source summary only for a parsed type-only return channel");
         var simpleTypeOnly = ReplacementFor(
             new Placeholder(0, "param", "items", "param:items"),
             favoriteResult.Docs! with
@@ -2642,6 +2696,11 @@ static class ImporterProgram
                 "Time shift is handle locally. TODO Link: Tuner#Tuner(Context, string, int).") ==
                     "Time shift is handled locally.",
             "Android time-shift and TODO metadata cleanup");
+        Assert(
+            CleanSourceText(
+                "Federated Compute Server documentation.. This value cannot be null.") ==
+                    "Federated Compute Server documentation. This value cannot be null.",
+            "Android federated compute parameter punctuation cleanup");
         Assert(
             RemoveLeadingJavaType(
                 "long: ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
