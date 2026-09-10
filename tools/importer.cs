@@ -92,7 +92,7 @@ static class ImporterProgram
                 .Where(item =>
                     item.Owner.Placeholders.Count > 0 ||
                     IsEnumSummaryRepairCandidate(item.Owner) ||
-                    HasImporterSourceReference(item.File, item.Owner) ||
+                    HasPotentialEnumListRepair(item.File, item.Owner) ||
                     HasEnumDiscardedMetadataCandidate(item.File, item.Owner) ||
                     HasAugmentedRemarksPlaceholder(item.File, item.Owner) ||
                     HasTruncatedImporterSummary(item.File, item.Owner) ||
@@ -582,7 +582,8 @@ static class ImporterProgram
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
         if (IsEnumSummaryRepairCandidate(owner) ||
-            HasTruncatedImporterSummary(file, owner))
+            HasTruncatedImporterSummary(file, owner) ||
+            HasPotentialEnumListRepair(file, owner))
             targets.Add("summary");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
@@ -1512,7 +1513,8 @@ static class ImporterProgram
         }
         if (summary.Elements("para").Any(paragraph =>
             !IsImporterOwnedEnumMetadataParagraph(paragraph, docs) &&
-            paragraph.Descendants("a").Any()))
+            (paragraph.HasElements ||
+             string.IsNullOrWhiteSpace(paragraph.Value))))
         {
             return false;
         }
@@ -1526,12 +1528,18 @@ static class ImporterProgram
             .Select(paragraph => NormalizeListDelimiters(NormalizeText(paragraph.Text)))
             .Where(paragraph => paragraph.Length > 0)
             .ToList();
-        return source.Any(paragraph =>
-                paragraph.Contains("; ", StringComparison.Ordinal) &&
-                !current.Contains(paragraph, StringComparer.Ordinal)) &&
-            current.Count > 0 &&
+        var hasMissingListParagraph = source.Any(paragraph =>
+            paragraph.Contains("; ", StringComparison.Ordinal) &&
+            !current.Contains(paragraph, StringComparer.Ordinal));
+        return (hasMissingListParagraph ||
+                summary.Value.Contains(";;", StringComparison.Ordinal)) &&
+            (current.Count > 0 || summary.Value.Contains(";;", StringComparison.Ordinal)) &&
             IsOrderedSourcePrefix(current, source);
     }
+
+    static bool HasPotentialEnumListRepair(LoadedFile file, DocsOwner owner) =>
+        owner.IsEnumField &&
+        HasImporterSourceReference(file, owner);
 
     static bool IsOrderedSourcePrefix(
         IReadOnlyList<string> current,
@@ -1842,6 +1850,11 @@ static class ImporterProgram
             @"\.\s+\.",
             ".",
             RegexOptions.CultureInvariant).TrimStart('.', ' ');
+        text = Regex.Replace(
+            text,
+            @";\s*;\s*",
+            "; ",
+            RegexOptions.CultureInvariant);
         if (text.EndsWith(":", StringComparison.Ordinal))
         {
             var completeSentences = Regex.Matches(
@@ -4973,11 +4986,6 @@ static class ImporterProgram
                         StripHtmlTags(match.Groups["body"].Value, addWhitespace: true))
                         .TrimStart(';', ' ') + " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            html = Regex.Replace(
-                html,
-                @";\s*;\s*",
-                "; ",
-                RegexOptions.CultureInvariant);
             return html;
         }
 
