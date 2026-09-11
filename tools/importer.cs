@@ -1911,19 +1911,13 @@ static class ImporterProgram
             paragraph.Contains("of below conditions are true:", StringComparison.Ordinal));
         var isSourceSerialization = IsCanonicalSourceSerialization(current, source);
         var isLegacyMergedSerialization = IsLegacyMergedSourceSerialization(current, source);
-        var isKnownCamera2LegacyListRepair = owner.Id is
-            "F:Android.Hardware.Camera2.ControlSceneMode.HighSpeedVideo" or
-            "F:Android.Hardware.Camera2.RequestAvailableCapabilities.ConstrainedHighSpeedVideo" or
-            "F:Android.Hardware.Camera2.RequestAvailableCapabilities.StreamUseCase";
         return (hasMissingListParagraph ||
                 summary.Value.Contains(";;", StringComparison.Ordinal) ||
                 hasCanonicalListCorruption ||
-                hasLegacyListIntroduction ||
-                isKnownCamera2LegacyListRepair) &&
+                hasLegacyListIntroduction) &&
             (current.Count > 0 || summary.Value.Contains(";;", StringComparison.Ordinal)) &&
             (isSourceSerialization ||
-             isLegacyMergedSerialization ||
-             isKnownCamera2LegacyListRepair);
+             isLegacyMergedSerialization);
     }
 
     static bool HasPotentialEnumListRepair(LoadedFile file, DocsOwner owner) =>
