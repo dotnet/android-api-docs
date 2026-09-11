@@ -77,7 +77,7 @@ static class ImporterProgram
                     var file = LoadedFile.Load(repositoryRoot, path);
                     if (!MatchesNamespace(file.Root, options.Namespace))
                         continue;
-                    file.SelectOwners(options.Member, interfaceMemberResolver);
+                    file.SelectOwners(options.Member, interfaceMemberResolver, options.ApiSince);
                     loadedFiles.Add(file);
                 }
                 catch (Exception error) when (error is XmlException or IOException or UnauthorizedAccessException)
@@ -2743,6 +2743,52 @@ static class ImporterProgram
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
         Assert(file.Owners.Count == 15, "fixture owner count");
+        var apiSinceFile = LoadedFile.Load(repositoryRoot, sourcePath);
+        apiSinceFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot), apiSince: 1);
+        Assert(
+            apiSinceFile.Owners.Any(owner =>
+                owner.Id == "P:Android.Example.Widget.FavoriteProperty"),
+            "API level filter selects ApiSince owners");
+        var platformSinceFile = LoadedFile.Load(repositoryRoot, sourcePath);
+        var setCount = platformSinceFile.Root
+            .Element("Members")?
+            .Elements("Member")
+            .SingleOrDefault(member => (string?)member.Attribute("MemberName") == "SetCount") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: SetCount fixture member");
+        var setCountAttributes = setCount.Element("Attributes") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: SetCount fixture attributes");
+        setCountAttributes.Add(
+            new XElement(
+                "Attribute",
+                new XElement(
+                    "AttributeName",
+                    new XAttribute("Language", "C#"),
+                    """[System.Runtime.Versioning.SupportedOSPlatform("android2.0")]""")));
+        platformSinceFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot), apiSince: 2);
+        Assert(
+            platformSinceFile.Owners is
+            [
+                { Id: "M:Android.Example.Widget.SetCount(System.Int32)" },
+            ],
+            "API level filter selects SupportedOSPlatform owners");
+        var inheritedSinceFile = LoadedFile.Load(repositoryRoot, sourcePath);
+        var typeAttributes = inheritedSinceFile.Root.Element("Attributes") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: type fixture attributes");
+        typeAttributes.Add(
+            new XElement(
+                "Attribute",
+                new XElement(
+                    "AttributeName",
+                    new XAttribute("Language", "C#"),
+                    """[System.Runtime.Versioning.SupportedOSPlatform("android2.0")]""")));
+        inheritedSinceFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot), apiSince: 2);
+        Assert(
+            inheritedSinceFile.Owners.Any(owner => owner.Id == "T:Android.Example.Widget") &&
+            inheritedSinceFile.Owners.Any(owner =>
+                owner.Id == "M:Android.Example.Widget.SetTitle(Java.Lang.ICharSequence)") &&
+            inheritedSinceFile.Owners.All(owner =>
+                owner.Id != "P:Android.Example.Widget.FavoriteProperty"),
+            "API level filter inherits type availability for unversioned members");
         Assert(
             SourceVerifiedMemberMappings.Resolve(
                 "M:Android.Text.TextUtils.IndexOf(System.String,System.Char,System.Int32,System.Int32)") is
@@ -5300,6 +5346,7 @@ static class ImporterProgram
         public int MaxChanges { get; private set; } = 25;
         public int Concurrency { get; private set; } = 4;
         public int Retries { get; private set; } = 3;
+        public int? ApiSince { get; private set; }
         public string? Namespace { get; private set; }
         public string? Member { get; private set; }
         public string? CacheDirectory { get; private set; }
@@ -5341,6 +5388,9 @@ static class ImporterProgram
                         break;
                     case "--member":
                         options.Member = Value();
+                        break;
+                    case "--api-since":
+                        options.ApiSince = PositiveInt(Value(), argument, 10_000);
                         break;
                     case "--cache":
                         options.CacheDirectory = Value();
@@ -5393,6 +5443,7 @@ static class ImporterProgram
               --path <path>          XML file or directory under docs/xml; repeatable
               --namespace <name>     Exact managed namespace/type prefix
               --member <text>        Exact managed member name or DocId substring
+              --api-since <level>    Owners declared with the exact Android API level
 
             Safety and I/O:
               --dry-run              Preview only (default)
@@ -5454,7 +5505,8 @@ static class ImporterProgram
 
         public void SelectOwners(
             string? memberFilter,
-            InterfaceMemberResolver? interfaceMemberResolver = null)
+            InterfaceMemberResolver? interfaceMemberResolver = null,
+            int? apiSince = null)
         {
             Owners.Clear();
             var typeRegistration = Registration.Type(Root);
@@ -5482,12 +5534,15 @@ static class ImporterProgram
                 var (docs, member) = ordered[order];
                 var id = member is null ? $"T:{typeName}" : MemberId(typeName, member);
                 var name = (string?)member?.Attribute("MemberName");
+                var owner = member ?? Root;
                 if (memberFilter is not null &&
                     !string.Equals(name, memberFilter, StringComparison.Ordinal) &&
                     !id.Contains(memberFilter, StringComparison.Ordinal))
                 {
                     continue;
                 }
+                if (apiSince is not null && !IsIntroducedInApi(owner, Root, apiSince.Value))
+                    continue;
 
                 var placeholders = docs
                     .Descendants()
@@ -5527,6 +5582,37 @@ static class ImporterProgram
                     isEnum && (string?)member?.Element("MemberType") == "Field"));
             }
         }
+
+        static bool IsIntroducedInApi(XElement owner, XElement type, int apiSince)
+        {
+            if (HasAvailability(owner, apiSince))
+                return true;
+            return owner != type &&
+                !HasAnyAvailability(owner) &&
+                HasAvailability(type, apiSince);
+        }
+
+        static bool HasAvailability(XElement owner, int apiSince) =>
+            owner.Element("Attributes")?
+                .Elements("Attribute")
+                .Elements("AttributeName")
+                .Any(attribute =>
+                    Regex.IsMatch(
+                        attribute.Value,
+                        $@"\bApiSince\s*=\s*{apiSince}\b|" +
+                            $@"\bSupportedOSPlatform\s*\(\s*""android{apiSince}\.0""",
+                        RegexOptions.CultureInvariant)) == true;
+
+        static bool HasAnyAvailability(XElement owner) =>
+            owner.Element("Attributes")?
+                .Elements("Attribute")
+                .Elements("AttributeName")
+                .Any(attribute =>
+                    Regex.IsMatch(
+                        attribute.Value,
+                        @"\bApiSince\s*=\s*\d+\b|" +
+                            @"\bSupportedOSPlatform\s*\(\s*""android\d+\.0""",
+                        RegexOptions.CultureInvariant)) == true;
 
         static string MemberId(string typeName, XElement member)
         {

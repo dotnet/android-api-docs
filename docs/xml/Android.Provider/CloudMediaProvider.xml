@@ -718,7 +718,10 @@
             already locally on the device and doesn't require downloading from the cloud.</param>
         <param name="extras">to modify the way the fd is opened, e.g. for video files we may request a
             thumbnail image instead of a video with
-            <c>CloudMediaProviderContract#EXTRA_PREVIEW_THUMBNAIL</c></param>
+            <c>CloudMediaProviderContract#EXTRA_PREVIEW_THUMBNAIL</c>. In the absence of this extra,
+            this method must return a descriptor representing the actual media file, otherwise it should
+            return the thumbnail. Failure in returning the same may cause unexpected media preview
+            behaviour in the photopicker.</param>
         <param name="signal">used by the OS to signal if the request should be cancelled</param>
         <summary>Returns a thumbnail of <c>size</c> for a media item identified by <c>mediaId</c></summary>
         <returns>read-only file descriptor for accessing the thumbnail for the media file</returns>

@@ -1,4 +1,4 @@
-<Type Name="FileSystems" FullName="Java.Nio.FileNio.FileSystems">
+﻿<Type Name="FileSystems" FullName="Java.Nio.FileNio.FileSystems">
   <TypeSignature Language="C#" Value="public sealed class FileSystems : Java.Lang.Object" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit FileSystems extends Java.Lang.Object" />
   <TypeSignature Language="DocId" Value="T:Java.Nio.FileNio.FileSystems" />
@@ -41,14 +41,15 @@
             that provides access to the file systems accessible to the Java virtual
             machine. If the process of loading or initializing the default provider fails
             then an unspecified error is thrown.</para>
-      <para>The first invocation of the <c>FileSystemProvider#installedProviders()
+      <para>The first invocation of the <c>FileSystemProvider#installedProviders
             installedProviders</c> method, by way of invoking any of the <c>newFileSystem</c> methods defined by this class, locates and loads all
             installed file system providers. Installed providers are loaded using the
             service-provider loading facility defined by the <c>ServiceLoader</c> class.
             Installed providers are loaded using the system class loader. If the
-            system class loader cannot be found then the platform class loader is used.
+            system class loader cannot be found then the extension class loader is used;
+            if there is no extension class loader then the bootstrap class loader is used.
             Providers are typically installed by placing them in a JAR file on the
-            application class path, the JAR file contains a
+            application class path or in the extension directory, the JAR file contains a
             provider-configuration file named <c>java.nio.file.spi.FileSystemProvider</c>
             in the resource directory <c>META-INF/services</c>, and the file lists one or
             more fully-qualified names of concrete subclass of <c>FileSystemProvider</c>
@@ -76,9 +77,9 @@
         </format>
       </para>
       <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
@@ -147,9 +148,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -209,9 +210,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -304,9 +305,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -365,8 +366,10 @@
           <para>&lt;b&gt;Usage Example:&lt;/b&gt;
             Suppose there is a provider identified by the scheme <c>"memory"</c>
             installed:</para>
-          <code lang="text/java">FileSystem fs = FileSystems.newFileSystem(URI.create("memory:///?name=logfs"),
-                                                       Map.of("capacity", "16G", "blockSize", "4k"));
+          <code lang="text/java">Map&amp;lt;String,String&amp;gt; env = new HashMap&amp;lt;&amp;gt;();
+              env.put("capacity", "16G");
+              env.put("blockSize", "4k");
+              FileSystem fs = FileSystems.newFileSystem(URI.create("memory:///?name=logfs"), env);
             </code>
           <para>
             <format type="text/html">
@@ -374,9 +377,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -421,22 +424,22 @@
           <para>This method makes use of specialized providers that create pseudo file
             systems where the contents of one or more files is treated as a file
             system.</para>
-          <para>This method first attempts to locate an installed provider in exactly
-            the same manner as the <c>#newFileSystem(Path, Map, ClassLoader)
-            newFileSystem(Path, Map, ClassLoader)</c> method with an empty map. If none
-            of the installed providers return a <c>FileSystem</c> then an attempt is
-            made to locate the provider using the given class loader. If a provider
-            returns a file system then the lookup terminates and the file system is
-            returned.</para>
+          <para>This method iterates over the <c>FileSystemProvider#installedProviders()
+            installed</c> providers. It invokes, in turn, each provider's <c>FileSystemProvider#newFileSystem(Path,Map) newFileSystem(Path,Map)</c> method
+            with an empty map. If a provider returns a file system then the iteration
+            terminates and the file system is returned. If none of the installed
+            providers return a <c>FileSystem</c> then an attempt is made to locate
+            the provider using the given class loader. If a provider returns a file
+            system then the lookup terminates and the file system is returned.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/nio/file/FileSystems#newFileSystem(java.nio.file.Path,%20java.lang.ClassLoader)" title="Reference documentation">Java documentation for <code>java.nio.file.FileSystems.newFileSystem(java.nio.file.Path, java.lang.ClassLoader)</code>.</a>
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -500,9 +503,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -564,9 +567,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -636,9 +639,9 @@
             </format>
           </para>
           <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
