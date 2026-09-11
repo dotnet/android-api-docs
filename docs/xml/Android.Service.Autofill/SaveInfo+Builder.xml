@@ -197,11 +197,25 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="sanitizer">To be added.</param>
-        <param name="ids">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="sanitizer">an implementation provided by the Android System. This value cannot be null.</param>
+        <param name="ids">id of fields whose value will be sanitized. This value cannot be null.</param>
+        <summary>Adds a sanitizer for one or more field.</summary>
+        <returns>this builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Adds a sanitizer for one or more field.</para>
+          <para>When a sanitizer is set for a field, the AutofillValue is sent to the sanitizer before a save request is triggered.</para>
+          <para>Typically used to avoid displaying the save UI for values that are autofilled but reformattedby the app.</para>
+          <code lang="text/java">builder.addSanitizer(new TextValueSanitizer(
+    Pattern.compile("^(\\d{4})\\s?(\\d{4})\\s?(\\d{4})\\s?(\\d{4})$", "$1$2$3$4")),
+    ccNumberId);</code>
+          <para>The same sanitizer can be reused to sanitize multiple fields.</para>
+          <code lang="text/java">builder.addSanitizer(
+    new TextValueSanitizer(Pattern.compile("^\\s*(.*)\\s*$"), "$1"),
+        usernameId, passwordId);</code>
+          <para>The sanitizer can also be used as an alternative for a validator. If any of the ids is a required id and the sanitizer fails because of it, then the save UI is not shown.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#addSanitizer(android.service.autofill.Sanitizer,%20android.view.autofill.AutofillId[])" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.addSanitizer</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -313,10 +327,13 @@
         <Parameter Name="customDescription" Type="Android.Service.Autofill.CustomDescription" />
       </Parameters>
       <Docs>
-        <param name="customDescription">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="customDescription">the custom description. This value cannot be null.</param>
+        <summary>Sets a custom description to be shown in the UI when the user is asked to save.</summary>
+        <returns>This Builder. This value cannot be null.</returns>
         <remarks>
+          <para>Sets a custom description to be shown in the UI when the user is asked to save.</para>
+          <para>Typically used when the service must show more info about the object being saved, like a credit card logo, masked number, and expiration date.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setCustomDescription(android.service.autofill.CustomDescription)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setCustomDescription</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -355,10 +372,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="description">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="description">a succint description. This value may be null.</param>
+        <summary>Sets an optional description to be shown in the UI when the user is asked to save.</summary>
+        <returns>This Builder. This value cannot be null.</returns>
         <remarks>
+          <para>Sets an optional description to be shown in the UI when the user is asked to save.</para>
+          <para>Typically, it describes how the data will be stored by the service, so it can help users to decide whether they can trust the service to save their data.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setDescription(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setDescription</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -393,10 +413,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="description">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="description">a succint description. This value may be null.</param>
+        <summary>Sets an optional description to be shown in the UI when the user is asked to save.</summary>
+        <returns>This Builder. This value cannot be null.</returns>
         <remarks>
+          <para>Sets an optional description to be shown in the UI when the user is asked to save.</para>
+          <para>Typically, it describes how the data will be stored by the service, so it can help users to decide whether they can trust the service to save their data.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setDescription(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setDescription</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -435,10 +458,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="flags">SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE, SaveInfo.FLAG_DONT_SAVE_ON_FINISH, SaveInfo.FLAG_DELAY_SAVE, or 0. Value is either 0 or a combination of the following: SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE; SaveInfo.FLAG_DONT_SAVE_ON_FINISH; SaveInfo.FLAG_DELAY_SAVE</param>
+        <summary>Sets flags changing the save behavior.</summary>
+        <returns>This builder. This value cannot be null.</returns>
         <remarks>
+          <para>Sets flags changing the save behavior.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setFlags(int)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setFlags</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -485,11 +510,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="style">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="style">The action style. Value is one of the following: SaveInfo.NEGATIVE_BUTTON_STYLE_CANCEL; SaveInfo.NEGATIVE_BUTTON_STYLE_REJECT; SaveInfo.NEGATIVE_BUTTON_STYLE_NEVER</param>
+        <param name="listener">The action listener. This value may be null.</param>
+        <summary>Sets the style and listener for the negative save action.</summary>
+        <returns>This builder. This value cannot be null.</returns>
         <remarks>
+          <para>Sets the style and listener for the negative save action.</para>
+          <para>This allows an autofill service to customize the style and be notified when the user selects the negative action in the save UI. Note that selecting the negative action regardless of its style and listener being customized would dismiss the save UI and if a custom listener intent is provided then this intent is started. The default style is SaveInfo.NEGATIVE_BUTTON_STYLE_CANCEL</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setNegativeAction(int,%20android.content.IntentSender)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setNegativeAction</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -521,10 +549,13 @@
         <Parameter Name="ids" Type="Android.Views.Autofill.AutofillId[]" />
       </Parameters>
       <Docs>
-        <param name="ids">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ids">The ids of the optional views. This value cannot be null.</param>
+        <summary>Sets the ids of additional, optional views the service would be interested to save.</summary>
+        <returns>This builder. This value cannot be null.</returns>
         <remarks>
+          <para>Sets the ids of additional, optional views the service would be interested to save.</para>
+          <para>See SaveInfo for more info.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setOptionalIds(android.view.autofill.AutofillId[])" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setOptionalIds</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -556,10 +587,19 @@
         <Parameter Name="style" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="style">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="style">The action style. Value is one of the following: SaveInfo.POSITIVE_BUTTON_STYLE_SAVE; SaveInfo.POSITIVE_BUTTON_STYLE_CONTINUE</param>
+        <summary>Sets the style for the positive save action.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the style for the positive save action.</para>
+          <para>This allows an autofill service to customize the style of the positive action in the save UI. Note that selecting the positive action regardless of its style would dismiss the save UI and calling into the save request. The service should take the next action if selecting style SaveInfo.POSITIVE_BUTTON_STYLE_CONTINUE. The default style is SaveInfo.POSITIVE_BUTTON_STYLE_SAVE</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setPositiveAction(int)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setPositiveAction</code>.</a>
+  </format>
+</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetTriggerId">
@@ -590,9 +630,19 @@
       </Parameters>
       <Docs>
         <param name="id">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Explicitly defines the view that should commit the autofill context when clicked.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Explicitly defines the view that should commit the autofill context when clicked.</para>
+          <para>Usually, the save request is only automatically triggered after the activity is finished or all relevant views become invisible, but there are scenarios where the autofill context is automatically commited too late —for example, when the activity manually clears the autofillable views when a button is tapped. This method can be used to trigger the autofill save UI earlier in these scenarios.</para>
+          <para>Note: This method should only be used in scenarios where the automatic workflow is not enough, otherwise it could trigger the autofill save UI when it should not— for example, when the user entered invalid credentials for the autofillable views.</para>
+          <para>
+  <format type="text/html">
+    <a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setTriggerId(android.view.autofill.AutofillId)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setTriggerId</code>.</a>
+  </format>
+</para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetValidator">
@@ -622,11 +672,40 @@
         <Parameter Name="validator" Type="Android.Service.Autofill.IValidator" />
       </Parameters>
       <Docs>
-        <param name="validator">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="validator">an implementation provided by the Android System. This value cannot be null.</param>
+        <summary>Sets an object used to validate the user input - if the input is not valid, the autofill save UI is not shown.</summary>
+        <returns>this builder. This value cannot be null.</returns>
         <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+          <para>Sets an object used to validate the user input - if the input is not valid, the autofill save UI is not shown.</para>
+          <para>Typically used to validate credit card numbers.</para>
+          <code lang="text/java">Validator validator = new RegexValidator(ccNumberId, Pattern.compile(""^\\d{16}$"))</code>
+          <code lang="text/java">import static android.service.autofill.Validators.and;
+import static android.service.autofill.Validators.or;
+
+Validator validator =
+  and(
+    new LuhnChecksumValidator(ccNumberId),
+    or(
+      new RegexValidator(ccNumberId, Pattern.compile("^\\d{16}$")),
+      new RegexValidator(ccNumberId, Pattern.compile("^108\\d{12}$"))
+    )
+  );</code>
+          <code lang="text/java">Validator validator =
+  and(
+    new LuhnChecksumValidator(ccNumberId),
+    new RegexValidator(ccNumberId, Pattern.compile(""^(\\d{16}|108\\d{12})$"))
+  );</code>
+          <code lang="text/java">import static android.service.autofill.Validators.and;
+
+Validator validator =
+  and(
+    new RegexValidator(ccNumberId1, Pattern.compile("^\\d{4}$")),
+    new RegexValidator(ccNumberId2, Pattern.compile("^\\d{4}$")),
+    new RegexValidator(ccNumberId3, Pattern.compile("^\\d{4}$")),
+    new RegexValidator(ccNumberId4, Pattern.compile("^\\d{4}$"))
+  );</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setValidator(android.service.autofill.Validator)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setValidator</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
     </Member>

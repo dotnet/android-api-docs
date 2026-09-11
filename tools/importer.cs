@@ -93,6 +93,7 @@ static class ImporterProgram
                     item.Owner.Placeholders.Count > 0 ||
                     IsEnumSummaryRepairCandidate(item.Owner) ||
                     HasDeprecatedValueRepairCandidate(item.File, item.Owner) ||
+                    HasPotentialImporterOwnedRemarksRefresh(item.File, item.Owner) ||
                     HasAugmentedRemarksPlaceholder(item.File, item.Owner) ||
                     HasTruncatedImporterSummary(item.File, item.Owner) ||
                     HasIncompleteCodeExampleRemarks(item.File, item.Owner) ||
@@ -192,7 +193,7 @@ static class ImporterProgram
                             text,
                             file.DocsBlocks[owner.Order],
                             placeholder,
-                            replacement.Text,
+                            replacement,
                             out var replacedText,
                             out var replacementError))
                         {
@@ -264,7 +265,8 @@ static class ImporterProgram
                         }
                     }
 
-                    if (!ownerChanged &&
+                    var canRepairExistingDocumentation = !ownerChanged;
+                    if (canRepairExistingDocumentation &&
                         mapping.Docs is not null &&
                         HasDeprecatedValueRepairCandidate(file, owner))
                     {
@@ -299,6 +301,54 @@ static class ImporterProgram
                                     file.RelativePath,
                                     owner.Id,
                                     "value",
+                                    mapping.SourceUrl));
+                            }
+                        }
+                    }
+
+                    if (canRepairExistingDocumentation &&
+                        mapping.Docs is not null &&
+                        HasPotentialImporterOwnedRemarksRefresh(file, owner))
+                    {
+                        var remarksRefresh = RefreshImporterOwnedRemarks(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs);
+                        if (remarksRefresh.Reason is not null)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                remarksRefresh.Reason,
+                                remarksRefresh.Detail!,
+                                mapping.SourceUrl));
+                        }
+                        else if (!remarksRefresh.Text.Equals(text, StringComparison.Ordinal))
+                        {
+                            if (remaining == 0)
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "remarks",
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                            else
+                            {
+                                text = remarksRefresh.Text;
+                                file.UpdateBlockOffsets(owner.Order, text);
+                                fileChanged = true;
+                                ownerChanged = true;
+                                remaining--;
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "remarks",
                                     mapping.SourceUrl));
                             }
                         }
@@ -655,7 +705,8 @@ static class ImporterProgram
             targets.Add("summary");
         if (HasDeprecatedValueRepairCandidate(file, owner))
             targets.Add("value");
-        if (HasAugmentedRemarksPlaceholder(file, owner) ||
+        if (HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
+            HasAugmentedRemarksPlaceholder(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
             HasMetadataOnlyRemarks(file, owner))
             targets.Add("remarks");
@@ -692,9 +743,8 @@ static class ImporterProgram
         bool isEnumField = false)
     {
         if (placeholder.IsImporterMetadataRepair)
-            return ChannelValueOrSkip(
-                FirstDocumentationParagraph(docs),
-                "remarks",
+            return RemarksReplacementOrSkip(
+                docs.Paragraphs,
                 "source_remarks_missing");
 
         if (isEnumField && placeholder.Name is "remarks" or "para")
@@ -708,19 +758,15 @@ static class ImporterProgram
                 isEnumField ? docs.Paragraphs.FirstOrDefault()?.Text : docs.Summary,
                 "summary",
                 "source_summary_missing"),
-            "remarks" or "para" => ChannelValueOrSkip(
-                FirstDocumentationParagraph(docs),
-                "remarks",
+            "remarks" or "para" => RemarksReplacementOrSkip(
+                docs.Paragraphs,
                 "source_remarks_missing"),
             "param" => docs.Parameters.TryGetValue(placeholder.Key, out var parameter)
                 ? ChannelValueOrSkip(parameter, "param", "source_parameter_missing")
                 : Replacement.Skip(
                     "source_parameter_missing",
                     $"The exact source member did not document parameter '{placeholder.Key}'."),
-            "returns" => ChannelValueOrSkip(
-                docs.Returns,
-                placeholder.Name,
-                "source_return_missing"),
+            "returns" => ReturnReplacement(docs),
             "value" => ValueReplacement(docs),
             "exception" => ExceptionReplacement(placeholder, docs),
             _ => Replacement.Skip(
@@ -737,6 +783,29 @@ static class ImporterProgram
             ? FirstDocumentationParagraph(docs)
             : docs.Summary;
     }
+
+    static Replacement RemarksReplacementOrSkip(
+        IEnumerable<SourceParagraph> paragraphs,
+        string missingReason)
+    {
+        var usable = UsableRemarks(paragraphs);
+        return usable.Count > 0
+            ? Replacement.UseRemarks(usable)
+            : Replacement.Skip(
+                missingReason,
+                "The exact source member did not provide this documentation channel.");
+    }
+
+    static List<SourceParagraph> UsableRemarks(
+        IEnumerable<SourceParagraph> paragraphs) =>
+        paragraphs
+            .Select(paragraph => paragraph.IsCode
+                ? paragraph
+                : paragraph with { Text = CleanSourceText(paragraph.Text) })
+            .Where(paragraph => paragraph.IsCode
+                ? !string.IsNullOrWhiteSpace(paragraph.Text)
+                : IsMeaningfulChannel(paragraph.Text, "remarks"))
+            .ToList();
 
     static bool IsEnumSummaryRepairCandidate(DocsOwner owner)
     {
@@ -831,6 +900,7 @@ static class ImporterProgram
             _ => true,
             _ => true,
             out _,
+            out _,
             out contentStart,
             out contentEnd);
 
@@ -841,10 +911,12 @@ static class ImporterProgram
         Func<string, bool> openingTagMatches,
         Func<string, bool> contentMatches,
         out int elementStart,
+        out int elementEnd,
         out int contentStart,
         out int contentEnd)
     {
         elementStart = 0;
+        elementEnd = 0;
         contentStart = 0;
         contentEnd = 0;
         var depth = 0;
@@ -916,6 +988,7 @@ static class ImporterProgram
                     if (contentMatches(candidateContent))
                     {
                         elementStart = candidateElementStart;
+                        elementEnd = tagEnd + 1;
                         contentStart = candidateContentStart;
                         contentEnd = tagStart;
                         return true;
@@ -1035,6 +1108,20 @@ static class ImporterProgram
                 : returns;
     }
 
+    static Replacement ReturnReplacement(SourceDocs docs)
+    {
+        var replacement = ChannelValueOrSkip(
+            docs.Returns,
+            "returns",
+            "source_return_missing");
+        return replacement.Text == "this build" &&
+            docs.SourceUrl.StartsWith(
+                "https://developer.android.com/reference/android/service/autofill/ImageTransformation.Builder#addOption(",
+                StringComparison.Ordinal)
+            ? replacement with { Text = "this builder" }
+            : replacement;
+    }
+
     static bool IsTypeOnlyReturnChannel(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -1060,55 +1147,57 @@ static class ImporterProgram
 
     static bool IsMeaningfulChannel(string value, string channel)
     {
-        var normalized = NormalizeText(value).TrimEnd('.').Trim();
-        if (normalized.Length == 0 ||
-            normalized.Equals("See also:", StringComparison.OrdinalIgnoreCase) ||
-            normalized.Equals("See also", StringComparison.OrdinalIgnoreCase) ||
-            normalized.StartsWith(
+        var normalized = NormalizeText(value).Trim();
+        var unpunctuated = normalized.TrimEnd('.').Trim();
+        if (unpunctuated.Length == 0 ||
+            unpunctuated.Equals("See also:", StringComparison.OrdinalIgnoreCase) ||
+            unpunctuated.Equals("See also", StringComparison.OrdinalIgnoreCase) ||
+            unpunctuated.StartsWith(
                 "Content and code samples on this page are subject to the licenses described in the Content License",
                 StringComparison.OrdinalIgnoreCase) ||
-            normalized.StartsWith(
+            unpunctuated.StartsWith(
                 "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates",
                 StringComparison.OrdinalIgnoreCase) ||
-            normalized.Contains("ERROR(", StringComparison.Ordinal) ||
+            unpunctuated.Contains("ERROR(", StringComparison.Ordinal) ||
             Regex.IsMatch(
-                normalized,
+                unpunctuated,
                 @"^Last updated \d{4}-\d{2}-\d{2} UTC$",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant) ||
             Regex.IsMatch(
-                normalized,
+                unpunctuated,
                 @"^Constant Value:\s*\S+(?:\s+\(\S+\))?$",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             return false;
         if (Regex.IsMatch(
-            normalized,
+            unpunctuated,
             @"^\[[A-Za-z][A-Za-z0-9_-]*\]$",
             RegexOptions.CultureInvariant))
             return false;
         if (channel is "returns" or "value" or "param")
         {
             if (Regex.IsMatch(
-                normalized,
+                unpunctuated,
                 @"^(?:boolean|byte|char|double|float|int|long|short|void|[A-Z][\w$]*(?:<[^>]+>)?(?:\[\])?|[\w$]+(?:\.[\w$]+)+(?:<[^>]+>)?(?:\[\])?)$",
                 RegexOptions.CultureInvariant))
                 return false;
             if (Regex.IsMatch(
-                normalized,
+                unpunctuated,
                 @"^This value (?:cannot|can|may|must not) be null$",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
                 return false;
         }
         if (channel == "summary" && Regex.IsMatch(
-            normalized,
+            unpunctuated,
             @"^This (?:constant|method|field|class|interface) (?:is|was) deprecated(?: in API level \d+)?$",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
             return false;
-        if (normalized.EndsWith(":", StringComparison.Ordinal) ||
+        if (unpunctuated.EndsWith(":", StringComparison.Ordinal) ||
             normalized.EndsWith("i.e.", StringComparison.OrdinalIgnoreCase) ||
-            Regex.IsMatch(
-                normalized,
-                @"\b(?:and|or)$",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+            (!normalized.EndsWith(".", StringComparison.Ordinal) &&
+             Regex.IsMatch(
+                unpunctuated,
+                @"\b(?:and|or|as|at|by|for|from|in|of|on|to|with|about|against|among|around|before|behind|below|beneath|beside|between|beyond|during|except|inside|into|near|off|over|since|through|throughout|toward|towards|under|underneath|until|up|upon|via|within|without)$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)))
             return false;
         return true;
     }
@@ -1144,7 +1233,40 @@ static class ImporterProgram
         string text,
         DocsBlock block,
         Placeholder placeholder,
+        Replacement replacement,
+        out string updated,
+        out string error) =>
+        TryReplacePlaceholder(
+            text,
+            block,
+            placeholder,
+            replacement.Text!,
+            replacement.Remarks,
+            out updated,
+            out error);
+
+    static bool TryReplacePlaceholder(
+        string text,
+        DocsBlock block,
+        Placeholder placeholder,
         string replacement,
+        out string updated,
+        out string error) =>
+        TryReplacePlaceholder(
+            text,
+            block,
+            placeholder,
+            replacement,
+            null,
+            out updated,
+            out error);
+
+    static bool TryReplacePlaceholder(
+        string text,
+        DocsBlock block,
+        Placeholder placeholder,
+        string replacement,
+        IReadOnlyList<SourceParagraph>? remarksReplacement,
         out string updated,
         out string error)
     {
@@ -1186,7 +1308,18 @@ static class ImporterProgram
             }
 
             if (directPlaceholder is not null)
-                directPlaceholder.ReplaceWith(new XElement("para", replacement));
+            {
+                if (remarksReplacement is not null)
+                    directPlaceholder.ReplaceWith(
+                        remarksReplacement.Select(DocumentationElement).ToArray());
+                else
+                    directPlaceholder.ReplaceWith(new XElement("para", replacement));
+            }
+            else if (remarksReplacement is not null)
+            {
+                emptyParagraph!.ReplaceWith(
+                    remarksReplacement.Select(DocumentationElement).ToArray());
+            }
             else
                 emptyParagraph!.Value = replacement;
             var repairedRemarks = remarksElement.ToString(SaveOptions.DisableFormatting);
@@ -1213,6 +1346,7 @@ static class ImporterProgram
                 tag => MatchesPlaceholderTag(tag, placeholder),
                 value => NormalizeText(value) is "To be added" or "To be added.",
                 out var elementStart,
+                out var elementEnd,
                 out var localStart,
                 out var localEnd))
         {
@@ -1222,13 +1356,45 @@ static class ImporterProgram
         }
 
         var escaped = XmlEscape(replacement);
+        if (remarksReplacement is not null && placeholder.Name == "para")
+        {
+            var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+            var lineStart = blockText.LastIndexOf(newline, elementStart, StringComparison.Ordinal);
+            lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
+            var indent = Regex.Match(
+                blockText[lineStart..elementStart],
+                @"[ \t]*$",
+                RegexOptions.CultureInvariant).Value;
+            var replacementMarkup = string.Join(
+                newline,
+                remarksReplacement.Select(paragraph => RenderDocumentationParagraph(paragraph, indent)));
+            var replacementParagraphBlock = blockText[..elementStart] + replacementMarkup +
+                blockText[elementEnd..];
+            updated = text[..block.Start] + replacementParagraphBlock + text[block.End..];
+            error = "";
+            return true;
+        }
         if (placeholder.Name == "remarks")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
             var lineStart = blockText.LastIndexOf(newline, elementStart, StringComparison.Ordinal);
             lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
             var indent = blockText[lineStart..elementStart];
-            if (string.IsNullOrWhiteSpace(indent))
+            if (remarksReplacement is not null)
+            {
+                escaped = string.IsNullOrWhiteSpace(indent)
+                    ? newline +
+                      string.Join(
+                          newline,
+                          remarksReplacement.Select(paragraph =>
+                              RenderDocumentationParagraph(paragraph, indent + "  "))) +
+                      newline + indent
+                    : string.Join(
+                        "",
+                        remarksReplacement.Select(paragraph =>
+                            RenderDocumentationParagraph(paragraph, "")));
+            }
+            else if (string.IsNullOrWhiteSpace(indent))
             {
                 escaped =
                     newline + indent + "  " + $"<para>{escaped}</para>" +
@@ -1386,6 +1552,299 @@ static class ImporterProgram
                 blockText[docsClose..];
         }
         return text[..block.Start] + replacementBlock + text[block.End..];
+    }
+
+    sealed record RemarksRefreshResult(string Text, string? Reason, string? Detail);
+
+    static bool HasPotentialImporterOwnedRemarksRefresh(LoadedFile file, DocsOwner owner)
+    {
+        if (owner.IsEnumField || owner.SourceRequest is null)
+            return false;
+
+        var remarks = owner.Docs.Element("remarks");
+        return remarks is not null &&
+            IsPotentialImporterOwnedRemarks(remarks, owner.SourceRequest.Kind);
+    }
+
+    static RemarksRefreshResult RefreshImporterOwnedRemarks(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var document = XElement.Parse(blockText, LoadOptions.PreserveWhitespace);
+        var remarks = document.Element("remarks");
+        if (remarks is null || !IsPotentialImporterOwnedRemarks(remarks, docs.SourceKind))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The existing remarks did not have the strict importer source-reference and attribution structure.");
+        }
+
+        var sourceParagraphs = UsableRemarks(docs.Paragraphs);
+        if (sourceParagraphs.Count == 0)
+        {
+            return new RemarksRefreshResult(
+                text,
+                "source_remarks_missing",
+                "The exact source member did not provide usable remarks to refresh.");
+        }
+
+        var existing = remarks.Elements().ToList();
+        var sourceReferenceIndex = existing.FindIndex(element =>
+            TryGetImporterSourceReferenceUrl(
+                element.ToString(SaveOptions.DisableFormatting),
+                out _));
+        var expectedSourceReference = ImporterSourceReference(docs);
+        if (sourceReferenceIndex <= 0 ||
+            !ImporterMarkupEquals(existing[sourceReferenceIndex], expectedSourceReference))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The existing importer source reference did not exactly match the mapped source member.");
+        }
+
+        var expectedSourceParagraphs = sourceParagraphs
+            .Select(DocumentationElement)
+            .ToList();
+        var existingSourceParagraphs = existing.Take(sourceReferenceIndex).ToList();
+        if (!MatchesSourceParagraphSubsequence(
+                existingSourceParagraphs,
+                expectedSourceParagraphs) &&
+            (!HasLegacyFormattedSourceReference(existing[sourceReferenceIndex]) ||
+             !MatchesSourceParagraphSubsequence(
+                 CoalesceLegacyNestedCodeContainers(existingSourceParagraphs),
+                 expectedSourceParagraphs)))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The existing remarks prose was not an ordered structural subset of the exact mapped source.");
+        }
+
+        if (existingSourceParagraphs.Count == expectedSourceParagraphs.Count)
+        {
+            return new RemarksRefreshResult(
+                text,
+                "source_remarks_current",
+                "The importer-owned remarks already contain every visible source paragraph and code block.");
+        }
+
+        var newline = file.Newline;
+        var docsIndent = file.IndentAt(block.Start);
+        var remarksIndent = docsIndent + "  ";
+        var paragraphIndent = remarksIndent + "  ";
+        var replacement = RenderImporterOwnedRemarks(
+            sourceParagraphs,
+            docs,
+            newline,
+            remarksIndent,
+            paragraphIndent);
+        var remarksMatch = Regex.Match(
+            blockText,
+            @"<remarks>.*?</remarks>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        if (!remarksMatch.Success)
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The structurally eligible remarks block could not be located for replacement.");
+        }
+        var updatedBlock = blockText[..remarksMatch.Index] + replacement +
+            blockText[(remarksMatch.Index + remarksMatch.Length)..];
+        return new RemarksRefreshResult(
+            text[..block.Start] + updatedBlock + text[block.End..],
+            null,
+            null);
+    }
+
+    static bool IsPotentialImporterOwnedRemarks(XElement remarks, string sourceKind)
+    {
+        if (remarks.HasAttributes ||
+            remarks.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText text => !string.IsNullOrWhiteSpace(text.Value),
+                _ => true,
+            }))
+        {
+            return false;
+        }
+
+        var elements = remarks.Elements().ToList();
+        var sourceReferenceIndexes = elements
+            .Select((element, index) => (element, index))
+            .Where(item => TryGetImporterSourceReferenceUrl(
+                item.element.ToString(SaveOptions.DisableFormatting),
+                out _))
+            .Select(item => item.index)
+            .ToList();
+        var requiredMetadataCount = sourceKind == "android" ? 2 : 1;
+        if (sourceReferenceIndexes.Count != 1 ||
+            sourceReferenceIndexes[0] != elements.Count - requiredMetadataCount ||
+            sourceReferenceIndexes[0] == 0)
+        {
+            return false;
+        }
+
+        if (sourceKind == "android" &&
+            !ImporterMarkupEquals(
+                elements[^1],
+                XElement.Parse($"<para>{AndroidAttribution}</para>")))
+        {
+            return false;
+        }
+
+        return elements
+            .Take(sourceReferenceIndexes[0])
+            .All(IsImporterRenderedSourceParagraph);
+    }
+
+    static bool HasLegacyFormattedSourceReference(XElement sourceReference) =>
+        sourceReference.DescendantNodes()
+            .OfType<XText>()
+            .Any(text => string.IsNullOrWhiteSpace(text.Value) &&
+                (text.Value.Contains('\n') || text.Value.Contains('\r')));
+
+    static IReadOnlyList<XElement> CoalesceLegacyNestedCodeContainers(
+        IReadOnlyList<XElement> sourceParagraphs)
+    {
+        var coalesced = new List<XElement>();
+        foreach (var paragraph in sourceParagraphs)
+        {
+            if (paragraph.Name == "code" &&
+                coalesced.LastOrDefault() is XElement previous &&
+                previous.Name == "code" &&
+                paragraph.ToString(SaveOptions.DisableFormatting).Equals(
+                    previous.ToString(SaveOptions.DisableFormatting),
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+            coalesced.Add(paragraph);
+        }
+        return coalesced;
+    }
+
+    static bool IsImporterRenderedSourceParagraph(XElement element) =>
+        (element.Name.LocalName == "para" &&
+         !element.HasAttributes &&
+         !element.HasElements &&
+         NormalizeText(element.Value).Length > 0) ||
+        (element.Name.LocalName == "code" &&
+         element.Attributes().Count() == 1 &&
+         (string?)element.Attribute("lang") == "text/java" &&
+         !element.HasElements &&
+         !string.IsNullOrWhiteSpace(element.Value));
+
+    static bool MatchesSourceParagraphSubsequence(
+        IReadOnlyList<XElement> existing,
+        IReadOnlyList<XElement> expected)
+    {
+        if (existing.Count == 0 ||
+            !ImporterMarkupEquals(existing[0], expected[0]))
+        {
+            return false;
+        }
+
+        var expectedIndex = 1;
+        foreach (var element in existing.Skip(1))
+        {
+            while (expectedIndex < expected.Count &&
+                !ImporterMarkupEquals(element, expected[expectedIndex]))
+            {
+                expectedIndex++;
+            }
+            if (expectedIndex == expected.Count)
+                return false;
+            expectedIndex++;
+        }
+        return true;
+    }
+
+    static XElement ImporterSourceReference(SourceDocs docs)
+    {
+        var sourceName = docs.SourceKind == "android" ? "Android" : "Java";
+        return XElement.Parse(
+            $"<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
+            $"title=\"Reference documentation\">{sourceName} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
+            "</a></format></para>");
+    }
+
+    static string RenderImporterOwnedRemarks(
+        IReadOnlyList<SourceParagraph> sourceParagraphs,
+        SourceDocs docs,
+        string newline,
+        string remarksIndent,
+        string paragraphIndent)
+    {
+        var paragraphs = sourceParagraphs
+            .Select(paragraph => RenderDocumentationParagraph(paragraph, paragraphIndent))
+            .ToList();
+        paragraphs.Add(
+            $"{paragraphIndent}{ImporterSourceReference(docs).ToString(SaveOptions.DisableFormatting)}");
+        if (docs.SourceKind == "android")
+            paragraphs.Add($"{paragraphIndent}<para>{AndroidAttribution}</para>");
+        return $"<remarks>{newline}" +
+            string.Join(newline, paragraphs) + newline +
+            $"{remarksIndent}</remarks>";
+    }
+
+    static bool ImporterMarkupEquals(XElement actual, XElement expected)
+    {
+        if (actual.Name != expected.Name ||
+            actual.Attributes().Count() != expected.Attributes().Count() ||
+            actual.Attributes().OrderBy(attribute => attribute.Name.ToString(), StringComparer.Ordinal)
+                .Zip(
+                    expected.Attributes().OrderBy(
+                        attribute => attribute.Name.ToString(),
+                        StringComparer.Ordinal),
+                    (left, right) =>
+                        left.Name == right.Name &&
+                        WebUtility.HtmlDecode(left.Value) == WebUtility.HtmlDecode(right.Value))
+                .Any(equal => !equal))
+        {
+            return false;
+        }
+
+        var actualNodes = actual.Nodes()
+            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
+            .ToList();
+        var expectedNodes = expected.Nodes()
+            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
+            .ToList();
+        if (actualNodes.Count != expectedNodes.Count)
+            return false;
+
+        for (var index = 0; index < actualNodes.Count; index++)
+        {
+            if (actualNodes[index] is XElement actualElement &&
+                expectedNodes[index] is XElement expectedElement)
+            {
+                if (!ImporterMarkupEquals(actualElement, expectedElement))
+                    return false;
+            }
+            else if (actualNodes[index] is XText actualText &&
+                     expectedNodes[index] is XText expectedText)
+            {
+                if (!NormalizeText(actualText.Value).Equals(
+                    NormalizeText(expectedText.Value),
+                    StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     static bool HasAugmentedRemarksPlaceholder(LoadedFile file, DocsOwner owner)
@@ -1704,12 +2163,64 @@ static class ImporterProgram
 
     static bool TryGetImporterSourceReferenceUrl(string paragraph, out string sourceUrl)
     {
-        var match = Regex.Match(
-            paragraph,
-            @"^\s*<para>\s*<format type=""text/html""><a href=""(?<url>[^""]+)"" title=""Reference documentation"">(?:Android|Java) reference for <code>[^<]+</code>\.</a></format>\s*</para>\s*$",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        sourceUrl = match.Success ? WebUtility.HtmlDecode(match.Groups["url"].Value) : "";
-        return match.Success;
+        sourceUrl = "";
+        XElement sourceReference;
+        try
+        {
+            sourceReference = XElement.Parse(paragraph, LoadOptions.PreserveWhitespace);
+        }
+        catch (XmlException)
+        {
+            return false;
+        }
+
+        var formats = sourceReference.Elements().ToList();
+        if (formats.Count != 1)
+            return false;
+        var format = formats[0];
+        var links = format.Elements().ToList();
+        if (links.Count != 1)
+            return false;
+        var link = links[0];
+        if (sourceReference.Name != "para" ||
+            sourceReference.HasAttributes ||
+            format.Name != "format" ||
+            format.Attributes().Count() != 1 ||
+            (string?)format.Attribute("type") != "text/html" ||
+            sourceReference.Nodes().Any(node =>
+                !ReferenceEquals(node, format) &&
+                (node is not XText text || !string.IsNullOrWhiteSpace(text.Value))) ||
+            link.Name != "a" ||
+            link.Attributes().Count() != 2 ||
+            string.IsNullOrWhiteSpace((string?)link.Attribute("href")) ||
+            (string?)link.Attribute("title") != "Reference documentation" ||
+            format.Nodes().Any(node =>
+                !ReferenceEquals(node, link) &&
+                (node is not XText text || !string.IsNullOrWhiteSpace(text.Value))))
+        {
+            return false;
+        }
+
+        var linkNodes = link.Nodes().ToList();
+        if (linkNodes.Count != 3 ||
+            linkNodes[0] is not XText prefix ||
+            !Regex.IsMatch(
+                prefix.Value,
+                @"^(?:Android|Java) reference for $",
+                RegexOptions.CultureInvariant) ||
+            linkNodes[1] is not XElement code ||
+            code.Name != "code" ||
+            code.HasAttributes ||
+            code.HasElements ||
+            string.IsNullOrWhiteSpace(code.Value) ||
+            linkNodes[2] is not XText suffix ||
+            suffix.Value != ".")
+        {
+            return false;
+        }
+
+        sourceUrl = WebUtility.HtmlDecode((string)link.Attribute("href")!);
+        return true;
     }
 
     static string NormalizeStaleNestedConstructorLinks(
@@ -1978,6 +2489,11 @@ static class ImporterProgram
             ? $"{indent}<code lang=\"text/java\">{new XText(paragraph.Text).ToString(SaveOptions.DisableFormatting)}</code>"
             : $"{indent}<para>{XmlEscape(paragraph.Text)}</para>";
 
+    static XElement DocumentationElement(SourceParagraph paragraph) =>
+        paragraph.IsCode
+            ? new XElement("code", new XAttribute("lang", "text/java"), paragraph.Text)
+            : new XElement("para", CleanSourceText(paragraph.Text));
+
     static string XmlAttributeEscape(string value) =>
         SecurityElementEscape(value).Replace("\"", "&quot;", StringComparison.Ordinal);
 
@@ -2044,6 +2560,30 @@ static class ImporterProgram
         text = text.Replace(
             "Federated Compute Server documentation..",
             "Federated Compute Server documentation.",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "groups (delimited by ( and ()",
+            "groups (delimited by ( and ))",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "selected (getChangedFields();",
+            "selected (getChangedFields());",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "before before autofilling",
+            "before autofilling",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Altough similiarly",
+            "Although similarly",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "a combination of FillResponse.FLAG_TRACK_CONTEXT_COMMITED and FillResponse.FLAG_DISABLE_ACTIVITY_ONLY, or 0. Value is either 0 or a combination of the following:",
+            "a combination of FillResponse.FLAG_TRACK_CONTEXT_COMMITED, FillResponse.FLAG_DISABLE_ACTIVITY_ONLY, and FillResponse.FLAG_DELAY_FILL, or 0. Value is either 0 or a combination of the following:",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Resoure Id",
+            "Resource Id",
             StringComparison.Ordinal);
         text = Regex.Replace(
             text,
@@ -2552,6 +3092,317 @@ static class ImporterProgram
                 },
             "InputMethods string aliases map to their exact JNI counterparts");
 
+        var autofillResidualSourcePath = Path.Combine(
+            fixtureRoot,
+            "autofill-residual-source.xml");
+        var autofillResidualHtml = File.ReadAllText(Path.Combine(
+            fixtureRoot,
+            "autofill-residual-android-reference.html"));
+        var autofillResidualFile = LoadedFile.Load(repositoryRoot, autofillResidualSourcePath);
+        autofillResidualFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+        var autofillResidualOwners = autofillResidualFile.Owners
+            .Where(owner => owner.Placeholders.Count > 0)
+            .ToList();
+        Assert(autofillResidualOwners.Count == 6, "Autofill residual fixture owner count");
+        var expectedAutofillMappings = new Dictionary<string, (string JavaPath, string Name, string Descriptor, bool UseFirstMeaningfulSummary)>(StringComparer.Ordinal)
+        {
+            ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32,System.String)"] =
+                ("android/service/autofill/ImageTransformation$Builder", "addOption", "(Ljava/util/regex/Pattern;ILjava/lang/CharSequence;)Landroid/service/autofill/ImageTransformation$Builder;", false),
+            ["M:Android.Service.Autofill.SaveInfo.Builder.SetDescription(System.String)"] =
+                ("android/service/autofill/SaveInfo$Builder", "setDescription", "(Ljava/lang/CharSequence;)Landroid/service/autofill/SaveInfo$Builder;", false),
+            ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32)"] =
+                ("android/service/autofill/ImageTransformation$Builder", "addOption", "(Ljava/util/regex/Pattern;I)Landroid/service/autofill/ImageTransformation$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetInlinePresentation(Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setInlinePresentation", "(Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetInlinePresentation(Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setInlinePresentation", "(Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;", true),
+            ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews)"] =
+                ("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;)Landroid/service/autofill/FillResponse$Builder;", true),
+            ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/FillResponse$Builder;", true),
+            ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                ("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/FillResponse$Builder;", true),
+        };
+        Assert(
+            expectedAutofillMappings.All(item =>
+            {
+                var mapping = SourceVerifiedMemberMappings.Resolve(item.Key);
+                return mapping is not null &&
+                    mapping.SourceRequest.JavaPath == item.Value.JavaPath &&
+                    mapping.Registration.Name == item.Value.Name &&
+                    mapping.Registration.Descriptor == item.Value.Descriptor &&
+                    mapping.UseFirstMeaningfulSummary == item.Value.UseFirstMeaningfulSummary;
+            }) &&
+            SourceVerifiedMemberMappings.Resolve(
+                "M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Service.Autofill.Presentations)") is null,
+            "Autofill aliases and deprecated-summary mappings are exact");
+        var autofillResidualPages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal);
+        foreach (var sourceRequest in autofillResidualOwners
+            .Select(owner => owner.SourceRequest)
+            .Where(request => request is not null)
+            .Cast<SourceRequest>())
+        {
+            autofillResidualPages[sourceRequest.Url] = SourceLoadResult.Success(
+                SourcePage.Parse(sourceRequest, autofillResidualHtml));
+        }
+        var expectedAutofillSummaries = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32,System.String)"] =
+                "Adds an image option with a content description.",
+            ["M:Android.Service.Autofill.SaveInfo.Builder.SetDescription(System.String)"] =
+                "Sets the description displayed in the save UI.",
+            ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32)"] =
+                "Adds an image option when the regular expression matches.",
+            ["M:Android.Service.Autofill.Dataset.Builder.SetInlinePresentation(Android.Service.Autofill.InlinePresentation)"] =
+                "Sets an inline presentation for the dataset.",
+            ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue)"] =
+                "Sets the value for an autofill field.",
+            ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews)"] =
+                "Sets authentication for the response.",
+        };
+        Assert(
+            autofillResidualOwners.All(owner =>
+                MapOwner(owner, autofillResidualPages).Docs?.Summary ==
+                expectedAutofillSummaries[owner.Id]),
+            "Autofill aliases and deprecated overloads import exact semantic summaries");
+        var autofillAuthenticationOwner = autofillResidualOwners.Single(owner =>
+            owner.Id == "M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(" +
+                "Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews)");
+        var autofillAuthenticationDocs = MapOwner(
+            autofillAuthenticationOwner,
+            autofillResidualPages).Docs!;
+        var autofillAuthenticationRemarks = autofillAuthenticationOwner.Placeholders.Single(
+            placeholder => placeholder.Name == "remarks");
+        var autofillAuthenticationReplacement = ReplacementFor(
+            autofillAuthenticationRemarks,
+            autofillAuthenticationDocs);
+        Assert(
+            autofillAuthenticationReplacement.Remarks?.Select(paragraph => paragraph.Text).SequenceEqual(
+                [
+                    "This method was deprecated in API level 31.",
+                    "Sets authentication for the response.",
+                    "The authentication activity must return RESULT_OK with EXTRA_AUTHENTICATION_RESULT.",
+                    "return authenticationResult;",
+                    "Do not use an immutable pending intent.",
+                ]) == true &&
+            autofillAuthenticationReplacement.Remarks[3].IsCode,
+            "Autofill fixture retains every source contract paragraph and code block");
+        Assert(
+            TryReplacePlaceholder(
+                autofillResidualFile.Text,
+                autofillResidualFile.DocsBlocks[autofillAuthenticationOwner.Order],
+                autofillAuthenticationRemarks,
+                autofillAuthenticationReplacement,
+                out var completedAutofillAuthenticationText,
+                out _),
+            "Autofill remarks fixture replacement succeeds");
+        autofillResidualFile.UpdateBlockOffsets(
+            autofillAuthenticationOwner.Order,
+            completedAutofillAuthenticationText);
+        var completedAutofillAuthenticationDocs = XElement.Parse(
+            completedAutofillAuthenticationText[
+                autofillResidualFile.DocsBlocks[autofillAuthenticationOwner.Order].Start..
+                autofillResidualFile.DocsBlocks[autofillAuthenticationOwner.Order].End],
+            LoadOptions.PreserveWhitespace);
+        Assert(
+            completedAutofillAuthenticationDocs.Element("remarks")!.Elements()
+                .Select(element => element.Name.LocalName)
+                .SequenceEqual(["para", "para", "para", "code", "para"]) &&
+            completedAutofillAuthenticationDocs.Element("remarks")!.Element("code")?.Value ==
+                "return authenticationResult;",
+            "Autofill remarks fixture preserves paragraph and code order");
+        var importerOwnedRefreshRemarks = new XElement("remarks");
+        importerOwnedRefreshRemarks.Add(
+            UsableRemarks(autofillAuthenticationDocs.Paragraphs)
+                .Take(2)
+                .Select(DocumentationElement));
+        importerOwnedRefreshRemarks.Add(ImporterSourceReference(autofillAuthenticationDocs));
+        importerOwnedRefreshRemarks.Add(
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        var importerOwnedRefreshBlock = new XElement(
+            "Docs",
+            new XElement("summary", "Existing fixture summary."),
+            importerOwnedRefreshRemarks).ToString(SaveOptions.DisableFormatting);
+        var completedAuthenticationBlock =
+            autofillResidualFile.DocsBlocks[autofillAuthenticationOwner.Order];
+        var importerOwnedRefreshText =
+            completedAutofillAuthenticationText[..completedAuthenticationBlock.Start] +
+            importerOwnedRefreshBlock +
+            completedAutofillAuthenticationText[completedAuthenticationBlock.End..];
+        autofillResidualFile.UpdateBlockOffsets(
+            autofillAuthenticationOwner.Order,
+            importerOwnedRefreshText);
+        var refreshedImporterOwnedRemarks = RefreshImporterOwnedRemarks(
+            importerOwnedRefreshText,
+            autofillResidualFile,
+            autofillAuthenticationOwner,
+            autofillAuthenticationDocs);
+        autofillResidualFile.UpdateBlockOffsets(
+            autofillAuthenticationOwner.Order,
+            refreshedImporterOwnedRemarks.Text);
+        var refreshedImporterOwnedBlock = refreshedImporterOwnedRemarks.Text[
+            autofillResidualFile.DocsBlocks[autofillAuthenticationOwner.Order].Start..
+            autofillResidualFile.DocsBlocks[autofillAuthenticationOwner.Order].End];
+        var refreshedImporterOwnedElements = XElement.Parse(
+            refreshedImporterOwnedBlock,
+            LoadOptions.PreserveWhitespace).Element("remarks")!.Elements().ToList();
+        Assert(
+            IsPotentialImporterOwnedRemarks(
+                importerOwnedRefreshRemarks,
+                autofillAuthenticationDocs.SourceKind) &&
+            refreshedImporterOwnedRemarks.Reason is null &&
+            refreshedImporterOwnedElements
+                .Take(refreshedImporterOwnedElements.Count - 2)
+                .Select(element => element.Name.LocalName + ":" + element.Value)
+                .SequenceEqual(
+                    [
+                        "para:This method was deprecated in API level 31.",
+                        "para:Sets authentication for the response.",
+                        "para:The authentication activity must return RESULT_OK with EXTRA_AUTHENTICATION_RESULT.",
+                        "code:return authenticationResult;",
+                        "para:Do not use an immutable pending intent.",
+                    ]),
+            "strict importer-owned remarks refreshes complete parsed source prose and code");
+        var renderedImporterOwnedRemarks = RenderImporterOwnedRemarks(
+            UsableRemarks(autofillAuthenticationDocs.Paragraphs),
+            autofillAuthenticationDocs,
+            "\n",
+            "  ",
+            "    ");
+        var reloadedImporterOwnedRemarks = XElement.Parse(
+            renderedImporterOwnedRemarks,
+            LoadOptions.PreserveWhitespace);
+        var renderedSourceReference = reloadedImporterOwnedRemarks.Elements()
+            .ElementAt(reloadedImporterOwnedRemarks.Elements().Count() - 2)
+            .ToString(SaveOptions.DisableFormatting);
+        Assert(
+            renderedImporterOwnedRemarks.Contains(
+                "<format type=\"text/html\"><a href=",
+                StringComparison.Ordinal) &&
+            TryGetImporterSourceReferenceUrl(
+                renderedSourceReference,
+                out var renderedSourceUrl) &&
+            UrlsEqual(renderedSourceUrl, autofillAuthenticationDocs.SourceUrl) &&
+            IsPotentialImporterOwnedRemarks(
+                reloadedImporterOwnedRemarks,
+                autofillAuthenticationDocs.SourceKind),
+            "rendered importer-owned remarks round-trip through structural ownership recognition");
+        var legacyFormattedImporterOwnedRemarks = new XElement("remarks");
+        foreach (var paragraph in UsableRemarks(autofillAuthenticationDocs.Paragraphs))
+        {
+            legacyFormattedImporterOwnedRemarks.Add(DocumentationElement(paragraph));
+            if (paragraph.IsCode)
+                legacyFormattedImporterOwnedRemarks.Add(DocumentationElement(paragraph));
+        }
+        var legacySourceReference = XElement.Parse(
+            ImporterSourceReference(autofillAuthenticationDocs).ToString(),
+            LoadOptions.PreserveWhitespace);
+        legacyFormattedImporterOwnedRemarks.Add(legacySourceReference);
+        legacyFormattedImporterOwnedRemarks.Add(
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        var legacyFormattedImporterOwnedBlock = new XElement(
+            "Docs",
+            new XElement("summary", "Existing fixture summary."),
+            legacyFormattedImporterOwnedRemarks).ToString(SaveOptions.DisableFormatting);
+        var legacyFormattedImporterOwnedText =
+            completedAutofillAuthenticationText[..completedAuthenticationBlock.Start] +
+            legacyFormattedImporterOwnedBlock +
+            completedAutofillAuthenticationText[completedAuthenticationBlock.End..];
+        autofillResidualFile.UpdateBlockOffsets(
+            autofillAuthenticationOwner.Order,
+            legacyFormattedImporterOwnedText);
+        var refreshedLegacyFormattedImporterOwnedRemarks = RefreshImporterOwnedRemarks(
+            legacyFormattedImporterOwnedText,
+            autofillResidualFile,
+            autofillAuthenticationOwner,
+            autofillAuthenticationDocs);
+        autofillResidualFile.UpdateBlockOffsets(
+            autofillAuthenticationOwner.Order,
+            refreshedLegacyFormattedImporterOwnedRemarks.Text);
+        var refreshedLegacyFormattedRemarks = XElement.Parse(
+            refreshedLegacyFormattedImporterOwnedRemarks.Text[
+                autofillResidualFile.DocsBlocks[autofillAuthenticationOwner.Order].Start..
+                autofillResidualFile.DocsBlocks[autofillAuthenticationOwner.Order].End],
+            LoadOptions.PreserveWhitespace).Element("remarks")!;
+        Assert(
+            IsPotentialImporterOwnedRemarks(
+                legacyFormattedImporterOwnedRemarks,
+                autofillAuthenticationDocs.SourceKind) &&
+            HasLegacyFormattedSourceReference(legacySourceReference) &&
+            refreshedLegacyFormattedImporterOwnedRemarks.Reason is null &&
+            refreshedLegacyFormattedRemarks.Elements("code").Count() == 1 &&
+            refreshedLegacyFormattedRemarks.Elements()
+                .Any(element => TryGetImporterSourceReferenceUrl(
+                    element.ToString(SaveOptions.DisableFormatting),
+                    out _)),
+            "legacy formatted importer-owned remarks regenerate nested code containers once");
+        var authoredRefreshText = importerOwnedRefreshText.Replace(
+            "Sets authentication for the response.",
+            "Author-authored remarks are preserved.",
+            StringComparison.Ordinal);
+        autofillResidualFile.UpdateBlockOffsets(
+            autofillAuthenticationOwner.Order,
+            authoredRefreshText);
+        var preservedAuthoredRemarks = RefreshImporterOwnedRemarks(
+            authoredRefreshText,
+            autofillResidualFile,
+            autofillAuthenticationOwner,
+            autofillAuthenticationDocs);
+        Assert(
+            preservedAuthoredRemarks.Reason == "existing_remarks_not_importer_owned" &&
+            preservedAuthoredRemarks.Text.Equals(authoredRefreshText, StringComparison.Ordinal),
+            "strict importer-owned remarks refresh preserves authored remarks");
+        var autofillBuilderRequest = SourceRequest.Create(
+            "android/service/autofill/CharSequenceTransformation$Builder") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: Autofill builder source request");
+        var autofillBuilderPage = SourcePage.Parse(autofillBuilderRequest, autofillResidualHtml);
+        Assert(
+            autofillBuilderPage.Members.Single(member => member.Name == "addField")
+                .Docs?.Parameters["regex"] ==
+                "regular expression with groups (delimited by ( and )) that are used to substitute parts of the value.",
+            "Autofill regex source repair");
+        var eventRequest = SourceRequest.Create(
+            "android/service/autofill/FillEventHistory$Event") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: Autofill event source request");
+        var eventPage = SourcePage.Parse(eventRequest, autofillResidualHtml);
+        var eventSourceText = eventPage.Members.Single(member =>
+            member.Name == "TYPE_CONTEXT_COMMITTED").Docs?.Paragraphs.Single().Text;
+        Assert(
+            eventSourceText ==
+                "The selected dataset was selected (getChangedFields());",
+            "Autofill event source repair");
+        Assert(
+            IsMeaningfulChannel("The dataset field can be configured for a hint, and so on.", "remarks") &&
+            IsMeaningfulChannel(
+                "The id of the fill request this context corresponds to.",
+                "value") &&
+            !IsMeaningfulChannel(
+                "The capability is intended for",
+                "summary") &&
+            IsMeaningfulChannel(
+                "The capability is intended for.",
+                "summary") &&
+            !IsMeaningfulChannel(
+                "The credential provider is populated in",
+                "summary"),
+            "complete punctuated terminal prepositions are retained while unpunctuated fragments skip");
+
         var asyncSourcePath = Path.Combine(fixtureRoot, "geocoder-async-source.xml");
         var asyncAndroidHtml = File.ReadAllText(
             Path.Combine(fixtureRoot, "geocoder-async-android-reference.html"));
@@ -2692,6 +3543,53 @@ static class ImporterProgram
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
         Assert(androidPage.TypeDocs?.Summary == "Represents a fixture widget.", "Android type summary");
+        var repeatedAndroidPage = SourcePage.Parse(
+            request,
+            File.ReadAllText(Path.Combine(
+                fixtureRoot,
+                "repeated-blocks-android-reference.html")));
+        Assert(
+            repeatedAndroidPage.Members.Single(member => member.Name == "setTitle").Docs?.Paragraphs
+                .SequenceEqual(
+                    [
+                        new SourceParagraph("Repeated visible prose.", IsCode: false),
+                        new SourceParagraph("Repeated visible prose.", IsCode: false),
+                        new SourceParagraph("widget.setTitle(title);", IsCode: true),
+                        new SourceParagraph("widget.setTitle(title);", IsCode: true),
+                    ]) == true,
+            "parsed Android source retains repeated visible prose and code blocks in order");
+        var nestedCodeContainersAndroidPage = SourcePage.Parse(
+            request,
+            File.ReadAllText(Path.Combine(
+                fixtureRoot,
+                "nested-code-containers-android-reference.html")));
+        Assert(
+            nestedCodeContainersAndroidPage.Members.Single(member => member.Name == "setTitle").Docs?.Paragraphs
+                .SequenceEqual(
+                    [
+                        new SourceParagraph("Nested code containers remain one sample.", IsCode: false),
+                        new SourceParagraph("widget.setTitle(title);", IsCode: true),
+                    ]) == true,
+            "parsed Android source coalesces nested devsite and pre code containers");
+        var repeatedJavaPage = SourcePage.Parse(
+            new SourceRequest(
+                "java/lang/String",
+                JavaReference + "java.base/java/lang/String.html",
+                "java"),
+            File.ReadAllText(Path.Combine(
+                fixtureRoot,
+                "repeated-blocks-java-reference.html")));
+        Assert(
+            repeatedJavaPage.Members.Single(member => member.Name == "setTitle").Docs?.Paragraphs
+                .Select(paragraph => paragraph.Text)
+                .SequenceEqual(
+                    [
+                        "Repeated visible prose.",
+                        "Repeated visible prose.",
+                        "widget.setTitle(title);",
+                        "widget.setTitle(title);",
+                    ]) == true,
+            "parsed Java source retains repeated visible blocks in order");
         var comparisonPage = SourcePage.Parse(
             request,
             androidHtml.Replace(
@@ -3259,6 +4157,29 @@ static class ImporterProgram
         Assert(
             annotationOnly.Reason == "source_channel_not_meaningful",
             "standalone source annotation skip");
+        var incompleteSummary = ChannelValueOrSkip(
+            "Credential Manager is invoked instead of Autofill. When that happens, Save Dialog cannot be shown, and this will be populated in",
+            "summary",
+            "source_summary_missing");
+        Assert(
+            incompleteSummary.Reason == "source_channel_not_meaningful",
+            "incomplete source summary skip");
+        var completeGenericSummary = ChannelValueOrSkip(
+            "Type used when the service can save the contents of a screen, but cannot describe what the content is for.",
+            "summary",
+            "source_summary_missing");
+        Assert(
+            completeGenericSummary.Text ==
+                "Type used when the service can save the contents of a screen, but cannot describe what the content is for.",
+            "complete SaveDataType.Generic summary ending in for");
+        var completeGenericCardSummary = ChannelValueOrSkip(
+            "Type used when the FillResponse represents a card that does not a specified card or cannot identify what the card is for.",
+            "summary",
+            "source_summary_missing");
+        Assert(
+            completeGenericCardSummary.Text ==
+                "Type used when the FillResponse represents a card that does not a specified card or cannot identify what the card is for.",
+            "complete SaveDataType.GenericCard summary ending in for");
         Assert(
             CleanSourceText(@"the user\u2019s \u201cvalue\u201d") == "the user\u2019s \u201cvalue\u201d",
             "literal Unicode escape decoding");
@@ -3286,10 +4207,63 @@ static class ImporterProgram
                     "Time shift is handled locally.",
             "Android time-shift and TODO metadata cleanup");
         Assert(
+            CleanSourceText("Triggers a custom UI before before autofilling the screen.") ==
+                "Triggers a custom UI before autofilling the screen.",
+            "Android duplicate word cleanup");
+        Assert(
+            CleanSourceText("Altough similiarly named with another method.") ==
+                "Although similarly named with another method.",
+            "Android spelling cleanup");
+        Assert(
+            CleanSourceText(
+                "a combination of FillResponse.FLAG_TRACK_CONTEXT_COMMITED and FillResponse.FLAG_DISABLE_ACTIVITY_ONLY, or 0. Value is either 0 or a combination of the following:") ==
+                    "a combination of FillResponse.FLAG_TRACK_CONTEXT_COMMITED, FillResponse.FLAG_DISABLE_ACTIVITY_ONLY, and FillResponse.FLAG_DELAY_FILL, or 0. Value is either 0 or a combination of the following:",
+            "Android FillResponse flags cleanup");
+        Assert(
+            CleanSourceText("Resoure Id of the custom string.") ==
+                "Resource Id of the custom string.",
+            "Android resource spelling cleanup");
+        var malformedImageTransformationReturn = ReturnReplacement(
+            new SourceDocs(
+                "",
+                [],
+                new(StringComparer.Ordinal),
+                "this build",
+                new(StringComparer.Ordinal),
+                "https://developer.android.com/reference/android/service/autofill/ImageTransformation.Builder#addOption(java.util.regex.Pattern,%20int)",
+                "android.service.autofill.ImageTransformation.Builder.addOption",
+                "android"));
+        var ordinaryBuildReturn = ReturnReplacement(
+            new SourceDocs(
+                "",
+                [],
+                new(StringComparer.Ordinal),
+                "this build",
+                new(StringComparer.Ordinal),
+                "https://developer.android.com/reference/android/os/Build#FINGERPRINT",
+                "android.os.Build.FINGERPRINT",
+                "android"));
+        Assert(
+            malformedImageTransformationReturn.Text == "this builder" &&
+                ordinaryBuildReturn.Text == "this build" &&
+                CleanSourceText("Build.FINGERPRINT identifies this build.") ==
+                    "Build.FINGERPRINT identifies this build.",
+            "ImageTransformation builder return cleanup is source-scoped");
+        Assert(
             CleanSourceText(
                 "Federated Compute Server documentation.. This value cannot be null.") ==
                     "Federated Compute Server documentation. This value cannot be null.",
             "Android federated compute parameter punctuation cleanup");
+        Assert(
+            CleanSourceText(
+                "regular expression with groups (delimited by ( and () that are used to substitute parts of the value.") ==
+                    "regular expression with groups (delimited by ( and )) that are used to substitute parts of the value.",
+            "Autofill regex parenthesis cleanup");
+        Assert(
+            CleanSourceText(
+                "The selected dataset was selected (getChangedFields();") ==
+                    "The selected dataset was selected (getChangedFields());",
+            "Autofill event parenthesis cleanup");
         Assert(
             RemoveLeadingJavaType(
                 "long: ff the error is UNARCHIVAL_ERROR_INSUFFICIENT_STORAGE this field should be set.") ==
@@ -3449,6 +4423,69 @@ static class ImporterProgram
             favoriteDocument.Root is not null,
             "inline remarks source-link insertion produced valid XML");
 
+        var completeRemarksDocs = favoriteResult.Docs! with
+        {
+            Paragraphs =
+            [
+                new SourceParagraph("The first complete contract paragraph.", IsCode: false),
+                new SourceParagraph("The second complete contract paragraph.", IsCode: false),
+                new SourceParagraph("result.setAuthentication(authentication);", IsCode: true),
+            ],
+        };
+        const string completeRemarksText = "<Docs><remarks>To be added.</remarks></Docs>";
+        var completeRemarksElement = XDocument.Parse(completeRemarksText).Root!.Element("remarks")!;
+        var completeRemarksPlaceholder = Placeholder.Create(completeRemarksElement, 0);
+        var completeRemarksReplacement = ReplacementFor(
+            completeRemarksPlaceholder,
+            completeRemarksDocs);
+        Assert(
+            completeRemarksReplacement.Remarks?.SequenceEqual(completeRemarksDocs.Paragraphs) == true,
+            "remarks replacement retains every usable source paragraph and code block in order");
+        Assert(
+            TryReplacePlaceholder(
+                completeRemarksText,
+                new DocsBlock(0, 0, completeRemarksText.Length),
+                completeRemarksPlaceholder,
+                completeRemarksReplacement,
+                out var completedRemarksText,
+                out _),
+            "complete remarks replacement succeeds");
+        var renderedCompleteRemarks = XDocument.Parse(completedRemarksText).Root!.Element("remarks")!;
+        Assert(
+            renderedCompleteRemarks.Elements().Select(element => element.Name.LocalName).SequenceEqual(
+                ["para", "para", "code"]) &&
+            renderedCompleteRemarks.Elements("para").Select(element => element.Value).SequenceEqual(
+                ["The first complete contract paragraph.", "The second complete contract paragraph."]) &&
+            renderedCompleteRemarks.Element("code")?.Value == "result.setAuthentication(authentication);" &&
+            (string?)renderedCompleteRemarks.Element("code")?.Attribute("lang") == "text/java",
+            "complete remarks replacement renders source prose and code in order");
+        const string compactParaRemarksText =
+            "<Docs><remarks><para>To be added.</para></remarks></Docs>";
+        var compactParaRemarks = XDocument.Parse(compactParaRemarksText)
+            .Root!.Element("remarks")!;
+        var compactParaPlaceholder = Placeholder.Create(
+            compactParaRemarks.Element("para")!,
+            0);
+        Assert(
+            TryReplacePlaceholder(
+                compactParaRemarksText,
+                new DocsBlock(0, 0, compactParaRemarksText.Length),
+                compactParaPlaceholder,
+                ReplacementFor(compactParaPlaceholder, completeRemarksDocs),
+                out var completedCompactParaRemarksText,
+                out _),
+            "compact para remarks replacement succeeds");
+        var completedCompactParaRemarks = XDocument.Parse(completedCompactParaRemarksText)
+            .Root!.Element("remarks")!;
+        Assert(
+            completedCompactParaRemarks.Elements().Select(element => element.Name.LocalName).SequenceEqual(
+                ["para", "para", "code"]) &&
+            completedCompactParaRemarks.Elements("para").Select(element => element.Value).SequenceEqual(
+                ["The first complete contract paragraph.", "The second complete contract paragraph."]) &&
+            completedCompactParaRemarks.Element("code")?.Value ==
+                "result.setAuthentication(authentication);",
+            "compact para remarks replacement has structured XML without ancestor markup");
+
         const string metadataRepairText =
             "<Docs><remarks>To be added.<para><format type=\"text/html\">" +
             "<a href=\"https://developer.android.com/reference/android/example/Widget#favorite\" " +
@@ -3460,7 +4497,7 @@ static class ImporterProgram
             "Creative Commons 2.5 Attribution License.</a></format></para></remarks></Docs>";
         var metadataRepairRemarks = XDocument.Parse(metadataRepairText).Root!.Element("remarks")!;
         var metadataRepair = Placeholder.Create(metadataRepairRemarks, 0);
-        var metadataReplacement = ReplacementFor(metadataRepair, favoriteResult.Docs!).Text!;
+        var metadataReplacement = ReplacementFor(metadataRepair, completeRemarksDocs);
         Assert(metadataRepair.IsImporterMetadataRepair, "importer metadata remarks repair detection");
         Assert(TryReplacePlaceholder(
             metadataRepairText,
@@ -3476,9 +4513,11 @@ static class ImporterProgram
             XDocument.Parse(repairedMetadataText).Root!.Element("remarks")!
                 .Elements("para").First().Value);
         Assert(
-            repairedMetadataProse == NormalizeText(metadataReplacement),
+            repairedMetadataProse == NormalizeText(metadataReplacement.Text!),
             "importer metadata remarks placeholder retains source prose");
         Assert(
+            repairedMetadataText.Contains("The second complete contract paragraph.", StringComparison.Ordinal) &&
+            repairedMetadataText.Contains("result.setAuthentication(authentication);", StringComparison.Ordinal) &&
             repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
             "importer metadata remarks preserves reference metadata");
         var cleanedMissingRemarksText = RemoveImporterRemarksMetadata(metadataRepairText);
@@ -3571,7 +4610,7 @@ static class ImporterProgram
                     out _) &&
                 !repairedEmptyMetadataText.Contains("<para></para>", StringComparison.Ordinal) &&
                 NormalizeText(XDocument.Parse(repairedEmptyMetadataText).Root!.Element("remarks")!
-                    .Elements("para").First().Value) == NormalizeText(metadataReplacement) &&
+                    .Elements("para").First().Value) == NormalizeText(metadataReplacement.Text!) &&
                 repairedEmptyMetadataText.Contains("Reference documentation", StringComparison.Ordinal) &&
                 repairedEmptyMetadataText.Contains(
                     "https://developers.google.com/terms/site-policies",
@@ -3594,7 +4633,7 @@ static class ImporterProgram
                     !LoadedFile.IsImporterAugmentedRemarksPlaceholder(
                         XDocument.Parse(repairedVariantText).Root!.Element("remarks")!) &&
                     NormalizeText(XDocument.Parse(repairedVariantText).Root!.Element("remarks")!
-                        .Elements("para").First().Value) == NormalizeText(metadataReplacement),
+                        .Elements("para").First().Value) == NormalizeText(metadataReplacement.Text!),
                 "importer empty metadata paragraph repair supports LF, CRLF, self-closing, whitespace, and inline layouts");
         }
         var firstRemarksStart = emptyMetadataRepairText.IndexOf("<remarks>", StringComparison.Ordinal);
@@ -3629,7 +4668,7 @@ static class ImporterProgram
                     metadataReplacement,
                     out var repairedDirectPlaceholderText,
                     out _) &&
-                repairedDirectPlaceholderText.Contains(metadataReplacement, StringComparison.Ordinal),
+                repairedDirectPlaceholderText.Contains(metadataReplacement.Text!, StringComparison.Ordinal),
             "direct metadata placeholder ignores coexisting empty paragraphs");
 
         var emptyReturn = androidPage.Members.Single(member => member.Name == "emptyReturn");
@@ -4242,7 +5281,7 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: Android/Java exact matching, ICU text and Health Connect importer regressions, paragraph and code preservation, metadata-only and placeholder repairs, source-channel validation, XML parsing, and atomic writes.");
+        Console.WriteLine("SELF-TEST PASS: Android/Java exact matching, ICU text and Health Connect importer regressions, ordered paragraph/code preservation, strict importer-owned remarks refreshes, metadata-only and placeholder repairs, source-channel validation, XML parsing, and atomic writes.");
         return 0;
     }
 
@@ -4767,6 +5806,52 @@ static class ImporterProgram
                         filterSynchronousGeocoderBoilerplate: true),
                 ["M:Android.Locations.Geocoder.GetFromLocationNameAsync(System.String,System.Int32,System.Double,System.Double,System.Double,System.Double,Android.Locations.Geocoder.IGeocodeListener)"] =
                     Mapping("android/location/Geocoder", "getFromLocationName", "(Ljava/lang/String;IDDDDLandroid/location/Geocoder$GeocodeListener;)V"),
+                ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32)"] =
+                    Mapping("android/service/autofill/ImageTransformation$Builder", "addOption", "(Ljava/util/regex/Pattern;I)Landroid/service/autofill/ImageTransformation$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.ImageTransformation.Builder.AddOption(Java.Util.Regex.Pattern,System.Int32,System.String)"] =
+                    Mapping("android/service/autofill/ImageTransformation$Builder", "addOption", "(Ljava/util/regex/Pattern;ILjava/lang/CharSequence;)Landroid/service/autofill/ImageTransformation$Builder;"),
+                ["M:Android.Service.Autofill.SaveInfo.Builder.SetDescription(System.String)"] =
+                    Mapping("android/service/autofill/SaveInfo$Builder", "setDescription", "(Ljava/lang/CharSequence;)Landroid/service/autofill/SaveInfo$Builder;"),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetInlinePresentation(Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setInlinePresentation", "(Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetInlinePresentation(Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setInlinePresentation", "(Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.Dataset.Builder.SetValue(Android.Views.Autofill.AutofillId,Android.Views.Autofill.AutofillValue,Java.Util.Regex.Pattern,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/Dataset$Builder", "setValue", "(Landroid/view/autofill/AutofillId;Landroid/view/autofill/AutofillValue;Ljava/util/regex/Pattern;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/Dataset$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews)"] =
+                    Mapping("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;)Landroid/service/autofill/FillResponse$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/FillResponse$Builder;",
+                        useFirstMeaningfulSummary: true),
+                ["M:Android.Service.Autofill.FillResponse.Builder.SetAuthentication(Android.Views.Autofill.AutofillId[],Android.Content.IntentSender,Android.Widget.RemoteViews,Android.Service.Autofill.InlinePresentation,Android.Service.Autofill.InlinePresentation)"] =
+                    Mapping("android/service/autofill/FillResponse$Builder", "setAuthentication", "([Landroid/view/autofill/AutofillId;Landroid/content/IntentSender;Landroid/widget/RemoteViews;Landroid/service/autofill/InlinePresentation;Landroid/service/autofill/InlinePresentation;)Landroid/service/autofill/FillResponse$Builder;",
+                        useFirstMeaningfulSummary: true),
                 ["M:Android.Text.TextUtils.IndexOf(System.String,System.Char)"] =
                     Mapping("android/text/TextUtils", "indexOf", "(Ljava/lang/CharSequence;C)I"),
                 ["M:Android.Text.TextUtils.IndexOf(System.String,System.String)"] =
@@ -5554,6 +6639,15 @@ static class ImporterProgram
             var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
             var listDepth = 0;
 
+            IReadOnlyList<(int Start, int End, SourceParagraph Paragraph)> VisibleCodeRanges() =>
+                codeRanges
+                    .Where(candidate => !codeRanges.Any(container =>
+                        container.Start <= candidate.Start &&
+                        container.End >= candidate.End &&
+                        (container.Start < candidate.Start || container.End > candidate.End)))
+                    .OrderBy(code => code.Start)
+                    .ToList();
+
             void CompleteElement(
                 (string Tag, int TagStart, int ContentStart) open,
                 int contentEnd,
@@ -5569,9 +6663,8 @@ static class ImporterProgram
                     return;
                 }
 
-                var nestedCode = codeRanges
+                var nestedCode = VisibleCodeRanges()
                     .Where(code => code.Start >= open.ContentStart && code.End <= contentEnd)
-                    .OrderBy(code => code.Start)
                     .ToList();
                 var textStart = open.ContentStart;
                 foreach (var code in nestedCode)
@@ -5623,7 +6716,7 @@ static class ImporterProgram
                     continue;
                 CompleteElement(open, tag.Index, tag.Index + tag.Length);
             }
-            foreach (var code in codeRanges.Where(code =>
+            foreach (var code in VisibleCodeRanges().Where(code =>
                 !paragraphs.Any(paragraph => paragraph.Position == code.Start &&
                     paragraph.Paragraph == code.Paragraph)))
             {
@@ -5632,7 +6725,6 @@ static class ImporterProgram
             return paragraphs
                 .OrderBy(paragraph => paragraph.Position)
                 .Select(paragraph => paragraph.Paragraph)
-                .Distinct()
                 .ToList();
         }
 
@@ -5678,7 +6770,6 @@ static class ImporterProgram
                 })
                 .Select(match => new SourceParagraph(HtmlText(match.Groups["body"].Value), IsCode: false))
                 .Where(paragraph => paragraph.Text.Length > 0)
-                .Distinct()
                 .ToList();
 
         static Dictionary<string, string> ParseAttributes(string attributes)
@@ -6100,10 +7191,20 @@ static class ImporterProgram
             new(null, reason, detail, sourceUrl);
     }
 
-    sealed record Replacement(string? Text, string? Reason, string Detail)
+    sealed record Replacement(
+        string? Text,
+        IReadOnlyList<SourceParagraph>? Remarks,
+        string? Reason,
+        string Detail)
     {
-        public static Replacement Use(string text) => new(text, null, "");
-        public static Replacement Skip(string reason, string detail) => new(null, reason, detail);
+        public static Replacement Use(string text) => new(text, null, null, "");
+        public static Replacement UseRemarks(List<SourceParagraph> paragraphs) =>
+            new(
+                paragraphs.FirstOrDefault(paragraph => !paragraph.IsCode)?.Text ?? "",
+                paragraphs,
+                null,
+                "");
+        public static Replacement Skip(string reason, string detail) => new(null, null, reason, detail);
     }
 
     sealed class ImportReport
