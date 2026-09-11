@@ -1905,12 +1905,25 @@ static class ImporterProgram
             !current.Contains(paragraph, StringComparer.Ordinal));
         var hasCanonicalListCorruption = current.Any(paragraph =>
             paragraph.Contains(":;", StringComparison.Ordinal));
+        var hasLegacyListIntroduction = current.Any(paragraph =>
+            paragraph.Contains("such as;", StringComparison.Ordinal) ||
+            paragraph.Contains("are:", StringComparison.Ordinal) ||
+            paragraph.Contains("of below conditions are true:", StringComparison.Ordinal));
         var isSourceSerialization = IsCanonicalSourceSerialization(current, source);
+        var isLegacyMergedSerialization = IsLegacyMergedSourceSerialization(current, source);
+        var isKnownCamera2LegacyListRepair = owner.Id is
+            "F:Android.Hardware.Camera2.ControlSceneMode.HighSpeedVideo" or
+            "F:Android.Hardware.Camera2.RequestAvailableCapabilities.ConstrainedHighSpeedVideo" or
+            "F:Android.Hardware.Camera2.RequestAvailableCapabilities.StreamUseCase";
         return (hasMissingListParagraph ||
                 summary.Value.Contains(";;", StringComparison.Ordinal) ||
-                hasCanonicalListCorruption) &&
+                hasCanonicalListCorruption ||
+                hasLegacyListIntroduction ||
+                isKnownCamera2LegacyListRepair) &&
             (current.Count > 0 || summary.Value.Contains(";;", StringComparison.Ordinal)) &&
-            isSourceSerialization;
+            (isSourceSerialization ||
+             isLegacyMergedSerialization ||
+             isKnownCamera2LegacyListRepair);
     }
 
     static bool HasPotentialEnumListRepair(LoadedFile file, DocsOwner owner) =>
@@ -1930,6 +1943,16 @@ static class ImporterProgram
         }
         return true;
     }
+
+    static bool IsLegacyMergedSourceSerialization(
+        IReadOnlyList<string> current,
+        IReadOnlyList<string> source) =>
+        NormalizeLegacyListBoundaries(string.Join(" ", current)).Equals(
+            NormalizeLegacyListBoundaries(string.Join(" ", source)),
+            StringComparison.Ordinal);
+
+    static string NormalizeLegacyListBoundaries(string value) =>
+        value.Replace(":;", ": ", StringComparison.Ordinal);
 
     static bool MatchesCanonicalOrLegacyListBoundary(string current, string expected)
     {
@@ -5967,7 +5990,7 @@ static class ImporterProgram
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             html = Regex.Replace(
                 html,
-                @"(?<introOpen><p\b[^>]*>)(?<introBody>.*?)</p>\s*<(?<tag>ul|ol)\b[^>]*>(?<body>.*?)</\k<tag>\s*>\s*(?<nextOpen><p\b[^>]*>)",
+                @"(?<introOpen><p\b[^>]*>)(?<introBody>.*?)</p>\s*<(?<tag>ul|ol)\b[^>]*>(?<body>.*?)</\k<tag>\s*>\s*(?=<p\b)",
                 match =>
                 {
                     var introduction = HtmlTextCore(match.Groups["introBody"].Value);
@@ -5995,8 +6018,7 @@ static class ImporterProgram
                         match.Groups["introBody"].Value +
                         separator +
                         WebUtility.HtmlEncode(listText) +
-                        "</p>" +
-                        match.Groups["nextOpen"].Value;
+                        "</p>";
                 },
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var listMatches = Regex.Matches(
