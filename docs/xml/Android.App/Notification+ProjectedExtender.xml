@@ -42,6 +42,17 @@
     <summary>Helper class to add projection-specific extensions to a notification.</summary>
     <remarks>
       <para>Helper class to add projection-specific extensions to a notification. This class is used to specify metadata that is specific to notifications that may be displayed on a Projected device.</para>
+      <para>To create a notification with Projected extensions: Create a Notification.Builder for the notification; Create an ProjectedExtender; Set projection-specific properties using the set methods on the ProjectedExtender; Call Notification.Builder.extend to apply the extensions to the notification.</para>
+      <code lang="text/java">Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
+    .setContentTitle("Example Title")
+    .setContentText("Example Text")
+    .setSmallIcon(R.drawable.ic_notification);
+
+ProjectedExtender projectedExtender = new ProjectedExtender()
+    .setContentIntent(projectedTapIntent);
+
+builder.extend(projectedExtender);
+notificationManager.notify(NOTIFICATION_ID, builder.build());</code>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Notification.ProjectedExtender" title="Reference documentation">Android reference for <code>android.app.Notification.ProjectedExtender</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>

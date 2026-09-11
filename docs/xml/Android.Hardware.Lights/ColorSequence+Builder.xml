@@ -93,6 +93,8 @@
         <returns>a reference to this builder. This value cannot be null.</returns>
         <remarks>
           <para>Adds the next control point for the effect. The transition between control point colors takes delayMillis milliseconds. During that time, the light colors will be smoothly interpolated from the start to the end value according to the interpolation algorithm and the light's update interval.</para>
+          <para>When specifying a delay: Any negative value is considered an error and will cause an IllegalArgumentException; Any positive value corresponds to the transition time in milliseconds, relative to the end of the previous control point; A value of 0 can only be specified for the very first control point in the sequence as a way to provide an initial state for the effect. It will cause an IllegalArgumentException if found in any other index; All delays MUST be whole multiples of the light's update period (frame period) (Light.getMinUpdatePeriodMillis()). If any specified delay is a fractional number of frames, the system will truncate the delay potentially altering initially expected interpolation values and relative timing with other lights.</para>
+          <para>Providing an initial state is not required and the effect will take the last known state as the starting point for the interpolation, creating smooth transitions between effects.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence.Builder#addControlPoint(long,%20int)" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.Builder.addControlPoint</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -130,6 +132,7 @@
         <returns>a reference to this builder. This value cannot be null.</returns>
         <remarks>
           <para>Appends the provided ColorSequence to this sequence.</para>
+          <para>If the two color sequences have different interpolation modes, the interpolation mode of the builder takes precedence over the interpolation mode from the argument.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence.Builder#addControlPoints(android.hardware.lights.ColorSequence)" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.Builder.addControlPoints</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -169,6 +172,7 @@
         <returns>a reference to this builder. This value cannot be null.</returns>
         <remarks>
           <para>Adds multiple control points to the sequence.</para>
+          <para>Both arrays provided MUST have the same size and be in the order in which they should be inserted.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence.Builder#addControlPoints(long[],%20int[])" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.Builder.addControlPoints</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -269,6 +273,7 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Sets the interpolation mode to use to transition between control point colors.</para>
+          <para>By default, the builder configures the sequence with ColorSequence.INTERPOLATION_MODE_LINEAR.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence.Builder#setInterpolationMode(int)" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.Builder.setInterpolationMode</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

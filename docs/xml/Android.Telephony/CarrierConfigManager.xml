@@ -4069,6 +4069,8 @@
         <summary>Indicate whether carrier roaming satellite supports handover from T911 to ESOS.</summary>
         <remarks>
           <para>Indicate whether carrier roaming satellite supports handover from T911 to ESOS.</para>
+          <para>This config will be read by Android Messaging application to determine whether to allow user to show the option of moving to eSOS when they try to send emergency message. This config requires KEY_SATELLITE_ESOS_SUPPORTED_BOOL to be true as well.</para>
+          <para>The default value is false.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_CARRIER_ROAMING_SATELLITE_T911_TO_ESOS_HANDOVER_SUPPORTED_BOOL" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_CARRIER_ROAMING_SATELLITE_T911_TO_ESOS_HANDOVER_SUPPORTED_BOOL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -8613,6 +8615,7 @@
         <summary>Controls whether the subscription is used exclusively for private networks.</summary>
         <remarks>
           <para>Controls whether the subscription is used exclusively for private networks.</para>
+          <para>If true, this subscription will be considered a private network subscription. System apps like Settings and SystemUI may adjust their behavior based on this flag.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_IS_PRIVATE_NETWORK_BOOL" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_IS_PRIVATE_NETWORK_BOOL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -8645,6 +8648,8 @@
         <summary>Flag indicating whether to log calls which were answered on another device.</summary>
         <remarks>
           <para>Flag indicating whether to log calls which were answered on another device.</para>
+          <para>If true, calls which are disconnected with DisconnectCause.ANSWERED_ELSEWHERE will be added to the call log.</para>
+          <para>If false, these calls will not be added to the call log. The default value is true.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_LOG_CALLS_ANSWERED_ELSEWHERE_BOOL" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_LOG_CALLS_ANSWERED_ELSEWHERE_BOOL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -8677,6 +8682,11 @@
         <summary>Interval between consecutive battery alert tones, in seconds.</summary>
         <remarks>
           <para>Interval between consecutive battery alert tones, in seconds.</para>
+          <para>This flag controls how frequently (in seconds) an alert tone should be played after the battery level drops below the defined threshold. A shorter interval means more frequent alerts.</para>
+          <para>Type: Integer</para>
+          <para>Valid values: 0 or greater</para>
+          <para>Default value: PhoneAccount.LOW_BATTERY_ALERT_DISABLED (feature disabled)</para>
+          <para>If set to PhoneAccount.LOW_BATTERY_ALERT_DISABLED, the alert tone is disabled entirely.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_LOW_BATTERY_ALERT_INTERVAL_INT" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_LOW_BATTERY_ALERT_INTERVAL_INT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -8709,6 +8719,11 @@
         <summary>Battery level threshold (in percentage) to trigger an audio alert.</summary>
         <remarks>
           <para>Battery level threshold (in percentage) to trigger an audio alert.</para>
+          <para>This flag defines the minimum battery percentage at which an audio alert will be played. When the device battery level falls below this threshold, a tone or audio warning may be triggered to notify the user.</para>
+          <para>Type: Integer</para>
+          <para>Valid values: 0–100</para>
+          <para>Default value: PhoneAccount.LOW_BATTERY_ALERT_DISABLED (feature disabled)</para>
+          <para>If the value is set to PhoneAccount.LOW_BATTERY_ALERT_DISABLED, the audio alert for low battery is not enabled.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_LOW_BATTERY_ALERT_THRESHOLD_INT" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_LOW_BATTERY_ALERT_THRESHOLD_INT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -10026,6 +10041,9 @@
         <summary>This threshold is used when connected to a non-terrestrial NR network.</summary>
         <remarks>
           <para>This threshold is used when connected to a non-terrestrial NR network. List of 4 customized 5G SS reference signal received power (SSRSRP) thresholds.</para>
+          <para>Reference: 3GPP TS 38.215</para>
+          <para>4 threshold integers must be within the boundaries [-140 dB, -44 dB], and the levels are: "NONE: [-140, threshold1)"; "POOR: [threshold1, threshold2)"; "MODERATE: [threshold2, threshold3)"; "GOOD: [threshold3, threshold4)"; "EXCELLENT: [threshold4, -44]"</para>
+          <para>This key is considered invalid if the format is violated. If the key is invalid or not configured, a default value set will apply.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_NTN_5G_NR_SSRSRP_THRESHOLDS_INT_ARRAY" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_NTN_5G_NR_SSRSRP_THRESHOLDS_INT_ARRAY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -10058,6 +10076,9 @@
         <summary>This threshold is used when connected to a non-terrestrial NR network.</summary>
         <remarks>
           <para>This threshold is used when connected to a non-terrestrial NR network. List of 4 customized 5G SS reference signal received quality (SSRSRQ) thresholds.</para>
+          <para>Reference: 3GPP TS 38.215; 3GPP TS 38.133 section 10</para>
+          <para>4 threshold integers must be within the boundaries [-43 dB, 20 dB], and the levels are: "NONE: [-43, threshold1)"; "POOR: [threshold1, threshold2)"; "MODERATE: [threshold2, threshold3)"; "GOOD: [threshold3, threshold4)"; "EXCELLENT: [threshold4, 20]"</para>
+          <para>This key is considered invalid if the format is violated. If the key is invalid or not configured, a default value set will apply.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_NTN_5G_NR_SSRSRQ_THRESHOLDS_INT_ARRAY" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_NTN_5G_NR_SSRSRQ_THRESHOLDS_INT_ARRAY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -10090,6 +10111,9 @@
         <summary>This threshold is used when connected to a non-terrestrial NR network.</summary>
         <remarks>
           <para>This threshold is used when connected to a non-terrestrial NR network. List of 4 customized 5G SS signal-to-noise and interference ratio (SSSINR) thresholds.</para>
+          <para>Reference: 3GPP TS 38.215, 3GPP TS 38.133 10.1.16.1</para>
+          <para>4 threshold integers must be within the boundaries [-23 dB, 40 dB], and the levels are: "NONE: [-23, threshold1)"; "POOR: [threshold1, threshold2)"; "MODERATE: [threshold2, threshold3)"; "GOOD: [threshold3, threshold4)"; "EXCELLENT: [threshold4, 40]"</para>
+          <para>This key is considered invalid if the format is violated. If the key is invalid or not configured, a default value set will apply.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_NTN_5G_NR_SSSINR_THRESHOLDS_INT_ARRAY" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_NTN_5G_NR_SSSINR_THRESHOLDS_INT_ARRAY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -10390,6 +10414,9 @@
             subscription group.</summary>
         <remarks>
           <para>Auto data network switch policies between primary and opportunistic profiles in the same subscription group.</para>
+          <para>The default value is OPP_AUTO_DATA_SWITCH_POLICY_DISABLED, that is, auto data switch between primary and opportunistic networks is disabled.</para>
+          <para>Carriers can override the value for the primary subscription with OPP_AUTO_DATA_SWITCH_POLICY_FOLLOW_SYSTEM, OPP_AUTO_DATA_SWITCH_POLICY_FOR_AVAILABILITY, or OPP_AUTO_DATA_SWITCH_POLICY_FOR_PERFORMANCE to enable all system supported policies or specific policy according to the business user cases.</para>
+          <para>None of the policies here impact the auto data switch between primary networks.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_OPP_AUTO_DATA_SWITCH_POLICY_INT" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_OPP_AUTO_DATA_SWITCH_POLICY_INT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -12298,6 +12325,39 @@
             provider PLMNs and values are bundles containing satellite configurations for that PLMN.</summary>
         <remarks>
           <para>A PersistableBundle that contains a list of key-value pairs, where keys are satellite provider PLMNs and values are bundles containing satellite configurations for that PLMN. This allows for per-provider settings within a single carrier, which is necessary for hybrid scenarios where a carrier supports multiple satellite networks with different capabilities (e.g., AST and Skylo).</para>
+          <para>The keys in this bundle are PLMNs of satellite providers as strings. The values are PersistableBundles containing some of the existing satellite configurations for that PLMN.</para>
+          <code lang="text/java">&lt;pbundle_as_map name="satellite_configs_per_plmn_bundle"&gt;
+    &lt;!-- AST PLMN's satellite configurations --&gt;
+    &lt;pbundle_as_map name="XXXXXX"&gt;
+        &lt;!-- SatelliteManager#EMERGENCY_CALL_TO_SATELLITE_HANDOVER_TYPE_T911 --&gt;
+        &lt;int name="carrier_roaming_ntn_emergency_call_to_satellite_handover_type_int"
+             value="2" /&gt;
+        &lt;!-- CarrierConfigManager#CARRIER_ROAMING_NTN_CONNECT_AUTOMATIC --&gt;
+        &lt;int name="carrier_roaming_ntn_connect_type_int" value="0" /&gt;
+        &lt;!-- SatelliteManager#NT_RADIO_TECHNOLOGY_NR_NTN --&gt;
+        &lt;int-array name="satellite_technology_type_int_array" num="1"&gt;
+            &lt;item value="2" /&gt;
+        &lt;/int-array&gt;
+        &lt;!-- CarrierConfigManager#KEY_SATELLITE_SUPPORTED_FREQUENCIES_INT_ARRAY --&gt;
+        &lt;int-array name="satellite_supported_frequencies_int_array" num="2"&gt;
+            &lt;item value="229015" /&gt;
+            &lt;item value="229016" /&gt;
+        &lt;/int-array&gt;
+    &lt;/pbundle_as_map&gt;
+    &lt;!-- Skylo PLMN's satellite configurations --&gt;
+    &lt;pbundle_as_map name="YYYYYY"&gt;
+        &lt;!-- SatelliteManager#EMERGENCY_CALL_TO_SATELLITE_HANDOVER_TYPE_SOS --&gt;
+        &lt;int name="carrier_roaming_ntn_emergency_call_to_satellite_handover_type_int"
+             value="1" /&gt;
+        &lt;!-- CarrierConfigManager#CARRIER_ROAMING_NTN_CONNECT_MANUAL --&gt;
+        &lt;int name="carrier_roaming_ntn_connect_type_int" value="1" /&gt;
+        &lt;!-- SatelliteManager#NT_RADIO_TECHNOLOGY_NB_IOT_NTN --&gt;
+        &lt;int-array name="satellite_technology_type_int_array" num="1"&gt;
+            &lt;item value="1" /&gt;
+        &lt;/int-array&gt;
+    &lt;/pbundle_as_map&gt;
+&lt;/pbundle_as_map&gt;</code>
+          <para>This config is empty by default.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_SATELLITE_CONFIGS_PER_PLMN_BUNDLE" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_SATELLITE_CONFIGS_PER_PLMN_BUNDLE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -13091,6 +13151,7 @@
         <summary>A string array containing the list of supported disaster satellite PLMNs.</summary>
         <remarks>
           <para>A string array containing the list of supported disaster satellite PLMNs. The satellite services supported by these PLMNs are defined by KEY_CARRIER_SUPPORTED_SATELLITE_SERVICES_PER_PROVIDER_BUNDLE.</para>
+          <para>This config is empty by default.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_SATELLITE_SUPPORTED_DISASTER_PLMN_STRING_ARRAY" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_SATELLITE_SUPPORTED_DISASTER_PLMN_STRING_ARRAY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -13123,6 +13184,7 @@
         <summary>A string array containing the list of supported emergency satellite PLMNs.</summary>
         <remarks>
           <para>A string array containing the list of supported emergency satellite PLMNs. The satellite services supported by these PLMNs are defined by KEY_CARRIER_SUPPORTED_SATELLITE_SERVICES_PER_PROVIDER_BUNDLE.</para>
+          <para>This config is empty by default.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_SATELLITE_SUPPORTED_EMERGENCY_PLMN_STRING_ARRAY" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.KEY_SATELLITE_SUPPORTED_EMERGENCY_PLMN_STRING_ARRAY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -16395,6 +16457,8 @@
             subscription group: enable all system supported policies.</summary>
         <remarks>
           <para>Auto data network switch policy between primary and opportunistic profiles in the same subscription group: enable all system supported policies.</para>
+          <para>Enable data network switch by considering all supported information including but not limited on Network Registration State, Technologies (4G/5G), Signal Strength, Data subscription plan etc.</para>
+          <para>The system behavior may change over releases. Carriers can override with specific policies below if carriers would like a consistent behavior.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#OPP_AUTO_DATA_SWITCH_POLICY_FOLLOW_SYSTEM" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.OPP_AUTO_DATA_SWITCH_POLICY_FOLLOW_SYSTEM</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -16429,6 +16493,8 @@
             subscription group: switch to the network only with better availability.</summary>
         <remarks>
           <para>Auto data network switch policy between primary and opportunistic profiles in the same subscription group: switch to the network only with better availability.</para>
+          <para>In specific, when primary or opportunistic network is out of service while the other is active and in service, switch to the other one.</para>
+          <para>The availability-based switch is also restricted by the device resource config auto_data_switch_availability_stability_time_threshold_millis.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#OPP_AUTO_DATA_SWITCH_POLICY_FOR_AVAILABILITY" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.OPP_AUTO_DATA_SWITCH_POLICY_FOR_AVAILABILITY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -16463,6 +16529,9 @@
             subscription group: switch to the network with better data connection performance.</summary>
         <remarks>
           <para>Auto data network switch policy between primary and opportunistic profiles in the same subscription group: switch to the network with better data connection performance.</para>
+          <para>In specific, when both networks are connected, device may switch to network with better technologies (e.g. NR over LTE) and/or signal strength.</para>
+          <para>The performance-based switch is also restricted by the device resource config auto_data_switch_performance_stability_time_threshold_millis.</para>
+          <para>Performance based policy implicitly include availability based policy, that is, when primary or opportunistic is out of service, follow the same behavior for policy OPP_AUTO_DATA_SWITCH_POLICY_FOR_AVAILABILITY.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#OPP_AUTO_DATA_SWITCH_POLICY_FOR_PERFORMANCE" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.OPP_AUTO_DATA_SWITCH_POLICY_FOR_PERFORMANCE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

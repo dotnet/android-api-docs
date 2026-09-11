@@ -2125,6 +2125,15 @@
             <c>android.widget.photopicker.PhotoPickerSelectionParams</c> to the photo picker.</summary>
         <remarks>
           <para>The name of an optional intent-extra used to pass PhotoPickerSelectionParams to the photo picker. This extra can only be specified in MediaStore.ACTION_PICK_IMAGES.</para>
+          <para>The PhotoPickerSelectionParams object allows the calling app to set constraints on the media items that can be selected by the user. Media items that fail to satisfy these constraints will be disabled for selection.</para>
+          <para>Not passing this EXTRA, means the photo picker will not apply any restrictions on what media items users can select (except for the MIME type specified in the android.content.Intent.setType(String) extra).</para>
+          <para>To use this key, calling apps should construct a PhotoPickerSelectionParams object using its PhotoPickerSelectionParams.Builder and pass it as the value.</para>
+          <code lang="text/java">PhotoPickerSelectionParams selectionParams = new PhotoPickerSelectionParams.Builder()
+    .setMaxMediaItemSizeInBytes(10000L)
+    .setMinMediaItemResolutionInPixels(500L)
+    .build();
+Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
+intent.putExtra(MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS, selectionParams);</code>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/MediaStore#EXTRA_PICK_IMAGES_SELECTION_PARAMS" title="Reference documentation">Android reference for <code>android.provider.MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2158,6 +2167,14 @@
             PhotoPicker.</summary>
         <remarks>
           <para>The name of an optional intent-extra used to set the ui customization options in the PhotoPicker.</para>
+          <para>The value of this intent-extra should be a PhotoPickerUiCustomizationParams object. The extra can only be specified in MediaStore.ACTION_PICK_IMAGES.</para>
+          <para>Not passing this EXTRA, means the photo picker will use its default UI (e.g. rendering the media items grid in 1:1 aspect ratio).</para>
+          <para>To use this key, calling apps should construct a PhotoPickerUiCustomizationParams object using its PhotoPickerUiCustomizationParams.Builder and pass it as the value.</para>
+          <code lang="text/java">PhotoPickerUiCustomizationParams params = new PhotoPickerUiCustomizationParams.Builder()
+    .setAspectRatio(PhotoPickerUiCustomizationParams.ASPECT_RATIO_PORTRAIT_9_16)
+    .build();
+Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
+intent.putExtra(MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS, params);</code>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/MediaStore#EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS" title="Reference documentation">Android reference for <code>android.provider.MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5356,6 +5373,8 @@
         <returns>The absolute path of the item after it has been restored.</returns>
         <remarks>
           <para>Restores a file or directory from a trashed state.</para>
+          <para>The item will be restored from the system's trash to its original location by default. If the original parent directories do not exist, they will be created as part of the restoration process. Optionally, a new targetPath can be specified to restore the item to a different location. If the specified path refers to a trashed directory, all its trashed contents will also be restored. If restoring a file would create a name conflict with an existing file, the system resolves this by appending a numerical suffix. For example, if image.jpeg exists, the restored file will be named image (1).jpeg.</para>
+          <para>Apps using this API must declare the Manifest.permission.MANAGE_EXTERNAL_STORAGE permission in their manifest and be granted it by the user.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/MediaStore#restoreFileFromTrash(android.content.ContentResolver,%20java.lang.String,%20java.lang.String)" title="Reference documentation">Android reference for <code>android.provider.MediaStore.restoreFileFromTrash</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5574,6 +5593,8 @@
             path if the system modifies it for trash management.</returns>
         <remarks>
           <para>Moves a file or directory to a trashed state.</para>
+          <para>If the specified path is a directory, all its contents (files and subdirectories) will also be trashed recursively.</para>
+          <para>Apps using this API must declare the Manifest.permission.MANAGE_EXTERNAL_STORAGE permission in their manifest and be granted it by the user.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/MediaStore#trashFile(android.content.ContentResolver,%20java.lang.String)" title="Reference documentation">Android reference for <code>android.provider.MediaStore.trashFile</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

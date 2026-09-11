@@ -29,6 +29,9 @@
             the appearance of the button.</summary>
     <remarks>
       <para>This interface defines location button session, and allows apps to change/customize the appearance of the button.</para>
+      <para>A location button's UI is rendered by a trusted system process to ensure its integrity and prevent tap jacking. An instance of this interface is returned via LocationButtonClient.onSessionOpened after a session is requested through LocationButtonProvider.openSession.</para>
+      <para>Once a session is opened, the client can get the button's UI by calling getSurfacePackage() and embedding it in its view hierarchy. The client is responsible for notifying the session of any UI changes, such as size or configuration updates.</para>
+      <para>When the session is no longer needed, the client must call close() to release all associated system resources.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -69,6 +72,7 @@
         <summary>Notifies the remote service of a configuration change.</summary>
         <remarks>
           <para>Notifies the remote service of a configuration change.</para>
+          <para>This should be called when the application's configuration changes, for example, due to a device rotation or a theme change (e.g., light to dark mode).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#changeConfiguration(android.content.res.Configuration)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.changeConfiguration</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -102,6 +106,7 @@
         <summary>Closes the session and releases all associated resources.</summary>
         <remarks>
           <para>Closes the session and releases all associated resources.</para>
+          <para>This releases the underlying surface and the connection to the remote service. Once closed, the location button UI is removed, and the session is no longer usable.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#close()" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.close</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -140,6 +145,8 @@
         <summary>Notifies the remote service that the button's container view has been resized.</summary>
         <remarks>
           <para>Notifies the remote service that the button's container view has been resized.</para>
+          <para>The remote service will re-layout the button to fit within the new dimensions.</para>
+          <para>See LocationButtonRequest.Builder.Builder(int,int,Configuration) for width and height input constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#resize(int,%20int)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.resize</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -176,6 +183,7 @@
         <summary>Sets the background color of the location button.</summary>
         <remarks>
           <para>Sets the background color of the location button.</para>
+          <para>See LocationButtonRequest.Builder.setBackgroundColor(int) for input constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#setBackgroundColor(int)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.setBackgroundColor</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -212,6 +220,7 @@
         <summary>Sets the corner radius for the location button.</summary>
         <remarks>
           <para>Sets the corner radius for the location button.</para>
+          <para>See LocationButtonRequest.Builder.setCornerRadius(float) for input constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#setCornerRadius(float)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.setCornerRadius</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -248,6 +257,7 @@
         <summary>Sets the tint color of the icon within the location button.</summary>
         <remarks>
           <para>Sets the tint color of the icon within the location button.</para>
+          <para>See LocationButtonRequest.Builder.setIconTint(int) for input constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#setIconTint(int)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.setIconTint</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -290,6 +300,7 @@
         <summary>Sets the padding for the location button within its container.</summary>
         <remarks>
           <para>Sets the padding for the location button within its container.</para>
+          <para>See the padding setters (e.g., LocationButtonRequest.Builder.setPaddingLeft(int)) for input constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#setPadding(int,%20int,%20int,%20int)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.setPadding</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -326,6 +337,7 @@
         <summary>Sets the corner radius for the location button pressed state.</summary>
         <remarks>
           <para>Sets the corner radius for the location button pressed state.</para>
+          <para>See LocationButtonRequest.Builder.setPressedCornerRadius(float) for input constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#setPressedCornerRadius(float)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.setPressedCornerRadius</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -362,6 +374,7 @@
         <summary>Sets the color of location button stroke/outline.</summary>
         <remarks>
           <para>Sets the color of location button stroke/outline.</para>
+          <para>See LocationButtonRequest.Builder.setStrokeColor(int) for input constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#setStrokeColor(int)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.setStrokeColor</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -398,6 +411,7 @@
         <summary>Sets the width of location button stroke/outline.</summary>
         <remarks>
           <para>Sets the width of location button stroke/outline.</para>
+          <para>See LocationButtonRequest.Builder.setStrokeWidth(int) for input constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#setStrokeWidth(int)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.setStrokeWidth</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -434,6 +448,7 @@
         <summary>Sets the color of location button text.</summary>
         <remarks>
           <para>Sets the color of location button text.</para>
+          <para>See LocationButtonRequest.Builder.setTextColor(int) for input constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#setTextColor(int)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.setTextColor</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -477,6 +492,7 @@
         <summary>Sets the text to be displayed on the button.</summary>
         <remarks>
           <para>Sets the text to be displayed on the button.</para>
+          <para>See LocationButtonRequest.Builder.setTextType(int) for input constraints.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#setTextType(int)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.setTextType</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -518,6 +534,7 @@
         <value>The surface package for the location button. This value cannot be null.</value>
         <remarks>
           <para>Returns the SurfaceControlViewHost.SurfacePackage containing the view for the location button.</para>
+          <para>The client can attach surface package to a SurfaceView in its view hierarchy to display the button. This allows the button's UI to be rendered by a trusted system process while being seamlessly integrated into the application's layout.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonSession#getSurfacePackage()" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonSession.getSurfacePackage</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

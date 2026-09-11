@@ -47,6 +47,17 @@
             <c>AppFunctionManager#searchAppFunctions</c>.</summary>
     <remarks>
       <para>Contains an app function's metadata, essential for its invocation and discovery, retrieved using AppFunctionManager.searchAppFunctions.</para>
+      <para>This metadata is defined in an XML asset file and does not change at runtime. The XML file is referenced from the app's AndroidManifest.xml. How it's referenced depends on whether the app function is implemented using AppFunctionService or AppFunctionManager.registerAppFunction.</para>
+      <para>The XML schema consists of a root &lt;appfunctions&gt; element that can contain one or more &lt;appfunction&gt; elements. The XML tags used within the &lt;appfunction&gt; element directly correspond to the property names defined by the PROPERTY_* constants in this class. All properties in the XML (including unknown properties) are made available through the getMetadataDocument() method.</para>
+      <code lang="text/java">&lt;appfunctions&gt;
+    &lt;appfunction&gt;
+        &lt;id&gt;createNote&lt;/id&gt;
+        &lt;enabledByDefault&gt;true&lt;/enabledByDefault&gt;
+        &lt;scope&gt;global&lt;/scope&gt;
+        ...
+    &lt;/appfunction&gt;
+&lt;/appfunctions&gt;</code>
+      <para>See AppFunctionManager.getAppFunctionStates for details on retrieving the runtime state of the app functions.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionMetadata" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionMetadata</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -200,6 +211,8 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns the app function's metadata as a GenericDocument.</para>
+          <para>Client-defined properties can be retrieved using the GenericDocument property getters.</para>
+          <para>Properties that are not defined in this class (see PROPERTY_* constants) are not guaranteed to be available or consistent across devices and versions.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionMetadata#getMetadataDocument()" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionMetadata.getMetadataDocument</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -233,6 +246,8 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns the qualified name of the app function.</para>
+          <para>The AppFunctionName is composed of the app's package name and the function's identifier.</para>
+          <para>This is defined by the PROPERTY_FUNCTION_ID tag in the XML.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionMetadata#getName()" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionMetadata.getName</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -476,6 +491,7 @@
         <summary>Property name for the XML tag that defines the value of getScope().</summary>
         <remarks>
           <para>Property name for the XML tag that defines the value of getScope().</para>
+          <para>This property is should not be used for XML assets referenced by an AppFunctionService declaration in the manifest, which are always SCOPE_GLOBAL.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionMetadata#PROPERTY_SCOPE" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionMetadata.PROPERTY_SCOPE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -620,6 +636,8 @@
         <value>Value is one of the following: SCOPE_GLOBAL; SCOPE_ACTIVITY</value>
         <remarks>
           <para>Returns the scope of the app function.</para>
+          <para>The scope determines the function's lifecycle and uniqueness rules. Depending on the scope, there could be at most one or multiple functions registered in the system with the same AppFunctionName.</para>
+          <para>See values below for more details on each scope.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionMetadata#getScope()" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionMetadata.getScope</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -660,6 +678,12 @@
         <summary>A value returned from <c>#getScope</c> that indicates it is an activity-scoped app function.</summary>
         <remarks>
           <para>A constant indicating an app function is activity-scoped.</para>
+          <para>Multiple app function implementations with the same AppFunctionName can exist simultaneously, each registered from a different Activity instance, which is identified by an AppFunctionActivityId.</para>
+          <para>Functions with this scope must be registered using AppFunctionManager.registerAppFunction, and must be called from an Activity context. Calling it from any other context will result in an IllegalStateException.</para>
+          <para>To execute an activity-scoped function, the caller of AppFunctionManager.executeAppFunction must use ExecuteAppFunctionRequest.Builder.setActivityId, otherwise AppFunctionException.ERROR_FUNCTION_NOT_FOUND will be returned.</para>
+          <para>To discover the specific activities where an activity-scoped function is currently registered, see AppFunctionManager.getAppFunctionStates and AppFunctionManager.getAppFunctionActivityStates.</para>
+          <para>The function remains registered until it is explicitly unregistered or the activity is destroyed.</para>
+          <para>IMPORTANT: Functions provided with AppFunctionManager.registerAppFunction called from an Activity context should prefer SCOPE_ACTIVITY. Only use SCOPE_GLOBAL for such functions if you are absolutely sure there can be only one instance of that activity.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionMetadata#SCOPE_ACTIVITY" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionMetadata.SCOPE_ACTIVITY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -700,6 +724,11 @@
         <summary>A value returned from <c>#getScope</c> that indicates it is a globally-scoped app function.</summary>
         <remarks>
           <para>A constant indicating an app function is globally-scoped.</para>
+          <para>There can be at most one app function implementation with the same AppFunctionName available with this scope. This is useful for functions that are tied to a singleton component, such as a foreground service.</para>
+          <para>When using AppFunctionManager.registerAppFunction, the function remains registered until it is explicitly unregistered or the calling context is destroyed.</para>
+          <para>To execute a globally-scoped function, the caller of AppFunctionManager.executeAppFunction must not use ExecuteAppFunctionRequest.Builder.setActivityId (or set it to null), otherwise AppFunctionException.ERROR_FUNCTION_NOT_FOUND will be returned.</para>
+          <para>This is always the scope for AppFunctionService-based functions.</para>
+          <para>IMPORTANT: Functions provided with AppFunctionManager.registerAppFunction called from an Activity context should prefer SCOPE_ACTIVITY. Only use SCOPE_GLOBAL for such functions if you are absolutely sure there can be only one instance of that activity.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionMetadata#SCOPE_GLOBAL" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionMetadata.SCOPE_GLOBAL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

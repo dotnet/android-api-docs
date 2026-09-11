@@ -224,6 +224,21 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Indicates to the system that the requesting application is offering its own content to be shared as MediaProjectionConfig.PROJECTION_SOURCE_APP_CONTENT.</para>
+          <para>When setOwnAppContentProvided(boolean) is set to true, the requesting app's content will override any content from other apps that might have been displayed by the system.</para>
+          <code lang="text/java"> &lt;/application&gt;
+  ...
+   &lt;service
+        android:exported="true"
+        android:name="com.example.AppContentSharingService"
+        android:permission="android.permission.MANAGE_MEDIA_PROJECTION"&gt;
+      &lt;intent-filter&gt;
+        &lt;action android:name="android.media.projection.AppContentProjectionService"/&gt;
+      &lt;/intent-filter&gt;
+    &lt;/service&gt;
+  &lt;/application&gt;</code>
+          <para>If supported by the device, the content will be displayed to the user in the media projection picker and AppContentProjectionService.onContentRequest(AppContentRequest) will be called, offering the a chance to this application to provide or update the content to be shared.</para>
+          <para>If the user selects an item from this list, AppContentProjectionService.onLoopbackProjectionStarted(AppContentProjectionSession,int) will be called and the projection session will be considered as started.</para>
+          <para>If the shared content becomes unavailable, this application will be responsible for calling AppContentProjectionSession.notifySessionStop(). If the session is stopped outside of this application AppContentProjectionService.onSessionStopped(AppContentProjectionSession) will be called.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/projection/MediaProjectionConfig.Builder#setOwnAppContentProvided(boolean)" title="Reference documentation">Android reference for <code>android.media.projection.MediaProjectionConfig.Builder.setOwnAppContentProvided</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -268,6 +283,8 @@
         <returns>instance of this Builder. This value cannot be null.</returns>
         <remarks>
           <para>Let the requesting app indicate who the requester of this MediaProjection session is.</para>
+          <para>The UI component prompting the user for the permission to start the session can use this hint to provide more information about the origin of the request (e.g. a browser tab title, a meeting id if sharing to a video conferencing app, a player name if sharing the screen within a game).</para>
+          <para>Note that setting this won't hide or change the name of the application requesting the session.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/projection/MediaProjectionConfig.Builder#setRequesterHint(java.lang.String)" title="Reference documentation">Android reference for <code>android.media.projection.MediaProjectionConfig.Builder.setRequesterHint</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

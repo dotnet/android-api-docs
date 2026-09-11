@@ -193,6 +193,9 @@
         <summary>Check whether the caller can register service info callbacks or resolve a service.</summary>
         <remarks>
           <para>Check whether the caller can register service info callbacks or resolve a service.</para>
+          <para>Starting from target SDK Build.VERSION_CODES.CINNAMON_BUN, unless apps have the Manifest.permission.ACCESS_LOCAL_NETWORK permission, they can only register service info callbacks or resolve services that were selected in a UI picker, as per DiscoveryRequest.FLAG_SHOW_PICKER.</para>
+          <para>The system will remember whether a user has selected a service in the past, but access may be revoked for storage reasons or by the user. This method allows checking whether access to the service was granted in the picker and not revoked.</para>
+          <para>The resultReceiver will be called using the provided Executor with either SERVICE_PERMISSION_GRANTED or SERVICE_PERMISSION_DENIED.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#checkPermissionForService(java.lang.String,%20java.lang.String,%20java.util.concurrent.Executor,%20java.util.function.IntConsumer)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.checkPermissionForService</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1029,6 +1032,9 @@
         <summary>Register a callback to discover and track updates of services.</summary>
         <remarks>
           <para>Register a callback to discover and track updates of services.</para>
+          <para>This method combines discoverServices(DiscoveryRequest,Executor,DiscoveryListener) and registerServiceInfoCallback(NsdServiceInfo,Executor,ServiceInfoCallback) by finding services as per the provided DiscoveryRequest, and continuously monitoring availability and properties of the discovered services.</para>
+          <para>This API may cause more network traffic than using discoverServices(DiscoveryRequest,Executor,DiscoveryListener) and only calling registerServiceInfoCallback(NsdServiceInfo,Executor,ServiceInfoCallback) for select services, because it automatically queries all service information for all discovered services. However most mDNS advertisers reply with their full service information in one discovery reply, in which case there is no additional traffic, and this API saves the cost of registering multiple listeners for discovering and resolving services.</para>
+          <para>Applications need to cancel the registration before registering the same callback instance again. Upon failure to register a callback, the application is notified through ServiceInfoCallback.onServiceInfoCallbackRegistrationFailed.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#registerServiceInfoCallback(android.net.nsd.DiscoveryRequest,%20java.util.concurrent.Executor,%20android.net.nsd.NsdManager.ServiceInfoCallback)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.registerServiceInfoCallback</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1193,6 +1199,7 @@
         <summary>Indicates the caller is not allowed to register service info callbacks or resolve a service.</summary>
         <remarks>
           <para>Indicates the caller is not allowed to register service info callbacks or resolve a service.</para>
+          <para>This is a result code for checkPermissionForService(String,String,Executor,IntConsumer).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#SERVICE_PERMISSION_DENIED" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.SERVICE_PERMISSION_DENIED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1230,6 +1237,7 @@
         <summary>Indicates the caller can register service info callbacks or resolve a service.</summary>
         <remarks>
           <para>Indicates the caller can register service info callbacks or resolve a service.</para>
+          <para>This is a result code for checkPermissionForService(String,String,Executor,IntConsumer).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#SERVICE_PERMISSION_GRANTED" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.SERVICE_PERMISSION_GRANTED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

@@ -33,6 +33,9 @@
     <summary>System service manager for handling privileged, long-running file operations.</summary>
     <remarks>
       <para>System service manager for handling privileged, long-running file operations.</para>
+      <para>The FileManager provides an API for applications to request asynchronous file operations such as moving or copying files. These operations are executed by the system service (`FileService`) on a background thread to ensure application responsiveness and system stability. Usage Overview</para>
+      <para>Interacting with the file operation service generally involves three steps: Enqueueing a Request: Use enqueueOperation(FileOperationRequest) to submit a new operation. This method returns immediately with a FileOperationEnqueueResult, which contains a unique Request ID (if successful) or an error code (if the system is busy); Tracking Progress (Optional): Apps can poll the current status of an operation using fetchResult(String) or simply wait for completion; Handling Completion: To receive a notification when the operation finishes (either successfully or with a failure), call registerCompletionListener(String). The system will send a broadcast ACTION_FILE_OPERATION_COMPLETED to your package when the operation reaches a terminal state. Concurrency and Limits</para>
+      <para>The system enforces limits on the number of concurrent pending operations to prevent resource exhaustion. If the system is under heavy load, enqueueOperation(FileOperationRequest) may return a result with the error code FileOperationResult.ERROR_BUSY. Applications should handle this case gracefully, potentially by retrying later.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/FileManager" title="Reference documentation">Android reference for <code>android.os.storage.FileManager</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -65,6 +68,8 @@
         <summary>Broadcast Action: Sent when a file operation has completed.</summary>
         <remarks>
           <para>Broadcast Action: Sent when a file operation has completed.</para>
+          <para>This broadcast is sent explicitly to the package that initiated the request and registered for notifications via registerCompletionListener(String).</para>
+          <para>The intent will contain the following extras: EXTRA_REQUEST_ID - The unique ID of the request that completed; EXTRA_RESULT - The final FileOperationResult of the operation, including status (FINISHED/FAILED), items processed, and any error messages.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/FileManager#ACTION_FILE_OPERATION_COMPLETED" title="Reference documentation">Android reference for <code>android.os.storage.FileManager.ACTION_FILE_OPERATION_COMPLETED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -104,6 +109,9 @@
                 error code (on failure).</returns>
         <remarks>
           <para>Enqueues a new file operation request.</para>
+          <para>This method validates the request and submits it to the system service. It returns immediately, without waiting for the operation to execute.</para>
+          <para>If the system is too busy to accept the request, the returned result will have an error code of FileOperationResult.ERROR_BUSY.</para>
+          <para>Note: Granular failure reporting is limited to the first 200 failures encountered. For operations where reporting every individual failure is required, it is recommended to break large tasks into multiple requests of 200 files or fewer.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/FileManager#enqueueOperation(android.os.storage.operations.FileOperationRequest)" title="Reference documentation">Android reference for <code>android.os.storage.FileManager.enqueueOperation</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -136,6 +144,7 @@
         <summary>Extra for <c>#ACTION_FILE_OPERATION_COMPLETED</c>: The Request ID (String).</summary>
         <remarks>
           <para>Extra for ACTION_FILE_OPERATION_COMPLETED: The Request ID (String).</para>
+          <para>This ID matches the one returned by enqueueOperation(FileOperationRequest).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/FileManager#EXTRA_REQUEST_ID" title="Reference documentation">Android reference for <code>android.os.storage.FileManager.EXTRA_REQUEST_ID</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -168,6 +177,7 @@
         <summary>Extra for <c>#ACTION_FILE_OPERATION_COMPLETED</c>: The result (<c>android.os.storage.operations.FileOperationResult</c>).</summary>
         <remarks>
           <para>Extra for ACTION_FILE_OPERATION_COMPLETED: The result (FileOperationResult).</para>
+          <para>This parcelable object contains detailed information about the final state of the operation.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/FileManager#EXTRA_RESULT" title="Reference documentation">Android reference for <code>android.os.storage.FileManager.EXTRA_RESULT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -212,6 +222,7 @@
                 if the request ID is unknown or has been culled from history.</returns>
         <remarks>
           <para>Retrieves the current result of a file operation.</para>
+          <para>The system maintains result information for all active operations and a limited history of recently completed ones.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/FileManager#fetchResult(java.lang.String)" title="Reference documentation">Android reference for <code>android.os.storage.FileManager.fetchResult</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -311,6 +322,8 @@
         <summary>Registers a listener for the completion of a specific file operation.</summary>
         <remarks>
           <para>Registers a listener for the completion of a specific file operation.</para>
+          <para>When the operation identified by requestId finishes (successfully or with an error), the system will send a ACTION_FILE_OPERATION_COMPLETED broadcast to the calling application.</para>
+          <para>This method should be called immediately after a successful enqueueOperation(FileOperationRequest) if completion notification is desired.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/FileManager#registerCompletionListener(java.lang.String)" title="Reference documentation">Android reference for <code>android.os.storage.FileManager.registerCompletionListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

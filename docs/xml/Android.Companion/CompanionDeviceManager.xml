@@ -1112,6 +1112,9 @@
                     <c>false</c> otherwise.</returns>
         <remarks>
           <para>Checks if a transport is currently attached for a given association id.</para>
+          <para>A transport is considered attached if attachSystemDataTransport(int,InputStream,OutputStream) has been successfully called for the given associationId, and detachSystemDataTransport(int) has not yet been called.</para>
+          <para>This is useful for determining if the system is ready to handle data transfers before calling startSystemDataTransfer(int,Executor,OutcomeReceiver).</para>
+          <para>The caller must meet one of the following requirements: It is the package that originally created the association; It holds the android.permission.ACCESS_COMPANION_MESSAGE_PCC permission and the association must be verified as a trusted device</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/companion/CompanionDeviceManager#isSystemDataTransportAttached(int)" title="Reference documentation">Android reference for <code>android.companion.CompanionDeviceManager.isSystemDataTransportAttached</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1224,6 +1227,7 @@
         <summary>Allows a companion app to report the result of an action that was requested by the system.</summary>
         <remarks>
           <para>Allows a companion app to report the result of an action that was requested by the system.</para>
+          <para>This API should be called after the app has received a request via CompanionDeviceService.onActionRequested(AssociationInfo,ActionRequest). For example: After receiving ActionRequest.OP_ACTIVATE, the app should call this method with ActionResult.RESULT_ACTIVATED upon success or ActionResult.RESULT_FAILED_TO_ACTIVATE upon failure; If a previously activated feature later fails or stops for any reason, the app should proactively call this method with ActionResult.RESULT_DEACTIVATED.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/companion/CompanionDeviceManager#notifyActionResult(int,%20android.companion.ActionResult)" title="Reference documentation">Android reference for <code>android.companion.CompanionDeviceManager.notifyActionResult</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

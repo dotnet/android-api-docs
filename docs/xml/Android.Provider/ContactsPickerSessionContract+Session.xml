@@ -30,6 +30,10 @@
             selected by the user in a single picking operation.</summary>
     <remarks>
       <para>Defines the contract for a Contacts Picker session, which represents the set of contacts selected by the user in a single picking operation.</para>
+      <para>Each row in this table corresponds to a single picker session and acts as a pointer to the underlying contact data. Querying a session URI effectively projects rows from the ContactsContract.Data table, providing secure, one-time access to the ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS for the contacts that the user selected.</para>
+      <para>Access to session data is strictly controlled for privacy and security. A client application can only access the session it initiated using the specific session URI returned by the picker. This access is enforced through Intent.FLAG_GRANT_READ_URI_PERMISSION. Privileged system applications with MANAGE_CONTACTS_PICKER_SESSION permission can still access all session data.</para>
+      <para>Because a session URI projects data from ContactsContract.Data, clients can use the columns from ContactsContract.Data in their query projection and sort order, just as they would when querying ContactsContract.Data directly.</para>
+      <para>Clients are not expected to pass selection and selection arguments in this query, as the data is already selected by the human user. Throws UnsupportedOperationException when either selection or selection arguments are passed.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract.Session" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract.Session</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -95,6 +99,7 @@
         <value>The base content:// style Uri for this table.</value>
         <remarks>
           <para>The base content:// style Uri for this table.</para>
+          <para>This URI represents the collection of all picker sessions and cannot be queried directly. To access data for a specific session, clients must use the unique session URI returned by the Contacts Picker in Activity.onActivityResult(int, int, android.content.Intent). This returned URI will have the format content://&lt;AUTHORITY&gt;/sessions/&lt;session_id&gt;, where &lt;session_id&gt; is a unique identifier for the picking operation.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract.Session#CONTENT_URI" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract.Session.CONTENT_URI</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

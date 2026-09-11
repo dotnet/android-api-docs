@@ -33,6 +33,16 @@
     <summary>A source representing a file within the calling application's private app data directory.</summary>
     <remarks>
       <para>A source representing a file within the calling application's private app data directory.</para>
+      <para>This source is restricted to files located inside the application's internal data directory (as returned by Context.getDataDir()). Operation Rejection</para>
+      <para>To ensure system security and integrity, operations using an AppDataFileSource will be rejected with FileOperationResult.ERROR_UNSUPPORTED_SOURCE or FileOperationResult.ERROR_INVALID_REQUEST if: The provided path is not absolute; The path contains path traversal elements (e.g., "..") or redundant segments; The path contains unsafe control characters (e.g., null, newline); The file is outside the application's internal data directory (CE or DE storage). Locations such as external storage or system directories are strictly prohibited.</para>
+      <code lang="text/java">// Obtain the application's data directory using Context
+Context context = getApplicationContext();
+File myDataFile = new File(context.getDataDir(), "subfolder/my_data.txt");
+
+// Construct the AppDataFileSource with the File object
+AppDataFileSource source = new AppDataFileSource(myDataFile);
+
+// The source can now be used in storage operations</code>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/sources/AppDataFileSource" title="Reference documentation">Android reference for <code>android.os.storage.operations.sources.AppDataFileSource</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>

@@ -29,6 +29,15 @@
     <summary>A notification style which shows up to 3 metrics when expanded.</summary>
     <remarks>
       <para>A notification style which shows up to 3 metrics when expanded. Metrics usually represent quantities that change over time, such as fitness information collected by a tracker, timers, weather information, etc.</para>
+      <code lang="text/java">Notification notif = new Notification.Builder(context)
+  .setStyle(new MetricStyle()
+      .addMetric(new Metric(new Metric.FixedInt(1979), "Steps"))
+      .addMetric(new Metric(
+          Metric.TimeDifference.forStopwatch(startTime, FORMAT_CHRONOMETER_AUTOMATIC),
+          "Time elapsed")))</code>
+      <para>A MetricStyle must contain at least one Metric object to be valid; an invalid style will be rejected when Builder.build() is called.</para>
+      <para>If a notification with this style is promoted ongoing, then one of its metrics might be displayed in the status bar chip.</para>
+      <para>Note that this style doesn't display the large icon set via Builder.setLargeIcon(Icon).</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Notification.MetricStyle" title="Reference documentation">Android reference for <code>android.app.Notification.MetricStyle</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -132,6 +141,7 @@
         <value>Returns which, if any, of the metrics is considered the "most important", or null if none are.</value>
         <remarks>
           <para>Returns which, if any, of the metrics is considered the "most important", or null if none are. This may be used when the notification is displayed in other surfaces (such as a status bar chip).</para>
+          <para>By default, unless setCriticalMetric(int) has been set, the first metric in the list is considered the critical one.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Notification.MetricStyle#getCriticalMetric()" title="Reference documentation">Android reference for <code>android.app.Notification.MetricStyle.getCriticalMetric</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

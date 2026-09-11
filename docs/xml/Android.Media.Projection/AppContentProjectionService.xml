@@ -33,6 +33,19 @@
     <summary>Service to be implemented by the application providing the <c>MediaProjectionAppContent</c>.</summary>
     <remarks>
       <para>Service to be implemented by the application providing the MediaProjectionAppContent.</para>
+      <para>To receive media projection callbacks related to app content sharing, this service must: be declared with an intent-filter action AppContentProjectionService.SERVICE_INTERFACE; set android:exported="true"; be protected by android.Manifest.permission.MANAGE_MEDIA_PROJECTION; set MediaProjectionConfig.Builder.setOwnAppContentProvided(boolean) to true</para>
+      <code lang="text/java"> &lt;/application&gt;
+  ...
+   &lt;service
+        android:exported="true"
+        android:name="com.example.AppContentSharingService"
+        android:permission="android.permission.MANAGE_MEDIA_PROJECTION"&gt;
+      &lt;intent-filter&gt;
+        &lt;action android:name="android.media.projection.AppContentProjectionService"/&gt;
+      &lt;/intent-filter&gt;
+    &lt;/service&gt;
+  &lt;/application&gt;</code>
+      <para>Only holders of android.Manifest.permission.MANAGE_MEDIA_PROJECTION are allowed to call these callbacks.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/projection/AppContentProjectionService" title="Reference documentation">Android reference for <code>android.media.projection.AppContentProjectionService</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -152,6 +165,7 @@
         <returns>Return an IBinder through which clients can call on to the service.</returns>
         <remarks>
           <para>Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.</para>
+          <para>Note that unlike other application components, calls on to the IBinder interface returned here may not happen on the main thread of the process. More information about the main thread can be found in Processes and Threads.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/projection/AppContentProjectionService#onBind(android.content.Intent)" title="Reference documentation">Android reference for <code>android.media.projection.AppContentProjectionService.onBind</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -188,6 +202,8 @@
         <summary>Called when the picker UI has been shown to the user.</summary>
         <remarks>
           <para>Called when the picker UI has been shown to the user.</para>
+          <para>App content should be returned by calling AppContentRequest.provideContent(List)</para>
+          <para>If the user picks one of the offered app content, onLoopbackProjectionStarted(AppContentProjectionSession,int) will be called with the id corresponding to the chosen content. See MediaProjectionAppContent for more information about the id.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/projection/AppContentProjectionService#onContentRequest(android.media.projection.AppContentRequest)" title="Reference documentation">Android reference for <code>android.media.projection.AppContentProjectionService.onContentRequest</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -221,6 +237,7 @@
         <summary>Called when the user didn't pick some app content to be shared.</summary>
         <remarks>
           <para>Called when the user didn't pick some app content to be shared. This can happen if the projection request was canceled, or the user picked another source (e.g. display, whole app).</para>
+          <para>Any resources created for sharing app content, such as thumbnails, can be discarded at this point.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/projection/AppContentProjectionService#onContentRequestCanceled()" title="Reference documentation">Android reference for <code>android.media.projection.AppContentProjectionService.onContentRequestCanceled</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -261,6 +278,8 @@
           <c>true</c> if the request has been fulfilled, <c>false</c> otherwise</returns>
         <remarks>
           <para>Called when the user picked a content to be shared within the requesting app.</para>
+          <para>This can be called multiple times if the user picks a different content to be shared at a later point.</para>
+          <para>contentId is the id that has been provided by this application during the onContentRequest(AppContentRequest) call. See MediaProjectionAppContent for more information about the id.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/projection/AppContentProjectionService#onLoopbackProjectionStarted(android.media.projection.AppContentProjectionSession,%20int)" title="Reference documentation">Android reference for <code>android.media.projection.AppContentProjectionService.onLoopbackProjectionStarted</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -298,6 +317,8 @@
         <summary>Called when the sharing session has been ended by the user or the system.</summary>
         <remarks>
           <para>Called when the sharing session has been ended by the user or the system. The shared resources can be discarded.</para>
+          <para>The provided session object is the same as the one provided when onLoopbackProjectionStarted(AppContentProjectionSession,int) was called. It can be used to identify the session that is being terminated.</para>
+          <para>Note that if the session is terminated by this service by calling AppContentProjectionSession.notifySessionStop(), this callback won't be called.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/projection/AppContentProjectionService#onSessionStopped(android.media.projection.AppContentProjectionSession)" title="Reference documentation">Android reference for <code>android.media.projection.AppContentProjectionService.onSessionStopped</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

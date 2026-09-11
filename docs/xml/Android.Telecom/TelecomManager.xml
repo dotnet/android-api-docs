@@ -436,6 +436,8 @@
         <summary>Activity Action: Show the settings for configuring call log integration.</summary>
         <remarks>
           <para>Activity Action: Show the settings for configuring call log integration.</para>
+          <para>This activity allows the user to view and turn off/on the system call logs for available VoIP applications that have integrated with the system's call log.</para>
+          <para>This activity must be present on a device that supports call log integration.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/TelecomManager#ACTION_CONFIGURE_CALL_LOG_INTEGRATION" title="Reference documentation">Android reference for <code>android.telecom.TelecomManager.ACTION_CONFIGURE_CALL_LOG_INTEGRATION</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -963,6 +965,8 @@
             by the user.</summary>
         <remarks>
           <para>Broadcast intent action indicating that the call log preference is updated by the user.</para>
+          <para>The intent is sent to VoIP applications whose preferences have been affected by the user's choice. Upon receiving this broadcast, the application may re-evaluate its behavior regarding call log entries.</para>
+          <para>To receive this broadcast, applications must declare a receiver in their manifest file with an intent filter for this action.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/TelecomManager#ACTION_VOIP_CALL_LOG_PREFERENCE" title="Reference documentation">Android reference for <code>android.telecom.TelecomManager.ACTION_VOIP_CALL_LOG_PREFERENCE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2081,6 +2085,10 @@
             the desired call type for the callback.</summary>
         <remarks>
           <para>An optional Intent extra used with ACTION_CALL_BACK to specify the desired call type for the callback.</para>
+          <para>The value must be one of CallAttributes.AUDIO_CALL, CallAttributes.VIDEO_CALL, or CallAttributes.MESSAGING.</para>
+          <para>Type: int</para>
+          <para>When an application receives an ACTION_CALL_BACK intent, it should check for this extra. If present, the application should attempt to initiate the callback using the specified call type. If this extra is not provided, the application should default to using the original call type associated with the call.</para>
+          <para>The initiating Dialer app must confirm whether the desired call type is supported by the target application before specifying this extra. Not all apps will support all callback types and it is the caller's responsibility to validate this.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/TelecomManager#EXTRA_CALL_TYPE" title="Reference documentation">Android reference for <code>android.telecom.TelecomManager.EXTRA_CALL_TYPE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3091,6 +3099,9 @@
             VoIP call log preference for the app receiving the broadcast.</summary>
         <remarks>
           <para>Extra used with ACTION_VOIP_CALL_LOG_PREFERENCE to specify the value of the VoIP call log preference for the app receiving the broadcast.</para>
+          <para>This extra is required when using ACTION_VOIP_CALL_LOG_PREFERENCE to signal what the preference for an app was changed to.</para>
+          <para>Type: boolean</para>
+          <para>Applications that support the ACTION_VOIP_CALL_LOG_PREFERENCE will receive broadcast updates for their app when the VoIP call log preference changes. They can use this to determine if their VoIP call log will be logged to the system call log so that caching mechanisms to store call information can be conditionally enforced.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/TelecomManager#EXTRA_VOIP_CALL_LOG_PREFERENCE_STATUS" title="Reference documentation">Android reference for <code>android.telecom.TelecomManager.EXTRA_VOIP_CALL_LOG_PREFERENCE_STATUS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3828,6 +3839,8 @@
           <c>true</c> if there is an ongoing call that is external, <c>false</c> otherwise.</value>
         <remarks>
           <para>Returns whether there is an ongoing phone call (can be in dialing, ringing, active or holding states) that is an external call.</para>
+          <para>External calls take place on another dveice. They do not retain audio focus or result in call audio routing operations. For example, a wearable device may provide a UI for a call which takes place on the user's phone for the purpose of controlling the call or potentially pulling it to the wearable; such a call is external.</para>
+          <para>Calls with Call.Details.PROPERTY_IS_EXTERNAL_CALL are external. Requires Manifest.permission.READ_PHONE_STATE</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/TelecomManager#isInExternalCall()" title="Reference documentation">Android reference for <code>android.telecom.TelecomManager.isInExternalCall</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

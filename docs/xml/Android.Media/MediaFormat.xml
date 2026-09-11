@@ -4827,6 +4827,7 @@
         <summary>A key describing the number of slots used in the codec.</summary>
         <remarks>
           <para>A key describing the number of slots used in the codec. When present in input format, the associated value indicates the number of input slots. The entry is set by the codec if configured with (@link MediaCodec#CONFIGURE_FLAG_BLOCK_MODEL), and will be ignored if set by the application.</para>
+          <para>The associated value is an integer.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaFormat#KEY_NUM_SLOTS" title="Reference documentation">Android reference for <code>android.media.MediaFormat.KEY_NUM_SLOTS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6051,6 +6052,9 @@
         <summary>Set the bitrate distributions for temporal layering.</summary>
         <remarks>
           <para>Set the bitrate distributions for temporal layering.</para>
+          <para>The associated value is a String in the format "ratio1;ratio2;...;ratioN", where N is the number of temporal layers - 1. Each ratio represents the bitrate allocation for the current layer and all lower layers combined, as a fraction of the total bitrate. There is no value for the highest temporal layer because it is always 1.0.</para>
+          <para>For example, if there are 3 temporal layers and the total bitrate is 1000kbps, a value of "0.3;0.6" would mean: Layer 0 (base layer): 30% of total bitrate (300kbps); Layer 0 + Layer 1: 60% of total bitrate (600kbps), so Layer 1 gets 30% (300kbps); Layer 0 + Layer 1 + Layer 2: 100% of total bitrate (1000kbps), so Layer 2 gets 40% (400kbps)</para>
+          <para>The ratios must be monotonically increasing. See MediaCodec.setParameters</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaFormat#KEY_VIDEO_BITRATE_LAYERING" title="Reference documentation">Android reference for <code>android.media.MediaFormat.KEY_VIDEO_BITRATE_LAYERING</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

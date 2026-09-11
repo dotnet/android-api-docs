@@ -4261,6 +4261,10 @@
             actions.</summary>
         <remarks>
           <para>Key used to request that the node source re-evaluate and update this node's layout-dependent actions. This request is made with refreshWithExtraData(String,Bundle) and takes no arguments.</para>
+          <para>Some actions may depend on the on-screen layout of a node. In complex or dynamic UIs, it may be difficult for a source to determine if a node is truly actionable without more intensive inspection. For example, a node may be misreported as clickable despite being occluded, requiring a hit-test to confirm the availability of the action.</para>
+          <para>Using this key requests that the source perform a more intensive, layout-based analysis to determine which actions are available to the user. After this request, the source will update the actions and related properties of this node. For example, for clickability, this may result in changes to the value returned by isClickable() and the presence of AccessibilityAction.ACTION_CLICK in the node's getActionList().</para>
+          <para>This analysis can be computationally expensive and should only be requested when needed to resolve ambiguous or inaccurate actions.</para>
+          <para>Providers may advertise that they support this request using setAvailableExtraData(List). Services may check for support with getAvailableExtraData().</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#EXTRA_DATA_REQUEST_LAYOUT_BASED_ACTIONS_KEY" title="Reference documentation">Android reference for <code>android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_REQUEST_LAYOUT_BASED_ACTIONS_KEY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -8652,6 +8656,7 @@
         <summary>Sets the extra rendering info, extraRenderingInfo, if the node is meant to be refreshed with extra data.</summary>
         <remarks>
           <para>Sets the extra rendering info, extraRenderingInfo, if the node is meant to be refreshed with extra data.</para>
+          <para>Note: Cannot be called from an AccessibilityService. This class is made immutable before being delivered to an AccessibilityService.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#setExtraRenderingInfo(android.view.accessibility.AccessibilityNodeInfo.ExtraRenderingInfo)" title="Reference documentation">Android reference for <code>android.view.accessibility.AccessibilityNodeInfo.setExtraRenderingInfo</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

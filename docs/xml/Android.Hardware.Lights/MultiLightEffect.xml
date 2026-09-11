@@ -46,6 +46,10 @@
     <summary>Models an effect that will be shown in one or more lights.</summary>
     <remarks>
       <para>Models an effect that will be shown in one or more lights.</para>
+      <para>Effects are comprised of [light, ColorSequence] pairs defining how each light should change over time along with some extra configuration values: Iterations: the number of times the effect will be played back to back; Preemptive: whether this effect should preempt any previously playing state or if it should be played after the current effect finishes</para>
+      <para>A MultiLightEffect is treated as a unit with a given start time and an implicit duration:; Start time: all lights sequences in the effect start at the same time, regardless of having a initial state or not; Duration: the duration of the effect is the duration of the longest sequence it contains. If a light sequence in the effect is shorter than the effect duration, the light will remain as a solid color until the end of the effect.</para>
+      <para>ColorSequences in the effect could have initial states (delay=0) for their corresponding lights, which has special implications when the effect will be played as a continuation of another effect (effects with preemptive=false and/or effects with initial states and more than one iteration).</para>
+      <para>The initial state will be applied only if the effect is set to preemptive and it is the first iteration of the effect. The system ignores the initial state in subsequent iterations or in effects with preemptive=false to allow the light to transition smoothly and avoid flicks.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/MultiLightEffect" title="Reference documentation">Android reference for <code>android.hardware.lights.MultiLightEffect</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -269,6 +273,7 @@
         <value>the Map of lightIds to the color sequences that will be played for the effect.</value>
         <remarks>
           <para>Returns the color sequences defined in the light effect for each of the lights.</para>
+          <para>The key for the returned map corresponds to the lightId (see Light.getId()) of the light that will play the color sequence represented by the value.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/MultiLightEffect#getSequences()" title="Reference documentation">Android reference for <code>android.hardware.lights.MultiLightEffect.getSequences</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

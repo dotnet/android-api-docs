@@ -193,6 +193,11 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Set filters based on service attributes.</para>
+          <para>Service attributes are as per NsdServiceInfo.getAttributes().</para>
+          <para>Keys of the provided map should match attribute keys. As per RFC6763 6.4. attribute keys are expected to be printable US-ASCII values (0x20-0x7E), and the key matching is not case-sensitive.</para>
+          <para>Values of the map are matchers that will be checked against attributes value bytes read as uppercase hexadecimal if the pattern starts with 0x, or using UTF-8 encoding if it does not. Value matching is case-sensitive.</para>
+          <para>If a map value is null, the corresponding attribute will be expected to be a boolean attribute with no value as per RFC6763 6.4.</para>
+          <para>If a null or empty map is passed, no filtering will be done based on attributes (the default).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest.Builder#setAttributeFilters(java.util.Map&lt;java.lang.String,android.os.PatternMatcher&gt;)" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.Builder.setAttributeFilters</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -237,6 +242,8 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Set the service attribute to use to display the service in the service picker UI.</para>
+          <para>Attribute key matching is not case-sensitive, as per RFC6763 6.4.</para>
+          <para>Defaults to null, which means the service name will be used instead.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest.Builder#setDisplayNameAttribute(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.Builder.setDisplayNameAttribute</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -313,6 +320,9 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Sets the discovery flags.</para>
+          <para>Multiple flags may be enabled or disabled by passing the logical OR of the flags.</para>
+          <para>For example, to set DiscoveryRequest.FLAG_NO_PICKER: setFlags(FLAG_NO_PICKER, FLAG_NO_PICKER)</para>
+          <para>To disable DiscoveryRequest.FLAG_NO_PICKER: setFlags(0, FLAG_NO_PICKER)</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest.Builder#setFlags(long,%20long)" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.Builder.setFlags</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -397,6 +407,8 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Set the filter to apply to NsdServiceInfo.getServiceName() on received services.</para>
+          <para>As per RFC6335 5.1., service names must be only US-ASCII letters, digits and hyphens, and matching is not case-sensitive.</para>
+          <para>Defaults to null, which means services will not be filtered by name.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest.Builder#setServiceNameFilter(android.os.PatternMatcher)" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.Builder.setServiceNameFilter</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

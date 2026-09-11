@@ -152,6 +152,7 @@
         <summary>The system is too busy to handle the request.</summary>
         <remarks>
           <para>The system is too busy to handle the request.</para>
+          <para>This error is transient. Applications should consider retrying the operation after a short delay, potentially using an exponential backoff strategy.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/FileOperationResult#ERROR_BUSY" title="Reference documentation">Android reference for <code>android.os.storage.operations.FileOperationResult.ERROR_BUSY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -225,6 +226,7 @@
         <summary>The operation failed because the disk is full.</summary>
         <remarks>
           <para>The operation failed because the disk is full.</para>
+          <para>This error is potentially transient if the user clears enough space on the storage device.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/FileOperationResult#ERROR_DISK_FULL" title="Reference documentation">Android reference for <code>android.os.storage.operations.FileOperationResult.ERROR_DISK_FULL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -265,6 +267,7 @@
         <summary>The system cannot fulfill the request as configured.</summary>
         <remarks>
           <para>The system cannot fulfill the request as configured.</para>
+          <para>This error is permanent as it indicates a malformed or invalid request.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/FileOperationResult#ERROR_INVALID_REQUEST" title="Reference documentation">Android reference for <code>android.os.storage.operations.FileOperationResult.ERROR_INVALID_REQUEST</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -386,6 +389,7 @@
         <summary>The operation failed due to missing permissions.</summary>
         <remarks>
           <para>The operation failed due to missing permissions.</para>
+          <para>This error is permanent unless the user manually grants the required permissions.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/FileOperationResult#ERROR_PERMISSION_DENIED" title="Reference documentation">Android reference for <code>android.os.storage.operations.FileOperationResult.ERROR_PERMISSION_DENIED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -466,6 +470,7 @@
         <summary>The source of the operation is unsupported or invalid.</summary>
         <remarks>
           <para>The source of the operation is unsupported or invalid.</para>
+          <para>This error is permanent as it indicates an issue with the request.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/FileOperationResult#ERROR_UNSUPPORTED_SOURCE" title="Reference documentation">Android reference for <code>android.os.storage.operations.FileOperationResult.ERROR_UNSUPPORTED_SOURCE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -506,6 +511,7 @@
         <summary>The target of the operation is unsupported or invalid.</summary>
         <remarks>
           <para>The target of the operation is unsupported or invalid.</para>
+          <para>This error is permanent as it indicates an issue with the request.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/FileOperationResult#ERROR_UNSUPPORTED_TARGET" title="Reference documentation">Android reference for <code>android.os.storage.operations.FileOperationResult.ERROR_UNSUPPORTED_TARGET</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -539,6 +545,8 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns the list of failures.</para>
+          <para>This list is only populated when the operation reaches a terminal state (STATUS_FINISHED or STATUS_FAILED).</para>
+          <para>Note: Due to binder transaction limits, this list can truncate the total number of reported failures. If failures occurred, only the first FileManager.getMaxReportedFailures() are reported.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/FileOperationResult#getFailedPaths()" title="Reference documentation">Android reference for <code>android.os.storage.operations.FileOperationResult.getFailedPaths</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

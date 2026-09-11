@@ -32,6 +32,7 @@
     <summary>Controls tunnels established via HTTP CONNECT.</summary>
     <remarks>
       <para>Controls tunnels established via HTTP CONNECT. All methods will be invoked onto the Executor specified in Proxy.createHttpProxy(int, String, int, Executor, HttpConnectCallback).</para>
+      <para>Methods within this class are invoked only when HttpEngine must establish a tunnel through the proxy. Refer to Proxy.createHttpProxy(int, String, int, Executor, HttpConnectCallback)'s documentation to understand when that is the case.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/Proxy.HttpConnectCallback" title="Reference documentation">Android reference for <code>android.net.http.Proxy.HttpConnectCallback</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -72,6 +73,7 @@
         <summary>Called before sending an HTTP CONNECT request to the proxy to establish a tunnel.</summary>
         <remarks>
           <para>Called before sending an HTTP CONNECT request to the proxy to establish a tunnel.</para>
+          <para>Allows manipulating, or canceling, said request before sending it to the proxy. Refer to Request to learn how a request can be manipulated/canceled.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/Proxy.HttpConnectCallback#onBeforeRequest(android.net.http.Proxy.HttpConnectCallback.Request)" title="Reference documentation">Android reference for <code>android.net.http.Proxy.HttpConnectCallback.onBeforeRequest</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -115,6 +117,9 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Called after receiving a response to the HTTP CONNECT request sent to the proxy to establish a tunnel. Allows reading headers and status code.</para>
+          <para>This method must return before any HTTP request can be sent via the tunnel that is being established.</para>
+          <para>This method will not be called for HTTP requests that will go through the tunnel once it is established.</para>
+          <para>If this method throws any Throwable, the fate of the tunnel will be as if RESPONSE_ACTION_CLOSE had been returned. The Throwable will not be caught.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/Proxy.HttpConnectCallback#onResponseReceived(java.util.List&lt;android.util.Pair&lt;java.lang.String,java.lang.String&gt;&gt;,%20int)" title="Reference documentation">Android reference for <code>android.net.http.Proxy.HttpConnectCallback.onResponseReceived</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

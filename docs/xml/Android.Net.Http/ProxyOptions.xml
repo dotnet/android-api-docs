@@ -70,6 +70,7 @@
         <summary>Allows direct, non-proxied, traffic.</summary>
         <remarks>
           <para>Allows direct, non-proxied, traffic.</para>
+          <para>This defines a fail-open behavior: if all proxies in a ProxyOptions have failed, HttpEngine will fall back onto non-proxied connections.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/ProxyOptions#ALL_PROXIES_FAILED_BEHAVIOR_ALLOW_DIRECT" title="Reference documentation">Android reference for <code>android.net.http.ProxyOptions.ALL_PROXIES_FAILED_BEHAVIOR_ALLOW_DIRECT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -107,6 +108,7 @@
         <summary>Disallows direct traffic.</summary>
         <remarks>
           <para>Disallows direct traffic.</para>
+          <para>This defines a fail-closed behavior: if all proxies in a ProxyOptions have failed, HttpEngine won't fall back onto non-proxied connections.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/ProxyOptions#ALL_PROXIES_FAILED_BEHAVIOR_DISALLOW_DIRECT" title="Reference documentation">Android reference for <code>android.net.http.ProxyOptions.ALL_PROXIES_FAILED_BEHAVIOR_DISALLOW_DIRECT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -153,6 +155,7 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Constructs a proxy configuration out of a list of Proxy.</para>
+          <para>Proxies in the list will be used in order. Proxy in position N+1 will be used only if HttpEngine failed to use proxy in position N. If proxy in position N fails, for any reason (including tunnel closures triggered via Proxy.HttpConnectCallback), but proxy in position N+1 succeeds, proxies in position N will be temporarily deprioritized. While a proxy is deprioritized it will be used only as a last resort.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/ProxyOptions#fromProxyList(java.util.List&lt;android.net.http.Proxy&gt;,%20int)" title="Reference documentation">Android reference for <code>android.net.http.ProxyOptions.fromProxyList</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

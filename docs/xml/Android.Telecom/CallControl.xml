@@ -47,9 +47,9 @@
         </format>
       </para>
       <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
@@ -104,7 +104,20 @@
                               the call state to active.  A <c>CallException</c> will be passed
                               that details why the operation failed.</param>
         <summary>Request Telecom answer an incoming call.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Request Telecom answer an incoming call.  For outgoing calls and calls that have been placed
+            on hold, use <c>CallControl#setActive(Executor, OutcomeReceiver)</c>.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/telecom/CallControl#answer(int,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20android.telecom.CallException%3E)" title="Reference documentation">Java documentation for <code>android.telecom.CallControl.answer(int, java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Void, android.telecom.CallException&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CallId">
@@ -415,7 +428,24 @@
                               the new video state.  A <c>CallException</c> will be passed
                               that details why the operation failed.</param>
         <summary>Request a new video state for the ongoing call.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Request a new video state for the ongoing call. This can only be changed if the application
+            has registered a <c>PhoneAccount</c> with the
+            <c>PhoneAccount#CAPABILITY_SUPPORTS_VIDEO_CALLING</c> and set the
+            <c>CallAttributes#SUPPORTS_VIDEO_CALLING</c> when adding the call via
+            <c>TelecomManager#addCall(CallAttributes, Executor, OutcomeReceiver,
+                                                                 CallControlCallback, CallEventCallback)</c></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/telecom/CallControl#requestVideoState(int,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20android.telecom.CallException%3E)" title="Reference documentation">Java documentation for <code>android.telecom.CallControl.requestVideoState(int, java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Void, android.telecom.CallException&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SendEvent">
@@ -590,6 +620,9 @@
         <summary>Sets the VoIP contact URI for an ongoing call.</summary>
         <remarks>
           <para>Sets the VoIP contact URI for an ongoing call.</para>
+          <para>This method should be invoked by a VoIP application. when a call transitions to or from being a group call. For instance, if a one-on-one call adds more participants and becomes a conference. This should be used in par with CallControl.setGroupCallState.</para>
+          <para>Providing this state allows the Android system to correctly represent the call in the system's user interface, such as the native call log. As part of the integrated call logs feature, which provides a unified history for both carrier and VoIP calls, accurately associating the calls with a valid lookup URI is essential for a consistent user experience.</para>
+          <para>The uri parameter is crucial for linking the call to a specific group entity within the VoIP contact directory or a CP2 contact. This helps in associating the call log entry with the correct contact information, such as the group's name and avatar.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/CallControl#setContactUri(android.net.Uri,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;java.lang.Void,android.telecom.CallException&gt;)" title="Reference documentation">Android reference for <code>android.telecom.CallControl.setContactUri</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -641,6 +674,8 @@
         <summary>Sets the group call state for an ongoing call.</summary>
         <remarks>
           <para>Sets the group call state for an ongoing call.</para>
+          <para>This method should be invoked by a VoIP application. when a call transitions to or from being a group call. For instance, if a one-on-one call adds more participants and becomes a conference, this method informs the system of that change.</para>
+          <para>Providing this state allows the Android system to correctly represent the call in the system's user interface, such as the native call log. As part of the integrated call logs feature, which provides a unified history for both carrier and VoIP calls, accurately identifying group calls is essential for a consistent user experience.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telecom/CallControl#setGroupCallState(boolean,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;java.lang.Void,android.telecom.CallException&gt;)" title="Reference documentation">Android reference for <code>android.telecom.CallControl.setGroupCallState</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

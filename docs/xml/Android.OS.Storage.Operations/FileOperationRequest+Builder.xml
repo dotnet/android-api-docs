@@ -29,6 +29,21 @@
     <summary>Builder for constructing <c>FileOperationRequest</c> instances.</summary>
     <remarks>
       <para>Builder for constructing FileOperationRequest instances.</para>
+      <code lang="text/java">// Initialize the builder with the desired operation mode
+FileOperationRequest.Builder builder = new FileOperationRequest.Builder(
+        FileOperationRequest.OPERATION_MOVE);
+
+// Define the source files (e.g., from the app's internal data)
+OperationSource source = new AppDataFileSource(new File(getDataDir(), "logs.db"));
+
+// Define the destination (e.g., a subdirectory in PCC)
+OperationTarget target = new PccTarget("archive/databases");
+
+// Configure and build the request
+FileOperationRequest request = builder
+        .setSource(source)
+        .setTarget(target)
+        .build();</code>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/FileOperationRequest.Builder" title="Reference documentation">Android reference for <code>android.os.storage.operations.FileOperationRequest.Builder</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -162,6 +177,8 @@
         <returns>This builder instance. This value cannot be null.</returns>
         <remarks>
           <para>Sets whether a completion listener should be automatically registered for this request when it is enqueued.</para>
+          <para>If set to true, the calling application will receive a FileManager.ACTION_FILE_OPERATION_COMPLETED broadcast when the operation finishes.</para>
+          <para>IMPORTANT: If the operation is rejected or fails to be queued, the listener will not be registered. Apps should ensure their requests are enqueued successfully via FileOperationEnqueueResult.isSuccessful</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/FileOperationRequest.Builder#setRegisterCompletionListener(boolean)" title="Reference documentation">Android reference for <code>android.os.storage.operations.FileOperationRequest.Builder.setRegisterCompletionListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

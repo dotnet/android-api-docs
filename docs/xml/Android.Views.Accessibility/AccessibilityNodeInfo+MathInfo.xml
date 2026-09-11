@@ -46,6 +46,8 @@
     <summary>A class that holds information about a node that represents a mathematical expression.</summary>
     <remarks>
       <para>A class that holds information about a node that represents a mathematical expression.</para>
+      <para>This class's structure is based on the concepts and tags defined in the W3C MathML standard. An accessibility service can use this information to provide a richer experience for users interacting with mathematical content. For example, a screen reader could use the tag and attributes to correctly pronounce a fraction and allow the user to navigate between the numerator and the denominator.</para>
+      <para>To add math information to a node, create an instance of MathInfo, set its attributes using putAttribute(String,String), and then call setStructuredDataInfo(StructuredDataInfo) on the AccessibilityNodeInfo.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo.MathInfo" title="Reference documentation">Android reference for <code>android.view.accessibility.AccessibilityNodeInfo.MathInfo</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -235,6 +237,8 @@
             <c>#MATH_ATTRIBUTE_INTENT</c> value.</summary>
         <remarks>
           <para>An attribute used to associate a child element with one of the arguments in its parent's MATH_ATTRIBUTE_INTENT value.</para>
+          <para>The value of the arg attribute is a token that must match one of the argument names in the parent's intent value.</para>
+          <para>Use this attribute on a child node to explicitly link it to one of the argument placeholders in its parent's intent string. For example, if a parent node has intent="gcd($1, $2)", the child node representing the first parameter of the function should have its arg attribute set to "1".</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo.MathInfo#MATH_ATTRIBUTE_ARG" title="Reference documentation">Android reference for <code>android.view.accessibility.AccessibilityNodeInfo.MathInfo.MATH_ATTRIBUTE_ARG</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -271,6 +275,8 @@
             specified.</summary>
         <remarks>
           <para>An attribute that provides a semantic annotation for the element on which it is specified.</para>
+          <para>The intent attribute's value is a string that can be parsed to determine the meaning of the element and its children. An intent value is a string consisting of a single token, or a function-like expression.</para>
+          <para>Use this attribute on a container node to disambiguate mathematical notation. For example, the expression (a, b) is ambiguous; it could be a point, an open interval, or the greatest common divisor. By setting intent="open-interval($1, $2)" on the parent node, you provide a precise, machine-readable meaning that accessibility services can use to provide a better experience. The $1 and $2 are placeholders for the arguments, which are identified on child nodes using the MATH_ATTRIBUTE_ARG attribute.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo.MathInfo#MATH_ATTRIBUTE_INTENT" title="Reference documentation">Android reference for <code>android.view.accessibility.AccessibilityNodeInfo.MathInfo.MATH_ATTRIBUTE_INTENT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

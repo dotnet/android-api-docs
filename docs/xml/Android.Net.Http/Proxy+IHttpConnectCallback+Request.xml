@@ -46,6 +46,7 @@
     <summary>Represents an HTTP CONNECT request being sent to the proxy server.</summary>
     <remarks>
       <para>Represents an HTTP CONNECT request being sent to the proxy server.</para>
+      <para>All methods may be called synchronously or asynchronously, on any thread.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/Proxy.HttpConnectCallback.Request" title="Reference documentation">Android reference for <code>android.net.http.Proxy.HttpConnectCallback.Request</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -82,6 +83,9 @@
         <summary>Releases all resources associated with the tunnel establishment request.</summary>
         <remarks>
           <para>Releases all resources associated with the tunnel establishment request.</para>
+          <para>If this method is called after proceed(List), this will have no effect on the tunnel establishment request and the underlying HTTP CONNECT, they will keep proceeding.</para>
+          <para>If this method is called before proceed(List), the tunnel establishment request and the underlying HTTP CONNECT request will be canceled.</para>
+          <para>When a tunnel establishment request is canceled, HttpEngine will interpret it as a failure to use the associated Proxy. HttpEngine will then try the next Proxy in the list passed to ProxyOptions (refer to that class documentation for more info).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/Proxy.HttpConnectCallback.Request#close()" title="Reference documentation">Android reference for <code>android.net.http.Proxy.HttpConnectCallback.Request.close</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

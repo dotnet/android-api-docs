@@ -32,6 +32,7 @@
     <summary>Callback interface for being notified of the surfaces used for the capture.</summary>
     <remarks>
       <para>Callback interface for being notified of the surfaces used for the capture.</para>
+      <para>The onActiveOutputSurfaces is called per request on this MultiResolutionImageReader, to indicate which underlying ImageReader surfaces are outputting images.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/MultiResolutionImageReader.OnActiveOutputSurfacesListener" title="Reference documentation">Android reference for <code>android.hardware.camera2.MultiResolutionImageReader.OnActiveOutputSurfacesListener</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -77,6 +78,9 @@
             expect to receive images from.</summary>
         <remarks>
           <para>Callback that is called to notify the active surfaces that the application should expect to receive images from.</para>
+          <para>If the MultiResolutionImageReader is created with enableConcurrency set to true, multiple underlying readers may produce images for a single capture request. The application can listen to this callback to know which readers to expect an output image from.</para>
+          <para>If the MultiResolutionImageReader is created without enableConcurrency set to true, this callback will not the triggered.</para>
+          <para>The timestamp can be used to correlate between the activeOutputSurfaces and the images being output from those surfaces. The timestamp can be start of exposure or start of readout depending on whether OutputConfiguration.setReadoutTimestampEnabled(boolean) was called on the outputs. Similarly, the timestamp can be either in the same time base as in SystemClock.uptimeMillis() or SystemClock.elapsedRealtime() depending on the timestamp base of the outputs. See OutputConfiguration.setTimestampBase for details.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/MultiResolutionImageReader.OnActiveOutputSurfacesListener#onActiveOutputSurfaces(java.util.List&lt;android.view.Surface&gt;,%20long,%20long)" title="Reference documentation">Android reference for <code>android.hardware.camera2.MultiResolutionImageReader.OnActiveOutputSurfacesListener.onActiveOutputSurfaces</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

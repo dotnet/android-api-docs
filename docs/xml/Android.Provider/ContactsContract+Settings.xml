@@ -309,6 +309,7 @@
         <returns>A long representing the attributes bitmask. Value is either 0 or a combination of the following: ContactsContract.Settings.AccountAttributes.ATTRIBUTE_DATA_ORIGIN_LOCAL; ContactsContract.Settings.AccountAttributes.ATTRIBUTE_DATA_ORIGIN_SIM; ContactsContract.Settings.AccountAttributes.ATTRIBUTE_DATA_ORIGIN_CLOUD; ContactsContract.Settings.AccountAttributes.ATTRIBUTE_SYNC_MODE_UP_SYNC; ContactsContract.Settings.AccountAttributes.ATTRIBUTE_SYNC_MODE_DOWN_SYNC; ContactsContract.Settings.AccountAttributes.ATTRIBUTE_DATA_TYPE_CUSTOM_DECLARED</returns>
         <remarks>
           <para>Returns the attributes of a given account as a 64-bit bitmask.</para>
+          <para>A return value of 0L indicates the account exists but has no specific attributes enabled or set. Requires Manifest.permission.READ_CONTACTS</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsContract.Settings#getAccountAttributes(android.content.ContentResolver,%20android.accounts.Account,%20java.lang.String)" title="Reference documentation">Android reference for <code>android.provider.ContactsContract.Settings.getAccountAttributes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -451,6 +452,8 @@
         <summary>Resets the attributes for a given account to their system-evaluated defaults.</summary>
         <remarks>
           <para>Resets the attributes for a given account to their system-evaluated defaults.</para>
+          <para>This operation removes any explicit overrides set via setAccountAttributes(ContentResolver, Account, String, long) and causes the system to immediately re-evaluate the account's attributes based on its type and other characteristics Security</para>
+          <para>This method requires that the calling application be the authenticator for the account's type, as defined in AccountManager. Requires Manifest.permission.WRITE_CONTACTS</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsContract.Settings#resetAccountAttributes(android.content.ContentResolver,%20android.accounts.Account,%20java.lang.String)" title="Reference documentation">Android reference for <code>android.provider.ContactsContract.Settings.resetAccountAttributes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -504,6 +507,9 @@
         <summary>Sets the attributes for a given account with a new set of flags.</summary>
         <remarks>
           <para>Sets the attributes for a given account with a new set of flags.</para>
+          <para>Warning: This is a destructive operation. Any attributes previously set on the account will be cleared and replaced by the provided newAttributes.</para>
+          <para>The provided bitmask must be valid and free of semantic conflicts (e.g., containing more than one DATA_ORIGIN type). Security</para>
+          <para>This method requires that the calling application to be the authenticator for the account's type. Requires Manifest.permission.WRITE_CONTACTS</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsContract.Settings#setAccountAttributes(android.content.ContentResolver,%20android.accounts.Account,%20java.lang.String,%20long)" title="Reference documentation">Android reference for <code>android.provider.ContactsContract.Settings.setAccountAttributes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

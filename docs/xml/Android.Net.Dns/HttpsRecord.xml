@@ -33,6 +33,7 @@
     <summary>Class to represent a HTTPS DNS response record.</summary>
     <remarks>
       <para>Class to represent a HTTPS DNS response record.</para>
+      <para>See RFC 9460 for more details on the expected structure and contents.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/dns/HttpsRecord" title="Reference documentation">Android reference for <code>android.net.dns.HttpsRecord</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -88,6 +89,8 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns the list of Application-Layer Protocol Negotiation (ALPN) protocol identifiers contained in the HTTPS record.</para>
+          <para>If the record does not specify no-default-alpn SvcParamKey, the list will contain the default ALPN ID "http/1.1".</para>
+          <para>See RFC 9460 7.1 for more details.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/dns/HttpsRecord#getAlpnIds()" title="Reference documentation">Android reference for <code>android.net.dns.HttpsRecord.getAlpnIds</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -190,6 +193,8 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns the list of IP hints (IPv4 &amp; IPv6) contained in the HTTPS record.</para>
+          <para>This method returns all the hints present in the record, including address families that are not present on the current network. To determine which IP addresses to use when establishing a connection, use HttpsEndpoint.getIpAddresses() instead.</para>
+          <para>The list is sorted according to RFC 6724. See RFC 9460 7.3 for more details.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/dns/HttpsRecord#getIpAddressHints()" title="Reference documentation">Android reference for <code>android.net.dns.HttpsRecord.getIpAddressHints</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -252,6 +257,7 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns the owner name of the HTTPS record.</para>
+          <para>This should be used as the effective target name if the HTTPS record target name is an empty string.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/dns/HttpsRecord#getOwnerName()" title="Reference documentation">Android reference for <code>android.net.dns.HttpsRecord.getOwnerName</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -285,6 +291,7 @@
         <value>Returns the port of the HTTPS record, defaulting to 443 if not specified in the record.</value>
         <remarks>
           <para>Returns the port of the HTTPS record, defaulting to 443 if not specified in the record.</para>
+          <para>See RFC 9460 7.2 for more details.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/dns/HttpsRecord#getPort()" title="Reference documentation">Android reference for <code>android.net.dns.HttpsRecord.getPort</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -318,6 +325,9 @@
         <value>Value is between 0 and 65535 inclusive</value>
         <remarks>
           <para>Returns the priority of the HTTPS record, i.e. the contents of the SvcPriority field.</para>
+          <para>If the priority is 0, the record is considered AliasMode, and will not contain any IP hints, port, ALPN IDs, or ECH configurations. Otherwise, it is ServiceMode.</para>
+          <para>Because RR sets are unordered, this priority field is used to impose an ordering, where smaller values are recommended for use over those with a larger priority value.</para>
+          <para>See RFC 9460 2.4 for more details.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/dns/HttpsRecord#getPriority()" title="Reference documentation">Android reference for <code>android.net.dns.HttpsRecord.getPriority</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -351,6 +361,7 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns the target name of the HTTPS record.</para>
+          <para>If the target name is an empty string, RFC 9460 2.5 specifies that this indicates special rules. For AliasMode RRs, this indicates that the service is not available or does not exist. For ServiceMode RRs, this indicates the record's owner name is the effective target name.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/dns/HttpsRecord#getTargetName()" title="Reference documentation">Android reference for <code>android.net.dns.HttpsRecord.getTargetName</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

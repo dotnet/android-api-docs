@@ -33,6 +33,8 @@
     <summary>Provides access to implementations of HPKE hybrid cryptography as per RFC 9180.</summary>
     <remarks>
       <para>Provides access to implementations of HPKE hybrid cryptography as per RFC 9180.</para>
+      <para>Provider and HPKE suite selection are done via the getInstance methods, and then instances of senders and receivers can be created using newSender or {newReceiver}. Each sender and receiver is independent, i.e. does not share any encapsulated state with other senders or receivers created via this Hpke.</para>
+      <para>HPKE suites are composed of a key encapsulation mechanism (KEM), a key derivation function (KDF) and an authenticated cipher algorithm (AEAD) as defined in RFC 9180 section 7. NamedParameterSpecs for these can be found in KemParameterSpec, KdfParameterSpec and AeadParameterSpec. These can be composed into a full HPKE suite name used to request a particular implementation using Hpke.getSuiteName(KemParameterSpec,KdfParameterSpec,AeadParameterSpec).</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/crypto/hpke/Hpke" title="Reference documentation">Android reference for <code>android.crypto.hpke.Hpke</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -92,6 +94,7 @@
         <returns>an Hpke instance configured for the requested suite</returns>
         <remarks>
           <para>Returns an Hpke instance configured for the requested HPKE suite, using the highest priority Provider which implements it.</para>
+          <para>Use Hpke.getSuiteName(KemParameterSpec,KdfParameterSpec,AeadParameterSpec) for generating HPKE suite names from NamedParameterSpecs</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/crypto/hpke/Hpke#getInstance(java.lang.String)" title="Reference documentation">Android reference for <code>android.crypto.hpke.Hpke.getInstance</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -214,6 +217,7 @@
         <returns>a fully composed HPKE suite name</returns>
         <remarks>
           <para>Generates a full HPKE suite name from the named parameter specifications of its components, which have names reflecting their usage in RFC 9180.</para>
+          <para>HPKE suites are composed of a key encapsulation mechanism (KEM), a key derivation function (KDF) and an authenticated cipher algorithm (AEAD) as defined in RFC 9180 section 7. NamedParameterSpecs for these can be foundu in KemParameterSpec, KdfParameterSpec and AeadParameterSpec.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/crypto/hpke/Hpke#getSuiteName(android.crypto.hpke.KemParameterSpec,%20android.crypto.hpke.KdfParameterSpec,%20android.crypto.hpke.AeadParameterSpec)" title="Reference documentation">Android reference for <code>android.crypto.hpke.Hpke.getSuiteName</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

@@ -725,6 +725,11 @@
         <returns>A map of pending reasons to the total duration the job was pending for that reason.</returns>
         <remarks>
           <para>For the given jobId, returns an aggregated view of why the job has been pending execution over its lifetime. The returned map is composed of PENDING_JOB_REASON_* constants mapped to a duration representing the total time the job has been pending for that reason.</para>
+          <para>Note that the sum of these durations will often exceed the total duration the job was waiting, since a job could be pending due to multiple reasons simultaneously.</para>
+          <para>These pending job reasons represent either explicitly set constraints on the job or implicit constraints imposed by the system due to various reasons. The results can be used to debug which constraints contribute the most to why a given job has been pending execution.</para>
+          <para>If the returned map is empty, it could indicate that the job was executed immediately and never had to wait for any constraints to be met.</para>
+          <para>To get a more detailed and historical view of why a job was pending at a certain time, use getPendingJobReasonsHistory(int) instead.</para>
+          <para>Note: The pending job reason stats are not persisted across device reboots. The stats are also cleared when the job successfully completes or is canceled. Apps should query this information when they observe a scheduled job is not executing as expected to understand the reasons for the delay.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobScheduler#getPendingJobReasonStats(int)" title="Reference documentation">Android reference for <code>android.app.job.JobScheduler.getPendingJobReasonStats</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

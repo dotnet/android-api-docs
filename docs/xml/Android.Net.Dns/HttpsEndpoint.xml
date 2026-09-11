@@ -33,6 +33,8 @@
     <summary>Class that contains the DNS records needed to connect to an HTTPS endpoint.</summary>
     <remarks>
       <para>Class that contains the DNS records needed to connect to an HTTPS endpoint.</para>
+      <para>This includes the data from A/AAAA and HTTPS DNS queries. The response from the HTTPS query is represented as a list of HttpsRecord sorted by SvcPriority.</para>
+      <para>This class also contains a list of InetAddress, with RFC 6724 sorting. IPv4 addresses are included if the Network provides IPv4 connectivity, and IPv6 addresses if it provides IPv6 connectivity. This list will come from the hints in the HTTPS record and/or from the responses of the A/AAAA queries.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/dns/HttpsEndpoint" title="Reference documentation">Android reference for <code>android.net.dns.HttpsEndpoint</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -87,6 +89,7 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns the list of HttpsRecord from the HTTPS DNS query, sorted by priority.</para>
+          <para>This list is empty if the HTTPS DNS query did not return any data, or if the HTTPS query did not return within the specified timeout.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/dns/HttpsEndpoint#getHttpsRecords()" title="Reference documentation">Android reference for <code>android.net.dns.HttpsEndpoint.getHttpsRecords</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -120,6 +123,8 @@
         <value>To be added.</value>
         <remarks>
           <para>Returns the list of IP addresses from the A/AAAA/HTTPS queries.</para>
+          <para>If the HTTPS query returned first, this list contains the IP hints from the HTTPS record, if present. Otherwise, this list contains the IP addresses returned from the A/AAAA queries and the HTTPS query, only if the HTTPS query returned within the specified timeout.</para>
+          <para>This list contains only IP addresses of the address families present on the specified Network, and is sorted according to RFC 6724 if the caller has INTERNET permission.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/dns/HttpsEndpoint#getIpAddresses()" title="Reference documentation">Android reference for <code>android.net.dns.HttpsEndpoint.getIpAddresses</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

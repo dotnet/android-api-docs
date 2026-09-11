@@ -185,6 +185,8 @@
         <summary>Requests the framework to start the non-PCC migration service of the calling application.</summary>
         <remarks>
           <para>Requests the framework to start the non-PCC migration service of the calling application.</para>
+          <para>This is intended for PCC components to trigger a process outside the PCC sandbox to perform tasks like data migration. The system will look for a service extending DataMigrationToPccService in the application's manifest that is not marked as a PCC component. If found, the non-PCC process is started and the service is invoked.</para>
+          <para>If the non-PCC process is already running, this ensures the migration service is triggered. System unbinds from the service either when the service indicates it has accepted/rejected the request, or failing that, after a timeout of DataMigrationToPccService.MIGRATION_TIMEOUT_MS.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/privatecompute/PccSandboxManager#startNonPccProcessForDataMigration(java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;android.app.privatecompute.MigrationRequestResult,android.app.privatecompute.MigrationException&gt;)" title="Reference documentation">Android reference for <code>android.app.privatecompute.PccSandboxManager.startNonPccProcessForDataMigration</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -279,6 +281,7 @@
         <summary>Writes data to the audit log, if audit mode is enabled.</summary>
         <remarks>
           <para>Writes data to the audit log, if audit mode is enabled. Otherwise, does nothing.</para>
+          <para>Nested Bundles are supported up to a depth of 100.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/privatecompute/PccSandboxManager#writeToAuditLog(android.os.PersistableBundle)" title="Reference documentation">Android reference for <code>android.app.privatecompute.PccSandboxManager.writeToAuditLog</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

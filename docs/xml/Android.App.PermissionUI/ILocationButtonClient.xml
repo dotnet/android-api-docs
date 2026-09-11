@@ -28,6 +28,8 @@
     <summary>A callback interface for receiving events about the location button.</summary>
     <remarks>
       <para>A callback interface for receiving events about the location button. Location button allow users to grant precise location permission to an app.</para>
+      <para>An application must implement this interface to handle asynchronous events for location button session, such as session creation, permission results, and errors. An instance of this client is provided when calling LocationButtonProvider.openSession.</para>
+      <para>All callbacks on this interface are invoked serially on the Executor provided by the client app.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonClient" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonClient</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -67,6 +69,9 @@
             with the location button.</summary>
         <remarks>
           <para>Callback for the result of a precise location permission grant after the user interacts with the location button.</para>
+          <para>When a user clicks the location button for the first time, the location button consent dialog is shown and this callback is invoked when users opt to share their location. However, this callback is not invoked if the user chooses not to share their location. In subsequent sessions after the initial consent, simply clicking on the location button will invoke this callback.</para>
+          <para>The system will grant temporary precise location permission and is valid only for the current session, this is similar to an "only this time" grant in permission request dialog.</para>
+          <para>In some cases, even after a user gives consent, precise location permission may not be granted due to system-level restrictions. In this scenario, the callback will be invoked with isGranted = false. It is recommended that the app handles this case gracefully by informing the user that the app cannot obtain precise location permission (or that the app can’t access location).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonClient#onPermissionResult(boolean)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonClient.onPermissionResult</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -108,6 +113,7 @@
             <c>LocationButtonProvider#openSession</c> or after the session is created.</summary>
         <remarks>
           <para>Called when an error occurs either during the creation of the location button session LocationButtonProvider.openSession or after the session is created.</para>
+          <para>This may happen if the remote service encounters an unrecoverable issue or the connection is lost. The session is automatically closed before this callback is invoked, so the application does not need to call LocationButtonSession.close().</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonClient#onSessionError(java.lang.Throwable)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonClient.onSessionError</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -148,6 +154,7 @@
         <summary>Called when the location button session is successfully created.</summary>
         <remarks>
           <para>Called when the location button session is successfully created.</para>
+          <para>The client is responsible for calling LocationButtonSession.close() on the session when it is no longer needed to release system resources.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/permissionui/LocationButtonClient#onSessionOpened(android.app.permissionui.LocationButtonSession)" title="Reference documentation">Android reference for <code>android.app.permissionui.LocationButtonClient.onSessionOpened</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

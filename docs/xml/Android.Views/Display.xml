@@ -725,6 +725,9 @@
                      FrameRateVelocityPoint objects representing the mapping.</value>
         <remarks>
           <para>Retrieves the View frame rate / velocity mapping specifications defined in the framework configuration. For example, 120 frame per second / 300 dp (density-independent pixels) per second</para>
+          <para>This is primarily for flinging use cases in components like RecyclerView, ScrollView, AbsListView, and NestedScrollView. When the content's velocity is high, a higher frame rate is required to ensure smoothness, and conversely, a lower frame rate can be used when the velocity is low.</para>
+          <para>These values are specific to this Display instance. If your application moves to a different display (for example, transitioning between the inner and outer screens of a foldable device), you must query these values from the Display object associated with the window where the content is currently being rendered.</para>
+          <para>Mapping values needs to be re-queried whenever DisplayListener#onDisplayChanged is invoked to ensure data consistency. This corresponds to the DisplayManager#EVENT_FLAG_DISPLAY_CHANGED event.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/Display#getFrameRateVelocityMapping()" title="Reference documentation">Android reference for <code>android.view.Display.getFrameRateVelocityMapping</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

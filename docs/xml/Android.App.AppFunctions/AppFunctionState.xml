@@ -46,6 +46,8 @@
     <summary>Runtime state of an app function, retrieved using <c>AppFunctionManager#getAppFunctionStates</c>.</summary>
     <remarks>
       <para>Runtime state of an app function, retrieved using AppFunctionManager.getAppFunctionStates.</para>
+      <para>This holds properties of an app function that can change at runtime during the app's operation, such as whether the function is enabled.</para>
+      <para>This is distinct from AppFunctionMetadata, which represents the metadata that remains constant until the providing package is updated. While AppFunctionMetadata defines what a function is, the AppFunctionState defines its current operational status.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionState" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionState</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -87,6 +89,7 @@
         <value>Returns AppFunctionActivityIds this app function is associated with, or null if none.</value>
         <remarks>
           <para>Returns AppFunctionActivityIds this app function is associated with, or null if none.</para>
+          <para>This will only be non-null when AppFunctionMetadata.getScope is AppFunctionMetadata.SCOPE_ACTIVITY. See AppFunctionMetadata.SCOPE_ACTIVITY for more details.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionState#getActivityIds()" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionState.getActivityIds</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -219,6 +222,7 @@
         <value>Returns whether this app function can be executed.</value>
         <remarks>
           <para>Returns whether this app function can be executed.</para>
+          <para>This can be false if: The app disabled the function with AppFunctionManager.setAppFunctionEnabled; The function is disabled by default using AppFunctionMetadata.PROPERTY_ENABLED_BY_DEFAULT and was never enabled; The associated AppFunctionService is disabled; A function without an associated AppFunctionService has not been registered using AppFunctionManager.registerAppFunction, or has been unregistered; The process registering the function using AppFunctionManager.registerAppFunction is frozen, or the Context used to register it has been destroyed.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionState#isEnabled()" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionState.isEnabled</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

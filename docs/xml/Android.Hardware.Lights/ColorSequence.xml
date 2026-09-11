@@ -46,6 +46,8 @@
     <summary>Models a sequence of colors and their relative timing to create a light effect.</summary>
     <remarks>
       <para>Models a sequence of colors and their relative timing to create a light effect.</para>
+      <para>The control points in this object represent specific points in time when the light will be set to the specified color. Control points can be arbitrarily distant in time and the light will be interpolated each frame to smoothly transition between control points.</para>
+      <para>Control points have three main components: color: the target color for the light; delay: how long the light takes to transition from color[n-1] to color[n], expressed in milliseconds relative to the last control point (or permanent state if the light is not playing an effect); interpolation mode: the interpolation algorithm to use to transition between colors. It is important to note that the interpolation is done per color channel on every frame (see Light.getMinUpdatePeriodMillis()).</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -290,6 +292,8 @@
         <summary>Linear interpolation between control points.</summary>
         <remarks>
           <para>Linear interpolation between control points.</para>
+          <para>With this interpolation mode, the transition from color[n-1] to color[n] happens linearly over delayMillis[n] milliseconds, with color updates every frame.</para>
+          <para>Each color channel is interpolated independently.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence#INTERPOLATION_MODE_LINEAR" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.INTERPOLATION_MODE_LINEAR</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -330,6 +334,7 @@
         <summary>No interpolation between control points.</summary>
         <remarks>
           <para>No interpolation between control points.</para>
+          <para>With this interpolation mode, color[n-1] will be held for the corresponding duration specified in delayMillis. After that, color[n] will be applied without any intermediate steps.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence#INTERPOLATION_MODE_NONE" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.INTERPOLATION_MODE_NONE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

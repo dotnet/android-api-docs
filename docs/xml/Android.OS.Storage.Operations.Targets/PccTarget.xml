@@ -33,6 +33,13 @@
     <summary>A target representing the calling application's Private Compute Core (PCC) data directory.</summary>
     <remarks>
       <para>A target representing the calling application's Private Compute Core (PCC) data directory.</para>
+      <para>Files directed to this target will be securely stored within the PCC component of the application. The optional path prefix can be used to organize files into subdirectories within the PCC storage area.</para>
+      <code lang="text/java">// Create a target that places files in a "processed_results" subdirectory within PCC
+PccTarget target = new PccTarget("processed_results/daily_logs");
+
+// If a file named "report.dat" is sent to this target, it will be stored at:
+// [PCC_ROOT]/processed_results/daily_logs/report.dat</code>
+      <para>Prefix Requirements: Must be relative: Absolute paths are rejected to prevent escaping the PCC root directory; No Path Traversal: The prefix cannot contain ".." or "." segments that resolve to parent or current directories; No Control Characters: Invisible or control characters (e.g., null, newline, surrogates) are prohibited for security.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/operations/targets/PccTarget" title="Reference documentation">Android reference for <code>android.os.storage.operations.targets.PccTarget</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>

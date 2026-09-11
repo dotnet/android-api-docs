@@ -35,7 +35,7 @@
       <para>Provides access to App Functions. App Functions is currently a beta/experimental preview feature.</para>
       <para>An app function is a piece of functionality that apps expose to the system for cross-app
             orchestration.
-            
+
             &lt;h3&gt;Building App Functions&lt;/h3&gt;</para>
       <para>Most developers should build app functions through the AppFunctions SDK. This SDK library
             offers a more convenient and type-safe way to build app functions. The SDK provides predefined
@@ -71,9 +71,9 @@
         </format>
       </para>
       <para>
-                    Portions of this page are modifications based on work created and shared by the 
+                    Portions of this page are modifications based on work created and shared by the
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
-                     and used according to terms described in the 
+                     and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
@@ -308,6 +308,13 @@
         <summary>Retrieves the registered app functions for the specified activities.</summary>
         <remarks>
           <para>Retrieves the registered app functions for the specified activities.</para>
+          <para>Each AppFunctionActivityState contains the set of registered AppFunctionNames associated with a requested AppFunctionActivityId.</para>
+          <para>Functions that do not exist or are not visible to the calling application will be silently omitted from the result. Requested activities that have no registered functions will be omitted from the result.</para>
+          <para>See AppFunctionActivityId for potential usages, including conversion from VoiceInteractionSession.ActivityId.</para>
+          <para>This method follows the same permission rules as searchAppFunctions(AppFunctionSearchSpec, Executor, OutcomeReceiver).</para>
+          <para>See getAppFunctionStates(List, Executor, OutcomeReceiver) for retrieving the runtime state of app functions based on their names.</para>
+          <para>See searchAppFunctions(AppFunctionSearchSpec, Executor, OutcomeReceiver) on how to retrieve the AppFunctionMetadata of app functions.</para>
+          <para>See observeAppFunctions(Executor, AppFunctionObserver) for observing changes to app functions' AppFunctionMetadata and AppFunctionStates.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#getAppFunctionActivityStates(java.util.Set&lt;android.app.appfunctions.AppFunctionActivityId&gt;,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;java.util.List&lt;android.app.appfunctions.AppFunctionActivityState&gt;,java.lang.Exception&gt;)" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionManager.getAppFunctionActivityStates</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -348,6 +355,11 @@
         <summary>Retrieves the runtime state of the specified app functions.</summary>
         <remarks>
           <para>Retrieves the runtime state of the specified app functions.</para>
+          <para>This includes runtime-changing properties such as whether the functions are currently enabled or disabled. Functions that do not exist or are not visible to the calling application will be silently omitted from the result list.</para>
+          <para>This method follows the same permission rules as searchAppFunctions(AppFunctionSearchSpec, Executor, OutcomeReceiver).</para>
+          <para>See getAppFunctionActivityStates(Set, Executor, OutcomeReceiver) for retrieving the states of app functions associated with a specific activity.</para>
+          <para>See searchAppFunctions(AppFunctionSearchSpec, Executor, OutcomeReceiver) on how to retrieve the AppFunctionMetadata of app functions.</para>
+          <para>See observeAppFunctions(Executor, AppFunctionObserver) for observing changes to app functions' AppFunctionMetadata and AppFunctionStates.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#getAppFunctionStates(java.util.List&lt;android.app.appfunctions.AppFunctionName&gt;,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;java.util.List&lt;android.app.appfunctions.AppFunctionState&gt;,java.lang.Exception&gt;)" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionManager.getAppFunctionStates</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -536,6 +548,9 @@
         <returns>An AppFunctionObservation used to cancel this observation. This value cannot be null.</returns>
         <remarks>
           <para>Registers an observer to monitor changes to app functions within packages that the caller can query.</para>
+          <para>The caller should retain a reference to the returned AppFunctionObservation, and call AppFunctionObservation.cancel when observation is no longer required.</para>
+          <para>The callback is only triggered by changes after its registration. Any changes that occur before the registration are not reported.</para>
+          <para>An example usage flow is: Call observeAppFunctions(Executor, AppFunctionObserver), to start monitoring app function changes, using the AppFunctionObserver; Call searchAppFunctions(AppFunctionSearchSpec, Executor, OutcomeReceiver) and getAppFunctionStates(List, Executor, OutcomeReceiver) to get the initial list of app functions and their states; In AppFunctionObserver.onAppFunctionMetadataChanged, call searchAppFunctions(AppFunctionSearchSpec, Executor, OutcomeReceiver) with a AppFunctionSearchSpec that matches the changed packages to get the updated metadata; In AppFunctionObserver.onAppFunctionStatesChanged, call getAppFunctionStates(List, Executor, OutcomeReceiver) with the list of AppFunctionNames that matches the changed functions to get the updated states. Note that this is guaranteed to trigger after AppFunctionObserver.onAppFunctionMetadataChanged for new functions or functions that also changed states, so there's no need to call getAppFunctionStates(List, Executor, OutcomeReceiver) in AppFunctionObserver.onAppFunctionMetadataChanged.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#observeAppFunctions(java.util.concurrent.Executor,%20android.app.appfunctions.AppFunctionObserver)" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionManager.observeAppFunctions</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -577,6 +592,18 @@
         <returns>A AppFunctionRegistration object that can be used to unregister the function. This value cannot be null.</returns>
         <remarks>
           <para>Registers a runtime implementation for an app function, that can be executed using executeAppFunction(AppInteractionSession, ExecuteAppFunctionRequest, Executor, CancellationSignal, OutcomeReceiver).</para>
+          <para>executeAppFunction(AppInteractionSession, ExecuteAppFunctionRequest, Executor, CancellationSignal, OutcomeReceiver) targeting an app function provided by this method will trigger the AppFunction.onExecuteAppFunction method of the provided implementation, as long as the process registering it is not frozen, and the Context registering it is not destroyed (at which point the registration will be removed).</para>
+          <para>You must declare the app function in your AndroidManifest.xml using an application-level &lt;property&gt; named android.app.appfunctions. See AppFunctionMetadata for details on the XML schema (your_app_functions.xml in the example below).</para>
+          <code lang="text/java">&lt;application ...&gt;
+  &lt;property
+      android:name="android.app.appfunctions"
+      android:value="your_app_functions.xml" /&gt;
+  ...
+&lt;/application&gt;</code>
+          <para>Function implementations can only be registered from Activity or Service contexts. If registering from an Activity, strongly consider AppFunctionMetadata.SCOPE_ACTIVITY for your function definition.</para>
+          <para>The functionIdentifier must correspond to an app function declared in your app's application-level XML assets. If the identifier is not found, this method will throw an IllegalArgumentException. Attempting to register a duplicate function based on the rules of AppFunctionMetadata.getScope will throw an IllegalStateException.</para>
+          <para>To register multiple functions at once, consider using registerAppFunctions(List) as a more efficient alternative.</para>
+          <para>The system holds a strong reference to the provided AppFunction implementation as long as it is registered. To prevent memory leaks and ensure the system is aware that the function is no longer available, you must explicitly call AppFunctionRegistration.unregister when the function is no longer relevant (e.g., in Activity.onStop() or before Service.stopForeground(boolean)).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#registerAppFunction(java.lang.String,%20java.util.concurrent.Executor,%20android.app.appfunctions.AppFunction)" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionManager.registerAppFunction</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -614,6 +641,10 @@
         <returns>A single AppFunctionRegistration object that can be used to unregister all the functions in the batch with one call. This value cannot be null.</returns>
         <remarks>
           <para>Registers several AppFunction implementations at once, sharing a single lifecycle.</para>
+          <para>This is a more efficient alternative to calling registerAppFunction(String, Executor, AppFunction) multiple times. Behavior and Lifecycle</para>
+          <para>Each function registered through this method follows the same execution and lifecycle rules as those registered with registerAppFunction(String, Executor, AppFunction). Batch Operation and Atomicity</para>
+          <para>The registration is atomic: either all functions in the provided list are registered successfully, or none are. If any function in the list fails validation (e.g., its is already registered or not declared in the manifest), this method will throw an exception, and no functions from the batch will be registered. Each function in the request follows the scoping rules declared in the app's XML resources.</para>
+          <para>A single AppFunctionRegistration object is returned, which can be used to unregister the entire batch of functions with one call.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#registerAppFunctions(java.util.List&lt;android.app.appfunctions.RegisterAppFunctionRequest&gt;)" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionManager.registerAppFunctions</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -654,6 +685,10 @@
         <summary>Searches app function AppFunctionMetadatas.</summary>
         <remarks>
           <para>Searches app function AppFunctionMetadatas.</para>
+          <para>Note that the state is not guaranteed to be the latest, as metadata can change between request and execute times when apps are updated.</para>
+          <para>The calling app can search for: Functions in its own package (no permission required); Functions in other packages that it is allowed to query via PackageManager.canPackageQuery(String, String) when holding the Manifest.permission.EXECUTE_APP_FUNCTIONS permission; Functions in other packages that it is allowed to query via PackageManager.canPackageQuery(String, String) when holding either the android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM or android.permission.DISCOVER_APP_FUNCTIONS permission on API level 37 and above.</para>
+          <para>See getAppFunctionStates(List, Executor, OutcomeReceiver) and getAppFunctionActivityStates(Set, Executor, OutcomeReceiver) on how to retrieve the runtime state of app functions.</para>
+          <para>See observeAppFunctions(Executor, AppFunctionObserver) for observing changes to app functions' AppFunctionMetadata and AppFunctionStates.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#searchAppFunctions(android.app.appfunctions.AppFunctionSearchSpec,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;java.util.List&lt;android.app.appfunctions.AppFunctionMetadata&gt;,java.lang.Exception&gt;)" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionManager.searchAppFunctions</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -696,12 +731,33 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="functionIdentifier">To be added.</param>
-        <param name="newEnabledState">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="functionIdentifier">the identifier of the app function to enable (unique within the
+                calling package). In most cases, identifiers are automatically generated by the
+                AppFunctions SDK</param>
+        <param name="newEnabledState">the new state of the app function</param>
+        <param name="executor">the executor to run the callback</param>
+        <param name="callback">the callback to receive the result of the function enablement. The call was
+                successful if no exception was thrown.</param>
+        <summary>Sets the enabled state of the app function owned by the calling package.</summary>
+        <remarks>
+          <para>Sets the enabled state of the app function owned by the calling package.</para>
+          <para>If operation fails, the callback's <c>OutcomeReceiver#onError</c> is called with errors:
+
+            &lt;ul&gt;
+              &lt;li&gt;<c>IllegalArgumentException</c>, if the function is not found or the caller does not
+                  have access to it.
+            &lt;/ul&gt;</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#setAppFunctionEnabled(java.lang.String,%20int,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver%3Cjava.lang.Void,%20java.lang.Exception%3E)" title="Reference documentation">Java documentation for <code>android.app.appfunctions.AppFunctionManager.setAppFunctionEnabled(java.lang.String, int, java.util.concurrent.Executor, android.os.OutcomeReceiver&lt;java.lang.Void, java.lang.Exception&gt;)</code>.</a>
+            </format>
+          </para>
+          <para>
+                    Portions of this page are modifications based on work created and shared by the
+                    <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
+                     and used according to terms described in the
+                    <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

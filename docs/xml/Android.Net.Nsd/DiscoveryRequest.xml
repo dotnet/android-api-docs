@@ -190,6 +190,8 @@
         <value>Return the attribute to use to display the service in system UI service picker.</value>
         <remarks>
           <para>Return the attribute to use to display the service in system UI service picker.</para>
+          <para>Attributes are as per NsdServiceInfo.getAttributes().</para>
+          <para>If null, the service name as per NsdServiceInfo.getServiceName() is used.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest#getDisplayNameAttribute()" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.getDisplayNameAttribute</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -226,6 +228,7 @@
         <summary>Indicates that a UI service picker should never be shown to the user for this request.</summary>
         <remarks>
           <para>Indicates that a UI service picker should never be shown to the user for this request.</para>
+          <para>Starting from target SDK Build.VERSION_CODES.CINNAMON_BUN, if the caller does not have the Manifest.permission.ACCESS_LOCAL_NETWORK permission and does not specify FLAG_USER_APPROVED_ONLY, this will cause the request to fail with android.net.nsd.NsdManager.DiscoveryListener.onStartDiscoveryFailed(String,int) and NsdManager.FAILURE_PERMISSION_DENIED.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest#FLAG_NO_PICKER" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.FLAG_NO_PICKER</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -295,6 +298,9 @@
         <summary>Indicates that a UI service picker must be shown to the user for this request.</summary>
         <remarks>
           <para>Indicates that a UI service picker must be shown to the user for this request.</para>
+          <para>If this flag is set, the user will be prompted to choose a service to be discovered among all services matching the discovery service type and discovery filters. android.net.nsd.NsdManager.DiscoveryListener.onServiceFound(NsdServiceInfo) will be called at most once, and discovery will stop if a service is selected or the user cancels the request. Manifest.permission.ACCESS_LOCAL_NETWORK permission is *not* necessary when discovering with this flag.</para>
+          <para>Once a service has been selected by the user in the UI picker, NsdManager.resolveService(NsdServiceInfo,java.util.concurrent.Executor,NsdManager.ResolveListener) or NsdManager.registerServiceInfoCallback(NsdServiceInfo,Executor,NsdManager.ServiceInfoCallback) can be called for that service without requiring the Manifest.permission.ACCESS_LOCAL_NETWORK permission or any further UI being displayed.</para>
+          <para>If neither FLAG_NO_PICKER nor FLAG_SHOW_PICKER is set, the picker will be shown if the app does not have Manifest.permission.ACCESS_LOCAL_NETWORK permission.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest#FLAG_SHOW_PICKER" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.FLAG_SHOW_PICKER</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -331,6 +337,7 @@
         <summary>Indicates that only services previously approved by the user must be discovered.</summary>
         <remarks>
           <para>Indicates that only services previously approved by the user must be discovered.</para>
+          <para>If this flag is set, only services that have been selected by the user in previous requests that used the service picker UI will be discovered. Manifest.permission.ACCESS_LOCAL_NETWORK permission is *not* necessary when discovering with this flag.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest#FLAG_USER_APPROVED_ONLY" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.FLAG_USER_APPROVED_ONLY</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -477,6 +484,8 @@
         <value>Returns the filter to apply to service names as per NsdServiceInfo.getServiceName().</value>
         <remarks>
           <para>Returns the filter to apply to service names as per NsdServiceInfo.getServiceName().</para>
+          <para>As per RFC6335 5.1., service names must be only US-ASCII letters, digits and hyphens, and matching is not case-sensitive.</para>
+          <para>If null, services are not filtered by name.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest#getServiceNameFilter()" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.getServiceNameFilter</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
