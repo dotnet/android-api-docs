@@ -40,7 +40,17 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>A constant indicating an app function is activity-scoped.</para>
+          <para>Multiple app function implementations with the same AppFunctionName can exist simultaneously, each registered from a different Activity instance, which is identified by an AppFunctionActivityId.</para>
+          <para>Functions with this scope must be registered using AppFunctionManager.registerAppFunction, and must be called from an Activity context. Calling it from any other context will result in an IllegalStateException.</para>
+          <para>To execute an activity-scoped function, the caller of AppFunctionManager.executeAppFunction must use ExecuteAppFunctionRequest.Builder.setActivityId, otherwise AppFunctionException.ERROR_FUNCTION_NOT_FOUND will be returned.</para>
+          <para>To discover the specific activities where an activity-scoped function is currently registered, see AppFunctionManager.getAppFunctionStates and AppFunctionManager.getAppFunctionActivityStates.</para>
+          <para>The function remains registered until it is explicitly unregistered or the activity is destroyed.</para>
+          <para>IMPORTANT: Functions provided with AppFunctionManager.registerAppFunction called from an Activity context should prefer SCOPE_ACTIVITY. Only use SCOPE_GLOBAL for such functions if you are absolutely sure there can be only one instance of that activity.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionMetadata#SCOPE_ACTIVITY" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionMetadata.SCOPE_ACTIVITY</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Global">
@@ -68,7 +78,16 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>A constant indicating an app function is globally-scoped.</para>
+          <para>There can be at most one app function implementation with the same AppFunctionName available with this scope. This is useful for functions that are tied to a singleton component, such as a foreground service.</para>
+          <para>When using AppFunctionManager.registerAppFunction, the function remains registered until it is explicitly unregistered or the calling context is destroyed.</para>
+          <para>To execute a globally-scoped function, the caller of AppFunctionManager.executeAppFunction must not use ExecuteAppFunctionRequest.Builder.setActivityId (or set it to null), otherwise AppFunctionException.ERROR_FUNCTION_NOT_FOUND will be returned.</para>
+          <para>This is always the scope for AppFunctionService-based functions.</para>
+          <para>IMPORTANT: Functions provided with AppFunctionManager.registerAppFunction called from an Activity context should prefer SCOPE_ACTIVITY. Only use SCOPE_GLOBAL for such functions if you are absolutely sure there can be only one instance of that activity.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionMetadata#SCOPE_GLOBAL" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionMetadata.SCOPE_GLOBAL</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
   </Members>

@@ -19,7 +19,9 @@ Dry-run is the default. An unscoped scan is rejected, and `--apply` requires a
 path or namespace write scope. Generated `docs/xml/index.xml` and non-API
 `docs/xml/_filter.xml` and `docs/xml/FrameworksIndex` files are always excluded.
 The default limit is 25 placeholder elements. Use `--api-since` to restrict
-owners to declarations introduced in an exact Android API level.
+owners to declarations introduced in an exact Android API level. Selection
+recognizes both `ApiSince` and `SupportedOSPlatform` metadata. Members without
+their own availability metadata inherit the containing type's API level.
 
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar

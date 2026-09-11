@@ -513,7 +513,17 @@
       </ReturnValue>
       <MemberValue>44</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Android 14-bit raw format</para>
+          <para>This is a single-plane, 14-bit per pixel, densely packed (in each row), unprocessed format, usually representing raw Bayer-pattern images coming from an image sensor.</para>
+          <para>In an image buffer with this format, starting from the first pixel of each row, each four consecutive pixels are packed into 7 bytes (56 bits). The first four bytes contain the most significant 8 bits of the first 4 pixels.</para>
+          <para>This format assumes a width multiple of 4 pixels; an even height</para>
+          <code lang="text/java">size = row stride * height</code>
+          <para>Since this is a densely packed format, the pixel stride is always 0. The application must use the pixel data layout defined in above table to access each row data. When row stride is equal to width * (14 / 8), there will be no padding bytes at the end of each row, the entire image data is densely packed. When stride is larger than width * (14 / 8), padding bytes will be present at the end of each row.</para>
+          <para>For example, the Image object can provide data in this format from a CameraDevice (if supported) through a ImageReader object. The Image#getPlanes() will return a single plane containing the pixel data. The pixel stride is always 0 in Image.Plane.getPixelStride(), and the Image.Plane.getRowStride() describes the vertical neighboring pixel distance (in bytes) between adjacent rows.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#RAW14" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.RAW14</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="RawPrivate">
