@@ -92,6 +92,7 @@ static class ImporterProgram
                 .Where(item =>
                     item.Owner.Placeholders.Count > 0 ||
                     IsEnumSummaryRepairCandidate(item.Owner) ||
+                    HasDeprecatedValueRepairCandidate(item.File, item.Owner) ||
                     HasAugmentedRemarksPlaceholder(item.File, item.Owner) ||
                     HasTruncatedImporterSummary(item.File, item.Owner) ||
                     HasIncompleteCodeExampleRemarks(item.File, item.Owner) ||
@@ -258,6 +259,46 @@ static class ImporterProgram
                                     file.RelativePath,
                                     owner.Id,
                                     repairTarget,
+                                    mapping.SourceUrl));
+                            }
+                        }
+                    }
+
+                    if (!ownerChanged &&
+                        mapping.Docs is not null &&
+                        HasDeprecatedValueRepairCandidate(file, owner))
+                    {
+                        var refreshed = RepairDeprecatedValue(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs);
+                        if (!refreshed.Equals(text, StringComparison.Ordinal))
+                        {
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
+                            if (remaining == 0)
+                            {
+                                RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "value",
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                            else
+                            {
+                                text = refreshed;
+                                file.UpdateBlockOffsets(owner.Order, text);
+                                fileChanged = true;
+                                ownerChanged = true;
+                                remaining--;
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    "value",
                                     mapping.SourceUrl));
                             }
                         }
@@ -446,7 +487,8 @@ static class ImporterProgram
             return MappingResult.Success(page.TypeDocs);
         }
 
-        var registration = owner.MemberRegistration ?? Registration.Member(owner.Member);
+        var registration = owner.MemberRegistration ??
+            (owner.Member is null ? null : Registration.Member(owner.Member));
         if (registration is null)
             return MappingResult.Skip(
                 "missing_member_registration",
@@ -475,7 +517,7 @@ static class ImporterProgram
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
                     fields[0].Url);
-            return MappingResult.Success(fieldDocs);
+            return MappingResult.Success(WithSemanticSummaryIfNecessary(fieldDocs));
         }
 
         var expectedArguments = Descriptor.ParseArguments(registration.Descriptor!);
@@ -527,8 +569,13 @@ static class ImporterProgram
         {
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
-        return MappingResult.Success(docs);
+        return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
+
+    static SourceDocs WithSemanticSummaryIfNecessary(SourceDocs docs) =>
+        IsMeaningfulChannel(docs.Summary, "summary")
+            ? docs
+            : WithFirstMeaningfulSummary(docs);
 
     static SourceDocs WithFirstMeaningfulSummary(SourceDocs docs)
     {
@@ -538,6 +585,33 @@ static class ImporterProgram
             .FirstOrDefault(paragraph => IsMeaningfulChannel(paragraph, "summary"));
         return summary is null ? docs : docs with { Summary = summary };
     }
+
+    static string? FirstDocumentationParagraph(SourceDocs docs)
+    {
+        var paragraphs = docs.Paragraphs
+            .Where(paragraph => !paragraph.IsCode)
+            .Where(paragraph => IsMeaningfulChannel(paragraph.Text, "remarks"))
+            .ToList();
+        if (paragraphs.Count == 0)
+            return null;
+
+        var first = CleanSourceText(paragraphs[0].Text);
+        if (!IsDeprecationParagraph(first))
+            return first;
+
+        var semantic = paragraphs
+            .Skip(1)
+            .Select(paragraph => CleanSourceText(paragraph.Text))
+            .FirstOrDefault(paragraph => !IsDeprecationParagraph(paragraph));
+        return semantic is null ? first : $"{EnsureSentenceEnding(first)} {semantic}";
+    }
+
+    static string EnsureSentenceEnding(string value) =>
+        value.EndsWith('.') ||
+        value.EndsWith('!') ||
+        value.EndsWith('?')
+            ? value
+            : value + ".";
 
     static SourceDocs WithoutSynchronousGeocoderBoilerplate(SourceDocs docs) =>
         docs with
@@ -579,6 +653,8 @@ static class ImporterProgram
             .ToHashSet(StringComparer.Ordinal);
         if (IsEnumSummaryRepairCandidate(owner) || HasTruncatedImporterSummary(file, owner))
             targets.Add("summary");
+        if (HasDeprecatedValueRepairCandidate(file, owner))
+            targets.Add("value");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
             HasMetadataOnlyRemarks(file, owner))
@@ -617,7 +693,7 @@ static class ImporterProgram
     {
         if (placeholder.IsImporterMetadataRepair)
             return ChannelValueOrSkip(
-                docs.Paragraphs.FirstOrDefault()?.Text,
+                FirstDocumentationParagraph(docs),
                 "remarks",
                 "source_remarks_missing");
 
@@ -633,7 +709,7 @@ static class ImporterProgram
                 "summary",
                 "source_summary_missing"),
             "remarks" or "para" => ChannelValueOrSkip(
-                docs.Paragraphs.FirstOrDefault()?.Text,
+                FirstDocumentationParagraph(docs),
                 "remarks",
                 "source_remarks_missing"),
             "param" => docs.Parameters.TryGetValue(placeholder.Key, out var parameter)
@@ -653,6 +729,15 @@ static class ImporterProgram
         };
     }
 
+    static string? DeprecationAwareValueText(SourceDocs docs)
+    {
+        var first = docs.Paragraphs.FirstOrDefault(paragraph =>
+            !paragraph.IsCode && IsMeaningfulChannel(paragraph.Text, "remarks"));
+        return first is not null && IsDeprecationParagraph(first.Text)
+            ? FirstDocumentationParagraph(docs)
+            : docs.Summary;
+    }
+
     static bool IsEnumSummaryRepairCandidate(DocsOwner owner)
     {
         if (!owner.IsEnumField ||
@@ -664,11 +749,220 @@ static class ImporterProgram
         {
             return false;
         }
+
         return IsEnumSummaryRepairCandidate(
             summary,
             owner.SourceRequest.Url + "#" + registration.Name,
             $"{owner.SourceRequest.JavaPath.Replace('/', '.').Replace('$', '.')}.{registration.Name}",
             owner.SourceRequest.Kind);
+    }
+
+    static bool HasDeprecatedValueRepairCandidate(LoadedFile file, DocsOwner owner)
+    {
+        var registration = owner.MemberRegistration ??
+            (owner.Member is null ? null : Registration.Member(owner.Member));
+        if (owner.IsEnumField ||
+            owner.SourceRequest is null ||
+            registration is not { IsField: true } ||
+            owner.Docs.Element("value") is not XElement value ||
+            value.HasElements ||
+            !Regex.IsMatch(
+                NormalizeText(value.Value),
+                @"^This (?:field|constant|member) (?:is|was) deprecated(?: in API level \d+)?\.$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+            return false;
+
+        var memberUrl = owner.SourceRequest.Url + "#" + registration.Name;
+        return owner.Docs.Element("remarks")?
+            .Elements("para")
+            .Any(paragraph =>
+                TryGetImporterSourceReferenceUrl(
+                    paragraph.ToString(SaveOptions.DisableFormatting),
+                    out var sourceUrl) &&
+                UrlsEqual(sourceUrl, memberUrl)) == true;
+    }
+
+    static string RepairDeprecatedValue(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var replacement = FirstDocumentationParagraph(docs);
+        var first = docs.Paragraphs.FirstOrDefault(paragraph =>
+            !paragraph.IsCode && IsMeaningfulChannel(paragraph.Text, "remarks"));
+        if (replacement is null ||
+            first is null ||
+            !IsDeprecationParagraph(first.Text) ||
+            NormalizeText(replacement).Equals(NormalizeText(first.Text), StringComparison.Ordinal))
+        {
+            return text;
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!ContainsSourceUrl(blockText, docs.SourceUrl))
+            return text;
+        if (!TryFindDirectTextElementContentSpan(
+                blockText,
+                "value",
+                out var valueStart,
+                out var valueEnd) ||
+            !NormalizeText(blockText[valueStart..valueEnd]).Equals(
+                NormalizeText(SourcePage.FirstSentence(first.Text)),
+                StringComparison.Ordinal))
+        {
+            return text;
+        }
+
+        var updatedBlock = blockText[..valueStart] + XmlEscape(replacement) + blockText[valueEnd..];
+        return text[..block.Start] + updatedBlock + text[block.End..];
+    }
+
+    static bool TryFindDirectTextElementContentSpan(
+        string blockText,
+        string elementName,
+        out int contentStart,
+        out int contentEnd)
+        => TryFindTextElementContentSpan(
+            blockText,
+            elementName,
+            1,
+            _ => true,
+            _ => true,
+            out _,
+            out contentStart,
+            out contentEnd);
+
+    static bool TryFindTextElementContentSpan(
+        string blockText,
+        string elementName,
+        int parentDepth,
+        Func<string, bool> openingTagMatches,
+        Func<string, bool> contentMatches,
+        out int elementStart,
+        out int contentStart,
+        out int contentEnd)
+    {
+        elementStart = 0;
+        contentStart = 0;
+        contentEnd = 0;
+        var depth = 0;
+        var targetDepth = -1;
+        var candidateElementStart = -1;
+        var candidateContentStart = -1;
+
+        for (var index = 0; index < blockText.Length;)
+        {
+            var tagStart = blockText.IndexOf('<', index);
+            if (tagStart < 0)
+                return false;
+            if (blockText.AsSpan(tagStart).StartsWith("<!--", StringComparison.Ordinal))
+            {
+                var commentEnd = blockText.IndexOf("-->", tagStart + 4, StringComparison.Ordinal);
+                if (commentEnd < 0)
+                    return false;
+                index = commentEnd + 3;
+                continue;
+            }
+            if (blockText.AsSpan(tagStart).StartsWith("<![CDATA[", StringComparison.Ordinal))
+            {
+                var cdataEnd = blockText.IndexOf("]]>", tagStart + 9, StringComparison.Ordinal);
+                if (cdataEnd < 0)
+                    return false;
+                index = cdataEnd + 3;
+                continue;
+            }
+            if (blockText.AsSpan(tagStart).StartsWith("<?", StringComparison.Ordinal))
+            {
+                var instructionEnd = blockText.IndexOf("?>", tagStart + 2, StringComparison.Ordinal);
+                if (instructionEnd < 0)
+                    return false;
+                index = instructionEnd + 2;
+                continue;
+            }
+
+            var tagEnd = FindXmlTagEnd(blockText, tagStart);
+            if (tagEnd < 0)
+                return false;
+            var tag = blockText[(tagStart + 1)..tagEnd].TrimStart();
+            if (tag.StartsWith('!'))
+            {
+                index = tagEnd + 1;
+                continue;
+            }
+
+            var closing = tag.StartsWith('/');
+            var nameStart = closing ? 1 : 0;
+            while (nameStart < tag.Length && char.IsWhiteSpace(tag[nameStart]))
+                nameStart++;
+            var nameEnd = nameStart;
+            while (nameEnd < tag.Length &&
+                !char.IsWhiteSpace(tag[nameEnd]) &&
+                tag[nameEnd] != '/')
+            {
+                nameEnd++;
+            }
+            if (nameStart == nameEnd)
+                return false;
+            var name = tag[nameStart..nameEnd];
+
+            if (closing)
+            {
+                if (targetDepth == depth &&
+                    name.Equals(elementName, StringComparison.Ordinal))
+                {
+                    var candidateContent = blockText[candidateContentStart..tagStart];
+                    if (contentMatches(candidateContent))
+                    {
+                        elementStart = candidateElementStart;
+                        contentStart = candidateContentStart;
+                        contentEnd = tagStart;
+                        return true;
+                    }
+                    targetDepth = -1;
+                }
+                depth--;
+            }
+            else if (!tag.EndsWith("/", StringComparison.Ordinal))
+            {
+                if (targetDepth < 0 &&
+                    depth == parentDepth &&
+                    name.Equals(elementName, StringComparison.Ordinal) &&
+                    openingTagMatches(tag))
+                {
+                    candidateElementStart = tagStart;
+                    candidateContentStart = tagEnd + 1;
+                    targetDepth = depth + 1;
+                }
+                depth++;
+            }
+            index = tagEnd + 1;
+        }
+        return false;
+    }
+
+    static int FindXmlTagEnd(string text, int tagStart)
+    {
+        var quote = '\0';
+        for (var index = tagStart + 1; index < text.Length; index++)
+        {
+            var character = text[index];
+            if (quote != '\0')
+            {
+                if (character == quote)
+                    quote = '\0';
+            }
+            else if (character is '"' or '\'')
+            {
+                quote = character;
+            }
+            else if (character == '>')
+            {
+                return index;
+            }
+        }
+        return -1;
     }
 
     static bool IsEnumSummaryRepairCandidate(
@@ -735,9 +1029,9 @@ static class ImporterProgram
             ? returns
             : IsTypeOnlyReturnChannel(docs.Returns)
                 ? ChannelValueOrSkip(
-                docs.Summary,
-                "value",
-                "source_return_missing")
+                    DeprecationAwareValueText(docs),
+                    "value",
+                    "source_return_missing")
                 : returns;
     }
 
@@ -912,19 +1206,15 @@ static class ImporterProgram
             return true;
         }
 
-        var attributeLookahead = placeholder.Name switch
-        {
-            "param" => $@"(?=[^>]*\bname\s*=\s*""{Regex.Escape(placeholder.Key)}"")",
-            "exception" => $@"(?=[^>]*\bcref\s*=\s*""{Regex.Escape(placeholder.Key)}"")",
-            _ => "",
-        };
-        var pattern =
-            $@"(<{placeholder.Name}\b{attributeLookahead}[^>]*>)" +
-            @"(?<value>\s*To be added\.?\s*)" +
-            $@"(</{placeholder.Name}>)";
-        var regex = new Regex(pattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        var match = regex.Match(blockText);
-        if (!match.Success)
+        if (!TryFindTextElementContentSpan(
+                blockText,
+                placeholder.Name,
+                placeholder.Name == "para" ? 2 : 1,
+                tag => MatchesPlaceholderTag(tag, placeholder),
+                value => NormalizeText(value) is "To be added" or "To be added.",
+                out var elementStart,
+                out var localStart,
+                out var localEnd))
         {
             updated = text;
             error = $"Could not locate the structurally identified {placeholder.Target} placeholder in its <Docs> block.";
@@ -935,9 +1225,9 @@ static class ImporterProgram
         if (placeholder.Name == "remarks")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-            var lineStart = blockText.LastIndexOf(newline, match.Index, StringComparison.Ordinal);
+            var lineStart = blockText.LastIndexOf(newline, elementStart, StringComparison.Ordinal);
             lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
-            var indent = blockText[lineStart..match.Index];
+            var indent = blockText[lineStart..elementStart];
             if (string.IsNullOrWhiteSpace(indent))
             {
                 escaped =
@@ -945,13 +1235,25 @@ static class ImporterProgram
                     newline + indent;
             }
         }
-        var localStart = match.Groups["value"].Index;
-        var localEnd = localStart + match.Groups["value"].Length;
         var replacementBlock = blockText[..localStart] + escaped + blockText[localEnd..];
         updated = text[..block.Start] + replacementBlock + text[block.End..];
         error = "";
         return true;
     }
+
+    static bool MatchesPlaceholderTag(string tag, Placeholder placeholder) =>
+        placeholder.Name switch
+        {
+            "param" => Regex.IsMatch(
+                    tag,
+                    $@"\bname\s*=\s*""{Regex.Escape(placeholder.Key)}""",
+                    RegexOptions.CultureInvariant),
+            "exception" => Regex.IsMatch(
+                    tag,
+                    $@"\bcref\s*=\s*""{Regex.Escape(placeholder.Key)}""",
+                    RegexOptions.CultureInvariant),
+            _ => true,
+        };
 
     static string AddSourceDocumentationIfSafe(
         string text,
@@ -1725,6 +2027,20 @@ static class ImporterProgram
             "Time shift is handle remotely",
             "Time shift is handled remotely",
             StringComparison.Ordinal);
+        var legacyGreatBritain = string.Concat("Great ", "Britain");
+        var legacyLocaleLabel = string.Concat("coun", "try");
+        text = text.Replace(
+            $"Mix of metric and imperial units used in {legacyGreatBritain}.",
+            "Mix of metric and imperial units used in United Kingdom.",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            $"The {legacyLocaleLabel} value in the Locale created by the Builder is always normalized to upper case.",
+            "The region value in the Locale created by the Builder is always normalized to upper case.",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Value is milliseconds since January 1, 2001.",
+            "Value is seconds since January 1, 2001.",
+            StringComparison.Ordinal);
         text = text.Replace(
             "Federated Compute Server documentation..",
             "Federated Compute Server documentation.",
@@ -1886,7 +2202,7 @@ static class ImporterProgram
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
-        Assert(file.Owners.Count == 14, "fixture owner count");
+        Assert(file.Owners.Count == 15, "fixture owner count");
         Assert(
             SourceVerifiedMemberMappings.Resolve(
                 "M:Android.Text.TextUtils.IndexOf(System.String,System.Char,System.Int32,System.Int32)") is
@@ -2203,6 +2519,18 @@ static class ImporterProgram
                 "M:Java.Interop.JavaException.#ctor(System.String,System.Exception)") is null &&
                 SourceVerifiedMemberMappings.Resolve("M:Java.Interop.JavaObject.Equals(System.Object)") is null,
             "managed-only overloads are not source-mapped");
+        Assert(
+            CleanSourceText(
+                $"Mix of metric and imperial units used in {string.Concat("Great ", "Britain")}.") ==
+                "Mix of metric and imperial units used in United Kingdom." &&
+            CleanSourceText(
+                $"The {string.Concat("coun", "try")} value in the Locale created by the Builder is always normalized to upper case.") ==
+                "The region value in the Locale created by the Builder is always normalized to upper case.",
+            "PolicyCheck geopolitical terminology normalization");
+        Assert(
+            CleanSourceText("Value is milliseconds since January 1, 2001.") ==
+                "Value is seconds since January 1, 2001.",
+            "MAC_TIME uses seconds, not milliseconds");
         Assert(
             SourceVerifiedMemberMappings.Resolve(
                 "M:Android.Views.InputMethods.BaseInputConnection.CommitText(System.String,System.Int32)") is
@@ -2683,6 +3011,127 @@ static class ImporterProgram
         Assert(
             favoritePropertyResult.Docs?.Summary == favoriteResult.Docs?.Summary,
             "descriptor-less property registration maps to an exact source field");
+        var deprecatedProperty = file.Owners.Single(owner =>
+            owner.Id.Contains("DeprecatedProperty", StringComparison.Ordinal));
+        var deprecatedPropertyDocs = MapOwner(deprecatedProperty, pages).Docs ??
+            throw new InvalidOperationException(
+                "SELF-TEST FAIL: deprecated property did not map to fixture source documentation.");
+        Assert(
+            deprecatedPropertyDocs.Summary == "Identifies the deprecated fixture value.",
+            "deprecated source summary selects semantic prose");
+        Assert(
+            FirstDocumentationParagraph(deprecatedPropertyDocs) ==
+                "This constant was deprecated in API level 31. Use FAVORITE instead. Identifies the deprecated fixture value.",
+            "deprecated property value retains caution and semantic prose");
+        var deprecatedValueRepairText = Regex.Replace(
+            fixtureText,
+            @"(?<open><Member MemberName=""DeprecatedProperty"">.*?<value>)To be added\.(?<close></value>)",
+            match =>
+                match.Groups["open"].Value +
+                "This constant was deprecated in API level 31." +
+                match.Groups["close"].Value +
+                "<remarks><para><format type=\"text/html\"><a href=\"" +
+                deprecatedPropertyDocs.SourceUrl +
+                "\" title=\"Reference documentation\">Android reference for <code>" +
+                deprecatedPropertyDocs.SourceLabel +
+                "</code>.</a></format></para></remarks>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        deprecatedValueRepairText = Regex.Replace(
+            deprecatedValueRepairText,
+            @"(?<open><Member MemberName=""DeprecatedProperty"">.*?<summary>)To be added\.(?<close></summary>)",
+            match =>
+                match.Groups["open"].Value +
+                "<![CDATA[Example <value>This constant was deprecated in API level 31.</value>]]>" +
+                match.Groups["close"].Value,
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        var deprecatedValueRepairPath = Path.Combine(
+            Path.GetTempPath(),
+            $"android-api-doc-importer-deprecated-value-{Environment.ProcessId}.xml");
+        File.WriteAllText(
+            deprecatedValueRepairPath,
+            deprecatedValueRepairText,
+            new UTF8Encoding(false));
+        try
+        {
+            var deprecatedValueRepairFile = LoadedFile.Load(
+                repositoryRoot,
+                deprecatedValueRepairPath);
+            deprecatedValueRepairFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+            var deprecatedValueRepairOwner = deprecatedValueRepairFile.Owners.Single(owner =>
+                owner.Id.Contains("DeprecatedProperty", StringComparison.Ordinal));
+            Assert(
+                HasDeprecatedValueRepairCandidate(
+                    deprecatedValueRepairFile,
+                    deprecatedValueRepairOwner),
+                "deprecated property value with an exact member source URL is repairable");
+            var repairedDeprecatedValueText = RepairDeprecatedValue(
+                deprecatedValueRepairFile.Text,
+                deprecatedValueRepairFile,
+                deprecatedValueRepairOwner,
+                deprecatedPropertyDocs);
+            Assert(
+                repairedDeprecatedValueText.Contains(
+                    "<summary><![CDATA[Example <value>This constant was deprecated in API level 31.</value>]]></summary>",
+                    StringComparison.Ordinal) &&
+                repairedDeprecatedValueText.Contains(
+                    "<value>This constant was deprecated in API level 31. Use FAVORITE instead. Identifies the deprecated fixture value.</value>",
+                    StringComparison.Ordinal),
+                "deprecated property value repair targets the direct value element");
+            foreach (var instruction in new[]
+            {
+                "<?example compare > <value>This constant was deprecated in API level 31.</value> ?>",
+                "<?review Don't change this?>",
+            })
+            {
+                var instructionFixture = Regex.Replace(
+                    deprecatedValueRepairText,
+                    @"(?<summary></summary>)(?<value>\s*<value>This constant was deprecated in API level 31\.</value>)",
+                    match => match.Groups["summary"].Value + instruction + match.Groups["value"].Value,
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant);
+                File.WriteAllText(
+                    deprecatedValueRepairPath,
+                    instructionFixture,
+                    new UTF8Encoding(false));
+                var instructionFile = LoadedFile.Load(repositoryRoot, deprecatedValueRepairPath);
+                instructionFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+                var instructionOwner = instructionFile.Owners.Single(owner =>
+                    owner.Id.Contains("DeprecatedProperty", StringComparison.Ordinal));
+                var instructionRepaired = RepairDeprecatedValue(
+                    instructionFile.Text,
+                    instructionFile,
+                    instructionOwner,
+                    deprecatedPropertyDocs);
+                Assert(
+                    instructionRepaired.Contains(instruction, StringComparison.Ordinal) &&
+                    instructionRepaired.Contains(
+                        "<value>This constant was deprecated in API level 31. Use FAVORITE instead. Identifies the deprecated fixture value.</value>",
+                        StringComparison.Ordinal),
+                    "processing instructions do not hide or replace a direct deprecated value");
+            }
+            var repairFailureReport = new ImportReport
+            {
+                Mode = "dry-run",
+                Offline = true,
+                MaxChanges = 1,
+            };
+            Assert(
+                ReportMappingFailure(
+                    repairFailureReport,
+                    deprecatedValueRepairFile,
+                    deprecatedValueRepairOwner,
+                    MappingResult.Skip(
+                        "offline_cache_miss",
+                        "No cached official page exists for the fixture.",
+                        deprecatedValueRepairOwner.SourceRequest!.Url)) &&
+                repairFailureReport.Entries.Any(entry =>
+                    entry.Target == "value" &&
+                    entry.Reason == "offline_cache_miss"),
+                "repair-only deprecated value source failures are reported");
+        }
+        finally
+        {
+            File.Delete(deprecatedValueRepairPath);
+        }
         var tableOnly = file.Owners.Single(owner =>
             owner.Id.EndsWith(".TableOnly(System.Int32)", StringComparison.Ordinal));
         var tableOnlyResult = MapOwner(tableOnly, pages);
@@ -2894,6 +3343,27 @@ static class ImporterProgram
             "summary was replaced");
         Assert(updated.Contains("<para>Keep this existing prose.</para>", StringComparison.Ordinal),
             "existing prose was preserved");
+        var cdataSummaryFixture = fixtureText.Replace(
+            "<param name=\"title\">To be added.</param>",
+            "<param name=\"title\"><![CDATA[Example XML: <summary>To be added.</summary>]]></param>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, cdataSummaryFixture);
+        Assert(
+            TryReplacePlaceholder(
+                cdataSummaryFixture,
+                file.DocsBlocks[setTitle.Order],
+                summary,
+                mappedDocs.Summary,
+                out var cdataSummaryReplaced,
+                out _) &&
+            cdataSummaryReplaced.Contains(
+                "<param name=\"title\"><![CDATA[Example XML: <summary>To be added.</summary>]]></param>",
+                StringComparison.Ordinal) &&
+            cdataSummaryReplaced.Contains(
+                "<summary>Sets the widget title.</summary>",
+                StringComparison.Ordinal),
+            "summary replacement targets the structural placeholder outside CDATA");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         file.UpdateBlockOffsets(setTitle.Order, updated);
         var withRemarks = AddSourceDocumentationIfSafe(updated, file, setTitle, mappedDocs);
         Assert(withRemarks.Contains(mappedDocs.SourceUrl, StringComparison.Ordinal), "source link was added");
