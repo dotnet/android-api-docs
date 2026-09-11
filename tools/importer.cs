@@ -1503,6 +1503,7 @@ static class ImporterProgram
     {
         if (!owner.IsEnumField ||
             docs.SourceKind != "android" ||
+            docs.Paragraphs.Any(paragraph => paragraph.IsCode) ||
             owner.Docs.Element("summary") is not XElement summary ||
             !HasImporterOwnedEnumMetadata(summary, docs) ||
             !summary.Nodes().All(node => node is XElement element &&
@@ -1521,25 +1522,61 @@ static class ImporterProgram
 
         var current = summary.Elements("para")
             .Where(paragraph => !IsImporterOwnedEnumMetadataParagraph(paragraph, docs))
-            .Select(paragraph => NormalizeListDelimiters(NormalizeText(paragraph.Value)))
+            .Select(paragraph => NormalizeText(paragraph.Value))
             .ToList();
         var source = docs.Paragraphs
             .Where(paragraph => !paragraph.IsCode)
-            .Select(paragraph => NormalizeListDelimiters(NormalizeText(paragraph.Text)))
+            .Select(paragraph => NormalizeText(paragraph.Text))
             .Where(paragraph => paragraph.Length > 0)
             .ToList();
         var hasMissingListParagraph = source.Any(paragraph =>
             paragraph.Contains("; ", StringComparison.Ordinal) &&
             !current.Contains(paragraph, StringComparer.Ordinal));
+        var hasCanonicalListCorruption = current.Any(paragraph =>
+            paragraph.Contains(":;", StringComparison.Ordinal));
+        var isSourceSerialization = IsCanonicalSourceSerialization(current, source);
         return (hasMissingListParagraph ||
-                summary.Value.Contains(";;", StringComparison.Ordinal)) &&
+                summary.Value.Contains(";;", StringComparison.Ordinal) ||
+                hasCanonicalListCorruption) &&
             (current.Count > 0 || summary.Value.Contains(";;", StringComparison.Ordinal)) &&
-            IsOrderedSourcePrefix(current, source);
+            isSourceSerialization;
     }
 
     static bool HasPotentialEnumListRepair(LoadedFile file, DocsOwner owner) =>
         owner.IsEnumField &&
         HasImporterSourceReference(file, owner);
+
+    static bool IsCanonicalSourceSerialization(
+        IReadOnlyList<string> current,
+        IReadOnlyList<string> source)
+    {
+        if (current.Count != source.Count)
+            return false;
+        for (var index = 0; index < current.Count; index++)
+        {
+            if (!MatchesCanonicalOrLegacyListBoundary(current[index], source[index]))
+                return false;
+        }
+        return true;
+    }
+
+    static bool MatchesCanonicalOrLegacyListBoundary(string current, string expected)
+    {
+        if (current.Equals(expected, StringComparison.Ordinal))
+            return true;
+
+        var searchStart = 0;
+        while (true)
+        {
+            var boundary = expected.IndexOf(": ", searchStart, StringComparison.Ordinal);
+            if (boundary < 0)
+                return false;
+            var legacy = expected[..boundary] + ":; " + expected[(boundary + 2)..];
+            if (current.Equals(legacy, StringComparison.Ordinal))
+                return true;
+            searchStart = boundary + 2;
+        }
+    }
 
     static bool IsOrderedSourcePrefix(
         IReadOnlyList<string> current,
@@ -3032,6 +3069,15 @@ static class ImporterProgram
                 bridgedListParagraphs[0].Text == "Types: List<String>; for (;;) { process(); }" &&
                 bridgedListParagraphs[1].Text == "Continue.",
             "list bridge retains payload and following prose as paragraphs");
+        var multiBridgeParagraphs = SourcePage.ExtractParagraphs(
+            "<p>First:</p><ul><li>One</li><li>Two<ul><li>Nested</li></ul></li></ul><p>Middle.</p><p>Second:</p><ol><li>Three</li><li>Four</li></ol><p>Last.</p>");
+        Assert(
+            multiBridgeParagraphs.Count == 4 &&
+                multiBridgeParagraphs[0].Text == "First: One; Two; Nested" &&
+                multiBridgeParagraphs[1].Text == "Middle." &&
+                multiBridgeParagraphs[2].Text == "Second: Three; Four" &&
+                multiBridgeParagraphs[3].Text == "Last.",
+            "multiple list bridges retain following paragraphs and nested list content");
 
         var enumFile = LoadedFile.Load(
             repositoryRoot,
