@@ -51,9 +51,12 @@ paragraphs: plain deprecation prose, the exact field source reference, and exact
 Android attribution. Additional nodes or markup preserve the summary verbatim.
 Repair-only mapping or source failures are reported against the `summary` target.
 Existing self-closing `<remarks />` elements are expanded in place rather than
-duplicated. Importer-owned remarks refreshes use parser-corresponding element
-spans and skip layouts that cannot be located unambiguously, so literal markup in
-comments or CDATA is never modified.
+duplicated. Importer-owned remarks refreshes and copied-description repairs use
+parser-corresponding element spans and skip layouts that cannot be located
+unambiguously. Copied-description repairs additionally require an actual,
+importer-owned source-reference element and only replace direct-text summaries
+or remarks paragraphs. Literal markup in comments, CDATA, or processing
+instructions is never modified; target-location failures are reported as skips.
 
 Official pages are cached by URL hash. Network requests use a clear user agent,
 bounded concurrency, a size limit, and deterministic retry/backoff. `--offline`

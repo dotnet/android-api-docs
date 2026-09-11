@@ -149,17 +149,22 @@ static class ImporterProgram
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
 
-                    var repairedCopiedDescription = RepairCopiedDescriptionLabels(
+                    var copiedDescriptionRepair = RepairCopiedDescriptionLabels(
                         text,
                         file,
                         owner,
-                        mapping.Docs!,
-                        out var copiedDescriptionRepairTargets);
-                    if (copiedDescriptionRepairTargets.Count > 0)
+                        mapping.Docs!);
+                    ReportCopiedDescriptionRepairSkips(
+                        report,
+                        file,
+                        owner,
+                        mapping.SourceUrl,
+                        copiedDescriptionRepair.Skips);
+                    if (copiedDescriptionRepair.Targets.Count > 0)
                     {
-                        if (remaining < copiedDescriptionRepairTargets.Count)
+                        if (remaining < copiedDescriptionRepair.Targets.Count)
                         {
-                            foreach (var target in copiedDescriptionRepairTargets)
+                            foreach (var target in copiedDescriptionRepair.Targets)
                             {
                                 report.Entries.Add(ReportEntry.Skipped(
                                     file.RelativePath,
@@ -172,12 +177,12 @@ static class ImporterProgram
                         }
                         else
                         {
-                            text = repairedCopiedDescription;
+                            text = copiedDescriptionRepair.Text;
                             file.UpdateBlockOffsets(owner.Order, text);
                             fileChanged = true;
                             ownerChanged = true;
-                            remaining -= copiedDescriptionRepairTargets.Count;
-                            foreach (var target in copiedDescriptionRepairTargets)
+                            remaining -= copiedDescriptionRepair.Targets.Count;
+                            foreach (var target in copiedDescriptionRepair.Targets)
                             {
                                 report.Entries.Add(ReportEntry.Changed(
                                     "would_apply",
@@ -1773,76 +1778,215 @@ static class ImporterProgram
     static bool HasCopiedDescriptionRepairCandidate(LoadedFile file, DocsOwner owner)
     {
         var block = file.DocsBlocks[owner.Order];
-        return HasCopiedDescriptionRepairCandidate(
-            owner.Docs,
-            file.Text[block.Start..block.End]);
+        return TryParseDocsBlock(
+                file.Text[block.Start..block.End],
+                out var docs) &&
+            HasCopiedDescriptionRepairCandidate(docs);
     }
 
     static bool HasCopiedDescriptionSummaryRepairCandidate(LoadedFile file, DocsOwner owner)
     {
         var block = file.DocsBlocks[owner.Order];
-        return HasCopiedDescriptionSummaryRepairCandidate(
-            owner.Docs,
-            file.Text[block.Start..block.End]);
+        return TryParseDocsBlock(
+                file.Text[block.Start..block.End],
+                out var docs) &&
+            HasCopiedDescriptionSummaryRepairCandidate(docs);
     }
 
     static bool HasCopiedDescriptionRemarksRepairCandidate(LoadedFile file, DocsOwner owner)
     {
         var block = file.DocsBlocks[owner.Order];
-        return HasCopiedDescriptionRemarksRepairCandidate(
-            owner.Docs,
-            file.Text[block.Start..block.End]);
+        return TryParseDocsBlock(
+                file.Text[block.Start..block.End],
+                out var docs) &&
+            HasCopiedDescriptionRemarksRepairCandidate(docs);
     }
 
-    static bool HasCopiedDescriptionRepairCandidate(XElement docs, string blockText) =>
-        HasCopiedDescriptionSummaryRepairCandidate(docs, blockText) ||
-        HasCopiedDescriptionRemarksRepairCandidate(docs, blockText);
+    static bool HasCopiedDescriptionRepairCandidate(XElement docs) =>
+        HasCopiedDescriptionSummaryRepairCandidate(docs) ||
+        HasCopiedDescriptionRemarksRepairCandidate(docs);
 
-    static bool HasCopiedDescriptionSummaryRepairCandidate(XElement docs, string blockText) =>
-        HasImporterSourceReference(blockText) &&
-        IsImporterCopiedDescriptionLabel(docs.Element("summary")?.Value);
+    static bool HasCopiedDescriptionSummaryRepairCandidate(XElement docs) =>
+        HasImporterSourceReference(docs) &&
+        IsImporterCopiedDescriptionElement(docs.Element("summary"));
 
-    static bool HasCopiedDescriptionRemarksRepairCandidate(XElement docs, string blockText) =>
-        HasImporterSourceReference(blockText) &&
+    static bool HasCopiedDescriptionRemarksRepairCandidate(XElement docs) =>
+        HasImporterSourceReference(docs) &&
         docs.Element("remarks")?.Elements("para").Any(
-            paragraph => IsImporterCopiedDescriptionLabel(paragraph.Value)) == true;
+            IsImporterCopiedDescriptionElement) == true;
 
-    static string RepairCopiedDescriptionLabels(
+    static CopiedDescriptionRepairResult RepairCopiedDescriptionLabels(
         string text,
         LoadedFile file,
         DocsOwner owner,
-        SourceDocs docs,
-        out List<string> targets)
+        SourceDocs docs)
     {
-        targets = [];
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
-        if (CountImporterSourceReferences(blockText, docs.SourceUrl) == 0)
-            return text;
-        var summary = Regex.Match(
-            blockText,
-            @"<summary\b[^>]*>(?<value>\s*Description copied from (?:class|interface):\s+[A-Za-z_$][\w.$]*\s*)</summary>",
-            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        if (summary.Success &&
-            ChannelValueOrSkip(docs.Summary, "summary", "source_summary_missing").Text is string replacement)
+        if (!TryParseDocsBlock(blockText, out var actualDocs))
         {
-            blockText = blockText[..summary.Groups["value"].Index] +
-                XmlEscape(replacement) +
-                blockText[(summary.Groups["value"].Index + summary.Groups["value"].Length)..];
-            targets.Add("summary");
+            return CopiedDescriptionRepairResult.Skip(
+                text,
+                CopiedDescriptionRepairTargets(owner.Docs),
+                "copied_description_target_not_located",
+                "The copied-description target could not be parser-identified in its current <Docs> block.");
         }
 
-        var remarks = Regex.Matches(
-            blockText,
-            @"(?<line>\s*)<para>\s*Description copied from (?:class|interface):\s+[A-Za-z_$][\w.$]*\s*</para>",
-            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        foreach (Match remark in remarks.Cast<Match>().Reverse())
+        if (CountImporterSourceReferences(actualDocs, docs.SourceUrl) == 0)
+            return new CopiedDescriptionRepairResult(text, [], []);
+
+        var candidates = CopiedDescriptionRepairTargets(actualDocs);
+        if (candidates.Count == 0)
+            return new CopiedDescriptionRepairResult(text, [], []);
+
+        if (!XNode.DeepEquals(actualDocs, owner.Docs))
         {
-            blockText = blockText[..remark.Index] + blockText[(remark.Index + remark.Length)..];
-            targets.Add("remarks");
+            return CopiedDescriptionRepairResult.Skip(
+                text,
+                candidates,
+                "copied_description_target_not_located",
+                "The parser-identified copied-description target no longer matches the owner's untouched <Docs> structure.");
         }
 
-        return text[..block.Start] + blockText + text[block.End..];
+        var targets = new List<string>();
+        var skips = new List<CopiedDescriptionRepairSkip>();
+        var edits = new List<CopiedDescriptionRepairEdit>();
+        foreach (var candidate in candidates)
+        {
+            if (!TryGetElementSpan(blockText, candidate.Element, out var elementSpan))
+            {
+                skips.Add(new CopiedDescriptionRepairSkip(
+                    candidate.Target,
+                    "copied_description_target_not_located",
+                    "The parser-identified copied-description target could not be located without scanning CDATA, comments, or processing instructions."));
+                continue;
+            }
+
+            if (candidate.Target == "summary")
+            {
+                if (ChannelValueOrSkip(
+                        docs.Summary,
+                        "summary",
+                        "source_summary_missing").Text is not string replacement)
+                {
+                    continue;
+                }
+                if (!TryGetDirectTextElementContentSpan(blockText, elementSpan, out var contentSpan))
+                {
+                    skips.Add(new CopiedDescriptionRepairSkip(
+                        candidate.Target,
+                        "copied_description_target_not_located",
+                        "The parser-identified copied-description summary could not be located without scanning CDATA, comments, or processing instructions."));
+                    continue;
+                }
+                edits.Add(new CopiedDescriptionRepairEdit(
+                    contentSpan,
+                    XmlEscape(replacement)));
+                targets.Add(candidate.Target);
+            }
+            else
+            {
+                var removalStart = elementSpan.Start;
+                while (removalStart > 0 && char.IsWhiteSpace(blockText[removalStart - 1]))
+                    removalStart--;
+                edits.Add(new CopiedDescriptionRepairEdit(
+                    new XmlSpan(removalStart, elementSpan.End),
+                    ""));
+                targets.Add(candidate.Target);
+            }
+        }
+
+        foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
+        {
+            blockText = blockText[..edit.Span.Start] + edit.Replacement +
+                blockText[edit.Span.End..];
+        }
+        return new CopiedDescriptionRepairResult(
+            text[..block.Start] + blockText + text[block.End..],
+            targets,
+            skips);
+    }
+
+    static bool TryParseDocsBlock(string blockText, out XElement docs)
+    {
+        try
+        {
+            docs = XElement.Parse(
+                blockText,
+                LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            return docs.Name.LocalName == "Docs";
+        }
+        catch (XmlException)
+        {
+            docs = new XElement("Docs");
+            return false;
+        }
+    }
+
+    static List<CopiedDescriptionRepairTarget> CopiedDescriptionRepairTargets(XElement docs)
+    {
+        var targets = new List<CopiedDescriptionRepairTarget>();
+        var summary = docs.Element("summary");
+        if (IsImporterCopiedDescriptionElement(summary))
+            targets.Add(new CopiedDescriptionRepairTarget("summary", summary!));
+
+        foreach (var paragraph in docs.Element("remarks")?.Elements("para") ??
+            Enumerable.Empty<XElement>())
+        {
+            if (IsImporterCopiedDescriptionElement(paragraph))
+                targets.Add(new CopiedDescriptionRepairTarget("remarks", paragraph));
+        }
+        return targets;
+    }
+
+    static bool IsImporterCopiedDescriptionElement(XElement? element)
+    {
+        if (element is null)
+            return false;
+        var nodes = element.Nodes().ToList();
+        return nodes.Count == 1 &&
+            nodes[0] is XText text &&
+            text is not XCData &&
+            IsImporterCopiedDescriptionLabel(text.Value);
+    }
+
+    static bool TryGetDirectTextElementContentSpan(
+        string text,
+        XmlSpan elementSpan,
+        out XmlSpan contentSpan)
+    {
+        contentSpan = new XmlSpan(0, 0);
+        if (!TryFindMarkupEnd(text, elementSpan.Start, out var openingEnd))
+            return false;
+        var closingStart = text.LastIndexOf('<', elementSpan.End - 1);
+        if (closingStart <= openingEnd ||
+            !text.AsSpan(closingStart, elementSpan.End - closingStart).StartsWith(
+                "</",
+                StringComparison.Ordinal))
+        {
+            return false;
+        }
+        contentSpan = new XmlSpan(openingEnd, closingStart);
+        return true;
+    }
+
+    static void ReportCopiedDescriptionRepairSkips(
+        ImportReport report,
+        LoadedFile file,
+        DocsOwner owner,
+        string sourceUrl,
+        IEnumerable<CopiedDescriptionRepairSkip> skips)
+    {
+        foreach (var skip in skips)
+        {
+            report.Entries.Add(ReportEntry.Skipped(
+                file.RelativePath,
+                owner.Id,
+                skip.Target,
+                skip.Reason,
+                skip.Detail,
+                sourceUrl));
+        }
     }
 
     static bool IsImporterCopiedDescriptionLabel(string? value) =>
@@ -2458,6 +2602,12 @@ static class ImporterProgram
         return HasImporterSourceReference(file.Text[block.Start..block.End]);
     }
 
+    static bool HasImporterSourceReference(XElement docs) =>
+        docs.Descendants("para").Any(paragraph =>
+            TryGetImporterSourceReferenceUrl(
+                paragraph.ToString(SaveOptions.DisableFormatting),
+                out _));
+
     static bool HasImporterSourceReference(string blockText) =>
         Regex.Matches(
             blockText,
@@ -2552,6 +2702,13 @@ static class ImporterProgram
             .Count(match =>
                 TryGetImporterSourceReferenceUrl(match.Value, out var importerSourceUrl) &&
                 UrlsEqual(importerSourceUrl, sourceUrl));
+
+    static int CountImporterSourceReferences(XElement docs, string sourceUrl) =>
+        docs.Descendants("para").Count(paragraph =>
+            TryGetImporterSourceReferenceUrl(
+                paragraph.ToString(SaveOptions.DisableFormatting),
+                out var importerSourceUrl) &&
+            UrlsEqual(importerSourceUrl, sourceUrl));
 
     static bool TryGetImporterSourceReferenceUrl(string paragraph, out string sourceUrl)
     {
@@ -3792,26 +3949,40 @@ static class ImporterProgram
             SourceUrl =
                 "https://developer.android.com/reference/android/example/Widget#setTitle(java.lang.String)",
         };
+        const string copiedDescriptionCdata =
+            "<![CDATA[Example XML: <para>Description copied from interface: Fixture</para>]]>";
+        const string copiedDescriptionComment =
+            "<!-- Example XML: <para>Description copied from interface: Fixture</para> -->";
+        const string copiedDescriptionProcessingInstruction =
+            "<?fixture Example XML: <para>Description copied from interface: Fixture</para> ?>";
         var copiedDescriptionRepairText = file.Text.Replace(
             "<summary>To be added.</summary>",
             "<summary>Description copied from interface: Fixture</summary>",
             StringComparison.Ordinal).Replace(
             $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
-            $"<remarks>{file.Newline}          <para>Description copied from interface: Fixture</para>{file.Newline}          <para>Keep this existing prose.</para>{file.Newline}          <para><format type=\"text/html\"><a href=\"{copiedDescriptionRepairDocs.SourceUrl}\" title=\"Reference documentation\">Android reference for <code>android.example.Widget.setTitle</code>.</a></format></para>",
+            $"<remarks>{file.Newline}          {copiedDescriptionCdata}{file.Newline}          {copiedDescriptionComment}{file.Newline}          {copiedDescriptionProcessingInstruction}{file.Newline}          <para>Description copied from interface: Fixture</para>{file.Newline}          <para>Keep this existing prose.</para>{file.Newline}          <para><format type=\"text/html\"><a href=\"{copiedDescriptionRepairDocs.SourceUrl}\" title=\"Reference documentation\">Android reference for <code>android.example.Widget.setTitle</code>.</a></format></para>",
             StringComparison.Ordinal);
         file.UpdateBlockOffsets(setTitle.Order, copiedDescriptionRepairText);
+        var copiedDescriptionRepairOwner = setTitle with
+        {
+            Docs = XElement.Parse(
+                copiedDescriptionRepairText[
+                    file.DocsBlocks[setTitle.Order].Start..
+                    file.DocsBlocks[setTitle.Order].End],
+                LoadOptions.PreserveWhitespace),
+        };
         Assert(
             IsImporterCopiedDescriptionLabel("Description copied from interface: Fixture"),
             "copied-description repair label is detected");
         var mismatchedCopiedDescriptionRepair = RepairCopiedDescriptionLabels(
             copiedDescriptionRepairText,
             file,
-            setTitle,
-            copiedDescriptionRepairDocs with { SourceUrl = "https://example.invalid/Widget" },
-            out var mismatchedCopiedDescriptionTargets);
+            copiedDescriptionRepairOwner,
+            copiedDescriptionRepairDocs with { SourceUrl = "https://example.invalid/Widget" });
         Assert(
-            mismatchedCopiedDescriptionTargets.Count == 0 &&
-                mismatchedCopiedDescriptionRepair.Equals(
+            mismatchedCopiedDescriptionRepair.Targets.Count == 0 &&
+                mismatchedCopiedDescriptionRepair.Skips.Count == 0 &&
+                mismatchedCopiedDescriptionRepair.Text.Equals(
                     copiedDescriptionRepairText,
                     StringComparison.Ordinal),
             "copied-description repairs require the exact resolved source URL");
@@ -3823,12 +3994,12 @@ static class ImporterProgram
         var authoredSourceReferenceRepair = RepairCopiedDescriptionLabels(
             authoredSourceReferenceText,
             file,
-            setTitle,
-            copiedDescriptionRepairDocs,
-            out var authoredSourceReferenceTargets);
+            copiedDescriptionRepairOwner,
+            copiedDescriptionRepairDocs);
         Assert(
-            authoredSourceReferenceTargets.Count == 0 &&
-                authoredSourceReferenceRepair.Equals(
+            authoredSourceReferenceRepair.Targets.Count == 0 &&
+                authoredSourceReferenceRepair.Skips.Count == 0 &&
+                authoredSourceReferenceRepair.Text.Equals(
                     authoredSourceReferenceText,
                     StringComparison.Ordinal),
             "copied-description repairs require an importer-owned source reference");
@@ -3840,52 +4011,109 @@ static class ImporterProgram
         var authoredCopiedDescriptionRepair = RepairCopiedDescriptionLabels(
             authoredCopiedDescriptionText,
             file,
-            setTitle,
-            copiedDescriptionRepairDocs,
-            out var authoredCopiedDescriptionTargets);
+            copiedDescriptionRepairOwner,
+            copiedDescriptionRepairDocs);
         Assert(
-            authoredCopiedDescriptionTargets.Count == 0 &&
-                authoredCopiedDescriptionRepair.Equals(
+            authoredCopiedDescriptionRepair.Targets.Count == 0 &&
+                authoredCopiedDescriptionRepair.Skips.Count == 0 &&
+                authoredCopiedDescriptionRepair.Text.Equals(
                     authoredCopiedDescriptionText,
                     StringComparison.Ordinal),
             "copied-description repairs preserve labels with authored prose");
         file.UpdateBlockOffsets(setTitle.Order, copiedDescriptionRepairText);
+        var correspondenceMismatchOwner = copiedDescriptionRepairOwner with
+        {
+            Docs = XElement.Parse(
+                copiedDescriptionRepairOwner.Docs
+                    .ToString(SaveOptions.DisableFormatting)
+                    .Replace(
+                        "Keep this existing prose.",
+                        "Different parser ownership structure.",
+                        StringComparison.Ordinal),
+                LoadOptions.PreserveWhitespace),
+        };
+        var correspondenceMismatchRepair = RepairCopiedDescriptionLabels(
+            copiedDescriptionRepairText,
+            file,
+            correspondenceMismatchOwner,
+            copiedDescriptionRepairDocs);
+        var correspondenceMismatchReport = new ImportReport
+        {
+            Mode = "dry-run",
+            Offline = true,
+            MaxChanges = 2,
+        };
+        ReportCopiedDescriptionRepairSkips(
+            correspondenceMismatchReport,
+            file,
+            correspondenceMismatchOwner,
+            copiedDescriptionRepairDocs.SourceUrl,
+            correspondenceMismatchRepair.Skips);
+        Assert(
+            correspondenceMismatchRepair.Targets.Count == 0 &&
+                correspondenceMismatchRepair.Text.Equals(
+                    copiedDescriptionRepairText,
+                    StringComparison.Ordinal) &&
+                correspondenceMismatchReport.Entries.Count == 2 &&
+                correspondenceMismatchReport.Entries.All(entry =>
+                    entry.Reason == "copied_description_target_not_located" &&
+                    entry.SourceUrl == copiedDescriptionRepairDocs.SourceUrl) &&
+                correspondenceMismatchReport.Entries.Select(entry => entry.Target)
+                    .SequenceEqual(["summary", "remarks"]),
+            "copied-description correspondence mismatches safely skip and report each target");
         var repairedCopiedDescriptionText = RepairCopiedDescriptionLabels(
             copiedDescriptionRepairText,
             file,
-            setTitle,
-            copiedDescriptionRepairDocs,
-            out var copiedDescriptionTargets);
-        var repairedCopiedDescriptionSummary = repairedCopiedDescriptionText.Contains(
-            "<summary>Sets the widget title.</summary>",
-            StringComparison.Ordinal);
+            copiedDescriptionRepairOwner,
+            copiedDescriptionRepairDocs);
+        var repairedCopiedDescriptionDocs = XDocument.Parse(
+            repairedCopiedDescriptionText.Text,
+            LoadOptions.PreserveWhitespace).Root!
+            .Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "SetTitle")
+            .Element("Docs")!;
         var copiedDescriptionCount = Regex.Matches(
             copiedDescriptionRepairText,
             "Description copied from interface:",
             RegexOptions.CultureInvariant).Count;
         var repairedCopiedDescriptionCount = Regex.Matches(
-            repairedCopiedDescriptionText,
+            repairedCopiedDescriptionText.Text,
             "Description copied from interface:",
             RegexOptions.CultureInvariant).Count;
+        var repairedCopiedDescriptionSummary =
+            repairedCopiedDescriptionDocs.Element("summary")?.Value ==
+            copiedDescriptionRepairDocs.Summary;
+        var repairedCopiedDescriptionRemarks =
+            !repairedCopiedDescriptionDocs.Element("remarks")!.Elements("para")
+                .Any(IsImporterCopiedDescriptionElement);
+        var preservedCopiedDescriptionCdata = repairedCopiedDescriptionText.Text.Contains(
+            copiedDescriptionCdata,
+            StringComparison.Ordinal);
+        var preservedCopiedDescriptionComment = repairedCopiedDescriptionText.Text.Contains(
+            copiedDescriptionComment,
+            StringComparison.Ordinal);
+        var preservedCopiedDescriptionProcessingInstruction =
+            repairedCopiedDescriptionText.Text.Contains(
+                copiedDescriptionProcessingInstruction,
+                StringComparison.Ordinal);
         Assert(
-            copiedDescriptionTargets.Count == 2 &&
+            repairedCopiedDescriptionText.Targets.Count == 2 &&
+                repairedCopiedDescriptionText.Skips.Count == 0 &&
                 repairedCopiedDescriptionSummary &&
+                repairedCopiedDescriptionRemarks &&
+                preservedCopiedDescriptionCdata &&
+                preservedCopiedDescriptionComment &&
+                preservedCopiedDescriptionProcessingInstruction &&
                 repairedCopiedDescriptionCount == copiedDescriptionCount - 2,
-            $"exact importer-generated copied-description labels are repaired (targets={copiedDescriptionTargets.Count}, summary={repairedCopiedDescriptionSummary}, labels={copiedDescriptionCount}/{repairedCopiedDescriptionCount})");
-        var repairOnlyOwner = setTitle with
-        {
-            Docs = XElement.Parse(
-                "<Docs><summary>Description copied from interface: Fixture</summary></Docs>"),
-            Placeholders = [],
-        };
+            $"parser-identified copied-description summary and remarks targets are repaired while CDATA, comments, and processing instructions are preserved (targets={repairedCopiedDescriptionText.Targets.Count}, summary={repairedCopiedDescriptionSummary} [{repairedCopiedDescriptionDocs.Element("summary")?.Value}/{copiedDescriptionRepairDocs.Summary}], remarks={repairedCopiedDescriptionRemarks}, cdata={preservedCopiedDescriptionCdata}, comment={preservedCopiedDescriptionComment}, processingInstruction={preservedCopiedDescriptionProcessingInstruction}, labels={copiedDescriptionCount}/{repairedCopiedDescriptionCount})");
+        var repairOnlyOwner = copiedDescriptionRepairOwner with { Placeholders = [] };
         Assert(
             RequiresSourceLoad(file, repairOnlyOwner),
             "copied-description repair-only owners load their source page");
         Assert(
             !HasCopiedDescriptionRepairCandidate(
                 XElement.Parse(
-                    "<Docs><summary>Description copied from interface: Fixture</summary></Docs>"),
-                "<Docs><summary>Description copied from interface: Fixture</summary></Docs>"),
+                    "<Docs><summary>Description copied from interface: Fixture</summary></Docs>")),
             "copied-description repairs require importer source metadata");
         Assert(
             !IsImporterCopiedDescriptionLabel(
@@ -3897,18 +4125,40 @@ static class ImporterProgram
             Offline = true,
             MaxChanges = 1,
         };
+        var summaryOnlyCopiedDescriptionText = copiedDescriptionRepairText.Replace(
+            $"          <para>Description copied from interface: Fixture</para>{file.Newline}          <para>Keep this existing prose.</para>",
+            $"          <para>Keep this existing prose.</para>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, summaryOnlyCopiedDescriptionText);
+        var summaryOnlyRepairOwner = setTitle with
+        {
+            Docs = XElement.Parse(
+                summaryOnlyCopiedDescriptionText[
+                    file.DocsBlocks[setTitle.Order].Start..
+                    file.DocsBlocks[setTitle.Order].End],
+                LoadOptions.PreserveWhitespace),
+            Placeholders = [],
+        };
         Assert(
             ReportMappingFailure(
                 summaryOnlyRepairFailure,
                 file,
-                repairOnlyOwner,
+                summaryOnlyRepairOwner,
                 MappingResult.Skip("source_not_loaded", "fixture mapping failure")) &&
                 summaryOnlyRepairFailure.Entries.Select(entry => entry.Target).SequenceEqual(["summary"]),
             "summary-only copied-description failures report only summary");
+        var remarksOnlyCopiedDescriptionText = copiedDescriptionRepairText.Replace(
+            "<summary>Description copied from interface: Fixture</summary>",
+            "<summary>Existing fixture prose.</summary>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, remarksOnlyCopiedDescriptionText);
         var remarksOnlyRepairOwner = setTitle with
         {
             Docs = XElement.Parse(
-                "<Docs><summary>Existing fixture prose.</summary><remarks><para>Description copied from interface: Fixture</para></remarks></Docs>"),
+                remarksOnlyCopiedDescriptionText[
+                    file.DocsBlocks[setTitle.Order].Start..
+                    file.DocsBlocks[setTitle.Order].End],
+                LoadOptions.PreserveWhitespace),
             Placeholders = [],
         };
         var remarksOnlyRepairFailure = new ImportReport
@@ -5940,6 +6190,27 @@ static class ImporterProgram
 
     sealed record DocsBlock(int Order, int Start, int End);
     sealed record XmlSpan(int Start, int End);
+    sealed record CopiedDescriptionRepairTarget(string Target, XElement Element);
+    sealed record CopiedDescriptionRepairEdit(XmlSpan Span, string Replacement);
+    sealed record CopiedDescriptionRepairSkip(string Target, string Reason, string Detail);
+    sealed record CopiedDescriptionRepairResult(
+        string Text,
+        List<string> Targets,
+        List<CopiedDescriptionRepairSkip> Skips)
+    {
+        public static CopiedDescriptionRepairResult Skip(
+            string text,
+            IEnumerable<CopiedDescriptionRepairTarget> targets,
+            string reason,
+            string detail) =>
+            new(
+                text,
+                [],
+                targets.Select(target => new CopiedDescriptionRepairSkip(
+                    target.Target,
+                    reason,
+                    detail)).ToList());
+    }
     sealed record DocsOwner(
         int Order,
         string Id,
