@@ -609,7 +609,7 @@
         <param name="supportsSpeed">To be added.</param>
         <param name="supportsBearing">To be added.</param>
         <param name="powerRequirement">To be added.</param>
-        <param name="accuracy">To be added.</param>
+        <param name="accuracy">Value is one of the following: ProviderProperties.ACCURACY_FINE; ProviderProperties.ACCURACY_COARSE</param>
         <param name="provider">the provider name</param>
         <summary>Creates a test location provider and adds it to the set of active providers.</summary>
         <remarks>
@@ -1625,7 +1625,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the current list of GNSS antenna infos, or null if unknown or unsupported.</summary>
-        <value>To be added.</value>
+        <value>Returns the current list of GNSS antenna infos, or null if unknown or unsupported.</value>
         <remarks>
           <para>Returns the current list of GNSS antenna infos, or null if unknown or unsupported.</para>
           <para>
@@ -1716,7 +1716,7 @@
       <Docs>
         <summary>Returns the model name (including vendor and hardware/software version) of the GNSS hardware
             driver, or null if this information is not available.</summary>
-        <value>To be added.</value>
+        <value>Returns the model name (including vendor and hardware/software version) of the GNSS hardware driver, or null if this information is not available.</value>
         <remarks>
           <para>Returns the model name (including vendor and hardware/software version) of the GNSS hardware
             driver, or null if this information is not available.</para>
@@ -1760,7 +1760,7 @@
       <Docs>
         <summary>Returns the model year of the GNSS hardware and software build, or 0 if the model year
             is before 2016.</summary>
-        <value>To be added.</value>
+        <value>Returns the model year of the GNSS hardware and software build, or 0 if the model year is before 2016.</value>
         <remarks>
           <para>Returns the model year of the GNSS hardware and software build, or 0 if the model year
             is before 2016.</para>
@@ -2487,16 +2487,15 @@
         <Parameter Name="callback" Type="Android.Locations.GnssMeasurementsEvent+Callback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
+        <param name="callback">a GnssMeasurementsEvent.Callback object to register. This value cannot be null.</param>
         <summary>Registers a GNSS measurements callback which will run on a binder thread.</summary>
         <returns>
           <c>true</c> always</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssMeasurementsCallback(android.location.Callback)" title="Reference documentation">Java documentation for <code>android.location.LocationManager.registerGnssMeasurementsCallback(android.location.Callback)</code>.</a>
-            </format>
-          </para>
+          <para>This method was deprecated in API level 30. Use registerGnssMeasurementsCallback(GnssMeasurementsEvent.Callback,Handler) or registerGnssMeasurementsCallback(Executor,GnssMeasurementsEvent.Callback) instead.</para>
+          <para>Registers a GNSS measurements callback which will run on a binder thread.</para>
+          <para>See registerGnssMeasurementsCallback(Executor,GnssMeasurementsEvent.Callback) for more detail on how this method works. Requires Manifest.permission.ACCESS_FINE_LOCATION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssMeasurementsCallback(android.location.GnssMeasurementsEvent.Callback)" title="Reference documentation">Android reference for <code>android.location.LocationManager.registerGnssMeasurementsCallback</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2544,17 +2543,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
-        <param name="handler">To be added.</param>
+        <param name="callback">a GnssMeasurementsEvent.Callback object to register. This value cannot be null.</param>
+        <param name="handler">the handler that the callback runs on. This value may be null.</param>
         <summary>Registers a GNSS measurements callback which will run on a binder thread.</summary>
         <returns>
           <c>true</c> always</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssMeasurementsCallback(android.location.Callback)" title="Reference documentation">Java documentation for <code>android.location.LocationManager.registerGnssMeasurementsCallback(android.location.Callback)</code>.</a>
-            </format>
-          </para>
+          <para>Registers a GNSS measurements callback.</para>
+          <para>See registerGnssMeasurementsCallback(Executor,GnssMeasurementsEvent.Callback) for more detail on how this method works. Requires Manifest.permission.ACCESS_FINE_LOCATION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssMeasurementsCallback(android.location.GnssMeasurementsEvent.Callback,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.location.LocationManager.registerGnssMeasurementsCallback</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2595,17 +2592,16 @@
         <Parameter Name="callback" Type="Android.Locations.GnssMeasurementsEvent+Callback" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
+        <param name="executor">the executor that the callback runs on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">the callback to register. This value cannot be null.</param>
         <summary>Registers a GNSS measurements callback which will run on a binder thread.</summary>
         <returns>
           <c>true</c> always</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssMeasurementsCallback(android.location.Callback)" title="Reference documentation">Java documentation for <code>android.location.LocationManager.registerGnssMeasurementsCallback(android.location.Callback)</code>.</a>
-            </format>
-          </para>
+          <para>Registers a GNSS measurements callback. GNSS measurements information will only be received while the GPS_PROVIDER is enabled, and while the client app is in the foreground.</para>
+          <para>Not all GNSS chipsets support measurements updates, see getGnssCapabilities().</para>
+          <para>On Android R devices that have not yet upgraded to Android R QPR1, using this API will cause unavoidable crashes in the client application when GNSS measurements are received. If a client needs to receive GNSS measurements on Android R devices that have not been upgraded to QPR1, clients are instead encouraged to use LocationManagerCompat.registerGnssMeasurementsCallback() from the compat libraries instead to avoid this crash. Requires Manifest.permission.ACCESS_FINE_LOCATION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssMeasurementsCallback(java.util.concurrent.Executor,%20android.location.GnssMeasurementsEvent.Callback)" title="Reference documentation">Android reference for <code>android.location.LocationManager.registerGnssMeasurementsCallback</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2647,18 +2643,15 @@
         <Parameter Name="callback" Type="Android.Locations.GnssMeasurementsEvent+Callback" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
+        <param name="request">extra parameters to pass to GNSS measurement provider. For example, if GnssMeasurementRequest.isFullTracking() is true, GNSS chipset switches off duty cycling. This value cannot be null.</param>
+        <param name="executor">the executor that the callback runs on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">a GnssMeasurementsEvent.Callback object to register. This value cannot be null.</param>
         <summary>Registers a GNSS measurements callback which will run on a binder thread.</summary>
         <returns>
           <c>true</c> always</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssMeasurementsCallback(android.location.Callback)" title="Reference documentation">Java documentation for <code>android.location.LocationManager.registerGnssMeasurementsCallback(android.location.Callback)</code>.</a>
-            </format>
-          </para>
+          <para>Registers a GNSS measurement callback. Requires Manifest.permission.ACCESS_FINE_LOCATION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssMeasurementsCallback(android.location.GnssMeasurementRequest,%20java.util.concurrent.Executor,%20android.location.GnssMeasurementsEvent.Callback)" title="Reference documentation">Android reference for <code>android.location.LocationManager.registerGnssMeasurementsCallback</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2756,16 +2749,14 @@
       </Parameters>
       <Docs>
         <param name="callback">the callback to register</param>
-        <param name="handler">To be added.</param>
+        <param name="handler">the handler that the callback runs on. This value may be null.</param>
         <summary>Registers a GNSS navigation message callback which will run on a binder thread.</summary>
         <returns>
           <c>true</c> always</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssNavigationMessageCallback(android.location.Callback)" title="Reference documentation">Java documentation for <code>android.location.LocationManager.registerGnssNavigationMessageCallback(android.location.Callback)</code>.</a>
-            </format>
-          </para>
+          <para>Registers a GNSS navigation message callback.</para>
+          <para>See registerGnssNavigationMessageCallback(Executor,GnssNavigationMessage.Callback) for more detail on how this method works. Requires Manifest.permission.ACCESS_FINE_LOCATION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssNavigationMessageCallback(android.location.GnssNavigationMessage.Callback,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.location.LocationManager.registerGnssNavigationMessageCallback</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2806,17 +2797,15 @@
         <Parameter Name="callback" Type="Android.Locations.GnssNavigationMessage+Callback" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
+        <param name="executor">the executor that the callback runs on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="callback">the callback to register</param>
         <summary>Registers a GNSS navigation message callback which will run on a binder thread.</summary>
         <returns>
           <c>true</c> always</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssNavigationMessageCallback(android.location.Callback)" title="Reference documentation">Java documentation for <code>android.location.LocationManager.registerGnssNavigationMessageCallback(android.location.Callback)</code>.</a>
-            </format>
-          </para>
+          <para>Registers a GNSS navigation message callback. GNSS navigation messages will only be received while the GPS_PROVIDER is enabled, and while the client app is in the foreground.</para>
+          <para>Not all GNSS chipsets support navigation message updates, see getGnssCapabilities(). Requires Manifest.permission.ACCESS_FINE_LOCATION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssNavigationMessageCallback(java.util.concurrent.Executor,%20android.location.GnssNavigationMessage.Callback)" title="Reference documentation">Android reference for <code>android.location.LocationManager.registerGnssNavigationMessageCallback</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2918,16 +2907,14 @@
       </Parameters>
       <Docs>
         <param name="callback">the callback to register</param>
-        <param name="handler">To be added.</param>
+        <param name="handler">the handler the callback runs on. This value may be null.</param>
         <summary>Registers a GNSS status callback.</summary>
         <returns>
           <c>true</c> always</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssStatusCallback(android.location.Callback)" title="Reference documentation">Java documentation for <code>android.location.LocationManager.registerGnssStatusCallback(android.location.Callback)</code>.</a>
-            </format>
-          </para>
+          <para>Registers a GNSS status callback.</para>
+          <para>See registerGnssStatusCallback(Executor,GnssStatus.Callback) for more detail on how this method works. Requires Manifest.permission.ACCESS_FINE_LOCATION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssStatusCallback(android.location.GnssStatus.Callback,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.location.LocationManager.registerGnssStatusCallback</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2968,17 +2955,14 @@
         <Parameter Name="callback" Type="Android.Locations.GnssStatus+Callback" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
+        <param name="executor">the executor that the callback runs on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="callback">the callback to register</param>
         <summary>Registers a GNSS status callback.</summary>
         <returns>
           <c>true</c> always</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssStatusCallback(android.location.Callback)" title="Reference documentation">Java documentation for <code>android.location.LocationManager.registerGnssStatusCallback(android.location.Callback)</code>.</a>
-            </format>
-          </para>
+          <para>Registers a GNSS status callback. GNSS status information will only be received while the GPS_PROVIDER is enabled, and while the client app is in the foreground. Requires Manifest.permission.ACCESS_FINE_LOCATION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/LocationManager#registerGnssStatusCallback(java.util.concurrent.Executor,%20android.location.GnssStatus.Callback)" title="Reference documentation">Android reference for <code>android.location.LocationManager.registerGnssStatusCallback</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
