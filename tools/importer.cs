@@ -766,10 +766,7 @@ static class ImporterProgram
                 : Replacement.Skip(
                     "source_parameter_missing",
                     $"The exact source member did not document parameter '{placeholder.Key}'."),
-            "returns" => ChannelValueOrSkip(
-                docs.Returns,
-                placeholder.Name,
-                "source_return_missing"),
+            "returns" => ReturnReplacement(docs),
             "value" => ValueReplacement(docs),
             "exception" => ExceptionReplacement(placeholder, docs),
             _ => Replacement.Skip(
@@ -1109,6 +1106,20 @@ static class ImporterProgram
                     "value",
                     "source_return_missing")
                 : returns;
+    }
+
+    static Replacement ReturnReplacement(SourceDocs docs)
+    {
+        var replacement = ChannelValueOrSkip(
+            docs.Returns,
+            "returns",
+            "source_return_missing");
+        return replacement.Text == "this build" &&
+            docs.SourceUrl.StartsWith(
+                "https://developer.android.com/reference/android/service/autofill/ImageTransformation.Builder#addOption(",
+                StringComparison.Ordinal)
+            ? replacement with { Text = "this builder" }
+            : replacement;
     }
 
     static bool IsTypeOnlyReturnChannel(string? value)
@@ -2574,11 +2585,6 @@ static class ImporterProgram
             "Resoure Id",
             "Resource Id",
             StringComparison.Ordinal);
-        text = Regex.Replace(
-            text,
-            @"\bthis build\b",
-            "this builder",
-            RegexOptions.CultureInvariant);
         text = Regex.Replace(
             text,
             @"\s+TODO Link: Tuner#Tuner\(Context, string, int\)\.",
@@ -4217,9 +4223,32 @@ static class ImporterProgram
             CleanSourceText("Resoure Id of the custom string.") ==
                 "Resource Id of the custom string.",
             "Android resource spelling cleanup");
+        var malformedImageTransformationReturn = ReturnReplacement(
+            new SourceDocs(
+                "",
+                [],
+                new(StringComparer.Ordinal),
+                "this build",
+                new(StringComparer.Ordinal),
+                "https://developer.android.com/reference/android/service/autofill/ImageTransformation.Builder#addOption(java.util.regex.Pattern,%20int)",
+                "android.service.autofill.ImageTransformation.Builder.addOption",
+                "android"));
+        var ordinaryBuildReturn = ReturnReplacement(
+            new SourceDocs(
+                "",
+                [],
+                new(StringComparer.Ordinal),
+                "this build",
+                new(StringComparer.Ordinal),
+                "https://developer.android.com/reference/android/os/Build#FINGERPRINT",
+                "android.os.Build.FINGERPRINT",
+                "android"));
         Assert(
-            CleanSourceText("this build") == "this builder",
-            "Android builder return cleanup");
+            malformedImageTransformationReturn.Text == "this builder" &&
+                ordinaryBuildReturn.Text == "this build" &&
+                CleanSourceText("Build.FINGERPRINT identifies this build.") ==
+                    "Build.FINGERPRINT identifies this build.",
+            "ImageTransformation builder return cleanup is source-scoped");
         Assert(
             CleanSourceText(
                 "Federated Compute Server documentation.. This value cannot be null.") ==
