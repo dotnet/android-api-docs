@@ -55,8 +55,12 @@ duplicated. Importer-owned remarks refreshes and copied-description repairs use
 parser-corresponding element spans and skip layouts that cannot be located
 unambiguously. Copied-description repairs additionally require an actual,
 importer-owned source-reference element and only replace direct-text summaries
-or remarks paragraphs. Literal markup in comments, CDATA, or processing
-instructions is never modified; target-location failures are reported as skips.
+or remarks paragraphs; mixed-content paragraphs are reported and preserved.
+Source-reference reconciliation likewise uses parsed importer-owned paragraphs
+and element spans: stale references are replaced and duplicates removed only
+when their XML elements are safely located. Literal markup in comments, CDATA,
+or processing instructions, and authored references or attribution, are never
+modified; unsafe source-reference locations are reported as skips.
 
 Official pages are cached by URL hash. Network requests use a clear user agent,
 bounded concurrency, a size limit, and deterministic retry/backoff. `--offline`
