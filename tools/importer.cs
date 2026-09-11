@@ -89,15 +89,7 @@ static class ImporterProgram
 
             var sourceRequests = loadedFiles
                 .SelectMany(file => file.Owners.Select(owner => (File: file, Owner: owner)))
-                .Where(item =>
-                    item.Owner.Placeholders.Count > 0 ||
-                    IsEnumSummaryRepairCandidate(item.Owner) ||
-                    HasDeprecatedValueRepairCandidate(item.File, item.Owner) ||
-                    HasPotentialImporterOwnedRemarksRefresh(item.File, item.Owner) ||
-                    HasAugmentedRemarksPlaceholder(item.File, item.Owner) ||
-                    HasTruncatedImporterSummary(item.File, item.Owner) ||
-                    HasIncompleteCodeExampleRemarks(item.File, item.Owner) ||
-                    HasMetadataOnlyRemarks(item.File, item.Owner))
+                .Where(item => RequiresSourceLoad(item.File, item.Owner))
                 .Select(item => item.Owner.SourceRequest)
                 .Where(request => request is not null)
                 .Cast<SourceRequest>()
@@ -157,12 +149,64 @@ static class ImporterProgram
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
 
+                    var copiedDescriptionRepair = RepairCopiedDescriptionLabels(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    ReportCopiedDescriptionRepairSkips(
+                        report,
+                        file,
+                        owner,
+                        mapping.SourceUrl,
+                        copiedDescriptionRepair.Skips);
+                    if (copiedDescriptionRepair.Targets.Count > 0)
+                    {
+                        if (remaining < copiedDescriptionRepair.Targets.Count)
+                        {
+                            foreach (var target in copiedDescriptionRepair.Targets)
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                        }
+                        else
+                        {
+                            text = copiedDescriptionRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining -= copiedDescriptionRepair.Targets.Count;
+                            foreach (var target in copiedDescriptionRepair.Targets)
+                            {
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    mapping.SourceUrl,
+                                    "importer_copied_description_repair",
+                                    "Replaced an exact importer-generated Javadoc copied-description label."));
+                            }
+                        }
+                    }
+
                     foreach (var placeholder in owner.Placeholders.OrderBy(item => item.Order))
                     {
                         var replacement = ReplacementFor(
                             placeholder,
                             mapping.Docs!,
                             owner.IsEnumField);
+                        replacement = LimitOverlappingRemarksReplacement(
+                            placeholder,
+                            mapping.Docs!,
+                            replacement,
+                            owner.Docs.Element("remarks"));
                         if (replacement.Text is null)
                         {
                             report.Entries.Add(ReportEntry.Skipped(
@@ -232,8 +276,18 @@ static class ImporterProgram
                             file,
                             owner,
                             mapping.Docs,
+                            out var sourceReferenceCleanupSkip,
                             allowEnumCreation: false);
-                        if (!refreshed.Equals(text, StringComparison.Ordinal))
+                        if (sourceReferenceCleanupSkip is not null)
+                        {
+                            ReportSourceReferenceCleanupSkip(
+                                report,
+                                file,
+                                owner,
+                                mapping.SourceUrl,
+                                sourceReferenceCleanupSkip);
+                        }
+                        else if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
                             file.UpdateBlockOffsets(owner.Order, refreshed);
                             var repairTarget = "summary";
@@ -360,13 +414,27 @@ static class ImporterProgram
                             deferredRemarksPlaceholder,
                             replacedRemarksPlaceholder))
                     {
-                        text = AddSourceDocumentationIfSafe(
+                        var sourceDocumentation = AddSourceDocumentationIfSafe(
                             text,
                             file,
                             owner,
                             mapping.Docs,
+                            out var sourceReferenceCleanupSkip,
                             addMetadataForChannelOnlyMember: importedSourceChannel);
-                        file.UpdateBlockOffsets(owner.Order, text);
+                        if (sourceReferenceCleanupSkip is not null)
+                        {
+                            ReportSourceReferenceCleanupSkip(
+                                report,
+                                file,
+                                owner,
+                                mapping.SourceUrl,
+                                sourceReferenceCleanupSkip);
+                        }
+                        else
+                        {
+                            text = sourceDocumentation;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                        }
                     }
                 }
 
@@ -701,14 +769,17 @@ static class ImporterProgram
         var targets = owner.Placeholders
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
-        if (IsEnumSummaryRepairCandidate(owner) || HasTruncatedImporterSummary(file, owner))
+        if (IsEnumSummaryRepairCandidate(owner) ||
+            HasTruncatedImporterSummary(file, owner) ||
+            HasCopiedDescriptionSummaryRepairCandidate(file, owner))
             targets.Add("summary");
         if (HasDeprecatedValueRepairCandidate(file, owner))
             targets.Add("value");
-        if (HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
-            HasAugmentedRemarksPlaceholder(file, owner) ||
+        if (HasAugmentedRemarksPlaceholder(file, owner) ||
+            HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
-            HasMetadataOnlyRemarks(file, owner))
+            HasMetadataOnlyRemarks(file, owner) ||
+            HasCopiedDescriptionRemarksRepairCandidate(file, owner))
             targets.Add("remarks");
 
         foreach (var target in targets.OrderBy(target => target, StringComparer.Ordinal))
@@ -723,6 +794,17 @@ static class ImporterProgram
         }
         return true;
     }
+
+    static bool RequiresSourceLoad(LoadedFile file, DocsOwner owner) =>
+        owner.Placeholders.Count > 0 ||
+        IsEnumSummaryRepairCandidate(owner) ||
+        HasDeprecatedValueRepairCandidate(file, owner) ||
+        HasAugmentedRemarksPlaceholder(file, owner) ||
+        HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
+        HasTruncatedImporterSummary(file, owner) ||
+        HasIncompleteCodeExampleRemarks(file, owner) ||
+        HasMetadataOnlyRemarks(file, owner) ||
+        HasCopiedDescriptionRepairCandidate(file, owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
         LoadedFile file,
@@ -743,9 +825,7 @@ static class ImporterProgram
         bool isEnumField = false)
     {
         if (placeholder.IsImporterMetadataRepair)
-            return RemarksReplacementOrSkip(
-                docs.Paragraphs,
-                "source_remarks_missing");
+            return RemarksReplacementOrSkip(docs.Paragraphs, "source_remarks_missing");
 
         if (isEnumField && placeholder.Name is "remarks" or "para")
             return Replacement.Skip(
@@ -774,6 +854,118 @@ static class ImporterProgram
                 $"Placeholder element <{placeholder.Name}> is not imported."),
         };
     }
+
+    static Replacement LimitOverlappingRemarksReplacement(
+        Placeholder placeholder,
+        SourceDocs docs,
+        Replacement replacement,
+        XElement? existingRemarks)
+    {
+        if (placeholder.Name != "para" ||
+            replacement.Remarks is null ||
+            existingRemarks is null)
+        {
+            return replacement;
+        }
+
+        var sourceFragments = ExpandRemarksFragments(docs.Paragraphs);
+        var elements = existingRemarks.Elements().ToList();
+        var representedElements = elements
+            .Select((element, index) => new
+            {
+                Index = index,
+                Fragments = MatchingSourceFragmentIndexes(element, sourceFragments),
+            })
+            .Where(item => item.Fragments.Count > 0)
+            .ToList();
+        if (representedElements.Count == 0)
+            return replacement;
+
+        if (placeholder.RemarksChildIndex < 0 ||
+            placeholder.RemarksChildIndex >= elements.Count ||
+            NormalizeText(elements[placeholder.RemarksChildIndex].Value) is not
+                ("To be added" or "To be added."))
+        {
+            return Replacement.Skip(
+                "source_remarks_overlap_order_ambiguous",
+                "Existing source fragments overlap a remarks placeholder whose exact child position could not be verified.");
+        }
+
+        var represented = new HashSet<int>();
+        var lastFragmentIndex = -1;
+        foreach (var element in representedElements)
+        {
+            if (element.Fragments.Zip(element.Fragments.Skip(1), (left, right) => right == left + 1)
+                    .Any(isConsecutive => !isConsecutive) ||
+                element.Fragments[0] <= lastFragmentIndex)
+            {
+                return Replacement.Skip(
+                    "source_remarks_overlap_order_ambiguous",
+                    "Existing source fragments were not in one unambiguous authoritative order.");
+            }
+
+            represented.UnionWith(element.Fragments);
+            lastFragmentIndex = element.Fragments[^1];
+        }
+
+        var missing = Enumerable.Range(0, sourceFragments.Count)
+            .Where(index => !represented.Contains(index))
+            .ToList();
+        if (missing.Count == 0)
+        {
+            return Replacement.Skip(
+                "source_remarks_overlap_existing_documentation",
+                "Existing remarks already contain every exact source prose fragment.");
+        }
+
+        var beforePlaceholder = representedElements
+            .Where(item => item.Index < placeholder.RemarksChildIndex)
+            .SelectMany(item => item.Fragments)
+            .ToList();
+        var afterPlaceholder = representedElements
+            .Where(item => item.Index > placeholder.RemarksChildIndex)
+            .SelectMany(item => item.Fragments)
+            .ToList();
+        if (missing.Any(fragment =>
+                beforePlaceholder.Any(representedFragment => representedFragment >= fragment) ||
+                afterPlaceholder.Any(representedFragment => representedFragment <= fragment)))
+        {
+            return Replacement.Skip(
+                "source_remarks_overlap_order_conflict",
+                "Replacing this placeholder would place source fragments out of their authoritative order without moving existing XML.");
+        }
+
+        var limited = missing
+            .Select(index => sourceFragments[index])
+            .ToList();
+        return Replacement.UseRemarks(limited);
+    }
+
+    static List<string> SplitSourceSentences(string text)
+    {
+        var remaining = CleanSourceText(text);
+        var sentences = new List<string>();
+        while (remaining.Length > 0)
+        {
+            var sentence = SourcePage.FirstSentence(remaining).Trim();
+            if (sentence.Length == 0)
+            {
+                break;
+            }
+            sentences.Add(sentence);
+            if (sentence.Length >= remaining.Length)
+                break;
+            remaining = remaining[sentence.Length..].TrimStart();
+        }
+        return sentences;
+    }
+
+    static string NormalizeRemarksText(string value) =>
+        NormalizeText(Regex.Replace(
+            value,
+            @"</?[A-Za-z][^>]*>",
+            " ",
+            RegexOptions.CultureInvariant));
 
     static string? DeprecationAwareValueText(SourceDocs docs)
     {
@@ -1235,15 +1427,23 @@ static class ImporterProgram
         Placeholder placeholder,
         Replacement replacement,
         out string updated,
-        out string error) =>
-        TryReplacePlaceholder(
+        out string error)
+    {
+        if (replacement.Text is null)
+        {
+            updated = text;
+            error = replacement.Detail;
+            return false;
+        }
+        return TryReplacePlaceholder(
             text,
             block,
             placeholder,
-            replacement.Text!,
+            replacement.Text,
             replacement.Remarks,
             out updated,
             out error);
+    }
 
     static bool TryReplacePlaceholder(
         string text,
@@ -1273,32 +1473,41 @@ static class ImporterProgram
         var blockText = text[block.Start..block.End];
         if (placeholder.IsImporterMetadataRepair)
         {
-            var remarks = Regex.Matches(
-                    blockText,
-                    @"<remarks\b[^>]*>.*?</remarks>",
-                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
-                .Cast<Match>()
-                .FirstOrDefault(match =>
-                {
-                    var parsed = XElement.Parse(match.Value, LoadOptions.PreserveWhitespace);
-                    return LoadedFile.IsImporterAugmentedRemarksPlaceholder(parsed);
-                });
-            if (remarks is null)
+            if (!TryParseDocsBlock(blockText, out var document))
             {
                 updated = text;
-                error = "Could not locate the structurally identified importer metadata remarks repair.";
+                error = "Could not parse the <Docs> block for the structurally identified importer metadata remarks repair.";
                 return false;
             }
 
-            var remarksElement = XElement.Parse(remarks.Value, LoadOptions.PreserveWhitespace);
+            var remarksCandidates = document.Elements("remarks")
+                .Where(LoadedFile.IsImporterAugmentedRemarksPlaceholder)
+                .ToList();
+            if (placeholder.MetadataRepairIndex < 0 ||
+                placeholder.MetadataRepairIndex >= remarksCandidates.Count ||
+                !TryGetElementSpan(
+                    blockText,
+                    remarksCandidates[placeholder.MetadataRepairIndex],
+                    out var remarksSpan))
+            {
+                updated = text;
+                error = "Could not locate the structurally identified importer metadata remarks repair without scanning CDATA, comments, or processing instructions.";
+                return false;
+            }
+
+            var remarksElement = remarksCandidates[placeholder.MetadataRepairIndex];
             var directPlaceholder = remarksElement.Nodes()
                 .OfType<XText>()
                 .FirstOrDefault(node => node is not XCData &&
                     NormalizeText(node.Value) is "To be added" or "To be added.");
-            var emptyParagraph = directPlaceholder is null
+            var emptyParagraphs = directPlaceholder is null
                 ? remarksElement.Elements("para")
-                    .SingleOrDefault(paragraph => !paragraph.HasElements &&
+                    .Where(paragraph => !paragraph.HasElements &&
                         NormalizeText(paragraph.Value).Length == 0)
+                    .ToList()
+                : [];
+            var emptyParagraph = emptyParagraphs.Count == 1
+                ? emptyParagraphs[0]
                 : null;
             if (directPlaceholder is null && emptyParagraph is null)
             {
@@ -1309,11 +1518,9 @@ static class ImporterProgram
 
             if (directPlaceholder is not null)
             {
-                if (remarksReplacement is not null)
-                    directPlaceholder.ReplaceWith(
-                        remarksReplacement.Select(DocumentationElement).ToArray());
-                else
-                    directPlaceholder.ReplaceWith(new XElement("para", replacement));
+                directPlaceholder.ReplaceWith(remarksReplacement is null
+                    ? new[] { new XElement("para", replacement) }
+                    : remarksReplacement.Select(DocumentationElement).ToArray());
             }
             else if (remarksReplacement is not null)
             {
@@ -1323,8 +1530,12 @@ static class ImporterProgram
             else
                 emptyParagraph!.Value = replacement;
             var repairedRemarks = remarksElement.ToString(SaveOptions.DisableFormatting);
-            if (remarks.Value.Contains("\r\n", StringComparison.Ordinal))
+            if (blockText[remarksSpan.Start..remarksSpan.End].Contains(
+                    "\r\n",
+                    StringComparison.Ordinal))
+            {
                 repairedRemarks = repairedRemarks.Replace("\n", "\r\n", StringComparison.Ordinal);
+            }
             if (LoadedFile.IsImporterAugmentedRemarksPlaceholder(
                     XElement.Parse(repairedRemarks, LoadOptions.PreserveWhitespace)))
             {
@@ -1332,8 +1543,8 @@ static class ImporterProgram
                 error = "Importer metadata remarks repair remained a candidate after replacement.";
                 return false;
             }
-            var repairedBlock = blockText[..remarks.Index] + repairedRemarks +
-                blockText[(remarks.Index + remarks.Length)..];
+            var repairedBlock = blockText[..remarksSpan.Start] + repairedRemarks +
+                blockText[remarksSpan.End..];
             updated = text[..block.Start] + repairedBlock + text[block.End..];
             error = "";
             return true;
@@ -1354,20 +1565,22 @@ static class ImporterProgram
             error = $"Could not locate the structurally identified {placeholder.Target} placeholder in its <Docs> block.";
             return false;
         }
-
         var escaped = XmlEscape(replacement);
         if (remarksReplacement is not null && placeholder.Name == "para")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-            var lineStart = blockText.LastIndexOf(newline, elementStart, StringComparison.Ordinal);
-            lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
-            var indent = Regex.Match(
-                blockText[lineStart..elementStart],
-                @"[ \t]*$",
-                RegexOptions.CultureInvariant).Value;
-            var replacementMarkup = string.Join(
-                newline,
-                remarksReplacement.Select(paragraph => RenderDocumentationParagraph(paragraph, indent)));
+            var replacementMarkup = TryGetLineWhitespaceIndent(
+                    blockText,
+                    elementStart,
+                    out _,
+                    out var indent)
+                ? string.Join(
+                    newline,
+                    remarksReplacement.Select(paragraph =>
+                        RenderDocumentationParagraph(paragraph, indent)))
+                : string.Concat(
+                    remarksReplacement.Select(paragraph =>
+                        RenderDocumentationParagraph(paragraph, "")));
             var replacementParagraphBlock = blockText[..elementStart] + replacementMarkup +
                 blockText[elementEnd..];
             updated = text[..block.Start] + replacementParagraphBlock + text[block.End..];
@@ -1377,12 +1590,14 @@ static class ImporterProgram
         if (placeholder.Name == "remarks")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-            var lineStart = blockText.LastIndexOf(newline, elementStart, StringComparison.Ordinal);
-            lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
-            var indent = blockText[lineStart..elementStart];
+            var multiline = TryGetLineWhitespaceIndent(
+                blockText,
+                elementStart,
+                out _,
+                out var indent);
             if (remarksReplacement is not null)
             {
-                escaped = string.IsNullOrWhiteSpace(indent)
+                escaped = multiline
                     ? newline +
                       string.Join(
                           newline,
@@ -1394,7 +1609,7 @@ static class ImporterProgram
                         remarksReplacement.Select(paragraph =>
                             RenderDocumentationParagraph(paragraph, "")));
             }
-            else if (string.IsNullOrWhiteSpace(indent))
+            else if (multiline)
             {
                 escaped =
                     newline + indent + "  " + $"<para>{escaped}</para>" +
@@ -1428,7 +1643,25 @@ static class ImporterProgram
         SourceDocs docs,
         bool allowEnumCreation = true,
         bool addMetadataForChannelOnlyMember = false)
+        => AddSourceDocumentationIfSafe(
+            text,
+            file,
+            owner,
+            docs,
+            out _,
+            allowEnumCreation,
+            addMetadataForChannelOnlyMember);
+
+    static string AddSourceDocumentationIfSafe(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs,
+        out SourceReferenceCleanupSkip? cleanupSkip,
+        bool allowEnumCreation = true,
+        bool addMetadataForChannelOnlyMember = false)
     {
+        cleanupSkip = null;
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
 
@@ -1439,7 +1672,13 @@ static class ImporterProgram
                 file,
                 docs,
                 allowEnumCreation);
-            updatedBlock = RemoveEnumDiscardedMetadata(updatedBlock, docs);
+            var discardedMetadata = RemoveEnumDiscardedMetadata(updatedBlock, docs);
+            if (discardedMetadata.Skip is not null)
+            {
+                cleanupSkip = discardedMetadata.Skip;
+                return text;
+            }
+            updatedBlock = discardedMetadata.Text;
             if (updatedBlock.Equals(blockText, StringComparison.Ordinal))
                 return text;
             return text[..block.Start] + updatedBlock + text[block.End..];
@@ -1450,14 +1689,34 @@ static class ImporterProgram
         if (docs.Paragraphs.Count == 0 && hasRemarksPlaceholder)
         {
             if (HasAugmentedRemarksPlaceholder(file, owner))
-                blockText = RemoveImporterRemarksMetadata(blockText);
+            {
+                var removedMetadata = RemoveImporterRemarksMetadata(blockText);
+                if (removedMetadata.Skip is not null)
+                {
+                    cleanupSkip = removedMetadata.Skip;
+                    return text;
+                }
+                blockText = removedMetadata.Text;
+            }
             if (!addMetadataForChannelOnlyMember)
                 return text[..block.Start] + blockText + text[block.End..];
             blockText = RemoveStandaloneRemarksPlaceholder(blockText);
         }
 
-        blockText = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
-        blockText = RemoveDuplicateSourceLinks(blockText, docs.SourceUrl);
+        var staleLinks = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
+        if (staleLinks.Skip is not null)
+        {
+            cleanupSkip = staleLinks.Skip;
+            return text;
+        }
+        blockText = staleLinks.Text;
+        var duplicateLinks = RemoveDuplicateSourceLinks(blockText, docs.SourceUrl);
+        if (duplicateLinks.Skip is not null)
+        {
+            cleanupSkip = duplicateLinks.Skip;
+            return text;
+        }
+        blockText = duplicateLinks.Text;
         blockText = RemoveAugmentedRemarksPlaceholder(blockText);
         var metadataOnly = HasMetadataOnlyRemarks(blockText);
         if (ContainsSourceUrl(blockText, docs.SourceUrl))
@@ -1466,13 +1725,24 @@ static class ImporterProgram
                 return text[..block.Start] + blockText + text[block.End..];
             if (docs.Paragraphs.Count == 0)
             {
-                blockText = RemoveDuplicateSourceLinks(blockText, docs.SourceUrl);
                 return text[..block.Start] + blockText + text[block.End..];
             }
-            blockText = RemoveMatchingSourceLinks(blockText, docs.SourceUrl);
+            var matchingLinks = RemoveMatchingSourceLinks(blockText, docs.SourceUrl);
+            if (matchingLinks.Skip is not null)
+            {
+                cleanupSkip = matchingLinks.Skip;
+                return text;
+            }
+            blockText = matchingLinks.Text;
         }
 
-        var remarks = owner.Docs.Element("remarks");
+        if (!TryParseDocsBlock(blockText, out var actualDocs))
+        {
+            cleanupSkip = SourceReferenceCleanupSkip.NotLocated(
+                "The current <Docs> block could not be parsed before adding importer source metadata.");
+            return text;
+        }
+        var remarks = actualDocs.Element("remarks");
         var remarksText = remarks is null ? "" : NormalizeText(remarks.Value);
         var attributionOnly = remarks is null ||
             remarksText.Length == 0 ||
@@ -1499,35 +1769,57 @@ static class ImporterProgram
             $"title=\"Reference documentation\">{sourceLabel} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
             "</a></format></para>");
         if (docs.SourceKind == "android" &&
-            !blockText.Contains("https://developers.google.com/terms/site-policies", StringComparison.Ordinal))
+            !ContainsSourceUrl(
+                actualDocs,
+                "https://developers.google.com/terms/site-policies"))
         {
             additions.Add($"{paraIndent}<para>{AndroidAttribution}</para>");
         }
 
         string replacementBlock;
-        var selfClosingRemarks = Regex.Match(
-            blockText,
-            @"<remarks\b[^>]*/>",
-            RegexOptions.CultureInvariant);
-        var attribution = blockText.IndexOf(
-            "https://developers.google.com/terms/site-policies",
-            StringComparison.Ordinal);
-        var attributionPara = attribution < 0
-            ? -1
-            : blockText.LastIndexOf("<para", attribution, StringComparison.Ordinal);
-        var remarksClose = blockText.LastIndexOf("</remarks>", StringComparison.Ordinal);
-        if (selfClosingRemarks.Success)
+        if (remarks is { IsEmpty: true })
         {
+            if (!TryGetElementSpan(blockText, remarks, out var remarksSpan))
+            {
+                cleanupSkip = SourceReferenceCleanupSkip.NotLocated(
+                    "The parser-identified empty <remarks> element could not be located without scanning CDATA, comments, or processing instructions.");
+                return text;
+            }
             var expanded =
                 $"<remarks>{newline}" +
                 string.Join(newline, additions) + newline +
                 $"{childIndent}</remarks>";
             replacementBlock =
-                blockText[..selfClosingRemarks.Index] + expanded +
-                blockText[(selfClosingRemarks.Index + selfClosingRemarks.Length)..];
+                blockText[..remarksSpan.Start] + expanded +
+                blockText[remarksSpan.End..];
         }
-        else if (remarksClose >= 0)
+        else if (remarks is not null)
         {
+            if (!TryGetElementSpan(blockText, remarks, out var remarksSpan) ||
+                !TryGetClosingElementStart(blockText, remarksSpan, out var remarksClose))
+            {
+                cleanupSkip = SourceReferenceCleanupSkip.NotLocated(
+                    "The parser-identified <remarks> element could not be located without scanning CDATA, comments, or processing instructions.");
+                return text;
+            }
+            var attributionParagraph = remarks
+                .Descendants("a")
+                .FirstOrDefault(anchor => UrlsEqual(
+                    (string?)anchor.Attribute("href") ?? "",
+                    "https://developers.google.com/terms/site-policies"))
+                ?.Ancestors("para")
+                .FirstOrDefault();
+            var attributionPara = -1;
+            if (attributionParagraph is not null)
+            {
+                if (!TryGetElementSpan(blockText, attributionParagraph, out var attributionSpan))
+                {
+                    cleanupSkip = SourceReferenceCleanupSkip.NotLocated(
+                        "The parser-identified attribution paragraph could not be located without scanning CDATA, comments, or processing instructions.");
+                    return text;
+                }
+                attributionPara = attributionSpan.Start;
+            }
             var insertionTarget = attributionPara >= 0 ? attributionPara : remarksClose;
             var insertion = ClosingInsertionPoint(blockText, insertionTarget, newline);
             var separator = insertion == insertionTarget ? newline : "";
@@ -1574,7 +1866,13 @@ static class ImporterProgram
     {
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
-        var document = XElement.Parse(blockText, LoadOptions.PreserveWhitespace);
+        if (!TryParseDocsBlock(blockText, out var document))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The current <Docs> block could not be parsed before rebuilding importer-owned remarks.");
+        }
         var remarks = document.Element("remarks");
         if (remarks is null || !IsPotentialImporterOwnedRemarks(remarks, docs.SourceKind))
         {
@@ -1634,6 +1932,14 @@ static class ImporterProgram
                 "The importer-owned remarks already contain every visible source paragraph and code block.");
         }
 
+        if (!TryGetElementSpan(blockText, remarks, out var remarksSpan))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The structurally verified remarks could not be located without scanning CDATA, comments, or processing instructions.");
+        }
+
         var newline = file.Newline;
         var docsIndent = file.IndentAt(block.Start);
         var remarksIndent = docsIndent + "  ";
@@ -1644,19 +1950,8 @@ static class ImporterProgram
             newline,
             remarksIndent,
             paragraphIndent);
-        var remarksMatch = Regex.Match(
-            blockText,
-            @"<remarks>.*?</remarks>",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        if (!remarksMatch.Success)
-        {
-            return new RemarksRefreshResult(
-                text,
-                "existing_remarks_not_importer_owned",
-                "The structurally eligible remarks block could not be located for replacement.");
-        }
-        var updatedBlock = blockText[..remarksMatch.Index] + replacement +
-            blockText[(remarksMatch.Index + remarksMatch.Length)..];
+        var updatedBlock = blockText[..remarksSpan.Start] + replacement +
+            blockText[remarksSpan.End..];
         return new RemarksRefreshResult(
             text[..block.Start] + updatedBlock + text[block.End..],
             null,
@@ -1818,7 +2113,9 @@ static class ImporterProgram
         var expectedNodes = expected.Nodes()
             .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
             .ToList();
-        if (actualNodes.Count != expectedNodes.Count)
+        if (actualNodes.Any(node => node is XCData) ||
+            expectedNodes.Any(node => node is XCData) ||
+            actualNodes.Count != expectedNodes.Count)
             return false;
 
         for (var index = 0; index < actualNodes.Count; index++)
@@ -1850,10 +2147,10 @@ static class ImporterProgram
     static bool HasAugmentedRemarksPlaceholder(LoadedFile file, DocsOwner owner)
     {
         var block = file.DocsBlocks[owner.Order];
-        return Regex.IsMatch(
-            file.Text[block.Start..block.End],
-            @"<remarks\b[^>]*>[ \t\r\n]*To be added\.?[ \t\r\n]*(?=<para\b)",
-            RegexOptions.CultureInvariant);
+        return TryParseDocsBlock(
+                file.Text[block.Start..block.End],
+                out var docs) &&
+            IsAugmentedRemarksPlaceholder(docs.Element("remarks"));
     }
 
     static bool HasChannelOnlySourceMetadata(
@@ -1903,6 +2200,249 @@ static class ImporterProgram
         bool replacedRemarksPlaceholder) =>
         !deferredRemarksPlaceholder || replacedRemarksPlaceholder;
 
+    static bool HasCopiedDescriptionRepairCandidate(LoadedFile file, DocsOwner owner)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return TryParseDocsBlock(
+                file.Text[block.Start..block.End],
+                out var docs) &&
+            HasCopiedDescriptionRepairCandidate(docs);
+    }
+
+    static bool HasCopiedDescriptionSummaryRepairCandidate(LoadedFile file, DocsOwner owner)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return TryParseDocsBlock(
+                file.Text[block.Start..block.End],
+                out var docs) &&
+            HasCopiedDescriptionSummaryRepairCandidate(docs);
+    }
+
+    static bool HasCopiedDescriptionRemarksRepairCandidate(LoadedFile file, DocsOwner owner)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return TryParseDocsBlock(
+                file.Text[block.Start..block.End],
+                out var docs) &&
+            HasCopiedDescriptionRemarksRepairCandidate(docs);
+    }
+
+    static bool HasCopiedDescriptionRepairCandidate(XElement docs) =>
+        HasCopiedDescriptionSummaryRepairCandidate(docs) ||
+        HasCopiedDescriptionRemarksRepairCandidate(docs);
+
+    static bool HasCopiedDescriptionSummaryRepairCandidate(XElement docs) =>
+        HasImporterSourceReference(docs) &&
+        IsImporterCopiedDescriptionElement(docs.Element("summary"));
+
+    static bool HasCopiedDescriptionRemarksRepairCandidate(XElement docs) =>
+        HasImporterSourceReference(docs) &&
+        docs.Element("remarks")?.Elements("para").Any(
+            IsImporterCopiedDescriptionElement) == true;
+
+    static CopiedDescriptionRepairResult RepairCopiedDescriptionLabels(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs))
+        {
+            return CopiedDescriptionRepairResult.Skip(
+                text,
+                CopiedDescriptionRepairTargets(owner.Docs),
+                "copied_description_target_not_located",
+                "The copied-description target could not be parser-identified in its current <Docs> block.");
+        }
+
+        if (CountImporterSourceReferences(actualDocs, docs.SourceUrl) == 0)
+            return new CopiedDescriptionRepairResult(text, [], []);
+
+        var candidates = CopiedDescriptionRepairTargets(actualDocs);
+        if (candidates.Count == 0)
+            return new CopiedDescriptionRepairResult(text, [], []);
+
+        if (!XNode.DeepEquals(actualDocs, owner.Docs))
+        {
+            return CopiedDescriptionRepairResult.Skip(
+                text,
+                candidates,
+                "copied_description_target_not_located",
+                "The parser-identified copied-description target no longer matches the owner's untouched <Docs> structure.");
+        }
+
+        var targets = new List<string>();
+        var skips = new List<CopiedDescriptionRepairSkip>();
+        var edits = new List<XmlSpanEdit>();
+        foreach (var candidate in candidates)
+        {
+            if (!TryGetElementSpan(blockText, candidate.Element, out var elementSpan))
+            {
+                skips.Add(new CopiedDescriptionRepairSkip(
+                    candidate.Target,
+                    "copied_description_target_not_located",
+                    "The parser-identified copied-description target could not be located without scanning CDATA, comments, or processing instructions."));
+                continue;
+            }
+
+            if (candidate.Target == "summary")
+            {
+                if (ChannelValueOrSkip(
+                        docs.Summary,
+                        "summary",
+                        "source_summary_missing").Text is not string replacement)
+                {
+                    continue;
+                }
+                if (!TryGetDirectTextElementContentSpan(blockText, elementSpan, out var contentSpan))
+                {
+                    skips.Add(new CopiedDescriptionRepairSkip(
+                        candidate.Target,
+                        "copied_description_target_not_located",
+                        "The parser-identified copied-description summary could not be located without scanning CDATA, comments, or processing instructions."));
+                    continue;
+                }
+                edits.Add(new XmlSpanEdit(
+                    contentSpan,
+                    XmlEscape(replacement)));
+                targets.Add(candidate.Target);
+            }
+            else
+            {
+                if (HasAdjacentNonWhitespaceText(candidate.Element))
+                {
+                    skips.Add(new CopiedDescriptionRepairSkip(
+                        candidate.Target,
+                        "copied_description_mixed_content",
+                        "The copied-description paragraph is surrounded by authored mixed content, so it was preserved."));
+                    continue;
+                }
+                var removalStart = elementSpan.Start;
+                while (removalStart > 0 && char.IsWhiteSpace(blockText[removalStart - 1]))
+                    removalStart--;
+                edits.Add(new XmlSpanEdit(
+                    new XmlSpan(removalStart, elementSpan.End),
+                    ""));
+                targets.Add(candidate.Target);
+            }
+        }
+
+        foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
+        {
+            blockText = blockText[..edit.Span.Start] + edit.Replacement +
+                blockText[edit.Span.End..];
+        }
+        return new CopiedDescriptionRepairResult(
+            text[..block.Start] + blockText + text[block.End..],
+            targets,
+            skips);
+    }
+
+    static bool TryParseDocsBlock(string blockText, out XElement docs)
+    {
+        try
+        {
+            docs = XElement.Parse(
+                blockText,
+                LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            return docs.Name.LocalName == "Docs";
+        }
+        catch (XmlException)
+        {
+            docs = new XElement("Docs");
+            return false;
+        }
+    }
+
+    static List<CopiedDescriptionRepairTarget> CopiedDescriptionRepairTargets(XElement docs)
+    {
+        var targets = new List<CopiedDescriptionRepairTarget>();
+        var summary = docs.Element("summary");
+        if (IsImporterCopiedDescriptionElement(summary))
+            targets.Add(new CopiedDescriptionRepairTarget("summary", summary!));
+
+        foreach (var paragraph in docs.Element("remarks")?.Elements("para") ??
+            Enumerable.Empty<XElement>())
+        {
+            if (IsImporterCopiedDescriptionElement(paragraph))
+                targets.Add(new CopiedDescriptionRepairTarget("remarks", paragraph));
+        }
+        return targets;
+    }
+
+    static bool IsImporterCopiedDescriptionElement(XElement? element)
+    {
+        if (element is null)
+            return false;
+        var nodes = element.Nodes().ToList();
+        return nodes.Count == 1 &&
+            nodes[0] is XText text &&
+            text is not XCData &&
+            IsImporterCopiedDescriptionLabel(text.Value);
+    }
+
+    static bool TryGetDirectTextElementContentSpan(
+        string text,
+        XmlSpan elementSpan,
+        out XmlSpan contentSpan)
+    {
+        contentSpan = new XmlSpan(0, 0);
+        if (!TryFindMarkupEnd(text, elementSpan.Start, out var openingEnd))
+            return false;
+        var closingStart = text.LastIndexOf('<', elementSpan.End - 1);
+        if (closingStart <= openingEnd ||
+            !text.AsSpan(closingStart, elementSpan.End - closingStart).StartsWith(
+                "</",
+                StringComparison.Ordinal))
+        {
+            return false;
+        }
+        contentSpan = new XmlSpan(openingEnd, closingStart);
+        return true;
+    }
+
+    static void ReportCopiedDescriptionRepairSkips(
+        ImportReport report,
+        LoadedFile file,
+        DocsOwner owner,
+        string sourceUrl,
+        IEnumerable<CopiedDescriptionRepairSkip> skips)
+    {
+        foreach (var skip in skips)
+        {
+            report.Entries.Add(ReportEntry.Skipped(
+                file.RelativePath,
+                owner.Id,
+                skip.Target,
+                skip.Reason,
+                skip.Detail,
+                sourceUrl));
+        }
+    }
+
+    static void ReportSourceReferenceCleanupSkip(
+        ImportReport report,
+        LoadedFile file,
+        DocsOwner owner,
+        string sourceUrl,
+        SourceReferenceCleanupSkip skip) =>
+        report.Entries.Add(ReportEntry.Skipped(
+            file.RelativePath,
+            owner.Id,
+            "remarks",
+            skip.Reason,
+            skip.Detail,
+            sourceUrl));
+
+    static bool IsImporterCopiedDescriptionLabel(string? value) =>
+        value is not null &&
+        Regex.IsMatch(
+            NormalizeText(value).Trim(),
+            @"^Description copied from (?:class|interface):\s+[A-Za-z_$][\w.$]*$",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     static bool HasTruncatedImporterSummary(LoadedFile file, DocsOwner owner)
     {
         var summary = owner.Docs.Element("summary")?.Value.Trim();
@@ -1912,6 +2452,392 @@ static class ImporterProgram
         }
         return HasTruncatedSummaryEnding(summary);
     }
+
+    static RemarksRefreshResult RefreshIncompleteImporterRemarks(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var ownedRemarks = owner.Docs.Element("remarks");
+        if (ownedRemarks is null || !HasPotentialImporterOwnedRemarksRefresh(file, owner))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The existing remarks did not have the strict importer source-reference structure.");
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var document = XElement.Parse(
+            blockText,
+            LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+        var remarks = document.Element("remarks");
+        if (remarks is null || !XNode.DeepEquals(remarks, ownedRemarks))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The parser-selected remarks no longer matched the structurally verified importer-owned remarks.");
+        }
+        if (!TryGetElementSpan(blockText, remarks, out var remarksSpan))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The structurally verified remarks could not be located without reformatting existing XML.");
+        }
+
+        var elements = remarks.Elements().ToList();
+        var sourceReferenceIndexes = elements
+            .Select((element, index) => (element, index))
+            .Where(item => TryGetImporterSourceReferenceUrl(
+                item.element.ToString(SaveOptions.DisableFormatting),
+                out _))
+            .Select(item => item.index)
+            .ToList();
+        if (sourceReferenceIndexes.Count != 1 || sourceReferenceIndexes[0] == 0)
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The existing remarks did not have one importer source reference after source prose.");
+        }
+
+        var sourceReferenceIndex = sourceReferenceIndexes[0];
+        if (!ImporterMarkupEquals(
+                elements[sourceReferenceIndex],
+                ImporterSourceReference(docs)))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The existing importer source reference did not exactly match the mapped source member.");
+        }
+
+        var sourceFragments = ExpandRemarksFragments(docs.Paragraphs);
+        if (sourceFragments.Count == 0)
+        {
+            return new RemarksRefreshResult(
+                text,
+                "source_remarks_missing",
+                "The exact source member did not provide usable remarks to refresh.");
+        }
+
+        var existingSourceElements = elements.Take(sourceReferenceIndex).ToList();
+        var represented = new HashSet<int>();
+        var lastFragmentIndex = -1;
+        var elementFragments = new List<List<int>>();
+        foreach (var element in existingSourceElements)
+        {
+            var matches = MatchingSourceFragmentIndexes(element, sourceFragments);
+            if (matches.Count == 0)
+            {
+                if (IsRetainedRemarksParagraph(element))
+                {
+                    elementFragments.Add(matches);
+                    continue;
+                }
+                return new RemarksRefreshResult(
+                    text,
+                    "existing_remarks_not_importer_owned",
+                    "Existing remarks prose was not an ordered subset of the exact mapped source.");
+            }
+            if (matches[0] <= lastFragmentIndex ||
+                matches.Zip(matches.Skip(1), (left, right) => right == left + 1)
+                    .Any(isConsecutive => !isConsecutive))
+            {
+                return new RemarksRefreshResult(
+                    text,
+                    "existing_remarks_not_importer_owned",
+                    "Existing remarks prose was not an ordered contiguous subset of the exact mapped source.");
+            }
+            represented.UnionWith(matches);
+            lastFragmentIndex = matches[^1];
+            elementFragments.Add(matches);
+        }
+
+        var missing = Enumerable.Range(0, sourceFragments.Count)
+            .Where(index => !represented.Contains(index))
+            .ToList();
+        if (missing.Count == 0)
+            return new RemarksRefreshResult(text, null, null);
+
+        var childSpans = new List<XmlSpan>();
+        foreach (var element in elements)
+        {
+            if (!TryGetElementSpan(blockText, element, out var childSpan) ||
+                childSpan.Start < remarksSpan.Start ||
+                childSpan.End > remarksSpan.End)
+            {
+                return new RemarksRefreshResult(
+                    text,
+                    "existing_remarks_not_importer_owned",
+                    "The structurally verified remarks children could not be located without reformatting existing XML.");
+            }
+            childSpans.Add(childSpan);
+        }
+        if (childSpans.Count != elements.Count)
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The structurally verified remarks children could not be located without reformatting existing XML.");
+        }
+
+        var additions = new SortedDictionary<int, List<SourceParagraph>>();
+        foreach (var missingIndex in missing)
+        {
+            var insertionIndex = elementFragments
+                .Select((fragments, index) => (fragments, index))
+                .FirstOrDefault(item => item.fragments.Count > 0 &&
+                    item.fragments[0] > missingIndex);
+            var targetIndex = insertionIndex.fragments is null
+                ? sourceReferenceIndex
+                : insertionIndex.index;
+            if (!additions.TryGetValue(targetIndex, out var paragraphs))
+                additions.Add(targetIndex, paragraphs = []);
+            paragraphs.Add(sourceFragments[missingIndex]);
+        }
+
+        var newline = file.Newline;
+        foreach (var (insertionIndex, paragraphs) in additions.Reverse())
+        {
+            var childIndex = childSpans[insertionIndex].Start;
+            if (TryGetLineWhitespaceIndent(
+                    blockText,
+                    childIndex,
+                    out var lineStart,
+                    out var indent))
+            {
+                var insertion = string.Join(
+                    newline,
+                    paragraphs.Select(paragraph => RenderDocumentationParagraph(paragraph, indent))) +
+                    newline;
+                blockText = blockText[..lineStart] + insertion + blockText[lineStart..];
+            }
+            else
+            {
+                var insertion = string.Concat(
+                    paragraphs.Select(paragraph => RenderDocumentationParagraph(paragraph, "")));
+                blockText = blockText[..childIndex] + insertion + blockText[childIndex..];
+            }
+        }
+
+        return new RemarksRefreshResult(
+            text[..block.Start] + blockText + text[block.End..],
+            null,
+            null);
+    }
+
+    static bool TryGetLineWhitespaceIndent(
+        string text,
+        int offset,
+        out int lineStart,
+        out string indent)
+    {
+        lineStart = text.LastIndexOf('\n', Math.Max(0, offset - 1));
+        lineStart = lineStart < 0 ? 0 : lineStart + 1;
+        indent = text[lineStart..offset];
+        return indent.All(char.IsWhiteSpace);
+    }
+
+    static bool TryGetElementSpan(string text, XElement element, out XmlSpan span)
+    {
+        span = new XmlSpan(0, 0);
+        if (element is not IXmlLineInfo lineInfo ||
+            !lineInfo.HasLineInfo() ||
+            !TryGetTextOffset(text, lineInfo.LineNumber, lineInfo.LinePosition - 1, out var start))
+        {
+            return false;
+        }
+
+        if (!TryFindMarkupEnd(text, start, out var openingEnd))
+            return false;
+        if (text[start..openingEnd].AsSpan().TrimEnd().EndsWith("/>", StringComparison.Ordinal))
+        {
+            span = new XmlSpan(start, openingEnd);
+            return true;
+        }
+
+        var depth = 0;
+        for (var index = start; index < text.Length;)
+        {
+            var tagStart = text.IndexOf('<', index);
+            if (tagStart < 0)
+                return false;
+            if (text.AsSpan(tagStart).StartsWith("<!--", StringComparison.Ordinal))
+            {
+                var commentEnd = text.IndexOf("-->", tagStart + 4, StringComparison.Ordinal);
+                if (commentEnd < 0)
+                    return false;
+                index = commentEnd + 3;
+                continue;
+            }
+            if (text.AsSpan(tagStart).StartsWith("<![CDATA[", StringComparison.Ordinal))
+            {
+                var cdataEnd = text.IndexOf("]]>", tagStart + 9, StringComparison.Ordinal);
+                if (cdataEnd < 0)
+                    return false;
+                index = cdataEnd + 3;
+                continue;
+            }
+            if (text.AsSpan(tagStart).StartsWith("<?", StringComparison.Ordinal))
+            {
+                var instructionEnd = text.IndexOf("?>", tagStart + 2, StringComparison.Ordinal);
+                if (instructionEnd < 0)
+                    return false;
+                index = instructionEnd + 2;
+                continue;
+            }
+            if (!TryFindMarkupEnd(text, tagStart, out var tagEnd))
+                return false;
+
+            var tag = text[(tagStart + 1)..(tagEnd - 1)].TrimStart();
+            if (tag.StartsWith('!'))
+            {
+                index = tagEnd;
+                continue;
+            }
+            if (tag.StartsWith('/'))
+            {
+                depth--;
+                if (depth == 0)
+                {
+                    span = new XmlSpan(start, tagEnd);
+                    return true;
+                }
+            }
+            else if (!tag.TrimEnd().EndsWith("/", StringComparison.Ordinal))
+            {
+                depth++;
+            }
+            index = tagEnd;
+        }
+        return false;
+    }
+
+    static bool TryGetTextOffset(
+        string text,
+        int lineNumber,
+        int linePosition,
+        out int offset)
+    {
+        offset = 0;
+        if (lineNumber < 1 || linePosition < 1)
+            return false;
+
+        for (var line = 1; line < lineNumber; line++)
+        {
+            var newline = text.IndexOf('\n', offset);
+            if (newline < 0)
+                return false;
+            offset = newline + 1;
+        }
+        offset += linePosition - 1;
+        return offset < text.Length;
+    }
+
+    static bool TryFindMarkupEnd(string text, int start, out int end)
+    {
+        if (start >= text.Length || text[start] != '<')
+        {
+            end = 0;
+            return false;
+        }
+        var quote = '\0';
+        for (var index = start + 1; index < text.Length; index++)
+        {
+            var character = text[index];
+            if (quote != '\0')
+            {
+                if (character == quote)
+                    quote = '\0';
+                continue;
+            }
+            if (character is '"' or '\'')
+            {
+                quote = character;
+                continue;
+            }
+            if (character == '>')
+            {
+                end = index + 1;
+                return true;
+            }
+        }
+        end = 0;
+        return false;
+    }
+
+    static bool TryGetClosingElementStart(
+        string text,
+        XmlSpan elementSpan,
+        out int closingStart)
+    {
+        closingStart = text.LastIndexOf('<', elementSpan.End - 1);
+        return closingStart >= elementSpan.Start &&
+            text.AsSpan(closingStart, elementSpan.End - closingStart).StartsWith(
+                "</",
+                StringComparison.Ordinal);
+    }
+
+    static List<SourceParagraph> ExpandRemarksFragments(
+        IEnumerable<SourceParagraph> paragraphs)
+    {
+        var fragments = new List<SourceParagraph>();
+        foreach (var paragraph in RemarksReplacementOrSkip(
+                     paragraphs,
+                     "source_remarks_missing").Remarks ?? [])
+        {
+            if (paragraph.IsCode)
+                fragments.Add(paragraph);
+            else
+                fragments.AddRange(SplitSourceSentences(paragraph.Text)
+                    .Select(sentence => new SourceParagraph(sentence, IsCode: false)));
+        }
+        return fragments;
+    }
+
+    static List<int> MatchingSourceFragmentIndexes(
+        XElement element,
+        IReadOnlyList<SourceParagraph> sourceFragments)
+    {
+        if (element.Name.LocalName == "code" &&
+            (string?)element.Attribute("lang") == "text/java" &&
+            !element.HasElements)
+        {
+            var code = NormalizeText(element.Value);
+            return sourceFragments
+                .Select((fragment, index) => (fragment, index))
+                .Where(item => item.fragment.IsCode &&
+                    NormalizeText(item.fragment.Text).Equals(code, StringComparison.Ordinal))
+                .Select(item => item.index)
+                .ToList();
+        }
+
+        if (element.Name.LocalName != "para" || element.HasAttributes)
+            return [];
+
+        var prose = NormalizeRemarksText(element.Value);
+        return sourceFragments
+            .Select((fragment, index) => (fragment, index))
+            .Where(item => !item.fragment.IsCode &&
+                prose.Contains(
+                    NormalizeText(item.fragment.Text),
+                    StringComparison.OrdinalIgnoreCase))
+            .Select(item => item.index)
+            .ToList();
+    }
+
+    static bool IsRetainedRemarksParagraph(XElement element) =>
+        element.Name.LocalName == "para" &&
+        !element.HasAttributes &&
+        Regex.IsMatch(
+            NormalizeRemarksText(element.Value),
+            @"^Added in \d+\.\d+\.$",
+            RegexOptions.CultureInvariant);
 
     static bool HasIncompleteCodeExampleRemarks(LoadedFile file, DocsOwner owner)
     {
@@ -1947,35 +2873,85 @@ static class ImporterProgram
 
     static bool HasMetadataOnlyRemarks(string blockText)
     {
-        var remarks = Regex.Match(
-            blockText,
-            @"<remarks\b[^>]*>(?<body>.*?)</remarks>",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        if (!remarks.Success)
+        if (!TryParseDocsBlock(blockText, out var docs))
             return false;
 
-        var withoutMetadata = Regex.Replace(
-            remarks.Groups["body"].Value,
-            @"<para\b[^>]*>(?:(?!</para>).)*?</para>",
-            match => IsImporterMetadataParagraph(match.Value) ? "" : match.Value,
-            RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        return NormalizeText(Regex.Replace(
-            withoutMetadata,
-            @"<[^>]*>",
-            " ",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant)).Length == 0;
+        var remarks = docs.Element("remarks");
+        return remarks is not null &&
+            remarks.Nodes().All(node =>
+                node is XText text &&
+                text is not XCData &&
+                string.IsNullOrWhiteSpace(text.Value) ||
+                node is XElement paragraph &&
+                IsImporterMetadataParagraph(paragraph));
     }
 
-    static bool IsImporterMetadataParagraph(string paragraph) =>
+    static bool IsImporterMetadataParagraph(XElement paragraph) =>
         TryGetImporterSourceReferenceUrl(paragraph, out _) ||
-        Regex.IsMatch(
+        IsLegacyImporterSourceReference(paragraph) ||
+        IsImporterAttributionParagraph(paragraph) ||
+        IsLegacyImporterMetadataParagraph(paragraph);
+
+    static bool IsLegacyImporterMetadataParagraph(XElement paragraph)
+    {
+        if (paragraph.Name.LocalName != "para" ||
+            paragraph.HasAttributes ||
+            paragraph.DescendantNodes().Any(node =>
+                node is XCData or XComment or XProcessingInstruction))
+        {
+            return false;
+        }
+
+        var hasLegacyAttribution = paragraph.Value.StartsWith(
+                "Portions of this page are modifications based on work created and shared by",
+                StringComparison.Ordinal) &&
+            paragraph.Descendants("a").Any(link =>
+                ((string?)link.Attribute("href"))?.Equals(
+                    "https://developers.google.com/terms/site-policies",
+                    StringComparison.Ordinal) == true);
+        return hasLegacyAttribution;
+    }
+
+    static bool IsLegacyImporterSourceReference(XElement paragraph)
+    {
+        if (paragraph.Name != "para" ||
+            paragraph.HasAttributes ||
+            SignificantNodes(paragraph) is not [var formatNode] ||
+            formatNode is not XElement format ||
+            format.Name != "format" ||
+            !HasExactAttributes(format, ("type", "text/html")) ||
+            SignificantNodes(format) is not [var anchorNode] ||
+            anchorNode is not XElement anchor ||
+            anchor.Name != "a" ||
+            !HasExactAttributes(
+                anchor,
+                ("href", ""),
+                ("title", "Reference documentation")) ||
+            !HasPlainTextContent(anchor, out var label) ||
+            (!NormalizeText(label).Equals("Android reference.", StringComparison.Ordinal) &&
+             !NormalizeText(label).Equals("Java reference.", StringComparison.Ordinal)))
+        {
+            return false;
+        }
+
+        return IsOfficialSourceReferenceUrl(
+            WebUtility.HtmlDecode((string?)anchor.Attribute("href") ?? ""));
+    }
+
+    static bool IsImporterAttributionParagraph(XElement paragraph) =>
+        !paragraph.HasAttributes &&
+        ImporterMarkupEquals(
             paragraph,
-            @"^\s*<para>\s*<format type=""text/html""><a href=""https://(?:developer\.android\.com/reference|docs\.oracle\.com/en/java/javase/21/docs/api)/[^""]+"" title=""Reference documentation"">(?:Android|Java) reference\.</a></format>\s*</para>\s*$",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant) ||
-        Regex.IsMatch(
-            paragraph,
-            @"^\s*<para\b[^>]*>.*?https://developers\.google\.com/terms/site-policies.*?</para>\s*$",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+
+    static bool IsOfficialSourceReferenceUrl(string url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out var source) &&
+        (source.AbsoluteUri.StartsWith(
+            AndroidReference,
+            StringComparison.Ordinal) ||
+         source.AbsoluteUri.StartsWith(
+            JavaReference,
+            StringComparison.Ordinal));
 
     static string ReplaceIncompleteCodeExampleRemarks(
         string text,
@@ -2014,19 +2990,77 @@ static class ImporterProgram
         return text[..block.Start] + updatedBlock + text[block.End..];
     }
 
-    static string RemoveAugmentedRemarksPlaceholder(string blockText) =>
-        Regex.Replace(
-            blockText,
-            @"(?<open><remarks\b[^>]*>)[ \t\r\n]*To be added\.?(?<separator>[ \t\r\n]*)(?=<para\b)",
-            match => match.Groups["open"].Value + match.Groups["separator"].Value,
-            RegexOptions.CultureInvariant);
+    static string RemoveAugmentedRemarksPlaceholder(string blockText)
+    {
+        if (!TryParseDocsBlock(blockText, out var docs) ||
+            docs.Element("remarks") is not XElement remarks ||
+            !IsAugmentedRemarksPlaceholder(remarks) ||
+            !TryGetElementSpan(blockText, remarks, out var remarksSpan) ||
+            !TryFindMarkupEnd(blockText, remarksSpan.Start, out var openingEnd))
+        {
+            return blockText;
+        }
 
-    static string RemoveStandaloneRemarksPlaceholder(string blockText) =>
-        Regex.Replace(
-            blockText,
-            @"<remarks(?<attrs>\b[^>]*)>[ \t\r\n]*To be added\.?[ \t\r\n]*</remarks>",
-            "<remarks${attrs} />",
+        var firstParagraph = remarks.Elements("para").First();
+        if (!TryGetElementSpan(blockText, firstParagraph, out var paragraphSpan))
+            return blockText;
+        var directText = blockText[openingEnd..paragraphSpan.Start];
+        var placeholder = Regex.Match(
+            directText,
+            @"To be added\.?",
             RegexOptions.CultureInvariant);
+        return placeholder.Success &&
+            NormalizeText(directText).Equals(
+                NormalizeText(placeholder.Value),
+                StringComparison.Ordinal)
+            ? blockText[..(openingEnd + placeholder.Index)] +
+              blockText[(openingEnd + placeholder.Index + placeholder.Length)..]
+            : blockText;
+    }
+
+    static string RemoveStandaloneRemarksPlaceholder(string blockText)
+    {
+        if (!TryParseDocsBlock(blockText, out var docs) ||
+            docs.Element("remarks") is not XElement remarks ||
+            remarks.IsEmpty ||
+            remarks.Nodes().Any(node =>
+                node is not XText text ||
+                text is XCData ||
+                !string.IsNullOrWhiteSpace(text.Value) &&
+                !NormalizeText(text.Value).Equals(
+                    "To be added.",
+                    StringComparison.Ordinal)) ||
+            !NormalizeText(string.Concat(
+                remarks.Nodes().OfType<XText>().Select(text => text.Value))).Equals(
+                    "To be added.",
+                    StringComparison.Ordinal) ||
+            !TryGetElementSpan(blockText, remarks, out var remarksSpan) ||
+            !TryFindMarkupEnd(blockText, remarksSpan.Start, out var openingEnd))
+        {
+            return blockText;
+        }
+
+        var openingTag = blockText[remarksSpan.Start..openingEnd];
+        var attributes = openingTag["<remarks".Length..^1].TrimEnd();
+        return blockText[..remarksSpan.Start] + $"<remarks{attributes} />" +
+            blockText[remarksSpan.End..];
+    }
+
+    static bool IsAugmentedRemarksPlaceholder(XElement? remarks)
+    {
+        if (remarks is null)
+            return false;
+        var nodes = remarks.Nodes().ToList();
+        var paragraphIndex = nodes.FindIndex(node => node is XElement element &&
+            element.Name == "para");
+        return paragraphIndex > 0 &&
+            nodes.Take(paragraphIndex).All(node =>
+                node is XText text &&
+                text is not XCData) &&
+            NormalizeText(string.Concat(
+                nodes.Take(paragraphIndex).OfType<XText>().Select(text => text.Value)))
+                .Equals("To be added.", StringComparison.Ordinal);
+    }
 
     static string ReplaceTruncatedSummary(
         string text,
@@ -2068,158 +3102,277 @@ static class ImporterProgram
     static bool HasImporterSourceReference(LoadedFile file, DocsOwner owner)
     {
         var block = file.DocsBlocks[owner.Order];
-        return file.Text[block.Start..block.End].Contains(
-            "title=\"Reference documentation\"",
-            StringComparison.Ordinal);
+        return HasImporterSourceReference(file.Text[block.Start..block.End]);
     }
 
-    static string RemoveStaleSourceLinks(
+    static bool HasImporterSourceReference(XElement docs) =>
+        docs.Descendants("para").Any(paragraph =>
+            TryGetImporterSourceReferenceUrl(paragraph, out _));
+
+    static bool HasImporterSourceReference(string blockText) =>
+        TryParseXmlElement(blockText, out var element) &&
+        HasImporterSourceReference(element);
+
+    static SourceReferenceCleanupResult RemoveStaleSourceLinks(
         string blockText,
         string sourceUrl,
         bool removeAll)
     {
         var expectedMember = SourceAnchorMember(sourceUrl);
-        return Regex.Replace(
+        return RemoveImporterSourceReferenceParagraphs(
             blockText,
-            @"(?:^[ \t]*)?<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
-            match =>
-            {
-                var href = Regex.Match(
-                    match.Value,
-                    @"\bhref=""(?<url>[^""]+)""",
-                    RegexOptions.CultureInvariant);
-                if (!href.Success)
-                    return match.Value;
-                var existingUrl = WebUtility.HtmlDecode(href.Groups["url"].Value);
-                if (UrlsEqual(existingUrl, sourceUrl))
-                    return match.Value;
-                return removeAll ||
-                    SourceAnchorMember(existingUrl).Equals(expectedMember, StringComparison.Ordinal)
-                    ? ""
-                    : match.Value;
-            },
-            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+            references => references.Where(reference =>
+                !UrlsEqual(reference.Url, sourceUrl) &&
+                (removeAll ||
+                 SourceAnchorMember(reference.Url).Equals(
+                     expectedMember,
+                     StringComparison.Ordinal))));
     }
 
-    static string RemoveMatchingSourceLinks(string blockText, string sourceUrl) =>
-        Regex.Replace(
+    static SourceReferenceCleanupResult RemoveMatchingSourceLinks(
+        string blockText,
+        string sourceUrl) =>
+        RemoveImporterSourceReferenceParagraphs(
             blockText,
-            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
-            match =>
-            {
-                var href = Regex.Match(
-                    match.Value,
-                    @"\bhref=""(?<url>[^""]+)""",
-                    RegexOptions.CultureInvariant);
-                return href.Success && UrlsEqual(
-                    WebUtility.HtmlDecode(href.Groups["url"].Value),
-                    sourceUrl)
-                    ? ""
-                    : match.Value;
-            },
-            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+            references => references.Where(reference =>
+                UrlsEqual(reference.Url, sourceUrl)));
 
-    static string RemoveDuplicateSourceLinks(string blockText, string sourceUrl)
+    static SourceReferenceCleanupResult RemoveDuplicateSourceLinks(
+        string blockText,
+        string sourceUrl) =>
+        RemoveImporterSourceReferenceParagraphs(
+            blockText,
+            references => references
+                .Where(reference => UrlsEqual(reference.Url, sourceUrl))
+                .Skip(1));
+
+    static SourceReferenceCleanupResult RemoveImporterRemarksMetadata(
+        string blockText)
     {
-        var found = false;
-        return Regex.Replace(
+        if (!TryParseDocsBlock(blockText, out var docs))
+        {
+            return SourceReferenceCleanupResult.Failure(
+                blockText,
+                SourceReferenceCleanupSkip.NotLocated(
+                    "The current <Docs> block could not be parsed before removing importer metadata."));
+        }
+        var remarks = docs.Element("remarks");
+        return RemoveXmlElements(
             blockText,
-            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
-            match =>
-            {
-                var href = Regex.Match(
-                    match.Value,
-                    @"\bhref=""(?<url>[^""]+)""",
-                    RegexOptions.CultureInvariant);
-                if (!href.Success || !UrlsEqual(
-                    WebUtility.HtmlDecode(href.Groups["url"].Value),
-                    sourceUrl))
-                    return match.Value;
-                if (!found)
-                {
-                    found = true;
-                    return match.Value;
-                }
-                return "";
-            },
-            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+            remarks?.Elements("para").Where(IsImporterMetadataParagraph) ??
+                Enumerable.Empty<XElement>());
     }
-
-    static string RemoveImporterRemarksMetadata(string blockText) =>
-        Regex.Replace(
-            blockText,
-            @"[ \t\r\n]*<para\b[^>]*>(?:(?!</para>).)*?(?:title=""Reference documentation""|https://developers\.google\.com/terms/site-policies)(?:(?!</para>).)*?</para>",
-            "",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
     static int CountImporterSourceReferences(string blockText, string sourceUrl) =>
-        Regex.Matches(
-            blockText,
-            @"<para\b[^>]*>(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant)
-            .Count(match =>
-                TryGetImporterSourceReferenceUrl(match.Value, out var importerSourceUrl) &&
-                UrlsEqual(importerSourceUrl, sourceUrl));
+        TryParseXmlElement(blockText, out var element)
+            ? CountImporterSourceReferences(element, sourceUrl)
+            : 0;
+
+    static int CountImporterSourceReferences(XElement docs, string sourceUrl) =>
+        docs.Descendants("para").Count(paragraph =>
+            TryGetImporterSourceReferenceUrl(paragraph, out var importerSourceUrl) &&
+            UrlsEqual(importerSourceUrl, sourceUrl));
 
     static bool TryGetImporterSourceReferenceUrl(string paragraph, out string sourceUrl)
     {
         sourceUrl = "";
-        XElement sourceReference;
+        return TryParseXmlElement(paragraph, out var element) &&
+            TryGetImporterSourceReferenceUrl(element, out sourceUrl);
+    }
+
+    static bool TryGetImporterSourceReferenceUrl(
+        XElement paragraph,
+        out string sourceUrl)
+    {
+        sourceUrl = "";
+        if (paragraph.Name != "para" ||
+            paragraph.HasAttributes ||
+            SignificantNodes(paragraph) is not [var formatNode] ||
+            formatNode is not XElement format ||
+            format.Name != "format" ||
+            !HasExactAttributes(format, ("type", "text/html")) ||
+            SignificantNodes(format) is not [var anchorNode] ||
+            anchorNode is not XElement anchor ||
+            anchor.Name != "a" ||
+            !HasExactAttributes(
+                anchor,
+                ("href", ""),
+                ("title", "Reference documentation")))
+        {
+            return false;
+        }
+
+        var href = (string?)anchor.Attribute("href");
+        if (string.IsNullOrWhiteSpace(href) ||
+            SignificantNodes(anchor) is not [var prefixNode, var codeNode, var suffixNode] ||
+            prefixNode is not XText prefix ||
+            prefix is XCData ||
+            codeNode is not XElement code ||
+            code.Name != "code" ||
+            code.HasAttributes ||
+            !HasPlainTextContent(code, out var sourceLabel) ||
+            string.IsNullOrWhiteSpace(sourceLabel) ||
+            suffixNode is not XText suffix ||
+            suffix is XCData ||
+            !NormalizeText(prefix.Value).Equals(
+                "Android reference for",
+                StringComparison.Ordinal) &&
+            !NormalizeText(prefix.Value).Equals(
+                "Java reference for",
+                StringComparison.Ordinal) ||
+            !NormalizeText(suffix.Value).Equals(".", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        sourceUrl = WebUtility.HtmlDecode(href);
+        return IsOfficialSourceReferenceUrl(sourceUrl);
+    }
+
+    static SourceReferenceCleanupResult RemoveImporterSourceReferenceParagraphs(
+        string blockText,
+        Func<IReadOnlyList<ImporterSourceReferenceElement>, IEnumerable<ImporterSourceReferenceElement>>
+            select)
+    {
+        if (!TryParseDocsBlock(blockText, out var docs))
+        {
+            return SourceReferenceCleanupResult.Failure(
+                blockText,
+                SourceReferenceCleanupSkip.NotLocated(
+                    "The current <Docs> block could not be parsed before reconciling importer source references."));
+        }
+        var references = docs
+            .Descendants("para")
+            .Select(paragraph => TryGetImporterSourceReferenceUrl(
+                paragraph,
+                out var sourceUrl)
+                ? new ImporterSourceReferenceElement(paragraph, sourceUrl)
+                : null)
+            .Where(reference => reference is not null)
+            .Cast<ImporterSourceReferenceElement>()
+            .ToList();
+        return RemoveXmlElements(blockText, select(references));
+    }
+
+    static SourceReferenceCleanupResult RemoveXmlElements(
+        string blockText,
+        IEnumerable<XElement> elements) =>
+        RemoveXmlElements(
+            blockText,
+            elements.Select(element => new ImporterSourceReferenceElement(element, "")));
+
+    static SourceReferenceCleanupResult RemoveXmlElements(
+        string blockText,
+        IEnumerable<ImporterSourceReferenceElement> elements)
+    {
+        var removals = new List<XmlSpan>();
+        foreach (var element in elements.Select(reference => reference.Element))
+        {
+            if (HasAdjacentNonWhitespaceText(element))
+            {
+                return SourceReferenceCleanupResult.Failure(
+                    blockText,
+                    SourceReferenceCleanupSkip.MixedContent(
+                        "The importer metadata paragraph is surrounded by authored mixed content, so it was preserved."));
+            }
+            if (!TryGetElementSpan(blockText, element, out var elementSpan) ||
+                !TryGetElementRemovalSpan(blockText, elementSpan, out var removalSpan))
+            {
+                return SourceReferenceCleanupResult.Failure(
+                    blockText,
+                    SourceReferenceCleanupSkip.NotLocated(
+                        "The parser-identified importer metadata paragraph could not be removed without scanning CDATA, comments, or processing instructions."));
+            }
+            removals.Add(removalSpan);
+        }
+
+        foreach (var span in removals.OrderByDescending(span => span.Start))
+        {
+            blockText = blockText[..span.Start] + blockText[span.End..];
+        }
+        return SourceReferenceCleanupResult.Success(blockText, removals.Count);
+    }
+
+    static bool HasAdjacentNonWhitespaceText(XElement element)
+    {
+        var nodes = element.Parent?.Nodes().ToList();
+        if (nodes is null)
+            return true;
+        var index = nodes.IndexOf(element);
+        if (index < 0)
+            return true;
+        var hasMeaningfulTextBefore = index > 0 &&
+            nodes[index - 1] is XText before &&
+            (before is XCData || !string.IsNullOrWhiteSpace(before.Value));
+        var hasMeaningfulTextAfter = index + 1 < nodes.Count &&
+            nodes[index + 1] is XText after &&
+            (after is XCData || !string.IsNullOrWhiteSpace(after.Value));
+        return hasMeaningfulTextBefore && hasMeaningfulTextAfter;
+    }
+
+    static bool TryGetElementRemovalSpan(
+        string text,
+        XmlSpan elementSpan,
+        out XmlSpan removalSpan)
+    {
+        removalSpan = elementSpan;
+        var lineStart = text.LastIndexOf('\n', Math.Max(0, elementSpan.Start - 1));
+        lineStart = lineStart < 0 ? 0 : lineStart + 1;
+        if (!text[lineStart..elementSpan.Start].All(char.IsWhiteSpace))
+            return true;
+
+        var lineEnd = text.IndexOf('\n', elementSpan.End);
+        if (lineEnd < 0 ||
+            !text[elementSpan.End..lineEnd].All(character =>
+                character is ' ' or '\t' or '\r'))
+        {
+            return true;
+        }
+
+        removalSpan = new XmlSpan(lineStart, lineEnd + 1);
+        return true;
+    }
+
+    static bool TryParseXmlElement(string text, out XElement element)
+    {
         try
         {
-            sourceReference = XElement.Parse(paragraph, LoadOptions.PreserveWhitespace);
+            element = XElement.Parse(
+                text,
+                LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            return true;
         }
         catch (XmlException)
         {
+            element = new XElement("invalid");
             return false;
         }
+    }
 
-        var formats = sourceReference.Elements().ToList();
-        if (formats.Count != 1)
-            return false;
-        var format = formats[0];
-        var links = format.Elements().ToList();
-        if (links.Count != 1)
-            return false;
-        var link = links[0];
-        if (sourceReference.Name != "para" ||
-            sourceReference.HasAttributes ||
-            format.Name != "format" ||
-            format.Attributes().Count() != 1 ||
-            (string?)format.Attribute("type") != "text/html" ||
-            sourceReference.Nodes().Any(node =>
-                !ReferenceEquals(node, format) &&
-                (node is not XText text || !string.IsNullOrWhiteSpace(text.Value))) ||
-            link.Name != "a" ||
-            link.Attributes().Count() != 2 ||
-            string.IsNullOrWhiteSpace((string?)link.Attribute("href")) ||
-            (string?)link.Attribute("title") != "Reference documentation" ||
-            format.Nodes().Any(node =>
-                !ReferenceEquals(node, link) &&
-                (node is not XText text || !string.IsNullOrWhiteSpace(text.Value))))
-        {
-            return false;
-        }
+    static List<XNode> SignificantNodes(XContainer container) =>
+        container.Nodes()
+            .Where(node => node is not XText text ||
+                text is XCData ||
+                !string.IsNullOrWhiteSpace(text.Value))
+            .ToList();
 
-        var linkNodes = link.Nodes().ToList();
-        if (linkNodes.Count != 3 ||
-            linkNodes[0] is not XText prefix ||
-            !Regex.IsMatch(
-                prefix.Value,
-                @"^(?:Android|Java) reference for $",
-                RegexOptions.CultureInvariant) ||
-            linkNodes[1] is not XElement code ||
-            code.Name != "code" ||
-            code.HasAttributes ||
-            code.HasElements ||
-            string.IsNullOrWhiteSpace(code.Value) ||
-            linkNodes[2] is not XText suffix ||
-            suffix.Value != ".")
-        {
-            return false;
-        }
+    static bool HasExactAttributes(
+        XElement element,
+        params (string Name, string Value)[] expected) =>
+        element.Attributes().Count() == expected.Length &&
+        expected.All(expectedAttribute =>
+            element.Attribute(expectedAttribute.Name) is XAttribute attribute &&
+            (expectedAttribute.Value.Length == 0 ||
+             attribute.Value.Equals(
+                 expectedAttribute.Value,
+                 StringComparison.Ordinal)));
 
-        sourceUrl = WebUtility.HtmlDecode((string)link.Attribute("href")!);
+    static bool HasPlainTextContent(XElement element, out string value)
+    {
+        value = "";
+        if (element.Nodes().Any(node => node is not XText || node is XCData))
+            return false;
+        value = string.Concat(element.Nodes().OfType<XText>().Select(node => node.Value));
         return true;
     }
 
@@ -2228,43 +3381,91 @@ static class ImporterProgram
         DocsBlock block)
     {
         var blockText = text[block.Start..block.End];
-        var normalizedBlock = Regex.Replace(
-            blockText,
-            @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?\bhref=""[^""]*#[^""()]*\$[A-Za-z_]\w*\([^""]*""(?:(?!</para>).)*?title=""Reference documentation""(?:(?!</para>).)*?</para>\r?\n?",
-            match =>
+        if (!TryParseDocsBlock(blockText, out var docs))
+            return text;
+
+        var edits = new List<XmlSpanEdit>();
+        foreach (var paragraph in docs.Descendants("para"))
+        {
+            if (!TryGetImporterSourceReferenceUrl(paragraph, out var sourceUrl))
+                continue;
+
+            var normalizedUrl = Regex.Replace(
+                sourceUrl,
+                @"(?<=#)[A-Za-z_]\w*\$(?<constructor>[A-Za-z_]\w*)(?=\()",
+                "${constructor}",
+                RegexOptions.CultureInvariant);
+            var anchor = paragraph.Descendants("a").Single();
+            var code = anchor.Element("code")!;
+            var normalizedLabel = Regex.Replace(
+                code.Value,
+                @"[A-Za-z_]\w*\$(?<constructor>[A-Za-z_]\w*)(?=\()",
+                "${constructor}",
+                RegexOptions.CultureInvariant);
+            if (normalizedUrl.Equals(sourceUrl, StringComparison.Ordinal) &&
+                normalizedLabel.Equals(code.Value, StringComparison.Ordinal))
             {
-                var paragraph = match.Value;
-                var anchor = Regex.Match(
-                    paragraph,
-                    @"<a\b(?<attrs>[^>]*\btitle=""Reference documentation""[^>]*)>(?<label>.*?)</a>",
-                    RegexOptions.Singleline | RegexOptions.CultureInvariant);
-                if (!anchor.Success)
-                    return paragraph;
-                var normalizedAnchor = Regex.Replace(
-                    anchor.Value,
-                    @"(?<=href=""[^""]*#)[A-Za-z_]\w*\$(?<constructor>[A-Za-z_]\w*)(?=\()",
-                    "${constructor}",
-                    RegexOptions.CultureInvariant);
-                normalizedAnchor = Regex.Replace(
-                    normalizedAnchor,
-                    @"(?<=>)(?<prefix>.*?)[A-Za-z_]\w*\$(?<constructor>[A-Za-z_]\w*)(?=\()",
-                    labelMatch => labelMatch.Groups["prefix"].Value + labelMatch.Groups["constructor"].Value,
-                    RegexOptions.Singleline | RegexOptions.CultureInvariant);
-                return paragraph[..anchor.Index] + normalizedAnchor +
-                    paragraph[(anchor.Index + anchor.Length)..];
-            },
-            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
-        return normalizedBlock.Equals(blockText, StringComparison.Ordinal)
+                continue;
+            }
+
+            if (!TryGetElementSpan(blockText, anchor, out var anchorSpan) ||
+                !TryGetElementSpan(blockText, code, out var codeSpan) ||
+                !TryGetDirectTextElementContentSpan(
+                    blockText,
+                    codeSpan,
+                    out var codeContentSpan))
+            {
+                return text;
+            }
+
+            var href = Regex.Match(
+                blockText[anchorSpan.Start..anchorSpan.End],
+                @"\bhref=""(?<value>[^""]*)""",
+                RegexOptions.CultureInvariant);
+            if (!href.Success)
+                return text;
+            var hrefValueSpan = new XmlSpan(
+                anchorSpan.Start + href.Groups["value"].Index,
+                anchorSpan.Start + href.Groups["value"].Index +
+                    href.Groups["value"].Length);
+            if (!normalizedUrl.Equals(sourceUrl, StringComparison.Ordinal))
+            {
+                edits.Add(new XmlSpanEdit(
+                    hrefValueSpan,
+                    XmlAttributeEscape(normalizedUrl)));
+            }
+            if (!normalizedLabel.Equals(code.Value, StringComparison.Ordinal))
+            {
+                edits.Add(new XmlSpanEdit(
+                    codeContentSpan,
+                    XmlEscape(normalizedLabel)));
+            }
+        }
+
+        foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
+        {
+            blockText = blockText[..edit.Span.Start] + edit.Replacement +
+                blockText[edit.Span.End..];
+        }
+        return blockText.Equals(text[block.Start..block.End], StringComparison.Ordinal)
             ? text
-            : text[..block.Start] + normalizedBlock + text[block.End..];
+            : text[..block.Start] + blockText + text[block.End..];
     }
 
-    static string RemoveEnumDiscardedMetadata(string blockText, SourceDocs docs)
+    static SourceReferenceCleanupResult RemoveEnumDiscardedMetadata(
+        string blockText,
+        SourceDocs docs)
     {
-        var document = XElement.Parse(blockText, LoadOptions.PreserveWhitespace);
+        if (!TryParseDocsBlock(blockText, out var document))
+        {
+            return SourceReferenceCleanupResult.Failure(
+                blockText,
+                SourceReferenceCleanupSkip.NotLocated(
+                    "The current <Docs> block could not be parsed before removing transferred enum metadata."));
+        }
         var summary = document.Element("summary");
         if (summary is null)
-            return blockText;
+            return SourceReferenceCleanupResult.Success(blockText);
 
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
         var expectedSource = XElement.Parse(
@@ -2280,32 +3481,40 @@ static class ImporterProgram
             summary.Elements("para").Any(paragraph =>
                 XNode.DeepEquals(paragraph, expectedAttribution));
         if (!hasSource || !hasAttribution)
-            return blockText;
+            return SourceReferenceCleanupResult.Success(blockText);
 
-        return Regex.Replace(
+        var remarks = document.Element("remarks");
+        var removed = RemoveXmlElements(
             blockText,
-            @"<remarks\b(?<attrs>[^>]*)>(?<body>.*?)</remarks>",
-            match =>
-            {
-                var body = Regex.Replace(
-                    match.Groups["body"].Value,
-                    @"^[ \t]*<para\b[^>]*>(?:(?!</para>).)*?</para>\r?\n?",
-                    paragraph =>
-                    {
-                        var element = XElement.Parse(paragraph.Value.Trim());
-                        var isTransferredSource = XNode.DeepEquals(element, expectedSource);
-                        var isTransferredAttribution = expectedAttribution is not null &&
-                            XNode.DeepEquals(element, expectedAttribution);
-                        return isTransferredSource || isTransferredAttribution
-                            ? ""
-                            : paragraph.Value;
-                    },
-                    RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
-                return string.IsNullOrWhiteSpace(body)
-                    ? $"<remarks{match.Groups["attrs"].Value} />"
-                    : $"<remarks{match.Groups["attrs"].Value}>{body}</remarks>";
-            },
-            RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+            remarks?.Elements("para").Where(paragraph =>
+                XNode.DeepEquals(paragraph, expectedSource) ||
+                (expectedAttribution is not null &&
+                 XNode.DeepEquals(paragraph, expectedAttribution))) ??
+                Enumerable.Empty<XElement>());
+        if (removed.Skip is not null ||
+            removed.RemovedCount == 0 ||
+            !TryParseDocsBlock(removed.Text, out var updatedDocument) ||
+            updatedDocument.Element("remarks") is not XElement updatedRemarks ||
+            updatedRemarks.Nodes().Any(node =>
+                node is not XText text ||
+                text is XCData ||
+                !string.IsNullOrWhiteSpace(text.Value)) ||
+            !TryGetElementSpan(removed.Text, updatedRemarks, out var remarksSpan) ||
+            !TryFindMarkupEnd(removed.Text, remarksSpan.Start, out var openingEnd))
+        {
+            return removed;
+        }
+
+        var openingTag = removed.Text[remarksSpan.Start..openingEnd];
+        if (!openingTag.EndsWith(">", StringComparison.Ordinal))
+            return removed;
+        var selfClosingTag = openingTag[..^1].TrimEnd() + " />";
+        var selfClosed =
+            removed.Text[..remarksSpan.Start] + selfClosingTag +
+            removed.Text[remarksSpan.End..];
+        return SourceReferenceCleanupResult.Success(
+            selfClosed,
+            removed.RemovedCount);
     }
 
     static string AddEnumSummaryMetadata(
@@ -2314,14 +3523,15 @@ static class ImporterProgram
         SourceDocs docs,
         bool allowCreation)
     {
-        var summary = Regex.Match(
-            blockText,
-            @"<summary\b[^>]*>(?<value>.*?)</summary>",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        if (!summary.Success)
+        if (!TryParseDocsBlock(blockText, out var document) ||
+            document.Element("summary") is not XElement summaryElement ||
+            !TryGetElementSpan(blockText, summaryElement, out var summarySpan) ||
+            !TryGetDirectTextElementContentSpan(
+                blockText,
+                summarySpan,
+                out var summaryContentSpan))
             return blockText;
 
-        var summaryElement = XElement.Parse(summary.Value, LoadOptions.PreserveWhitespace);
         var existingProse = summaryElement.Elements("para")
             .Where(paragraph => !paragraph.Descendants("a").Any(link =>
                 (string?)link.Attribute("title") == "Reference documentation" ||
@@ -2359,7 +3569,7 @@ static class ImporterProgram
             ((string?)link.Attribute("href"))?.Equals(
                 "https://developers.google.com/terms/site-policies",
                 StringComparison.Ordinal) == true);
-        var hasCorrectSource = ContainsSourceUrl(summary.Value, docs.SourceUrl);
+        var hasCorrectSource = ContainsSourceUrl(summaryElement, docs.SourceUrl);
         var repairEligible = IsEnumSummaryRepairCandidate(
                 summaryElement,
                 docs.SourceUrl,
@@ -2399,9 +3609,12 @@ static class ImporterProgram
             return blockText;
 
         var newline = file.Newline;
-        var lineStart = blockText.LastIndexOf(newline, summary.Index, StringComparison.Ordinal);
+        var lineStart = blockText.LastIndexOf(
+            newline,
+            summarySpan.Start,
+            StringComparison.Ordinal);
         lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
-        var summaryIndent = blockText[lineStart..summary.Index];
+        var summaryIndent = blockText[lineStart..summarySpan.Start];
         var paraIndent = summaryIndent + "  ";
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
         var additions = repairEligible || creationEligible
@@ -2422,9 +3635,8 @@ static class ImporterProgram
             newline +
             string.Join(newline, additions) +
             $"{newline}{summaryIndent}";
-        var valueStart = summary.Groups["value"].Index;
-        var valueEnd = valueStart + summary.Groups["value"].Length;
-        return blockText[..valueStart] + replacement + blockText[valueEnd..];
+        return blockText[..summaryContentSpan.Start] + replacement +
+            blockText[summaryContentSpan.End..];
     }
 
     static bool IsDeprecationParagraph(string value) =>
@@ -2434,12 +3646,13 @@ static class ImporterProgram
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     static bool ContainsSourceUrl(string text, string sourceUrl) =>
-        Regex.Matches(
-            text,
-            @"\bhref=""(?<url>[^""]+)""",
-            RegexOptions.CultureInvariant)
-            .Any(match => UrlsEqual(
-                WebUtility.HtmlDecode(match.Groups["url"].Value),
+        TryParseXmlElement(text, out var element) &&
+        ContainsSourceUrl(element, sourceUrl);
+
+    static bool ContainsSourceUrl(XContainer container, string sourceUrl) =>
+        container.Descendants("a").Any(anchor =>
+            UrlsEqual(
+                (string?)anchor.Attribute("href") ?? "",
                 sourceUrl));
 
     static bool UrlsEqual(string left, string right) =>
@@ -2490,9 +3703,7 @@ static class ImporterProgram
             : $"{indent}<para>{XmlEscape(paragraph.Text)}</para>";
 
     static XElement DocumentationElement(SourceParagraph paragraph) =>
-        paragraph.IsCode
-            ? new XElement("code", new XAttribute("lang", "text/java"), paragraph.Text)
-            : new XElement("para", CleanSourceText(paragraph.Text));
+        XElement.Parse(RenderDocumentationParagraph(paragraph, ""));
 
     static string XmlAttributeEscape(string value) =>
         SecurityElementEscape(value).Replace("\"", "&quot;", StringComparison.Ordinal);
@@ -3748,6 +4959,377 @@ static class ImporterProgram
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
+        var overlappingRemarks = XElement.Parse(
+            "<remarks><para>To be added.</para><para>The exact JNI overload is required.</para></remarks>");
+        var overlappingPlaceholder = Placeholder.Create(
+            overlappingRemarks.Elements("para").First(),
+            0);
+        var overlappingRemarksReplacement = LimitOverlappingRemarksReplacement(
+            overlappingPlaceholder,
+            mappedDocs,
+            ReplacementFor(
+                overlappingPlaceholder,
+                mappedDocs),
+            overlappingRemarks);
+        Assert(
+            overlappingRemarksReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual([mappedDocs.Summary]) == true,
+            "remarks placeholders omit only existing source prose");
+        var existingSummaryRemarks = XElement.Parse(
+            "<remarks><para>Sets the widget title.</para><para>To be added.</para></remarks>");
+        var existingSummaryPlaceholder = Placeholder.Create(
+            existingSummaryRemarks.Elements("para").Last(),
+            0);
+        var duplicateSummaryReplacement = LimitOverlappingRemarksReplacement(
+            existingSummaryPlaceholder,
+            mappedDocs,
+            ReplacementFor(
+                existingSummaryPlaceholder,
+                mappedDocs),
+            existingSummaryRemarks);
+        Assert(
+            duplicateSummaryReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual(["The exact JNI overload is required."]) == true,
+            "remarks placeholders retain source prose not already documented");
+        var partialOverlapDocs = mappedDocs with
+        {
+            Paragraphs =
+            [
+                new SourceParagraph(
+                    "The first contract sentence. The second contract sentence. The third contract sentence.",
+                    IsCode: false),
+            ],
+        };
+        var partialOverlapRemarks = XElement.Parse(
+            "<remarks><para>The first contract sentence.</para><para>To be added.</para></remarks>");
+        var partialOverlapPlaceholder = Placeholder.Create(
+            partialOverlapRemarks.Elements("para").Last(),
+            0);
+        var partialOverlapReplacement = LimitOverlappingRemarksReplacement(
+            partialOverlapPlaceholder,
+            partialOverlapDocs,
+            ReplacementFor(
+                partialOverlapPlaceholder,
+                partialOverlapDocs),
+            partialOverlapRemarks);
+        Assert(
+            partialOverlapReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual(
+                    ["The second contract sentence.", "The third contract sentence."]) == true,
+            "remarks overlap retains later source sentences after existing leading prose");
+        var noPeriodPlaceholderRemarks = XElement.Parse(
+            "<remarks><para>To be added</para></remarks>");
+        var noPeriodPlaceholder = Placeholder.Create(
+            noPeriodPlaceholderRemarks.Element("para")!,
+            0);
+        var noPeriodPlaceholderDocs = mappedDocs with
+        {
+            Summary = "This documentation is to be added when the fixture is ready.",
+            Paragraphs =
+            [
+                new SourceParagraph(
+                    "This documentation is to be added when the fixture is ready.",
+                    IsCode: false),
+            ],
+        };
+        var noPeriodPlaceholderReplacement = LimitOverlappingRemarksReplacement(
+            noPeriodPlaceholder,
+            noPeriodPlaceholderDocs,
+            ReplacementFor(
+                noPeriodPlaceholder,
+                noPeriodPlaceholderDocs),
+            noPeriodPlaceholderRemarks);
+        Assert(
+            noPeriodPlaceholderReplacement.Text == noPeriodPlaceholderDocs.Summary,
+            "no-period remarks placeholders do not trigger overlap detection");
+        var copiedDescriptionRepairDocs = mappedDocs with
+        {
+            SourceUrl =
+                "https://developer.android.com/reference/android/example/Widget#setTitle(java.lang.String)",
+        };
+        const string copiedDescriptionCdata =
+            "<![CDATA[Example XML: <para>Description copied from interface: Fixture</para>]]>";
+        const string copiedDescriptionComment =
+            "<!-- Example XML: <para>Description copied from interface: Fixture</para> -->";
+        const string copiedDescriptionProcessingInstruction =
+            "<?fixture Example XML: <para>Description copied from interface: Fixture</para> ?>";
+        var copiedDescriptionRepairText = file.Text.Replace(
+            "<summary>To be added.</summary>",
+            "<summary>Description copied from interface: Fixture</summary>",
+            StringComparison.Ordinal).Replace(
+            $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
+            $"<remarks>{file.Newline}          {copiedDescriptionCdata}{file.Newline}          {copiedDescriptionComment}{file.Newline}          {copiedDescriptionProcessingInstruction}{file.Newline}          <para>Description copied from interface: Fixture</para>{file.Newline}          <para>Keep this existing prose.</para>{file.Newline}          <para><format type=\"text/html\"><a href=\"{copiedDescriptionRepairDocs.SourceUrl}\" title=\"Reference documentation\">Android reference for <code>android.example.Widget.setTitle</code>.</a></format></para>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, copiedDescriptionRepairText);
+        var copiedDescriptionRepairOwner = setTitle with
+        {
+            Docs = XElement.Parse(
+                copiedDescriptionRepairText[
+                    file.DocsBlocks[setTitle.Order].Start..
+                    file.DocsBlocks[setTitle.Order].End],
+                LoadOptions.PreserveWhitespace),
+        };
+        Assert(
+            IsImporterCopiedDescriptionLabel("Description copied from interface: Fixture"),
+            "copied-description repair label is detected");
+        var mismatchedCopiedDescriptionRepair = RepairCopiedDescriptionLabels(
+            copiedDescriptionRepairText,
+            file,
+            copiedDescriptionRepairOwner,
+            copiedDescriptionRepairDocs with { SourceUrl = "https://example.invalid/Widget" });
+        Assert(
+            mismatchedCopiedDescriptionRepair.Targets.Count == 0 &&
+                mismatchedCopiedDescriptionRepair.Skips.Count == 0 &&
+                mismatchedCopiedDescriptionRepair.Text.Equals(
+                    copiedDescriptionRepairText,
+                    StringComparison.Ordinal),
+            "copied-description repairs require the exact resolved source URL");
+        var authoredSourceReferenceText = copiedDescriptionRepairText.Replace(
+            "Android reference for <code>android.example.Widget.setTitle</code>.",
+            "Authored reference for <code>android.example.Widget.setTitle</code>.",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, authoredSourceReferenceText);
+        var authoredSourceReferenceRepair = RepairCopiedDescriptionLabels(
+            authoredSourceReferenceText,
+            file,
+            copiedDescriptionRepairOwner,
+            copiedDescriptionRepairDocs);
+        Assert(
+            authoredSourceReferenceRepair.Targets.Count == 0 &&
+                authoredSourceReferenceRepair.Skips.Count == 0 &&
+                authoredSourceReferenceRepair.Text.Equals(
+                    authoredSourceReferenceText,
+                    StringComparison.Ordinal),
+            "copied-description repairs require an importer-owned source reference");
+        var authoredCopiedDescriptionText = copiedDescriptionRepairText.Replace(
+            "Description copied from interface: Fixture",
+            "Description copied from interface: Fixture — keep this authored prose.",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, authoredCopiedDescriptionText);
+        var authoredCopiedDescriptionRepair = RepairCopiedDescriptionLabels(
+            authoredCopiedDescriptionText,
+            file,
+            copiedDescriptionRepairOwner,
+            copiedDescriptionRepairDocs);
+        Assert(
+            authoredCopiedDescriptionRepair.Targets.Count == 0 &&
+                authoredCopiedDescriptionRepair.Skips.Count == 0 &&
+                authoredCopiedDescriptionRepair.Text.Equals(
+                    authoredCopiedDescriptionText,
+                    StringComparison.Ordinal),
+            "copied-description repairs preserve labels with authored prose");
+        file.UpdateBlockOffsets(setTitle.Order, copiedDescriptionRepairText);
+        var correspondenceMismatchOwner = copiedDescriptionRepairOwner with
+        {
+            Docs = XElement.Parse(
+                copiedDescriptionRepairOwner.Docs
+                    .ToString(SaveOptions.DisableFormatting)
+                    .Replace(
+                        "Keep this existing prose.",
+                        "Different parser ownership structure.",
+                        StringComparison.Ordinal),
+                LoadOptions.PreserveWhitespace),
+        };
+        var correspondenceMismatchRepair = RepairCopiedDescriptionLabels(
+            copiedDescriptionRepairText,
+            file,
+            correspondenceMismatchOwner,
+            copiedDescriptionRepairDocs);
+        var correspondenceMismatchReport = new ImportReport
+        {
+            Mode = "dry-run",
+            Offline = true,
+            MaxChanges = 2,
+        };
+        ReportCopiedDescriptionRepairSkips(
+            correspondenceMismatchReport,
+            file,
+            correspondenceMismatchOwner,
+            copiedDescriptionRepairDocs.SourceUrl,
+            correspondenceMismatchRepair.Skips);
+        Assert(
+            correspondenceMismatchRepair.Targets.Count == 0 &&
+                correspondenceMismatchRepair.Text.Equals(
+                    copiedDescriptionRepairText,
+                    StringComparison.Ordinal) &&
+                correspondenceMismatchReport.Entries.Count == 2 &&
+                correspondenceMismatchReport.Entries.All(entry =>
+                    entry.Reason == "copied_description_target_not_located" &&
+                    entry.SourceUrl == copiedDescriptionRepairDocs.SourceUrl) &&
+                correspondenceMismatchReport.Entries.Select(entry => entry.Target)
+                    .SequenceEqual(["summary", "remarks"]),
+            "copied-description correspondence mismatches safely skip and report each target");
+        var repairedCopiedDescriptionText = RepairCopiedDescriptionLabels(
+            copiedDescriptionRepairText,
+            file,
+            copiedDescriptionRepairOwner,
+            copiedDescriptionRepairDocs);
+        var repairedCopiedDescriptionDocs = XDocument.Parse(
+            repairedCopiedDescriptionText.Text,
+            LoadOptions.PreserveWhitespace).Root!
+            .Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "SetTitle")
+            .Element("Docs")!;
+        var copiedDescriptionCount = Regex.Matches(
+            copiedDescriptionRepairText,
+            "Description copied from interface:",
+            RegexOptions.CultureInvariant).Count;
+        var repairedCopiedDescriptionCount = Regex.Matches(
+            repairedCopiedDescriptionText.Text,
+            "Description copied from interface:",
+            RegexOptions.CultureInvariant).Count;
+        var repairedCopiedDescriptionSummary =
+            repairedCopiedDescriptionDocs.Element("summary")?.Value ==
+            copiedDescriptionRepairDocs.Summary;
+        var repairedCopiedDescriptionRemarks =
+            !repairedCopiedDescriptionDocs.Element("remarks")!.Elements("para")
+                .Any(IsImporterCopiedDescriptionElement);
+        var preservedCopiedDescriptionCdata = repairedCopiedDescriptionText.Text.Contains(
+            copiedDescriptionCdata,
+            StringComparison.Ordinal);
+        var preservedCopiedDescriptionComment = repairedCopiedDescriptionText.Text.Contains(
+            copiedDescriptionComment,
+            StringComparison.Ordinal);
+        var preservedCopiedDescriptionProcessingInstruction =
+            repairedCopiedDescriptionText.Text.Contains(
+                copiedDescriptionProcessingInstruction,
+                StringComparison.Ordinal);
+        Assert(
+            repairedCopiedDescriptionText.Targets.Count == 2 &&
+                repairedCopiedDescriptionText.Skips.Count == 0 &&
+                repairedCopiedDescriptionSummary &&
+                repairedCopiedDescriptionRemarks &&
+                preservedCopiedDescriptionCdata &&
+                preservedCopiedDescriptionComment &&
+                preservedCopiedDescriptionProcessingInstruction &&
+                repairedCopiedDescriptionCount == copiedDescriptionCount - 2,
+            $"parser-identified copied-description summary and remarks targets are repaired while CDATA, comments, and processing instructions are preserved (targets={repairedCopiedDescriptionText.Targets.Count}, summary={repairedCopiedDescriptionSummary} [{repairedCopiedDescriptionDocs.Element("summary")?.Value}/{copiedDescriptionRepairDocs.Summary}], remarks={repairedCopiedDescriptionRemarks}, cdata={preservedCopiedDescriptionCdata}, comment={preservedCopiedDescriptionComment}, processingInstruction={preservedCopiedDescriptionProcessingInstruction}, labels={copiedDescriptionCount}/{repairedCopiedDescriptionCount})");
+        var mixedCopiedDescriptionText = copiedDescriptionRepairText.Replace(
+            $"{file.Newline}          <para>Description copied from interface: Fixture</para>{file.Newline}          <para>Keep this existing prose.</para>",
+            $"{file.Newline}          Before <para>Description copied from interface: Fixture</para>After{file.Newline}          <para>Keep this existing prose.</para>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, mixedCopiedDescriptionText);
+        var mixedCopiedDescriptionOwner = copiedDescriptionRepairOwner with
+        {
+            Docs = XElement.Parse(
+                mixedCopiedDescriptionText[
+                    file.DocsBlocks[setTitle.Order].Start..
+                    file.DocsBlocks[setTitle.Order].End],
+                LoadOptions.PreserveWhitespace),
+        };
+        var mixedCopiedDescriptionRepair = RepairCopiedDescriptionLabels(
+            mixedCopiedDescriptionText,
+            file,
+            mixedCopiedDescriptionOwner,
+            copiedDescriptionRepairDocs);
+        var mixedCopiedDescriptionReport = new ImportReport
+        {
+            Mode = "apply",
+            Offline = true,
+            MaxChanges = 2,
+        };
+        ReportCopiedDescriptionRepairSkips(
+            mixedCopiedDescriptionReport,
+            file,
+            mixedCopiedDescriptionOwner,
+            copiedDescriptionRepairDocs.SourceUrl,
+            mixedCopiedDescriptionRepair.Skips);
+        var mixedCopiedDescriptionRemarks = XDocument.Parse(
+            mixedCopiedDescriptionRepair.Text,
+            LoadOptions.PreserveWhitespace).Root!
+            .Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "SetTitle")
+            .Element("Docs")!.Element("remarks")!;
+        Assert(
+            mixedCopiedDescriptionRepair.Targets.SequenceEqual(["summary"]) &&
+                mixedCopiedDescriptionRepair.Skips.Count == 1 &&
+                mixedCopiedDescriptionRepair.Skips[0].Target == "remarks" &&
+                mixedCopiedDescriptionRepair.Skips[0].Reason ==
+                    "copied_description_mixed_content" &&
+                mixedCopiedDescriptionReport.Entries.Count == 1 &&
+                mixedCopiedDescriptionReport.Entries[0] is
+                {
+                    Status: "skipped",
+                    Target: "remarks",
+                    Reason: "copied_description_mixed_content",
+                } &&
+                mixedCopiedDescriptionRepair.Text.Contains(
+                    "Before <para>Description copied from interface: Fixture</para>After",
+                    StringComparison.Ordinal) &&
+                mixedCopiedDescriptionRemarks.Value.Contains(
+                    "Before Description copied from interface: FixtureAfter",
+                    StringComparison.Ordinal),
+            "mixed-content copied-description paragraphs are reported and preserved without collapsing adjacent authored text");
+        var repairOnlyOwner = copiedDescriptionRepairOwner with { Placeholders = [] };
+        Assert(
+            RequiresSourceLoad(file, repairOnlyOwner),
+            "copied-description repair-only owners load their source page");
+        Assert(
+            !HasCopiedDescriptionRepairCandidate(
+                XElement.Parse(
+                    "<Docs><summary>Description copied from interface: Fixture</summary></Docs>")),
+            "copied-description repairs require importer source metadata");
+        Assert(
+            !IsImporterCopiedDescriptionLabel(
+                "Description copied from interface: Fixture — keep this note."),
+            "copied-description repair preserves labels with authored prose");
+        var summaryOnlyRepairFailure = new ImportReport
+        {
+            Mode = "dry-run",
+            Offline = true,
+            MaxChanges = 1,
+        };
+        var summaryOnlyCopiedDescriptionText = copiedDescriptionRepairText.Replace(
+            $"          <para>Description copied from interface: Fixture</para>{file.Newline}          <para>Keep this existing prose.</para>",
+            $"          <para>Keep this existing prose.</para>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, summaryOnlyCopiedDescriptionText);
+        var summaryOnlyRepairOwner = setTitle with
+        {
+            Docs = XElement.Parse(
+                summaryOnlyCopiedDescriptionText[
+                    file.DocsBlocks[setTitle.Order].Start..
+                    file.DocsBlocks[setTitle.Order].End],
+                LoadOptions.PreserveWhitespace),
+            Placeholders = [],
+        };
+        Assert(
+            ReportMappingFailure(
+                summaryOnlyRepairFailure,
+                file,
+                summaryOnlyRepairOwner,
+                MappingResult.Skip("source_not_loaded", "fixture mapping failure")) &&
+                summaryOnlyRepairFailure.Entries.Select(entry => entry.Target).SequenceEqual(["summary"]),
+            "summary-only copied-description failures report only summary");
+        var remarksOnlyCopiedDescriptionText = copiedDescriptionRepairText.Replace(
+            "<summary>Description copied from interface: Fixture</summary>",
+            "<summary>Existing fixture prose.</summary>",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, remarksOnlyCopiedDescriptionText);
+        var remarksOnlyRepairOwner = setTitle with
+        {
+            Docs = XElement.Parse(
+                remarksOnlyCopiedDescriptionText[
+                    file.DocsBlocks[setTitle.Order].Start..
+                    file.DocsBlocks[setTitle.Order].End],
+                LoadOptions.PreserveWhitespace),
+            Placeholders = [],
+        };
+        var remarksOnlyRepairFailure = new ImportReport
+        {
+            Mode = "dry-run",
+            Offline = true,
+            MaxChanges = 1,
+        };
+        Assert(
+            ReportMappingFailure(
+                remarksOnlyRepairFailure,
+                file,
+                remarksOnlyRepairOwner,
+                MappingResult.Skip("source_not_loaded", "fixture mapping failure")) &&
+                remarksOnlyRepairFailure.Entries.Select(entry => entry.Target).SequenceEqual(["remarks"]),
+            "remarks-only copied-description failures report only remarks");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var rawSignatureText = file.Text.Replace(
             $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
             $"<remarks>{file.Newline}          <code lang=\"text/java\">public int setTitle (CharSequence title)</code>{file.Newline}          <para>Keep this existing prose.</para>",
@@ -4288,6 +5870,12 @@ static class ImporterProgram
             JavaReference + "java.base/java/lang/String.html",
             "java");
         var javaPage = SourcePage.Parse(javaRequest, javaHtml);
+        var copiedLabelWithProsePage = SourcePage.Parse(
+            javaRequest,
+            javaHtml.Replace(
+                "Description copied from interface: <code>CharSequence</code>",
+                "Description copied from interface: CharSequence retains fixture semantics.",
+                StringComparison.Ordinal));
         Assert(
             javaPage.TypeDocs?.Summary == "Represents a sequence of characters." &&
                 !javaPage.TypeDocs.Paragraphs.Any(
@@ -4299,10 +5887,269 @@ static class ImporterProgram
         Assert(
             length.Docs?.Summary == "Returns the length of this string." &&
                 !length.Docs.Paragraphs.Any(
-                    paragraph => paragraph.Text.Contains("Deprecated", StringComparison.Ordinal)),
-            "Java deprecated member block excluded");
+                    paragraph => paragraph.Text.Contains("Deprecated", StringComparison.Ordinal) ||
+                        paragraph.Text.Contains("Description copied from", StringComparison.Ordinal)),
+            "Java deprecated and copied-description member blocks excluded");
+        Assert(
+            copiedLabelWithProsePage.Members.Single(member => member.Name == "length").Docs?.Paragraphs.Any(
+                paragraph => paragraph.Text ==
+                    "Description copied from interface: CharSequence retains fixture semantics.") == true,
+            "Java copied-description prefixes with authored prose are preserved");
         var empty = javaPage.Members.Single(member => member.Name == "EMPTY");
         Assert(empty.IsField && empty.Docs?.Summary == "An empty fixture string.", "Java field extraction");
+        var equivalent = javaPage.Members.Single(member => member.Name == "equivalent");
+        Assert(
+            equivalent.Docs?.Paragraphs.SequenceEqual(
+                [
+                    new SourceParagraph("Updates the fixture value.", IsCode: false),
+                    new SourceParagraph("map.put(key, value);", IsCode: true),
+                    new SourceParagraph("except that the update is atomic.", IsCode: false),
+                ]) == true,
+            "Java blocks preserve prose surrounding code examples");
+        var equivalentDocs = equivalent.Docs ??
+            throw new InvalidOperationException("SELF-TEST FAIL: Java equivalent source documentation");
+        const string laterLeadingEquivalentRemarksText =
+            "<Docs><remarks><para>To be added.</para><para>Updates the fixture value.</para></remarks></Docs>";
+        var laterLeadingEquivalentRemarks = XDocument.Parse(laterLeadingEquivalentRemarksText)
+            .Root!.Element("remarks")!;
+        var laterLeadingEquivalentPlaceholder = Placeholder.Create(
+            laterLeadingEquivalentRemarks.Elements("para").First(),
+            0);
+        var laterLeadingEquivalentReplacement = LimitOverlappingRemarksReplacement(
+            laterLeadingEquivalentPlaceholder,
+            equivalentDocs,
+            ReplacementFor(laterLeadingEquivalentPlaceholder, equivalentDocs),
+            laterLeadingEquivalentRemarks);
+        Assert(
+            laterLeadingEquivalentReplacement.Text is null &&
+                laterLeadingEquivalentReplacement.Reason ==
+                    "source_remarks_overlap_order_conflict",
+            "later retained equivalent source prose skips rather than violating source order");
+        const string leadingEquivalentBeforePlaceholderText =
+            "<Docs><remarks><para>Updates the fixture value.</para><para>To be added.</para></remarks></Docs>";
+        var leadingEquivalentBeforePlaceholder = XDocument.Parse(
+            leadingEquivalentBeforePlaceholderText).Root!.Element("remarks")!;
+        var leadingEquivalentPlaceholder = Placeholder.Create(
+            leadingEquivalentBeforePlaceholder.Elements("para").Last(),
+            0);
+        var leadingEquivalentReplacement = LimitOverlappingRemarksReplacement(
+            leadingEquivalentPlaceholder,
+            equivalentDocs,
+            ReplacementFor(leadingEquivalentPlaceholder, equivalentDocs),
+            leadingEquivalentBeforePlaceholder);
+        Assert(
+            TryReplacePlaceholder(
+                leadingEquivalentBeforePlaceholderText,
+                new DocsBlock(0, 0, leadingEquivalentBeforePlaceholderText.Length),
+                leadingEquivalentPlaceholder,
+                leadingEquivalentReplacement,
+                out var leadingEquivalentCompleted,
+                out _) &&
+            XDocument.Parse(leadingEquivalentCompleted).Root!.Element("remarks")!
+                .Elements().Select(element => element.Name.LocalName)
+                .SequenceEqual(["para", "code", "para"]) &&
+            XDocument.Parse(leadingEquivalentCompleted).Root!.Element("remarks")!
+                .Elements("para").Last().Value == "except that the update is atomic.",
+            "existing leading equivalent prose retains official prose, code, and trailing prose order");
+        var concurrentHashMapFile = LoadedFile.Load(
+            repositoryRoot,
+            Path.Combine(
+                docsRoot,
+                "Java.Util.Concurrent",
+                "ConcurrentHashMap.xml"));
+        concurrentHashMapFile.SelectOwners("PutIfAbsent");
+        var putIfAbsentOwner = concurrentHashMapFile.Owners.Single();
+        Assert(
+            putIfAbsentOwner.MemberRegistration ==
+                new MemberRegistration(
+                    "putIfAbsent",
+                    "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                    false) &&
+            putIfAbsentOwner.SourceRequest?.Url ==
+                JavaReference + "java.base/java/util/concurrent/ConcurrentHashMap.html",
+            "ConcurrentHashMap PutIfAbsent fixture uses its real registered Oracle member");
+        var putIfAbsentRemarks = putIfAbsentOwner.Docs.Element("remarks")!;
+        var putIfAbsentElements = putIfAbsentRemarks.Elements().ToList();
+        var putIfAbsentSourceReference = putIfAbsentElements.Single(
+            element => TryGetImporterSourceReferenceUrl(
+                element.ToString(SaveOptions.DisableFormatting),
+                out _));
+        Assert(
+            TryGetImporterSourceReferenceUrl(
+                putIfAbsentSourceReference.ToString(SaveOptions.DisableFormatting),
+                out var putIfAbsentSourceUrl),
+            "ConcurrentHashMap PutIfAbsent fixture retains its importer source reference");
+        var putIfAbsentSourceReferenceIndex = putIfAbsentElements.IndexOf(
+            putIfAbsentSourceReference);
+        var putIfAbsentSourceFragments = putIfAbsentElements
+            .Take(putIfAbsentSourceReferenceIndex)
+            .Select(element => new SourceParagraph(
+                element.Value,
+                element.Name.LocalName == "code"))
+            .ToList();
+        Assert(
+            putIfAbsentSourceFragments.Count == 3 &&
+                !putIfAbsentSourceFragments[0].IsCode &&
+                putIfAbsentSourceFragments[1].IsCode &&
+                !putIfAbsentSourceFragments[2].IsCode,
+            "ConcurrentHashMap PutIfAbsent fixture retains leading prose, code, and trailing prose");
+        var putIfAbsentDocs = new SourceDocs(
+            putIfAbsentOwner.Docs.Element("summary")!.Value,
+            putIfAbsentSourceFragments,
+            [],
+            "",
+            new Dictionary<string, string>(StringComparer.Ordinal),
+            putIfAbsentSourceUrl,
+            putIfAbsentSourceReference.Descendants("code").Single().Value,
+            "java");
+        var partialPutIfAbsentRemarks = new XElement(
+            "remarks",
+            new XElement("para", putIfAbsentSourceFragments[0].Text),
+            ImporterSourceReference(putIfAbsentDocs));
+        var partialPutIfAbsentRemarksText = partialPutIfAbsentRemarks.ToString(
+            SaveOptions.DisableFormatting);
+        void AssertPutIfAbsentRemarksRefresh(string prefix, string description)
+        {
+            var refreshFixtureText = $"<Docs>{prefix}{partialPutIfAbsentRemarksText}</Docs>";
+            var refreshFixtureDocs = XElement.Parse(
+                refreshFixtureText,
+                LoadOptions.PreserveWhitespace);
+            var refreshFixtureOwner = putIfAbsentOwner with
+            {
+                Order = 0,
+                Docs = refreshFixtureDocs,
+                Placeholders = [],
+            };
+            var refreshFixtureFile = new LoadedFile
+            {
+                Path = "ConcurrentHashMap.PutIfAbsent.refresh.xml",
+                RelativePath = "ConcurrentHashMap.PutIfAbsent.refresh.xml",
+                Text = refreshFixtureText,
+                Newline = "\n",
+                HasUtf8Bom = false,
+                Root = refreshFixtureDocs,
+            };
+            refreshFixtureFile.UpdateBlockOffsets(0, refreshFixtureText);
+            var refreshed = RefreshIncompleteImporterRemarks(
+                refreshFixtureText,
+                refreshFixtureFile,
+                refreshFixtureOwner,
+                putIfAbsentDocs);
+            var refreshedRemarks = XElement.Parse(
+                refreshed.Text,
+                LoadOptions.PreserveWhitespace).Element("remarks")!;
+            Assert(
+                refreshed.Reason is null &&
+                refreshed.Text.Contains(prefix, StringComparison.Ordinal) &&
+                refreshedRemarks.Elements().Take(3).Select(element => element.Name.LocalName)
+                    .SequenceEqual(["para", "code", "para"]) &&
+                refreshedRemarks.Elements().Take(3).Select(element => element.Value)
+                    .SequenceEqual(putIfAbsentSourceFragments.Select(fragment => fragment.Text)),
+                description);
+        }
+        AssertPutIfAbsentRemarksRefresh(
+            "",
+            "compact importer-owned remarks refresh produces valid XML");
+        const string cdataLiteralRemarks =
+            "<![CDATA[<remarks><para>CDATA literal one.</para><para>CDATA literal two.</para></remarks>]]>";
+        AssertPutIfAbsentRemarksRefresh(
+            cdataLiteralRemarks,
+            "remarks refresh preserves earlier CDATA literal markup and updates the validated remarks");
+        const string commentLiteralRemarks =
+            "<!-- <remarks><para>comment literal one.</para><para>comment literal two.</para></remarks> -->";
+        AssertPutIfAbsentRemarksRefresh(
+            commentLiteralRemarks,
+            "remarks refresh preserves earlier comment literal markup and updates the validated remarks");
+        const string directEquivalentRemarksText =
+            "<Docs>\n  <remarks>To be added.</remarks>\n</Docs>";
+        var directEquivalentRemarks = XDocument.Parse(directEquivalentRemarksText)
+            .Root!.Element("remarks")!;
+        var directEquivalentPlaceholder = Placeholder.Create(directEquivalentRemarks, 0);
+        var directEquivalentReplacement = ReplacementFor(
+            directEquivalentPlaceholder,
+            equivalentDocs);
+        Assert(
+            directEquivalentReplacement.Remarks?.SequenceEqual(equivalentDocs.Paragraphs) == true,
+            "direct remarks replacement retains ordered prose, code, and prose source fragments");
+        Assert(
+            TryReplacePlaceholder(
+                directEquivalentRemarksText,
+                new DocsBlock(0, 0, directEquivalentRemarksText.Length),
+                directEquivalentPlaceholder,
+                directEquivalentReplacement,
+                out var directEquivalentCompleted,
+                out _),
+            "direct remarks placeholder replacement succeeds");
+        var renderedDirectEquivalent = XDocument.Parse(directEquivalentCompleted)
+            .Root!.Element("remarks")!;
+        Assert(
+            renderedDirectEquivalent.Elements().Select(element => element.Name.LocalName)
+                .SequenceEqual(["para", "code", "para"]) &&
+            renderedDirectEquivalent.Elements("para").Last().Value ==
+                "except that the update is atomic.",
+            "direct remarks placeholder preserves trailing atomicity prose");
+        const string nestedEquivalentRemarksText =
+            "<Docs>\n  <remarks>\n    <para>To be added.</para>\n  </remarks>\n</Docs>";
+        var nestedEquivalentRemarks = XDocument.Parse(nestedEquivalentRemarksText)
+            .Root!.Element("remarks")!;
+        var nestedEquivalentPlaceholder = Placeholder.Create(
+            nestedEquivalentRemarks.Element("para")!,
+            0);
+        Assert(
+            TryReplacePlaceholder(
+                nestedEquivalentRemarksText,
+                new DocsBlock(0, 0, nestedEquivalentRemarksText.Length),
+                nestedEquivalentPlaceholder,
+                ReplacementFor(nestedEquivalentPlaceholder, equivalentDocs),
+                out var nestedEquivalentCompleted,
+                out _),
+            "nested remarks placeholder replacement succeeds");
+        var renderedNestedEquivalent = XDocument.Parse(nestedEquivalentCompleted)
+            .Root!.Element("remarks")!;
+        Assert(
+            renderedNestedEquivalent.Elements().Select(element => element.Name.LocalName)
+                .SequenceEqual(["para", "code", "para"]) &&
+            renderedNestedEquivalent.Elements("para").Last().Value ==
+                "except that the update is atomic.",
+            "nested remarks placeholder preserves trailing atomicity prose");
+        const string compactDirectEquivalentRemarksText =
+            "<Docs><remarks>To be added.</remarks></Docs>";
+        var compactDirectEquivalentRemarks = XDocument.Parse(compactDirectEquivalentRemarksText)
+            .Root!.Element("remarks")!;
+        var compactDirectEquivalentPlaceholder = Placeholder.Create(
+            compactDirectEquivalentRemarks,
+            0);
+        Assert(
+            TryReplacePlaceholder(
+                compactDirectEquivalentRemarksText,
+                new DocsBlock(0, 0, compactDirectEquivalentRemarksText.Length),
+                compactDirectEquivalentPlaceholder,
+                ReplacementFor(compactDirectEquivalentPlaceholder, equivalentDocs),
+                out var compactDirectEquivalentCompleted,
+                out _) &&
+            XDocument.Parse(compactDirectEquivalentCompleted).Root!.Element("remarks")!
+                .Elements().Select(element => element.Name.LocalName)
+                .SequenceEqual(["para", "code", "para"]),
+            "compact direct remarks placeholder replacement produces valid XML");
+        const string compactNestedEquivalentRemarksText =
+            "<Docs><remarks><para>To be added.</para></remarks></Docs>";
+        var compactNestedEquivalentRemarks = XDocument.Parse(compactNestedEquivalentRemarksText)
+            .Root!.Element("remarks")!;
+        var compactNestedEquivalentPlaceholder = Placeholder.Create(
+            compactNestedEquivalentRemarks.Element("para")!,
+            0);
+        Assert(
+            TryReplacePlaceholder(
+                compactNestedEquivalentRemarksText,
+                new DocsBlock(0, 0, compactNestedEquivalentRemarksText.Length),
+                compactNestedEquivalentPlaceholder,
+                ReplacementFor(compactNestedEquivalentPlaceholder, equivalentDocs),
+                out var compactNestedEquivalentCompleted,
+                out _) &&
+            XDocument.Parse(compactNestedEquivalentCompleted).Root!.Element("remarks")!
+                .Elements().Select(element => element.Name.LocalName)
+                .SequenceEqual(["para", "code", "para"]),
+            "compact nested remarks placeholder replacement produces valid XML");
 
         var block = file.DocsBlocks[setTitle.Order];
         var summary = setTitle.Placeholders.Single(item => item.Name == "summary");
@@ -4317,6 +6164,19 @@ static class ImporterProgram
             "summary was replaced");
         Assert(updated.Contains("<para>Keep this existing prose.</para>", StringComparison.Ordinal),
             "existing prose was preserved");
+        const string staleSetTitleSourceUrl =
+            "https://developer.android.com/reference/android/example/Widget#setTitle(java.lang.String)";
+        var importerStaleReference = ImporterSourceReference(
+            mappedDocs with { SourceUrl = staleSetTitleSourceUrl }).ToString(
+                SaveOptions.DisableFormatting);
+        var updatedWithImporterStaleReference = Regex.Replace(
+            updated,
+            @"<para><format type=""text/html""><a href=""https://developer\.android\.com/reference/android/example/Widget#setTitle\(java\.lang\.String\)"" title=""Reference documentation"">.*?</a></format></para>",
+            importerStaleReference,
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        Assert(
+            !updatedWithImporterStaleReference.Equals(updated, StringComparison.Ordinal),
+            "stale source fixture uses the exact importer reference structure");
         var cdataSummaryFixture = fixtureText.Replace(
             "<param name=\"title\">To be added.</param>",
             "<param name=\"title\"><![CDATA[Example XML: <summary>To be added.</summary>]]></param>",
@@ -4338,8 +6198,12 @@ static class ImporterProgram
                 StringComparison.Ordinal),
             "summary replacement targets the structural placeholder outside CDATA");
         file.UpdateBlockOffsets(setTitle.Order, fixtureText);
-        file.UpdateBlockOffsets(setTitle.Order, updated);
-        var withRemarks = AddSourceDocumentationIfSafe(updated, file, setTitle, mappedDocs);
+        file.UpdateBlockOffsets(setTitle.Order, updatedWithImporterStaleReference);
+        var withRemarks = AddSourceDocumentationIfSafe(
+            updatedWithImporterStaleReference,
+            file,
+            setTitle,
+            mappedDocs);
         Assert(withRemarks.Contains(mappedDocs.SourceUrl, StringComparison.Ordinal), "source link was added");
         Assert(
             !withRemarks.Contains(
@@ -4352,20 +6216,153 @@ static class ImporterProgram
                     "https://developers.google.com/terms/site-policies",
                     StringComparison.Ordinal),
             "source link precedes existing attribution");
+        var currentImporterReference = ImporterSourceReference(mappedDocs).ToString(
+            SaveOptions.DisableFormatting);
+        var sourceReferenceCdata =
+            $"<![CDATA[Example XML: {currentImporterReference}]]>";
+        var sourceReferenceComment =
+            $"<!-- Example XML: {currentImporterReference} -->";
+        var sourceReferenceProcessingInstruction =
+            $"<?example {currentImporterReference} ?>";
+        var literalSourceReferenceFixture = updatedWithImporterStaleReference.Replace(
+            importerStaleReference,
+            $"{sourceReferenceCdata}{file.Newline}          {sourceReferenceComment}{file.Newline}          {sourceReferenceProcessingInstruction}{file.Newline}          {importerStaleReference}",
+            StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, literalSourceReferenceFixture);
+        var literalSourceReferenceBlock = literalSourceReferenceFixture[
+            file.DocsBlocks[setTitle.Order].Start..
+            file.DocsBlocks[setTitle.Order].End];
+        var staleLiteralSourceCleanup = RemoveStaleSourceLinks(
+            literalSourceReferenceBlock,
+            mappedDocs.SourceUrl,
+            removeAll: false);
+        var literalSourceReferenceReport = new ImportReport
+        {
+            Mode = "apply",
+            Offline = true,
+            MaxChanges = 1,
+        };
+        var literalSourceReferenceUpdated = AddSourceDocumentationIfSafe(
+            literalSourceReferenceFixture,
+            file,
+            setTitle,
+            mappedDocs,
+            out var literalSourceReferenceSkip);
+        if (literalSourceReferenceSkip is not null)
+        {
+            ReportSourceReferenceCleanupSkip(
+                literalSourceReferenceReport,
+                file,
+                setTitle,
+                mappedDocs.SourceUrl,
+                literalSourceReferenceSkip);
+        }
+        var literalSourceReferenceDocs = XDocument.Parse(
+            literalSourceReferenceUpdated,
+            LoadOptions.PreserveWhitespace).Root!
+            .Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "SetTitle")
+            .Element("Docs")!;
+        Assert(
+            staleLiteralSourceCleanup.Skip is null &&
+                staleLiteralSourceCleanup.RemovedCount == 1 &&
+                staleLiteralSourceCleanup.Text.Contains(
+                    sourceReferenceCdata,
+                    StringComparison.Ordinal) &&
+                staleLiteralSourceCleanup.Text.Contains(
+                    sourceReferenceComment,
+                    StringComparison.Ordinal) &&
+                staleLiteralSourceCleanup.Text.Contains(
+                    sourceReferenceProcessingInstruction,
+                    StringComparison.Ordinal) &&
+                literalSourceReferenceSkip is null &&
+                literalSourceReferenceReport.Entries.Count == 0 &&
+                literalSourceReferenceUpdated.Contains(
+                    sourceReferenceCdata,
+                    StringComparison.Ordinal) &&
+                literalSourceReferenceUpdated.Contains(
+                    sourceReferenceComment,
+                    StringComparison.Ordinal) &&
+                literalSourceReferenceUpdated.Contains(
+                    sourceReferenceProcessingInstruction,
+                    StringComparison.Ordinal) &&
+                CountImporterSourceReferences(
+                    literalSourceReferenceDocs,
+                    mappedDocs.SourceUrl) == 1 &&
+                !literalSourceReferenceDocs.Descendants("para").Any(paragraph =>
+                    TryGetImporterSourceReferenceUrl(paragraph, out var sourceUrl) &&
+                    UrlsEqual(sourceUrl, staleSetTitleSourceUrl)),
+            "parser-backed source cleanup ignores CDATA/comment literals, removes the actual stale importer reference, and applies one real current reference");
+        var staleLiteralOnlyCleanup = RemoveStaleSourceLinks(
+            $"<Docs><remarks><![CDATA[{importerStaleReference}]]><!-- {importerStaleReference} --><?example {importerStaleReference} ?>{currentImporterReference}</remarks></Docs>",
+            mappedDocs.SourceUrl,
+            removeAll: false);
+        Assert(
+            staleLiteralOnlyCleanup.Skip is null &&
+                staleLiteralOnlyCleanup.RemovedCount == 0 &&
+                staleLiteralOnlyCleanup.Text.Contains(
+                    $"<![CDATA[{importerStaleReference}]]>",
+                    StringComparison.Ordinal) &&
+                staleLiteralOnlyCleanup.Text.Contains(
+                    $"<!-- {importerStaleReference} -->",
+                    StringComparison.Ordinal) &&
+                staleLiteralOnlyCleanup.Text.Contains(
+                    $"<?example {importerStaleReference} ?>",
+                    StringComparison.Ordinal) &&
+                CountImporterSourceReferences(
+                    staleLiteralOnlyCleanup.Text,
+                    mappedDocs.SourceUrl) == 1,
+            "stale source-reference markup in CDATA/comments is never removed or allowed to remove the real importer reference");
+        var mixedSourceReferenceCleanup = RemoveStaleSourceLinks(
+            $"<Docs><remarks>Before {importerStaleReference}After</remarks></Docs>",
+            mappedDocs.SourceUrl,
+            removeAll: false);
+        var mixedSourceReferenceReport = new ImportReport
+        {
+            Mode = "apply",
+            Offline = true,
+            MaxChanges = 1,
+        };
+        if (mixedSourceReferenceCleanup.Skip is not null)
+        {
+            ReportSourceReferenceCleanupSkip(
+                mixedSourceReferenceReport,
+                file,
+                setTitle,
+                mappedDocs.SourceUrl,
+                mixedSourceReferenceCleanup.Skip);
+        }
+        Assert(
+            mixedSourceReferenceCleanup.Skip?.Reason ==
+                "source_reference_mixed_content" &&
+                mixedSourceReferenceReport.Entries.SingleOrDefault() is
+                {
+                    Status: "skipped",
+                    Target: "remarks",
+                    Reason: "source_reference_mixed_content",
+                } &&
+                mixedSourceReferenceCleanup.Text.Contains(
+                    $"Before {importerStaleReference}After",
+                    StringComparison.Ordinal),
+            "mixed-content source-reference cleanup conservatively skips and reports instead of collapsing authored text");
         const string nestedBuilderAnchor =
             "https://developer.android.com/reference/android/example/Widget.Builder#Widget$Builder()";
         const string builderAnchor =
             "https://developer.android.com/reference/android/example/Widget.Builder#Builder()";
+        var staleNestedBuilderReference = ImporterSourceReference(
+            mappedDocs with { SourceUrl = nestedBuilderAnchor }).ToString(
+                SaveOptions.DisableFormatting);
+        var staleNestedBuilderText =
+            $"<Docs><remarks>{Environment.NewLine}{staleNestedBuilderReference}{Environment.NewLine}</remarks></Docs>";
         Assert(
             !RemoveStaleSourceLinks(
-                $"<para><format type=\"text/html\"><a href=\"{nestedBuilderAnchor}\" " +
-                "title=\"Reference documentation\">Stale builder reference.</a></format></para>\n",
+                staleNestedBuilderText,
                 builderAnchor,
-                removeAll: false).Contains(nestedBuilderAnchor, StringComparison.Ordinal),
+                removeAll: false).Text.Contains(nestedBuilderAnchor, StringComparison.Ordinal),
             "stale nested builder constructor link was removed");
         var nestedConstructorText =
             $"<Docs><remarks>{Environment.NewLine}<para><format type=\"text/html\"><a href=\"{nestedBuilderAnchor}\" " +
-            $"title=\"Reference documentation\">Stale <code>Widget.Builder.Widget$Builder()</code> reference.</a></format></para>{Environment.NewLine}</remarks></Docs>";
+            $"title=\"Reference documentation\">Android reference for <code>Widget.Builder.Widget$Builder()</code>.</a></format></para>{Environment.NewLine}</remarks></Docs>";
         var normalizedNestedConstructorText = NormalizeStaleNestedConstructorLinks(
             nestedConstructorText,
             new DocsBlock(0, 0, nestedConstructorText.Length));
@@ -4377,14 +6374,14 @@ static class ImporterProgram
                     StringComparison.Ordinal),
             "independent nested constructor normalization preserves the reference paragraph");
         var nestedConstructorWithUnrelatedDollar = nestedConstructorText.Replace(
-            " reference.</a>",
-            " and <code>unrelated$code</code> reference.</a>",
+            "Widget.Builder.Widget$Builder()",
+            "Widget.Builder.Widget$Builder() unrelated$code",
             StringComparison.Ordinal);
         Assert(
             NormalizeStaleNestedConstructorLinks(
                 nestedConstructorWithUnrelatedDollar,
                 new DocsBlock(0, 0, nestedConstructorWithUnrelatedDollar.Length))
-                .Contains("<code>unrelated$code</code>", StringComparison.Ordinal),
+                .Contains("unrelated$code", StringComparison.Ordinal),
             "nested constructor normalization preserves unrelated dollar text");
         _ = XDocument.Parse(withRemarks, LoadOptions.PreserveWhitespace);
 
@@ -4422,6 +6419,25 @@ static class ImporterProgram
         Assert(
             favoriteDocument.Root is not null,
             "inline remarks source-link insertion produced valid XML");
+        file.UpdateBlockOffsets(favorite.Order, favoriteText);
+        var selfClosingRemarksOwner = file.Owners.Single(owner =>
+            owner.Id.Contains("EmptyRemarks", StringComparison.Ordinal));
+        var completedEmptyRemarks = AddSourceDocumentationIfSafe(
+            favoriteText,
+            file,
+            selfClosingRemarksOwner,
+            equivalentDocs);
+        var renderedEmptyRemarks = XDocument.Parse(completedEmptyRemarks)
+            .Root!.Element("Members")!.Elements("Member")
+            .Single(member => (string?)member.Attribute("MemberName") == "EmptyRemarks")
+            .Element("Docs")!.Element("remarks")!;
+        Assert(
+            renderedEmptyRemarks.Elements().Take(3).Select(element => element.Name.LocalName)
+                .SequenceEqual(["para", "code", "para"]) &&
+            renderedEmptyRemarks.Elements("para").Take(2).Last().Value ==
+                "except that the update is atomic.",
+            "self-closing remarks control preserves all ordered source fragments");
+        file.UpdateBlockOffsets(setTitle.Order, favoriteText);
 
         var completeRemarksDocs = favoriteResult.Docs! with
         {
@@ -4520,7 +6536,7 @@ static class ImporterProgram
             repairedMetadataText.Contains("result.setAuthentication(authentication);", StringComparison.Ordinal) &&
             repairedMetadataText.Contains("Reference documentation", StringComparison.Ordinal),
             "importer metadata remarks preserves reference metadata");
-        var cleanedMissingRemarksText = RemoveImporterRemarksMetadata(metadataRepairText);
+        var cleanedMissingRemarksText = RemoveImporterRemarksMetadata(metadataRepairText).Text;
         var cleanedMissingRemarks = XDocument.Parse(cleanedMissingRemarksText)
             .Root!.Element("remarks")!;
         Assert(
@@ -4560,7 +6576,7 @@ static class ImporterProgram
             "metadata-only repair preserves user-authored reference content");
         var deduplicatedMetadataRepairText = RemoveDuplicateSourceLinks(
             duplicateMetadataRepairText,
-            favoriteResult.Docs.SourceUrl);
+            favoriteResult.Docs.SourceUrl).Text;
         Assert(
             CountImporterSourceReferences(
                 deduplicatedMetadataRepairText,
@@ -4569,20 +6585,14 @@ static class ImporterProgram
             deduplicatedMetadataRepairText.Contains(AndroidAttribution, StringComparison.Ordinal) &&
             RemoveDuplicateSourceLinks(
                 deduplicatedMetadataRepairText,
-                favoriteResult.Docs.SourceUrl).Equals(
+                favoriteResult.Docs.SourceUrl).Text.Equals(
                     deduplicatedMetadataRepairText,
                     StringComparison.Ordinal),
             "metadata-only repairs deduplicate importer references without removing user content");
-        const string emptyMetadataRepairText =
+        var emptyMetadataRepairText =
             "<Docs>\n  <remarks>\n    <para></para>\n    \n" +
-            "    <para><format type=\"text/html\"><a " +
-            "href=\"https://developer.android.com/reference/android/example/Widget#favorite\" " +
-            "title=\"Reference documentation\">Android reference.</a></format></para>\n" +
-            "    <para>Portions of this page are modifications based on work created and shared by the " +
-            "<format type=\"text/html\"><a href=\"https://developers.google.com/terms/site-policies\">" +
-            "Android Open Source Project</a></format> and used according to terms described in the " +
-            "<format type=\"text/html\"><a href=\"https://creativecommons.org/licenses/by/2.5/\">" +
-            "Creative Commons 2.5 Attribution License.</a></format></para>\n" +
+            $"    {ImporterSourceReference(favoriteResult.Docs!)}\n" +
+            $"    <para>{AndroidAttribution}</para>\n" +
             "  </remarks>\n</Docs>";
         var emptyMetadataRepairRemarks =
             XDocument.Parse(emptyMetadataRepairText).Root!.Element("remarks")!;
@@ -4801,7 +6811,7 @@ static class ImporterProgram
             $"  <para>{AndroidAttribution}</para>\n" +
             "</remarks></Docs>";
         Assert(
-            RemoveEnumDiscardedMetadata(enumMetadataWithoutTransfer, enumMapped.Docs!) ==
+            RemoveEnumDiscardedMetadata(enumMetadataWithoutTransfer, enumMapped.Docs!).Text ==
                 enumMetadataWithoutTransfer,
             "enum remarks metadata is preserved until summary transfer is confirmed");
         var enumMetadataWithTransfer = enumMetadataWithoutTransfer.Replace(
@@ -4813,7 +6823,7 @@ static class ImporterProgram
             StringComparison.Ordinal);
         var prunedEnumMetadata = RemoveEnumDiscardedMetadata(
             enumMetadataWithTransfer,
-            enumMapped.Docs!);
+            enumMapped.Docs!).Text;
         Assert(
             prunedEnumMetadata.Contains("<remarks />", StringComparison.Ordinal) &&
                 !XElement.Parse(prunedEnumMetadata)
@@ -4871,7 +6881,7 @@ static class ImporterProgram
         Assert(
             RemoveEnumDiscardedMetadata(
                 enumMetadataWithUnrelatedPolicyLink,
-                enumMapped.Docs!) == enumMetadataWithUnrelatedPolicyLink,
+                enumMapped.Docs!).Text == enumMetadataWithUnrelatedPolicyLink,
             "enum remarks attribution is preserved until the exact attribution paragraph transfers");
 
         enumFile.UpdateBlockOffsets(enumFavorite.Order, enumText);
@@ -5552,7 +7562,10 @@ static class ImporterProgram
 
             var paragraphs = element.Elements().ToList();
             var hasDirectPlaceholder = IsPlaceholder(
-                string.Concat(element.Nodes().OfType<XText>().Select(node => node.Value)));
+                string.Concat(element.Nodes()
+                    .OfType<XText>()
+                    .Where(node => node is not XCData)
+                    .Select(node => node.Value)));
             var emptyParagraphs = paragraphs
                 .Where(paragraph => !paragraph.HasElements && NormalizeText(paragraph.Value).Length == 0)
                 .ToList();
@@ -5563,20 +7576,7 @@ static class ImporterProgram
             return metadataParagraphs.Count > 0 &&
                 metadataParagraphs.All(paragraph =>
                     paragraph.Name.LocalName == "para" &&
-                    (paragraph.Descendants("a").Any(link =>
-                        (string?)link.Attribute("title") == "Reference documentation" &&
-                        (((string?)link.Attribute("href"))?.StartsWith(
-                            "https://developer.android.com/reference/",
-                            StringComparison.Ordinal) == true ||
-                        ((string?)link.Attribute("href"))?.StartsWith(
-                            "https://docs.oracle.com/en/java/javase/21/docs/api/",
-                            StringComparison.Ordinal) == true)) ||
-                    (paragraph.Value.StartsWith(
-                        "Portions of this page are modifications based on work created and shared by",
-                        StringComparison.Ordinal) &&
-                        paragraph.Descendants("a").Any(link =>
-                            (string?)link.Attribute("href") ==
-                                "https://developers.google.com/terms/site-policies"))));
+                    IsImporterMetadataParagraph(paragraph));
         }
 
         public void UpdateBlockOffsets(int changedOrder, string text)
@@ -5618,6 +7618,52 @@ static class ImporterProgram
     }
 
     sealed record DocsBlock(int Order, int Start, int End);
+    sealed record XmlSpan(int Start, int End);
+    sealed record ImporterSourceReferenceElement(XElement Element, string Url);
+    sealed record SourceReferenceCleanupSkip(string Reason, string Detail)
+    {
+        public static SourceReferenceCleanupSkip NotLocated(string detail) =>
+            new("source_reference_target_not_located", detail);
+
+        public static SourceReferenceCleanupSkip MixedContent(string detail) =>
+            new("source_reference_mixed_content", detail);
+    }
+    sealed record SourceReferenceCleanupResult(
+        string Text,
+        SourceReferenceCleanupSkip? Skip,
+        int RemovedCount)
+    {
+        public static SourceReferenceCleanupResult Success(
+            string text,
+            int removedCount = 0) =>
+            new(text, null, removedCount);
+
+        public static SourceReferenceCleanupResult Failure(
+            string text,
+            SourceReferenceCleanupSkip skip) =>
+            new(text, skip, 0);
+    }
+    sealed record CopiedDescriptionRepairTarget(string Target, XElement Element);
+    sealed record XmlSpanEdit(XmlSpan Span, string Replacement);
+    sealed record CopiedDescriptionRepairSkip(string Target, string Reason, string Detail);
+    sealed record CopiedDescriptionRepairResult(
+        string Text,
+        List<string> Targets,
+        List<CopiedDescriptionRepairSkip> Skips)
+    {
+        public static CopiedDescriptionRepairResult Skip(
+            string text,
+            IEnumerable<CopiedDescriptionRepairTarget> targets,
+            string reason,
+            string detail) =>
+            new(
+                text,
+                [],
+                targets.Select(target => new CopiedDescriptionRepairSkip(
+                    target.Target,
+                    reason,
+                    detail)).ToList());
+    }
     sealed record DocsOwner(
         int Order,
         string Id,
@@ -5633,7 +7679,9 @@ static class ImporterProgram
         string Name,
         string Key,
         string Target,
-        bool IsImporterMetadataRepair = false)
+        bool IsImporterMetadataRepair = false,
+        int RemarksChildIndex = -1,
+        int MetadataRepairIndex = -1)
     {
         public static Placeholder Create(XElement element, int order)
         {
@@ -5645,12 +7693,28 @@ static class ImporterProgram
                 _ => "",
             };
             var target = key.Length == 0 ? name : $"{name}:{key}";
+            var parent = element.Parent;
+            var remarksChildIndex = parent?.Name.LocalName == "remarks"
+                ? parent.Elements()
+                    .TakeWhile(sibling => !ReferenceEquals(sibling, element))
+                    .Count()
+                : -1;
+            var isImporterMetadataRepair =
+                LoadedFile.IsImporterAugmentedRemarksPlaceholder(element);
+            var metadataRepairIndex = isImporterMetadataRepair &&
+                parent?.Name.LocalName == "Docs"
+                ? parent.Elements("remarks")
+                    .TakeWhile(sibling => !ReferenceEquals(sibling, element))
+                    .Count(LoadedFile.IsImporterAugmentedRemarksPlaceholder)
+                : -1;
             return new Placeholder(
                 order,
                 name,
                 key,
                 target,
-                LoadedFile.IsImporterAugmentedRemarksPlaceholder(element));
+                isImporterMetadataRepair,
+                remarksChildIndex,
+                metadataRepairIndex);
         }
     }
 
@@ -6768,9 +8832,46 @@ static class ImporterProgram
                     return classTokens.Contains("block", StringComparer.Ordinal) &&
                         !classTokens.Contains("deprecation-block", StringComparer.Ordinal);
                 })
-                .Select(match => new SourceParagraph(HtmlText(match.Groups["body"].Value), IsCode: false))
-                .Where(paragraph => paragraph.Text.Length > 0)
+                .SelectMany(match => ExtractBlockParagraphs(match.Groups["body"].Value))
+                .Where(paragraph => paragraph.Text.Length > 0 &&
+                    !IsJavaDescriptionCopiedLabel(paragraph.Text))
                 .ToList();
+
+        static List<SourceParagraph> ExtractBlockParagraphs(string html)
+        {
+            var codeExamples = Regex.Matches(
+                html,
+                @"<pre\b[^>]*>(?<body>.*?)</pre>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (codeExamples.Count == 0)
+                return [new SourceParagraph(HtmlText(html), IsCode: false)];
+
+            var paragraphs = new List<SourceParagraph>();
+            var position = 0;
+            foreach (Match codeExample in codeExamples)
+            {
+                AddBlockTextParagraph(html[position..codeExample.Index], paragraphs);
+                var code = HtmlCodeText(codeExample.Groups["body"].Value);
+                if (code.Length > 0)
+                    paragraphs.Add(new SourceParagraph(code, IsCode: true));
+                position = codeExample.Index + codeExample.Length;
+            }
+            AddBlockTextParagraph(html[position..], paragraphs);
+            return paragraphs;
+        }
+
+        static void AddBlockTextParagraph(string html, List<SourceParagraph> paragraphs)
+        {
+            var text = CleanSourceParagraph(HtmlText(html));
+            if (text.Length > 0)
+                paragraphs.Add(new SourceParagraph(text, IsCode: false));
+        }
+
+        static bool IsJavaDescriptionCopiedLabel(string text) =>
+            Regex.IsMatch(
+                NormalizeText(text).Trim(),
+                @"^Description copied from (?:class|interface):\s+\S+$",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         static Dictionary<string, string> ParseAttributes(string attributes)
         {
@@ -7193,18 +9294,14 @@ static class ImporterProgram
 
     sealed record Replacement(
         string? Text,
-        IReadOnlyList<SourceParagraph>? Remarks,
         string? Reason,
-        string Detail)
+        string Detail,
+        IReadOnlyList<SourceParagraph>? Remarks = null)
     {
-        public static Replacement Use(string text) => new(text, null, null, "");
-        public static Replacement UseRemarks(List<SourceParagraph> paragraphs) =>
-            new(
-                paragraphs.FirstOrDefault(paragraph => !paragraph.IsCode)?.Text ?? "",
-                paragraphs,
-                null,
-                "");
-        public static Replacement Skip(string reason, string detail) => new(null, null, reason, detail);
+        public static Replacement Use(string text) => new(text, null, "");
+        public static Replacement UseRemarks(IReadOnlyList<SourceParagraph> remarks) =>
+            new(remarks[0].Text, null, "", remarks);
+        public static Replacement Skip(string reason, string detail) => new(null, reason, detail);
     }
 
     sealed class ImportReport
@@ -7299,15 +9396,17 @@ static class ImporterProgram
             string path,
             string member,
             string target,
-            string sourceUrl) =>
+            string sourceUrl,
+            string reason = "exact_structural_match",
+            string detail = "") =>
             new()
             {
                 Status = status,
                 Path = path,
                 Member = member,
                 Target = target,
-                Reason = "exact_structural_match",
-                Detail = "",
+                Reason = reason,
+                Detail = detail,
                 SourceUrl = sourceUrl,
             };
 

@@ -102,18 +102,19 @@
         <Parameter Name="remappingFunction" Type="Java.Util.Functions.IBiFunction" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="remappingFunction">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <param name="key">key with which the specified value is to be associated</param>
+        <param name="remappingFunction">the remapping function to compute a value</param>
+        <summary>Attempts to compute a mapping for the specified key and its current mapped value (or null if there is no current mapping).</summary>
+        <returns>the new value associated with the specified key, or null if none</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Attempts to compute a mapping for the specified key and its current mapped value (or null if there is no current mapping).</para>
           <para>Added in 1.8.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentMap#compute(K,%20java.util.function.BiFunction%3C?%20super%20K,%20?%20super%20V,%20?%20extends%20V%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentMap.compute(K, java.util.function.BiFunction&lt;? super K, ? super V, ? extends V&gt;)</code>.</a>
-            </format>
-          </para>
+          <code lang="text/java"> map.compute(key, (k, v) -&gt; (v == null) ? msg : v.concat(msg))</code>
+          <para>(Method merge() is often simpler to use for such purposes.)</para>
+          <para>If the remapping function returns null, the mapping is removed (or remains absent if initially absent).</para>
+          <para>If the remapping function itself throws an (unchecked) exception, the exception is rethrown, and the current mapping is left unchanged.</para>
+          <para>The remapping function should not modify this map during computation.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentMap.html#compute(K,java.util.function.BiFunction)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentMap.compute</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -153,18 +154,17 @@
         <Parameter Name="mappingFunction" Type="Java.Util.Functions.IFunction" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="mappingFunction">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <param name="key">key with which the specified value is to be associated</param>
+        <param name="mappingFunction">the mapping function to compute a value</param>
+        <summary>If the specified key is not already associated with a value (or is mapped to null), attempts to compute its value using the given mapping function and enters it into this map unless null.</summary>
+        <returns>the current (existing or computed) value associated with the specified key, or null if the computed value is null</returns>
         <remarks>
-          <para>To be added</para>
+          <para>If the specified key is not already associated with a value (or is mapped to null), attempts to compute its value using the given mapping function and enters it into this map unless null. If the mapping function returns null, no mapping is recorded. If the mapping function itself throws an (unchecked) exception, the exception is rethrown, and no mapping is recorded.</para>
           <para>Added in 1.8.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentMap#computeIfAbsent(K,%20java.util.function.Function%3C?%20super%20K,%20?%20extends%20V%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentMap.computeIfAbsent(K, java.util.function.Function&lt;? super K, ? extends V&gt;)</code>.</a>
-            </format>
-          </para>
+          <code lang="text/java"> map.computeIfAbsent(key, k -&gt; new Value(f(k)));</code>
+          <code lang="text/java"> map.computeIfAbsent(key, k -&gt; new HashSet&lt;V&gt;()).add(v);</code>
+          <para>The mapping function should not modify this map during computation.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentMap.html#computeIfAbsent(K,java.util.function.Function)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentMap.computeIfAbsent</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -204,18 +204,14 @@
         <Parameter Name="remappingFunction" Type="Java.Util.Functions.IBiFunction" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="remappingFunction">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <param name="key">key with which the specified value is to be associated</param>
+        <param name="remappingFunction">the remapping function to compute a value</param>
+        <summary>If the value for the specified key is present and non-null, attempts to compute a new mapping given the key and its current mapped value.</summary>
+        <returns>the new value associated with the specified key, or null if none</returns>
         <remarks>
-          <para>To be added</para>
+          <para>If the value for the specified key is present and non-null, attempts to compute a new mapping given the key and its current mapped value. If the remapping function returns null, the mapping is removed. If the remapping function itself throws an (unchecked) exception, the exception is rethrown, and the current mapping is left unchanged. The remapping function should not modify this map during computation.</para>
           <para>Added in 1.8.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentMap#computeIfPresent(K,%20java.util.function.BiFunction%3C?%20super%20K,%20?%20super%20V,%20?%20extends%20V%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentMap.computeIfPresent(K, java.util.function.BiFunction&lt;? super K, ? super V, ? extends V&gt;)</code>.</a>
-            </format>
-          </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentMap.html#computeIfPresent(K,java.util.function.BiFunction)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentMap.computeIfPresent</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -254,16 +250,12 @@
         <Parameter Name="action" Type="Java.Util.Functions.IBiConsumer" />
       </Parameters>
       <Docs>
-        <param name="action">To be added.</param>
-        <summary>To be added</summary>
+        <param name="action">The action to be performed for each entry</param>
+        <summary>Performs the given action for each entry in this map until all entries have been processed or the action throws an exception.</summary>
         <remarks>
-          <para>To be added</para>
+          <para>Performs the given action for each entry in this map until all entries have been processed or the action throws an exception. Unless otherwise specified by the implementing class, actions are performed in the order of entry set iteration (if an iteration order is specified.) Exceptions thrown by the action are relayed to the caller.</para>
           <para>Added in 1.8.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentMap#forEach(java.util.function.BiConsumer%3C?%20super%20K,%20?%20super%20V%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentMap.forEach(java.util.function.BiConsumer&lt;? super K, ? super V&gt;)</code>.</a>
-            </format>
-          </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentMap.html#forEach(java.util.function.BiConsumer)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentMap.forEach</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -303,18 +295,14 @@
         <Parameter Name="defaultValue" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="defaultValue">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <param name="key">the key whose associated value is to be returned</param>
+        <param name="defaultValue">the default mapping of the key</param>
+        <summary>Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key.</summary>
+        <returns>the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key</returns>
         <remarks>
-          <para>To be added</para>
+          <para>Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key.</para>
           <para>Added in 1.8.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentMap#getOrDefault(java.lang.Object,%20V)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentMap.getOrDefault(java.lang.Object, V)</code>.</a>
-            </format>
-          </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentMap.html#getOrDefault(java.lang.Object,V)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentMap.getOrDefault</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -355,19 +343,19 @@
         <Parameter Name="remappingFunction" Type="Java.Util.Functions.IBiFunction" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
-        <param name="remappingFunction">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <param name="key">key with which the resulting value is to be associated</param>
+        <param name="value">the non-null value to be merged with the existing value associated with the key or, if no existing value or a null value is associated with the key, to be associated with the key</param>
+        <param name="remappingFunction">the remapping function to recompute a value if present</param>
+        <summary>If the specified key is not already associated with a value or is associated with null, associates it with the given non-null value.</summary>
+        <returns>the new value associated with the specified key, or null if no value is associated with the key</returns>
         <remarks>
-          <para>To be added</para>
+          <para>If the specified key is not already associated with a value or is associated with null, associates it with the given non-null value. Otherwise, replaces the associated value with the results of the given remapping function, or removes if the result is null. This method may be of use when combining multiple mapped values for a key.</para>
           <para>Added in 1.8.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentMap#merge(K,%20V,%20java.util.function.BiFunction%3C?%20super%20V,%20?%20super%20V,%20?%20extends%20V%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentMap.merge(K, V, java.util.function.BiFunction&lt;? super V, ? super V, ? extends V&gt;)</code>.</a>
-            </format>
-          </para>
+          <code lang="text/java"> map.merge(key, msg, String::concat)</code>
+          <para>If the remapping function returns null, the mapping is removed.</para>
+          <para>If the remapping function itself throws an (unchecked) exception, the exception is rethrown, and the current mapping is left unchanged.</para>
+          <para>The remapping function should not modify this map during computation.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentMap.html#merge(K,V,java.util.function.BiFunction)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentMap.merge</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -406,16 +394,12 @@
         <Parameter Name="function" Type="Java.Util.Functions.IBiFunction" />
       </Parameters>
       <Docs>
-        <param name="function">To be added.</param>
-        <summary>To be added</summary>
+        <param name="function">the function to apply to each entry</param>
+        <summary>Replaces each entry's value with the result of invoking the given function on that entry until all entries have been processed or the function throws an exception.</summary>
         <remarks>
-          <para>To be added</para>
+          <para>Replaces each entry's value with the result of invoking the given function on that entry until all entries have been processed or the function throws an exception. Exceptions thrown by the function are relayed to the caller.</para>
           <para>Added in 1.8.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentMap#replaceAll(java.util.function.BiFunction%3C?%20super%20K,%20?%20super%20V,%20?%20extends%20V%3E)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentMap.replaceAll(java.util.function.BiFunction&lt;? super K, ? super V, ? extends V&gt;)</code>.</a>
-            </format>
-          </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentMap.html#replaceAll(java.util.function.BiFunction)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentMap.replaceAll</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>

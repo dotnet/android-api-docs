@@ -1606,18 +1606,19 @@
         <Parameter Name="value" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added</summary>
+        <param name="key">key with which the specified value is to be associated</param>
+        <param name="value">value to be associated with the specified key</param>
+        <summary>If the specified key is not already associated with a value, associates it with the given value.</summary>
         <returns>the previous value associated with the specified key,
                     or <c>null</c> if there was no mapping for the key</returns>
         <remarks>
-          <para>To be added</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentHashMap#putIfAbsent(K,%20V)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentHashMap.putIfAbsent(K, V)</code>.</a>
-            </format>
-          </para>
+          <para>If the specified key is not already associated with a value, associates it with the given value.</para>
+          <code lang="text/java"> if (!map.containsKey(key))
+   return map.put(key, value);
+ else
+   return map.get(key);</code>
+          <para>except that the action is performed atomically.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html#putIfAbsent(K,V)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentHashMap.putIfAbsent</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2815,16 +2816,20 @@
       <Docs>
         <param name="key">the key that needs to be removed</param>
         <param name="value">value expected to be associated with the specified key</param>
-        <summary>To be added</summary>
+        <summary>Removes the entry for a key only if currently mapped to a given value.</summary>
         <returns>the previous value associated with <c>key</c>, or
                     <c>null</c> if there was no mapping for <c>key</c></returns>
         <remarks>
-          <para>To be added</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentHashMap#remove(java.lang.Object,%20java.lang.Object)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentHashMap.remove(java.lang.Object, java.lang.Object)</code>.</a>
-            </format>
-          </para>
+          <para>Removes the entry for a key only if currently mapped to a given value.</para>
+          <code lang="text/java"> if (map.containsKey(key)
+     &amp;&amp; Objects.equals(map.get(key), value)) {
+   map.remove(key);
+   return true;
+ } else {
+   return false;
+ }</code>
+          <para>except that the action is performed atomically.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html#remove(java.lang.Object,java.lang.Object)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentHashMap.remove</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2869,18 +2874,19 @@
         <Parameter Name="value" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added</summary>
+        <param name="key">key with which the specified value is associated</param>
+        <param name="value">value to be associated with the specified key</param>
+        <summary>Replaces the entry for a key only if currently mapped to some value.</summary>
         <returns>the previous value associated with the specified key,
                     or <c>null</c> if there was no mapping for the key</returns>
         <remarks>
-          <para>To be added</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentHashMap#replace(K,%20V)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentHashMap.replace(K, V)</code>.</a>
-            </format>
-          </para>
+          <para>Replaces the entry for a key only if currently mapped to some value.</para>
+          <code lang="text/java"> if (map.containsKey(key))
+   return map.put(key, value);
+ else
+   return null;</code>
+          <para>except that the action is performed atomically.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html#replace(K,V)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentHashMap.replace</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2917,19 +2923,23 @@
         <Parameter Name="newValue" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="oldValue">To be added.</param>
-        <param name="newValue">To be added.</param>
-        <summary>To be added</summary>
+        <param name="key">key with which the specified value is associated</param>
+        <param name="oldValue">value expected to be associated with the specified key</param>
+        <param name="newValue">value to be associated with the specified key</param>
+        <summary>Replaces the entry for a key only if currently mapped to a given value.</summary>
         <returns>the previous value associated with the specified key,
                     or <c>null</c> if there was no mapping for the key</returns>
         <remarks>
-          <para>To be added</para>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/concurrent/ConcurrentHashMap#replace(K,%20V,%20V)" title="Reference documentation">Java documentation for <code>java.util.concurrent.ConcurrentHashMap.replace(K, V, V)</code>.</a>
-            </format>
-          </para>
+          <para>Replaces the entry for a key only if currently mapped to a given value.</para>
+          <code lang="text/java"> if (map.containsKey(key)
+     &amp;&amp; Objects.equals(map.get(key), oldValue)) {
+   map.put(key, newValue);
+   return true;
+ } else {
+   return false;
+ }</code>
+          <para>except that the action is performed atomically.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html#replace(K,V,V)" title="Reference documentation">Java reference for <code>java.util.concurrent.ConcurrentHashMap.replace</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
