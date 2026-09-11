@@ -38,10 +38,14 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The minimal set of capabilities that every camera device (regardless of android.info.supportedHardwareLevel) supports.</para>
+          <para>This capability is listed by all normal devices, and indicates that the camera device has a feature set that's comparable to the baseline requirements for the older android.hardware.Camera API.</para>
+          <para>Devices with the DEPTH_OUTPUT capability might not list this capability, indicating that they support only depth measurement, not standard color output.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="BurstCapture">
@@ -69,10 +73,16 @@
       </ReturnValue>
       <MemberValue>6</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The camera device supports capturing high-resolution images at &gt;= 20 frames per second, in at least the uncompressed YUV format, when post-processing settings are set to FAST. Additionally, all image resolutions less than 24 megapixels can be captured at &gt;= 10 frames per second. Here, 'high resolution' means at least 8 megapixels, or the maximum resolution of the device, whichever is smaller.</para>
+          <para>More specifically, this means that a size matching the camera device's active array size is listed as a supported size for the ImageFormat.YUV_420_888 format in either StreamConfigurationMap.getOutputSizes(int) or StreamConfigurationMap.getHighResolutionOutputSizes(int), with a minimum frame duration for that format and size of either &lt;= 1/20 s, or &lt;= 1/10 s if the image size is less than 24 megapixels, respectively; and the android.control.aeAvailableTargetFpsRanges entry lists at least one FPS range where the minimum FPS is &gt;= 1 / minimumFrameDuration for the maximum-size YUV_420_888 format. If that maximum size is listed in StreamConfigurationMap.getHighResolutionOutputSizes(int), then the list of resolutions for YUV_420_888 from StreamConfigurationMap.getOutputSizes(int) contains at least one resolution &gt;= 8 megapixels, with a minimum frame duration of &lt;= 1/20 s.</para>
+          <para>If the device supports the ImageFormat.RAW10, ImageFormat.RAW12, ImageFormat.RAW14, ImageFormat.Y8, then those can also be captured at the same rate as the maximum-size YUV_420_888 resolution is.</para>
+          <para>If the device supports the PRIVATE_REPROCESSING capability, then the same guarantees as for the YUV_420_888 format also apply to the ImageFormat.PRIVATE format.</para>
+          <para>In addition, the android.sync.maxLatency field is guaranteed to have a value between 0 and 4, inclusive. android.control.aeLockAvailable and android.control.awbLockAvailable are also guaranteed to be true so burst capture with these two locks ON yields consistent image output.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="ColorSpaceProfiles">
@@ -100,7 +110,12 @@
       </ReturnValue>
       <MemberValue>20</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>The device supports querying the possible combinations of color spaces, image formats, and dynamic range profiles supported by the camera and requesting a particular color space for a session via SessionConfiguration.setColorSpace(Named).</para>
+          <para>Cameras that enable this capability may or may not also implement dynamic range profiles. If they don't, ColorSpaceProfiles.getSupportedDynamicRangeProfiles(Named, int) will return only DynamicRangeProfiles.STANDARD and ColorSpaceProfiles.getSupportedColorSpacesForDynamicRange(int, long) will assume support of the DynamicRangeProfiles.STANDARD profile in all combinations of color spaces and image formats.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_COLOR_SPACE_PROFILES" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_COLOR_SPACE_PROFILES</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="ConstrainedHighSpeedVideo">
@@ -128,10 +143,20 @@
       </ReturnValue>
       <MemberValue>9</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The device supports constrained high speed video recording (frame rate &gt;=120fps) use case. The camera device will support high speed capture session created by CameraDevice.createConstrainedHighSpeedCaptureSession(List, StateCallback, Handler), which only accepts high speed request lists created by CameraConstrainedHighSpeedCaptureSession.createHighSpeedRequestList(CaptureRequest).</para>
+          <para>A camera device can still support high speed video streaming by advertising the high speed FPS ranges in android.control.aeAvailableTargetFpsRanges. For this case, all normal capture request per frame control and synchronization requirements will apply to the high speed fps ranges, the same as all other fps ranges. This capability describes the capability of a specialized operating mode with many limitations (see below), which is only targeted at high speed video recording.</para>
+          <para>The supported high speed video sizes and fps ranges are specified in StreamConfigurationMap.getHighSpeedVideoFpsRanges(). To get desired output frame rates, the application is only allowed to select video size and FPS range combinations provided by StreamConfigurationMap.getHighSpeedVideoSizes(). The fps range can be controlled via android.control.aeTargetFpsRange.</para>
+          <para>In this capability, the camera device will override aeMode, awbMode, and afMode to ON, AUTO, and CONTINUOUS_VIDEO, respectively. All post-processing block mode controls will be overridden to be FAST. Therefore, no manual control of capture and post-processing parameters is possible. All other controls operate the same as when android.control.mode == AUTO. This means that all other android.control.* fields continue to work, such as; android.control.aeTargetFpsRange; android.control.aeExposureCompensation; android.control.aeLock; android.control.awbLock; android.control.effectMode; android.control.aeRegions; android.control.afRegions; android.control.awbRegions; android.control.afTrigger; android.control.aePrecaptureTrigger; android.control.zoomRatio</para>
+          <para>Outside of android.control.*, the following controls will work: android.flash.mode (TORCH mode only, automatic flash for still capture will not work since aeMode is ON); android.lens.opticalStabilizationMode (if it is supported); android.scaler.cropRegion; android.statistics.faceDetectMode (if it is supported)</para>
+          <para>For high speed recording use case, the actual maximum supported frame rate may be lower than what camera can output, depending on the destination Surfaces for the image data. For example, if the destination surface is from video encoder, the application need check if the video encoder is capable of supporting the high frame rate for a given video size, or it will end up with lower recording frame rate. If the destination surface is from preview window, the actual preview frame rate will be bounded by the screen refresh rate.</para>
+          <para>The camera device will only support up to 2 high speed simultaneous output surfaces (preview and recording surfaces) in this mode. Above controls will be effective only if all of below conditions are true: The application creates a camera capture session with no more than 2 surfaces via CameraDevice.createConstrainedHighSpeedCaptureSession(List, StateCallback, Handler). The targeted surfaces must be preview surface (either from SurfaceView or SurfaceTexture) or recording surface(either from MediaRecorder.getSurface() or MediaCodec.createInputSurface()); The stream sizes are selected from the sizes reported by StreamConfigurationMap.getHighSpeedVideoSizes(); The FPS ranges are selected from StreamConfigurationMap.getHighSpeedVideoFpsRanges()</para>
+          <para>When above conditions are NOT satisfied, CameraDevice.createConstrainedHighSpeedCaptureSession(List, StateCallback, Handler) will fail.</para>
+          <para>Switching to a FPS range that has different maximum FPS may trigger some camera device reconfigurations, which may introduce extra latency. It is recommended that the application avoids unnecessary maximum target FPS changes as much as possible during high speed streaming.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="DepthOutput">
@@ -159,10 +184,14 @@
       </ReturnValue>
       <MemberValue>8</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The camera device can produce depth measurements from its field of view.</para>
+          <para>This capability requires the camera device to support the following: ImageFormat.DEPTH16 is supported as an output format; ImageFormat.DEPTH_POINT_CLOUD is optionally supported as an output format; This camera device, and all camera devices with the same android.lens.facing, will list the following calibration metadata entries in both CameraCharacteristics and CaptureResult:; android.lens.poseTranslation; android.lens.poseRotation; android.lens.intrinsicCalibration; android.lens.distortion; The android.depth.depthIsExclusive entry is listed by this device; As of Android P, the android.lens.poseReference entry is listed by this device; A LIMITED camera with only the DEPTH_OUTPUT capability does not have to support normal YUV_420_888, Y8, JPEG, and PRIV-format outputs. It only has to support the DEPTH16 format</para>
+          <para>Generally, depth output operates at a slower frame rate than standard color capture, so the DEPTH16 and DEPTH_POINT_CLOUD formats will commonly have a stall duration that should be accounted for (see StreamConfigurationMap.getOutputStallDuration(int, Size)). On a device that supports both depth and color-based output, to enable smooth preview, using a repeating burst is recommended, where a depth-output target is only included once every N frames, where N is the ratio between preview output rate and depth output rate, including depth stall time.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="DynamicRangeTenBit">
@@ -190,7 +219,11 @@
       </ReturnValue>
       <MemberValue>18</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>The device supports one or more 10-bit camera outputs according to the dynamic range profiles specified in DynamicRangeProfiles.getSupportedProfiles(). They can be configured as part of the capture session initialization via OutputConfiguration.setDynamicRangeProfile(long).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="LogicalMultiCamera">
@@ -218,7 +251,23 @@
       </ReturnValue>
       <MemberValue>11</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>The camera device is a logical camera backed by two or more physical cameras.</para>
+          <para>In API level 28, the physical cameras must also be exposed to the application via CameraManager.getCameraIdList().</para>
+          <para>Starting from API level 29: Some or all physical cameras may not be independently exposed to the application, in which case the physical camera IDs will not be available in CameraManager.getCameraIdList(). But the application can still query the physical cameras' characteristics by calling CameraManager.getCameraCharacteristics(String); If a physical camera is hidden from camera ID list, the mandatory stream combinations for that physical camera must be supported through the logical camera using physical streams. One exception is that in API level 30, a physical camera may become unavailable via CameraManager.AvailabilityCallback.onPhysicalCameraUnavailable callback</para>
+          <para>Combinations of logical and physical streams, or physical streams from different physical cameras are not guaranteed. However, if the camera device supports CameraDevice.isSessionConfigurationSupported, application must be able to query whether a stream combination involving physical streams is supported by calling CameraDevice.isSessionConfigurationSupported.</para>
+          <para>Camera application shouldn't assume that there are at most 1 rear camera and 1 front camera in the system. For an application that switches between front and back cameras, the recommendation is to switch between the first rear camera and the first front camera in the list of supported camera devices.</para>
+          <para>This capability requires the camera device to support the following: The IDs of underlying physical cameras are returned via CameraCharacteristics.getPhysicalCameraIds(); This camera device must list static metadata android.logicalMultiCamera.sensorSyncType in CameraCharacteristics; The underlying physical cameras' static metadata must list the following entries, so that the application can correlate pixels from the physical streams:; android.lens.poseReference; android.lens.poseRotation; android.lens.poseTranslation; android.lens.intrinsicCalibration; android.lens.distortion; The SENSOR_INFO_TIMESTAMP_SOURCE of the logical device and physical devices must be the same; The logical camera must be LIMITED or higher device</para>
+          <para>A logical camera device's dynamic metadata may contain android.logicalMultiCamera.activePhysicalId to notify the application of the current active physical camera Id. An active physical camera is the physical camera from which the logical camera's main image data outputs (YUV or RAW) and metadata come from. In addition, this serves as an indication which physical camera is used to output to a RAW stream, or in case only physical cameras support RAW, which physical RAW stream the application should request.</para>
+          <para>Logical camera's static metadata tags below describe the default active physical camera. An active physical camera is default if it's used when application directly uses requests built from a template. All templates will default to the same active physical camera.; android.sensor.info.sensitivityRange; android.sensor.info.colorFilterArrangement; android.sensor.info.exposureTimeRange; android.sensor.info.maxFrameDuration; android.sensor.info.physicalSize; android.sensor.info.whiteLevel; android.sensor.info.lensShadingApplied; android.sensor.referenceIlluminant1; android.sensor.referenceIlluminant2; android.sensor.calibrationTransform1; android.sensor.calibrationTransform2; android.sensor.colorTransform1; android.sensor.colorTransform2; android.sensor.forwardMatrix1; android.sensor.forwardMatrix2; android.sensor.blackLevelPattern; android.sensor.maxAnalogSensitivity; android.sensor.opticalBlackRegions; android.sensor.availableTestPatternModes; android.lens.info.hyperfocalDistance; android.lens.info.minimumFocusDistance; android.lens.info.focusDistanceCalibration; android.lens.poseRotation; android.lens.poseTranslation; android.lens.intrinsicCalibration; android.lens.poseReference; android.lens.distortion</para>
+          <para>The field of view of non-RAW physical streams must not be smaller than that of the non-RAW logical streams, or the maximum field-of-view of the physical camera, whichever is smaller. The application should check the physical capture result metadata and physical camera characteristics for how the physical streams are cropped or zoomed. See android.lens.focalLength on how field-of-view is calculated.</para>
+          <para>Typically the physical stream of active physical camera has the same field-of-view as the logical streams. However, the same may not be true for physical streams from non-active physical cameras. For example, if the logical camera has a wide-ultrawide configuration where the wide lens is the default, when the crop region is set to the logical camera's active array size, (and the zoom ratio set to 1.0 starting from Android 11), a physical stream for the ultrawide camera may prefer outputting images with larger field-of-view than that of the wide camera for better stereo matching margin or more robust motion tracking. At the same time, the physical non-RAW streams' field of view must not be smaller than the requested crop region and zoom ratio, as long as it's within the physical lens' capability. For example, for a logical camera with wide-tele lens configuration where the wide lens is the default, if the logical camera's crop region is set to maximum size, and zoom ratio set to 1.0, the physical stream for the tele lens will be configured to its maximum size crop region (no zoom).</para>
+          <para>Deprecated: Prior to Android 11, the field of view of all non-RAW physical streams cannot be larger than that of non-RAW logical streams. If the logical camera has a wide-ultrawide lens configuration where the wide lens is the default, when the logical camera's crop region is set to maximum size, the FOV of the physical streams for the ultrawide lens will be the same as the logical stream, by making the crop region smaller than its active array size to compensate for the smaller focal length.</para>
+          <para>For a logical camera, typically the underlying physical cameras have different RAW capabilities (such as resolution or CFA pattern). There are two ways for the application to capture RAW images from the logical camera: If the logical camera has RAW capability, the application can create and use RAW streams in the same way as before. In case a RAW stream is configured, to maintain backward compatibility, the camera device makes sure the default active physical camera remains active and does not switch to other physical cameras. (One exception is that, if the logical camera consists of identical image sensors and advertises multiple focalLength due to different lenses, the camera device may generate RAW images from different physical cameras based on the focalLength being set by the application.) This backward-compatible approach usually results in loss of optical zoom, to telephoto lens or to ultrawide lens; Alternatively, if supported by the device, MultiResolutionImageReader can be used to capture RAW images from one of the underlying physical cameras ( depending on current zoom level). Because different physical cameras may have different RAW characteristics, the application needs to use the characteristics and result metadata of the active physical camera for the relevant RAW metadata</para>
+          <para>The capture request and result metadata tags required for backward compatible camera functionalities will be solely based on the logical camera capability. On the other hand, the use of manual capture controls (sensor or post-processing) with a logical camera may result in unexpected behavior when the HAL decides to switch between physical cameras with different characteristics under the hood. For example, when the application manually sets exposure time and sensitivity while zooming in, the brightness of the camera images may suddenly change because HAL switches from one physical camera to the other.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="ManualPostProcessing">
@@ -242,10 +291,15 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The camera device post-processing stages can be manually controlled. The camera device supports basic manual control of the image post-processing stages. This means the following controls are guaranteed to be supported: Manual tonemap control; android.tonemap.curve; android.tonemap.mode; android.tonemap.maxCurvePoints; android.tonemap.gamma; android.tonemap.presetCurve; Manual white balance control; android.colorCorrection.transform; android.colorCorrection.gains; Manual lens shading map control; android.shading.mode; android.statistics.lensShadingMapMode; android.statistics.lensShadingMap; android.lens.info.shadingMapSize; Manual aberration correction control (if aberration correction is supported); android.colorCorrection.aberrationMode; android.colorCorrection.availableAberrationModes; Auto white balance lock; android.control.awbLock</para>
+          <para>If auto white balance is enabled, then the camera device will accurately report the values applied by AWB in the result.</para>
+          <para>A given camera device may also support additional post-processing controls, but this capability only covers the above list of controls.</para>
+          <para>For camera devices with LOGICAL_MULTI_CAMERA capability, when underlying active physical camera switches, tonemap, white balance, and shading map may change even if awb is locked. However, the overall post-processing experience for users will be consistent. Refer to LOGICAL_MULTI_CAMERA capability for details.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="ManualSensor">
@@ -269,10 +323,16 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The camera device can be manually controlled (3A algorithms such as auto-exposure, and auto-focus can be bypassed). The camera device supports basic manual control of the sensor image acquisition related stages. This means the following controls are guaranteed to be supported: Manual frame duration control; android.sensor.frameDuration; android.sensor.info.maxFrameDuration; Manual exposure control; android.sensor.exposureTime; android.sensor.info.exposureTimeRange; Manual sensitivity control; android.sensor.sensitivity; android.sensor.info.sensitivityRange; Manual lens control (if the lens is adjustable); android.lens.*; Manual flash control (if a flash unit is present); android.flash.*; Manual black level locking; android.blackLevel.lock; Auto exposure lock; android.control.aeLock</para>
+          <para>If any of the above 3A algorithms are enabled, then the camera device will accurately report the values applied by 3A in the result.</para>
+          <para>A given camera device may also support additional manual sensor controls, but this capability only covers the above list of controls.</para>
+          <para>If this is supported, android.scaler.streamConfigurationMap will additionally return a min frame duration that is greater than zero for each supported size-format combination.</para>
+          <para>For camera devices with LOGICAL_MULTI_CAMERA capability, when the underlying active physical camera switches, exposureTime, sensitivity, and lens properties may change even if AE/AF is locked. However, the overall auto exposure and auto focus experience for users will be consistent. Refer to LOGICAL_MULTI_CAMERA capability for details.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="Monochrome">
@@ -300,7 +360,13 @@
       </ReturnValue>
       <MemberValue>12</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>The camera device is a monochrome camera that doesn't contain a color filter array, and for YUV_420_888 stream, the pixel values on U and V planes are all 128.</para>
+          <para>A MONOCHROME camera must support the guaranteed stream combinations required for its device level and capabilities. Additionally, if the monochrome camera device supports Y8 format, all mandatory stream combination requirements related to YUV_420_888 apply to Y8 as well. There are no mandatory stream combination requirements with regard to Y8 for Bayer camera devices.</para>
+          <para>Starting from Android Q, the SENSOR_INFO_COLOR_FILTER_ARRANGEMENT of a MONOCHROME camera will be either MONO or NIR.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_MONOCHROME" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MONOCHROME</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="MotionTracking">
@@ -328,7 +394,12 @@
       </ReturnValue>
       <MemberValue>10</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>The camera device supports the MOTION_TRACKING value for android.control.captureIntent, which limits maximum exposure time to 20 ms.</para>
+          <para>This limits the motion blur of capture images, resulting in better image tracking results for use cases such as image stabilization or augmented reality.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_MOTION_TRACKING" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MOTION_TRACKING</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="OfflineProcessing">
@@ -356,7 +427,13 @@
       </ReturnValue>
       <MemberValue>15</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>The camera device supports the OFFLINE_PROCESSING use case.</para>
+          <para>With OFFLINE_PROCESSING capability, the application can switch an ongoing capture session to offline mode by calling the CameraCaptureSession#switchToOffline method and specify streams to be kept in offline mode. The camera will then stop currently active repeating requests, prepare for some requests to go into offline mode, and return an offline session object. After the switchToOffline call returns, the original capture session is in closed state as if the CameraCaptureSession#close method has been called. In the offline mode, all inflight requests will continue to be processed in the background, and the application can immediately close the camera or create a new capture session without losing those requests' output images and capture results.</para>
+          <para>While the camera device is processing offline requests, it might not be able to support all stream configurations it can support without offline requests. When that happens, the createCaptureSession method call will fail.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_OFFLINE_PROCESSING" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_OFFLINE_PROCESSING</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="PrivateReprocessing">
@@ -384,10 +461,12 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The camera device supports the Zero Shutter Lag reprocessing use case.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="Raw">
@@ -411,10 +490,13 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The camera device supports outputting RAW buffers and metadata for interpreting them.</para>
+          <para>Devices supporting the RAW capability allow both for saving DNG files, and for direct application processing of raw sensor images.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_RAW" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="ReadSensorSettings">
@@ -442,10 +524,14 @@
       </ReturnValue>
       <MemberValue>5</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>
-          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
-        </remarks>
+        <summary>
+          <para>The camera device supports accurately reporting the sensor settings for many of the sensor controls while the built-in 3A algorithm is running. This allows reporting of sensor settings even when these settings cannot be manually changed.</para>
+          <para>The values reported for the following controls are guaranteed to be available in the CaptureResult, including when 3A is enabled: Exposure control; android.sensor.exposureTime; Sensitivity control; android.sensor.sensitivity; Lens controls (if the lens is adjustable); android.lens.focusDistance; android.lens.aperture</para>
+          <para>This capability is a subset of the MANUAL_SENSOR control capability, and will always be included if the MANUAL_SENSOR capability is available.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
+        <remarks />
       </Docs>
     </Member>
     <Member MemberName="RemosaicReprocessing">
@@ -473,7 +559,13 @@
       </ReturnValue>
       <MemberValue>17</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>The device supports reprocessing from the RAW_SENSOR format with a bayer pattern given by android.sensor.info.binningFactor (m x n group of pixels with the same color filter) to a remosaiced regular bayer pattern.</para>
+          <para>This capability will only be present for devices with REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR capability. When REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR devices do not advertise this capability, ImageFormat.RAW_SENSOR images will already have a regular bayer pattern.</para>
+          <para>If a RAW_SENSOR stream is requested along with another non-RAW stream in a CaptureRequest (if multiple streams are supported when android.sensor.pixelMode is set to SENSOR_PIXEL_MODE_MAXIMUM_RESOLUTION), the RAW_SENSOR stream will have a regular bayer pattern.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_REMOSAIC_REPROCESSING" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_REMOSAIC_REPROCESSING</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="SecureImageData">
@@ -501,7 +593,11 @@
       </ReturnValue>
       <MemberValue>13</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>The camera device is capable of writing image data into a region of memory inaccessible to Android userspace or the Android kernel, and only accessible to trusted execution environments (TEE).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_SECURE_IMAGE_DATA" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_SECURE_IMAGE_DATA</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="StreamUseCase">
@@ -529,7 +625,14 @@
       </ReturnValue>
       <MemberValue>19</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>The camera device supports selecting a per-stream use case via OutputConfiguration.setStreamUseCase(long) so that the device can optimize camera pipeline parameters such as tuning, sensor mode, or ISP settings for a specific user scenario. Some sample usages of this capability are: Distinguish high quality YUV captures from a regular YUV stream where the image quality may not be as good as the JPEG stream, or; Use one stream to serve multiple purposes: viewfinder, video recording and still capture. This is common with applications that wish to apply edits equally to preview, saved images, and saved videos</para>
+          <para>This capability requires the camera device to support the following stream use cases: DEFAULT for backward compatibility where the application doesn't set a stream use case; PREVIEW for live viewfinder and in-app image analysis; STILL_CAPTURE for still photo capture; VIDEO_RECORD for recording video clips; PREVIEW_VIDEO_STILL for one single stream used for viewfinder, video recording, and still capture; VIDEO_CALL for long running video calls</para>
+          <para>CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES lists all of the supported stream use cases.</para>
+          <para>Refer to the guideline for the mandatory stream combinations involving stream use cases, which can also be queried via MandatoryStreamCombination.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="SystemCamera">
@@ -557,7 +660,11 @@
       </ReturnValue>
       <MemberValue>14</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>The camera device is only accessible by Android's system components and privileged applications. Processes need to have the android.permission.SYSTEM_CAMERA in addition to android.permission.CAMERA in order to connect to this camera device.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_SYSTEM_CAMERA" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_SYSTEM_CAMERA</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="UltraHighResolutionSensor">
@@ -585,7 +692,11 @@
       </ReturnValue>
       <MemberValue>16</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>This camera device is capable of producing ultra high resolution images in addition to the image sizes described in the android.scaler.streamConfigurationMap. It can operate in 'default' mode and 'max resolution' mode. It generally does this by binning pixels in 'default' mode and not binning them in 'max resolution' mode. android.scaler.streamConfigurationMap describes the streams supported in 'default' mode. The stream configurations supported in 'max resolution' mode are described by android.scaler.streamConfigurationMapMaximumResolution. The maximum resolution mode pixel array size of a camera device (android.sensor.info.pixelArraySize) with this capability, will be at least 24 megapixels.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="YuvReprocessing">

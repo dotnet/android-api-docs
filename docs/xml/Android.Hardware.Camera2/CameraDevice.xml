@@ -462,17 +462,16 @@
         <param name="templateType">An enumeration selecting the use case for this request. Not all template
             types are supported on every device. See the documentation for each template type for
             details.</param>
-        <param name="physicalCameraIdSet">To be added.</param>
+        <param name="physicalCameraIdSet">A set of physical camera ids that can be used to customize the request for a specific physical camera.</param>
         <summary>Create a <c>CaptureRequest.Builder</c> for new capture requests,
             initialized with template for a target use case.</summary>
         <returns>a builder for a capture request, initialized with default
             settings for that template, and no output streams</returns>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#createCaptureRequest(int)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraDevice.createCaptureRequest(int)</code>.</a>
-            </format>
-          </para>
+          <para>Create a CaptureRequest.Builder for new capture requests, initialized with template for a target use case. This methods allows clients to pass physical camera ids which can be used to customize the request for a specific physical camera. The settings are chosen to be the best options for the specific logical camera device. If additional physical camera ids are passed, then they will also use the same settings template. Clients can further modify individual camera settings by calling CaptureRequest.Builder.setPhysicalCameraKey.</para>
+          <para>Individual physical camera settings will only be honored for camera session that was initialized with corresponding physical camera id output configuration OutputConfiguration.setPhysicalCameraId and the same output targets are also attached in the request by CaptureRequest.Builder.addTarget.</para>
+          <para>The output is undefined for any logical camera streams in case valid physical camera settings are attached.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#createCaptureRequest(int,%20java.util.Set&lt;java.lang.String&gt;)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraDevice.createCaptureRequest</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1186,11 +1185,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="outputs">To be added.</param>
-        <param name="callback">To be added.</param>
-        <param name="handler">To be added.</param>
+        <param name="outputs">The new set of Surfaces that should be made available as targets for captured image data. This value cannot be null.</param>
+        <param name="callback">The callback to notify about the status of the new capture session. This value cannot be null.</param>
+        <param name="handler">The handler on which the callback should be invoked, or null to use the current thread's looper.</param>
         <summary>To be added.</summary>
         <remarks>
+          <para>This method was deprecated in API level 30. Please use createCaptureSession(android.hardware.camera2.params.SessionConfiguration) for the full set of configuration options available.</para>
+          <para>Create a new camera capture session by providing the target output set of Surfaces to the camera device.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#createCaptureSession(java.util.List&lt;android.view.Surface&gt;,%20android.hardware.camera2.CameraCaptureSession.StateCallback,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraDevice.createCaptureSession</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1590,8 +1592,13 @@
       </ReturnValue>
       <Docs>
         <summary>Get the ID of this camera device.</summary>
-        <value>To be added.</value>
+        <value>the ID for this camera device. This value cannot be null.</value>
         <remarks>
+          <para>Get the ID of this camera device.</para>
+          <para>This matches the ID given to CameraManager.openCamera to instantiate this this camera device.</para>
+          <para>This ID can be used to query the camera device's fixed properties with CameraManager.getCameraCharacteristics.</para>
+          <para>This method can be called even if the device has been closed or has encountered a serious error.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#getId()" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraDevice.getId</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <altmember cref="M:Android.Hardware.Camera2.CameraManager.GetCameraCharacteristics(System.String)" />
