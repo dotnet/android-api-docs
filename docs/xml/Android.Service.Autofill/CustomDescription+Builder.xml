@@ -149,11 +149,14 @@
         <Parameter Name="transformation" Type="Android.Service.Autofill.ITransformation" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <param name="transformation">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="id">view id of the children view.</param>
+        <param name="transformation">an implementation provided by the Android System. This value cannot be null.</param>
+        <summary>Adds a transformation to replace the value of a child view with the fields in the screen.</summary>
+        <returns>this builder. This value cannot be null.</returns>
         <remarks>
+          <para>Adds a transformation to replace the value of a child view with the fields in the screen.</para>
+          <para>When multiple transformations are added for the same child view, they will be applied in the same order as added.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/CustomDescription.Builder#addChild(int,%20android.service.autofill.Transformation)" title="Reference documentation">Android reference for <code>android.service.autofill.CustomDescription.Builder.addChild</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -186,11 +189,32 @@
         <Parameter Name="action" Type="Android.Service.Autofill.IOnClickAction" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="id">resource id of the child view.</param>
+        <param name="action">action to be performed. Must be an an implementation provided by the Android System. This value cannot be null.</param>
+        <summary>Sets an action to be applied to the presentation template when the child view with the given id is clicked.</summary>
+        <returns>this builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets an action to be applied to the presentation template when the child view with the given id is clicked.</para>
+          <para>Typically used when the presentation uses a masked field (like ****) for sensitive fields like passwords or credit cards numbers, but offers a an icon that the user can tap to show the value for that field.</para>
+          <code lang="text/java">customDescriptionBuilder
+  .addChild(R.id.password_plain, new CharSequenceTransformation
+     .Builder(passwordId, Pattern.compile("^(.*)$"), "$1").build())
+  .addOnClickAction(R.id.showIcon, new VisibilitySetterAction
+    .Builder(R.id.hideIcon, View.VISIBLE)
+    .setVisibility(R.id.showIcon, View.GONE)
+    .setVisibility(R.id.password_plain, View.VISIBLE)
+    .setVisibility(R.id.password_masked, View.GONE)
+    .build())
+  .addOnClickAction(R.id.hideIcon, new VisibilitySetterAction
+    .Builder(R.id.showIcon, View.VISIBLE)
+    .setVisibility(R.id.hideIcon, View.GONE)
+    .setVisibility(R.id.password_masked, View.VISIBLE)
+    .setVisibility(R.id.password_plain, View.GONE)
+    .build());</code>
+          <para>Note: Currently only one action can be applied to a child; if this method is called multiple times passing the same id, only the last call will be used.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/CustomDescription.Builder#addOnClickAction(int,%20android.service.autofill.OnClickAction)" title="Reference documentation">Android reference for <code>android.service.autofill.CustomDescription.Builder.addOnClickAction</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="BatchUpdate">
@@ -221,11 +245,69 @@
         <Parameter Name="updates" Type="Android.Service.Autofill.BatchUpdates" />
       </Parameters>
       <Docs>
-        <param name="condition">To be added.</param>
-        <param name="updates">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="condition">condition used to trigger the updates. This value cannot be null.</param>
+        <param name="updates">actions to be applied to the template presentation when the condition is satisfied. This value cannot be null.</param>
+        <summary>Updates the presentation template when a condition is satisfied by applying a series of remote view operations.</summary>
+        <returns>this builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Updates the presentation template when a condition is satisfied by applying a series of remote view operations. This allows dynamic customization of the portion of the save UI that is controlled by the autofill service. Such dynamic customization is based on the content of target views.</para>
+          <para>The updates are applied in the sequence they are added, after the transformations are applied to the children views.</para>
+          <code lang="text/java">RemoteViews template = new RemoteViews(pgkName, R.layout.my_full_template);
+
+Pattern notEmptyPattern = Pattern.compile(".+");
+Validator hasAddress = new RegexValidator(addressAutofillId, notEmptyPattern);
+Validator hasCcNumber = new RegexValidator(ccNumberAutofillId, notEmptyPattern);
+
+RemoteViews addressUpdates = new RemoteViews(pgkName, R.layout.my_full_template)
+addressUpdates.setViewVisibility(R.id.address, View.VISIBLE);
+
+// Make address visible
+BatchUpdates addressBatchUpdates = new BatchUpdates.Builder()
+    .updateTemplate(addressUpdates)
+    .build();
+
+RemoteViews ccUpdates = new RemoteViews(pgkName, R.layout.my_full_template)
+ccUpdates.setViewVisibility(R.id.cc_number, View.VISIBLE);
+
+// Mask credit card number (as .....LAST_4_DIGITS) and make it visible
+BatchUpdates ccBatchUpdates = new BatchUpdates.Builder()
+    .updateTemplate(ccUpdates)
+    .transformChild(R.id.templateCcNumber, new CharSequenceTransformation
+                    .Builder(ccNumberId, Pattern.compile("^.*(\\d\\d\\d\\d)$"), "...$1")
+                    .build())
+    .build();
+
+CustomDescription customDescription = new CustomDescription.Builder(template)
+    .batchUpdate(hasAddress, addressBatchUpdates)
+    .batchUpdate(hasCcNumber, ccBatchUpdates)
+    .build();</code>
+          <para>Another approach is to add a child first, then apply the transformations.</para>
+          <code lang="text/java">RemoteViews template = new RemoteViews(pgkName, R.layout.my_base_template);
+
+RemoteViews addressPresentation = new RemoteViews(pgkName, R.layout.address)
+RemoteViews addressUpdates = new RemoteViews(pgkName, R.layout.my_template)
+addressUpdates.addView(R.id.parentId, addressPresentation);
+BatchUpdates addressBatchUpdates = new BatchUpdates.Builder()
+    .updateTemplate(addressUpdates)
+    .build();
+
+RemoteViews ccPresentation = new RemoteViews(pgkName, R.layout.cc)
+RemoteViews ccUpdates = new RemoteViews(pgkName, R.layout.my_template)
+ccUpdates.addView(R.id.parentId, ccPresentation);
+BatchUpdates ccBatchUpdates = new BatchUpdates.Builder()
+    .updateTemplate(ccUpdates)
+    .transformChild(R.id.templateCcNumber, new CharSequenceTransformation
+                    .Builder(ccNumberId, Pattern.compile("^.*(\\d\\d\\d\\d)$"), "...$1")
+                    .build())
+    .build();
+
+CustomDescription customDescription = new CustomDescription.Builder(template)
+    .batchUpdate(hasAddress, addressBatchUpdates)
+    .batchUpdate(hasCcNumber, ccBatchUpdates)
+    .build();</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/CustomDescription.Builder#batchUpdate(android.service.autofill.Validator,%20android.service.autofill.BatchUpdates)" title="Reference documentation">Android reference for <code>android.service.autofill.CustomDescription.Builder.batchUpdate</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
