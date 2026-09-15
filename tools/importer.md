@@ -56,6 +56,14 @@ parser-corresponding element spans and skip layouts that cannot be located
 unambiguously. Copied-description repairs additionally require an actual,
 importer-owned source-reference element and only replace direct-text summaries
 or remarks paragraphs; mixed-content paragraphs are reported and preserved.
+Java explanatory lead-ins immediately preceding a code block are retained with
+their trailing colon only when they use a source-proven code-introduction form;
+ordinary incomplete prose remains excluded. Source-proven Java remarks with an
+exact Android attribution can receive missing ordered source fragments without
+altering that attribution. Legacy Android attribution paragraphs are treated as
+importer metadata only when their complete parsed markup and normalized text
+match a known generated form; lookalikes with authored content are preserved
+and reported.
 Source-reference reconciliation likewise uses parsed importer-owned paragraphs
 and element spans: stale references are replaced and duplicates removed only
 when their XML elements are safely located. Literal markup in comments, CDATA,
