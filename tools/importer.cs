@@ -2040,14 +2040,7 @@ static class ImporterProgram
 
     static bool IsPotentialHybridImporterOwnedRemarks(XElement remarks, string sourceKind)
     {
-        if (sourceKind != "java" ||
-            remarks.HasAttributes ||
-            remarks.Nodes().Any(node => node switch
-            {
-                XElement => false,
-                XText text => !string.IsNullOrWhiteSpace(text.Value),
-                _ => true,
-            }))
+        if (sourceKind != "java")
         {
             return false;
         }
@@ -2066,9 +2059,7 @@ static class ImporterProgram
             return false;
         }
 
-        return elements
-            .Take(sourceReferenceIndexes[0])
-            .All(IsImporterRenderedSourceParagraph);
+        return true;
     }
 
     static bool IsImporterJavaSourceReference(XElement paragraph)
@@ -2396,19 +2387,20 @@ static class ImporterProgram
             }
             else
             {
-                if (HasAdjacentNonWhitespaceText(candidate.Element))
+                if (!TryGetCopiedDescriptionRemovalSpan(
+                        blockText,
+                        candidate.Element,
+                        elementSpan,
+                        out var removalSpan))
                 {
                     skips.Add(new CopiedDescriptionRepairSkip(
                         candidate.Target,
                         "copied_description_mixed_content",
-                        "The copied-description paragraph is surrounded by authored mixed content, so it was preserved."));
+                        "Removing the copied-description paragraph could collapse authored content, so it was preserved."));
                     continue;
                 }
-                var removalStart = elementSpan.Start;
-                while (removalStart > 0 && char.IsWhiteSpace(blockText[removalStart - 1]))
-                    removalStart--;
                 edits.Add(new XmlSpanEdit(
-                    new XmlSpan(removalStart, elementSpan.End),
+                    removalSpan,
                     ""));
                 targets.Add(candidate.Target);
             }
@@ -2528,6 +2520,72 @@ static class ImporterProgram
             @"^Description copied from (?:class|interface):\s+[A-Za-z_$][\w.$]*$",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    static bool TryGetCopiedDescriptionRemovalSpan(
+        string text,
+        XElement element,
+        XmlSpan elementSpan,
+        out XmlSpan removalSpan)
+    {
+        removalSpan = elementSpan;
+        if (HasAdjacentNonWhitespaceText(element) ||
+            HasUnseparatedVisibleSiblingContent(element))
+        {
+            return false;
+        }
+
+        return TryGetElementRemovalSpan(text, elementSpan, out removalSpan);
+    }
+
+    static bool HasUnseparatedVisibleSiblingContent(XElement element)
+    {
+        var nodes = element.Parent?.Nodes().ToList();
+        if (nodes is null)
+            return true;
+
+        var elementIndex = nodes.IndexOf(element);
+        if (elementIndex < 0)
+            return true;
+
+        var before = -1;
+        for (var index = elementIndex - 1; index >= 0; index--)
+        {
+            if (IsVisibleSiblingContent(nodes[index]))
+            {
+                before = index;
+                break;
+            }
+        }
+
+        var after = -1;
+        for (var index = elementIndex + 1; index < nodes.Count; index++)
+        {
+            if (IsVisibleSiblingContent(nodes[index]))
+            {
+                after = index;
+                break;
+            }
+        }
+
+        if (before < 0 || after < 0)
+            return false;
+
+        return !nodes
+            .Skip(before + 1)
+            .Take(after - before - 1)
+            .Where((_, index) => before + 1 + index != elementIndex)
+            .OfType<XText>()
+            .Any(text => text.Value.Any(char.IsWhiteSpace));
+    }
+
+    static bool IsVisibleSiblingContent(XNode node) =>
+        node switch
+        {
+            XElement => true,
+            XCData cdata => cdata.Value.Length > 0,
+            XText text => !string.IsNullOrWhiteSpace(text.Value),
+            _ => false,
+        };
+
     static bool HasTruncatedImporterSummary(LoadedFile file, DocsOwner owner)
     {
         var summary = owner.Docs.Element("summary")?.Value.Trim();
@@ -2566,6 +2624,19 @@ static class ImporterProgram
                 "existing_remarks_not_importer_owned",
                 "The parser-selected remarks no longer matched the structurally verified importer-owned remarks.");
         }
+        if (remarks.HasAttributes ||
+            remarks.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText text => !string.IsNullOrWhiteSpace(text.Value),
+                _ => true,
+            }))
+        {
+            return new RemarksRefreshResult(
+                text,
+                "existing_remarks_not_importer_owned",
+                "The existing remarks contained extra nodes, markup, or authored prose outside importer-owned elements.");
+        }
         if (!TryGetElementSpan(blockText, remarks, out var remarksSpan))
         {
             return new RemarksRefreshResult(
@@ -2582,12 +2653,19 @@ static class ImporterProgram
                 out _))
             .Select(item => item.index)
             .ToList();
-        if (sourceReferenceIndexes.Count != 1 || sourceReferenceIndexes[0] == 0)
+        var hasExactHybridMetadata = sourceReferenceIndexes.Count == 1 &&
+            sourceReferenceIndexes[0] == elements.Count - 2 &&
+            IsImporterAttributionParagraph(elements[^1]);
+        var hasExactJavaMetadata = sourceReferenceIndexes.Count == 1 &&
+            sourceReferenceIndexes[0] == elements.Count - 1;
+        if (sourceReferenceIndexes.Count != 1 ||
+            sourceReferenceIndexes[0] == 0 ||
+            (!hasExactHybridMetadata && !hasExactJavaMetadata))
         {
             return new RemarksRefreshResult(
                 text,
                 "existing_remarks_not_importer_owned",
-                "The existing remarks did not have one importer source reference after source prose.");
+                "The existing remarks did not have exact importer source-reference metadata and, when present, Android attribution after source prose.");
         }
 
         var sourceReferenceIndex = sourceReferenceIndexes[0];
@@ -2616,18 +2694,21 @@ static class ImporterProgram
         var elementFragments = new List<List<int>>();
         foreach (var element in existingSourceElements)
         {
-            var matches = MatchingSourceFragmentIndexes(element, sourceFragments);
-            if (matches.Count == 0)
+            if (!IsImporterRenderedSourceParagraph(element))
             {
-                if (IsRetainedRemarksParagraph(element))
-                {
-                    elementFragments.Add(matches);
-                    continue;
-                }
                 return new RemarksRefreshResult(
                     text,
                     "existing_remarks_not_importer_owned",
-                    "Existing remarks prose was not an ordered subset of the exact mapped source.");
+                    "Existing remarks source content included markup or an unsupported element.");
+            }
+
+            var matches = MatchingExactSourceFragmentIndexes(element, sourceFragments);
+            if (matches.Count != 1)
+            {
+                return new RemarksRefreshResult(
+                    text,
+                    "existing_remarks_not_importer_owned",
+                    "Each existing remarks paragraph must exactly match one unambiguous source fragment.");
             }
             if (matches[0] <= lastFragmentIndex ||
                 matches.Zip(matches.Skip(1), (left, right) => right == left + 1)
@@ -2912,6 +2993,43 @@ static class ImporterProgram
                 prose.Contains(
                     NormalizeText(item.fragment.Text),
                     StringComparison.OrdinalIgnoreCase))
+            .Select(item => item.index)
+            .ToList();
+    }
+
+    static List<int> MatchingExactSourceFragmentIndexes(
+        XElement element,
+        IReadOnlyList<SourceParagraph> sourceFragments)
+    {
+        if (element.Name.LocalName == "code" &&
+            (string?)element.Attribute("lang") == "text/java" &&
+            !element.HasElements)
+        {
+            var code = NormalizeNormalWhitespace(element.Value);
+            return sourceFragments
+                .Select((fragment, index) => (fragment, index))
+                .Where(item => item.fragment.IsCode &&
+                    NormalizeNormalWhitespace(item.fragment.Text).Equals(
+                        code,
+                        StringComparison.Ordinal))
+                .Select(item => item.index)
+                .ToList();
+        }
+
+        if (element.Name.LocalName != "para" ||
+            element.HasAttributes ||
+            element.HasElements)
+        {
+            return [];
+        }
+
+        var prose = NormalizeNormalWhitespace(element.Value);
+        return sourceFragments
+            .Select((fragment, index) => (fragment, index))
+            .Where(item => !item.fragment.IsCode &&
+                NormalizeNormalWhitespace(item.fragment.Text).Equals(
+                    prose,
+                    StringComparison.Ordinal))
             .Select(item => item.index)
             .ToList();
     }
@@ -3962,6 +4080,9 @@ static class ImporterProgram
 
     static string NormalizeText(string value) =>
         Regex.Replace(WebUtility.HtmlDecode(value).Replace('\u00a0', ' '), @"\s+", " ").Trim();
+
+    static string NormalizeNormalWhitespace(string value) =>
+        Regex.Replace(value, @"\s+", " ").Trim();
 
     static string Relative(string root, string path) =>
         Path.GetRelativePath(root, path).Replace('\\', '/');
@@ -5399,6 +5520,109 @@ static class ImporterProgram
             "<para>Before</para><para>Description copied from interface: Fixture</para>After",
             "<para>Before</para>After",
             "right-only mixed copied-description paragraphs preserve rendered separators");
+        void AssertSeparatedCopiedDescriptionRepair(
+            string replacement,
+            bool repairsRemarks,
+            string description,
+            string? preservedMarkup = null)
+        {
+            var mixedText = copiedDescriptionRepairText.Replace(
+                copiedDescriptionParagraphs,
+                $"{file.Newline}          {replacement}{file.Newline}          " +
+                "<para>Keep this existing prose.</para>",
+                StringComparison.Ordinal);
+            file.UpdateBlockOffsets(setTitle.Order, mixedText);
+            var mixedOwner = copiedDescriptionRepairOwner with
+            {
+                Docs = XElement.Parse(
+                    mixedText[
+                        file.DocsBlocks[setTitle.Order].Start..
+                        file.DocsBlocks[setTitle.Order].End],
+                    LoadOptions.PreserveWhitespace),
+            };
+            var originalRemarks = mixedOwner.Docs.Element("remarks")!;
+            var repair = RepairCopiedDescriptionLabels(
+                mixedText,
+                file,
+                mixedOwner,
+                copiedDescriptionRepairDocs);
+            var report = new ImportReport
+            {
+                Mode = "apply",
+                Offline = true,
+                MaxChanges = 2,
+            };
+            foreach (var target in repair.Targets)
+            {
+                report.Entries.Add(ReportEntry.Changed(
+                    "would_apply",
+                    file.RelativePath,
+                    mixedOwner.Id,
+                    target,
+                    copiedDescriptionRepairDocs.SourceUrl,
+                    "importer_copied_description_repair",
+                    "Replaced an exact importer-generated Javadoc copied-description label."));
+            }
+            ReportCopiedDescriptionRepairSkips(
+                report,
+                file,
+                mixedOwner,
+                copiedDescriptionRepairDocs.SourceUrl,
+                repair.Skips);
+            var repairedRemarks = XDocument.Parse(
+                repair.Text,
+                LoadOptions.PreserveWhitespace).Root!
+                .Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "SetTitle")
+                .Element("Docs")!.Element("remarks")!;
+            var repairMatches = repairsRemarks
+                ? repair.Targets.SequenceEqual(["summary", "remarks"]) &&
+                  repair.Skips.Count == 0 &&
+                  report.Entries.Count == 2 &&
+                  report.Entries.All(entry => entry.Status == "would_apply") &&
+                  !repairedRemarks.Elements("para")
+                      .Any(IsImporterCopiedDescriptionElement) &&
+                  repairedRemarks.Value.Contains("Before After", StringComparison.Ordinal)
+                : repair.Targets.SequenceEqual(["summary"]) &&
+                  repair.Skips is [{ Target: "remarks", Reason: "copied_description_mixed_content" }] &&
+                  report.Entries.Count == 2 &&
+                  report.Entries[0].Status == "would_apply" &&
+                  report.Entries[1] is
+                  {
+                      Status: "skipped",
+                      Target: "remarks",
+                      Reason: "copied_description_mixed_content",
+                  } &&
+                  XNode.DeepEquals(originalRemarks, repairedRemarks);
+            Assert(
+                repairMatches &&
+                    (preservedMarkup is null ||
+                     repair.Text.Contains(preservedMarkup, StringComparison.Ordinal)),
+                description);
+        }
+        AssertSeparatedCopiedDescriptionRepair(
+            "<c>Before</c> <para>Description copied from interface: Fixture</para><c>After</c>",
+            repairsRemarks: true,
+            "copied-description repairs preserve a left inline-element word separator and report both repairs");
+        AssertSeparatedCopiedDescriptionRepair(
+            "<c>Before</c><para>Description copied from interface: Fixture</para> <c>After</c>",
+            repairsRemarks: true,
+            "copied-description repairs preserve a right inline-element word separator and report both repairs");
+        AssertSeparatedCopiedDescriptionRepair(
+            "<c>Before</c><!-- before copied label --> <para>Description copied from interface: Fixture</para><c>After</c>",
+            repairsRemarks: true,
+            "copied-description repairs preserve a comment-left word separator and report both repairs",
+            "<!-- before copied label -->");
+        AssertSeparatedCopiedDescriptionRepair(
+            "<c>Before</c><para>Description copied from interface: Fixture</para><!-- after copied label --> <c>After</c>",
+            repairsRemarks: true,
+            "copied-description repairs preserve a comment-right word separator and report both repairs",
+            "<!-- after copied label -->");
+        AssertSeparatedCopiedDescriptionRepair(
+            "<c>Before</c><!-- no separator --><para>Description copied from interface: Fixture</para><c>After</c>",
+            repairsRemarks: false,
+            "copied-description repairs report and preserve unseparated inline content",
+            "<!-- no separator -->");
         var repairOnlyOwner = copiedDescriptionRepairOwner with { Placeholders = [] };
         Assert(
             RequiresSourceLoad(file, repairOnlyOwner),
@@ -6283,11 +6507,66 @@ static class ImporterProgram
             refreshFile.UpdateBlockOffsets(0, text);
             return RefreshImporterOwnedRemarks(text, refreshFile, owner, hybridRemarksDocs);
         }
+        ImportReport ReportHybridRemarksRefresh(
+            RemarksRefreshResult refreshed,
+            string originalText)
+        {
+            var report = new ImportReport
+            {
+                Mode = "apply",
+                Offline = true,
+                MaxChanges = 1,
+            };
+            if (refreshed.Reason is not null)
+            {
+                report.Entries.Add(ReportEntry.Skipped(
+                    "CopyOnWriteArrayList.Reversed.hybrid-refresh.xml",
+                    putIfAbsentOwner.Id,
+                    "remarks",
+                    refreshed.Reason,
+                    refreshed.Detail!,
+                    hybridRemarksDocs.SourceUrl));
+            }
+            else if (!refreshed.Text.Equals(originalText, StringComparison.Ordinal))
+            {
+                report.Entries.Add(ReportEntry.Changed(
+                    "would_apply",
+                    "CopyOnWriteArrayList.Reversed.hybrid-refresh.xml",
+                    putIfAbsentOwner.Id,
+                    "remarks",
+                    hybridRemarksDocs.SourceUrl));
+            }
+            return report;
+        }
+        void AssertHybridRemarksRefreshSkipped(
+            XElement remarks,
+            string description)
+        {
+            var originalText = $"<Docs>{remarks.ToString(SaveOptions.DisableFormatting)}</Docs>";
+            var refreshed = RefreshHybridRemarks(remarks);
+            var report = ReportHybridRemarksRefresh(refreshed, originalText);
+            Assert(
+                refreshed.Reason == "existing_remarks_not_importer_owned" &&
+                    refreshed.Text.Equals(originalText, StringComparison.Ordinal) &&
+                    report.Entries is
+                    [{
+                        Status: "skipped",
+                        Target: "remarks",
+                        Reason: "existing_remarks_not_importer_owned",
+                        SourceUrl: var sourceUrl,
+                    }] &&
+                    sourceUrl == hybridRemarksDocs.SourceUrl,
+                description);
+        }
         var originalHybridReference = hybridRemarks.Elements().ElementAt(3).ToString(
             SaveOptions.DisableFormatting);
         var originalHybridAttribution = hybridRemarks.Elements().ElementAt(4).ToString(
             SaveOptions.DisableFormatting);
+        var originalHybridText = $"<Docs>{hybridRemarks.ToString(SaveOptions.DisableFormatting)}</Docs>";
         var refreshedHybridRemarks = RefreshHybridRemarks(hybridRemarks);
+        var refreshedHybridReport = ReportHybridRemarksRefresh(
+            refreshedHybridRemarks,
+            originalHybridText);
         var refreshedHybridElements = XElement.Parse(
             refreshedHybridRemarks.Text,
             LoadOptions.PreserveWhitespace).Element("remarks")!.Elements().ToList();
@@ -6307,11 +6586,39 @@ static class ImporterProgram
                         StringComparison.Ordinal) &&
                 refreshedHybridElements[^1].ToString(SaveOptions.DisableFormatting).Equals(
                     originalHybridAttribution,
-                    StringComparison.Ordinal),
-            "hybrid Java remarks add missing ordered contracts while preserving Java provenance and Android attribution");
+                    StringComparison.Ordinal) &&
+                refreshedHybridReport.Entries is
+                [{
+                    Status: "would_apply",
+                    Target: "remarks",
+                    SourceUrl: var refreshedSourceUrl,
+                }] &&
+                refreshedSourceUrl == hybridRemarksDocs.SourceUrl,
+            "hybrid Java remarks add missing exact source fragments, preserve provenance and attribution, and report the refresh");
         var hybridWithAuthoredProse = new XElement(hybridRemarks);
         hybridWithAuthoredProse.AddFirst(new XElement("para", "Authored prose must survive."));
-        var skippedAuthoredHybrid = RefreshHybridRemarks(hybridWithAuthoredProse);
+        AssertHybridRemarksRefreshSkipped(
+            hybridWithAuthoredProse,
+            "hybrid remarks preserve and report unmatched authored prose");
+        var hybridWithAppendedProse = new XElement(hybridRemarks);
+        hybridWithAppendedProse.Elements().First().Value =
+            hybridRemarksDocs.Paragraphs[0].Text + " Compatibility note.";
+        AssertHybridRemarksRefreshSkipped(
+            hybridWithAppendedProse,
+            "hybrid remarks preserve and report source paragraphs with appended authored prose");
+        var hybridWithInlineMarkup = new XElement(hybridRemarks);
+        hybridWithInlineMarkup.Elements().First().ReplaceNodes(
+            new XText(hybridRemarksDocs.Paragraphs[0].Text + " "),
+            new XElement("c", "compatibility note"));
+        AssertHybridRemarksRefreshSkipped(
+            hybridWithInlineMarkup,
+            "hybrid remarks preserve and report source paragraphs with inline markup");
+        var hybridWithMismatchedSource = new XElement(hybridRemarks);
+        hybridWithMismatchedSource.Elements().First().Value =
+            "This paragraph does not exactly match the mapped source.";
+        AssertHybridRemarksRefreshSkipped(
+            hybridWithMismatchedSource,
+            "hybrid remarks preserve and report mismatched source paragraphs");
         var reorderedHybrid = new XElement(
             "remarks",
             DocumentationElement(hybridRemarksDocs.Paragraphs[1]),
@@ -6320,7 +6627,6 @@ static class ImporterProgram
             DocumentationElement(hybridRemarksDocs.Paragraphs[6]),
             ImporterSourceReference(hybridRemarksDocs),
             XElement.Parse($"<para>{AndroidAttribution}</para>"));
-        var skippedReorderedHybrid = RefreshHybridRemarks(reorderedHybrid);
         var mismatchedHybridProvenance = new XElement(
             "remarks",
             DocumentationElement(hybridRemarksDocs.Paragraphs[0]),
@@ -6332,21 +6638,12 @@ static class ImporterProgram
                     "java.base/java/util/concurrent/ConcurrentMap.html#putIfAbsent(K,V)",
             }),
             XElement.Parse($"<para>{AndroidAttribution}</para>"));
-        var skippedMismatchedHybrid = RefreshHybridRemarks(mismatchedHybridProvenance);
-        Assert(
-            skippedAuthoredHybrid.Reason == "existing_remarks_not_importer_owned" &&
-                skippedAuthoredHybrid.Text.Equals(
-                    $"<Docs>{hybridWithAuthoredProse.ToString(SaveOptions.DisableFormatting)}</Docs>",
-                    StringComparison.Ordinal) &&
-                skippedReorderedHybrid.Reason == "existing_remarks_not_importer_owned" &&
-                skippedReorderedHybrid.Text.Equals(
-                    $"<Docs>{reorderedHybrid.ToString(SaveOptions.DisableFormatting)}</Docs>",
-                    StringComparison.Ordinal) &&
-                skippedMismatchedHybrid.Reason == "existing_remarks_not_importer_owned" &&
-                skippedMismatchedHybrid.Text.Equals(
-                    $"<Docs>{mismatchedHybridProvenance.ToString(SaveOptions.DisableFormatting)}</Docs>",
-                    StringComparison.Ordinal),
-            "hybrid remarks preserve authored prose and skip reordered or mismatched provenance");
+        AssertHybridRemarksRefreshSkipped(
+            reorderedHybrid,
+            "hybrid remarks preserve and report out-of-order source fragments");
+        AssertHybridRemarksRefreshSkipped(
+            mismatchedHybridProvenance,
+            "hybrid remarks preserve and report mismatched source provenance");
         const string directEquivalentRemarksText =
             "<Docs>\n  <remarks>To be added.</remarks>\n</Docs>";
         var directEquivalentRemarks = XDocument.Parse(directEquivalentRemarksText)
