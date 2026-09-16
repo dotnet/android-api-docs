@@ -1549,6 +1549,9 @@ static class ImporterProgram
     static bool IsImporterSourceReferenceParagraph(XElement paragraph) =>
         IsImporterMetadataParagraph(paragraph.ToString()) ||
         paragraph.Name == "para" &&
+        paragraph.Nodes().All(node =>
+            node is XText text && string.IsNullOrWhiteSpace(text.Value) ||
+            node is XElement) &&
         paragraph.Elements().Count() == 1 &&
         paragraph.Elements().First() is XElement format &&
         format.Name == "format" &&
@@ -1972,7 +1975,8 @@ static class ImporterProgram
                  element.HasElements) ||
                 (element.Name == "code" &&
                  !string.Equals((string?)element.Attribute("lang"), "text/java",
-                     StringComparison.Ordinal))))
+                     StringComparison.Ordinal)) ||
+                (element.Name == "code" && element.HasElements)))
         {
             return false;
         }
@@ -3131,6 +3135,11 @@ static class ImporterProgram
                     setTitle,
                     mappedDocs).Equals(authoredCSharpExampleText, StringComparison.Ordinal),
             "authored C# examples, guidance, and XML remain untouched");
+        Assert(
+            !IsImporterSourceReferenceParagraph(
+                XElement.Parse(
+                    $"<para>Application-specific guidance: <format type=\"text/html\"><a href=\"{XmlAttributeEscape(mappedDocs.SourceUrl)}\" title=\"Reference documentation\">{mappedSourceKind} reference for <code>{XmlEscape(mappedDocs.SourceLabel)}</code>.</a></format></para>")),
+            "source references with authored surrounding text are not importer metadata");
         var originalRemarks = $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>";
         var augmentedRemarks = $"<remarks>{file.Newline}          To be added.{file.Newline}          <para>Keep this existing prose.</para>";
         var augmentedRemarksText = file.Text.Replace(
@@ -4118,6 +4127,13 @@ static class ImporterProgram
         Assert(
             HasImporterOwnedEnumListGap(codeBearingListSummary, codeBearingListDocs),
             "code-bearing importer-owned enum summaries can repair missing source lists");
+        var codeBearingListWithAuthoredCodeXml = XElement.Parse(
+            codeBearingListSummary.ToString(SaveOptions.DisableFormatting));
+        codeBearingListWithAuthoredCodeXml.Element("code")!.AddFirst(
+            new XElement("see", new XAttribute("cref", "T:Example.AuthoredCode")));
+        Assert(
+            !HasImporterOwnedEnumListGap(codeBearingListWithAuthoredCodeXml, codeBearingListDocs),
+            "code-bearing enum summaries with authored code XML are preserved");
         codeBearingListSummary.Add(
             new XElement("para",
                 new XElement("see", new XAttribute("cref", "T:Example.Authored"))));
