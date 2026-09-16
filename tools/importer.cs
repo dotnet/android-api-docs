@@ -1542,7 +1542,12 @@ static class ImporterProgram
                     IsCanonicalImporterSourceReferenceParagraph) == 1 &&
                 remarks.Elements("para").All(paragraph =>
                     IsCanonicalImporterSourceReferenceParagraph(paragraph) ||
-                    IsImporterOwnedEnumAttributionParagraph(paragraph));
+                    IsImporterOwnedEnumAttributionParagraph(paragraph)) &&
+                remarks.Elements().All(element =>
+                    element == candidates[0] ||
+                    (element.Name == "para" &&
+                     (IsCanonicalImporterSourceReferenceParagraph(element) ||
+                      IsImporterOwnedEnumAttributionParagraph(element))));
         }
         catch (XmlException)
         {
@@ -3235,14 +3240,44 @@ static class ImporterProgram
         };
         Assert(
             authoredJavaExampleRepairs.All(candidate =>
-                !HasIncompleteImporterJavaExample(
-                    candidate[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End]) &&
-                ReplaceIncompleteCodeExampleRemarks(
-                    candidate,
-                    file,
-                    setTitle,
-                    javaExampleDocs).Equals(candidate, StringComparison.Ordinal)),
+            {
+                file.UpdateBlockOffsets(setTitle.Order, candidate);
+                return !HasIncompleteImporterJavaExample(
+                           candidate[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End]) &&
+                    ReplaceIncompleteCodeExampleRemarks(
+                        candidate,
+                        file,
+                        setTitle,
+                        javaExampleDocs).Equals(candidate, StringComparison.Ordinal);
+            }),
             "Java example repairs preserve nested source, attribution, and signature XML");
+        var rawSignatureWithoutAttribution = rawSignatureText.Replace(
+            $"{file.Newline}          <para>{AndroidAttribution}</para>",
+            "",
+            StringComparison.Ordinal);
+        var authoredJavaExampleSiblings = new[]
+        {
+            $"<code lang=\"C#\">builder.SetTag(myTag);</code>",
+            "<see cref=\"M:Example.Managed\" />",
+            "<example><para>Managed guidance.</para></example>",
+        }.Select(sibling => rawSignatureWithoutAttribution.Replace(
+            $"</code>{file.Newline}          <para><format",
+            $"</code>{file.Newline}          {sibling}{file.Newline}          <para><format",
+            StringComparison.Ordinal));
+        Assert(
+            authoredJavaExampleSiblings.All(candidate =>
+            {
+                file.UpdateBlockOffsets(setTitle.Order, candidate);
+                return !HasIncompleteImporterJavaExample(
+                           candidate[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End]) &&
+                    ReplaceIncompleteCodeExampleRemarks(
+                        candidate,
+                        file,
+                        setTitle,
+                        javaExampleDocs).Equals(candidate, StringComparison.Ordinal);
+            }),
+            "Java example repairs preserve unaffiliated authored siblings");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var authoredCSharpExampleText = file.Text.Replace(
             $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
             $"<remarks>{file.Newline}          <para>Example code:</para>{file.Newline}          <code lang=\"C#\">builder.SetTag(myTag);</code>{file.Newline}          <para>Managed guidance: call <see cref=\"M:Android.Hardware.Camera2.CaptureRequest.Builder.SetTag(Java.Lang.Object)\" /> first.</para>{file.Newline}          <para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(mappedDocs.SourceUrl)}\" title=\"Reference documentation\">{mappedSourceKind} reference for <code>{XmlEscape(mappedDocs.SourceLabel)}</code>.</a></format></para>",
