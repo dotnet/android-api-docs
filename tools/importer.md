@@ -60,7 +60,13 @@ Java explanatory lead-ins immediately preceding a code block are retained with
 their trailing colon only when they use a source-proven code-introduction form;
 ordinary incomplete prose remains excluded. Source-proven Java remarks with an
 exact Android attribution can receive missing ordered source fragments without
-altering that attribution. Legacy Android attribution paragraphs are treated as
+altering that attribution. A plain source paragraph may own one exact
+whitespace-normalized source fragment or one exact consecutive sequence of
+such fragments; the established `Added in <version>.` annotation is retained
+only as non-source metadata after all source prose. Source and retained
+paragraphs must contain only text and whitespace: comments, CDATA, processing
+instructions, and child markup cause a reported no-edit skip. Legacy Android
+attribution paragraphs are treated as
 importer metadata only when their complete parsed markup and normalized text
 match a known generated form; lookalikes with authored content are preserved
 and reported.

@@ -1272,6 +1272,7 @@ static class ImporterProgram
             summary.Nodes().Any(node => node switch
             {
                 XElement => false,
+                XCData => true,
                 XText text => !string.IsNullOrWhiteSpace(text.Value),
                 _ => true,
             }))
@@ -2002,6 +2003,7 @@ static class ImporterProgram
             remarks.Nodes().Any(node => node switch
             {
                 XElement => false,
+                XCData => true,
                 XText text => !string.IsNullOrWhiteSpace(text.Value),
                 _ => true,
             }))
@@ -2102,16 +2104,25 @@ static class ImporterProgram
         return coalesced;
     }
 
-    static bool IsImporterRenderedSourceParagraph(XElement element) =>
-        (element.Name.LocalName == "para" &&
-         !element.HasAttributes &&
-         !element.HasElements &&
-         NormalizeText(element.Value).Length > 0) ||
-        (element.Name.LocalName == "code" &&
-         element.Attributes().Count() == 1 &&
-         (string?)element.Attribute("lang") == "text/java" &&
-         !element.HasElements &&
-         !string.IsNullOrWhiteSpace(element.Value));
+    static bool IsImporterRenderedSourceParagraph(XElement element)
+    {
+        if (element.Name.LocalName == "para" &&
+            !element.HasAttributes &&
+            HasPlainTextContent(element, out var prose))
+        {
+            return NormalizeText(prose).Length > 0;
+        }
+
+        if (element.Name.LocalName == "code" &&
+            element.Attributes().Count() == 1 &&
+            (string?)element.Attribute("lang") == "text/java" &&
+            HasPlainTextContent(element, out var code))
+        {
+            return !string.IsNullOrWhiteSpace(code);
+        }
+
+        return false;
+    }
 
     static bool MatchesSourceParagraphSubsequence(
         IReadOnlyList<XElement> existing,
@@ -2628,6 +2639,7 @@ static class ImporterProgram
             remarks.Nodes().Any(node => node switch
             {
                 XElement => false,
+                XCData => true,
                 XText text => !string.IsNullOrWhiteSpace(text.Value),
                 _ => true,
             }))
@@ -2692,26 +2704,50 @@ static class ImporterProgram
         var represented = new HashSet<int>();
         var lastFragmentIndex = -1;
         var elementFragments = new List<List<int>>();
+        var hasRetainedAnnotation = false;
         foreach (var element in existingSourceElements)
         {
+            var matches = MatchingExactSourceFragmentSequences(element, sourceFragments);
+            if (IsRetainedRemarksParagraph(element) && matches.Count == 0)
+            {
+                if (hasRetainedAnnotation)
+                {
+                    return new RemarksRefreshResult(
+                        text,
+                        "existing_remarks_not_importer_owned",
+                        "Existing remarks contained more than one retained importer-supported annotation.");
+                }
+                hasRetainedAnnotation = true;
+                elementFragments.Add([]);
+                continue;
+            }
+
             if (!IsImporterRenderedSourceParagraph(element))
             {
                 return new RemarksRefreshResult(
                     text,
                     "existing_remarks_not_importer_owned",
-                    "Existing remarks source content included markup or an unsupported element.");
+                    "Existing remarks source content contained non-text nodes, markup, or an unsupported element.");
             }
 
-            var matches = MatchingExactSourceFragmentIndexes(element, sourceFragments);
+            if (hasRetainedAnnotation)
+            {
+                return new RemarksRefreshResult(
+                    text,
+                    "existing_remarks_not_importer_owned",
+                    "A retained importer-supported annotation must follow all source prose.");
+            }
+
             if (matches.Count != 1)
             {
                 return new RemarksRefreshResult(
                     text,
                     "existing_remarks_not_importer_owned",
-                    "Each existing remarks paragraph must exactly match one unambiguous source fragment.");
+                    "Each existing remarks paragraph must exactly match one unambiguous consecutive sequence of source fragments.");
             }
-            if (matches[0] <= lastFragmentIndex ||
-                matches.Zip(matches.Skip(1), (left, right) => right == left + 1)
+            var fragments = matches[0];
+            if (fragments[0] <= lastFragmentIndex ||
+                fragments.Zip(fragments.Skip(1), (left, right) => right == left + 1)
                     .Any(isConsecutive => !isConsecutive))
             {
                 return new RemarksRefreshResult(
@@ -2719,9 +2755,9 @@ static class ImporterProgram
                     "existing_remarks_not_importer_owned",
                     "Existing remarks prose was not an ordered contiguous subset of the exact mapped source.");
             }
-            represented.UnionWith(matches);
-            lastFragmentIndex = matches[^1];
-            elementFragments.Add(matches);
+            represented.UnionWith(fragments);
+            lastFragmentIndex = fragments[^1];
+            elementFragments.Add(fragments);
         }
 
         var missing = Enumerable.Range(0, sourceFragments.Count)
@@ -2972,9 +3008,9 @@ static class ImporterProgram
     {
         if (element.Name.LocalName == "code" &&
             (string?)element.Attribute("lang") == "text/java" &&
-            !element.HasElements)
+            HasPlainTextContent(element, out var codeText))
         {
-            var code = NormalizeText(element.Value);
+            var code = NormalizeText(codeText);
             return sourceFragments
                 .Select((fragment, index) => (fragment, index))
                 .Where(item => item.fragment.IsCode &&
@@ -2983,10 +3019,12 @@ static class ImporterProgram
                 .ToList();
         }
 
-        if (element.Name.LocalName != "para" || element.HasAttributes)
+        if (element.Name.LocalName != "para" ||
+            element.HasAttributes ||
+            !HasPlainTextContent(element, out var proseText))
             return [];
 
-        var prose = NormalizeRemarksText(element.Value);
+        var prose = NormalizeRemarksText(proseText);
         return sourceFragments
             .Select((fragment, index) => (fragment, index))
             .Where(item => !item.fragment.IsCode &&
@@ -2997,48 +3035,62 @@ static class ImporterProgram
             .ToList();
     }
 
-    static List<int> MatchingExactSourceFragmentIndexes(
+    static List<List<int>> MatchingExactSourceFragmentSequences(
         XElement element,
         IReadOnlyList<SourceParagraph> sourceFragments)
     {
         if (element.Name.LocalName == "code" &&
             (string?)element.Attribute("lang") == "text/java" &&
-            !element.HasElements)
+            HasPlainTextContent(element, out var codeText))
         {
-            var code = NormalizeNormalWhitespace(element.Value);
+            var code = NormalizeNormalWhitespace(codeText);
             return sourceFragments
                 .Select((fragment, index) => (fragment, index))
                 .Where(item => item.fragment.IsCode &&
                     NormalizeNormalWhitespace(item.fragment.Text).Equals(
                         code,
                         StringComparison.Ordinal))
-                .Select(item => item.index)
+                .Select(item => new List<int> { item.index })
                 .ToList();
         }
 
         if (element.Name.LocalName != "para" ||
             element.HasAttributes ||
-            element.HasElements)
+            !HasPlainTextContent(element, out var proseText))
         {
             return [];
         }
 
-        var prose = NormalizeNormalWhitespace(element.Value);
-        return sourceFragments
-            .Select((fragment, index) => (fragment, index))
-            .Where(item => !item.fragment.IsCode &&
-                NormalizeNormalWhitespace(item.fragment.Text).Equals(
-                    prose,
-                    StringComparison.Ordinal))
-            .Select(item => item.index)
-            .ToList();
+        var prose = NormalizeNormalWhitespace(proseText);
+        var matches = new List<List<int>>();
+        for (var start = 0; start < sourceFragments.Count; start++)
+        {
+            if (sourceFragments[start].IsCode)
+                continue;
+
+            var combined = "";
+            for (var end = start; end < sourceFragments.Count; end++)
+            {
+                var fragment = sourceFragments[end];
+                if (fragment.IsCode)
+                    break;
+
+                combined = combined.Length == 0
+                    ? NormalizeNormalWhitespace(fragment.Text)
+                    : $"{combined} {NormalizeNormalWhitespace(fragment.Text)}";
+                if (combined.Equals(prose, StringComparison.Ordinal))
+                    matches.Add(Enumerable.Range(start, end - start + 1).ToList());
+            }
+        }
+        return matches;
     }
 
     static bool IsRetainedRemarksParagraph(XElement element) =>
         element.Name.LocalName == "para" &&
         !element.HasAttributes &&
+        HasPlainTextContent(element, out var text) &&
         Regex.IsMatch(
-            NormalizeRemarksText(element.Value),
+            NormalizeRemarksText(text),
             @"^Added in \d+(?:\.\d+)*\.$",
             RegexOptions.CultureInvariant);
 
@@ -6443,36 +6495,24 @@ static class ImporterProgram
         AssertPutIfAbsentRemarksRefresh(
             commentLiteralRemarks,
             "remarks refresh preserves earlier comment literal markup and updates the validated remarks");
-        var hybridRemarksDocs = new SourceDocs(
-            "Returns a reverse-ordered view of this collection.",
-            [
-                new SourceParagraph(
-                    "Returns a reverse-ordered view of this collection.",
-                    IsCode: false),
-                new SourceParagraph(
-                    "The encounter order of elements in the returned view is the inverse of the encounter order of elements in this collection.",
-                    IsCode: false),
-                new SourceParagraph(
-                    "The reverse ordering affects all order-sensitive operations, including those on the view collections of the returned view.",
-                    IsCode: false),
-                new SourceParagraph(
-                    "If the collection implementation permits modifications to this view, the modifications \"write through\" to the underlying collection.",
-                    IsCode: false),
-                new SourceParagraph(
-                    "Changes to the underlying collection might or might not be visible in this reversed view, depending upon the implementation.",
-                    IsCode: false),
-                new SourceParagraph(
-                    "Modifications to the reversed view are permitted and will be propagated to this list.",
-                    IsCode: false),
-                new SourceParagraph("Added in 21.", IsCode: false),
-            ],
-            [],
-            "",
-            new Dictionary<string, string>(StringComparer.Ordinal),
-            JavaReference +
-                "java.base/java/util/concurrent/CopyOnWriteArrayList.html#reversed()",
-            "java.util.concurrent.CopyOnWriteArrayList.reversed",
-            "java");
+        var hybridSourceRequest = SourceRequest.Create(
+            "java/util/concurrent/CopyOnWriteArrayList")!;
+        var hybridSourcePage = SourcePage.Parse(
+            hybridSourceRequest,
+            File.ReadAllText(Path.Combine(
+                fixtureRoot,
+                "copy-on-write-array-list-java-reference.html")));
+        var hybridRemarksDocs = hybridSourcePage.Members.Single(member =>
+            member.Name == "reversed" &&
+            member.ArgumentDescriptors?.Count == 0).Docs ??
+            throw new InvalidOperationException(
+                "SELF-TEST FAIL: CopyOnWriteArrayList Reversed source documentation");
+        var hybridSourceFragments = ExpandRemarksFragments(hybridRemarksDocs.Paragraphs);
+        Assert(
+            hybridSourceFragments.Count == 8 &&
+                hybridSourceFragments.All(fragment =>
+                    !fragment.Text.Equals("Added in 21.", StringComparison.Ordinal)),
+            "cached Oracle Reversed source retains all prose fragments without Android annotations");
         var hybridAttribution = XElement.Parse($"<para>{AndroidAttribution}</para>");
         Assert(
             IsRetainedRemarksParagraph(XElement.Parse("<para>Added in 21.</para>")) &&
@@ -6480,9 +6520,13 @@ static class ImporterProgram
             "hybrid remarks recognize Java major-version and dotted since paragraphs");
         var hybridRemarks = new XElement(
             "remarks",
-            DocumentationElement(hybridRemarksDocs.Paragraphs[0]),
-            DocumentationElement(hybridRemarksDocs.Paragraphs[5]),
-            DocumentationElement(hybridRemarksDocs.Paragraphs[6]),
+            DocumentationElement(hybridSourceFragments[0]),
+            new XElement(
+                "para",
+                string.Join(
+                    " ",
+                    hybridSourceFragments.Skip(5).Select(fragment => fragment.Text))),
+            new XElement("para", "Added in 21."),
             ImporterSourceReference(hybridRemarksDocs),
             hybridAttribution);
         RemarksRefreshResult RefreshHybridRemarks(XElement remarks)
@@ -6577,9 +6621,17 @@ static class ImporterProgram
         Assert(
             IsPotentialHybridImporterOwnedRemarks(hybridRemarks, "java") &&
                 refreshedHybridRemarks.Reason is null &&
+                string.Join(
+                    " ",
+                    refreshedHybridElements.Take(refreshedHybridReferenceIndex)
+                        .Where(element => !IsRetainedRemarksParagraph(element))
+                        .Select(element => NormalizeNormalWhitespace(element.Value))) ==
+                    string.Join(
+                        " ",
+                        hybridSourceFragments.Select(fragment =>
+                            NormalizeNormalWhitespace(fragment.Text))) &&
                 refreshedHybridElements.Take(refreshedHybridReferenceIndex)
-                    .Select(element => element.Value)
-                    .SequenceEqual(hybridRemarksDocs.Paragraphs.Select(paragraph => paragraph.Text)) &&
+                    .Count(IsRetainedRemarksParagraph) == 1 &&
                 refreshedHybridElements[refreshedHybridReferenceIndex].ToString(
                     SaveOptions.DisableFormatting).Equals(
                         originalHybridReference,
@@ -6621,17 +6673,25 @@ static class ImporterProgram
             "hybrid remarks preserve and report mismatched source paragraphs");
         var reorderedHybrid = new XElement(
             "remarks",
-            DocumentationElement(hybridRemarksDocs.Paragraphs[1]),
-            DocumentationElement(hybridRemarksDocs.Paragraphs[0]),
-            DocumentationElement(hybridRemarksDocs.Paragraphs[5]),
-            DocumentationElement(hybridRemarksDocs.Paragraphs[6]),
+            DocumentationElement(hybridSourceFragments[1]),
+            DocumentationElement(hybridSourceFragments[0]),
+            new XElement(
+                "para",
+                string.Join(
+                    " ",
+                    hybridSourceFragments.Skip(5).Select(fragment => fragment.Text))),
+            new XElement("para", "Added in 21."),
             ImporterSourceReference(hybridRemarksDocs),
             XElement.Parse($"<para>{AndroidAttribution}</para>"));
         var mismatchedHybridProvenance = new XElement(
             "remarks",
-            DocumentationElement(hybridRemarksDocs.Paragraphs[0]),
-            DocumentationElement(hybridRemarksDocs.Paragraphs[5]),
-            DocumentationElement(hybridRemarksDocs.Paragraphs[6]),
+            DocumentationElement(hybridSourceFragments[0]),
+            new XElement(
+                "para",
+                string.Join(
+                    " ",
+                    hybridSourceFragments.Skip(5).Select(fragment => fragment.Text))),
+            new XElement("para", "Added in 21."),
             ImporterSourceReference(hybridRemarksDocs with
             {
                 SourceUrl = JavaReference +
@@ -7700,6 +7760,270 @@ static class ImporterProgram
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            var copyOnWriteArrayListPath = Path.Combine(
+                docsRoot,
+                "Java.Util.Concurrent",
+                "CopyOnWriteArrayList.xml");
+            var copyOnWriteArrayListFile = LoadedFile.Load(
+                repositoryRoot,
+                copyOnWriteArrayListPath);
+            copyOnWriteArrayListFile.SelectOwners(
+                "Reversed",
+                new InterfaceMemberResolver(docsRoot));
+            var copyOnWriteArrayListOwner = copyOnWriteArrayListFile.Owners.Single();
+            var copyOnWriteArrayListBlock = copyOnWriteArrayListFile.DocsBlocks[
+                copyOnWriteArrayListOwner.Order];
+            var copyOnWriteArrayListBlockText = copyOnWriteArrayListFile.Text[
+                copyOnWriteArrayListBlock.Start..copyOnWriteArrayListBlock.End];
+            var parsedCopyOnWriteArrayListBlock = XElement.Parse(
+                copyOnWriteArrayListBlockText,
+                LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            var parsedCopyOnWriteArrayListRemarks =
+                parsedCopyOnWriteArrayListBlock.Element("remarks")!;
+            var parsedCopyOnWriteArrayListElements =
+                parsedCopyOnWriteArrayListRemarks.Elements().ToList();
+            var parsedCopyOnWriteArrayListSourceReferenceIndex =
+                parsedCopyOnWriteArrayListElements.FindIndex(element =>
+                    TryGetImporterSourceReferenceUrl(
+                        element.ToString(SaveOptions.DisableFormatting),
+                        out _));
+            var parsedCopyOnWriteArrayListSourceElements =
+                parsedCopyOnWriteArrayListElements
+                    .Take(parsedCopyOnWriteArrayListSourceReferenceIndex)
+                    .ToList();
+            Assert(
+                copyOnWriteArrayListOwner.MemberRegistration ==
+                    new MemberRegistration("reversed", "()Ljava/util/List;", false) &&
+                copyOnWriteArrayListOwner.SourceRequest?.Url ==
+                    JavaReference +
+                        "java.base/java/util/concurrent/CopyOnWriteArrayList.html" &&
+                parsedCopyOnWriteArrayListSourceElements.Count == 7 &&
+                IsRetainedRemarksParagraph(parsedCopyOnWriteArrayListSourceElements[^1]),
+                "CopyOnWriteArrayList Reversed fixture uses its real registered Oracle member and retained annotation");
+
+            var removedCopyOnWriteArrayListSourceSpans = new List<XmlSpan>();
+            foreach (var element in parsedCopyOnWriteArrayListSourceElements.Skip(1).Take(4))
+            {
+                Assert(
+                    TryGetElementSpan(
+                        copyOnWriteArrayListBlockText,
+                        element,
+                        out var span),
+                    "CopyOnWriteArrayList Reversed middle source paragraph can be located");
+                removedCopyOnWriteArrayListSourceSpans.Add(span);
+            }
+            Assert(
+                TryGetElementSpan(
+                    copyOnWriteArrayListBlockText,
+                    parsedCopyOnWriteArrayListSourceElements[0],
+                    out var copyOnWriteArrayListFirstSourceSpan),
+                "CopyOnWriteArrayList Reversed first source paragraph can be located");
+            var copyOnWriteArrayListFirstSourceMarkup =
+                copyOnWriteArrayListBlockText[
+                    copyOnWriteArrayListFirstSourceSpan.Start..
+                    copyOnWriteArrayListFirstSourceSpan.End];
+            var hybridCopyOnWriteArrayListBlockText = copyOnWriteArrayListBlockText;
+            foreach (var span in removedCopyOnWriteArrayListSourceSpans
+                .OrderByDescending(span => span.Start))
+            {
+                var lineStart = hybridCopyOnWriteArrayListBlockText.LastIndexOf(
+                    '\n',
+                    Math.Max(0, span.Start - 1));
+                lineStart = lineStart < 0 ? 0 : lineStart + 1;
+                var lineEnd = hybridCopyOnWriteArrayListBlockText.IndexOf(
+                    '\n',
+                    span.End);
+                var end = lineEnd < 0 ? span.End : lineEnd + 1;
+                hybridCopyOnWriteArrayListBlockText =
+                    hybridCopyOnWriteArrayListBlockText[..lineStart] +
+                    hybridCopyOnWriteArrayListBlockText[end..];
+            }
+            var hybridCopyOnWriteArrayListText =
+                copyOnWriteArrayListFile.Text[..copyOnWriteArrayListBlock.Start] +
+                hybridCopyOnWriteArrayListBlockText +
+                copyOnWriteArrayListFile.Text[copyOnWriteArrayListBlock.End..];
+
+            (LoadedFile File, DocsOwner Owner, SourceDocs Docs, RemarksRefreshResult Refresh)
+                RefreshCopyOnWriteArrayListRemarks(string fileName, string text)
+            {
+                var path = Path.Combine(tempDirectory, fileName);
+                File.WriteAllText(path, text, new UTF8Encoding(false));
+                var refreshFile = LoadedFile.Load(repositoryRoot, path);
+                refreshFile.SelectOwners(
+                    "Reversed",
+                    new InterfaceMemberResolver(docsRoot));
+                var refreshOwner = refreshFile.Owners.Single();
+                var refreshPage = SourcePage.Parse(
+                    refreshOwner.SourceRequest!,
+                    File.ReadAllText(Path.Combine(
+                        fixtureRoot,
+                        "copy-on-write-array-list-java-reference.html")));
+                var refreshMapping = MapOwner(
+                    refreshOwner,
+                    new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                    {
+                        [refreshOwner.SourceRequest!.Url] =
+                            SourceLoadResult.Success(refreshPage),
+                    });
+                Assert(
+                    refreshMapping.Docs is not null &&
+                    HasPotentialImporterOwnedRemarksRefresh(refreshFile, refreshOwner),
+                    "CopyOnWriteArrayList Reversed normal owner and source pipeline reaches remarks refresh");
+                return (
+                    refreshFile,
+                    refreshOwner,
+                    refreshMapping.Docs!,
+                    RefreshImporterOwnedRemarks(
+                        refreshFile.Text,
+                        refreshFile,
+                        refreshOwner,
+                        refreshMapping.Docs!));
+            }
+
+            ImportReport ReportCopyOnWriteArrayListRefresh(
+                (LoadedFile File, DocsOwner Owner, SourceDocs Docs, RemarksRefreshResult Refresh)
+                    refresh,
+                string originalText)
+            {
+                var report = new ImportReport
+                {
+                    Mode = "apply",
+                    Offline = true,
+                    MaxChanges = 1,
+                };
+                if (refresh.Refresh.Reason is not null)
+                {
+                    report.Entries.Add(ReportEntry.Skipped(
+                        refresh.File.RelativePath,
+                        refresh.Owner.Id,
+                        "remarks",
+                        refresh.Refresh.Reason,
+                        refresh.Refresh.Detail!,
+                        refresh.Docs.SourceUrl));
+                }
+                else if (!refresh.Refresh.Text.Equals(originalText, StringComparison.Ordinal))
+                {
+                    report.Entries.Add(ReportEntry.Changed(
+                        "would_apply",
+                        refresh.File.RelativePath,
+                        refresh.Owner.Id,
+                        "remarks",
+                        refresh.Docs.SourceUrl));
+                }
+                return report;
+            }
+
+            var refreshedCopyOnWriteArrayList = RefreshCopyOnWriteArrayListRemarks(
+                "copy-on-write-array-list-reversed-hybrid.xml",
+                hybridCopyOnWriteArrayListText);
+            var refreshedCopyOnWriteArrayListReport =
+                ReportCopyOnWriteArrayListRefresh(
+                    refreshedCopyOnWriteArrayList,
+                    hybridCopyOnWriteArrayListText);
+            var refreshedCopyOnWriteArrayListRemarks = XDocument.Parse(
+                refreshedCopyOnWriteArrayList.Refresh.Text,
+                LoadOptions.PreserveWhitespace)
+                .Root!.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "Reversed")
+                .Element("Docs")!.Element("remarks")!;
+            var refreshedCopyOnWriteArrayListElements =
+                refreshedCopyOnWriteArrayListRemarks.Elements().ToList();
+            var refreshedCopyOnWriteArrayListSourceReferenceIndex =
+                refreshedCopyOnWriteArrayListElements.FindIndex(element =>
+                    TryGetImporterSourceReferenceUrl(
+                        element.ToString(SaveOptions.DisableFormatting),
+                        out _));
+            var refreshedCopyOnWriteArrayListSourceElements =
+                refreshedCopyOnWriteArrayListElements
+                    .Take(refreshedCopyOnWriteArrayListSourceReferenceIndex)
+                    .ToList();
+            var expectedCopyOnWriteArrayListFragments = ExpandRemarksFragments(
+                refreshedCopyOnWriteArrayList.Docs.Paragraphs);
+            var expectedCopyOnWriteArrayListText = string.Join(
+                " ",
+                expectedCopyOnWriteArrayListFragments
+                    .Where(fragment => !fragment.IsCode)
+                    .Select(fragment => NormalizeNormalWhitespace(fragment.Text)));
+            var refreshedCopyOnWriteArrayListText = string.Join(
+                " ",
+                refreshedCopyOnWriteArrayListSourceElements
+                    .Where(element => !IsRetainedRemarksParagraph(element))
+                    .Select(element => NormalizeNormalWhitespace(element.Value)));
+            Assert(
+                refreshedCopyOnWriteArrayList.Refresh.Reason is null &&
+                !refreshedCopyOnWriteArrayList.Refresh.Text.Equals(
+                    hybridCopyOnWriteArrayListText,
+                    StringComparison.Ordinal) &&
+                refreshedCopyOnWriteArrayListSourceElements.Count == 7 &&
+                refreshedCopyOnWriteArrayListSourceElements.Count(
+                    IsRetainedRemarksParagraph) == 1 &&
+                refreshedCopyOnWriteArrayListText.Equals(
+                    expectedCopyOnWriteArrayListText,
+                    StringComparison.Ordinal) &&
+                refreshedCopyOnWriteArrayListSourceElements.Any(element =>
+                    NormalizeNormalWhitespace(element.Value).Equals(
+                        NormalizeNormalWhitespace(
+                            parsedCopyOnWriteArrayListSourceElements[5].Value),
+                        StringComparison.Ordinal)) &&
+                refreshedCopyOnWriteArrayListReport.Entries is
+                [{
+                    Status: "would_apply",
+                    Target: "remarks",
+                    SourceUrl: var refreshedCopyOnWriteArrayListSourceUrl,
+                }] &&
+                refreshedCopyOnWriteArrayListSourceUrl ==
+                    refreshedCopyOnWriteArrayList.Docs.SourceUrl &&
+                !expectedCopyOnWriteArrayListFragments.Any(fragment =>
+                    fragment.Text.Equals("Added in 21.", StringComparison.Ordinal)),
+                "CopyOnWriteArrayList Reversed hybrid refresh restores missing middle Oracle source fragments in order while retaining its non-source annotation");
+
+            void AssertCopyOnWriteArrayListNonTextNodeSkip(
+                string node,
+                string fileName,
+                string description)
+            {
+                var unsafeFirstSourceMarkup =
+                    copyOnWriteArrayListFirstSourceMarkup[..^"</para>".Length] +
+                    node +
+                    "</para>";
+                var unsafeText = hybridCopyOnWriteArrayListText.Replace(
+                    copyOnWriteArrayListFirstSourceMarkup,
+                    unsafeFirstSourceMarkup,
+                    StringComparison.Ordinal);
+                var unsafeRefresh = RefreshCopyOnWriteArrayListRemarks(fileName, unsafeText);
+                var unsafeReport = ReportCopyOnWriteArrayListRefresh(
+                    unsafeRefresh,
+                    unsafeText);
+                Assert(
+                    unsafeRefresh.Refresh.Reason ==
+                        "existing_remarks_not_importer_owned" &&
+                    unsafeRefresh.Refresh.Detail ==
+                        "Existing remarks source content contained non-text nodes, markup, or an unsupported element." &&
+                    unsafeRefresh.Refresh.Text.Equals(unsafeText, StringComparison.Ordinal) &&
+                    unsafeReport.Entries is
+                    [{
+                        Status: "skipped",
+                        Target: "remarks",
+                        Reason: "existing_remarks_not_importer_owned",
+                        SourceUrl: var unsafeSourceUrl,
+                    }] &&
+                    unsafeSourceUrl == unsafeRefresh.Docs.SourceUrl,
+                    description);
+            }
+
+            AssertCopyOnWriteArrayListNonTextNodeSkip(
+                "<!-- Authored note. -->",
+                "copy-on-write-array-list-reversed-comment.xml",
+                "CopyOnWriteArrayList Reversed comments inside source-matching paragraphs skip without modification");
+            AssertCopyOnWriteArrayListNonTextNodeSkip(
+                "<?authored note?>",
+                "copy-on-write-array-list-reversed-processing-instruction.xml",
+                "CopyOnWriteArrayList Reversed processing instructions inside source-matching paragraphs skip without modification");
+            AssertCopyOnWriteArrayListNonTextNodeSkip(
+                "<![CDATA[ ]]>",
+                "copy-on-write-array-list-reversed-cdata.xml",
+                "CopyOnWriteArrayList Reversed CDATA inside source-matching paragraphs skips without modification");
+
             var channelOnlyText = fixtureText.Replace(
                 "<param name=\"title\">To be added.</param>",
                 $"<param name=\"title\">{RemoveLeadingJavaType(mappedDocs.Parameters["title"])}</param>",
