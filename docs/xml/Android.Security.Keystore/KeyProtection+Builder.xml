@@ -204,10 +204,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="blockModes">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="blockModes">Value is one of the following: KeyProperties.BLOCK_MODE_ECB; KeyProperties.BLOCK_MODE_CBC; KeyProperties.BLOCK_MODE_CTR; KeyProperties.BLOCK_MODE_GCM</param>
+        <summary>Sets the set of block modes (e.g., GCM, CBC) with which the key can be used when encrypting/decrypting.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets the set of block modes (e.g., GCM, CBC) with which the key can be used when encrypting/decrypting. Attempts to use the key with any other block modes will be rejected.</para>
+          <para>This must be specified for symmetric encryption/decryption keys.</para>
+          <para>See KeyProperties.BLOCK_MODE constants.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setBlockModes(java.lang.String[])" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setBlockModes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -250,10 +254,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="digests">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="digests">Value is one of the following: KeyProperties.DIGEST_NONE; KeyProperties.DIGEST_MD5; KeyProperties.DIGEST_SHA1; KeyProperties.DIGEST_SHA224; KeyProperties.DIGEST_SHA256; KeyProperties.DIGEST_SHA384; KeyProperties.DIGEST_SHA512</param>
+        <summary>Sets the set of digest algorithms (e.g., SHA-256, SHA-384) with which the key can be used.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets the set of digest algorithms (e.g., SHA-256, SHA-384) with which the key can be used. Attempts to use the key with any other digest algorithm will be rejected.</para>
+          <para>This must be specified for signing/verification keys and RSA encryption/decryption keys used with RSA OAEP padding scheme because these operations involve a digest. For HMAC keys, the default is the digest specified in Key.getAlgorithm() (e.g., SHA-256 for key algorithm HmacSHA256). HMAC keys cannot be authorized for more than one digest.</para>
+          <para>For private keys used for TLS/SSL client or server authentication it is usually necessary to authorize the use of no digest (KeyProperties.DIGEST_NONE). This is because TLS/SSL stacks typically generate the necessary digest(s) themselves and then use a private key to sign it.</para>
+          <para>See KeyProperties.DIGEST constants.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setDigests(java.lang.String[])" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setDigests</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -296,10 +305,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="paddings">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="paddings">Value is one of the following: KeyProperties.ENCRYPTION_PADDING_NONE; KeyProperties.ENCRYPTION_PADDING_PKCS7; KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1; KeyProperties.ENCRYPTION_PADDING_RSA_OAEP</param>
+        <summary>Sets the set of padding schemes (e.g., OAEPPadding, PKCS7Padding, NoPadding) with which the key can be used when encrypting/decrypting.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets the set of padding schemes (e.g., OAEPPadding, PKCS7Padding, NoPadding) with which the key can be used when encrypting/decrypting. Attempts to use the key with any other padding scheme will be rejected.</para>
+          <para>This must be specified for keys which are used for encryption/decryption.</para>
+          <para>For RSA private keys used by TLS/SSL servers to authenticate themselves to clients it is usually necessary to authorize the use of no/any padding (KeyProperties.ENCRYPTION_PADDING_NONE) and/or PKCS#1 encryption padding (KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1). This is because RSA decryption is required by some cipher suites, and some stacks request decryption using no padding whereas others request PKCS#1 padding.</para>
+          <para>See KeyProperties.ENCRYPTION_PADDING constants.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setEncryptionPaddings(java.lang.String[])" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setEncryptionPaddings</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -332,9 +346,13 @@
       </Parameters>
       <Docs>
         <param name="invalidateKey">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets whether this key should be invalidated on biometric enrollment.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets whether this key should be invalidated on biometric enrollment. This applies only to keys which require user authentication (see setUserAuthenticationRequired(boolean)) and if no positive validity duration has been set (see setUserAuthenticationValidityDurationSeconds(int), meaning the key is valid for biometric authentication only.</para>
+          <para>By default, invalidateKey is true, so keys that are valid for biometric authentication only are irreversibly invalidated when a new biometric is enrolled, or when all existing biometrics are deleted. That may be changed by calling this method with invalidateKey set to false.</para>
+          <para>Invalidating keys on enrollment of a new biometric or unenrollment of all biometrics improves security by ensuring that an unauthorized person who obtains the password can't gain the use of biometric-authenticated keys by enrolling their own biometric. However, invalidating keys makes key-dependent operations impossible, requiring some fallback procedure to authenticate the user and set up a new key.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setInvalidatedByBiometricEnrollment(boolean)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setInvalidatedByBiometricEnrollment</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -367,9 +385,13 @@
       </Parameters>
       <Docs>
         <param name="isStrongBoxBacked">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets whether this key should be protected by a StrongBox security chip.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets whether this key should be protected by a StrongBox security chip.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setIsStrongBoxBacked(boolean)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setIsStrongBoxBacked</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetKeyValidityEnd">
@@ -407,9 +429,12 @@
       </Parameters>
       <Docs>
         <param name="endDate">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets the time instant after which the key is no longer valid.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets the time instant after which the key is no longer valid.</para>
+          <para>By default, the key is valid at any instant.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setKeyValidityEnd(java.util.Date)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setKeyValidityEnd</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -759,11 +784,18 @@
         <Parameter Name="type" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="timeout">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="timeout">duration in seconds or 0 if user authentication must take place for every use of the key. Value is 0 or greater</param>
+        <param name="type">set of authentication types which can authorize use of the key. See KeyProperties.AUTH flags. Value is either 0 or a combination of the following: KeyProperties.AUTH_BIOMETRIC_STRONG; KeyProperties.AUTH_DEVICE_CREDENTIAL</param>
+        <summary>Sets the duration of time (seconds) and authorization type for which this key is authorized to be used after the user is successfully authenticated.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the duration of time (seconds) and authorization type for which this key is authorized to be used after the user is successfully authenticated. This has effect if the key requires user authentication for its use (see setUserAuthenticationRequired(boolean)).</para>
+          <para>By default, if user authentication is required, it must take place for every use of the key.</para>
+          <para>These cryptographic operations will throw UserNotAuthenticatedException during initialization if the user needs to be authenticated to proceed. This situation can be resolved by the user authenticating with the appropriate biometric or credential as required by the key. See BiometricPrompt.Builder.setAllowedAuthenticators(int) and BiometricManager.Authenticators.</para>
+          <para>Once resolved, initializing a new cryptographic operation using this key (or any other key which is authorized to be used for a fixed duration of time after user authentication) should succeed provided the user authentication flow completed successfully.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setUserAuthenticationParameters(int,%20int)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setUserAuthenticationParameters</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetUserAuthenticationRequired">
