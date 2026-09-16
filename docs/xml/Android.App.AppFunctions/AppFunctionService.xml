@@ -30,7 +30,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>Abstract base class to provide app functions to the system.</summary>
+    <summary>Extend this class to implement app functions, that can be executed by <c>AppFunctionManager#executeAppFunction</c>.</summary>
     <remarks>
       <para>Abstract base class to provide app functions to the system.</para>
       <para>Include the following in the manifest:</para>
@@ -206,14 +206,17 @@
         <param name="callingPackage">The package name of the app that is requesting the execution. It is
                 strongly recommended that you do not alter your function’s behavior based on this value.
                 Your function should behave consistently for all callers to ensure a predictable
-                experience.</param>
+                experience. Starting in <c>android.os.Build.VERSION_CODES#CINNAMON_BUN</c>, the value
+                will always be an empty string.</param>
         <param name="callingPackageSigningInfo">The signing information of the app that is requesting the
                 execution. It is strongly recommended that you do not alter your function’s behavior
                 based on this value. Your function should behave consistently for all callers to ensure a
-                predictable experience.</param>
+                predictable experience. Starting in <c>android.os.Build.VERSION_CODES#CINNAMON_BUN</c>,
+                the value will always be an unknown signing info.</param>
         <param name="cancellationSignal">A signal to cancel the execution.</param>
         <param name="callback">A callback to report back the result or error.</param>
-        <summary>Called by the system to execute a specific app function.</summary>
+        <summary>Called by the system following an <c>AppFunctionManager#executeAppFunction</c> call that
+            targets an app function identifier referenced by the XML asset associated with this service.</summary>
         <remarks>
           <para>Called by the system to execute a specific app function.</para>
           <para>This method is the entry point for handling all app function requests in an app. When the
@@ -266,7 +269,7 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The <c>Intent</c> that must be declared as handled by the service.</summary>
+        <summary>The <c>Intent</c> filter that must be declared as handled by the service.</summary>
         <remarks>
           <para>The <c>Intent</c> that must be declared as handled by the service. To be supported, the
             service must also require the <c>BIND_APP_FUNCTION_SERVICE</c> permission so that other

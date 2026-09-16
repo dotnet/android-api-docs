@@ -1,0 +1,346 @@
+<Type Name="ContactsPickerSessionContract" FullName="Android.Provider.ContactsPickerSessionContract">
+  <TypeSignature Language="C#" Value="public sealed class ContactsPickerSessionContract : Java.Lang.Object" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit ContactsPickerSessionContract extends Java.Lang.Object" />
+  <TypeSignature Language="DocId" Value="T:Android.Provider.ContactsPickerSessionContract" />
+  <TypeSignature Language="F#" Value="type ContactsPickerSessionContract = class&#xA;    inherit Object" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces />
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/provider/ContactsPickerSessionContract", ApiSince=37, DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/provider/ContactsPickerSessionContract", ApiSince=37, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>The contract between the Contacts Picker session provider and client applications.</summary>
+    <remarks>
+      <para>The contract between the Contacts Picker session provider and client applications. This contract defines the intent actions, extras, and URI structure used to interact with the Contacts Picker to select contacts and retrieve their data.</para>
+      <para>It allows apps to select one or more contacts without requiring Manifest.permission.READ_CONTACTS, enhancing user privacy and security. The client app receives one-time access to the user-selected contacts data.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="ActionPickContacts">
+      <MemberSignature Language="C#" Value="public const string ActionPickContacts;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ActionPickContacts" />
+      <MemberSignature Language="DocId" Value="F:Android.Provider.ContactsPickerSessionContract.ActionPickContacts" />
+      <MemberSignature Language="F#" Value="val mutable ActionPickContacts : string" Usage="Android.Provider.ContactsPickerSessionContract.ActionPickContacts" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("ACTION_PICK_CONTACTS", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("ACTION_PICK_CONTACTS", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Intent action to launch the system Contacts Picker to select one or more contacts.</summary>
+        <remarks>
+          <para>Intent action to launch the system Contacts Picker to select one or more contacts. This action provides a modern way for applications to obtain contact information, differing from Intent.ACTION_PICK and Intent.ACTION_GET_CONTENT in several key ways: It is specifically designed for picking contacts, offering a streamlined user experience; The calling application gains one-time read access to the user-selected contact data, without requiring Manifest.permission.READ_CONTACTS; Users benefit from a consistent UI to grant temporary access to their contact data; Client applications can specify and receive multiple data fields (MIME types) corresponding to the selected contacts</para>
+          <para>To use this intent, create an Intent with this action and launch it using Activity.startActivityForResult(android.content.Intent, int). The system Contacts Picker UI will be displayed, allowing the user to select one or more contacts. This contacts picker UI will:; Have eligible contacts displayed as a scrollable list to the user; Enable users to select single/multiple contacts; Enable users to search for contacts using display name</para>
+          <para>The display and selection behavior can be customized using the following extras:; EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS: (Required) Specifies the MIME types of contact data to be displayed in the picker and returned to the calling app. Contacts must have at least one of the specified MIME types, to be shown as available for selection; EXTRA_PICK_CONTACTS_MATCH_ALL_DATA_FIELDS: (Optional) If set to true, only contacts possessing data for *all* MIME types specified in EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS will be shown as available for selection. Defaults to false; EXTRA_PICK_CONTACTS_SELECTION_LIMIT: (Optional) Defines the maximum number of contacts the user can select. Defaults to 50, with a maximum allowed value of 100; Intent.EXTRA_ALLOW_MULTIPLE: (Optional) If set to true, the user can select multiple contacts. The default behavior is single-select.</para>
+          <para>Upon successful contact(s) selection, the Activity.onActivityResult(int, int, android.content.Intent) callback will be invoked with Activity.RESULT_OK. The returned Intent will contain a session URI in its data field (see Session.CONTENT_URI), which should be used to query the selected contact data.</para>
+          <code lang="text/java">    Uri sessionUri = data.getData();
+    Cursor cursor = getContentResolver().query(sessionUri, projection, null, null, null);
+    // Process cursor data</code>
+          <para>Starting from Android 17, this intent is handled by a system application by default. Third-party applications should not handle this intent as they will be ignored when the system attempts to resolve it.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract#ACTION_PICK_CONTACTS" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract.ACTION_PICK_CONTACTS</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Authority">
+      <MemberSignature Language="C#" Value="public const string Authority;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string Authority" />
+      <MemberSignature Language="DocId" Value="F:Android.Provider.ContactsPickerSessionContract.Authority" />
+      <MemberSignature Language="F#" Value="val mutable Authority : string" Usage="Android.Provider.ContactsPickerSessionContract.Authority" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("AUTHORITY", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTHORITY", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The authority for the Contacts Picker session provider.</summary>
+        <remarks>
+          <para>The authority for the Contacts Picker session provider. This string is used to construct content URIs for interacting with the Contacts Picker session data.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract#AUTHORITY" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract.AUTHORITY</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="AuthorityUri">
+      <MemberSignature Language="C#" Value="public static Android.Net.Uri AuthorityUri { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property class Android.Net.Uri AuthorityUri" />
+      <MemberSignature Language="DocId" Value="P:Android.Provider.ContactsPickerSessionContract.AuthorityUri" />
+      <MemberSignature Language="F#" Value="static member AuthorityUri : Android.Net.Uri" Usage="Android.Provider.ContactsPickerSessionContract.AuthorityUri" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("AUTHORITY_URI", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("AUTHORITY_URI", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.Net.Uri</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>The base <c>content://</c> style <c>Uri</c> for the Contacts Picker session provider.</summary>
+        <value>The base content:// style Uri for the Contacts Picker session provider.</value>
+        <remarks>
+          <para>The base content:// style Uri for the Contacts Picker session provider. All session-specific URIs are built upon this base URI.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract#AUTHORITY_URI" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract.AUTHORITY_URI</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraPickContactsMatchAllDataFields">
+      <MemberSignature Language="C#" Value="public const string ExtraPickContactsMatchAllDataFields;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraPickContactsMatchAllDataFields" />
+      <MemberSignature Language="DocId" Value="F:Android.Provider.ContactsPickerSessionContract.ExtraPickContactsMatchAllDataFields" />
+      <MemberSignature Language="F#" Value="val mutable ExtraPickContactsMatchAllDataFields : string" Usage="Android.Provider.ContactsPickerSessionContract.ExtraPickContactsMatchAllDataFields" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_PICK_CONTACTS_MATCH_ALL_DATA_FIELDS", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_PICK_CONTACTS_MATCH_ALL_DATA_FIELDS", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>A boolean extra that, when set to <c>true</c>, instructs the system Contacts Picker to only
+            display contacts that possess data fields corresponding to *all* MIME type specified in
+            <c>#EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS</c>.</summary>
+        <remarks>
+          <para>A boolean extra that, when set to true, instructs the system Contacts Picker to only display contacts that possess data fields corresponding to *all* MIME type specified in EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS.</para>
+          <para>If false (the default value), contacts will be displayed if they have data for *at least one* of the MIME types specified in EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract#EXTRA_PICK_CONTACTS_MATCH_ALL_DATA_FIELDS" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_MATCH_ALL_DATA_FIELDS</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraPickContactsRequestedDataFields">
+      <MemberSignature Language="C#" Value="public const string ExtraPickContactsRequestedDataFields;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraPickContactsRequestedDataFields" />
+      <MemberSignature Language="DocId" Value="F:Android.Provider.ContactsPickerSessionContract.ExtraPickContactsRequestedDataFields" />
+      <MemberSignature Language="F#" Value="val mutable ExtraPickContactsRequestedDataFields : string" Usage="Android.Provider.ContactsPickerSessionContract.ExtraPickContactsRequestedDataFields" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>A <c>List&lt;String&gt;</c> extra that specifies the types of contact data the client
+            application is requesting.</summary>
+        <remarks>
+          <para>A List&lt;String&gt; extra that specifies the types of contact data the client application is requesting. This extra serves two primary purposes: **Filtering:** Only contacts possessing data corresponding to at least one of the specified MIME types will be displayed in the Contacts Picker; **Data Return:** For selected contacts, only data corresponding to these specified MIME types will be returned to the calling application This extra must be populated with one or more of the following MIME types:; ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Relation.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Event.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Website.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Nickname.CONTENT_ITEM_TYPE</para>
+          <para>If EXTRA_PICK_CONTACTS_MATCH_ALL_DATA_FIELDS is set to true, only contacts having data corresponding to *all* of the MIME types specified in this extra will be displayed.</para>
+          <para>The Contacts Picker will throw an IllegalArgumentException if any of the MIME types provided in this extra are not among the allowed types listed above.</para>
+          <para>Clients are required to set this extra to ensure the picker can determine which information should be made available for selection.</para>
+          <code lang="text/java">    List&lt;String&gt; requestedMimeTypes = new ArrayList&lt;&gt;();
+    requestedMimeTypes.add(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE);
+    requestedMimeTypes.add(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
+    intent.putStringArrayListExtra(
+            ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS,
+            (ArrayList&lt;String&gt;) requestedMimeTypes);</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract#EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ExtraPickContactsSelectionLimit">
+      <MemberSignature Language="C#" Value="public const string ExtraPickContactsSelectionLimit;" />
+      <MemberSignature Language="ILAsm" Value=".field public static literal string ExtraPickContactsSelectionLimit" />
+      <MemberSignature Language="DocId" Value="F:Android.Provider.ContactsPickerSessionContract.ExtraPickContactsSelectionLimit" />
+      <MemberSignature Language="F#" Value="val mutable ExtraPickContactsSelectionLimit : string" Usage="Android.Provider.ContactsPickerSessionContract.ExtraPickContactsSelectionLimit" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("EXTRA_PICK_CONTACTS_SELECTION_LIMIT", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("EXTRA_PICK_CONTACTS_SELECTION_LIMIT", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>An integer extra that defines the maximum number of contacts a user can select in a single
+            session.</summary>
+        <remarks>
+          <para>An integer extra that defines the maximum number of contacts a user can select in a single session. The Contacts Picker uses this value to configure its UI.</para>
+          <para>If this extra is not set, the default selection limit is 50. The absolute maximum allowed value is 100.</para>
+          <para>Clients should not set this value higher than the documented maximum limit. The application handling ACTION_PICK_CONTACTS will throw an IllegalArgumentException if the provided value exceeds the maximum allowed limit.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract#EXTRA_PICK_CONTACTS_SELECTION_LIMIT" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_SELECTION_LIMIT</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.Provider.ContactsPickerSessionContract.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.Provider.ContactsPickerSessionContract.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.Provider.ContactsPickerSessionContract.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.Provider.ContactsPickerSessionContract.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.Provider.ContactsPickerSessionContract.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.Provider.ContactsPickerSessionContract.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

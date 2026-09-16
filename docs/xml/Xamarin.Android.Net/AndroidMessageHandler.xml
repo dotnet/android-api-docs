@@ -1,4 +1,4 @@
-<Type Name="AndroidMessageHandler" FullName="Xamarin.Android.Net.AndroidMessageHandler">
+﻿<Type Name="AndroidMessageHandler" FullName="Xamarin.Android.Net.AndroidMessageHandler">
   <TypeSignature Language="C#" Value="public class AndroidMessageHandler : System.Net.Http.HttpMessageHandler" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit AndroidMessageHandler extends System.Net.Http.HttpMessageHandler" />
   <TypeSignature Language="DocId" Value="T:Xamarin.Android.Net.AndroidMessageHandler" />
@@ -29,13 +29,13 @@
     <remarks>
       <para>Instance of this class is used to configure <see cref="T:System.Net.Http.HttpClient" /> instance
              in the following way:
-            
+
              <example>
              var handler = new AndroidMessageHandler {
                 UseCookies = true,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
              };
-            
+
              var httpClient = new HttpClient (handler);
              var response = httpClient.GetAsync ("http://example.com")?.Result as AndroidHttpResponseMessage;
              </example></para>
@@ -90,8 +90,9 @@
       </ReturnValue>
       <Docs>
         <summary>
-          Controls whether the handler follows HTTP redirect responses. The default value is <c>true</c>.
-        </summary>
+            Gets or sets a value that indicates whether the handler should follow redirection responses.
+            The default value is <see langword="true" />.
+            </summary>
         <value><c>true</c> to follow redirect responses; otherwise, <c>false</c>.</value>
         <remarks>
           <para>The handler disables automatic redirect following for each underlying
@@ -132,9 +133,16 @@
         <ReturnType>System.Net.DecompressionMethods</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets the type of decompression method used by the handler for automatic
+            decompression of the HTTP content response.
+            </summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Supported methods are <see cref="F:System.Net.DecompressionMethods.GZip" />,
+            <see cref="F:System.Net.DecompressionMethods.Deflate" />, and <see cref="F:System.Net.DecompressionMethods.Brotli" />.
+            Set to <see cref="F:System.Net.DecompressionMethods.None" /> to disable automatic decompression.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="CheckCertificateRevocationList">
@@ -151,7 +159,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets a value that indicates whether the certificate revocation list is checked during
+            validation. The default value is <see langword="false" />.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -170,7 +181,10 @@
         <ReturnType>System.Net.Http.ClientCertificateOption</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets a value that indicates how client certificates are provided. The default value is
+            <see cref="F:System.Net.Http.ClientCertificateOption.Manual" />.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -203,9 +217,14 @@
         <ReturnType>System.Security.Cryptography.X509Certificates.X509CertificateCollection</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets the collection of client certificates used by the handler to authenticate the client.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.InvalidOperationException">
+          <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.ClientCertificateOptions" /> is not set to <see cref="F:System.Net.Http.ClientCertificateOption.Manual" />.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="ConfigureCustomSSLSocketFactory">
@@ -372,7 +391,7 @@
             native Java client defaults are used.
             </para>
           <para>
-            The default value is <c>120</c> seconds.
+            The default value is <c>24</c> hours, same as <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.ReadTimeout" />.
             </para>
         </summary>
         <value>To be added.</value>
@@ -393,9 +412,12 @@
         <ReturnType>System.Net.CookieContainer</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets the cookie container used to store server cookies.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentNullException">The value specified is <see langword="null" />.</exception>
       </Docs>
     </Member>
     <Member MemberName="Credentials">
@@ -426,7 +448,9 @@
         <ReturnType>System.Net.ICredentials</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets authentication information used by this handler.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -459,7 +483,9 @@
         <ReturnType>System.Net.ICredentials</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets the credentials to use when authenticating with the proxy.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -571,9 +597,14 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets the maximum number of allowed HTTP redirects. The default value is 50.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
+        <exception cref="T:System.ArgumentOutOfRangeException">
+            The specified value is less than or equal to 0.
+            </exception>
       </Docs>
     </Member>
     <Member MemberName="MaxConnectionsPerServer">
@@ -590,7 +621,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets the maximum number of concurrent connections allowed per server. The default value
+            is <see cref="F:System.Int32.MaxValue" />.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -609,7 +643,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets the maximum length, in kilobytes (1024 bytes), of the response headers. The default
+            value is 64 KB.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -628,7 +665,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets a value that indicates whether the handler sends an Authorization header with the
+            request. The default value is <see langword="false" />.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -697,7 +737,10 @@
         <ReturnType>System.Collections.Generic.IDictionary&lt;System.String,System.Object&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets a custom property collection for the handler. This can be used to pass
+            additional metadata or configuration to the underlying transport.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -730,7 +773,9 @@
         <ReturnType>System.Net.IWebProxy</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets the proxy information used by the handler.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -901,7 +946,10 @@
         <ReturnType>System.Func&lt;System.Net.Http.HttpRequestMessage,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Security.Cryptography.X509Certificates.X509Chain,System.Net.Security.SslPolicyErrors,System.Boolean&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets a callback to validate the server certificate. When set, the callback is invoked
+            during the TLS handshake to perform custom certificate validation.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -950,9 +998,16 @@
         <ReturnType>System.Security.Authentication.SslProtocols</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets the TLS/SSL protocols used by the handler. The default value is
+            <see cref="F:System.Security.Authentication.SslProtocols.Tls13" /> | <see cref="F:System.Security.Authentication.SslProtocols.Tls12" /> on Android API 29+,
+            or <see cref="F:System.Security.Authentication.SslProtocols.Tls12" /> on earlier versions.
+            </summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            See the <see href="https://developer.android.com/reference/javax/net/ssl/SSLSocket#protocols">
+            Android SSLSocket documentation</see> for details on supported protocols by API level.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="SupportsAutomaticDecompression">
@@ -969,7 +1024,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets a value indicating whether the handler supports automatic response content decompression.
+            Always returns <see langword="true" /> for <see cref="T:Xamarin.Android.Net.AndroidMessageHandler" />.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -988,7 +1046,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets a value indicating whether the handler supports proxy settings.
+            Always returns <see langword="true" /> for <see cref="T:Xamarin.Android.Net.AndroidMessageHandler" />.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -1008,10 +1069,10 @@
       </ReturnValue>
       <Docs>
         <summary>
-          Indicates support for configuring <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.AllowAutoRedirect" />
-          and <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.MaxAutomaticRedirections" />. This handler always
-          supports both settings.
-        </summary>
+            Gets a value indicating whether the handler supports configuration settings for the
+            <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.AllowAutoRedirect" /> and <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.MaxAutomaticRedirections" /> properties.
+            Always returns <see langword="true" /> for <see cref="T:Xamarin.Android.Net.AndroidMessageHandler" />.
+            </summary>
         <value><c>true</c>.</value>
         <remarks>
           <para>Redirect configuration applies to the handler's managed redirect processing rather than to automatic
@@ -1069,7 +1130,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets a value that indicates whether the handler uses the <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.CookieContainer" />
+            property to store server cookies and uses these cookies when sending requests. The default value
+            is <see langword="true" />.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
@@ -1088,7 +1153,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+            Gets or sets a value that indicates whether the handler uses a proxy for requests. The default
+            value is <see langword="true" />.
+            </summary>
         <value>To be added.</value>
         <remarks>To be added.</remarks>
       </Docs>
