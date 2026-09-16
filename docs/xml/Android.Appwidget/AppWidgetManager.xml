@@ -1,4 +1,4 @@
-﻿<Type Name="AppWidgetManager" FullName="Android.Appwidget.AppWidgetManager">
+<Type Name="AppWidgetManager" FullName="Android.Appwidget.AppWidgetManager">
   <TypeSignature Language="C#" Value="public class AppWidgetManager : Java.Lang.Object" />
   <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit AppWidgetManager extends Java.Lang.Object" />
   <TypeSignature Language="DocId" Value="T:Android.Appwidget.AppWidgetManager" />
@@ -1709,8 +1709,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Return <c>TRUE</c> if the default launcher supports
-            <c>#requestPinAppWidget(ComponentName, Bundle, PendingIntent)</c></summary>
+        <summary>Returns <c>true</c> if the default launcher supports
+            <c>#requestPinAppWidget(ComponentName, Bundle, PendingIntent)</c>.</summary>
         <value>To be added.</value>
         <remarks>
           <para>Return <c>TRUE</c> if the default launcher supports
@@ -1947,7 +1947,11 @@
             on.</summary>
         <remarks>
           <para>A bundle extra (int) that indicates which display the widget is currently being displayed on. This can be used with DisplayManager.getDisplay(int) to retrieve the Display and its corresponding DisplayMetrics.</para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/appwidget/AppWidgetManager#OPTION_APPWIDGET_DISPLAY_ID" title="Reference documentation">Android reference for <code>android.appwidget.AppWidgetManager.OPTION_APPWIDGET_DISPLAY_ID</code>.</a></format></para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/appwidget/AppWidgetManager#OPTION_APPWIDGET_DISPLAY_ID" title="Reference documentation">Android reference for <code>android.appwidget.AppWidgetManager.OPTION_APPWIDGET_DISPLAY_ID</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -2504,10 +2508,11 @@
         <param name="successCallback">If not null, this intent will be sent when the widget is created.</param>
         <summary>Request to pin an app widget on the current launcher.</summary>
         <returns>
-          <c>TRUE</c> if the launcher supports this feature. Note the API will return without
-               waiting for the user to respond, so getting <c>TRUE</c> from this API does *not* mean
-               the shortcut is pinned. <c>FALSE</c> if the launcher doesn't support this feature or if
-               calling app belongs to a user-profile with items restricted on home screen.</returns>
+          <c>true</c> if the launcher supports this feature. Note the API will return without
+               waiting for the user to respond, so getting <c>true</c> from this API does *not* mean
+               the shortcut is pinned. <c>false</c> if the launcher doesn't support this feature or if
+               calling app belongs to a user-profile with items restricted on home screen. If App Lock
+               is enabled for the calling app, this method will fail and return <c>false</c>.</returns>
         <remarks>
           <para>Request to pin an app widget on the current launcher. It's up to the launcher to accept this
             request (optionally showing a user confirmation). If the request is accepted, the caller will
@@ -2578,7 +2583,7 @@
                then this preview will be used for each of those categories. For example, if you
                set a preview for WIDGET_CATEGORY_HOME_SCREEN | WIDGET_CATEGORY_KEYGUARD, the preview will
                be used when picking widgets for the home screen and keyguard.
-
+            
                &lt;p&gt;Note: You should only use the widget categories that the provider supports, as defined
                in <c>AppWidgetProviderInfo#widgetCategory</c>.</param>
         <param name="preview">This preview will be used for previewing the provider when picking widgets for
