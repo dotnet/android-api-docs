@@ -207,10 +207,14 @@
         <Parameter Name="cameraId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cameraId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cameraId">The unique identifier of the camera device for which CameraDevice.CameraDeviceSetup object must be constructed. This identifier must be present in getCameraIdList() This value cannot be null.</param>
+        <summary>Returns a CameraDevice.CameraDeviceSetup object for the given cameraId, which provides limited access to CameraDevice setup and query functionality without requiring an openCamera(String, StateCallback, Handler) call.</summary>
+        <returns>CameraDevice.CameraDeviceSetup object corresponding to the provided cameraId This value cannot be null.</returns>
+        <remarks>
+          <para>Returns a CameraDevice.CameraDeviceSetup object for the given cameraId, which provides limited access to CameraDevice setup and query functionality without requiring an openCamera(String, StateCallback, Handler) call. The CameraDevice can later be obtained either by calling openCamera(String, StateCallback, Handler), or CameraDevice.CameraDeviceSetup.openCamera.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#getCameraDeviceSetup(java.lang.String)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraManager.getCameraDeviceSetup</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCameraExtensionCharacteristics">
@@ -556,6 +560,15 @@
              <c>null</c> to use the current thread's <see cref="T:Android.OS.Looper" />.</param>
         <summary>Open a connection to a camera with the given ID.</summary>
         <remarks>
+          <para>Open a connection to a camera with the given ID.</para>
+          <para>Use getCameraIdList() to get the list of available camera devices. Note that even if an id is listed, open may fail if the device is disconnected between the calls to getCameraIdList() and openCamera(String, StateCallback, Handler), or if a higher-priority camera API client begins using the camera device.</para>
+          <para>As of API level 23, devices for which the AvailabilityCallback.onCameraUnavailable(String) callback has been called due to the device being in use by a lower-priority, background camera API client can still potentially be opened by calling this method when the calling camera API client has a higher priority than the current camera API client using this device. In general, if the top, foreground activity is running within your application process, your process will be given the highest priority when accessing the camera, and this method will succeed even if the camera device is in use by another camera API client. Any lower-priority application that loses control of the camera in this way will receive an CameraDevice.StateCallback.onDisconnected(CameraDevice) callback. Opening the same camera ID twice in the same application will similarly cause the CameraDevice.StateCallback.onDisconnected(CameraDevice) callback being fired for the CameraDevice from the first open call and all ongoing tasks being dropped.</para>
+          <para>Once the camera is successfully opened, CameraDevice.StateCallback.onOpened will be invoked with the newly opened CameraDevice. The camera device can then be set up for operation by calling CameraDevice.createCaptureSession and CameraDevice.createCaptureRequest</para>
+          <para>Before API level 30, when the application tries to open multiple CameraDevice of different IDs and the device does not support opening such combination, either the openCamera(String, StateCallback, Handler) will fail and throw a CameraAccessException or one or more of already opened CameraDevice will be disconnected and receive CameraDevice.StateCallback.onDisconnected(CameraDevice) callback. Which behavior will happen depends on the device implementation and can vary on different devices. Starting in API level 30, if the device does not support the combination of cameras being opened, it is guaranteed the openCamera(String, StateCallback, Handler) call will fail and none of existing CameraDevice will be disconnected.</para>
+          <para>Since the camera device will be opened asynchronously, any asynchronous operations done on the returned CameraDevice instance will be queued up until the device startup has completed and the callback's onOpened method is called. The pending operations are then processed in order.</para>
+          <para>If the camera becomes disconnected during initialization after this function call returns, CameraDevice.StateCallback.onDisconnected with a CameraDevice in the disconnected state (and CameraDevice.StateCallback.onOpened will be skipped).</para>
+          <para>If opening the camera device fails, then the device callback's onError method will be called, and subsequent calls on the camera device will throw a CameraAccessException. Requires Manifest.permission.CAMERA</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#openCamera(java.lang.String,%20android.hardware.camera2.CameraDevice.StateCallback,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraManager.openCamera</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <exception cref="T:Android.Hardware.Camera2.CameraAccessException">if the camera is disabled by device policy,
@@ -602,11 +615,15 @@
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraDevice+StateCallback" />
       </Parameters>
       <Docs>
-        <param name="cameraId">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="cameraId">The unique identifier of the camera device to open. This value cannot be null.</param>
+        <param name="executor">The executor which will be used when invoking the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">The callback which is invoked once the camera is opened. This value cannot be null.</param>
+        <summary>Open a connection to a camera with the given ID.</summary>
+        <remarks>
+          <para>Open a connection to a camera with the given ID.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#openCamera(java.lang.String,%20java.util.concurrent.Executor,%20android.hardware.camera2.CameraDevice.StateCallback)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraManager.openCamera</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterAvailabilityCallback">
@@ -689,15 +706,14 @@
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraManager+AvailabilityCallback" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
+        <param name="executor">The executor which will be used to invoke the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="callback">the new callback to send camera availability notices to</param>
         <summary>Register a callback to be notified about camera device availability.</summary>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#registerAvailabilityCallback(android.hardware.camera2.AvailabilityCallback,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraManager.registerAvailabilityCallback(android.hardware.camera2.AvailabilityCallback, android.os.Handler)</code>.</a>
-            </format>
-          </para>
+          <para>Register a callback to be notified about camera device availability.</para>
+          <para>The behavior of this method matches that of registerAvailabilityCallback(AvailabilityCallback,Handler), except that it uses Executor as an argument instead of Handler.</para>
+          <para>Note: If the order between some availability callbacks matters, the implementation of the executor should handle those callbacks in the same thread to maintain the callbacks' order.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#registerAvailabilityCallback(java.util.concurrent.Executor,%20android.hardware.camera2.CameraManager.AvailabilityCallback)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraManager.registerAvailabilityCallback</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -787,15 +803,13 @@
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraManager+TorchCallback" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
+        <param name="executor">The executor which will be used to invoke the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="callback">The new callback to send torch mode status to</param>
         <summary>Register a callback to be notified about torch mode status.</summary>
         <remarks>
-          <para>
-            <format type="text/html">
-              <a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#registerTorchCallback(android.hardware.camera2.TorchCallback,%20android.os.Handler)" title="Reference documentation">Java documentation for <code>android.hardware.camera2.CameraManager.registerTorchCallback(android.hardware.camera2.TorchCallback, android.os.Handler)</code>.</a>
-            </format>
-          </para>
+          <para>Register a callback to be notified about torch mode status.</para>
+          <para>The behavior of this method matches that of registerTorchCallback(TorchCallback,Handler), except that it uses Executor as an argument instead of Handler.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#registerTorchCallback(java.util.concurrent.Executor,%20android.hardware.camera2.CameraManager.TorchCallback)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraManager.registerTorchCallback</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>

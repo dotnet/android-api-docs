@@ -57,6 +57,10 @@ eligibility is evaluated against the untouched summary and requires exactly
 three importer-owned
 paragraphs: plain deprecation prose, the exact field source reference, and exact
 Android attribution. Additional nodes or markup preserve the summary verbatim.
+Java-signature remarks repairs likewise require only an unmodified Java signature,
+the exact canonical Android source reference, and the exact Android attribution;
+authored nodes are preserved. Summary repair selection is XML-aware, including
+CDATA containing literal closing-tag text.
 Repair-only mapping or source failures are reported against the `summary` target.
 Existing self-closing `<remarks />` elements are expanded in place rather than
 duplicated. Importer-owned remarks refreshes and copied-description repairs use
