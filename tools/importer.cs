@@ -374,7 +374,7 @@ static class ImporterProgram
                                 mapping.SourceUrl,
                                 sourceReferenceCleanupSkip);
                         }
-                        else if (!refreshed.Equals(text, StringComparison.Ordinal))
+                        if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
                             file.UpdateBlockOffsets(owner.Order, refreshed);
                             var repairTarget = "summary";
@@ -517,11 +517,8 @@ static class ImporterProgram
                                 mapping.SourceUrl,
                                 sourceReferenceCleanupSkip);
                         }
-                        else
-                        {
-                            text = sourceDocumentation;
-                            file.UpdateBlockOffsets(owner.Order, text);
-                        }
+                        text = sourceDocumentation;
+                        file.UpdateBlockOffsets(owner.Order, text);
                     }
                 }
 
@@ -1778,11 +1775,9 @@ static class ImporterProgram
                 allowEnumCreation);
             var discardedMetadata = RemoveEnumDiscardedMetadata(updatedBlock, docs);
             if (discardedMetadata.Skip is not null)
-            {
                 cleanupSkip = discardedMetadata.Skip;
-                return text;
-            }
-            updatedBlock = discardedMetadata.Text;
+            else
+                updatedBlock = discardedMetadata.Text;
             if (updatedBlock.Equals(blockText, StringComparison.Ordinal))
                 return text;
             return text[..block.Start] + updatedBlock + text[block.End..];
@@ -1809,18 +1804,14 @@ static class ImporterProgram
 
         var staleLinks = RemoveStaleSourceLinks(blockText, docs.SourceUrl, removeAll: false);
         if (staleLinks.Skip is not null)
-        {
             cleanupSkip = staleLinks.Skip;
-            return text;
-        }
-        blockText = staleLinks.Text;
+        else
+            blockText = staleLinks.Text;
         var duplicateLinks = RemoveDuplicateSourceLinks(blockText, docs.SourceUrl);
         if (duplicateLinks.Skip is not null)
-        {
-            cleanupSkip = duplicateLinks.Skip;
-            return text;
-        }
-        blockText = duplicateLinks.Text;
+            cleanupSkip ??= duplicateLinks.Skip;
+        else
+            blockText = duplicateLinks.Text;
         blockText = RemoveAugmentedRemarksPlaceholder(blockText);
         var metadataOnly = HasMetadataOnlyRemarks(blockText);
         if (ContainsSourceUrl(blockText, docs.SourceUrl))
@@ -1833,11 +1824,9 @@ static class ImporterProgram
             }
             var matchingLinks = RemoveMatchingSourceLinks(blockText, docs.SourceUrl);
             if (matchingLinks.Skip is not null)
-            {
-                cleanupSkip = matchingLinks.Skip;
-                return text;
-            }
-            blockText = matchingLinks.Text;
+                cleanupSkip ??= matchingLinks.Skip;
+            else
+                blockText = matchingLinks.Text;
         }
 
         if (!TryParseDocsBlock(blockText, out var actualDocs))
@@ -1868,10 +1857,13 @@ static class ImporterProgram
                 additions.Add(RenderDocumentationParagraph(paragraph, paraIndent));
         }
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
-        additions.Add(
-            $"{paraIndent}<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
-            $"title=\"Reference documentation\">{sourceLabel} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
-            "</a></format></para>");
+        if (!ContainsSourceUrl(actualDocs, docs.SourceUrl))
+        {
+            additions.Add(
+                $"{paraIndent}<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
+                $"title=\"Reference documentation\">{sourceLabel} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
+                "</a></format></para>");
+        }
         if (docs.SourceKind == "android" &&
             !ContainsSourceUrl(
                 actualDocs,
@@ -1906,6 +1898,24 @@ static class ImporterProgram
                     "The parser-identified <remarks> element could not be located without scanning CDATA, comments, or processing instructions.");
                 return text;
             }
+            var sourceReferenceParagraph = attributionOnly &&
+                !replacedRemarksPlaceholder &&
+                docs.Paragraphs.Count > 0
+                ? remarks.Elements("para").FirstOrDefault(paragraph =>
+                    TryGetImporterSourceReferenceUrl(
+                        paragraph,
+                        out var sourceUrl) &&
+                    UrlsEqual(sourceUrl, docs.SourceUrl))
+                : null;
+            var sourceReferencePara = -1;
+            if (sourceReferenceParagraph is not null &&
+                TryGetElementSpan(
+                    blockText,
+                    sourceReferenceParagraph,
+                    out var sourceReferenceSpan))
+            {
+                sourceReferencePara = sourceReferenceSpan.Start;
+            }
             var attributionParagraph = remarks
                 .Descendants("a")
                 .FirstOrDefault(anchor => UrlsEqual(
@@ -1924,7 +1934,11 @@ static class ImporterProgram
                 }
                 attributionPara = attributionSpan.Start;
             }
-            var insertionTarget = attributionPara >= 0 ? attributionPara : remarksClose;
+            var insertionTarget = sourceReferencePara >= 0
+                ? sourceReferencePara
+                : attributionPara >= 0
+                    ? attributionPara
+                    : remarksClose;
             var insertion = ClosingInsertionPoint(blockText, insertionTarget, newline);
             var separator = insertion == insertionTarget ? newline : "";
             replacementBlock =
@@ -8187,6 +8201,13 @@ static class ImporterProgram
             docsRoot,
             "Java.Util.Concurrent",
             $"ConcurrentLinkedQueue.importer-self-test-{Environment.ProcessId}.xml");
+        var compactForEachPipelinePath = Path.Combine(
+            docsRoot,
+            "Java.Util.Concurrent",
+            $"ConcurrentLinkedQueue.compact-importer-self-test-{Environment.ProcessId}.xml");
+        var enumPipelinePath = Path.Combine(
+            docsRoot,
+            $"WidgetKind.compact-importer-self-test-{Environment.ProcessId}.xml");
         Directory.CreateDirectory(tempDirectory);
         try
         {
@@ -8341,6 +8362,294 @@ static class ImporterProgram
                     forEachMixedMarkupPreserved &&
                     reportedUnsafeDuplicate,
                 $"production copied-summary repair preserves an unseparated duplicate source reference and reports the unsafe metadata deletion (exit={forEachExitCode}, summary={forEachSummaryRepaired}, references={forEachReferencesPreserved}, markup={forEachMixedMarkupPreserved}, report={reportedUnsafeDuplicate})");
+
+            var compactForEachDocs = XElement.Parse(
+                forEachBlockText,
+                LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            Assert(
+                TryGetElementSpan(
+                    forEachBlockText,
+                    compactForEachDocs.Element("remarks")!,
+                    out var compactForEachRemarksSpan),
+                "ConcurrentLinkedQueue ForEach compact metadata remarks are parser-located");
+            var compactForEachReference = ImporterSourceReference(
+                forEachMapping.Docs!).ToString(SaveOptions.DisableFormatting);
+            var compactForEachRemarks =
+                $"<remarks>{compactForEachReference}" +
+                $"{compactForEachReference}" +
+                $"<para>{AndroidAttribution}</para></remarks>";
+            var compactForEachBlock =
+                forEachBlockText[..compactForEachRemarksSpan.Start] +
+                compactForEachRemarks +
+                forEachBlockText[compactForEachRemarksSpan.End..];
+            var compactForEachBlockDocument = XElement.Parse(
+                compactForEachBlock,
+                LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            Assert(
+                TryGetElementSpan(
+                    compactForEachBlock,
+                    compactForEachBlockDocument.Element("param")!,
+                    out var compactForEachParameterSpan),
+                "ConcurrentLinkedQueue ForEach action parameter is parser-located");
+            compactForEachBlock =
+                compactForEachBlock[..compactForEachParameterSpan.Start] +
+                "<param name=\"action\">To be added.</param>" +
+                compactForEachBlock[compactForEachParameterSpan.End..];
+            var compactForEachPipelineText =
+                forEachSourceFile.Text[..forEachBlock.Start] +
+                compactForEachBlock +
+                forEachSourceFile.Text[forEachBlock.End..];
+            File.WriteAllText(
+                compactForEachPipelinePath,
+                compactForEachPipelineText,
+                new UTF8Encoding(false));
+
+            var compactForEachReportPath = Path.Combine(
+                tempDirectory,
+                "compact-for-each-pipeline");
+            var compactForEachExitCode = RunAsync(
+                [
+                    "--path", compactForEachPipelinePath,
+                    "--namespace", "Java.Util.Concurrent",
+                    "--member", "ForEach",
+                    "--offline",
+                    "--cache", forEachCacheDirectory,
+                    "--max-changes", "1",
+                    "--apply",
+                    "--report", compactForEachReportPath,
+                ]).GetAwaiter().GetResult();
+            var appliedCompactForEachText = File.ReadAllText(compactForEachPipelinePath);
+            var appliedCompactForEachDocs = XDocument.Parse(
+                appliedCompactForEachText,
+                LoadOptions.PreserveWhitespace)
+                .Root!.Element("Members")!.Elements("Member")
+                .Single(member => member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == forEachOwner.Id))
+                .Element("Docs")!;
+            var appliedCompactForEachRemarks =
+                appliedCompactForEachDocs.Element("remarks")!;
+            using var compactForEachReport = JsonDocument.Parse(
+                File.ReadAllText(compactForEachReportPath + ".json"));
+            var compactForEachCleanupSkip = compactForEachReport.RootElement
+                .GetProperty("entries")
+                .EnumerateArray()
+                .Any(entry =>
+                    entry.GetProperty("status").GetString() == "skipped" &&
+                    entry.GetProperty("target").GetString() == "remarks" &&
+                    entry.GetProperty("reason").GetString() ==
+                        "source_reference_mixed_content" &&
+                    entry.GetProperty("sourceUrl").GetString() ==
+                        forEachMapping.Docs!.SourceUrl);
+            var compactForEachContract = NormalizeText(
+                forEachMapping.Docs!.Paragraphs.Single().Text);
+            var compactForEachElements =
+                appliedCompactForEachRemarks.Elements().ToList();
+            var compactForEachSourceProseIndex =
+                compactForEachElements.FindIndex(paragraph =>
+                    NormalizeText(paragraph.Value) == compactForEachContract);
+            var compactForEachSourceReferenceIndex =
+                compactForEachElements.FindIndex(paragraph =>
+                    TryGetImporterSourceReferenceUrl(
+                        paragraph,
+                        out var sourceUrl) &&
+                    UrlsEqual(sourceUrl, forEachMapping.Docs.SourceUrl));
+            var compactForEachCompleted =
+                NormalizeText(appliedCompactForEachDocs.Element("param")!.Value) ==
+                    NormalizeText(forEachMapping.Docs.Parameters["action"]) &&
+                compactForEachSourceProseIndex >= 0 &&
+                compactForEachSourceProseIndex < compactForEachSourceReferenceIndex &&
+                compactForEachContract.Contains(
+                    "order of iteration",
+                    StringComparison.Ordinal) &&
+                compactForEachContract.Contains(
+                    "Exceptions thrown by the action are relayed to the caller.",
+                    StringComparison.Ordinal) &&
+                compactForEachContract.Contains(
+                    "side-effects that modify the underlying source of elements",
+                    StringComparison.Ordinal);
+            var compactForEachMetadataPreserved =
+                CountImporterSourceReferences(
+                    appliedCompactForEachRemarks,
+                    forEachMapping.Docs.SourceUrl) == 2 &&
+                appliedCompactForEachText.Contains(
+                    compactForEachReference + compactForEachReference,
+                    StringComparison.Ordinal) &&
+                appliedCompactForEachRemarks.Elements("para").Any(
+                    IsImporterAttributionParagraph);
+            var compactForEachSecondReportPath = Path.Combine(
+                tempDirectory,
+                "compact-for-each-pipeline-second");
+            var compactForEachSecondExitCode = RunAsync(
+                [
+                    "--path", compactForEachPipelinePath,
+                    "--namespace", "Java.Util.Concurrent",
+                    "--member", "ForEach",
+                    "--offline",
+                    "--cache", forEachCacheDirectory,
+                    "--max-changes", "1",
+                    "--apply",
+                    "--report", compactForEachSecondReportPath,
+                ]).GetAwaiter().GetResult();
+            Assert(
+                compactForEachExitCode == 0 &&
+                    compactForEachCompleted &&
+                    compactForEachMetadataPreserved &&
+                    compactForEachCleanupSkip &&
+                    compactForEachSecondExitCode == 0 &&
+                    File.ReadAllText(compactForEachPipelinePath).Equals(
+                        appliedCompactForEachText,
+                        StringComparison.Ordinal),
+                $"production compact metadata completion retains guarded duplicate references while adding the exact ForEach parameter and full Java contract (exit={compactForEachExitCode}, completed={compactForEachCompleted}, metadata={compactForEachMetadataPreserved}, cleanup={compactForEachCleanupSkip}, second={compactForEachSecondExitCode})");
+
+            var enumPipelineFile = LoadedFile.Load(
+                repositoryRoot,
+                Path.Combine(fixtureRoot, "enum-source.xml"));
+            enumPipelineFile.SelectOwners("Deprecated");
+            var enumPipelineOwner = enumPipelineFile.Owners.Single();
+            var enumPipelinePage = SourcePage.Parse(
+                enumPipelineOwner.SourceRequest!,
+                File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html")));
+            var enumPipelineMapping = MapOwner(
+                enumPipelineOwner,
+                new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [enumPipelineOwner.SourceRequest!.Url] =
+                        SourceLoadResult.Success(enumPipelinePage),
+                });
+            Assert(
+                enumPipelineOwner.IsEnumField &&
+                    enumPipelineOwner.Placeholders.Any(placeholder =>
+                        placeholder.Name == "summary") &&
+                    enumPipelineMapping.Docs?.Paragraphs.Count >= 2,
+                "deprecated enum production owner maps its source paragraphs");
+            var enumPipelineBlock = enumPipelineFile.Text[
+                enumPipelineFile.DocsBlocks[enumPipelineOwner.Order].Start..
+                enumPipelineFile.DocsBlocks[enumPipelineOwner.Order].End];
+            var enumPipelineBlockDocument = XElement.Parse(
+                enumPipelineBlock,
+                LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            Assert(
+                TryGetElementSpan(
+                    enumPipelineBlock,
+                    enumPipelineBlockDocument.Element("remarks")!,
+                    out var enumPipelineRemarksSpan),
+                "deprecated enum compact metadata remarks are parser-located");
+            var enumCompactReference = ImporterSourceReference(
+                enumPipelineMapping.Docs!).ToString(SaveOptions.DisableFormatting);
+            var enumCompactRemarks =
+                $"<remarks>{enumCompactReference}" +
+                $"{enumCompactReference}" +
+                $"<para>{AndroidAttribution}</para></remarks>";
+            enumPipelineBlock =
+                enumPipelineBlock[..enumPipelineRemarksSpan.Start] +
+                enumCompactRemarks +
+                enumPipelineBlock[enumPipelineRemarksSpan.End..];
+            var enumPipelineText =
+                enumPipelineFile.Text[
+                    ..enumPipelineFile.DocsBlocks[enumPipelineOwner.Order].Start] +
+                enumPipelineBlock +
+                enumPipelineFile.Text[
+                    enumPipelineFile.DocsBlocks[enumPipelineOwner.Order].End..];
+            File.WriteAllText(
+                enumPipelinePath,
+                enumPipelineText,
+                new UTF8Encoding(false));
+            var enumCacheDirectory = Path.Combine(tempDirectory, "enum-cache");
+            Directory.CreateDirectory(enumCacheDirectory);
+            var enumCacheKey = Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(enumPipelineOwner.SourceRequest!.Url)))
+                .ToLowerInvariant();
+            File.WriteAllText(
+                Path.Combine(enumCacheDirectory, enumCacheKey + ".html"),
+                File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html")),
+                new UTF8Encoding(false));
+            var enumPipelineReportPath = Path.Combine(
+                tempDirectory,
+                "deprecated-enum-pipeline");
+            var enumPipelineExitCode = RunAsync(
+                [
+                    "--path", enumPipelinePath,
+                    "--namespace", "Android.Example",
+                    "--member", "Deprecated",
+                    "--offline",
+                    "--cache", enumCacheDirectory,
+                    "--max-changes", "1",
+                    "--apply",
+                    "--report", enumPipelineReportPath,
+                ]).GetAwaiter().GetResult();
+            var appliedEnumPipelineText = File.ReadAllText(enumPipelinePath);
+            var appliedEnumPipelineDocs = XDocument.Parse(
+                appliedEnumPipelineText,
+                LoadOptions.PreserveWhitespace)
+                .Root!.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "Deprecated")
+                .Element("Docs")!;
+            var appliedEnumPipelineSummary = appliedEnumPipelineDocs.Element("summary")!;
+            var appliedEnumPipelineRemarks = appliedEnumPipelineDocs.Element("remarks")!;
+            using var enumPipelineReport = JsonDocument.Parse(
+                File.ReadAllText(enumPipelineReportPath + ".json"));
+            var enumPipelineCleanupSkip = enumPipelineReport.RootElement
+                .GetProperty("entries")
+                .EnumerateArray()
+                .Any(entry =>
+                    entry.GetProperty("status").GetString() == "skipped" &&
+                    entry.GetProperty("target").GetString() == "remarks" &&
+                    entry.GetProperty("reason").GetString() ==
+                        "source_reference_mixed_content" &&
+                    entry.GetProperty("sourceUrl").GetString() ==
+                        enumPipelineMapping.Docs!.SourceUrl);
+            var expectedEnumProse = enumPipelineMapping.Docs!.Paragraphs
+                .Where(paragraph => !paragraph.IsCode)
+                .Select(paragraph => NormalizeText(paragraph.Text))
+                .ToList();
+            var actualEnumProse = appliedEnumPipelineSummary.Elements("para")
+                .Where(paragraph => !paragraph.Descendants("a").Any())
+                .Select(paragraph => NormalizeText(paragraph.Value))
+                .ToList();
+            var enumPipelineCompleted =
+                actualEnumProse.SequenceEqual(
+                    expectedEnumProse,
+                    StringComparer.Ordinal) &&
+                actualEnumProse.Any(paragraph =>
+                    paragraph.Contains(
+                        "Identifies the deprecated fixture value.",
+                        StringComparison.Ordinal)) &&
+                ContainsSourceUrl(
+                    appliedEnumPipelineSummary,
+                    enumPipelineMapping.Docs.SourceUrl) &&
+                appliedEnumPipelineSummary.Elements("para").Any(
+                    IsImporterAttributionParagraph);
+            var enumPipelineMetadataPreserved =
+                CountImporterSourceReferences(
+                    appliedEnumPipelineRemarks,
+                    enumPipelineMapping.Docs.SourceUrl) == 2 &&
+                appliedEnumPipelineRemarks.Elements("para").Any(
+                    IsImporterAttributionParagraph);
+            var enumPipelineSecondReportPath = Path.Combine(
+                tempDirectory,
+                "deprecated-enum-pipeline-second");
+            var enumPipelineSecondExitCode = RunAsync(
+                [
+                    "--path", enumPipelinePath,
+                    "--namespace", "Android.Example",
+                    "--member", "Deprecated",
+                    "--offline",
+                    "--cache", enumCacheDirectory,
+                    "--max-changes", "1",
+                    "--apply",
+                    "--report", enumPipelineSecondReportPath,
+                ]).GetAwaiter().GetResult();
+            Assert(
+                enumPipelineExitCode == 0 &&
+                    enumPipelineCompleted &&
+                    enumPipelineMetadataPreserved &&
+                    enumPipelineCleanupSkip &&
+                    enumPipelineSecondExitCode == 0 &&
+                    File.ReadAllText(enumPipelinePath).Equals(
+                        appliedEnumPipelineText,
+                        StringComparison.Ordinal),
+                $"production deprecated enum completion retains guarded metadata while publishing complete source prose and summary provenance (exit={enumPipelineExitCode}, completed={enumPipelineCompleted}, metadata={enumPipelineMetadataPreserved}, cleanup={enumPipelineCleanupSkip}, second={enumPipelineSecondExitCode})");
 
             var copyOnWriteArrayListPath = Path.Combine(
                 docsRoot,
@@ -8941,6 +9250,10 @@ static class ImporterProgram
         {
             if (File.Exists(forEachPipelinePath))
                 File.Delete(forEachPipelinePath);
+            if (File.Exists(compactForEachPipelinePath))
+                File.Delete(compactForEachPipelinePath);
+            if (File.Exists(enumPipelinePath))
+                File.Delete(enumPipelinePath);
             Directory.Delete(tempDirectory, true);
         }
 
