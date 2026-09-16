@@ -49,8 +49,12 @@ source links, and attribution are emitted in `<summary>` because their
 both its caution and subsequent semantic value prose. The importer never creates
 generic prose or falls back to AOSP. Existing non-placeholder documentation is
 retained, except that an exact prior importer-generated caution-only enum summary
-can be completed from the same authoritative source. Repair eligibility is
-evaluated against the untouched summary and requires exactly three importer-owned
+can be completed from the same authoritative source. A four-member allow-list
+can correct the historic `ConcurrentHashMap` and `ConcurrentSkipListMap`
+conditional Boolean return error only when the exact Java source URL, the full
+old importer markup, and a `System.Boolean` managed return all match. Repair
+eligibility is evaluated against the untouched summary and requires exactly
+three importer-owned
 paragraphs: plain deprecation prose, the exact field source reference, and exact
 Android attribution. Additional nodes or markup preserve the summary verbatim.
 Repair-only mapping or source failures are reported against the `summary` target.

@@ -29,6 +29,29 @@ static class ImporterProgram
         "Android Open Source Project</a></format> and used according to terms described in the " +
         "<format type=\"text/html\"><a href=\"https://creativecommons.org/licenses/by/2.5/\">" +
         "Creative Commons 2.5 Attribution License.</a></format>";
+    static readonly KnownBooleanReturnRepair[] KnownBooleanReturnRepairs =
+    [
+        new(
+            JavaReference + "java.base/java/util/concurrent/ConcurrentHashMap.html#remove(java.lang.Object,java.lang.Object)",
+            "the previous value associated with key, or null if there was no mapping for key",
+            "true if the value was removed",
+            "the previous value associated with <c>key</c>, or <c>null</c> if there was no mapping for <c>key</c>"),
+        new(
+            JavaReference + "java.base/java/util/concurrent/ConcurrentHashMap.html#replace(K,V,V)",
+            "the previous value associated with the specified key, or null if there was no mapping for the key",
+            "true if the value was replaced",
+            "the previous value associated with the specified key, or <c>null</c> if there was no mapping for the key"),
+        new(
+            JavaReference + "java.base/java/util/concurrent/ConcurrentSkipListMap.html#remove(java.lang.Object,java.lang.Object)",
+            "the previous value associated with the specified key, or null if there was no mapping for the key",
+            "true if the value was removed",
+            "the previous value associated with the specified key, or <c>null</c> if there was no mapping for the key"),
+        new(
+            JavaReference + "java.base/java/util/concurrent/ConcurrentSkipListMap.html#replace(K,V,V)",
+            "the previous value associated with the specified key, or null if there was no mapping for the key",
+            "true if the value was replaced",
+            "the previous value associated with the specified key, or <c>null</c> if there was no mapping for the key"),
+    ];
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -212,6 +235,51 @@ static class ImporterProgram
                                     "importer_copied_description_repair",
                                     "Replaced an exact importer-generated Javadoc copied-description label."));
                             }
+                        }
+                    }
+
+                    var booleanReturnRepair = RepairKnownBooleanReturn(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (booleanReturnRepair.Skip is not null)
+                    {
+                        ReportBooleanReturnRepairSkip(
+                            report,
+                            file,
+                            owner,
+                            mapping.SourceUrl,
+                            booleanReturnRepair.Skip);
+                    }
+                    else if (booleanReturnRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "returns",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = booleanReturnRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "returns",
+                                mapping.SourceUrl,
+                                "importer_known_boolean_return_repair",
+                                "Replaced an exact importer-generated Boolean return description with the exact official Java return contract."));
                         }
                     }
 
@@ -794,6 +862,8 @@ static class ImporterProgram
             targets.Add("summary");
         if (HasDeprecatedValueRepairCandidate(file, owner))
             targets.Add("value");
+        if (HasKnownIncorrectBooleanReturnRepairCandidate(file, owner))
+            targets.Add("returns");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
             HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
@@ -823,7 +893,8 @@ static class ImporterProgram
         HasTruncatedImporterSummary(file, owner) ||
         HasIncompleteCodeExampleRemarks(file, owner) ||
         HasMetadataOnlyRemarks(file, owner) ||
-        HasCopiedDescriptionRepairCandidate(file, owner);
+        HasCopiedDescriptionRepairCandidate(file, owner) ||
+        HasKnownIncorrectBooleanReturnRepairCandidate(file, owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
         LoadedFile file,
@@ -2318,6 +2389,107 @@ static class ImporterProgram
         HasCopiedDescriptionSummaryRepairCandidate(docs) ||
         HasCopiedDescriptionRemarksRepairCandidate(docs);
 
+    static bool HasKnownIncorrectBooleanReturnRepairCandidate(
+        LoadedFile file,
+        DocsOwner owner)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return IsManagedBooleanReturn(owner.Member) &&
+            TryParseDocsBlock(file.Text[block.Start..block.End], out var docs) &&
+            XNode.DeepEquals(docs, owner.Docs) &&
+            FindKnownBooleanReturnRepair(docs) is not null;
+    }
+
+    static BooleanReturnRepairResult RepairKnownBooleanReturn(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            !IsManagedBooleanReturn(owner.Member) ||
+            FindKnownBooleanReturnRepair(actualDocs) is not { } repair ||
+            !UrlsEqual(docs.SourceUrl, repair.SourceUrl) ||
+            !HasExactImporterSourceReference(actualDocs, docs) ||
+            ReturnReplacement(docs).Text is not string replacement ||
+            !replacement.Equals(repair.CorrectReturn, StringComparison.Ordinal))
+        {
+            return BooleanReturnRepairResult.NoChange(text);
+        }
+
+        var returns = actualDocs.Element("returns");
+        if (returns is null || !TryGetElementSpan(blockText, returns, out var returnsSpan))
+        {
+            return BooleanReturnRepairResult.Failure(
+                text,
+                "boolean_return_target_not_located",
+                "The parser-identified Boolean return description could not be located without scanning CDATA, comments, or processing instructions.");
+        }
+
+        var replacementElement = $"<returns>{XmlEscape(replacement)}</returns>";
+        var updatedBlock = blockText[..returnsSpan.Start] + replacementElement +
+            blockText[returnsSpan.End..];
+        return BooleanReturnRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
+    static KnownBooleanReturnRepair? FindKnownBooleanReturnRepair(XElement docs)
+    {
+        var sourceUrls = docs
+            .Descendants("para")
+            .Select(paragraph => TryGetImporterSourceReferenceUrl(paragraph, out var sourceUrl)
+                ? sourceUrl
+                : null)
+            .Where(sourceUrl => sourceUrl is not null)
+            .Cast<string>()
+            .ToList();
+        if (sourceUrls.Count != 1 ||
+            docs.Element("returns") is not XElement returns)
+        {
+            return null;
+        }
+
+        var repair = KnownBooleanReturnRepairs.SingleOrDefault(candidate =>
+            UrlsEqual(candidate.SourceUrl, sourceUrls[0]));
+        return repair is not null &&
+            HasExactKnownBooleanReturnMarkup(returns, repair)
+            ? repair
+            : null;
+    }
+
+    static bool HasExactImporterSourceReference(XElement docs, SourceDocs sourceDocs)
+    {
+        var sourceReferences = docs
+            .Descendants("para")
+            .Where(paragraph => TryGetImporterSourceReferenceUrl(paragraph, out _))
+            .ToList();
+        return sourceReferences.Count == 1 &&
+            ImporterMarkupEquals(
+                sourceReferences[0],
+                ImporterSourceReference(sourceDocs));
+    }
+
+    static bool HasExactKnownBooleanReturnMarkup(
+        XElement returns,
+        KnownBooleanReturnRepair repair)
+    {
+        var expected = XElement.Parse(
+            $"<returns>{repair.IncorrectMarkup}</returns>",
+            LoadOptions.PreserveWhitespace);
+        return NormalizeText(returns.Value).Equals(
+                repair.IncorrectReturn,
+                StringComparison.Ordinal) &&
+            ImporterMarkupEquals(returns, expected);
+    }
+
+    static bool IsManagedBooleanReturn(XElement? member) =>
+        member?.Element("ReturnValue")?.Element("ReturnType")?.Value.Equals(
+            "System.Boolean",
+            StringComparison.Ordinal) == true;
+
     static bool HasCopiedDescriptionSummaryRepairCandidate(XElement docs) =>
         HasImporterSourceReference(docs) &&
         IsImporterCopiedDescriptionElement(docs.Element("summary"));
@@ -2509,6 +2681,20 @@ static class ImporterProgram
                 sourceUrl));
         }
     }
+
+    static void ReportBooleanReturnRepairSkip(
+        ImportReport report,
+        LoadedFile file,
+        DocsOwner owner,
+        string sourceUrl,
+        BooleanReturnRepairSkip skip) =>
+        report.Entries.Add(ReportEntry.Skipped(
+            file.RelativePath,
+            owner.Id,
+            "returns",
+            skip.Reason,
+            skip.Detail,
+            sourceUrl));
 
     static void ReportSourceReferenceCleanupSkip(
         ImportReport report,
@@ -3559,7 +3745,8 @@ static class ImporterProgram
         var removals = new List<XmlSpan>();
         foreach (var element in elements.Select(reference => reference.Element))
         {
-            if (HasAdjacentNonWhitespaceText(element))
+            if (HasAdjacentNonWhitespaceText(element) ||
+                HasUnseparatedVisibleSiblingContent(element))
             {
                 return SourceReferenceCleanupResult.Failure(
                     blockText,
@@ -6430,6 +6617,176 @@ static class ImporterProgram
                 XDocument.Parse(leadingEquivalentCompleted).Root!.Element("remarks")!
                     .Elements("para").Last().Value == "except that the update is atomic.",
                 "existing leading equivalent prose retains the code lead-in, code, and trailing prose order");
+        var booleanReturnFixture = File.ReadAllText(Path.Combine(
+            fixtureRoot,
+            "concurrent-map-boolean-returns-java-reference.html"));
+        var booleanReturnRepairCases = new[]
+        {
+            (
+                "ConcurrentHashMap.xml",
+                "M:Java.Util.Concurrent.ConcurrentHashMap.Remove(Java.Lang.Object,Java.Lang.Object)",
+                "true if the value was removed"),
+            (
+                "ConcurrentHashMap.xml",
+                "M:Java.Util.Concurrent.ConcurrentHashMap.Replace(Java.Lang.Object,Java.Lang.Object,Java.Lang.Object)",
+                "true if the value was replaced"),
+            (
+                "ConcurrentSkipListMap.xml",
+                "M:Java.Util.Concurrent.ConcurrentSkipListMap.Remove(Java.Lang.Object,Java.Lang.Object)",
+                "true if the value was removed"),
+            (
+                "ConcurrentSkipListMap.xml",
+                "M:Java.Util.Concurrent.ConcurrentSkipListMap.Replace(Java.Lang.Object,Java.Lang.Object,Java.Lang.Object)",
+                "true if the value was replaced"),
+        };
+        foreach (var repairCase in booleanReturnRepairCases)
+        {
+            var booleanReturnFile = LoadedFile.Load(
+                repositoryRoot,
+                Path.Combine(
+                    docsRoot,
+                    "Java.Util.Concurrent",
+                    repairCase.Item1));
+            booleanReturnFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+            var booleanReturnOwner = booleanReturnFile.Owners.Single(owner =>
+                owner.Id == repairCase.Item2);
+            var booleanReturnPage = SourcePage.Parse(
+                booleanReturnOwner.SourceRequest!,
+                booleanReturnFixture);
+            var booleanReturnMapping = MapOwner(
+                booleanReturnOwner,
+                new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [booleanReturnOwner.SourceRequest!.Url] =
+                        SourceLoadResult.Success(booleanReturnPage),
+                });
+            var knownBooleanRepair = KnownBooleanReturnRepairs.Single(repair =>
+                UrlsEqual(
+                    repair.SourceUrl,
+                    booleanReturnMapping.Docs!.SourceUrl));
+            Assert(
+                booleanReturnMapping.Docs?.Returns == repairCase.Item3 &&
+                    ReturnReplacement(booleanReturnMapping.Docs).Text == repairCase.Item3 &&
+                    !HasKnownIncorrectBooleanReturnRepairCandidate(
+                        booleanReturnFile,
+                        booleanReturnOwner),
+                "official Java Boolean return fixture maps only current return documentation");
+
+            var booleanReturnBlock = booleanReturnFile.DocsBlocks[booleanReturnOwner.Order];
+            var booleanReturnBlockText = booleanReturnFile.Text[
+                booleanReturnBlock.Start..booleanReturnBlock.End];
+            var booleanReturnDocs = XElement.Parse(
+                booleanReturnBlockText,
+                LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            Assert(
+                TryGetElementSpan(
+                    booleanReturnBlockText,
+                    booleanReturnDocs.Element("returns")!,
+                    out var booleanReturnSpan),
+                "Boolean return fixture target is parser-located");
+            var incorrectBooleanReturnElement =
+                $"<returns>{knownBooleanRepair.IncorrectMarkup}</returns>";
+            var incorrectBooleanReturnText =
+                booleanReturnFile.Text[..booleanReturnBlock.Start] +
+                booleanReturnBlockText[..booleanReturnSpan.Start] +
+                incorrectBooleanReturnElement +
+                booleanReturnBlockText[booleanReturnSpan.End..] +
+                booleanReturnFile.Text[booleanReturnBlock.End..];
+            booleanReturnFile.UpdateBlockOffsets(
+                booleanReturnOwner.Order,
+                incorrectBooleanReturnText);
+            var incorrectBooleanReturnOwner = booleanReturnOwner with
+            {
+                Docs = XElement.Parse(
+                    booleanReturnFile.Text[
+                        booleanReturnFile.DocsBlocks[booleanReturnOwner.Order].Start..
+                        booleanReturnFile.DocsBlocks[booleanReturnOwner.Order].End],
+                    LoadOptions.PreserveWhitespace),
+                Placeholders = [],
+            };
+            var isKnownIncorrectBooleanReturn =
+                HasKnownIncorrectBooleanReturnRepairCandidate(
+                    booleanReturnFile,
+                    incorrectBooleanReturnOwner);
+            var requiresBooleanReturnSource =
+                RequiresSourceLoad(booleanReturnFile, incorrectBooleanReturnOwner);
+            var repairedBooleanReturn = RepairKnownBooleanReturn(
+                incorrectBooleanReturnText,
+                booleanReturnFile,
+                incorrectBooleanReturnOwner,
+                booleanReturnMapping.Docs!);
+            booleanReturnFile.UpdateBlockOffsets(
+                booleanReturnOwner.Order,
+                repairedBooleanReturn.Text);
+            var repairedBooleanReturnDocs = XElement.Parse(
+                repairedBooleanReturn.Text[
+                    booleanReturnFile.DocsBlocks[booleanReturnOwner.Order].Start..
+                    booleanReturnFile.DocsBlocks[booleanReturnOwner.Order].End],
+                LoadOptions.PreserveWhitespace);
+            Assert(
+                isKnownIncorrectBooleanReturn &&
+                    requiresBooleanReturnSource &&
+                    repairedBooleanReturn is { Repaired: true, Skip: null } &&
+                    repairedBooleanReturnDocs.Element("returns")?.Value == repairCase.Item3,
+                "exact importer Boolean return error is repaired from the matching official Java source");
+
+            var arbitraryReturnText = incorrectBooleanReturnText.Replace(
+                incorrectBooleanReturnElement,
+                "<returns>Authored documentation must remain unchanged.</returns>",
+                StringComparison.Ordinal);
+            booleanReturnFile.UpdateBlockOffsets(
+                booleanReturnOwner.Order,
+                arbitraryReturnText);
+            var arbitraryReturnOwner = incorrectBooleanReturnOwner with
+            {
+                Docs = XElement.Parse(
+                    booleanReturnFile.Text[
+                        booleanReturnFile.DocsBlocks[booleanReturnOwner.Order].Start..
+                        booleanReturnFile.DocsBlocks[booleanReturnOwner.Order].End],
+                    LoadOptions.PreserveWhitespace),
+            };
+            var arbitraryReturnRepair = RepairKnownBooleanReturn(
+                arbitraryReturnText,
+                booleanReturnFile,
+                arbitraryReturnOwner,
+                booleanReturnMapping.Docs!);
+            booleanReturnFile.UpdateBlockOffsets(
+                booleanReturnOwner.Order,
+                incorrectBooleanReturnText);
+            var nonBooleanMember = new XElement(arbitraryReturnOwner.Member!);
+            nonBooleanMember.Element("ReturnValue")!.Element("ReturnType")!.Value =
+                "Java.Lang.Object";
+            var mismatchedSourceRepair = RepairKnownBooleanReturn(
+                incorrectBooleanReturnText,
+                booleanReturnFile,
+                incorrectBooleanReturnOwner,
+                booleanReturnMapping.Docs! with
+                {
+                    SourceUrl = booleanReturnMapping.Docs.SourceUrl + "?untrusted",
+                });
+            var nonBooleanRepair = RepairKnownBooleanReturn(
+                incorrectBooleanReturnText,
+                booleanReturnFile,
+                incorrectBooleanReturnOwner with { Member = nonBooleanMember },
+                booleanReturnMapping.Docs!);
+            var arbitraryCandidate =
+                HasKnownIncorrectBooleanReturnRepairCandidate(
+                    booleanReturnFile,
+                    arbitraryReturnOwner);
+            var arbitraryPreserved = arbitraryReturnRepair is { Repaired: false, Skip: null } &&
+                arbitraryReturnRepair.Text == arbitraryReturnText;
+            var mismatchedSourcePreserved =
+                mismatchedSourceRepair is { Repaired: false, Skip: null } &&
+                mismatchedSourceRepair.Text == incorrectBooleanReturnText;
+            var nonBooleanPreserved = nonBooleanRepair is { Repaired: false, Skip: null } &&
+                nonBooleanRepair.Text == incorrectBooleanReturnText;
+            Assert(
+                !arbitraryCandidate &&
+                    arbitraryPreserved &&
+                    mismatchedSourcePreserved &&
+                    nonBooleanPreserved,
+                $"Boolean return repair rejects arbitrary prose, a non-exact source URL, and non-Boolean managed returns (candidate={arbitraryCandidate}, arbitrary={arbitraryPreserved}, source={mismatchedSourcePreserved}, type={nonBooleanPreserved})");
+        }
         var concurrentHashMapFile = LoadedFile.Load(
             repositoryRoot,
             Path.Combine(
@@ -7240,6 +7597,20 @@ static class ImporterProgram
             cleanedMissingRemarks.Skip?.Reason == "source_reference_mixed_content" &&
                 cleanedMissingRemarks.Text.Equals(metadataRepairText, StringComparison.Ordinal),
             "inline importer metadata is preserved when removing it could collapse mixed content");
+        var inlineElementMetadata =
+            $"<Docs><remarks><c>Before</c>{ImporterSourceReference(completeRemarksDocs)}<c>After</c></remarks></Docs>";
+        var preservedInlineElementMetadata = RemoveImporterRemarksMetadata(
+            inlineElementMetadata);
+        Assert(
+            preservedInlineElementMetadata.Skip?.Reason ==
+                "source_reference_mixed_content" &&
+                preservedInlineElementMetadata.Text.Equals(
+                    inlineElementMetadata,
+                    StringComparison.Ordinal) &&
+                !preservedInlineElementMetadata.Text.Contains(
+                    "<c>Before</c><c>After</c>",
+                    StringComparison.Ordinal),
+            "metadata deletion preserves unseparated visible inline-element siblings");
         var legacyImporterAttribution = $"<para>{LegacyAndroidAttribution}</para>";
         var knownLegacyMetadata = $"<Docs><remarks>{file.Newline}  " +
             legacyImporterAttribution + $"{file.Newline}</remarks></Docs>";
@@ -7812,9 +8183,165 @@ static class ImporterProgram
             repositoryRoot,
             "tools",
             $"android-api-doc-importer-self-test-{Environment.ProcessId}");
+        var forEachPipelinePath = Path.Combine(
+            docsRoot,
+            "Java.Util.Concurrent",
+            $"ConcurrentLinkedQueue.importer-self-test-{Environment.ProcessId}.xml");
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            var forEachSourcePath = Path.Combine(
+                docsRoot,
+                "Java.Util.Concurrent",
+                "ConcurrentLinkedQueue.xml");
+            var forEachSourceFile = LoadedFile.Load(repositoryRoot, forEachSourcePath);
+            forEachSourceFile.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
+            var forEachOwner = forEachSourceFile.Owners.Single(owner =>
+                owner.Id ==
+                "M:Java.Util.Concurrent.ConcurrentLinkedQueue.ForEach(Java.Util.Functions.IConsumer)");
+            var forEachSourcePage = SourcePage.Parse(
+                forEachOwner.SourceRequest!,
+                File.ReadAllText(Path.Combine(
+                    fixtureRoot,
+                    "concurrent-linked-queue-java-reference.html")));
+            var forEachMapping = MapOwner(
+                forEachOwner,
+                new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [forEachOwner.SourceRequest!.Url] =
+                        SourceLoadResult.Success(forEachSourcePage),
+                });
+            Assert(
+                forEachOwner.MemberRegistration ==
+                    new MemberRegistration(
+                        "forEach",
+                        "(Ljava/util/function/Consumer;)V",
+                        false) &&
+                    forEachOwner.Placeholders.Count == 0 &&
+                    forEachMapping.Docs is
+                    {
+                        SourceKind: "java",
+                        SourceUrl:
+                            JavaReference +
+                            "java.base/java/util/concurrent/ConcurrentLinkedQueue.html#forEach(java.util.function.Consumer)",
+                        Summary:
+                            "Performs the given action for each element of the Iterable until all elements have been processed or the action throws an exception.",
+                    },
+                "ConcurrentLinkedQueue ForEach production owner maps its exact Java source fixture");
+
+            var forEachBlock = forEachSourceFile.DocsBlocks[forEachOwner.Order];
+            var forEachBlockText = forEachSourceFile.Text[
+                forEachBlock.Start..forEachBlock.End];
+            var forEachDocs = XElement.Parse(
+                forEachBlockText,
+                LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            Assert(
+                TryGetElementSpan(
+                    forEachBlockText,
+                    forEachDocs.Element("summary")!,
+                    out var forEachSummarySpan),
+                "ConcurrentLinkedQueue ForEach copied summary is parser-located");
+            var copiedSummary =
+                "<summary>Description copied from interface: java.lang.Iterable</summary>";
+            var copiedForEachBlock =
+                forEachBlockText[..forEachSummarySpan.Start] +
+                copiedSummary +
+                forEachBlockText[forEachSummarySpan.End..];
+            var copiedForEachDocs = XElement.Parse(
+                copiedForEachBlock,
+                LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            var originalForEachReference = copiedForEachDocs
+                .Element("remarks")!
+                .Elements("para")
+                .Single(paragraph => TryGetImporterSourceReferenceUrl(
+                    paragraph,
+                    out var sourceUrl) &&
+                    UrlsEqual(sourceUrl, forEachMapping.Docs!.SourceUrl));
+            Assert(
+                TryGetElementSpan(
+                    copiedForEachBlock,
+                    originalForEachReference,
+                    out var originalForEachReferenceSpan),
+                "ConcurrentLinkedQueue ForEach source reference is parser-located");
+            var unsafeDuplicateReference =
+                $"<c>Before</c>{ImporterSourceReference(forEachMapping.Docs!)}<c>After</c>";
+            var forEachPipelineBlock =
+                copiedForEachBlock[..originalForEachReferenceSpan.End] +
+                unsafeDuplicateReference +
+                copiedForEachBlock[originalForEachReferenceSpan.End..];
+            var forEachPipelineText =
+                forEachSourceFile.Text[..forEachBlock.Start] +
+                forEachPipelineBlock +
+                forEachSourceFile.Text[forEachBlock.End..];
+            File.WriteAllText(
+                forEachPipelinePath,
+                forEachPipelineText,
+                new UTF8Encoding(false));
+
+            var forEachCacheDirectory = Path.Combine(tempDirectory, "for-each-cache");
+            Directory.CreateDirectory(forEachCacheDirectory);
+            var forEachCacheKey = Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(forEachOwner.SourceRequest!.Url))).ToLowerInvariant();
+            File.WriteAllText(
+                Path.Combine(forEachCacheDirectory, forEachCacheKey + ".html"),
+                File.ReadAllText(Path.Combine(
+                    fixtureRoot,
+                    "concurrent-linked-queue-java-reference.html")),
+                new UTF8Encoding(false));
+            var forEachReportPath = Path.Combine(tempDirectory, "for-each-pipeline");
+            var forEachExitCode = RunAsync(
+                [
+                    "--path", forEachPipelinePath,
+                    "--namespace", "Java.Util.Concurrent",
+                    "--member", "ForEach",
+                    "--offline",
+                    "--cache", forEachCacheDirectory,
+                    "--max-changes", "2",
+                    "--apply",
+                    "--report", forEachReportPath,
+                ]).GetAwaiter().GetResult();
+            var appliedForEachText = File.ReadAllText(forEachPipelinePath);
+            var appliedForEachDocs = XDocument.Parse(
+                appliedForEachText,
+                LoadOptions.PreserveWhitespace)
+                .Root!.Element("Members")!.Elements("Member")
+                .Single(member => member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == forEachOwner.Id))
+                .Element("Docs")!;
+            var appliedForEachRemarks = appliedForEachDocs.Element("remarks")!;
+            using var forEachReport = JsonDocument.Parse(
+                File.ReadAllText(forEachReportPath + ".json"));
+            var reportedUnsafeDuplicate = forEachReport.RootElement
+                .GetProperty("entries")
+                .EnumerateArray()
+                .Any(entry =>
+                    entry.GetProperty("status").GetString() == "skipped" &&
+                    entry.GetProperty("target").GetString() == "remarks" &&
+                    entry.GetProperty("reason").GetString() ==
+                        "source_reference_mixed_content" &&
+                    entry.GetProperty("sourceUrl").GetString() ==
+                        forEachMapping.Docs!.SourceUrl);
+            var forEachSummaryRepaired =
+                appliedForEachDocs.Element("summary")?.Value ==
+                forEachMapping.Docs!.Summary;
+            var forEachReferencesPreserved = CountImporterSourceReferences(
+                appliedForEachRemarks,
+                forEachMapping.Docs.SourceUrl) == 2;
+            var forEachMixedMarkupPreserved = appliedForEachText.Contains(
+                    unsafeDuplicateReference,
+                    StringComparison.Ordinal) &&
+                !appliedForEachText.Contains(
+                    "<c>Before</c><c>After</c>",
+                    StringComparison.Ordinal);
+            Assert(
+                forEachExitCode == 0 &&
+                    forEachSummaryRepaired &&
+                    forEachReferencesPreserved &&
+                    forEachMixedMarkupPreserved &&
+                    reportedUnsafeDuplicate,
+                $"production copied-summary repair preserves an unseparated duplicate source reference and reports the unsafe metadata deletion (exit={forEachExitCode}, summary={forEachSummaryRepaired}, references={forEachReferencesPreserved}, markup={forEachMixedMarkupPreserved}, report={reportedUnsafeDuplicate})");
+
             var copyOnWriteArrayListPath = Path.Combine(
                 docsRoot,
                 "Java.Util.Concurrent",
@@ -8412,6 +8939,8 @@ static class ImporterProgram
         }
         finally
         {
+            if (File.Exists(forEachPipelinePath))
+                File.Delete(forEachPipelinePath);
             Directory.Delete(tempDirectory, true);
         }
 
@@ -8784,6 +9313,29 @@ static class ImporterProgram
     sealed record DocsBlock(int Order, int Start, int End);
     sealed record XmlSpan(int Start, int End);
     sealed record ImporterSourceReferenceElement(XElement Element, string Url);
+    sealed record KnownBooleanReturnRepair(
+        string SourceUrl,
+        string IncorrectReturn,
+        string CorrectReturn,
+        string IncorrectMarkup);
+    sealed record BooleanReturnRepairSkip(string Reason, string Detail);
+    sealed record BooleanReturnRepairResult(
+        string Text,
+        bool Repaired,
+        BooleanReturnRepairSkip? Skip)
+    {
+        public static BooleanReturnRepairResult NoChange(string text) =>
+            new(text, false, null);
+
+        public static BooleanReturnRepairResult RepairedText(string text) =>
+            new(text, true, null);
+
+        public static BooleanReturnRepairResult Failure(
+            string text,
+            string reason,
+            string detail) =>
+            new(text, false, new BooleanReturnRepairSkip(reason, detail));
+    }
     sealed record SourceReferenceCleanupSkip(string Reason, string Detail)
     {
         public static SourceReferenceCleanupSkip NotLocated(string detail) =>
