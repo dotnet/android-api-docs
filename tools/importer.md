@@ -10,6 +10,7 @@ Run it with the .NET 10 SDK or newer:
 dotnet run tools\importer.cs -- --self-test
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --report artifacts\argb-import
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace Android.Animation --max-changes 10 --cache C:\temp\android-doc-cache
+dotnet run tools\importer.cs -- --path docs\xml --api-since 37 --max-changes 10 --report artifacts\api-37-import
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --apply --max-changes 4
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace Android.Animation --offline --cache C:\temp\android-doc-cache
 ```
@@ -17,7 +18,10 @@ dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace An
 Dry-run is the default. An unscoped scan is rejected, and `--apply` requires a
 path or namespace write scope. Generated `docs/xml/index.xml` and non-API
 `docs/xml/_filter.xml` and `docs/xml/FrameworksIndex` files are always excluded.
-The default limit is 25 placeholder elements.
+The default limit is 25 placeholder elements. Use `--api-since` to restrict
+owners to declarations introduced in an exact Android API level. Selection
+recognizes both `ApiSince` and `SupportedOSPlatform` metadata. Members without
+their own availability metadata inherit the containing type's API level.
 
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
