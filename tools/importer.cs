@@ -2704,6 +2704,7 @@ static class ImporterProgram
         var represented = new HashSet<int>();
         var lastFragmentIndex = -1;
         var elementFragments = new List<List<int>>();
+        var firstRetainedMetadataIndex = sourceReferenceIndex;
         var hasRetainedAnnotation = false;
         foreach (var element in existingSourceElements)
         {
@@ -2718,6 +2719,7 @@ static class ImporterProgram
                         "Existing remarks contained more than one retained importer-supported annotation.");
                 }
                 hasRetainedAnnotation = true;
+                firstRetainedMetadataIndex = elementFragments.Count;
                 elementFragments.Add([]);
                 continue;
             }
@@ -2796,7 +2798,7 @@ static class ImporterProgram
                 .FirstOrDefault(item => item.fragments.Count > 0 &&
                     item.fragments[0] > missingIndex);
             var targetIndex = insertionIndex.fragments is null
-                ? sourceReferenceIndex
+                ? firstRetainedMetadataIndex
                 : insertionIndex.index;
             if (!additions.TryGetValue(targetIndex, out var paragraphs))
                 additions.Add(targetIndex, paragraphs = []);
@@ -6671,6 +6673,13 @@ static class ImporterProgram
         AssertHybridRemarksRefreshSkipped(
             hybridWithMismatchedSource,
             "hybrid remarks preserve and report mismatched source paragraphs");
+        var hybridWithRepeatedAnnotation = new XElement(hybridRemarks);
+        hybridWithRepeatedAnnotation.Elements()
+            .Single(IsRetainedRemarksParagraph)
+            .AddAfterSelf(new XElement("para", "Added in 21.0."));
+        AssertHybridRemarksRefreshSkipped(
+            hybridWithRepeatedAnnotation,
+            "hybrid remarks preserve and report repeated retained annotations");
         var reorderedHybrid = new XElement(
             "remarks",
             DocumentationElement(hybridSourceFragments[1]),
@@ -7798,20 +7807,53 @@ static class ImporterProgram
                     JavaReference +
                         "java.base/java/util/concurrent/CopyOnWriteArrayList.html" &&
                 parsedCopyOnWriteArrayListSourceElements.Count == 7 &&
+                !IsRetainedRemarksParagraph(parsedCopyOnWriteArrayListSourceElements[^2]) &&
+                NormalizeNormalWhitespace(parsedCopyOnWriteArrayListSourceElements[^2].Value)
+                    .Equals(
+                        string.Join(
+                            " ",
+                            hybridSourceFragments.Skip(5).Select(fragment =>
+                                NormalizeNormalWhitespace(fragment.Text))),
+                        StringComparison.Ordinal) &&
                 IsRetainedRemarksParagraph(parsedCopyOnWriteArrayListSourceElements[^1]),
                 "CopyOnWriteArrayList Reversed fixture uses its real registered Oracle member and retained annotation");
 
-            var removedCopyOnWriteArrayListSourceSpans = new List<XmlSpan>();
-            foreach (var element in parsedCopyOnWriteArrayListSourceElements.Skip(1).Take(4))
+            string RemoveCopyOnWriteArrayListSourceElements(
+                IEnumerable<XElement> sourceElements)
             {
-                Assert(
-                    TryGetElementSpan(
-                        copyOnWriteArrayListBlockText,
-                        element,
-                        out var span),
-                    "CopyOnWriteArrayList Reversed middle source paragraph can be located");
-                removedCopyOnWriteArrayListSourceSpans.Add(span);
+                var spans = new List<XmlSpan>();
+                foreach (var element in sourceElements)
+                {
+                    Assert(
+                        TryGetElementSpan(
+                            copyOnWriteArrayListBlockText,
+                            element,
+                            out var span),
+                        "CopyOnWriteArrayList Reversed source paragraph can be located");
+                    spans.Add(span);
+                }
+
+                var refreshedBlockText = copyOnWriteArrayListBlockText;
+                foreach (var span in spans.OrderByDescending(span => span.Start))
+                {
+                    var lineStart = refreshedBlockText.LastIndexOf(
+                        '\n',
+                        Math.Max(0, span.Start - 1));
+                    lineStart = lineStart < 0 ? 0 : lineStart + 1;
+                    var lineEnd = refreshedBlockText.IndexOf(
+                        '\n',
+                        span.End);
+                    var end = lineEnd < 0 ? span.End : lineEnd + 1;
+                    refreshedBlockText =
+                        refreshedBlockText[..lineStart] +
+                        refreshedBlockText[end..];
+                }
+
+                return copyOnWriteArrayListFile.Text[..copyOnWriteArrayListBlock.Start] +
+                    refreshedBlockText +
+                    copyOnWriteArrayListFile.Text[copyOnWriteArrayListBlock.End..];
             }
+
             Assert(
                 TryGetElementSpan(
                     copyOnWriteArrayListBlockText,
@@ -7822,26 +7864,12 @@ static class ImporterProgram
                 copyOnWriteArrayListBlockText[
                     copyOnWriteArrayListFirstSourceSpan.Start..
                     copyOnWriteArrayListFirstSourceSpan.End];
-            var hybridCopyOnWriteArrayListBlockText = copyOnWriteArrayListBlockText;
-            foreach (var span in removedCopyOnWriteArrayListSourceSpans
-                .OrderByDescending(span => span.Start))
-            {
-                var lineStart = hybridCopyOnWriteArrayListBlockText.LastIndexOf(
-                    '\n',
-                    Math.Max(0, span.Start - 1));
-                lineStart = lineStart < 0 ? 0 : lineStart + 1;
-                var lineEnd = hybridCopyOnWriteArrayListBlockText.IndexOf(
-                    '\n',
-                    span.End);
-                var end = lineEnd < 0 ? span.End : lineEnd + 1;
-                hybridCopyOnWriteArrayListBlockText =
-                    hybridCopyOnWriteArrayListBlockText[..lineStart] +
-                    hybridCopyOnWriteArrayListBlockText[end..];
-            }
             var hybridCopyOnWriteArrayListText =
-                copyOnWriteArrayListFile.Text[..copyOnWriteArrayListBlock.Start] +
-                hybridCopyOnWriteArrayListBlockText +
-                copyOnWriteArrayListFile.Text[copyOnWriteArrayListBlock.End..];
+                RemoveCopyOnWriteArrayListSourceElements(
+                    parsedCopyOnWriteArrayListSourceElements.Skip(1).Take(4));
+            var trailingCopyOnWriteArrayListText =
+                RemoveCopyOnWriteArrayListSourceElements(
+                    [parsedCopyOnWriteArrayListSourceElements[^2]]);
 
             (LoadedFile File, DocsOwner Owner, SourceDocs Docs, RemarksRefreshResult Refresh)
                 RefreshCopyOnWriteArrayListRemarks(string fileName, string text)
@@ -7976,6 +8004,68 @@ static class ImporterProgram
                 !expectedCopyOnWriteArrayListFragments.Any(fragment =>
                     fragment.Text.Equals("Added in 21.", StringComparison.Ordinal)),
                 "CopyOnWriteArrayList Reversed hybrid refresh restores missing middle Oracle source fragments in order while retaining its non-source annotation");
+
+            var refreshedTrailingCopyOnWriteArrayList =
+                RefreshCopyOnWriteArrayListRemarks(
+                    "copy-on-write-array-list-reversed-trailing-refresh.xml",
+                    trailingCopyOnWriteArrayListText);
+            var reAdmittedTrailingCopyOnWriteArrayList =
+                RefreshCopyOnWriteArrayListRemarks(
+                    "copy-on-write-array-list-reversed-trailing-re-admission.xml",
+                    refreshedTrailingCopyOnWriteArrayList.Refresh.Text);
+            var refreshedTrailingCopyOnWriteArrayListRemarks = XDocument.Parse(
+                refreshedTrailingCopyOnWriteArrayList.Refresh.Text,
+                LoadOptions.PreserveWhitespace)
+                .Root!.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "Reversed")
+                .Element("Docs")!.Element("remarks")!;
+            var refreshedTrailingCopyOnWriteArrayListElements =
+                refreshedTrailingCopyOnWriteArrayListRemarks.Elements().ToList();
+            var refreshedTrailingCopyOnWriteArrayListAnnotationIndex =
+                refreshedTrailingCopyOnWriteArrayListElements.FindIndex(
+                    IsRetainedRemarksParagraph);
+            var refreshedTrailingCopyOnWriteArrayListSourceReferenceIndex =
+                refreshedTrailingCopyOnWriteArrayListElements.FindIndex(element =>
+                    TryGetImporterSourceReferenceUrl(
+                        element.ToString(SaveOptions.DisableFormatting),
+                        out _));
+            var refreshedTrailingCopyOnWriteArrayListSourceText = string.Join(
+                " ",
+                refreshedTrailingCopyOnWriteArrayListElements
+                    .Take(refreshedTrailingCopyOnWriteArrayListAnnotationIndex)
+                    .Select(element => NormalizeNormalWhitespace(element.Value)));
+            Assert(
+                refreshedTrailingCopyOnWriteArrayList.Refresh.Reason is null &&
+                reAdmittedTrailingCopyOnWriteArrayList.Refresh.Reason is null &&
+                reAdmittedTrailingCopyOnWriteArrayList.Refresh.Text.Equals(
+                    refreshedTrailingCopyOnWriteArrayList.Refresh.Text,
+                    StringComparison.Ordinal) &&
+                refreshedTrailingCopyOnWriteArrayListAnnotationIndex ==
+                    expectedCopyOnWriteArrayListFragments.Count &&
+                refreshedTrailingCopyOnWriteArrayListSourceReferenceIndex ==
+                    refreshedTrailingCopyOnWriteArrayListAnnotationIndex + 1 &&
+                refreshedTrailingCopyOnWriteArrayListElements[
+                    refreshedTrailingCopyOnWriteArrayListAnnotationIndex].Value.Equals(
+                        "Added in 21.",
+                        StringComparison.Ordinal) &&
+                refreshedTrailingCopyOnWriteArrayListSourceText.Equals(
+                    expectedCopyOnWriteArrayListText,
+                    StringComparison.Ordinal) &&
+                refreshedTrailingCopyOnWriteArrayListElements[
+                    refreshedTrailingCopyOnWriteArrayListSourceReferenceIndex].ToString(
+                        SaveOptions.DisableFormatting).Equals(
+                            parsedCopyOnWriteArrayListElements[
+                                parsedCopyOnWriteArrayListSourceReferenceIndex].ToString(
+                                    SaveOptions.DisableFormatting),
+                            StringComparison.Ordinal) &&
+                refreshedTrailingCopyOnWriteArrayListSourceReferenceIndex + 2 ==
+                    refreshedTrailingCopyOnWriteArrayListElements.Count &&
+                refreshedTrailingCopyOnWriteArrayListElements[^1].ToString(
+                    SaveOptions.DisableFormatting).Equals(
+                        parsedCopyOnWriteArrayListElements[^1].ToString(
+                            SaveOptions.DisableFormatting),
+                        StringComparison.Ordinal),
+                "CopyOnWriteArrayList Reversed trailing refresh inserts all source prose before its retained annotation, preserves exact metadata, and is re-admitted");
 
             void AssertCopyOnWriteArrayListNonTextNodeSkip(
                 string node,
