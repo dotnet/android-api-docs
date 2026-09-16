@@ -1520,30 +1520,92 @@ static class ImporterProgram
             var docs = XElement.Parse(blockText, LoadOptions.PreserveWhitespace);
             var remarks = docs.Element("remarks");
             if (remarks is null ||
-                !remarks.Elements("para").Any(paragraph =>
-                    IsImporterSourceReferenceParagraph(paragraph)))
+                remarks.Nodes().Any(node =>
+                    node is XText text && !string.IsNullOrWhiteSpace(text.Value)))
                 return false;
 
             var candidates = remarks.Elements("code")
                 .Where(code =>
                     string.Equals((string?)code.Attribute("lang"), "text/java",
                         StringComparison.OrdinalIgnoreCase) &&
+                    code.Attributes().Count() == 1 &&
+                    code.Nodes().All(node => node is XText) &&
                     Regex.IsMatch(
                         code.Value,
                         @"^\s*(?:public|protected|private)\s+(?:(?:static|final|abstract|synchronized|native)\s+)*(?:[\w.$<>\[\]?]+\s+)?\w+\s*\([^<]*\)\s*(?:throws\s+[^<;]+)?;?\s*$",
                         RegexOptions.Singleline | RegexOptions.CultureInvariant))
                 .ToList();
             return candidates.Count == 1 &&
-                remarks.Nodes().All(node =>
-                    node is XText text && string.IsNullOrWhiteSpace(text.Value) ||
-                    node is XElement element &&
-                    (element == candidates[0] ||
-                     (element.Name == "para" && IsImporterSourceReferenceParagraph(element))));
+                remarks.Elements().Count() is 2 or 3 &&
+                remarks.Elements("para").Count() is 1 or 2 &&
+                remarks.Elements("para").Count(
+                    IsCanonicalImporterSourceReferenceParagraph) == 1 &&
+                remarks.Elements("para").All(paragraph =>
+                    IsCanonicalImporterSourceReferenceParagraph(paragraph) ||
+                    IsImporterOwnedEnumAttributionParagraph(paragraph));
         }
         catch (XmlException)
         {
             return false;
         }
+    }
+
+    static bool IsCanonicalImporterSourceReferenceParagraph(XElement paragraph)
+    {
+        if (paragraph.Name != "para" || paragraph.HasAttributes ||
+            paragraph.Nodes().Count() != 1 ||
+            paragraph.Nodes().Single() is not XElement format ||
+            format.Name != "format" ||
+            format.Attributes().Count() != 1 ||
+            (string?)format.Attribute("type") != "text/html" ||
+            format.Nodes().Count() != 1 ||
+            format.Nodes().Single() is not XElement anchor ||
+            anchor.Name != "a" ||
+            anchor.Attributes().Count() != 2 ||
+            (string?)anchor.Attribute("title") != "Reference documentation" ||
+            !IsCanonicalImporterSourceReferenceUrl(
+                (string?)anchor.Attribute("href")))
+        {
+            return false;
+        }
+
+        var nodes = anchor.Nodes().ToList();
+        return nodes.Count == 3 &&
+            nodes[0] is XText leading &&
+            (leading.Value == "Android reference for " ||
+             leading.Value == "Java reference for ") &&
+            nodes[1] is XElement code &&
+            code.Name == "code" &&
+            !code.HasAttributes &&
+            code.Nodes().Count() == 1 &&
+            code.Nodes().Single() is XText label &&
+            label.Value.Length > 0 &&
+            nodes[2] is XText trailing &&
+            trailing.Value == ".";
+    }
+
+    static bool IsCanonicalImporterSourceReferenceUrl(string? url) =>
+        url?.StartsWith(
+            "https://developer.android.com/reference/",
+            StringComparison.Ordinal) == true ||
+        url?.StartsWith(
+            JavaReference,
+            StringComparison.Ordinal) == true;
+
+    static bool IsExactCanonicalImporterSourceReferenceParagraph(
+        XElement paragraph,
+        SourceDocs docs)
+    {
+        if (!IsCanonicalImporterSourceReferenceParagraph(paragraph))
+        {
+            return false;
+        }
+
+        var expected = XElement.Parse(
+            $"<para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(docs.SourceUrl)}\" " +
+            $"title=\"Reference documentation\">{(docs.SourceKind == "android" ? "Android" : "Java")} reference for <code>{XmlEscape(docs.SourceLabel)}</code>." +
+            "</a></format></para>");
+        return XNode.DeepEquals(paragraph, expected);
     }
 
     static bool IsImporterSourceReferenceParagraph(XElement paragraph) =>
@@ -1612,6 +1674,14 @@ static class ImporterProgram
         var blockText = text[block.Start..block.End];
         if (!HasIncompleteImporterJavaExample(blockText))
             return text;
+        var parsedDocs = XElement.Parse(blockText, LoadOptions.PreserveWhitespace);
+        if (parsedDocs.Element("remarks")?.Elements("para").Any(paragraph =>
+                IsExactCanonicalImporterSourceReferenceParagraph(
+                    paragraph,
+                    docs)) != true)
+        {
+            return text;
+        }
         var remarks = Regex.Match(
             blockText,
             @"<remarks\b(?<attrs>[^>]*)>.*?</remarks>",
@@ -2047,14 +2117,32 @@ static class ImporterProgram
         SourceDocs docs,
         bool allowCreation)
     {
-        var summary = Regex.Match(
-            blockText,
-            @"<summary\b[^>]*>(?<value>.*?)</summary>",
-            RegexOptions.Singleline | RegexOptions.CultureInvariant);
-        if (!summary.Success)
+        if (!TryFindTextElementContentSpan(
+                blockText,
+                "summary",
+                1,
+                _ => true,
+                _ => true,
+                out var summaryStart,
+                out var valueStart,
+                out var valueEnd))
             return blockText;
 
-        var summaryElement = XElement.Parse(summary.Value, LoadOptions.PreserveWhitespace);
+        var summaryCloseEnd = FindXmlTagEnd(blockText, valueEnd);
+        if (summaryCloseEnd < 0)
+            return blockText;
+
+        XElement summaryElement;
+        try
+        {
+            summaryElement = XElement.Parse(
+                blockText[summaryStart..(summaryCloseEnd + 1)],
+                LoadOptions.PreserveWhitespace);
+        }
+        catch (XmlException)
+        {
+            return blockText;
+        }
         var existingProse = summaryElement.Elements("para")
             .Where(paragraph => !paragraph.Descendants("a").Any(link =>
                 (string?)link.Attribute("title") == "Reference documentation" ||
@@ -2092,7 +2180,7 @@ static class ImporterProgram
             ((string?)link.Attribute("href"))?.Equals(
                 "https://developers.google.com/terms/site-policies",
                 StringComparison.Ordinal) == true);
-        var hasCorrectSource = ContainsSourceUrl(summary.Value, docs.SourceUrl);
+        var hasCorrectSource = ContainsSourceUrl(summaryElement.ToString(), docs.SourceUrl);
         var repairEligible = IsEnumSummaryRepairCandidate(
                 summaryElement,
                 docs.SourceUrl,
@@ -2133,9 +2221,9 @@ static class ImporterProgram
             return blockText;
 
         var newline = file.Newline;
-        var lineStart = blockText.LastIndexOf(newline, summary.Index, StringComparison.Ordinal);
+        var lineStart = blockText.LastIndexOf(newline, summaryStart, StringComparison.Ordinal);
         lineStart = lineStart < 0 ? 0 : lineStart + newline.Length;
-        var candidateIndent = blockText[lineStart..summary.Index];
+        var candidateIndent = blockText[lineStart..summaryStart];
         var summaryIndent = candidateIndent.All(char.IsWhiteSpace) ? candidateIndent : "";
         var paraIndent = summaryIndent + "  ";
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
@@ -2157,8 +2245,6 @@ static class ImporterProgram
             newline +
             string.Join(newline, additions) +
             $"{newline}{summaryIndent}";
-        var valueStart = summary.Groups["value"].Index;
-        var valueEnd = valueStart + summary.Groups["value"].Length;
         return blockText[..valueStart] + replacement + blockText[valueEnd..];
     }
 
@@ -3096,18 +3182,29 @@ static class ImporterProgram
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
+        var javaExampleDocs = mappedDocs with
+        {
+            SourceUrl = "https://developer.android.com/reference/android/hardware/camera2/CaptureRequest.Builder#setTitle(java.lang.String)",
+            SourceLabel = "android.hardware.camera2.CaptureRequest.Builder.setTitle",
+            SourceKind = "android",
+        };
         var mappedSourceKind = mappedDocs.SourceKind == "android" ? "Android" : "Java";
-        var rawSignatureText = file.Text.Replace(
-            $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
-            $"<remarks>{file.Newline}          <code lang=\"text/java\">public void setTitle()</code>{file.Newline}          <para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(mappedDocs.SourceUrl)}\" title=\"Reference documentation\">{mappedSourceKind} reference for <code>{XmlEscape(mappedDocs.SourceLabel)}</code>.</a></format></para>",
-            StringComparison.Ordinal);
+        var rawSignatureBlock = Regex.Replace(
+            file.Text[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End],
+            @"<remarks\b[^>]*>.*?</remarks>",
+            $"<remarks>{file.Newline}          <code lang=\"text/java\">public void setTitle()</code>{file.Newline}          <para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(javaExampleDocs.SourceUrl)}\" title=\"Reference documentation\">Android reference for <code>{XmlEscape(javaExampleDocs.SourceLabel)}</code>.</a></format></para>{file.Newline}          <para>{AndroidAttribution}</para>{file.Newline}        </remarks>",
+            RegexOptions.Singleline | RegexOptions.CultureInvariant);
+        var rawSignatureText =
+            file.Text[..file.DocsBlocks[setTitle.Order].Start] +
+            rawSignatureBlock +
+            file.Text[file.DocsBlocks[setTitle.Order].End..];
         Assert(!rawSignatureText.Equals(file.Text, StringComparison.Ordinal), "raw signature fixture setup");
         file.UpdateBlockOffsets(setTitle.Order, rawSignatureText);
         var refreshedSignatureText = ReplaceIncompleteCodeExampleRemarks(
             rawSignatureText,
             file,
             setTitle,
-            mappedDocs);
+            javaExampleDocs);
         Assert(
             HasIncompleteImporterJavaExample(
                 rawSignatureText[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End]),
@@ -3121,6 +3218,31 @@ static class ImporterProgram
                     StringComparison.Ordinal),
             "raw Android signature blocks are regenerated from source");
         file.UpdateBlockOffsets(setTitle.Order, fixtureText);
+        var authoredJavaExampleRepairs = new[]
+        {
+            rawSignatureText.Replace(
+                $"</code>.</a></format></para>{file.Newline}          <para>{AndroidAttribution}</para>",
+                $"</code> <c>Managed guidance.</c>.</a></format></para>{file.Newline}          <para>{AndroidAttribution}</para>",
+                StringComparison.Ordinal),
+            rawSignatureText.Replace(
+                $"<para>{AndroidAttribution}</para>",
+                $"<para>{AndroidAttribution} Managed guidance.</para>",
+                StringComparison.Ordinal),
+            rawSignatureText.Replace(
+                "public void setTitle()",
+                "public void <see cref=\"M:Example.Managed\" />setTitle()",
+                StringComparison.Ordinal),
+        };
+        Assert(
+            authoredJavaExampleRepairs.All(candidate =>
+                !HasIncompleteImporterJavaExample(
+                    candidate[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End]) &&
+                ReplaceIncompleteCodeExampleRemarks(
+                    candidate,
+                    file,
+                    setTitle,
+                    javaExampleDocs).Equals(candidate, StringComparison.Ordinal)),
+            "Java example repairs preserve nested source, attribution, and signature XML");
         var authoredCSharpExampleText = file.Text.Replace(
             $"<remarks>{file.Newline}          <para>Keep this existing prose.</para>",
             $"<remarks>{file.Newline}          <para>Example code:</para>{file.Newline}          <code lang=\"C#\">builder.SetTag(myTag);</code>{file.Newline}          <para>Managed guidance: call <see cref=\"M:Android.Hardware.Camera2.CaptureRequest.Builder.SetTag(Java.Lang.Object)\" /> first.</para>{file.Newline}          <para><format type=\"text/html\"><a href=\"{XmlAttributeEscape(mappedDocs.SourceUrl)}\" title=\"Reference documentation\">{mappedSourceKind} reference for <code>{XmlEscape(mappedDocs.SourceLabel)}</code>.</a></format></para>",
@@ -4166,6 +4288,21 @@ static class ImporterProgram
                     .Descendants("a")
                     .Any(),
             "enum remarks metadata self-closes after verified summary transfer");
+        var enumSummaryWithCdata = enumMetadataWithTransfer.Replace(
+            $"<para>{AndroidAttribution}</para></summary>",
+            $"<para>{AndroidAttribution}</para><para>XML tooling may emit <![CDATA[</summary>]]> as a closing delimiter.</para></summary>",
+            StringComparison.Ordinal);
+        Assert(
+            AddEnumSummaryMetadata(
+                enumSummaryWithCdata,
+                enumFile,
+                enumFavorite,
+                enumMapped.Docs!,
+                allowCreation: false).Equals(enumSummaryWithCdata, StringComparison.Ordinal) &&
+            XElement.Parse(enumSummaryWithCdata).Element("summary")!.Value.Contains(
+                "</summary>",
+                StringComparison.Ordinal),
+            "enum summary metadata repair skips CDATA closing-tag text without aborting");
         var enumMetadataWithCdata = enumMetadataWithTransfer.Replace(
             "</remarks>",
             "  <para>XML tooling may emit <![CDATA[</para>]]> as a closing delimiter.</para>\n</remarks>",
