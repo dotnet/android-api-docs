@@ -1,0 +1,353 @@
+<Type Name="AutofillNoiseInjectedData" FullName="Android.Views.Autofill.AutofillNoiseInjectedData">
+  <TypeSignature Language="C#" Value="public sealed class AutofillNoiseInjectedData : Java.Lang.Object, Android.OS.IParcelable, IDisposable" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit AutofillNoiseInjectedData extends Java.Lang.Object implements class Android.OS.IParcelable, class Android.Runtime.IJavaObject, class Java.Interop.IJavaPeerable, class System.IDisposable" />
+  <TypeSignature Language="DocId" Value="T:Android.Views.Autofill.AutofillNoiseInjectedData" />
+  <TypeSignature Language="F#" Value="type AutofillNoiseInjectedData = class&#xA;    inherit Object&#xA;    interface IParcelable&#xA;    interface IJavaObject&#xA;    interface IDisposable&#xA;    interface IJavaPeerable" />
+  <AssemblyInfo>
+    <AssemblyName>Mono.Android</AssemblyName>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>Java.Lang.Object</BaseTypeName>
+  </Base>
+  <Interfaces>
+    <Interface>
+      <InterfaceName>Android.OS.IParcelable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Android.Runtime.IJavaObject</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>Java.Interop.IJavaPeerable</InterfaceName>
+    </Interface>
+    <Interface>
+      <InterfaceName>System.IDisposable</InterfaceName>
+    </Interface>
+  </Interfaces>
+  <Attributes>
+    <Attribute>
+      <AttributeName Language="C#">[Android.Runtime.Register("android/view/autofill/AutofillNoiseInjectedData", ApiSince=37, DoNotGenerateAcw=true)]</AttributeName>
+      <AttributeName Language="F#">[&lt;Android.Runtime.Register("android/view/autofill/AutofillNoiseInjectedData", ApiSince=37, DoNotGenerateAcw=true)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.Nullable(0)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.Nullable(0)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.CompilerServices.NullableContext(1)]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.CompilerServices.NullableContext(1)&gt;]</AttributeName>
+    </Attribute>
+    <Attribute>
+      <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+      <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+    </Attribute>
+  </Attributes>
+  <Docs>
+    <summary>Represents the noise-injected version of a text field's content, generated using a differential
+            privacy algorithm.</summary>
+    <remarks>
+      <para>Represents the noise-injected version of a text field's content, generated using a differential privacy algorithm. While the Autofill providers won't be able to recover the actual text from the noise-injected data from one device, with uploads from sufficient number of devices, the Autofill providers are able to rebuild the constant, non-private parts of the text to help them improve Autofill detection's quality.</para>
+      <para>The noise injection process involves the following steps: 1. The original string is converted to a byte array using UTF-8 Encoding. The actual length of the string is hidden by padding with 0x0000 or truncating as needed. 2. Then for each bit in the byte array, random noise is introduced by "coin flipping": first we flip a coin to decide whether to change this bit. The probability is 50%. If we decide to change this bit, then we flip another coin to decide its new value. The probability is: 50% to be 1, 50% to be 0. 3. To further enhance privacy, each device may drop some of the bits after noise injection. getRetainedBitMask() tells you which bits are retained for the current payload.</para>
+      <para>With the coin flipping mechanism described above, each bit has 75% chance to report the real value, and 25% chance to report the opposite value(e.g. real value is 1, reported value is 0). This means if a bit remains the same across all devices(i.e. it's a part of a non-personalized string such as "Country or region"), then with a large enough amount of reports collected from different devices, then the ratio of real value among all reports should be close to 75%. In another word, if we see close to 75% of the reports show 1 then the real value of this bit should be a constant 1; if we see close to 75% of the reports show 0 then the real value of this bit should be a constant 0; all other distributions indicate this bit is not same across different devices(hence very likely to be personalized/private information), which should be discarded as noise.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/autofill/AutofillNoiseInjectedData" title="Reference documentation">Android reference for <code>android.view.autofill.AutofillNoiseInjectedData</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="Creator">
+      <MemberSignature Language="C#" Value="public static Android.OS.IParcelableCreator Creator { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property class Android.OS.IParcelableCreator Creator" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.Autofill.AutofillNoiseInjectedData.Creator" />
+      <MemberSignature Language="F#" Value="static member Creator : Android.OS.IParcelableCreator" Usage="Android.Views.Autofill.AutofillNoiseInjectedData.Creator" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("CREATOR", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("CREATOR", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Android.OS.IParcelableCreator</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="DescribeContents">
+      <MemberSignature Language="C#" Value="public int DescribeContents ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 DescribeContents() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.Autofill.AutofillNoiseInjectedData.DescribeContents" />
+      <MemberSignature Language="F#" Value="abstract member DescribeContents : unit -&gt; int&#xA;override this.DescribeContents : unit -&gt; int" Usage="autofillNoiseInjectedData.DescribeContents " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Android.OS.IParcelable.DescribeContents</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("describeContents", "()I", "", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("describeContents", "()I", "", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation.</summary>
+        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
+        <remarks>
+          <para>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/autofill/AutofillNoiseInjectedData#describeContents()" title="Reference documentation">Android reference for <code>android.view.autofill.AutofillNoiseInjectedData.describeContents</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="GetNoiseInjectedPayload">
+      <MemberSignature Language="C#" Value="public byte[] GetNoiseInjectedPayload ();" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig instance unsigned int8[] GetNoiseInjectedPayload() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.Autofill.AutofillNoiseInjectedData.GetNoiseInjectedPayload" />
+      <MemberSignature Language="F#" Value="member this.GetNoiseInjectedPayload : unit -&gt; byte[]" Usage="autofillNoiseInjectedData.GetNoiseInjectedPayload " />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("getNoiseInjectedPayload", "()[B", "", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("getNoiseInjectedPayload", "()[B", "", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Byte[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>Gets the noise-injected and bit-reduced data.</summary>
+        <returns>A byte array representing the obfuscated text.</returns>
+        <remarks>
+          <para>Gets the noise-injected and bit-reduced data. The original text has been transformed by a differential privacy algorithm, including random bit flips and removing some of the bits in every byte(getRetainedBitMask() tells you which bits are retained).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/autofill/AutofillNoiseInjectedData#getNoiseInjectedPayload()" title="Reference documentation">Android reference for <code>android.view.autofill.AutofillNoiseInjectedData.getNoiseInjectedPayload</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
+      <MemberSignature Language="C#" Value="void IJavaPeerable.UnregisterFromRuntime ();" />
+      <MemberSignature Language="ILAsm" Value=".method hidebysig newslot virtual instance void Java.Interop.IJavaPeerable.UnregisterFromRuntime() cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.Autofill.AutofillNoiseInjectedData.Java#Interop#IJavaPeerable#UnregisterFromRuntime" />
+      <MemberSignature Language="F#" Value="abstract member Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit&#xA;override this.Java.Interop.IJavaPeerable.UnregisterFromRuntime : unit -&gt; unit" Usage="autofillNoiseInjectedData.Java.Interop.IJavaPeerable.UnregisterFromRuntime " />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Java.Interop.IJavaPeerable.UnregisterFromRuntime</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>To be added.</summary>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="JniPeerMembers">
+      <MemberSignature Language="C#" Value="public override Java.Interop.JniPeerMembers JniPeerMembers { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class Java.Interop.JniPeerMembers JniPeerMembers" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.Autofill.AutofillNoiseInjectedData.JniPeerMembers" />
+      <MemberSignature Language="F#" Value="member this.JniPeerMembers : Java.Interop.JniPeerMembers" Usage="Android.Views.Autofill.AutofillNoiseInjectedData.JniPeerMembers" />
+      <MemberType>Property</MemberType>
+      <Implements>
+        <InterfaceMember>P:Java.Interop.IJavaPeerable.JniPeerMembers</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="RetainedBitMask">
+      <MemberSignature Language="C#" Value="public sbyte RetainedBitMask { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance int8 RetainedBitMask" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.Autofill.AutofillNoiseInjectedData.RetainedBitMask" />
+      <MemberSignature Language="F#" Value="member this.RetainedBitMask : sbyte" Usage="Android.Views.Autofill.AutofillNoiseInjectedData.RetainedBitMask" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[get: Android.Runtime.Register("getRetainedBitMask", "()B", "", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;get: Android.Runtime.Register("getRetainedBitMask", "()B", "", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.SByte</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>Returns a bit mask indicating which bits were retained for *each byte* in the payload
+            returned by <c>#getNoiseInjectedPayload()</c>.</summary>
+        <value>A byte where each bit corresponds to a bit position in a byte. If the n-th bit
+                (0 &lt;= n &lt;= 7) is set, it means the n-th bit of each byte in the payload is retained.</value>
+        <remarks>
+          <para>Returns a bit mask indicating which bits were retained for *each byte* in the payload returned by getNoiseInjectedPayload(). Bits not retained are marked as 0 in the returned payload. The same bit mask is applied to every byte in the payload.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/autofill/AutofillNoiseInjectedData#getRetainedBitMask()" title="Reference documentation">Android reference for <code>android.view.autofill.AutofillNoiseInjectedData.getRetainedBitMask</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdClass">
+      <MemberSignature Language="C#" Value="protected override IntPtr ThresholdClass { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance native int ThresholdClass" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.Autofill.AutofillNoiseInjectedData.ThresholdClass" />
+      <MemberSignature Language="F#" Value="member this.ThresholdClass : nativeint" Usage="Android.Views.Autofill.AutofillNoiseInjectedData.ThresholdClass" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.IntPtr</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ThresholdType">
+      <MemberSignature Language="C#" Value="protected override Type ThresholdType { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Type ThresholdType" />
+      <MemberSignature Language="DocId" Value="P:Android.Views.Autofill.AutofillNoiseInjectedData.ThresholdType" />
+      <MemberSignature Language="F#" Value="member this.ThresholdType : Type" Usage="Android.Views.Autofill.AutofillNoiseInjectedData.ThresholdType" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Type</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+        <value>To be added.</value>
+        <remarks>To be added.</remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="WriteToParcel">
+      <MemberSignature Language="C#" Value="public void WriteToParcel (Android.OS.Parcel dest, Android.OS.ParcelableWriteFlags flags);" />
+      <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void WriteToParcel(class Android.OS.Parcel dest, valuetype Android.OS.ParcelableWriteFlags flags) cil managed" />
+      <MemberSignature Language="DocId" Value="M:Android.Views.Autofill.AutofillNoiseInjectedData.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />
+      <MemberSignature Language="F#" Value="abstract member WriteToParcel : Android.OS.Parcel * Android.OS.ParcelableWriteFlags -&gt; unit&#xA;override this.WriteToParcel : Android.OS.Parcel * Android.OS.ParcelableWriteFlags -&gt; unit" Usage="autofillNoiseInjectedData.WriteToParcel (dest, flags)" />
+      <MemberType>Method</MemberType>
+      <Implements>
+        <InterfaceMember>M:Android.OS.IParcelable.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)</InterfaceMember>
+      </Implements>
+      <AssemblyInfo>
+        <AssemblyName>Mono.Android</AssemblyName>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Attributes>
+        <Attribute>
+          <AttributeName Language="C#">[Android.Runtime.Register("writeToParcel", "(Landroid/os/Parcel;I)V", "", ApiSince=37)]</AttributeName>
+          <AttributeName Language="F#">[&lt;Android.Runtime.Register("writeToParcel", "(Landroid/os/Parcel;I)V", "", ApiSince=37)&gt;]</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName Language="C#">[System.Runtime.Versioning.SupportedOSPlatform("android37.0")]</AttributeName>
+          <AttributeName Language="F#">[&lt;System.Runtime.Versioning.SupportedOSPlatform("android37.0")&gt;]</AttributeName>
+        </Attribute>
+      </Attributes>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="dest" Type="Android.OS.Parcel" />
+        <Parameter Name="flags" Type="Android.OS.ParcelableWriteFlags">
+          <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.GeneratedEnum]</AttributeName>
+              <AttributeName Language="F#">[&lt;Android.Runtime.GeneratedEnum&gt;]</AttributeName>
+            </Attribute>
+          </Attributes>
+        </Parameter>
+      </Parameters>
+      <Docs>
+        <param name="dest">To be added.</param>
+        <param name="flags">Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: Parcelable.PARCELABLE_WRITE_RETURN_VALUE</param>
+        <summary>Flatten this object in to a Parcel.</summary>
+        <remarks>
+          <para>Flatten this object in to a Parcel.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/autofill/AutofillNoiseInjectedData#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Android reference for <code>android.view.autofill.AutofillNoiseInjectedData.writeToParcel</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
+      </Docs>
+    </Member>
+  </Members>
+</Type>
