@@ -474,9 +474,12 @@
       </Parameters>
       <Docs>
         <param name="endDate">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets the time instant after which the key is no longer valid for decryption and verification.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets the time instant after which the key is no longer valid for decryption and verification.</para>
+          <para>By default, the key is valid at any instant.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setKeyValidityForConsumptionEnd(java.util.Date)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setKeyValidityForConsumptionEnd</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -516,9 +519,12 @@
       </Parameters>
       <Docs>
         <param name="endDate">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets the time instant after which the key is no longer valid for encryption and signing.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets the time instant after which the key is no longer valid for encryption and signing.</para>
+          <para>By default, the key is valid at any instant.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setKeyValidityForOriginationEnd(java.util.Date)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setKeyValidityForOriginationEnd</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -558,9 +564,12 @@
       </Parameters>
       <Docs>
         <param name="startDate">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets the time instant before which the key is not yet valid.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets the time instant before which the key is not yet valid.</para>
+          <para>By default, the key is valid at any instant.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setKeyValidityStart(java.util.Date)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setKeyValidityStart</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -592,10 +601,17 @@
         <Parameter Name="maxUsageCount" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="maxUsageCount">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="maxUsageCount">maximum number of times the key is allowed to be used or KeyProperties.UNRESTRICTED_USAGE_COUNT if there is no restriction on the usage.</param>
+        <summary>Sets the maximum number of times the key is allowed to be used.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the maximum number of times the key is allowed to be used. After every use of the key, the use counter will decrease. This authorization applies only to secret key and private key operations. Public key operations are not restricted. For example, after successfully encrypting and decrypting data using methods such as Cipher.doFinal(), the use counter of the secret key will decrease. After successfully signing data using methods such as Signature.sign(), the use counter of the private key will decrease. When the use counter is depleted, the key will be marked for deletion by Android Keystore and any subsequent attempt to use the key will throw KeyPermanentlyInvalidatedException. There is no key to be loaded from the Android Keystore once the exhausted key is permanently deleted, as if the key never existed before.</para>
+          <para>By default, there is no restriction on the usage of key.</para>
+          <para>Some secure hardware may not support this feature at all, in which case it will be enforced in software, some secure hardware may support it but only with maxUsageCount = 1, and some secure hardware may support it with larger value of maxUsageCount.</para>
+          <para>The PackageManager feature flags: PackageManager.FEATURE_KEYSTORE_SINGLE_USE_KEY and PackageManager.FEATURE_KEYSTORE_LIMITED_USE_KEY can be used to check whether the secure hardware cannot enforce this feature, can only enforce it with maxUsageCount = 1, or can enforce it with larger value of maxUsageCount.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setMaxUsageCount(int)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setMaxUsageCount</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetMgf1Digests">
@@ -636,10 +652,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="mgf1Digests">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mgf1Digests">This value may be null. Value is one of the following: KeyProperties.DIGEST_NONE; KeyProperties.DIGEST_MD5; KeyProperties.DIGEST_SHA1; KeyProperties.DIGEST_SHA224; KeyProperties.DIGEST_SHA256; KeyProperties.DIGEST_SHA384; KeyProperties.DIGEST_SHA512</param>
+        <summary>Sets the set of hash functions (e.g., SHA-256, SHA-384) which could be used by the mask generation function MGF1 (which is used for certain operations with the key).</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the set of hash functions (e.g., SHA-256, SHA-384) which could be used by the mask generation function MGF1 (which is used for certain operations with the key). Attempts to use the key with any other digest for the mask generation function will be rejected.</para>
+          <para>This can only be specified for signing/verification keys and RSA encryption/decryption keys used with RSA OAEP padding scheme because these operations involve a mask generation function (MGF1) with a digest. The default digest for MGF1 is SHA-1, which will be specified during key import time if no digests have been explicitly provided. When using the key, the caller may not specify any digests that were not provided during key import time. The caller may specify the default digest, SHA-1, if no digests were explicitly provided during key import (but it is not necessary to do so).</para>
+          <para>See KeyProperties.DIGEST constants.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setMgf1Digests(java.lang.String[])" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setMgf1Digests</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRandomizedEncryptionRequired">
@@ -670,9 +692,13 @@
       </Parameters>
       <Docs>
         <param name="required">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets whether encryption using this key must be sufficiently randomized to produce different ciphertexts for the same plaintext every time.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets whether encryption using this key must be sufficiently randomized to produce different ciphertexts for the same plaintext every time. The formal cryptographic property being required is indistinguishability under chosen-plaintext attack (IND-CPA). This property is important because it mitigates several classes of weaknesses due to which ciphertext may leak information about plaintext. For example, if a given plaintext always produces the same ciphertext, an attacker may see the repeated ciphertexts and be able to deduce something about the plaintext.</para>
+          <para>By default, IND-CPA is required.</para>
+          <para>When IND-CPA is required: transformation which do not offer IND-CPA, such as symmetric ciphers using ECB mode or RSA encryption without padding, are prohibited;; in transformations which use an IV, such as symmetric ciphers in GCM, CBC, and CTR block modes, caller-provided IVs are rejected when encrypting, to ensure that only random IVs are used Before disabling this requirement, consider the following approaches instead:; If you are generating a random IV for encryption and then initializing a Cipher using the IV, the solution is to let the Cipher generate a random IV instead. This will occur if the Cipher is initialized for encryption without an IV. The IV can then be queried via Cipher.getIV(); If you are generating a non-random IV (e.g., an IV derived from something not fully random, such as the name of the file being encrypted, or transaction ID, or password, or a device identifier), consider changing your design to use a random IV which will then be provided in addition to the ciphertext to the entities which need to decrypt the ciphertext; If you are using RSA encryption without padding, consider switching to padding schemes which offer IND-CPA, such as PKCS#1 or OAEP.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setRandomizedEncryptionRequired(boolean)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setRandomizedEncryptionRequired</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -715,10 +741,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="paddings">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="paddings">Value is one of the following: KeyProperties.SIGNATURE_PADDING_RSA_PKCS1; KeyProperties.SIGNATURE_PADDING_RSA_PSS</param>
+        <summary>Sets the set of padding schemes (e.g., PSS, PKCS#1) with which the key can be used when signing/verifying.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets the set of padding schemes (e.g., PSS, PKCS#1) with which the key can be used when signing/verifying. Attempts to use the key with any other padding scheme will be rejected.</para>
+          <para>This must be specified for RSA keys which are used for signing/verification.</para>
+          <para>See KeyProperties.SIGNATURE_PADDING constants.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setSignaturePaddings(java.lang.String[])" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setSignaturePaddings</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -751,9 +781,18 @@
       </Parameters>
       <Docs>
         <param name="unlockedDeviceRequired">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets whether this key is authorized to be used only while the device is unlocked.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets whether this key is authorized to be used only while the device is unlocked.</para>
+          <para>The device is considered to be locked for a user when the user's apps are currently inaccessible and some form of lock screen authentication is required to regain access to them. For the full definition, see KeyguardManager.isDeviceLocked().</para>
+          <para>Public key operations aren't restricted by setUnlockedDeviceRequired(true) and may be performed even while the device is locked. In Android 11 (API level 30) and lower, encryption and verification operations with symmetric keys weren't restricted either.</para>
+          <para>Keys that use setUnlockedDeviceRequired(true) can be imported and generated even while the device is locked, as long as the device has been unlocked at least once since the last reboot. However, such keys cannot be used (except for the unrestricted operations mentioned above) until the device is unlocked. Apps that need to encrypt data while the device is locked such that it can only be decrypted while the device is unlocked can generate a key and encrypt the data in software, import the key into Keystore using setUnlockedDeviceRequired(true), and zeroize the original key.</para>
+          <para>setUnlockedDeviceRequired(true) is related to but distinct from setUserAuthenticationRequired(true). setUnlockedDeviceRequired(true) requires that the device be unlocked, whereas setUserAuthenticationRequired(true) requires that a specific type of strong authentication has happened within a specific time period. They may be used together or separately; there are cases in which one requirement can be satisfied but not the other.</para>
+          <para>Warning: Be careful using setUnlockedDeviceRequired(true) on Android 14 (API level 34) and lower, since the following bugs existed in Android 12 through 14: When the user didn't have a secure lock screen, unlocked-device-required keys couldn't be generated, imported, or used; When the user's secure lock screen was removed, all of that user's unlocked-device-required keys were automatically deleted; Unlocking the device with a non-strong biometric, such as face on many devices, didn't re-authorize the use of unlocked-device-required keys; Unlocking the device with a biometric didn't re-authorize the use of unlocked-device-required keys in profiles that share their parent user's lock. These issues are fixed in Android 15, so apps can avoid them by using setUnlockedDeviceRequired(true) only on Android 15 and higher. Apps that use both setUnlockedDeviceRequired(true) and setUserAuthenticationRequired(true) are unaffected by the first two issues, since the first two issues describe expected behavior for setUserAuthenticationRequired(true).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setUnlockedDeviceRequired(boolean)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setUnlockedDeviceRequired</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetUserAuthenticationParameters">
@@ -826,9 +865,14 @@
       </Parameters>
       <Docs>
         <param name="required">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets whether this key is authorized to be used only if the user has been authenticated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets whether this key is authorized to be used only if the user has been authenticated.</para>
+          <para>By default, the key is authorized to be used regardless of whether the user has been authenticated.</para>
+          <para>When user authentication is required: The key can only be import if secure lock screen is set up (see KeyguardManager.isDeviceSecure()). Additionally, if the key requires that user authentication takes place for every use of the key (see setUserAuthenticationValidityDurationSeconds(int)), at least one biometric must be enrolled (see BiometricManager.canAuthenticate()); The use of the key must be authorized by the user by authenticating to this Android device using a subset of their secure lock screen credentials such as password/PIN/pattern or biometric. More information; The key will become irreversibly invalidated once the secure lock screen is disabled (reconfigured to None, Swipe or other mode which does not authenticate the user) or when the secure lock screen is forcibly reset (e.g., by a Device Administrator). Additionally, if the key requires that user authentication takes place for every use of the key, it is also irreversibly invalidated once a new biometric is enrolled or once no more biometrics are enrolled, unless setInvalidatedByBiometricEnrollment(boolean) is used to allow validity after enrollment. Attempts to initialize cryptographic operations using such keys will throw KeyPermanentlyInvalidatedException.</para>
+          <para>This authorization applies only to secret key and private key operations. Public key operations are not restricted.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setUserAuthenticationRequired(boolean)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setUserAuthenticationRequired</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -864,10 +908,16 @@
         <Parameter Name="seconds" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="seconds">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="seconds">duration in seconds or -1 if user authentication must take place for every use of the key. Value is -1 or greater</param>
+        <summary>Sets the duration of time (seconds) for which this key is authorized to be used after the user is successfully authenticated.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>This method was deprecated in API level 30. See setUserAuthenticationParameters(int, int)</para>
+          <para>Sets the duration of time (seconds) for which this key is authorized to be used after the user is successfully authenticated. This has effect if the key requires user authentication for its use (see setUserAuthenticationRequired(boolean)).</para>
+          <para>By default, if user authentication is required, it must take place for every use of the key.</para>
+          <para>Cryptographic operations involving keys which require user authentication to take place for every operation can only use biometric authentication. This is achieved by initializing a cryptographic operation (Signature, Cipher, Mac) with the key, wrapping it into a BiometricPrompt.CryptoObject, invoking BiometricPrompt.authenticate with CryptoObject, and proceeding with the cryptographic operation only if the authentication flow succeeds.</para>
+          <para>Cryptographic operations involving keys which are authorized to be used for a duration of time after a successful user authentication event can only use secure lock screen authentication. These cryptographic operations will throw UserNotAuthenticatedException during initialization if the user needs to be authenticated to proceed. This situation can be resolved by the user unlocking the secure lock screen of the Android or by going through the confirm credential flow initiated by KeyguardManager.createConfirmDeviceCredentialIntent(CharSequence,CharSequence). Once resolved, initializing a new cryptographic operation using this key (or any other key which is authorized to be used for a fixed duration of time after user authentication) should succeed provided the user authentication flow completed successfully.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setUserAuthenticationValidityDurationSeconds(int)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setUserAuthenticationValidityDurationSeconds</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -899,10 +949,13 @@
         <Parameter Name="remainsValid" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="remainsValid">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="remainsValid">if true, and if the device supports enforcement of this parameter, the key will be invalidated when the device is removed from the user's body or when the authentication validity expires, whichever occurs first.</param>
+        <summary>Sets whether the key will remain authorized only until the device is removed from the user's body up to the limit of the authentication validity period (see setUserAuthenticationValidityDurationSeconds(int) and setUserAuthenticationRequired(boolean)).</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Sets whether the key will remain authorized only until the device is removed from the user's body up to the limit of the authentication validity period (see setUserAuthenticationValidityDurationSeconds(int) and setUserAuthenticationRequired(boolean)). Once the device has been removed from the user's body, the key will be considered unauthorized and the user will need to re-authenticate to use it. If the device does not have an on-body sensor or the key does not have an authentication validity period, this parameter has no effect.</para>
+          <para>Since Android 12 (API level 31), this parameter has no effect even on devices that have an on-body sensor. A future version of Android may restore enforcement of this parameter. Meanwhile, it is recommended to not use it.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setUserAuthenticationValidWhileOnBody(boolean)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setUserAuthenticationValidWhileOnBody</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -935,9 +988,14 @@
       </Parameters>
       <Docs>
         <param name="required">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets whether this key is authorized to be used only for messages confirmed by the user.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets whether this key is authorized to be used only for messages confirmed by the user. Confirmation is separate from user authentication (see setUserAuthenticationRequired(boolean)). Keys can be created that require confirmation but not user authentication, or user authentication but not confirmation, or both. Confirmation verifies that some user with physical possession of the device has approved a displayed message. User authentication verifies that the correct user is present and has authenticated.</para>
+          <para>This authorization applies only to secret key and private key operations. Public key operations are not restricted. See ConfirmationPrompt class for more details about user confirmations.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setUserConfirmationRequired(boolean)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setUserConfirmationRequired</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetUserPresenceRequired">
@@ -968,9 +1026,13 @@
       </Parameters>
       <Docs>
         <param name="required">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Sets whether a test of user presence is required to be performed between the Signature.initSign() and Signature.sign() method calls.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets whether a test of user presence is required to be performed between the Signature.initSign() and Signature.sign() method calls. It requires that the KeyStore implementation have a direct way to validate the user presence for example a KeyStore hardware backed strongbox can use a button press that is observable in hardware. A test for user presence is tangential to authentication. The test can be part of an authentication step as long as this step can be validated by the hardware protecting the key and cannot be spoofed. For example, a physical button press can be used as a test of user presence if the other pins connected to the button are not able to simulate a button press. There must be no way for the primary processor to fake a button press, or that button must not be used as a test of user presence.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyProtection.Builder#setUserPresenceRequired(boolean)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyProtection.Builder.setUserPresenceRequired</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
