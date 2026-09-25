@@ -90,6 +90,12 @@
         <value>The direction of the camera faces relative to the vehicle body frame and the passenger seats.</value>
         <remarks>
           <para>The direction of the camera faces relative to the vehicle body frame and the passenger seats.</para>
+          <para>This enum defines the lens facing characteristic of the cameras on the automotive devices with locations android.automotive.location defines. If the system has FEATURE_AUTOMOTIVE, the camera will have this entry in its static metadata.</para>
+          <para>When android.automotive.location is INTERIOR, this has one or more INTERIOR_* values or a single EXTERIOR_* value. When this has more than one INTERIOR_*, the first value must be the one for the seat closest to the optical axis. If this contains INTERIOR_OTHER, all other values will be ineffective.</para>
+          <para>When android.automotive.location is EXTERIOR_* or EXTRA, this has a single EXTERIOR_* value.</para>
+          <para>If a camera has INTERIOR_OTHER or EXTERIOR_OTHER, or more than one camera is at the same location and facing the same direction, their static metadata will list the following entries, so that applications can determine their lenses' exact facing directions: android.lens.poseReference; android.lens.poseRotation; android.lens.poseTranslation</para>
+          <para>Possible values: EXTERIOR_OTHER; EXTERIOR_FRONT; EXTERIOR_REAR; EXTERIOR_LEFT; EXTERIOR_RIGHT; INTERIOR_OTHER; INTERIOR_SEAT_ROW_1_LEFT; INTERIOR_SEAT_ROW_1_CENTER; INTERIOR_SEAT_ROW_1_RIGHT; INTERIOR_SEAT_ROW_2_LEFT; INTERIOR_SEAT_ROW_2_CENTER; INTERIOR_SEAT_ROW_2_RIGHT; INTERIOR_SEAT_ROW_3_LEFT; INTERIOR_SEAT_ROW_3_CENTER; INTERIOR_SEAT_ROW_3_RIGHT</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#AUTOMOTIVE_LENS_FACING" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.AUTOMOTIVE_LENS_FACING</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -131,6 +137,10 @@
         <value>Location of the cameras on the automotive devices.</value>
         <remarks>
           <para>Location of the cameras on the automotive devices.</para>
+          <para>This enum defines the locations of the cameras relative to the vehicle body frame on the automotive sensor coordinate system. If the system has FEATURE_AUTOMOTIVE, the camera will have this entry in its static metadata.; INTERIOR is the inside of the vehicle body frame (or the passenger cabin); EXTERIOR is the outside of the vehicle body frame; EXTRA is the extra vehicle such as a trailer</para>
+          <para>If the camera has either EXTERIOR_OTHER or EXTRA_OTHER, its static metadata will list the following entries, so that applications can determine the camera's exact location: android.lens.poseReference; android.lens.poseRotation; android.lens.poseTranslation</para>
+          <para>Possible values: INTERIOR; EXTERIOR_OTHER; EXTERIOR_FRONT; EXTERIOR_REAR; EXTERIOR_LEFT; EXTERIOR_RIGHT; EXTRA_OTHER; EXTRA_FRONT; EXTRA_REAR; EXTRA_LEFT; EXTRA_RIGHT</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#AUTOMOTIVE_LOCATION" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.AUTOMOTIVE_LOCATION</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -511,6 +521,10 @@
         <value>List of color correction modes for android.colorCorrection.mode that are supported by this camera device.</value>
         <remarks>
           <para>List of color correction modes for android.colorCorrection.mode that are supported by this camera device.</para>
+          <para>This key lists the valid modes for android.colorCorrection.mode. If no color correction modes are available for a device, this key will be null.</para>
+          <para>Camera devices that have a FULL hardware level will always include at least FAST, HIGH_QUALITY, and TRANSFORM_MATRIX modes.</para>
+          <para>Range of valid values: Any value listed in android.colorCorrection.mode</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#COLOR_CORRECTION_AVAILABLE_MODES" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.COLOR_CORRECTION_AVAILABLE_MODES</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -552,6 +566,10 @@
         <value>The range of supported color temperature values for android.colorCorrection.colorTemperature.</value>
         <remarks>
           <para>The range of supported color temperature values for android.colorCorrection.colorTemperature.</para>
+          <para>This key lists the valid range of color temperature values for android.colorCorrection.colorTemperature supported by this camera device.</para>
+          <para>This key will be null on devices that do not support CCT mode for android.colorCorrection.mode.</para>
+          <para>The minimum supported range will be [2856K,6500K]. The maximum supported range will be [1000K,40000K].</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -669,6 +687,9 @@
         <value>List of auto-exposure priority modes for android.control.aePriorityMode that are supported by this camera device.</value>
         <remarks>
           <para>List of auto-exposure priority modes for android.control.aePriorityMode that are supported by this camera device.</para>
+          <para>This entry lists the valid modes for android.control.aePriorityMode for this camera device. If no AE priority modes are available for a device, this will only list OFF.</para>
+          <para>Range of valid values: Any value listed in android.control.aePriorityMode</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#CONTROL_AE_AVAILABLE_PRIORITY_MODES" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.CONTROL_AE_AVAILABLE_PRIORITY_MODES</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -906,6 +927,9 @@
         <value>Whether the camera device supports android.control.autoframing.</value>
         <remarks>
           <para>Whether the camera device supports android.control.autoframing.</para>
+          <para>Will be false if auto-framing is not available.</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
+          <para>Limited capability - Present on all camera devices that report being at least HARDWARE_LEVEL_LIMITED devices in the android.info.supportedHardwareLevel key</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#CONTROL_AUTOFRAMING_AVAILABLE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.CONTROL_AUTOFRAMING_AVAILABLE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1116,6 +1140,11 @@
         <value>List of available settings overrides supported by the camera device that can be used to speed up certain controls.</value>
         <remarks>
           <para>List of available settings overrides supported by the camera device that can be used to speed up certain controls.</para>
+          <para>When not all controls within a CaptureRequest are required to take effect at the same time on the outputs, the camera device may apply certain request keys sooner to improve latency. This list contains such supported settings overrides. Each settings override corresponds to a set of CaptureRequest keys that can be sped up when applying.</para>
+          <para>A supported settings override can be passed in via CaptureRequest.CONTROL_SETTINGS_OVERRIDE, and the CaptureRequest keys corresponding to the override are applied as soon as possible, not bound by per-frame synchronization. See android.control.settingsOverride for the CaptureRequest keys for each override.</para>
+          <para>OFF is always included in this list.</para>
+          <para>Range of valid values: Any value listed in android.control.settingsOverride</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#CONTROL_AVAILABLE_SETTINGS_OVERRIDES" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.CONTROL_AVAILABLE_SETTINGS_OVERRIDES</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1276,6 +1305,10 @@
         <value>The operating luminance range of low light boost measured in lux (lx).</value>
         <remarks>
           <para>The operating luminance range of low light boost measured in lux (lx).</para>
+          <para>The lower bound indicates the lowest scene luminance value the AE mode 'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY' can operate within. Scenes of lower luminance than this may receive less brightening, increased noise, or artifacts.</para>
+          <para>The upper bound indicates the luminance threshold at the point when the mode is enabled. For example, 'Range[0.3, 30.0]' defines 0.3 lux being the lowest scene luminance the mode can reliably support. 30.0 lux represents the threshold when this mode is activated. Scenes measured at less than or equal to 30 lux will activate low light boost.</para>
+          <para>If this key is defined, then the AE mode 'ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY' will also be present.</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#CONTROL_LOW_LIGHT_BOOST_INFO_LUMINANCE_RANGE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.CONTROL_LOW_LIGHT_BOOST_INFO_LUMINANCE_RANGE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1678,6 +1711,9 @@
         <value>Default flashlight brightness level to be set via CameraManager.turnOnTorchWithStrengthLevel(String, int).</value>
         <remarks>
           <para>Default flashlight brightness level to be set via CameraManager.turnOnTorchWithStrengthLevel(String, int).</para>
+          <para>If flash unit is available this will be greater than or equal to 1 and less or equal to android.flash.info.strengthMaximumLevel.</para>
+          <para>Setting flashlight brightness above the default level (i.e.android.flash.info.strengthDefaultLevel) may make the device more likely to reach thermal throttling conditions and slow down, or drain the battery quicker than normal. To minimize such issues, it is recommended to start the flashlight at this default brightness until a user explicitly requests a brighter level. Note that the value for this key will be null for devices with no flash unit. The default level should always be &gt; 0.</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_INFO_STRENGTH_DEFAULT_LEVEL" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.FLASH_INFO_STRENGTH_DEFAULT_LEVEL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1719,6 +1755,9 @@
         <value>Maximum flashlight brightness level.</value>
         <remarks>
           <para>Maximum flashlight brightness level.</para>
+          <para>If this value is greater than 1, then the device supports controlling the flashlight brightness level via CameraManager.turnOnTorchWithStrengthLevel(String, int). If this value is equal to 1, flashlight brightness control is not supported. The value for this key will be null for devices with no flash unit.</para>
+          <para>The maximum value is guaranteed to be safe to use for an indefinite duration in terms of device flashlight lifespan, but may be too bright for comfort for many use cases. Use the default torch brightness value to avoid problems with an over-bright flashlight.</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_INFO_STRENGTH_MAXIMUM_LEVEL" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1760,6 +1799,8 @@
         <value>Default flash brightness level for manual flash control in SINGLE mode.</value>
         <remarks>
           <para>Default flash brightness level for manual flash control in SINGLE mode.</para>
+          <para>If flash unit is available this will be greater than or equal to 1 and less or equal to android.flash.singleStrengthMaxLevel. Note for devices that do not support the manual flash strength control feature, this level will always be equal to 1.</para>
+          <para>This key is available on all devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_SINGLE_STRENGTH_DEFAULT_LEVEL" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.FLASH_SINGLE_STRENGTH_DEFAULT_LEVEL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1801,6 +1842,8 @@
         <value>Maximum flash brightness level for manual flash control in SINGLE mode.</value>
         <remarks>
           <para>Maximum flash brightness level for manual flash control in SINGLE mode.</para>
+          <para>Maximum flash brightness level in camera capture mode and android.flash.mode set to SINGLE. Value will be &gt; 1 if the manual flash strength control feature is supported, otherwise the value will be equal to 1. Note that this level is just a number of supported levels (the granularity of control). There is no actual physical power units tied to this level.</para>
+          <para>This key is available on all devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_SINGLE_STRENGTH_MAX_LEVEL" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.FLASH_SINGLE_STRENGTH_MAX_LEVEL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1842,6 +1885,8 @@
         <value>Default flash brightness level for manual flash control in TORCH mode</value>
         <remarks>
           <para>Default flash brightness level for manual flash control in TORCH mode</para>
+          <para>If flash unit is available this will be greater than or equal to 1 and less or equal to android.flash.torchStrengthMaxLevel. Note for the devices that do not support the manual flash strength control feature, this level will always be equal to 1.</para>
+          <para>This key is available on all devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_TORCH_STRENGTH_DEFAULT_LEVEL" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.FLASH_TORCH_STRENGTH_DEFAULT_LEVEL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1883,6 +1928,9 @@
         <value>Maximum flash brightness level for manual flash control in TORCH mode</value>
         <remarks>
           <para>Maximum flash brightness level for manual flash control in TORCH mode</para>
+          <para>Maximum flash brightness level in camera capture mode and android.flash.mode set to TORCH. Value will be &gt; 1 if the manual flash strength control feature is supported, otherwise the value will be equal to 1.</para>
+          <para>Note that this level is just a number of supported levels(the granularity of control). There is no actual physical power units tied to this level. There is no relation between android.flash.torchStrengthMaxLevel and android.flash.singleStrengthMaxLevel i.e. the ratio of android.flash.torchStrengthMaxLevel:android.flash.singleStrengthMaxLevel is not guaranteed to be the ratio of actual brightness.</para>
+          <para>This key is available on all devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_TORCH_STRENGTH_MAX_LEVEL" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.FLASH_TORCH_STRENGTH_MAX_LEVEL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2124,6 +2172,9 @@
         <value>This lists the mapping between a device folding state and specific camera sensor orientation for logical cameras on a foldable device.</value>
         <remarks>
           <para>This lists the mapping between a device folding state and specific camera sensor orientation for logical cameras on a foldable device.</para>
+          <para>Logical cameras on foldable devices can support sensors with different orientation values. The orientation value may need to change depending on the specific folding state. Information about the mapping between the device folding state and the sensor orientation can be obtained in DeviceStateSensorOrientationMap. Device state orientation maps are optional and maybe present on devices that support android.scaler.rotateAndCrop.</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
+          <para>Limited capability - Present on all camera devices that report being at least HARDWARE_LEVEL_LIMITED devices in the android.info.supportedHardwareLevel key</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_DEVICE_STATE_SENSOR_ORIENTATION_MAP" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.INFO_DEVICE_STATE_SENSOR_ORIENTATION_MAP</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2169,6 +2220,7 @@
           <para>However, it is increasingly possible for camera devices to not be restricted to device-internal sensors and processing pipelines. Such devices can provide a wide range of useful capabilities to applications, but may also not be suitable for all camera use cases.</para>
           <para>This key provides a basic classification of the type of camera this camera ID represents, so that applications may decide on the appropriate level of trust to extend to the image data produced by it.</para>
           <para>Note that in some cases, it is possible for the user to swap the definition of a camera ID to a different one, such as when connecting a remote camera to act as the front camera of the device. This is normally transparent to the camera-using application to minimize user friction, but applications that care about this possibility should always verify the value of this key in the CameraCharacteristics before opening a camera, instead of caching it, and should also watch the value of this key in CaptureResults as well, since it may change mid-session.</para>
+          <para>Possible values: BUILT_IN; EXTERNAL; VIRTUAL; UNKNOWN</para>
           <para>This key is available on all devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_DEVICE_TYPE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.INFO_DEVICE_TYPE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2211,6 +2263,13 @@
         <value>The version of the session configuration query CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported(SessionConfiguration) and CameraDevice.CameraDeviceSetup.getSessionCharacteristics(SessionConfiguration) APIs.</value>
         <remarks>
           <para>The version of the session configuration query CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported(SessionConfiguration) and CameraDevice.CameraDeviceSetup.getSessionCharacteristics(SessionConfiguration) APIs.</para>
+          <para>The possible values in this key correspond to the values defined in android.os.Build.VERSION_CODES. Each version defines a set of feature combinations the camera device must reliably report whether they are supported via CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported(SessionConfiguration). It also defines the set of session specific keys in CameraCharacteristics when returned from CameraDevice.CameraDeviceSetup.getSessionCharacteristics(SessionConfiguration). The version is always less or equal to android.os.Build.VERSION.SDK_INT.</para>
+          <para>If set to UPSIDE_DOWN_CAKE, this camera device doesn't support the CameraDevice.CameraDeviceSetup API. Trying to create a CameraDeviceSetup instance throws an UnsupportedOperationException.</para>
+          <para>From VANILLA_ICE_CREAM onwards, the camera compliance tests verify a set of commonly used SessionConfigurations to ensure that the outputs of CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported(SessionConfiguration) and CameraDevice.CameraDeviceSetup.getSessionCharacteristics(SessionConfiguration) are accurate. The application is encouraged to use these SessionConfigurations when turning on multiple features at the same time.</para>
+          <para>When set to VANILLA_ICE_CREAM, the combinations of the following configurations are verified by the compliance tests: A set of commonly used stream combinations:; MAXIMUM_4_3 refers to the camera device's maximum output resolution with 4:3 aspect ratio for that format from StreamConfigurationMap#getOutputSizes; MAXIMUM_16_9 is the maximum output resolution with 16:9 aspect ratio; S1440P refers to 2560x1440 (16:9); S1080P refers to 1920x1080 (16:9); S720P refers to 1280x720 (16:9); UHD refers to 3840x2160 (16:9); XVGA refers to 1024x768 (4:3); S1080P_43 refers to 1440x1080 (4:3); VIDEO_STABILIZATION_MODE: {OFF, PREVIEW}; AE_TARGET_FPS_RANGE: { {*, 30}, {*, 60} }; DYNAMIC_RANGE_PROFILE: {STANDARD, HLG10}</para>
+          <para>When set to BAKLAVA, the additional stream combinations below are verified by the compliance tests: VIDEO_STABILIZATION_MODE: {OFF, ON} for the newly added stream combinations given the presence of dedicated video stream</para>
+          <para>All of the above configurations can be set up with a SessionConfiguration. The list of OutputConfiguration contains the stream configurations and DYNAMIC_RANGE_PROFILE, and the AE_TARGET_FPS_RANGE and VIDEO_STABILIZATION_MODE are set as session parameters.</para>
+          <para>This key is available on all devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_SESSION_CONFIGURATION_QUERY_VERSION" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.INFO_SESSION_CONFIGURATION_QUERY_VERSION</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3360,6 +3419,8 @@
         <value>An interface for querying the color space profiles supported by a camera device.</value>
         <remarks>
           <para>An interface for querying the color space profiles supported by a camera device.</para>
+          <para>A color space profile is a combination of a color space, an image format, and a dynamic range profile. Camera clients can retrieve the list of supported color spaces by calling ColorSpaceProfiles.getSupportedColorSpaces(int) or ColorSpaceProfiles.getSupportedColorSpacesForDynamicRange(int, long). If a camera does not support the CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT capability, the dynamic range profile will always be DynamicRangeProfiles.STANDARD. Color space capabilities are queried in combination with an ImageFormat. If a camera client wants to know the general color space capabilities of a camera device regardless of image format, it can specify ImageFormat.UNKNOWN. The color space for a session can be configured by setting the SessionConfiguration color space via SessionConfiguration.setColorSpace(Named).</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#REQUEST_AVAILABLE_COLOR_SPACE_PROFILES" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_COLOR_SPACE_PROFILES</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3401,6 +3462,8 @@
         <value>Devices supporting the 10-bit output capability CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT must list their supported dynamic range profiles along with capture request constraints for specific profile combinations.</value>
         <remarks>
           <para>Devices supporting the 10-bit output capability CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT must list their supported dynamic range profiles along with capture request constraints for specific profile combinations.</para>
+          <para>Camera clients can retrieve the list of supported 10-bit dynamic range profiles by calling DynamicRangeProfiles.getSupportedProfiles(). Any of them can be configured by setting OutputConfiguration dynamic range profile in OutputConfiguration.setDynamicRangeProfile(long). Clients can also check if there are any constraints that limit the combination of supported profiles that can be referenced within a single capture request by calling DynamicRangeProfiles.getProfileCaptureRequestConstraints(long).</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3678,6 +3741,8 @@
         <value>Recommended 10-bit dynamic range profile.</value>
         <remarks>
           <para>Recommended 10-bit dynamic range profile.</para>
+          <para>Devices supporting the 10-bit output capability CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT must list a 10-bit supported dynamic range profile that is expected to perform optimally in terms of image quality, power and performance. The value advertised can be used as a hint by camera clients when configuring the dynamic range profile when calling OutputConfiguration.setDynamicRangeProfile(long).</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#REQUEST_RECOMMENDED_TEN_BIT_DYNAMIC_RANGE_PROFILE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.REQUEST_RECOMMENDED_TEN_BIT_DYNAMIC_RANGE_PROFILE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3806,6 +3871,14 @@
         <value>The stream use cases supported by this camera device.</value>
         <remarks>
           <para>The stream use cases supported by this camera device.</para>
+          <para>The stream use case indicates the purpose of a particular camera stream from the end-user perspective. Some examples of camera use cases are: preview stream for live viewfinder shown to the user, still capture for generating high quality photo capture, video record for encoding the camera output for the purpose of future playback, and video call for live realtime video conferencing.</para>
+          <para>With this flag, the camera device can optimize the image processing pipeline parameters, such as tuning, sensor mode, and ISP settings, independent of the properties of the immediate camera output surface. For example, if the output surface is a SurfaceTexture, the stream use case flag can be used to indicate whether the camera frames eventually go to display, video encoder, still image capture, or all of them combined.</para>
+          <para>The application sets the use case of a camera stream by calling OutputConfiguration.setStreamUseCase(long).</para>
+          <para>A camera device with CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE capability must support the following stream use cases: DEFAULT; PREVIEW; STILL_CAPTURE; VIDEO_RECORD; PREVIEW_VIDEO_STILL; VIDEO_CALL</para>
+          <para>The guaranteed stream combinations related to stream use case for a camera device with CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE capability is documented in the camera device guideline. The application is strongly recommended to use one of the guaranteed stream combinations. If the application creates a session with a stream combination not in the guaranteed list, or with mixed DEFAULT and non-DEFAULT use cases within the same session, the camera device may ignore some stream use cases due to hardware constraints and implementation details.</para>
+          <para>For stream combinations not covered by the stream use case mandatory lists, such as reprocessable session, constrained high speed session, or RAW stream combinations, the application should leave stream use cases within the session as DEFAULT.</para>
+          <para>Possible values: DEFAULT; PREVIEW; STILL_CAPTURE; VIDEO_RECORD; PREVIEW_VIDEO_STILL; VIDEO_CALL; CROPPED_RAW</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#SCALER_AVAILABLE_STREAM_USE_CASES" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4031,6 +4104,8 @@
         <value>An array of mandatory stream combinations which are applicable when device lists PREVIEW_STABILIZATION in android.control.availableVideoStabilizationModes.</value>
         <remarks>
           <para>An array of mandatory stream combinations which are applicable when device lists PREVIEW_STABILIZATION in android.control.availableVideoStabilizationModes. This is an app-readable conversion of the preview stabilization mandatory stream combination tables.</para>
+          <para>The array of combinations is generated according to the documented guideline for each device which supports PREVIEW_STABILIZATION Clients can use the array as a quick reference to find an appropriate camera stream combination. The mandatory stream combination array will be null in case the device does not list PREVIEW_STABILIZATION in android.control.availableVideoStabilizationModes.</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#SCALER_MANDATORY_PREVIEW_STABILIZATION_OUTPUT_STREAM_COMBINATIONS" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.SCALER_MANDATORY_PREVIEW_STABILIZATION_OUTPUT_STREAM_COMBINATIONS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4122,6 +4197,8 @@
         <value>An array of mandatory stream combinations which are applicable when device support the 10-bit output capability CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT This is an app-readable conversion of the 10 bit output mandatory stream combination tables.</value>
         <remarks>
           <para>An array of mandatory stream combinations which are applicable when device support the 10-bit output capability CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT This is an app-readable conversion of the 10 bit output mandatory stream combination tables.</para>
+          <para>The array of combinations is generated according to the documented guideline for each device which has the CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT capability. Clients can use the array as a quick reference to find an appropriate camera stream combination. The mandatory stream combination array will be null in case the device is not an CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT device.</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#SCALER_MANDATORY_TEN_BIT_OUTPUT_STREAM_COMBINATIONS" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.SCALER_MANDATORY_TEN_BIT_OUTPUT_STREAM_COMBINATIONS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4163,6 +4240,8 @@
         <value>An array of mandatory stream combinations with stream use cases.</value>
         <remarks>
           <para>An array of mandatory stream combinations with stream use cases. This is an app-readable conversion of the mandatory stream combination tables with each stream's use case being set.</para>
+          <para>The array of combinations is generated according to the documented guildeline for a camera device with CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE capability. The mandatory stream combination array will be null in case the device doesn't have CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE capability.</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#SCALER_MANDATORY_USE_CASE_STREAM_COMBINATIONS" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.SCALER_MANDATORY_USE_CASE_STREAM_COMBINATIONS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5395,6 +5474,12 @@
         <value>Whether or not the camera device supports readout timestamp and onReadoutStarted callback.</value>
         <remarks>
           <para>Whether or not the camera device supports readout timestamp and onReadoutStarted callback.</para>
+          <para>If this tag is HARDWARE, the camera device calls CameraCaptureSession.CaptureCallback.onReadoutStarted in addition to the CameraCaptureSession.CaptureCallback.onCaptureStarted callback for each capture. The timestamp passed into the callback is the start of camera image readout rather than the start of the exposure. The timestamp source of CameraCaptureSession.CaptureCallback.onReadoutStarted is the same as that of CameraCaptureSession.CaptureCallback.onCaptureStarted.</para>
+          <para>In addition, the application can switch an output surface's timestamp from start of exposure to start of readout by calling OutputConfiguration.setReadoutTimestampEnabled(boolean).</para>
+          <para>The readout timestamp is beneficial for video recording, because the encoder favors uniform timestamps, and the readout timestamps better reflect the cadence camera sensors output data.</para>
+          <para>Note that the camera device produces the start-of-exposure and start-of-readout callbacks together. As a result, the CameraCaptureSession.CaptureCallback.onReadoutStarted is called right after CameraCaptureSession.CaptureCallback.onCaptureStarted. The difference in start-of-readout and start-of-exposure is the sensor exposure time, plus certain constant offset. The offset is usually due to camera sensor level crop, and it is generally constant over time for the same set of output resolutions and capture settings.</para>
+          <para>Possible values: NOT_SUPPORTED; HARDWARE</para>
+          <para>This key is available on all devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#SENSOR_READOUT_TIMESTAMP" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.SENSOR_READOUT_TIMESTAMP</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

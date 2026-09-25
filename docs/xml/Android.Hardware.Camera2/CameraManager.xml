@@ -212,6 +212,7 @@
         <returns>CameraDevice.CameraDeviceSetup object corresponding to the provided cameraId This value cannot be null.</returns>
         <remarks>
           <para>Returns a CameraDevice.CameraDeviceSetup object for the given cameraId, which provides limited access to CameraDevice setup and query functionality without requiring an openCamera(String, StateCallback, Handler) call. The CameraDevice can later be obtained either by calling openCamera(String, StateCallback, Handler), or CameraDevice.CameraDeviceSetup.openCamera.</para>
+          <para>Support for CameraDevice.CameraDeviceSetup for a given cameraId must be checked with isCameraDeviceSetupSupported(String). If isCameraDeviceSetupSupported returns false for a cameraId, this method will throw an UnsupportedOperationException</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#getCameraDeviceSetup(java.lang.String)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraManager.getCameraDeviceSetup</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -621,6 +622,8 @@
         <summary>Open a connection to a camera with the given ID.</summary>
         <remarks>
           <para>Open a connection to a camera with the given ID.</para>
+          <para>The behavior of this method matches that of openCamera(String,StateCallback,Handler), except that it uses Executor as an argument instead of Handler.</para>
+          <para>Do note that typically callbacks are expected to be dispatched by the executor in a single thread. If the executor uses two or more threads to dispatch callbacks, then clients must ensure correct synchronization and must also be able to handle potentially different ordering of the incoming callbacks. Requires Manifest.permission.CAMERA</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#openCamera(java.lang.String,%20java.util.concurrent.Executor,%20android.hardware.camera2.CameraDevice.StateCallback)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraManager.openCamera</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
