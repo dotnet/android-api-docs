@@ -4698,7 +4698,11 @@ static class ImporterProgram
             "path-only repository-wide scope excludes non-API XML");
         Assert(
             repositoryScope.Count ==
-                Directory.EnumerateFiles(docsRoot, "*.xml", SearchOption.AllDirectories).Count() - 5,
+                Directory.EnumerateFiles(docsRoot, "*.xml", SearchOption.AllDirectories).Count() -
+                Directory.EnumerateFiles(
+                    Path.Combine(docsRoot, "FrameworksIndex"),
+                    "*.xml",
+                    SearchOption.AllDirectories).Count() - 2,
             "path-only repository-wide scope excludes root metadata and framework indexes");
         var sourcePath = Path.Combine(fixtureRoot, "source.xml");
         var androidHtml = File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html"));
