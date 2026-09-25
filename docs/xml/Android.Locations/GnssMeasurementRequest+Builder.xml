@@ -223,6 +223,9 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Set the value of whether to enable full GNSS tracking, which is false by default.</para>
+          <para>If true, GNSS chipset switches off duty cycling. In such a mode, no clock discontinuities are expected, and when supported, carrier phase should be continuous in good signal conditions. All non-blocklisted, healthy constellations, satellites and frequency bands that the chipset supports must be reported in this mode. The GNSS chipset will consume more power in full tracking mode than in duty cycling mode. If false, GNSS chipset optimizes power via duty cycling, constellations and frequency limits, etc.</para>
+          <para>Full GNSS tracking mode affects GnssMeasurement and other GNSS functionalities including GNSS location.</para>
+          <para>Full tracking requests always override non-full tracking requests. If any full tracking request occurs, all listeners on the device will receive full tracking GNSS measurements.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/GnssMeasurementRequest.Builder#setFullTracking(boolean)" title="Reference documentation">Android reference for <code>android.location.GnssMeasurementRequest.Builder.setFullTracking</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -260,6 +263,9 @@
         <returns>To be added.</returns>
         <remarks>
           <para>Set the time interval between the reported measurements in milliseconds, which is 0 by default. The request interval may be set to GnssMeasurementRequest.PASSIVE_INTERVAL which indicates this request will not actively generate GNSS measurement updates, but may receive GNSS measurement updates generated as a result of other GNSS measurement requests.</para>
+          <para>An interval of 0 milliseconds means the fastest rate the chipset can report.</para>
+          <para>The GNSS chipset may report measurements with a rate faster than requested.</para>
+          <para>Note that on Android T, a request interval of GnssMeasurementRequest.PASSIVE_INTERVAL will first trigger one GNSS measurement. Another GNSS measurement will be triggered after GnssMeasurementRequest.PASSIVE_INTERVAL milliseconds and so on.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/location/GnssMeasurementRequest.Builder#setIntervalMillis(int)" title="Reference documentation">Android reference for <code>android.location.GnssMeasurementRequest.Builder.setIntervalMillis</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
