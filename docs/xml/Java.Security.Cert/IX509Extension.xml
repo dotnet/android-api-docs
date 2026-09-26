@@ -99,8 +99,23 @@
       <Docs>
         <summary>Returns the set of OIDs of the extension(s) marked as CRITICAL, that this
  implementation manages.</summary>
-        <value>To be added.</value>
+        <value>a Set (or an empty Set if none are marked critical) of the extension OID strings for extensions that are marked critical. If there are no extensions present at all, then this method returns null.</value>
         <remarks>
+          <para>Gets a Set of the OID strings for the extension(s) marked CRITICAL in the certificate/CRL managed by the object implementing this interface.</para>
+          <code lang="text/java"> X509Certificate cert = null;
+ try (InputStream inStrm = new FileInputStream("DER-encoded-Cert")) {
+     CertificateFactory cf = CertificateFactory.getInstance("X.509");
+     cert = (X509Certificate)cf.generateCertificate(inStrm);
+ }
+
+ Set&lt;String&gt; critSet = cert.getCriticalExtensionOIDs();
+ if (critSet != null &amp;&amp; !critSet.isEmpty()) {
+     System.out.println("Set of critical extensions:");
+     for (String oid : critSet) {
+         System.out.println(oid);
+     }
+ }</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Extension.html#getCriticalExtensionOIDs()" title="Reference documentation">Java reference for <code>java.security.cert.X509Extension.getCriticalExtensionOIDs</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -213,8 +228,10 @@
       <Docs>
         <summary>Returns whether this instance has an extension marked as CRITICAL that it
  cannot support.</summary>
-        <value>To be added.</value>
+        <value>true if a critical extension is found that is not supported, otherwise false.</value>
         <remarks>
+          <para>Check if there is a critical extension that is not supported.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Extension.html#hasUnsupportedCriticalExtension()" title="Reference documentation">Java reference for <code>java.security.cert.X509Extension.hasUnsupportedCriticalExtension</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -246,8 +263,30 @@
       <Docs>
         <summary>Returns the set of OIDs of the extension(s) marked as NON-CRITICAL, that
  this implementation manages.</summary>
-        <value>To be added.</value>
+        <value>a Set (or an empty Set if none are marked non-critical) of the extension OID strings for extensions that are marked non-critical. If there are no extensions present at all, then this method returns null.</value>
         <remarks>
+          <para>Gets a Set of the OID strings for the extension(s) marked NON-CRITICAL in the certificate/CRL managed by the object implementing this interface.</para>
+          <code lang="text/java"> CertificateFactory cf = null;
+ X509CRL crl = null;
+ try (InputStream inStrm = new FileInputStream("DER-encoded-CRL")) {
+     cf = CertificateFactory.getInstance("X.509");
+     crl = (X509CRL)cf.generateCRL(inStrm);
+ }
+
+ byte[] certData = &lt;DER-encoded certificate data&gt;
+ ByteArrayInputStream bais = new ByteArrayInputStream(certData);
+ X509Certificate cert = (X509Certificate)cf.generateCertificate(bais);
+ X509CRLEntry badCert =
+              crl.getRevokedCertificate(cert.getSerialNumber());
+
+ if (badCert != null) {
+     Set&lt;String&gt; nonCritSet = badCert.getNonCriticalExtensionOIDs();
+     if (nonCritSet != null)
+         for (String oid : nonCritSet) {
+             System.out.println(oid);
+         }
+ }</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Extension.html#getNonCriticalExtensionOIDs()" title="Reference documentation">Java reference for <code>java.security.cert.X509Extension.getNonCriticalExtensionOIDs</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />

@@ -181,8 +181,13 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the path length of the certificate constraints from the <c>BasicContraints</c> extension.</summary>
-        <value>To be added.</value>
+        <value>the value of pathLenConstraint if the BasicConstraints extension is present in the certificate and the subject of the certificate is a CA, otherwise -1. If the subject of the certificate is a CA and pathLenConstraint does not appear, Integer.MAX_VALUE is returned to indicate that there is no limit to the allowed length of the certification path.</value>
         <remarks>
+          <para>Gets the certificate constraints path length from the critical BasicConstraints extension, (OID = 2.5.29.19). The basic constraints extension identifies whether the subject of the certificate is a Certificate Authority (CA) and how deep a certification path may exist through that CA. The pathLenConstraint field (see below) is meaningful only if cA is set to TRUE. In this case, it gives the maximum number of CA certificates that may follow this certificate in a certification path. A value of zero indicates that only an end-entity certificate may follow in the path.</para>
+          <code lang="text/java"> BasicConstraints ::= SEQUENCE {
+     cA                  BOOLEAN DEFAULT FALSE,
+     pathLenConstraint   INTEGER (0..MAX) OPTIONAL }</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Certificate.html#getBasicConstraints()" title="Reference documentation">Java reference for <code>java.security.cert.X509Certificate.getBasicConstraints</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -901,8 +906,23 @@
       <Docs>
         <summary>Returns the <c>issuer</c> (issuer distinguished name) as an
  implementation specific <c>Principal</c> object.</summary>
-        <value>To be added.</value>
+        <value>a Principal whose name is the issuer distinguished name.</value>
         <remarks>
+          <para>Gets the issuer (issuer distinguished name) value from the certificate. The issuer name identifies the entity that signed (and issued) the certificate. The issuer name field contains an X.500 distinguished name (DN).</para>
+          <code lang="text/java"> issuer    Name
+
+ Name ::= CHOICE { RDNSequence }
+ RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+ RelativeDistinguishedName ::=
+     SET OF AttributeValueAssertion
+
+ AttributeValueAssertion ::= SEQUENCE {
+                               AttributeType,
+                               AttributeValue }
+ AttributeType ::= OBJECT IDENTIFIER
+ AttributeValue ::= ANY</code>
+          <para>The Name describes a hierarchical name composed of attributes, such as country name, and corresponding values, such as US. The type of the AttributeValue component is determined by the AttributeType; in general it will be a directoryString. A directoryString is usually one of PrintableString, TeletexString or UniversalString.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Certificate.html#getIssuerDN()" title="Reference documentation">Java reference for <code>java.security.cert.X509Certificate.getIssuerDN</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1071,8 +1091,10 @@
       <Docs>
         <summary>Returns the <c>notAfter</c> date of the validity period of the
  certificate.</summary>
-        <value>To be added.</value>
+        <value>the end date of the validity period.</value>
         <remarks>
+          <para>Gets the notAfter date from the validity period of the certificate. See getNotBefore for relevant ASN.1 definitions.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Certificate.html#getNotAfter()" title="Reference documentation">Java reference for <code>java.security.cert.X509Certificate.getNotAfter</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1100,8 +1122,19 @@
       <Docs>
         <summary>Returns the <c>notBefore</c> date from the validity period of the
  certificate.</summary>
-        <value>To be added.</value>
+        <value>the start date of the validity period.</value>
         <remarks>
+          <para>Gets the notBefore date from the validity period of the certificate.</para>
+          <code lang="text/java"> validity             Validity
+
+ Validity ::= SEQUENCE {
+     notBefore      CertificateValidityDate,
+     notAfter       CertificateValidityDate }
+
+ CertificateValidityDate ::= CHOICE {
+     utcTime        UTCTime,
+     generalTime    GeneralizedTime }</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Certificate.html#getNotBefore()" title="Reference documentation">Java reference for <code>java.security.cert.X509Certificate.getNotBefore</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1128,8 +1161,13 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the <c>serialNumber</c> of the certificate.</summary>
-        <value>To be added.</value>
+        <value>the serial number.</value>
         <remarks>
+          <para>Gets the serialNumber value from the certificate. The serial number is an integer assigned by the certification authority to each certificate. It must be unique for each certificate issued by a given CA (i.e., the issuer name and serial number identify a unique certificate).</para>
+          <code lang="text/java"> serialNumber     CertificateSerialNumber
+
+ CertificateSerialNumber  ::=  INTEGER</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Certificate.html#getSerialNumber()" title="Reference documentation">Java reference for <code>java.security.cert.X509Certificate.getSerialNumber</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1156,8 +1194,19 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the name of the algorithm for the certificate signature.</summary>
-        <value>To be added.</value>
+        <value>the signature algorithm name.</value>
         <remarks>
+          <para>Gets the signature algorithm name for the certificate signature algorithm. An example is the string "SHA256withRSA".</para>
+          <code lang="text/java"> signatureAlgorithm   AlgorithmIdentifier
+
+ AlgorithmIdentifier  ::=  SEQUENCE  {
+     algorithm               OBJECT IDENTIFIER,
+     parameters              ANY DEFINED BY algorithm OPTIONAL  }
+                             -- contains a value of the type
+                             -- registered for use with the
+                             -- algorithm object identifier value</code>
+          <para>The algorithm name is determined from the algorithm OID string.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Certificate.html#getSigAlgName()" title="Reference documentation">Java reference for <code>java.security.cert.X509Certificate.getSigAlgName</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1184,8 +1233,10 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the OID of the signature algorithm from the certificate.</summary>
-        <value>To be added.</value>
+        <value>the signature algorithm OID string.</value>
         <remarks>
+          <para>Gets the signature algorithm OID string from the certificate. An OID is represented by a set of nonnegative whole numbers separated by periods. For example, the string "1.2.840.10040.4.3" identifies the SHA-1 with DSA signature algorithm defined in RFC 3279: Algorithms and Identifiers for the Internet X.509 Public Key Infrastructure Certificate and CRL Profile. See getSigAlgName for relevant ASN.1 definitions.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Certificate.html#getSigAlgOID()" title="Reference documentation">Java reference for <code>java.security.cert.X509Certificate.getSigAlgOID</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1309,8 +1360,12 @@
       <Docs>
         <summary>Returns the <c>subject</c> (subject distinguished name) as an
  implementation specific <c>Principal</c> object.</summary>
-        <value>To be added.</value>
+        <value>a Principal whose name is the subject name.</value>
         <remarks>
+          <para>Gets the subject (subject distinguished name) value from the certificate. If the subject value is empty, then the getName() method of the returned Principal object returns an empty string ("").</para>
+          <code lang="text/java"> subject    Name</code>
+          <para>See getIssuerDN for Name and other relevant definitions.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Certificate.html#getSubjectDN()" title="Reference documentation">Java reference for <code>java.security.cert.X509Certificate.getSubjectDN</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1509,8 +1564,13 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the certificates <c>version</c> (version number).</summary>
-        <value>To be added.</value>
+        <value>the version number, i.e. 1, 2 or 3.</value>
         <remarks>
+          <para>Gets the version (version number) value from the certificate.</para>
+          <code lang="text/java"> version  [0] EXPLICIT Version DEFAULT v1
+
+ Version ::=  INTEGER  {  v1(0), v2(1), v3(2)  }</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509Certificate.html#getVersion()" title="Reference documentation">Java reference for <code>java.security.cert.X509Certificate.getVersion</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
