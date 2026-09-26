@@ -4486,7 +4486,7 @@ static class ImporterProgram
                 return char.IsSurrogate(character) ? match.Value : character.ToString();
             },
             RegexOptions.CultureInvariant);
-        text = Regex.Replace(text, @"\{@(?:link|linkplain|code|literal|value)\s+([^}]+)\}", "$1");
+        text = Regex.Replace(text, @"\{(?:@)?(?:link|linkplain|code|literal|value)\s+([^}]+)\}", "$1");
         text = Regex.Replace(text, @"\{@\w+(?:\s+[^}]*)?\}", "");
         text = text.Replace(
             "CharSequence.subsequence()",
