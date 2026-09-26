@@ -142,13 +142,21 @@
         <Parameter Name="listener" Type="Android.Content.IDialogInterfaceOnClickListener" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="iconType">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">Text to be shown on the fallback option for the prompt. This value cannot be null.</param>
+        <param name="iconType">Icon to be shown for the fallback option. Value is one of the following: BiometricManager.ICON_TYPE_PASSWORD; BiometricManager.ICON_TYPE_QR_CODE; BiometricManager.ICON_TYPE_ACCOUNT; BiometricManager.ICON_TYPE_GENERIC; BiometricManager.ICON_TYPE_SETTING; BiometricManager.ICON_TYPE_RESET; BiometricManager.ICON_TYPE_MESSAGE; BiometricManager.ICON_TYPE_SUPERVISED</param>
+        <param name="executor">Executor that will be used to run the on click callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="listener">Listener containing a callback to be run when the button is pressed. This value cannot be null.</param>
+        <summary>Optional: Sets the text, icon, executor, and click listener for a fallback option in biometric prompt.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Sets the text, icon, executor, and click listener for a fallback option in biometric prompt.</para>
+          <para>Fallback option is displayed as the negative button in prompt authentication screen if it is the only option and will display in a list in the fallback options page if there are more than one. If device credential authentication is allowed through setAllowedAuthenticators(int), it will count as a fallback option.</para>
+          <para>If a fallback option is not provided and setNegativeButton(CharSequence,Executor,DialogInterface.OnClickListener) is not set, the option to use device credential will be shown as the negative button if allowed in setAllowedAuthenticators(int). If credential is not allowed, "Cancel" will be shown as the negative button.</para>
+          <para>A maximum of BiometricPrompt.getMaxFallbackOptions() fallback options can be added. This number does not include device credential authentication.</para>
+          <para>Note: These fallback options will not be displayed if setNegativeButton(CharSequence,Executor,DialogInterface.OnClickListener) is set</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#addFallbackOption(java.lang.CharSequence,%20int,%20java.util.concurrent.Executor,%20android.content.DialogInterface.OnClickListener)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.addFallbackOption</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddFallbackOption">
@@ -284,10 +292,17 @@
         <Parameter Name="authenticators" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="authenticators">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="authenticators">A bit field representing all valid authenticator types that may be invoked by the prompt. Value is either 0 or a combination of the following: BiometricManager.Authenticators.BIOMETRIC_STRONG; BiometricManager.Authenticators.BIOMETRIC_WEAK; BiometricManager.Authenticators.DEVICE_CREDENTIAL; BiometricManager.Authenticators.IDENTITY_CHECK</param>
+        <summary>Optional: Specifies the type(s) of authenticators that may be invoked by BiometricPrompt to authenticate the user.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Specifies the type(s) of authenticators that may be invoked by BiometricPrompt to authenticate the user. Available authenticator types are defined in Authenticators and can be combined via bitwise OR. Defaults to: Authenticators.BIOMETRIC_WEAK for non-crypto authentication, or; Authenticators.BIOMETRIC_STRONG for crypto-based authentication.</para>
+          <para>If this method is used and no authenticator of any of the specified types is available at the time BiometricPrompt#authenticate(...) is called, authentication will be canceled and AuthenticationCallback.onAuthenticationError(int,CharSequence) will be invoked with an appropriate error code.</para>
+          <para>This method should be preferred over setDeviceCredentialAllowed(boolean) and overrides the latter if both are used. Using this method to enable device credential authentication (with Authenticators.DEVICE_CREDENTIAL) will replace the negative button on the prompt, making it an error to also call setNegativeButton(CharSequence,Executor,DialogInterface.OnClickListener).</para>
+          <para>If unlocking cryptographic operation(s), it is the application's responsibility to request authentication with the proper set of authenticators (e.g. match the authenticators specified during key generation).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setAllowedAuthenticators(int)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setAllowedAuthenticators</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetAuthenticationPurpose">
@@ -324,10 +339,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="purpose">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="purpose">The authentication purpose to set. Value is one of the following: BiometricManager.AUTHENTICATION_PURPOSE_UNKNOWN; BiometricManager.AUTHENTICATION_PURPOSE_PAYMENT; BiometricManager.AUTHENTICATION_PURPOSE_LOGIN</param>
+        <summary>Optional: Sets the authentication purpose for the prompt.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Sets the authentication purpose for the prompt.</para>
+          <para>Provides a hint to customize the BiometricPrompt appearance to clarify what the user is authorizing. This is cosmetic only, can vary by device, and does not change security guarantees (see setAllowedAuthenticators(int)).</para>
+          <para>For example, this may inform the user to click or tap "to pay" instead of "to authenticate".</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setAuthenticationPurpose(int)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setAuthenticationPurpose</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetConfirmationRequired">
@@ -357,10 +378,16 @@
         <Parameter Name="requireConfirmation" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="requireConfirmation">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="requireConfirmation">true if explicit user confirmation should be required, or false otherwise.</param>
+        <summary>Optional: Sets a hint to the system for whether to require user confirmation after authentication.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Sets a hint to the system for whether to require user confirmation after authentication. For example, implicit modalities like face and iris are passive, meaning they don't require an explicit user action to complete authentication. If set to true, these modalities should require the user to take some action (e.g. press a button) before AuthenticationCallback.onAuthenticationSucceeded(AuthenticationResult) is called. Defaults to true.</para>
+          <para>A typical use case for not requiring confirmation would be for low-risk transactions, such as re-authenticating a recently authenticated application. A typical use case for requiring confirmation would be for authorizing a purchase.</para>
+          <para>Note that this just passes a hint to the system, which the system may then ignore. For example, a value of false may be ignored if the user has disabled implicit authentication in Settings, or if it does not apply to a particular modality (e.g. fingerprint).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setConfirmationRequired(boolean)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setConfirmationRequired</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetContentView">
@@ -390,10 +417,15 @@
         <Parameter Name="view" Type="Android.Hardware.Biometrics.IPromptContentView" />
       </Parameters>
       <Docs>
-        <param name="view">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="view">The customized view information. This value cannot be null.</param>
+        <summary>Optional: Sets application customized content view that will be shown on the prompt.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Sets application customized content view that will be shown on the prompt.</para>
+          <para>Note that the description set by Builder.setDescription(CharSequence) will be overridden by Builder.setContentView(PromptContentView). The view provided to Builder.setContentView(PromptContentView) will be used if both methods are called.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setContentView(android.hardware.biometrics.PromptContentView)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setContentView</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetDescription">
@@ -423,10 +455,15 @@
         <Parameter Name="description" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="description">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="description">The description to display. This value cannot be null.</param>
+        <summary>Optional: Sets a description that will be shown on the prompt.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Sets a description that will be shown on the prompt.</para>
+          <para>Note that the description set by Builder.setDescription(CharSequence) will be overridden by Builder.setContentView(PromptContentView). The view provided to Builder.setContentView(PromptContentView) will be used if both methods are called.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setDescription(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setDescription</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetDescription">
@@ -489,10 +526,16 @@
         <Parameter Name="allowed" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="allowed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="allowed">true if the prompt should fall back to asking for the user's device credential (PIN/pattern/password), or false otherwise.</param>
+        <summary>Optional: If enabled, the user will be given the option to authenticate with their device PIN, pattern, or password.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>This method was deprecated in API level 30. Replaced by setAllowedAuthenticators(int).</para>
+          <para>Optional: If enabled, the user will be given the option to authenticate with their device PIN, pattern, or password. Developers should first check BiometricManager.canAuthenticate(int) for Authenticators.DEVICE_CREDENTIAL before enabling. If the device is not secured with a credential, AuthenticationCallback.onAuthenticationError(int,CharSequence) will be invoked with BiometricPrompt.BIOMETRIC_ERROR_NO_DEVICE_CREDENTIAL. Defaults to false.</para>
+          <para>Note that enabling this option replaces the negative button on the prompt with one that allows the user to authenticate with their device credential, making it an error to call setNegativeButton(CharSequence,Executor,DialogInterface.OnClickListener).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setDeviceCredentialAllowed(boolean)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setDeviceCredentialAllowed</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLogoBitmap">
@@ -522,10 +565,15 @@
         <Parameter Name="logoBitmap" Type="Android.Graphics.Bitmap" />
       </Parameters>
       <Docs>
-        <param name="logoBitmap">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="logoBitmap">A bitmap drawable of the logo that will be shown on the prompt. This value cannot be null.</param>
+        <summary>Optional: Sets the bitmap drawable of the logo that will be shown on the prompt.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Sets the bitmap drawable of the logo that will be shown on the prompt.</para>
+          <para>Note that using this method is not recommended in most scenarios because the calling application's icon will be used by default. Setting the logo is intended for large bundled applications that perform a wide range of functions and need to show distinct icons for each function. Requires Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setLogoBitmap(android.graphics.Bitmap)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setLogoBitmap</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLogoDescription">
@@ -555,10 +603,15 @@
         <Parameter Name="logoDescription" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="logoDescription">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="logoDescription">The logo description text that will be shown on the prompt. This value cannot be null.</param>
+        <summary>Optional: Sets logo description text that will be shown on the prompt.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Sets logo description text that will be shown on the prompt.</para>
+          <para>Note that using this method is not recommended in most scenarios because the calling application's name will be used by default. Setting the logo description is intended for large bundled applications that perform a wide range of functions and need to show distinct descriptions for each function. Requires Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setLogoDescription(java.lang.String)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setLogoDescription</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLogoRes">
@@ -588,10 +641,15 @@
         <Parameter Name="logoRes" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="logoRes">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="logoRes">A drawable resource of the logo that will be shown on the prompt.</param>
+        <summary>Optional: Sets the drawable resource of the logo that will be shown on the prompt.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Sets the drawable resource of the logo that will be shown on the prompt.</para>
+          <para>Note that using this method is not recommended in most scenarios because the calling application's icon will be used by default. Setting the logo is intended for large bundled applications that perform a wide range of functions and need to show distinct icons for each function. Requires Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setLogoRes(int)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setLogoRes</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetNegativeButton">
@@ -623,12 +681,18 @@
         <Parameter Name="listener" Type="Android.Content.IDialogInterfaceOnClickListener" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">Text to be shown on the negative button for the prompt. This value cannot be null.</param>
+        <param name="executor">Executor that will be used to run the on click callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="listener">Listener containing a callback to be run when the button is pressed. This value cannot be null.</param>
+        <summary>Optional: Sets the text, executor, and click listener for the negative button on the prompt.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Sets the text, executor, and click listener for the negative button on the prompt. This is typically a cancel button, but may be also used to show an alternative method for authentication, such as a screen that asks for a backup password.</para>
+          <para>If not provided and no fallback is added through addFallbackOption(CharSequence,int,Executor,DialogInterface.OnClickListener) (API 36.1 and later), the option to use device credential will be shown as the negative button if allowed in setAllowedAuthenticators(int). If credential is not allowed, "Cancel" will be shown as the negative button.</para>
+          <para>In API 36 and earlier, this setting is required. Note that this setting is not required, and in fact is explicitly disallowed, if device credential authentication is enabled via setAllowedAuthenticators(int) or setDeviceCredentialAllowed(boolean). To use credential authentication and provide custom behavior, use addFallbackOption(CharSequence,int,Executor,DialogInterface.OnClickListener)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setNegativeButton(java.lang.CharSequence,%20java.util.concurrent.Executor,%20android.content.DialogInterface.OnClickListener)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setNegativeButton</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetNegativeButton">
@@ -691,10 +755,14 @@
         <Parameter Name="subtitle" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="subtitle">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="subtitle">The subtitle to display. This value cannot be null.</param>
+        <summary>Optional: Sets a subtitle that will be shown on the prompt.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Optional: Sets a subtitle that will be shown on the prompt.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setSubtitle(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setSubtitle</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetSubtitle">
@@ -753,10 +821,14 @@
         <Parameter Name="title" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="title">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="title">The title to display. This value cannot be null.</param>
+        <summary>Required: Sets the title that will be shown on the prompt.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Required: Sets the title that will be shown on the prompt.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/biometrics/BiometricPrompt.Builder#setTitle(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.hardware.biometrics.BiometricPrompt.Builder.setTitle</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetTitle">
