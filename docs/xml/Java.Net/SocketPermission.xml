@@ -73,11 +73,20 @@
         <Parameter Name="action" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="host">To be added.</param>
-        <param name="action">To be added.</param>
+        <param name="host">the hostname or IP address of the computer, optionally including a colon followed by a port or port range.</param>
+        <param name="action">the action string.</param>
         <summary>
         </summary>
         <remarks>
+          <para>Creates a new SocketPermission object with the specified actions. The host is expressed as a DNS name, or as a numerical IP address. Optionally, a port or a portrange may be supplied (separated from the DNS name or IP address by a colon). To specify the local machine, use "localhost" as the host. Also note: An empty host String ("") is equivalent to "localhost". The actions parameter contains a comma-separated list of the actions granted for the specified host (and port(s)). Possible actions are "connect", "listen", "accept", "resolve", or any combination of those. "resolve" is automatically added when any of the other three are specified. Examples of SocketPermission instantiation are the following:</para>
+          <code lang="text/java">    nr = new SocketPermission("www.example.com", "connect");
+    nr = new SocketPermission("www.example.com:80", "connect");
+    nr = new SocketPermission("*.example.com", "connect");
+    nr = new SocketPermission("*.edu", "resolve");
+    nr = new SocketPermission("204.160.241.0", "connect");
+    nr = new SocketPermission("localhost:1024-65535", "listen");
+    nr = new SocketPermission("204.160.241.0:1024-65535", "connect");</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/net/SocketPermission.html#&lt;init&gt;(java.lang.String,java.lang.String)" title="Reference documentation">Java reference for <code>java.net.SocketPermission.SocketPermission</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -113,8 +122,10 @@
       <Docs>
         <summary>
         </summary>
-        <value>To be added.</value>
+        <value>the canonical string representation of the actions.</value>
         <remarks>
+          <para>Returns the canonical string representation of the actions. Always returns present actions in the following order: connect, listen, accept, resolve.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/net/SocketPermission.html#getActions()" title="Reference documentation">Java reference for <code>java.net.SocketPermission.getActions</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -152,9 +163,11 @@
       </Parameters>
       <Docs>
         <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Checks two SocketPermission objects for equality.</summary>
+        <returns>true if obj is a SocketPermission, and has the same hostname, port range, and actions as this SocketPermission object. However, port range will be ignored in the comparison if obj only contains the action, 'resolve'.</returns>
         <remarks>
+          <para>Checks two SocketPermission objects for equality.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/net/SocketPermission.html#equals(java.lang.Object)" title="Reference documentation">Java reference for <code>java.net.SocketPermission.equals</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -184,9 +197,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the hash code value for this object.</summary>
+        <returns>a hash code value for this object.</returns>
         <remarks>
+          <para>Returns the hash code value for this object.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/net/SocketPermission.html#hashCode()" title="Reference documentation">Java reference for <code>java.net.SocketPermission.hashCode</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -218,11 +233,13 @@
         <Parameter Name="p" Type="Java.Security.Permission" />
       </Parameters>
       <Docs>
-        <param name="p">To be added.</param>
+        <param name="p">the permission to check against.</param>
         <summary>
         </summary>
-        <returns>To be added.</returns>
+        <returns>true if the specified permission is implied by this object, false if not.</returns>
         <remarks>
+          <para>Checks if this socket permission object "implies" the specified permission. More specifically, this method first ensures that all of the following are true (and returns false if any of them are not): p is an instanceof SocketPermission,; p's actions are a proper subset of this object's actions, and; p's port range is included in this port range. Note: port range is ignored when p only contains the action, 'resolve' Then implies checks each of the following, in order, and for each returns true if the stated condition is true:; If this object was initialized with a single IP address and one of p's IP addresses is equal to this object's IP address; If this object is a wildcard domain (such as *.example.com), and p's canonical name (the name without any preceding *) ends with this object's canonical host name. For example, *.example.com implies *.foo.example.com; If this object was not initialized with a single IP address, and one of this object's IP addresses equals one of p's IP addresses; If this canonical name equals p's canonical name. If none of the above are true, implies returns false.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/net/SocketPermission.html#implies(java.security.Permission)" title="Reference documentation">Java reference for <code>java.net.SocketPermission.implies</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />

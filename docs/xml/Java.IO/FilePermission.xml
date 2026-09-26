@@ -73,11 +73,13 @@
         <Parameter Name="actions" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
-        <param name="actions">To be added.</param>
+        <param name="path">the pathname of the file/directory.</param>
+        <param name="actions">the action string.</param>
         <summary>
         </summary>
         <remarks>
+          <para>Creates a new FilePermission object with the specified actions. path is the pathname of a file or directory, and actions contains a comma-separated list of the desired actions granted on the file or directory. Possible actions are "read", "write", "execute", "delete", and "readlink". A pathname that ends in "/*" (where "/" is the file separator character, File.separatorChar) indicates all the files and directories contained in that directory. A pathname that ends with "/-" indicates (recursively) all files and subdirectories contained in that directory. The special pathname "&lt;&lt;ALL FILES&gt;&gt;" matches any file. A pathname consisting of a single "*" indicates all the files in the current directory, while a pathname consisting of a single "-" indicates all the files in the current directory and (recursively) all files and subdirectories contained in the current directory. A pathname containing an empty string represents an empty path.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/FilePermission.html#&lt;init&gt;(java.lang.String,java.lang.String)" title="Reference documentation">Java reference for <code>java.io.FilePermission.FilePermission</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -113,8 +115,10 @@
       <Docs>
         <summary>
         </summary>
-        <value>To be added.</value>
+        <value>the canonical string representation of the actions.</value>
         <remarks>
+          <para>Returns the "canonical string representation" of the actions. That is, this method always returns present actions in the following order: read, write, execute, delete, readlink. For example, if this FilePermission object allows both write and read actions, a call to getActions will return the string "read,write".</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/FilePermission.html#getActions()" title="Reference documentation">Java reference for <code>java.io.FilePermission.getActions</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -151,10 +155,12 @@
         <Parameter Name="obj" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="obj">the object we are testing for equality with this object.</param>
+        <summary>Checks two FilePermission objects for equality.</summary>
+        <returns>true if obj is a FilePermission, and has the same pathname and actions as this FilePermission object, false otherwise.</returns>
         <remarks>
+          <para>Checks two FilePermission objects for equality. Checks that obj is a FilePermission, and has the same pathname and actions as this object.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/FilePermission.html#equals(java.lang.Object)" title="Reference documentation">Java reference for <code>java.io.FilePermission.equals</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -184,9 +190,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns the hash code value for this object.</summary>
+        <returns>a hash code value for this object.</returns>
         <remarks>
+          <para>Returns the hash code value for this object.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/FilePermission.html#hashCode()" title="Reference documentation">Java reference for <code>java.io.FilePermission.hashCode</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -218,11 +226,13 @@
         <Parameter Name="p" Type="Java.Security.Permission" />
       </Parameters>
       <Docs>
-        <param name="p">To be added.</param>
+        <param name="p">the permission to check against.</param>
         <summary>
         </summary>
-        <returns>To be added.</returns>
+        <returns>true if the specified permission is not null and is implied by this object, false otherwise.</returns>
         <remarks>
+          <para>Checks if this FilePermission object "implies" the specified permission. More specifically, this method returns true if: p is an instanceof FilePermission, p's actions are a proper subset of this object's actions, and p's pathname is implied by this object's pathname. For example, "/tmp/*" implies "/tmp/foo", since "/tmp/*" encompasses all files in the "/tmp" directory, including the one named "foo". Precisely, a simple pathname implies another simple pathname if and only if they are equal. A simple pathname never implies a wildcard pathname. A wildcard pathname implies another wildcard pathname if and only if all simple pathnames implied by the latter are implied by the former. A wildcard pathname implies a simple pathname if and only if: if the wildcard flag is "*", the simple pathname's path must be right inside the wildcard pathname's path; if the wildcard flag is "-", the simple pathname's path must be recursively inside the wildcard pathname's path. "&lt;&lt;ALL FILES&gt;&gt;" implies every other pathname. No pathname, except for "&lt;&lt;ALL FILES&gt;&gt;" itself, implies "&lt;&lt;ALL FILES&gt;&gt;".</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/FilePermission.html#implies(java.security.Permission)" title="Reference documentation">Java reference for <code>java.io.FilePermission.implies</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />

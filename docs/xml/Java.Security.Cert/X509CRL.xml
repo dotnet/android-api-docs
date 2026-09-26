@@ -607,8 +607,23 @@
           <format type="text/html">
             <b>Do not use</b>
           </format>, use <see cref="P:Java.Security.Cert.X509CRL.IssuerX500Principal" /> instead.</summary>
-        <value>To be added.</value>
+        <value>a Principal whose name is the issuer distinguished name.</value>
         <remarks>
+          <para>Gets the issuer (issuer distinguished name) value from the CRL. The issuer name identifies the entity that signed (and issued) the CRL. The issuer name field contains an X.500 distinguished name (DN).</para>
+          <code lang="text/java"> issuer    Name
+
+ Name ::= CHOICE { RDNSequence }
+ RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+ RelativeDistinguishedName ::=
+     SET OF AttributeValueAssertion
+
+ AttributeValueAssertion ::= SEQUENCE {
+                               AttributeType,
+                               AttributeValue }
+ AttributeType ::= OBJECT IDENTIFIER
+ AttributeValue ::= ANY</code>
+          <para>The Name describes a hierarchical name composed of attributes and corresponding values. The type of the AttributeValue component is determined by the AttributeType; in general it will be a directoryString. A directoryString is usually one of PrintableString, TeletexString or UniversalString.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509CRL.html#getIssuerDN()" title="Reference documentation">Java reference for <code>java.security.cert.X509CRL.getIssuerDN</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -742,8 +757,10 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the <c>nextUpdate</c> value of this CRL.</summary>
-        <value>To be added.</value>
+        <value>the nextUpdate date from the CRL, or null if not present.</value>
         <remarks>
+          <para>Gets the nextUpdate date from the CRL.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509CRL.html#getNextUpdate()" title="Reference documentation">Java reference for <code>java.security.cert.X509CRL.getNextUpdate</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -808,8 +825,10 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the set of revoked certificates.</summary>
-        <value>To be added.</value>
+        <value>all the entries or null if there are none present.</value>
         <remarks>
+          <para>Gets all the entries from this CRL. This returns a Set of X509CRLEntry objects.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509CRL.html#getRevokedCertificates()" title="Reference documentation">Java reference for <code>java.security.cert.X509CRL.getRevokedCertificates</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -836,8 +855,19 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the name of the signature algorithm.</summary>
-        <value>To be added.</value>
+        <value>the signature algorithm name.</value>
         <remarks>
+          <para>Gets the signature algorithm name for the CRL signature algorithm. An example is the string "SHA256withRSA".</para>
+          <code lang="text/java"> signatureAlgorithm   AlgorithmIdentifier
+
+ AlgorithmIdentifier  ::=  SEQUENCE  {
+     algorithm               OBJECT IDENTIFIER,
+     parameters              ANY DEFINED BY algorithm OPTIONAL  }
+                             -- contains a value of the type
+                             -- registered for use with the
+                             -- algorithm object identifier value</code>
+          <para>The algorithm name is determined from the algorithm OID string.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509CRL.html#getSigAlgName()" title="Reference documentation">Java reference for <code>java.security.cert.X509CRL.getSigAlgName</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -864,8 +894,10 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the OID of the signature algorithm.</summary>
-        <value>To be added.</value>
+        <value>the signature algorithm OID string.</value>
         <remarks>
+          <para>Gets the signature algorithm OID string from the CRL. An OID is represented by a set of nonnegative whole numbers separated by periods. For example, the string "1.2.840.10040.4.3" identifies the SHA-1 with DSA signature algorithm defined in RFC 3279: Algorithms and Identifiers for the Internet X.509 Public Key Infrastructure Certificate and CRL Profile. See getSigAlgName for relevant ASN.1 definitions.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509CRL.html#getSigAlgOID()" title="Reference documentation">Java reference for <code>java.security.cert.X509CRL.getSigAlgOID</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -892,8 +924,14 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the <c>thisUpdate</c> value of this CRL.</summary>
-        <value>To be added.</value>
+        <value>the thisUpdate date from the CRL.</value>
         <remarks>
+          <para>Gets the thisUpdate date from the CRL.</para>
+          <code lang="text/java"> thisUpdate   ChoiceOfTime
+ ChoiceOfTime ::= CHOICE {
+     utcTime        UTCTime,
+     generalTime    GeneralizedTime }</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509CRL.html#getThisUpdate()" title="Reference documentation">Java reference for <code>java.security.cert.X509CRL.getThisUpdate</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -1149,8 +1187,16 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the version number of this CRL.</summary>
-        <value>To be added.</value>
+        <value>the version number, i.e. 1 or 2.</value>
         <remarks>
+          <para>Gets the version (version number) value from the CRL.</para>
+          <code lang="text/java"> version    Version OPTIONAL,
+             -- if present, must be v2
+
+ Version  ::=  INTEGER  {  v1(0), v2(1), v3(2)  }
+             -- v3 does not apply to CRLs but appears for consistency
+             -- with definition of Version for certs</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/security/cert/X509CRL.html#getVersion()" title="Reference documentation">Java reference for <code>java.security.cert.X509CRL.getVersion</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />

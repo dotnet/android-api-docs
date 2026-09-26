@@ -142,13 +142,19 @@
         <Parameter Name="expirationInstant" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="hostName">To be added.</param>
-        <param name="pinsSha256">To be added.</param>
-        <param name="includeSubdomains">To be added.</param>
-        <param name="expirationInstant">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="hostName">name of the host to which the public keys should be pinned. A host that consists only of digits and the dot character is treated as invalid. This value cannot be null.</param>
+        <param name="pinsSha256">a set of pins. Each pin is the SHA-256 cryptographic hash of the DER-encoded ASN.1 representation of the Subject Public Key Info (SPKI) of the host's X.509 certificate. Use Certificate.getPublicKey() and Key.getEncoded() to obtain DER-encoded ASN.1 representation of the SPKI. Although, the method does not mandate the presence of the backup pin that can be used if the control of the primary private key has been lost, it is highly recommended to supply one. This value cannot be null.</param>
+        <param name="includeSubdomains">indicates whether the pinning policy should be applied to subdomains of hostName.</param>
+        <param name="expirationInstant">specifies the expiration instant for the pins. This value cannot be null.</param>
+        <summary>Pins a set of public keys for a given host.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Pins a set of public keys for a given host. By pinning a set of public keys, pinsSha256, communication with hostName is required to authenticate with a certificate with a public key from the set of pinned ones. An app can pin the public key of the root certificate, any of the intermediate certificates or the end-entry certificate. Authentication will fail and secure communication will not be established if none of the public keys is present in the host's certificate chain, even if the host attempts to authenticate with a certificate allowed by the device's trusted store of certificates.</para>
+          <para>Calling this method multiple times with the same host name overrides the previously set pins for the host.</para>
+          <para>More information about the public key pinning can be found in RFC 7469.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#addPublicKeyPins(java.lang.String,%20java.util.Set&lt;byte[]&gt;,%20boolean,%20java.time.Instant)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.addPublicKeyPins</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddQuicHint">
@@ -180,12 +186,16 @@
         <Parameter Name="alternatePort" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="host">To be added.</param>
-        <param name="port">To be added.</param>
-        <param name="alternatePort">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="host">hostname of the server that supports QUIC. This value cannot be null.</param>
+        <param name="port">port of the server that supports QUIC.</param>
+        <param name="alternatePort">alternate port to use for QUIC.</param>
+        <summary>Adds hint that host supports QUIC.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Adds hint that host supports QUIC. Note that enableHttpCache (HTTP_CACHE_DISK) is needed to take advantage of 0-RTT connection establishment between sessions.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#addQuicHint(java.lang.String,%20int,%20int)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.addQuicHint</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -516,9 +526,14 @@
       </Parameters>
       <Docs>
         <param name="options">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Configures the behavior of connection migration.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Configures the behavior of connection migration. For more details, see documentation of ConnectionMigrationOptions and the individual methods of ConnectionMigrationOptions.Builder.</para>
+          <para>Only relevant if setEnableQuic(boolean) is enabled.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setConnectionMigrationOptions(android.net.http.ConnectionMigrationOptions)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setConnectionMigrationOptions</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetDnsOptions">
@@ -549,9 +564,14 @@
       </Parameters>
       <Docs>
         <param name="options">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Configures the behavior of hostname lookup.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Configures the behavior of hostname lookup. For more details, see documentation of DnsOptions and the individual methods of DnsOptions.Builder.</para>
+          <para>Only relevant if setEnableQuic(boolean) is enabled.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setDnsOptions(android.net.http.DnsOptions)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setDnsOptions</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetEnableBrotli">
@@ -581,10 +601,14 @@
         <Parameter Name="value" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="value">true to enable Brotli, false to disable.</param>
+        <summary>Sets whether Brotli compression is enabled.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets whether Brotli compression is enabled. If enabled, Brotli will be advertised in Accept-Encoding request headers. Defaults to disabled.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setEnableBrotli(boolean)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setEnableBrotli</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetEnableHttp2">
@@ -614,10 +638,14 @@
         <Parameter Name="value" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="value">true to enable HTTP/2, false to disable.</param>
+        <summary>Sets whether HTTP/2 protocol is enabled.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets whether HTTP/2 protocol is enabled. Defaults to enabled.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setEnableHttp2(boolean)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setEnableHttp2</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetEnableHttpCache">
@@ -655,11 +683,15 @@
         <Parameter Name="maxSize" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="cacheMode">To be added.</param>
-        <param name="maxSize">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cacheMode">control location and type of cached data. Must be one of HTTP_CACHE_*.</param>
+        <param name="maxSize">maximum size in bytes used to cache data (advisory and maybe exceeded at times).</param>
+        <summary>Enables or disables caching of HTTP data and other information like QUIC server information.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Enables or disables caching of HTTP data and other information like QUIC server information.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setEnableHttpCache(int,%20long)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setEnableHttpCache</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetEnablePublicKeyPinningBypassForLocalTrustAnchors">
@@ -689,10 +721,14 @@
         <Parameter Name="value" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="value">true to enable the bypass, false to disable.</param>
+        <summary>Enables or disables public key pinning bypass for local trust anchors.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Enables or disables public key pinning bypass for local trust anchors. Disabling the bypass for local trust anchors is highly discouraged since it may prohibit the app from communicating with the pinned hosts. E.g., a user may want to send all traffic through an SSL enabled proxy by changing the device proxy settings and adding the proxy certificate to the list of local trust anchor. Disabling the bypass will most likely prevent the app from sending any traffic to the pinned hosts. For more information see 'How does key pinning interact with local proxies and filters?' at https://www.chromium.org/Home/chromium-security/security-faq</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setEnablePublicKeyPinningBypassForLocalTrustAnchors(boolean)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setEnablePublicKeyPinningBypassForLocalTrustAnchors</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetEnableQuic">
@@ -722,10 +758,14 @@
         <Parameter Name="value" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="value">true to enable QUIC, false to disable.</param>
+        <summary>Sets whether QUIC protocol is enabled.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets whether QUIC protocol is enabled. Defaults to enabled.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setEnableQuic(boolean)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setEnableQuic</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetProxyOptions">
@@ -795,9 +835,14 @@
       </Parameters>
       <Docs>
         <param name="options">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Configures the behavior of the HTTP stack when using QUIC.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Configures the behavior of the HTTP stack when using QUIC. For more details, see documentation of QuicOptions and the individual methods of QuicOptions.Builder.</para>
+          <para>Only relevant if setEnableQuic(boolean) is enabled.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setQuicOptions(android.net.http.QuicOptions)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setQuicOptions</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetStoragePath">
@@ -827,10 +872,15 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="value">path to existing directory. This value cannot be null.</param>
+        <summary>Sets directory for HTTP Cache and Cookie Storage.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets directory for HTTP Cache and Cookie Storage. The directory must exist.</para>
+          <para>NOTE: Do not use the same storage directory with more than one HttpEngine at a time. Access to the storage directory does not support concurrent access by multiple HttpEngine instances.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setStoragePath(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setStoragePath</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetUserAgent">
@@ -860,10 +910,14 @@
         <Parameter Name="userAgent" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="userAgent">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="userAgent">the User-Agent string to use for all requests. This value cannot be null.</param>
+        <summary>Overrides the User-Agent header for all requests.</summary>
+        <returns>the builder to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Overrides the User-Agent header for all requests. An explicitly set User-Agent header (set using UrlRequest.Builder.addHeader) will override a value set using this function.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/HttpEngine.Builder#setUserAgent(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.http.HttpEngine.Builder.setUserAgent</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

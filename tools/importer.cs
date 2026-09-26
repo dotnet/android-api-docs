@@ -3270,10 +3270,10 @@ static class ImporterProgram
 
         if (element.Name.LocalName != "para" ||
             element.HasAttributes ||
-            !HasPlainTextContent(element, out var proseText))
+            !HasPlainTextOrInlineCodeContent(element))
             return [];
 
-        var prose = NormalizeRemarksText(proseText);
+        var prose = NormalizeText(element.Value);
         return sourceFragments
             .Select((fragment, index) => (fragment, index))
             .Where(item => !item.fragment.IsCode &&
@@ -4010,6 +4010,16 @@ static class ImporterProgram
         return true;
     }
 
+    static bool HasPlainTextOrInlineCodeContent(XElement element) =>
+        element.Nodes().All(node => node switch
+        {
+            XText text when text is not XCData => true,
+            XElement child when child.Name.LocalName == "c" &&
+                !child.HasAttributes &&
+                HasPlainTextContent(child, out _) => true,
+            _ => false,
+        });
+
     static string NormalizeStaleNestedConstructorLinks(
         string text,
         DocsBlock block)
@@ -4698,7 +4708,11 @@ static class ImporterProgram
             "path-only repository-wide scope excludes non-API XML");
         Assert(
             repositoryScope.Count ==
-                Directory.EnumerateFiles(docsRoot, "*.xml", SearchOption.AllDirectories).Count() - 5,
+                Directory.EnumerateFiles(docsRoot, "*.xml", SearchOption.AllDirectories).Count() -
+                Directory.EnumerateFiles(
+                    Path.Combine(docsRoot, "FrameworksIndex"),
+                    "*.xml",
+                    SearchOption.AllDirectories).Count() - 2,
             "path-only repository-wide scope excludes root metadata and framework indexes");
         var sourcePath = Path.Combine(fixtureRoot, "source.xml");
         var androidHtml = File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html"));
@@ -5790,6 +5804,29 @@ static class ImporterProgram
             duplicateSummaryReplacement.Remarks?.Select(paragraph => paragraph.Text)
                 .SequenceEqual(["The exact JNI overload is required."]) == true,
             "remarks placeholders retain source prose not already documented");
+        var inlineMarkupRemarks = XElement.Parse(
+            "<remarks><para>Sets the widget <c>title</c>.</para><para>To be added.</para></remarks>");
+        var inlineMarkupPlaceholder = Placeholder.Create(
+            inlineMarkupRemarks.Elements("para").Last(),
+            0);
+        var inlineMarkupReplacement = LimitOverlappingRemarksReplacement(
+            inlineMarkupPlaceholder,
+            mappedDocs,
+            ReplacementFor(
+                inlineMarkupPlaceholder,
+                mappedDocs),
+            inlineMarkupRemarks);
+        Assert(
+            inlineMarkupReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual(["The exact JNI overload is required."]) == true,
+            "remarks overlap recognizes punctuation-adjacent inline markup");
+        var unsafeInlineMarkup = XElement.Parse(
+            "<para>Sets the <c>widget</c> title.<!-- authored comment --></para>");
+        Assert(
+            MatchingSourceFragmentIndexes(
+                unsafeInlineMarkup,
+                ExpandRemarksFragments(mappedDocs.Paragraphs)).Count == 0,
+            "remarks overlap does not treat comments as source prose");
         var partialOverlapDocs = mappedDocs with
         {
             Paragraphs =
@@ -8240,6 +8277,11 @@ static class ImporterProgram
             SourcePage.HtmlText("<p>Use <code>for (;;) { process(); }</code> for a processing loop.</p>") ==
                 "Use for (;;) { process(); } for a processing loop.",
             "inline Java code semicolons are preserved");
+        Assert(
+            SourcePage.HtmlText(
+                "<p>Use the following code:<button type=\"button\">Copy</button></p>") ==
+                "Use the following code:",
+            "Javadoc button controls are excluded from prose");
         Assert(
             SourcePage.HtmlText(
                 "<p>Supported loops:</p><ul><li><code>for (;;) { process(); }</code></li></ul><p>continue.</p>") ==
@@ -11500,8 +11542,8 @@ static class ImporterProgram
             var withoutIgnored = Regex.Replace(
                 repairedMalformedHref,
                 includeCode
-                    ? @"<(?:script|style|svg)\b[^>]*>.*?</(?:script|style|svg)>"
-                    : @"<(?:script|style|svg|pre|devsite-code)\b[^>]*>.*?</(?:script|style|svg|pre|devsite-code)>",
+                    ? @"<(?:script|style|svg|button)\b[^>]*>.*?</(?:script|style|svg|button)>"
+                    : @"<(?:script|style|svg|button|pre|devsite-code)\b[^>]*>.*?</(?:script|style|svg|button|pre|devsite-code)>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var withBreaks = Regex.Replace(

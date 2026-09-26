@@ -189,6 +189,11 @@
         <value>Specifies the color temperature for CCT mode in Kelvin to adjust the white balance of the image.</value>
         <remarks>
           <para>Specifies the color temperature for CCT mode in Kelvin to adjust the white balance of the image.</para>
+          <para>Sets the color temperature in Kelvin units for when android.colorCorrection.mode is CCT to adjust the white balance of the image.</para>
+          <para>If CCT mode is enabled without a requested color temperature, a default value will be set by the camera device. The default value can be retrieved by checking the corresponding capture result. Color temperatures requested outside the advertised android.colorCorrection.colorTemperatureRange will be clamped.</para>
+          <para>Units: Kelvin</para>
+          <para>Range of valid values: android.colorCorrection.colorTemperatureRange</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#COLOR_CORRECTION_COLOR_TEMPERATURE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CaptureRequest.COLOR_CORRECTION_COLOR_TEMPERATURE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -230,6 +235,11 @@
         <value>Specifies the color tint for CCT mode to adjust the white balance of the image.</value>
         <remarks>
           <para>Specifies the color tint for CCT mode to adjust the white balance of the image.</para>
+          <para>Sets the color tint for when android.colorCorrection.mode is CCT to adjust the white balance of the image.</para>
+          <para>If CCT mode is enabled without a requested color tint, a default value will be set by the camera device. The default value can be retrieved by checking the corresponding capture result. Color tints requested outside the supported range will be clamped to the nearest limit (-50 or +50).</para>
+          <para>Units: D_uv defined as the distance from the Planckian locus on the CIE 1931 xy chromaticity diagram, with the range ±50 mapping to ±0.01 D_uv</para>
+          <para>Range of valid values: The supported range, -50 to +50, corresponds to a D_uv distance of ±0.01 below and above the Planckian locus. Some camera devices may have limitations to achieving the full ±0.01 D_uv range at some color temperatures (e.g., below 1500K). In these cases, the applied D_uv value may be clamped and the actual color tint will be reported in the android.colorCorrection.colorTint result.</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#COLOR_CORRECTION_COLOR_TINT" title="Reference documentation">Android reference for <code>android.hardware.camera2.CaptureRequest.COLOR_CORRECTION_COLOR_TINT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -602,6 +612,10 @@
         <value>Turn on AE priority mode.</value>
         <remarks>
           <para>Turn on AE priority mode.</para>
+          <para>This control is only effective if android.control.mode is AUTO and android.control.aeMode is set to one of its ON modes, with the exception of ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY.</para>
+          <para>When a priority mode is enabled, the camera device's auto-exposure routine will maintain the application's selected parameters relevant to the priority mode while overriding the remaining exposure parameters (android.sensor.exposureTime, android.sensor.sensitivity, and android.sensor.frameDuration). For example, if SENSOR_SENSITIVITY_PRIORITY mode is enabled, the camera device will maintain the application-selected android.sensor.sensitivity while adjusting android.sensor.exposureTime and android.sensor.frameDuration. The overridden fields for a given capture will be available in its CaptureResult.</para>
+          <para>Possible values: OFF; SENSOR_SENSITIVITY_PRIORITY; SENSOR_EXPOSURE_TIME_PRIORITY</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AE_PRIORITY_MODE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CaptureRequest.CONTROL_AE_PRIORITY_MODE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -843,6 +857,9 @@
         <value>Automatic crop, pan and zoom to keep objects in the center of the frame.</value>
         <remarks>
           <para>Automatic crop, pan and zoom to keep objects in the center of the frame.</para>
+          <para>Auto-framing is a special mode provided by the camera device to dynamically crop, zoom or pan the camera feed to try to ensure that the people in a scene occupy a reasonable portion of the viewport. It is primarily designed to support video calling in situations where the user isn't directly in front of the device, especially for wide-angle cameras. android.scaler.cropRegion and android.control.zoomRatio in CaptureResult will be used to denote the coordinates of the auto-framed region. Zoom and video stabilization controls are disabled when auto-framing is enabled. The 3A regions must map the screen coordinates into the scaler crop returned from the capture result instead of using the active array sensor.</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
+          <para>Limited capability - Present on all camera devices that report being at least HARDWARE_LEVEL_LIMITED devices in the android.info.supportedHardwareLevel key</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AUTOFRAMING" title="Reference documentation">Android reference for <code>android.hardware.camera2.CaptureRequest.CONTROL_AUTOFRAMING</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1295,6 +1312,30 @@
         <value>The desired CaptureRequest settings override with which certain keys are applied earlier so that they can take effect sooner.</value>
         <remarks>
           <para>The desired CaptureRequest settings override with which certain keys are applied earlier so that they can take effect sooner.</para>
+          <para>There are some CaptureRequest keys which can be applied earlier than others when controls within a CaptureRequest aren't required to take effect at the same time. One such example is zoom. Zoom can be applied at a later stage of the camera pipeline. As soon as the camera device receives the CaptureRequest, it can apply the requested zoom value onto an earlier request that's already in the pipeline, thus improves zoom latency.</para>
+          <para>This key's value in the capture result reflects whether the controls for this capture are overridden "by" a newer request. This means that if a capture request turns on settings override, the capture result of an earlier request will contain the key value of ZOOM. On the other hand, if a capture request has settings override turned on, but all newer requests have it turned off, the key's value in the capture result will be OFF because this capture isn't overridden by a newer capture. In the two examples below, the capture results columns illustrate the settingsOverride values in different scenarios.</para>
+          <code lang="text/java">Camera session created
+Request 1 (zoom=1.0x, override=ZOOM) -&gt;
+Request 2 (zoom=1.2x, override=ZOOM) -&gt;
+Request 3 (zoom=1.4x, override=ZOOM) -&gt;  Result 1 (zoom=1.2x, override=ZOOM)
+Request 4 (zoom=1.6x, override=ZOOM) -&gt;  Result 2 (zoom=1.4x, override=ZOOM)
+Request 5 (zoom=1.8x, override=ZOOM) -&gt;  Result 3 (zoom=1.6x, override=ZOOM)
+                                     -&gt;  Result 4 (zoom=1.8x, override=ZOOM)
+                                     -&gt;  Result 5 (zoom=1.8x, override=OFF)</code>
+          <para>The application can turn on settings override and use zoom as normal. The example shows that the later zoom values (1.2x, 1.4x, 1.6x, and 1.8x) overwrite the zoom values (1.0x, 1.2x, 1.4x, and 1.8x) of earlier requests (#1, #2, #3, and #4).</para>
+          <para>The application must make sure the settings override doesn't interfere with user journeys requiring simultaneous application of all controls in CaptureRequest on the requested output targets. For example, if the application takes a still capture using CameraCaptureSession#capture, and the repeating request immediately sets a different zoom value using override, the inflight still capture could have its zoom value overwritten unexpectedly.</para>
+          <para>So the application is strongly recommended to turn off settingsOverride when taking still/burst captures, and turn it back on when there is only repeating viewfinder request and no inflight still/burst captures.</para>
+          <code lang="text/java">Request 1 (zoom=1.0x, override=OFF)
+Request 2 (zoom=1.2x, override=OFF)
+Request 3 (zoom=1.4x, override=ZOOM)  -&gt; Result 1 (zoom=1.0x, override=OFF)
+Request 4 (zoom=1.6x, override=ZOOM)  -&gt; Result 2 (zoom=1.4x, override=ZOOM)
+Request 5 (zoom=1.8x, override=OFF)   -&gt; Result 3 (zoom=1.6x, override=ZOOM)
+                                      -&gt; Result 4 (zoom=1.6x, override=OFF)
+                                      -&gt; Result 5 (zoom=1.8x, override=OFF)</code>
+          <para>This example shows that: The application "ramps in" settings override by setting the control to ZOOM. In the example, request #3 enables zoom settings override. Because the camera device can speed up applying zoom by 1 frame, the outputs of request #2 has 1.4x zoom, the value specified in request #3; The application "ramps out" of settings override by setting the control to OFF. In the example, request #5 changes the override to OFF. Because request #4's zoom takes effect in result #3, result #4's zoom remains the same until new value takes effect in result #5</para>
+          <para>Possible values: OFF; ZOOM</para>
+          <para>Available values for this device: android.control.availableSettingsOverrides</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_SETTINGS_OVERRIDE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CaptureRequest.CONTROL_SETTINGS_OVERRIDE</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1375,6 +1416,11 @@
         <value>Whether the application uses android.scaler.cropRegion or android.control.zoomRatio to control zoom levels.</value>
         <remarks>
           <para>Whether the application uses android.scaler.cropRegion or android.control.zoomRatio to control zoom levels.</para>
+          <para>If set to AUTO, the camera device detects which capture request key the application uses to do zoom, android.scaler.cropRegion or android.control.zoomRatio. If the application doesn't set android.control.zoomRatio or sets it to 1.0 in the capture request, the effective zoom level is reflected in android.scaler.cropRegion in capture results. If android.control.zoomRatio is set to values other than 1.0, the effective zoom level is reflected in android.control.zoomRatio. AUTO is the default value for this control, and also the behavior of the OS before Android version BAKLAVA.</para>
+          <para>If set to ZOOM_RATIO, the application explicitly specifies zoom level be controlled by android.control.zoomRatio, and the effective zoom level is reflected in android.control.zoomRatio in capture results. This addresses an ambiguity with AUTO, with which the camera device cannot know if the application is using cropRegion or zoomRatio at 1.0x.</para>
+          <para>Possible values: AUTO; ZOOM_RATIO</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
+          <para>Limited capability - Present on all camera devices that report being at least HARDWARE_LEVEL_LIMITED devices in the android.info.supportedHardwareLevel key</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_ZOOM_METHOD" title="Reference documentation">Android reference for <code>android.hardware.camera2.CaptureRequest.CONTROL_ZOOM_METHOD</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1606,6 +1652,10 @@
         <value>Strength of the extension post-processing effect</value>
         <remarks>
           <para>Strength of the extension post-processing effect</para>
+          <para>This control allows Camera extension clients to configure the strength of the applied extension effect. Strength equal to 0 means that the extension must not apply any post-processing and return a regular captured frame. Strength equal to 100 is the maximum level of post-processing. Values between 0 and 100 will have different effect depending on the extension type as described below: BOKEH - the strength is expected to control the amount of blur; HDR and NIGHT - the strength can control the amount of images fused and the brightness of the final image; FACE_RETOUCH - the strength value will control the amount of cosmetic enhancement and skin smoothing</para>
+          <para>The control will be supported if the capture request key is part of the list generated by CameraExtensionCharacteristics.getAvailableCaptureRequestKeys(int). The control is only defined and available to clients sending capture requests via CameraExtensionSession. If the client doesn't specify the extension strength value, then a default value will be set by the extension. Clients can retrieve the default value by checking the corresponding capture result.</para>
+          <para>Range of valid values: 0 - 100</para>
+          <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#EXTENSION_STRENGTH" title="Reference documentation">Android reference for <code>android.hardware.camera2.CaptureRequest.EXTENSION_STRENGTH</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1687,6 +1737,12 @@
         <value>Flash strength level to be used when manual flash control is active.</value>
         <remarks>
           <para>Flash strength level to be used when manual flash control is active.</para>
+          <para>Flash strength level to use in capture mode i.e. when the applications control flash with either SINGLE or TORCH mode.</para>
+          <para>Use android.flash.singleStrengthMaxLevel and android.flash.torchStrengthMaxLevel to check whether the device supports flash strength control or not. If the values of android.flash.singleStrengthMaxLevel and android.flash.torchStrengthMaxLevel are greater than 1, then the device supports manual flash strength control.</para>
+          <para>If the android.flash.mode == TORCH the value must be &gt;= 1 and &lt;= android.flash.torchStrengthMaxLevel. If the application doesn't set the key and android.flash.torchStrengthMaxLevel &gt; 1, then the flash will be fired at the default level set by HAL in android.flash.torchStrengthDefaultLevel. If the android.flash.mode == SINGLE, then the value must be &gt;= 1 and &lt;= android.flash.singleStrengthMaxLevel. If the application does not set this key and android.flash.singleStrengthMaxLevel &gt; 1, then the flash will be fired at the default level set by HAL in android.flash.singleStrengthDefaultLevel. If android.control.aeMode is set to any of ON_AUTO_FLASH, ON_ALWAYS_FLASH, ON_AUTO_FLASH_REDEYE, ON_EXTERNAL_FLASH values, then the strengthLevel will be ignored.</para>
+          <para>When AE mode is ON and flash mode is TORCH or SINGLE, the application should make sure the AE mode, flash mode, and flash strength level remain the same between precapture trigger request and final capture request. The flash strength level being set during precapture sequence is used by the camera device as a reference. The actual strength may be less, and the auto-exposure routine makes sure proper conversions of sensor exposure time and sensitivities between precapture and final capture for the specified strength level.</para>
+          <para>Range of valid values: [1-android.flash.torchStrengthMaxLevel] when the android.flash.mode is set to TORCH; [1-android.flash.singleStrengthMaxLevel] when the android.flash.mode is set to SINGLE</para>
+          <para>This key is available on all devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#FLASH_STRENGTH_LEVEL" title="Reference documentation">Android reference for <code>android.hardware.camera2.CaptureRequest.FLASH_STRENGTH_LEVEL</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
