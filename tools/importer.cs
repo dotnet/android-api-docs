@@ -6676,6 +6676,24 @@ static class ImporterProgram
                     tableOnly.Placeholders.Single(placeholder => placeholder.Target == "param:value"),
                     tableOnlyResult.Docs).Text == "the fixture value",
             "channel-only Android documentation is imported without a guessed summary");
+        var malformedNestedList = SourcePage.HtmlTableCellText(
+            "<code>int</code>: the render flag. One or more of:" +
+            "<ul><li>FIRST</li><li>SECOND</li></ul>. <br>" +
+            "Value is either <code>0</code> or a combination of the following:" +
+            "<ul><li>FIRST</li><li>SECOND</li><li>THIRD</li><ul>");
+        Assert(
+            malformedNestedList ==
+                "int: the render flag. Value is either 0 or a combination of the following: FIRST; SECOND; THIRD",
+            "malformed Android nested lists retain each complete value once");
+        var validNestedLists = SourcePage.HtmlTableCellText(
+            "<code>int</code>: the render flag. One or more of:" +
+            "<ul><li>FIRST</li><li>SECOND</li></ul>. <br>" +
+            "Value is either <code>0</code> or a combination of the following:" +
+            "<ul><li>FIRST</li><li>SECOND</li><li>THIRD</li></ul>");
+        Assert(
+            validNestedLists.Contains("One or more of:.", StringComparison.Ordinal) &&
+                Regex.Matches(validNestedLists, @"\bFIRST\b").Count == 2,
+            "valid Android table lists retain independent list lead-ins and values");
         var structuredList = file.Owners.Single(owner =>
             owner.Id.EndsWith(".StructuredList", StringComparison.Ordinal));
         var structuredListResult = MapOwner(structuredList, pages);
@@ -11554,7 +11572,7 @@ static class ImporterProgram
             return CleanSourceText(StripHtmlTags(withBreaks, addWhitespace: false));
         }
 
-        static string HtmlTableCellText(string html)
+        internal static string HtmlTableCellText(string html)
         {
             var listItems = Regex.Matches(
                 html,
@@ -11572,6 +11590,21 @@ static class ImporterProgram
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var listIntroduction = HtmlText(withoutListItems);
+            var unbalancedListMarkup =
+                Regex.Matches(html, @"<(?:ul|ol)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Count !=
+                Regex.Matches(html, @"</(?:ul|ol)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Count;
+            if (unbalancedListMarkup &&
+                listIntroduction.Contains("One or more of:.", StringComparison.Ordinal) &&
+                listIntroduction.Contains("Value is either", StringComparison.Ordinal) &&
+                listItems.Distinct(StringComparer.Ordinal).Count() < listItems.Count)
+            {
+                listIntroduction = Regex.Replace(
+                    listIntroduction,
+                    @"\s*One or more of:\.\s*(?=Value is either\b)",
+                    " ",
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                listItems = listItems.Distinct(StringComparer.Ordinal).ToList();
+            }
             return listIntroduction.EndsWith(":", StringComparison.Ordinal)
                 ? CleanSourceText($"{listIntroduction} {string.Join("; ", listItems)}")
                 : Regex.IsMatch(
