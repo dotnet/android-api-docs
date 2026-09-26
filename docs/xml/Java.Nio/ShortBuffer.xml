@@ -366,7 +366,7 @@
         <Parameter Name="that" Type="Java.Nio.ShortBuffer" />
       </Parameters>
       <Docs>
-        <param name="that">To be added.</param>
+        <param name="that">the object to be compared.</param>
         <summary>Compares this buffer to another.</summary>
         <returns>A negative integer, zero, or a positive integer as this buffer
                      is less than, equal to, or greater than the given buffer</returns>
@@ -391,6 +391,7 @@
               <a href="https://developer.android.com/reference/java/nio/ShortBuffer#compareTo(java.nio.ShortBuffer)" title="Reference documentation">Java documentation for <code>java.nio.ShortBuffer.compareTo(java.nio.ShortBuffer)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/ShortBuffer.html#compareTo(java.nio.ShortBuffer)" title="Reference documentation">Java reference for <code>java.nio.ShortBuffer.compareTo</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -616,11 +617,15 @@
         <Parameter Name="dst" Type="System.Int16[]" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="dst">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="index">The index in this buffer from which the first short will be read; must be non-negative and less than limit()</param>
+        <param name="dst">The destination array</param>
+        <summary>Absolute bulk get method.</summary>
+        <returns>This buffer</returns>
+        <remarks>
+          <para>Absolute bulk get method. This method transfers shorts from this buffer into the given destination array. The position of this buffer is unchanged. An invocation of this method of the form src.get(index, dst) behaves in exactly the same way as the invocation:</para>
+          <code lang="text/java">    src.get(index, dst, 0, dst.length)</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/ShortBuffer.html#get(int,short[])" title="Reference documentation">Java reference for <code>java.nio.ShortBuffer.get</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Get">
@@ -725,13 +730,18 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="dst">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="index">The index in this buffer from which the first short will be read; must be non-negative and less than limit()</param>
+        <param name="dst">The destination array</param>
+        <param name="offset">The offset within the array of the first short to be written; must be non-negative and less than dst.length</param>
+        <param name="length">The number of shorts to be written to the given array; must be non-negative and no larger than the smaller of limit() - index and dst.length - offset</param>
+        <summary>Absolute bulk get method.</summary>
+        <returns>This buffer</returns>
+        <remarks>
+          <para>Absolute bulk get method. This method transfers length shorts from this buffer into the given array, starting at the given index in this buffer and at the given offset in the array. The position of this buffer is unchanged. An invocation of this method of the form src.get(index, dst, offset, length) has exactly the same effect as the following loop except that it first checks the consistency of the supplied parameters and it is potentially much more efficient:</para>
+          <code lang="text/java">    for (int i = offset, j = index; i &lt; offset + length; i++, j++)
+        dst[i] = src.get(j);</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/ShortBuffer.html#get(int,short[],int,int)" title="Reference documentation">Java reference for <code>java.nio.ShortBuffer.get</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="HasArray">
@@ -826,10 +836,12 @@
         <Parameter Name="o" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="o">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="o">the object to be compared.</param>
+        <summary>Compares this object with the specified object for order.</summary>
+        <returns>a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.</returns>
         <remarks>
+          <para>Compares this object with the specified object for order. Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object. The implementor must ensure signum(x.compareTo(y)) == -signum(y.compareTo(x)) for all x and y. (This implies that x.compareTo(y) must throw an exception if and only if y.compareTo(x) throws an exception.) The implementor must also ensure that the relation is transitive: (x.compareTo(y) &gt; 0 &amp;&amp; y.compareTo(z) &gt; 0) implies x.compareTo(z) &gt; 0. Finally, the implementor must ensure that x.compareTo(y)==0 implies that signum(x.compareTo(z)) == signum(y.compareTo(z)), for all z.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Comparable.html#compareTo(T)" title="Reference documentation">Java reference for <code>java.lang.Comparable.compareTo</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1216,11 +1228,15 @@
         <Parameter Name="src" Type="System.Int16[]" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="src">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="index">The index in this buffer at which the first short will be written; must be non-negative and less than limit()</param>
+        <param name="src">The array from which shorts are to be read</param>
+        <summary>Absolute bulk put method (optional operation).</summary>
+        <returns>This buffer</returns>
+        <remarks>
+          <para>Absolute bulk put method (optional operation). This method copies shorts into this buffer from the given source array. The position of this buffer is unchanged. An invocation of this method of the form dst.put(index, src) behaves in exactly the same way as the invocation:</para>
+          <code lang="text/java">    dst.put(index, src, 0, src.length);</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/ShortBuffer.html#put(int,short[])" title="Reference documentation">Java reference for <code>java.nio.ShortBuffer.put</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Put">
@@ -1325,13 +1341,18 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="src">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="index">The index in this buffer at which the first short will be written; must be non-negative and less than limit()</param>
+        <param name="src">The buffer from which shorts are to be read</param>
+        <param name="offset">The index within the source buffer of the first short to be read; must be non-negative and less than src.limit()</param>
+        <param name="length">The number of shorts to be read from the given buffer; must be non-negative and no larger than the smaller of limit() - index and src.limit() - offset</param>
+        <summary>Absolute bulk put method (optional operation).</summary>
+        <returns>This buffer</returns>
+        <remarks>
+          <para>Absolute bulk put method (optional operation). This method transfers length shorts into this buffer from the given source buffer, starting at the given offset in the source buffer and the given index in this buffer. The positions of both buffers are unchanged. In other words, an invocation of this method of the form dst.put(index, src, offset, length) has exactly the same effect as the loop</para>
+          <code lang="text/java">    for (int i = offset, j = index; i &lt; offset + length; i++, j++)
+        dst.put(j, src.get(i));</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/ShortBuffer.html#put(int,java.nio.ShortBuffer,int,int)" title="Reference documentation">Java reference for <code>java.nio.ShortBuffer.put</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Put">
@@ -1364,13 +1385,18 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="src">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="index">The index in this buffer at which the first short will be written; must be non-negative and less than limit()</param>
+        <param name="src">The array from which shorts are to be read</param>
+        <param name="offset">The offset within the array of the first short to be read; must be non-negative and less than src.length</param>
+        <param name="length">The number of shorts to be read from the given array; must be non-negative and no larger than the smaller of limit() - index and src.length - offset</param>
+        <summary>Absolute bulk put method (optional operation).</summary>
+        <returns>This buffer</returns>
+        <remarks>
+          <para>Absolute bulk put method (optional operation). This method transfers length shorts from the given array, starting at the given offset in the array and at the given index in this buffer. The position of this buffer is unchanged. An invocation of this method of the form dst.put(index, src, offset, length) has exactly the same effect as the following loop except that it first checks the consistency of the supplied parameters and it is potentially much more efficient:</para>
+          <code lang="text/java">    for (int i = offset, j = index; i &lt; offset + length; i++, j++)
+        dst.put(j, src[i]);</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/ShortBuffer.html#put(int,short[],int,int)" title="Reference documentation">Java reference for <code>java.nio.ShortBuffer.put</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Slice">
