@@ -31,7 +31,14 @@
   </Attributes>
   <Docs>
     <summary>Metrics collected for a single request.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Metrics collected for a single request. Most of these metrics are timestamps for events during the lifetime of the BidirectionalStream or UrlRequest, which can be used to build a detailed timeline for investigating performance.</para>
+      <para>Timestamps are derived from a monotonic clock.</para>
+      <para>Start times are reported as the time when a request started waiting for an event, not when the event actually started. If a metric is not available, including cases when a request finished before reaching that stage, start and end times will be null. If no time was spent blocking on an event, start and end will be the same time.</para>
+      <para>A metric can be null if it's unavailable (e.g. SSL metrics are null if the host name was not resolved).</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="ConnectingEnd">
@@ -64,7 +71,11 @@
                 using HTTPS, TLS handshake is completed. In some cases, such as 0-RTT, the stack may
                 start sending data before connection establishment is considered complete; in such cases,
                 this timestamp may occur after <c>#getSendingStart()</c>.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the timestamp for when the connection establishment ended. If the connection used by the request is already active, this returns null.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getConnectingEnd()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getConnectingEnd</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ConnectingStart">
@@ -95,7 +106,11 @@
         <value>
           <c>java.time.Instant</c> representing when the connection establishment started, or
                 null.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the timestamp for when the connection attempt began. If a connection is already active, this returns null.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getConnectingStart()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getConnectingStart</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DnsEnd">
@@ -125,7 +140,12 @@
         <summary>Returns the timestamp when the DNS lookup finished.</summary>
         <value>the <c>java.time.Instant</c> when the DNS lookup completed, or <c>null</c> if no
                 lookup was performed.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the timestamp when the DNS lookup finished.</para>
+          <para>This value is null if no DNS lookup was required, such as when the request reuses an existing connection. If a lookup was attempted, this value will be non-null, regardless of whether the lookup succeeded (via network or cache) or failed.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getDnsEnd()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getDnsEnd</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DnsStart">
@@ -155,7 +175,11 @@
         <summary>Returns the timestamp when DNS lookup started.</summary>
         <value>
           <c>java.time.Instant</c> representing when the DNS lookup started, or null.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the timestamp when DNS lookup started. If a connection is already active, this returns null.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getDnsStart()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getDnsStart</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -220,8 +244,12 @@
       </ReturnValue>
       <Docs>
         <summary>Returns total bytes received.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>Value is 0 or greater</value>
+        <remarks>
+          <para>Returns total bytes received.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getReceivedByteCount()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getReceivedByteCount</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestEnd">
@@ -251,7 +279,12 @@
         <summary>Returns the timestamp when the request finished.</summary>
         <value>the <c>java.time.Instant</c> when the request finished, or <c>null</c> if the
                 request never started.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the timestamp when the request finished.</para>
+          <para>This value is null if the request failed to start, as documented in getRequestStart(). If the request started successfully, this reflects the time it reached a terminal state, including success, failure, or cancellation.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getRequestEnd()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getRequestEnd</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestStart">
@@ -281,7 +314,11 @@
         <summary>Returns the timestamp when the request started.</summary>
         <value>the <c>java.time.Instant</c> when the request began, or <c>null</c> if the request
                 failed before starting.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the timestamp when the request started.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getRequestStart()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getRequestStart</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SendingEnd">
@@ -312,7 +349,11 @@
         <value>
           <c>java.time.Instant</c> representing the end of sending HTTP request (including the
                 body).</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the timestamp when sending the request finished.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getSendingEnd()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getSendingEnd</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SendingStart">
@@ -342,7 +383,11 @@
         <summary>Returns the timestamp when sending the request started.</summary>
         <value>
           <c>java.time.Instant</c> representing the beginning of sending HTTP request headers.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the timestamp when sending the request started.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getSendingStart()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getSendingStart</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SentByteCount">
@@ -370,8 +415,12 @@
       </ReturnValue>
       <Docs>
         <summary>Returns total bytes sent.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>Value is 0 or greater</value>
+        <remarks>
+          <para>Returns total bytes sent.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getSentByteCount()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getSentByteCount</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -499,7 +548,11 @@
           <c>java.time.Instant</c> representing when the TLS handshake has started. This will
                 be later than getConnectStart. In cases where the TLS handshake is started immediately
                 (e.g. QUIC), this may be equal to getConnectStart.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the timestamp when TLS handshake started.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#getTlsHandshakeStart()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.getTlsHandshakeStart</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WasSocketReused">
@@ -529,7 +582,12 @@
       <Docs>
         <summary>Returns whether the socket was reused from a previous request.</summary>
         <returns>true if a socket has been reused.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns whether the socket was reused from a previous request. Cases where this can happen include: reusing an idle socket that was used to complete a previous HTTP/1 request; multiplexing streams on a single HTTP/2 or QUIC connection.</para>
+          <para>Note that when a socket is reused, then DNS, connect and SSL timings are meaningless and undefined, as the request did not go through any of these stages.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/http/FinishedRequestTimings#wasSocketReused()" title="Reference documentation">Android reference for <code>android.net.http.FinishedRequestTimings.wasSocketReused</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
