@@ -4525,6 +4525,14 @@ static class ImporterProgram
             "The region value in the Locale created by the Builder is always normalized to upper case.",
             StringComparison.Ordinal);
         text = text.Replace(
+            "Chinese ROC 16K media size",
+            "Taiwan 16K media size",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Chinese ROC 8K media size",
+            "Taiwan 8K media size",
+            StringComparison.Ordinal);
+        text = text.Replace(
             "Value is milliseconds since January 1, 2001.",
             "Value is seconds since January 1, 2001.",
             StringComparison.Ordinal);
@@ -5089,7 +5097,11 @@ static class ImporterProgram
                 "Mix of metric and imperial units used in United Kingdom." &&
             CleanSourceText(
                 $"The {string.Concat("coun", "try")} value in the Locale created by the Builder is always normalized to upper case.") ==
-                "The region value in the Locale created by the Builder is always normalized to upper case.",
+                "The region value in the Locale created by the Builder is always normalized to upper case." &&
+            CleanSourceText("Chinese ROC 16K media size: 195mm x 270mm") ==
+                "Taiwan 16K media size: 195mm x 270mm" &&
+            CleanSourceText("Chinese ROC 8K media size: 270mm x 390mm") ==
+                "Taiwan 8K media size: 270mm x 390mm",
             "PolicyCheck geopolitical terminology normalization");
         Assert(
             CleanSourceText("Value is milliseconds since January 1, 2001.") ==
