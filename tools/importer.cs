@@ -4567,6 +4567,18 @@ static class ImporterProgram
             "PrintAttributes#COLOR_MODE_COLOR.",
             StringComparison.Ordinal);
         text = text.Replace(
+            "North America Letter media size: 8.5\" x 11\" (279mm x 216mm)",
+            "North America Letter media size: 8.5\" x 11\" (216mm x 279mm)",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "The default color mode. Value is either 0 or a combination of the following: PrintAttributes.COLOR_MODE_MONOCHROME; PrintAttributes.COLOR_MODE_COLOR",
+            "The default color mode. Must be exactly one of the following: PrintAttributes.COLOR_MODE_MONOCHROME; PrintAttributes.COLOR_MODE_COLOR",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "The default duplex mode. Value is either 0 or a combination of the following: PrintAttributes.DUPLEX_MODE_NONE; PrintAttributes.DUPLEX_MODE_LONG_EDGE; PrintAttributes.DUPLEX_MODE_SHORT_EDGE",
+            "The default duplex mode. Must be exactly one of the following: PrintAttributes.DUPLEX_MODE_NONE; PrintAttributes.DUPLEX_MODE_LONG_EDGE; PrintAttributes.DUPLEX_MODE_SHORT_EDGE",
+            StringComparison.Ordinal);
+        text = text.Replace(
             "Value is milliseconds since January 1, 2001.",
             "Value is seconds since January 1, 2001.",
             StringComparison.Ordinal);
@@ -5154,6 +5166,16 @@ static class ImporterProgram
                 "On platform version 19 (Kitkat) specify PrintAttributes#COLOR_MODE_COLOR..") ==
                 "On platform version 19 (KitKat) specify PrintAttributes#COLOR_MODE_COLOR.",
             "Android Print source text corrections");
+        Assert(
+            CleanSourceText("North America Letter media size: 8.5\" x 11\" (279mm x 216mm)") ==
+                "North America Letter media size: 8.5\" x 11\" (216mm x 279mm)" &&
+            CleanSourceText(
+                "The default color mode. Value is either 0 or a combination of the following: PrintAttributes.COLOR_MODE_MONOCHROME; PrintAttributes.COLOR_MODE_COLOR") ==
+                "The default color mode. Must be exactly one of the following: PrintAttributes.COLOR_MODE_MONOCHROME; PrintAttributes.COLOR_MODE_COLOR" &&
+            CleanSourceText(
+                "The default duplex mode. Value is either 0 or a combination of the following: PrintAttributes.DUPLEX_MODE_NONE; PrintAttributes.DUPLEX_MODE_LONG_EDGE; PrintAttributes.DUPLEX_MODE_SHORT_EDGE") ==
+                "The default duplex mode. Must be exactly one of the following: PrintAttributes.DUPLEX_MODE_NONE; PrintAttributes.DUPLEX_MODE_LONG_EDGE; PrintAttributes.DUPLEX_MODE_SHORT_EDGE",
+            "Android Print media and default-mode corrections");
         Assert(
             CleanSourceText("Value is milliseconds since January 1, 2001.") ==
                 "Value is seconds since January 1, 2001.",
