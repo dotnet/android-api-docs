@@ -3269,11 +3269,11 @@ static class ImporterProgram
         }
 
         if (element.Name.LocalName != "para" ||
-            element.HasAttributes ||
-            !HasPlainTextContent(element, out var proseText))
+            element.HasAttributes)
             return [];
 
-        var prose = NormalizeRemarksText(proseText);
+        var prose = NormalizeRemarksText(
+            element.ToString(SaveOptions.DisableFormatting));
         return sourceFragments
             .Select((fragment, index) => (fragment, index))
             .Where(item => !item.fragment.IsCode &&
@@ -11504,8 +11504,8 @@ static class ImporterProgram
             var withoutIgnored = Regex.Replace(
                 repairedMalformedHref,
                 includeCode
-                    ? @"<(?:script|style|svg)\b[^>]*>.*?</(?:script|style|svg)>"
-                    : @"<(?:script|style|svg|pre|devsite-code)\b[^>]*>.*?</(?:script|style|svg|pre|devsite-code)>",
+                    ? @"<(?:script|style|svg|button)\b[^>]*>.*?</(?:script|style|svg|button)>"
+                    : @"<(?:script|style|svg|button|pre|devsite-code)\b[^>]*>.*?</(?:script|style|svg|button|pre|devsite-code)>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var withBreaks = Regex.Replace(
