@@ -121,10 +121,15 @@
         <Parameter Name="tag" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="tag">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="tag">A debug tag that helps describe what the job is for. This value cannot be null.</param>
+        <summary>Add a debug tag to help track what this job is for.</summary>
+        <returns>This object for method chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Add a debug tag to help track what this job is for. The tags may show in debug dumps or app metrics. Do not put personally identifiable information (PII) in the tag.</para>
+          <para>Tags have the following requirements: Tags cannot be more than 127 characters; Since leading and trailing whitespace can lead to hard-to-debug issues, tags should not include leading or trailing whitespace. All tags will be trimmed; An empty String (after trimming) is not allowed; Should not have personally identifiable information (PII); A job cannot have more than 32 tags.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#addDebugTag(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.addDebugTag</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddTriggerContentUri">
@@ -164,10 +169,206 @@
         <Parameter Name="uri" Type="Android.App.Job.JobInfo+TriggerContentUri" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="uri">The content: URI to monitor. This value cannot be null.</param>
+        <summary>Add a new content: URI that will be monitored with a ContentObserver, and will cause the job to execute if changed.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Add a new content: URI that will be monitored with a ContentObserver, and will cause the job to execute if changed. If you have any trigger content URIs associated with a job, it will not execute until there has been a change report for one or more of them.</para>
+          <para>Note that trigger URIs can not be used in combination with setPeriodic(long) or setPersisted(boolean). To continually monitor for content changes, you need to schedule a new JobInfo using the same job ID and observing the same URIs in place of calling JobService.jobFinished(JobParameters,boolean). Remember that JobScheduler.schedule(JobInfo) stops a running job if it uses the same job ID, so only call it after you've finished processing the most recent changes (in other words, call JobScheduler.schedule(JobInfo) where you would have normally called JobService.jobFinished(JobParameters,boolean). Following this pattern will ensure you do not lose any content changes: while your job is running, the system will continue monitoring for content changes, and propagate any changes it sees over to the next job you schedule, so you do not have to worry about missing new changes. Scheduling the new job before or during processing will cause the current job to be stopped (as described in JobScheduler.schedule(JobInfo)), meaning the wakelock will be released for the current job and your app process may be killed since it will no longer be in a valid component lifecycle. Since JobScheduler.schedule(JobInfo) stops the current job, you do not need to call JobService.jobFinished(JobParameters,boolean) if you call JobScheduler.schedule(JobInfo) using the same job ID as the currently running job.</para>
+          <para>Because setting this property is not compatible with periodic or persisted jobs, doing so will throw an IllegalArgumentException when build() is called.</para>
+          <para>The following example shows how this feature can be used to monitor for changes in the photos on a device.</para>
+          <code lang="text/java">import android.app.job.JobInfo;
+import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
+import android.app.job.JobService;
+import android.content.ComponentName;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Environment;
+import android.os.Handler;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Example stub job to monitor when there is a change to photos in the media provider.
+ */
+public class PhotosContentJob extends JobService {
+    // The root URI of the media provider, to monitor for generic changes to its content.
+    static final Uri MEDIA_URI = Uri.parse("content://" + MediaStore.AUTHORITY + "/");
+
+    // Path segments for image-specific URIs in the provider.
+    static final List&lt;String&gt; EXTERNAL_PATH_SEGMENTS
+            = MediaStore.Images.Media.EXTERNAL_CONTENT_URI.getPathSegments();
+
+    // The columns we want to retrieve about a particular image.
+    static final String[] PROJECTION = new String[] {
+            MediaStore.Images.ImageColumns._ID, MediaStore.Images.ImageColumns.DATA
+    };
+    static final int PROJECTION_ID = 0;
+    static final int PROJECTION_DATA = 1;
+
+    // This is the external storage directory where cameras place pictures.
+    static final String DCIM_DIR = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DCIM).getPath();
+
+    // A pre-built JobInfo we use for scheduling our job.
+    static final JobInfo JOB_INFO;
+
+    static {
+        JobInfo.Builder builder = new JobInfo.Builder(JobIds.PHOTOS_CONTENT_JOB,
+                new ComponentName("com.example.android.apis", PhotosContentJob.class.getName()));
+        // Look for specific changes to images in the provider.
+        builder.addTriggerContentUri(new JobInfo.TriggerContentUri(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS));
+        // Also look for general reports of changes in the overall provider.
+        builder.addTriggerContentUri(new JobInfo.TriggerContentUri(MEDIA_URI, 0));
+        JOB_INFO = builder.build();
+    }
+
+    // Fake job work.  A real implementation would do some work on a separate thread.
+    final Handler mHandler = new Handler();
+    final Runnable mWorker = new Runnable() {
+        @Override public void run() {
+            scheduleJob(PhotosContentJob.this);
+            jobFinished(mRunningParams, false);
+        }
+    };
+
+    JobParameters mRunningParams;
+
+    // Schedule this job, replace any existing one.
+    public static void scheduleJob(Context context) {
+        JobScheduler js = context.getSystemService(JobScheduler.class);
+        js.schedule(JOB_INFO);
+        Log.i("PhotosContentJob", "JOB SCHEDULED!");
+    }
+
+    // Check whether this job is currently scheduled.
+    public static boolean isScheduled(Context context) {
+        JobScheduler js = context.getSystemService(JobScheduler.class);
+        List&lt;JobInfo&gt; jobs = js.getAllPendingJobs();
+        if (jobs == null) {
+            return false;
+        }
+        for (int i=0; i&lt;jobs.size(); i++) {
+            if (jobs.get(i).getId() == JobIds.PHOTOS_CONTENT_JOB) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Cancel this job, if currently scheduled.
+    public static void cancelJob(Context context) {
+        JobScheduler js = context.getSystemService(JobScheduler.class);
+        js.cancel(JobIds.PHOTOS_CONTENT_JOB);
+    }
+
+    @Override
+    public boolean onStartJob(JobParameters params) {
+        Log.i("PhotosContentJob", "JOB STARTED!");
+        mRunningParams = params;
+
+        // Instead of real work, we are going to build a string to show to the user.
+        StringBuilder sb = new StringBuilder();
+
+        // Did we trigger due to a content change?
+        if (params.getTriggeredContentAuthorities() != null) {
+            boolean rescanNeeded = false;
+
+            if (params.getTriggeredContentUris() != null) {
+                // If we have details about which URIs changed, then iterate through them
+                // and collect either the ids that were impacted or note that a generic
+                // change has happened.
+                ArrayList&lt;String&gt; ids = new ArrayList&lt;&gt;();
+                for (Uri uri : params.getTriggeredContentUris()) {
+                    List&lt;String&gt; path = uri.getPathSegments();
+                    if (path != null &amp;&amp; path.size() == EXTERNAL_PATH_SEGMENTS.size()+1) {
+                        // This is a specific file.
+                        ids.add(path.get(path.size()-1));
+                    } else {
+                        // Oops, there is some general change!
+                        rescanNeeded = true;
+                    }
+                }
+
+                if (ids.size() &gt; 0) {
+                    // If we found some ids that changed, we want to determine what they are.
+                    // First, we do a query with content provider to ask about all of them.
+                    StringBuilder selection = new StringBuilder();
+                    for (int i=0; i&lt;ids.size(); i++) {
+                        if (selection.length() &gt; 0) {
+                            selection.append(" OR ");
+                        }
+                        selection.append(MediaStore.Images.ImageColumns._ID);
+                        selection.append("='");
+                        selection.append(ids.get(i));
+                        selection.append("'");
+                    }
+
+                    // Now we iterate through the query, looking at the filenames of
+                    // the items to determine if they are ones we are interested in.
+                    Cursor cursor = null;
+                    boolean haveFiles = false;
+                    try {
+                        cursor = getContentResolver().query(
+                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                PROJECTION, selection.toString(), null, null);
+                        while (cursor.moveToNext()) {
+                            // We only care about files in the DCIM directory.
+                            String dir = cursor.getString(PROJECTION_DATA);
+                            if (dir.startsWith(DCIM_DIR)) {
+                                if (!haveFiles) {
+                                    haveFiles = true;
+                                    sb.append("New photos:\n");
+                                }
+                                sb.append(cursor.getInt(PROJECTION_ID));
+                                sb.append(": ");
+                                sb.append(dir);
+                                sb.append("\n");
+                            }
+                        }
+                    } catch (SecurityException e) {
+                        sb.append("Error: no access to media!");
+                    } finally {
+                        if (cursor != null) {
+                            cursor.close();
+                        }
+                    }
+                }
+
+            } else {
+                // We don't have any details about URIs (because too many changed at once),
+                // so just note that we need to do a full rescan.
+                rescanNeeded = true;
+            }
+
+            if (rescanNeeded) {
+                sb.append("Photos rescan needed!");
+            }
+        } else {
+            sb.append("(No photos content)");
+        }
+        Toast.makeText(this, sb.toString(), Toast.LENGTH_LONG).show();
+
+        // We will emulate taking some time to do this work, so we can see batching happen.
+        mHandler.postDelayed(mWorker, 10*1000);
+        return true;
+    }
+
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        mHandler.removeCallbacks(mWorker);
+        return false;
+    }
+}</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#addTriggerContentUri(android.app.job.JobInfo.TriggerContentUri)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.addTriggerContentUri</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -279,10 +480,14 @@
         <Parameter Name="tag" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="tag">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="tag">The tag to remove. This value cannot be null.</param>
+        <summary>Remove a tag set via addDebugTag(String).</summary>
+        <returns>This object for method chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Remove a tag set via addDebugTag(String).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#removeDebugTag(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.removeDebugTag</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetBackoffCriteria">
@@ -316,11 +521,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="initialBackoffMillis">To be added.</param>
-        <param name="backoffPolicy">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="initialBackoffMillis">Millisecond time interval to wait initially when job has failed.</param>
+        <param name="backoffPolicy">Value is one of the following: JobInfo.BACKOFF_POLICY_LINEAR; JobInfo.BACKOFF_POLICY_EXPONENTIAL</param>
+        <summary>Set up the back-off/retry policy.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Set up the back-off/retry policy. This defaults to some respectable values: {30 seconds, Exponential}. We cap back-off at 5hrs.</para>
+          <para>Note that trying to set a backoff criteria for a job with setRequiresDeviceIdle(boolean) will throw an exception when you call build(). This is because back-off typically does not make sense for these types of jobs. See JobService.jobFinished(android.app.job.JobParameters, boolean) for more description of the return value for the case of a job executing while in idle mode.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setBackoffCriteria(long,%20int)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setBackoffCriteria</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -363,10 +571,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="category">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="category">The category for this job, e.g., JobInfo.CATEGORY_APP_UPDATES. Value is one of the following: JobInfo.CATEGORY_NONE; JobInfo.CATEGORY_APP_UPDATES</param>
+        <summary>Sets the category for this job.</summary>
+        <returns>This Builder object to allow for chaining of calls. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the category for this job.</para>
+          <para>The category provides a hint to the system about the purpose of the job, which may influence scheduling and quota allocation.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setCategory(int)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setCategory</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetClipData">
@@ -404,11 +617,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="clip">To be added.</param>
-        <param name="grantFlags">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="clip">The new clip to set. May be null to clear the current clip.</param>
+        <param name="grantFlags">The desired permissions to grant for any URIs. This should be a combination of Intent.FLAG_GRANT_READ_URI_PERMISSION, Intent.FLAG_GRANT_WRITE_URI_PERMISSION, and Intent.FLAG_GRANT_PREFIX_URI_PERMISSION.</param>
+        <summary>Set a ClipData associated with this Job.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Set a ClipData associated with this Job.</para>
+          <para>The main purpose of providing a ClipData is to allow granting of URI permissions for data associated with the clip. The exact kind of permission grant to perform is specified through grantFlags.</para>
+          <para>If the ClipData contains items that are Intents, any grant flags in those Intents will be ignored. Only flags provided as an argument to this method are respected, and will be applied to all Uri or Intent items in the clip (or sub-items of the clip).</para>
+          <para>Because setting this property is not compatible with persisted jobs, doing so will throw an IllegalArgumentException when build() is called.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setClipData(android.content.ClipData,%20int)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setClipData</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -441,11 +659,18 @@
         <Parameter Name="uploadBytes" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="downloadBytes">To be added.</param>
-        <param name="uploadBytes">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="downloadBytes">The estimated size of network traffic that will be downloaded by this job, in bytes. Value is a non-negative number of bytes.</param>
+        <param name="uploadBytes">The estimated size of network traffic that will be uploaded by this job, in bytes. Value is a non-negative number of bytes.</param>
+        <summary>Set the estimated size of network traffic that will be performed by this job, in bytes.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Set the estimated size of network traffic that will be performed by this job, in bytes.</para>
+          <para>Apps are encouraged to provide values that are as accurate as possible, but when the exact size isn't available, an order-of-magnitude estimate can be provided instead. Here are some specific examples: A job that is backing up a photo knows the exact size of that photo, so it should provide that size as the estimate; A job that refreshes top news stories wouldn't know an exact size, but if the size is expected to be consistently around 100KB, it can provide that order-of-magnitude value as the estimate; A job that synchronizes email could end up using an extreme range of data, from under 1KB when nothing has changed, to dozens of MB when there are new emails with attachments. Jobs that cannot provide reasonable estimates should use the sentinel value JobInfo.NETWORK_BYTES_UNKNOWN. Note that the system may choose to delay jobs with large network usage estimates when the device has a poor network connection, in order to save battery and possible network costs. Starting from Android version Build.VERSION_CODES.S, JobScheduler may attempt to run large jobs when the device is charging and on an unmetered network, even if the network is slow. This gives large jobs an opportunity to make forward progress, even if they risk timing out.</para>
+          <para>The values provided here only reflect the traffic that will be performed by the base job; if you're using JobWorkItem then you also need to define the network traffic used by each work item when constructing them.</para>
+          <para>Prior to Android version Build.VERSION_CODES.TIRAMISU, JobScheduler used the estimated transfer numbers in a similar fashion to setMinimumNetworkChunkBytes(long) (to estimate if the work would complete within the time available to job). In other words, JobScheduler treated the transfer as all-or-nothing. Starting from Android version Build.VERSION_CODES.TIRAMISU, JobScheduler will only use the estimated transfer numbers in this manner if minimum chunk sizes have not been provided via setMinimumNetworkChunkBytes(long).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setEstimatedNetworkBytes(long,%20long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setEstimatedNetworkBytes</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetExpedited">
@@ -480,9 +705,19 @@
       </Parameters>
       <Docs>
         <param name="expedited">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Setting this to true indicates that this job is important and needs to run as soon as possible with stronger guarantees than regular jobs.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Setting this to true indicates that this job is important and needs to run as soon as possible with stronger guarantees than regular jobs. These "expedited" jobs will: Run as soon as possible; Be less restricted during Doze and battery saver; Bypass Doze, app standby, and battery saver network restrictions (if the job has a connectivity constraint); Be less likely to be killed than regular jobs; Be subject to background location throttling; Be exempt from delay to optimize job execution</para>
+          <para>Expedited jobs are given JobInfo.PRIORITY_MAX by default.</para>
+          <para>Since these jobs have stronger guarantees than regular jobs, they will be subject to stricter quotas. As long as an app has available expedited quota, jobs scheduled with this set to true will run with these guarantees. If an app has run out of available expedited quota, any pending expedited jobs will run as regular jobs. JobParameters.isExpeditedJob() can be used to know whether the executing job has expedited guarantees or not. In addition, JobScheduler.schedule(JobInfo) will immediately return JobScheduler.RESULT_FAILURE if the app does not have available quota (and the job will not be successfully scheduled).</para>
+          <para>Expedited job quota will replenish over time and as the user interacts with the app, so you should not have to worry about running out of quota because of processing from frequent user engagement.</para>
+          <para>Expedited jobs may only set network, storage-not-low, and persistence constraints. No other constraints are allowed.</para>
+          <para>Assuming all constraints remain satisfied (including ideal system load conditions), expedited jobs can have an execution time of at least 1 minute. If your app has remaining expedited job quota, then the expedited job may potentially run longer until remaining quota is used up. Just like with regular jobs, quota is not consumed while the app is on top and visible to the user.</para>
+          <para>Note: Even though expedited jobs are meant to run as soon as possible, they may be deferred if the system is under heavy load or requested constraints are not satisfied. This delay may be true for expedited jobs of the foreground app on Android version Build.VERSION_CODES.S, but starting from Android version Build.VERSION_CODES.TIRAMISU, expedited jobs for the foreground app are guaranteed to be started before JobScheduler.schedule(JobInfo) returns (assuming all requested constraints are satisfied), similar to foreground services.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setExpedited(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setExpedited</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetExtras">
@@ -518,10 +753,12 @@
         <Parameter Name="extras" Type="Android.OS.PersistableBundle" />
       </Parameters>
       <Docs>
-        <param name="extras">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="extras">Bundle containing extras you want the scheduler to hold on to for you. This value cannot be null.</param>
+        <summary>Set optional extras.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Set optional extras. This is persisted, so we only allow primitive types.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setExtras(android.os.PersistableBundle)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setExtras</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -557,10 +794,17 @@
         <Parameter Name="importantWhileForeground" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="importantWhileForeground">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="importantWhileForeground">whether to relax doze restrictions for this job when the app is in the foreground. False by default.</param>
+        <summary>Setting this to true indicates that this job is important while the scheduling app is in the foreground or on the temporary allowlist for background restrictions.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>This method was deprecated in API level 31. Use setExpedited(boolean) instead.</para>
+          <para>Setting this to true indicates that this job is important while the scheduling app is in the foreground or on the temporary allowlist for background restrictions. This means that the system will relax doze restrictions on this job during this time. Apps should use this flag only for short jobs that are essential for the app to function properly in the foreground. Note that once the scheduling app is no longer allowlisted from background restrictions and in the background, or the job failed due to unsatisfied constraints, this job should be expected to behave like other jobs without this flag.</para>
+          <para>Jobs marked as important-while-foreground are given JobInfo.PRIORITY_HIGH by default.</para>
+          <para>Note: Beginning with Build.VERSION_CODES.BAKLAVA, this flag will be ignored and no longer function effectively, regardless of the calling app's target SDK version. JobInfo.isImportantWhileForeground() will always return false. Apps should use {link setExpedited(boolean)} with true to indicate that this job is important and needs to run as soon as possible.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setImportantWhileForeground(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setImportantWhileForeground</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetMinimumLatency">
@@ -586,10 +830,13 @@
         <Parameter Name="minLatencyMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="minLatencyMillis">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="minLatencyMillis">Milliseconds before which this job will not be considered for execution.</param>
+        <summary>Specify that this job should be delayed by the provided amount of time.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Specify that this job should be delayed by the provided amount of time. The job may not run the instant the delay has elapsed. JobScheduler will start the job at an indeterminate time after the delay has elapsed.</para>
+          <para>Because it doesn't make sense setting this property on a periodic job, doing so will throw an IllegalArgumentException when build() is called. Negative latencies also don't make sense for a job and are indicative of an error, so starting in Android version Build.VERSION_CODES.VANILLA_ICE_CREAM, setting a negative deadline will result in build() throwing an IllegalArgumentException.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setMinimumLatency(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setMinimumLatency</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -625,10 +872,16 @@
         <Parameter Name="chunkSizeBytes" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="chunkSizeBytes">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="chunkSizeBytes">The smallest piece of data that cannot be easily paused and resumed, in bytes. Value is a non-negative number of bytes.</param>
+        <summary>Set the minimum size of non-resumable network traffic this job requires, in bytes.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Set the minimum size of non-resumable network traffic this job requires, in bytes. When the upload or download can be easily paused and resumed, use this to set the smallest size that must be transmitted between start and stop events to be considered successful. If the transfer cannot be paused and resumed, then this should be the sum of the values provided to JobInfo.Builder.setEstimatedNetworkBytes(long,long).</para>
+          <para>Apps are encouraged to provide values that are as accurate as possible since JobScheduler will try to run the job at a time when at least the minimum chunk can be transmitted to reduce the amount of repetitive data that's transferred. Jobs that cannot provide reasonable estimates should use the sentinel value JobInfo.NETWORK_BYTES_UNKNOWN.</para>
+          <para>The values provided here only reflect the minimum non-resumable traffic that will be performed by the base job; if you're using JobWorkItem then you also need to define the network traffic used by each work item when constructing them.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setMinimumNetworkChunkBytes(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setMinimumNetworkChunkBytes</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetOverrideDeadline">
@@ -655,9 +908,15 @@
       </Parameters>
       <Docs>
         <param name="maxExecutionDelayMillis">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Set a deadline after which all other functional requested constraints will be ignored.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Set a deadline after which all other functional requested constraints will be ignored. After the deadline has passed, the job can run even if other requirements (including a delay set through setMinimumLatency(long)) are not met. JobParameters.isOverrideDeadlineExpired() will return true if the job's deadline has passed. The job's execution may be delayed beyond the set deadline by other factors such as Doze mode and system health signals.</para>
+          <para>Because it doesn't make sense setting this property on a periodic job, doing so will throw an IllegalArgumentException when build() is called.</para>
+          <para>Negative deadlines also don't make sense for a job and are indicative of an error, so starting in Android version Build.VERSION_CODES.VANILLA_ICE_CREAM, setting a negative deadline will result in build() throwing an IllegalArgumentException.</para>
+          <para>Since a job will run once the deadline has passed regardless of the status of other constraints, setting a deadline of 0 (or a delay equal to the deadline) with other constraints makes those constraints meaningless when it comes to execution decisions. Since doing so is indicative of an error in the logic, starting in Android version Build.VERSION_CODES.VANILLA_ICE_CREAM, jobs with extremely short time windows will fail to build. Time windows are defined as the time between a job's minimum latency and its deadline. If the minimum latency is not set, it is assumed to be 0. Work that must happen immediately should use setExpedited(boolean) or setUserInitiated(boolean) in the appropriate manner.</para>
+          <para>This API aimed to guarantee execution of the job by the deadline only on Android version Build.VERSION_CODES.LOLLIPOP. That aim and guarantee has not existed since Build.VERSION_CODES.M.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setOverrideDeadline(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setOverrideDeadline</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -685,10 +944,12 @@
         <Parameter Name="intervalMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="intervalMillis">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="intervalMillis">Millisecond interval for which this job will repeat.</param>
+        <summary>Specify that this job should recur with the provided interval, not more than once per period.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Specify that this job should recur with the provided interval, not more than once per period. You have no control over when within this interval this job will be executed, only the guarantee that it will be executed at most once within this interval, as long as the constraints are satisfied. If the constraints are not satisfied within this interval, the job will wait until the constraints are satisfied. Setting this function on the builder with setMinimumLatency(long) or setOverrideDeadline(long) will result in an error.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setPeriodic(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setPeriodic</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -721,11 +982,13 @@
         <Parameter Name="flexMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="intervalMillis">To be added.</param>
-        <param name="flexMillis">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="intervalMillis">Millisecond interval for which this job will repeat. A minimum value of JobInfo.getMinPeriodMillis() is enforced.</param>
+        <param name="flexMillis">Millisecond flex for this job. Flex is clamped to be at least JobInfo.getMinFlexMillis() or 5 percent of the period, whichever is higher.</param>
+        <summary>Specify that this job should recur with the provided interval and flex.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Specify that this job should recur with the provided interval and flex. The job can execute at any time in a window of flex length at the end of the period. If the constraints are not satisfied within the window, the job will wait until the constraints are satisfied.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setPeriodic(long,%20long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setPeriodic</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -753,10 +1016,12 @@
         <Parameter Name="isPersisted" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isPersisted">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="isPersisted">True to indicate that the job will be written to disk and loaded at boot.</param>
+        <summary>Set whether or not to persist this job across device reboots.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Set whether or not to persist this job across device reboots. Requires Manifest.permission.RECEIVE_BOOT_COMPLETED</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setPersisted(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setPersisted</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -789,9 +1054,15 @@
       </Parameters>
       <Docs>
         <param name="prefetch">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Setting this to true indicates that this job is designed to prefetch content that will make a material improvement to the experience of the specific user of this device.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Setting this to true indicates that this job is designed to prefetch content that will make a material improvement to the experience of the specific user of this device. For example, fetching top headlines of interest to the current user.</para>
+          <para>Apps targeting Android version Build.VERSION_CODES.TIRAMISU or later are not allowed to have deadlines (set via setOverrideDeadline(long) on their prefetch jobs.</para>
+          <para>The system may use this signal to relax the network constraints you originally requested, such as allowing a JobInfo.NETWORK_TYPE_UNMETERED job to run over a metered network when there is a surplus of metered data available. The system may also use this signal in combination with end user usage patterns to ensure data is prefetched before the user launches your app.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setPrefetch(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setPrefetch</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPriority">
@@ -825,10 +1096,14 @@
         <Parameter Name="priority" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="priority">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="priority">Value is one of the following: JobInfo.PRIORITY_MIN; JobInfo.PRIORITY_LOW; JobInfo.PRIORITY_DEFAULT; JobInfo.PRIORITY_HIGH; JobInfo.PRIORITY_MAX</param>
+        <summary>Indicate the priority for this job.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Indicate the priority for this job. The priority set here will be used to sort jobs for the calling app and apply slightly different policies based on the priority. The priority will NOT be used as a global sorting value to sort between different app's jobs. Use this to inform the system about which jobs it should try to run before other jobs. Giving the same priority to all of your jobs will result in them all being treated the same. The priorities each have slightly different behaviors, as noted in their relevant javadoc. Starting in Android version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, the priority will only affect sorting order within the job's namespace. NOTE: Setting all of your jobs to high priority will not be beneficial to your app and in fact may hurt its performance in the long run. In order to prevent starvation, repeatedly retried jobs (because of failures) will slowly have their priorities lowered.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setPriority(int)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setPriority</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRequiredNetwork">
@@ -858,10 +1133,17 @@
         <Parameter Name="networkRequest" Type="Android.Net.NetworkRequest" />
       </Parameters>
       <Docs>
-        <param name="networkRequest">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="networkRequest">The detailed description of the kind of network this job requires, or null if no specific kind of network is required. Defining a NetworkSpecifier is only supported for jobs that aren't persisted.</param>
+        <summary>Set detailed description of the kind of network your job requires.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Set detailed description of the kind of network your job requires.</para>
+          <para>If your job doesn't need a network connection, you don't need to call this method, as the default is null.</para>
+          <para>Calling this method defines network as a strict requirement for your job. If the network requested is not available your job will never run. See setOverrideDeadline(long) to change this behavior. Calling this method will override any requirements previously defined by setRequiredNetworkType(int); you typically only want to call one of these methods.</para>
+          <para>When your job executes in JobService.onStartJob(JobParameters), be sure to use the specific network returned by JobParameters.getNetwork(), otherwise you'll use the default network which may not meet this constraint. Starting in Android version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, an app must hold the Manifest.permission.ACCESS_NETWORK_STATE permission to schedule a job that requires a network.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiredNetwork(android.net.NetworkRequest)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiredNetwork</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRequiredNetworkType">
@@ -894,10 +1176,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="networkType">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="networkType">Value is one of the following: JobInfo.NETWORK_TYPE_NONE; JobInfo.NETWORK_TYPE_ANY; JobInfo.NETWORK_TYPE_UNMETERED; JobInfo.NETWORK_TYPE_NOT_ROAMING; JobInfo.NETWORK_TYPE_CELLULAR</param>
+        <summary>Set basic description of the kind of network your job requires.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Set basic description of the kind of network your job requires. If you need more precise control over network capabilities, see setRequiredNetwork(NetworkRequest).</para>
+          <para>If your job doesn't need a network connection, you don't need to call this method, as the default value is JobInfo.NETWORK_TYPE_NONE.</para>
+          <para>Calling this method defines network as a strict requirement for your job. If the network requested is not available your job will never run. See setOverrideDeadline(long) to change this behavior. Calling this method will override any requirements previously defined by setRequiredNetwork(NetworkRequest); you typically only want to call one of these methods. Starting in Android version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, an app must hold the Manifest.permission.ACCESS_NETWORK_STATE permission to schedule a job that requires a network.</para>
+          <para>Starting in Android version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, JobScheduler may try to shift the execution of jobs requiring JobInfo.NETWORK_TYPE_ANY to when there is access to an un-metered network.</para>
+          <para>When your job executes in JobService.onStartJob(JobParameters), be sure to use the specific network returned by JobParameters.getNetwork(), otherwise you'll use the default network which may not meet this constraint.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiredNetworkType(int)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiredNetworkType</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -929,10 +1217,12 @@
         <Parameter Name="batteryNotLow" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="batteryNotLow">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="batteryNotLow">Whether or not the device's battery level must not be low.</param>
+        <summary>Specify that to run this job, the device's battery level must not be low.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Specify that to run this job, the device's battery level must not be low. This defaults to false. If true, the job will only run when the battery level is not low, which is generally the point where the user is given a "low battery" warning. Setting this to false DOES NOT mean the job will only run when the battery is low.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiresBatteryNotLow(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiresBatteryNotLow</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -960,10 +1250,13 @@
         <Parameter Name="requiresCharging" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="requiresCharging">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="requiresCharging">Pass true to require that the device be charging in order to run the job.</param>
+        <summary>Specify that to run this job, the device must be charging (or be a non-battery-powered device connected to permanent power, such as Android TV devices).</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Specify that to run this job, the device must be charging (or be a non-battery-powered device connected to permanent power, such as Android TV devices). This defaults to false. Setting this to false DOES NOT mean the job will only run when the device is not charging.</para>
+          <para>For purposes of running jobs, a battery-powered device "charging" is not quite the same as simply being connected to power. If the device is so busy that the battery is draining despite a power connection, jobs with this constraint will not run. This can happen during some common use cases such as video chat, particularly if the device is plugged in to USB rather than to wall power.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiresCharging(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiresCharging</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -991,10 +1284,14 @@
         <Parameter Name="requiresDeviceIdle" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="requiresDeviceIdle">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="requiresDeviceIdle">Pass true to prevent the job from running while the device is being used interactively.</param>
+        <summary>When set true, ensure that this job will not run if the device is in active use.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>When set true, ensure that this job will not run if the device is in active use. The default state is false: that is, the for the job to be runnable even when someone is interacting with the device. Setting this to false DOES NOT mean the job will only run when the device is not idle.</para>
+          <para>This state is a loose definition provided by the system. In general, it means that the device is not currently being used interactively, and has not been in use for some time. As such, it is a good time to perform resource heavy jobs. Bear in mind that battery usage will still be attributed to your application, and surfaced to the user in battery stats.</para>
+          <para>Despite the similar naming, this job constraint is not related to the system's "device idle" or "doze" states. This constraint only determines whether a job is allowed to run while the device is directly in use.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiresDeviceIdle(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiresDeviceIdle</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1026,10 +1323,12 @@
         <Parameter Name="storageNotLow" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="storageNotLow">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="storageNotLow">Whether or not the device's available storage must not be low.</param>
+        <summary>Specify that to run this job, the device's available storage must not be low.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Specify that to run this job, the device's available storage must not be low. This defaults to false. If true, the job will only run when the device is not in a low storage state, which is generally the point where the user is given a "low storage" warning.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiresStorageNotLow(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiresStorageNotLow</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1072,10 +1371,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="traceTag">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="traceTag">The tag to use in traces. This value may be null.</param>
+        <summary>Set a tag that will be used in traces.</summary>
+        <returns>This object for method chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Set a tag that will be used in traces. Since this is a trace tag, it must follow the rules set in android.os.Trace.beginSection(String), such as it cannot be more than 127 Unicode code units. Additionally, since leading and trailing whitespace can lead to hard-to-debug issues, they will be trimmed. An empty String (after trimming) is not allowed.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setTraceTag(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setTraceTag</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetTransientExtras">
@@ -1115,10 +1418,13 @@
         <Parameter Name="extras" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="extras">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="extras">Bundle containing extras you want the scheduler to hold on to for you. This value cannot be null.</param>
+        <summary>Set optional transient extras.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Set optional transient extras.</para>
+          <para>Because setting this property is not compatible with persisted jobs, doing so will throw an IllegalArgumentException when build() is called.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setTransientExtras(android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setTransientExtras</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1150,10 +1456,12 @@
         <Parameter Name="durationMs" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="durationMs">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="durationMs">Delay after initial content change, in milliseconds.</param>
+        <summary>Set the maximum total delay (in milliseconds) that is allowed from the first time a content change is detected until the job is scheduled.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Set the maximum total delay (in milliseconds) that is allowed from the first time a content change is detected until the job is scheduled.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setTriggerContentMaxDelay(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setTriggerContentMaxDelay</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1185,10 +1493,12 @@
         <Parameter Name="durationMs" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="durationMs">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="durationMs">Delay after most recent content change, in milliseconds.</param>
+        <summary>Set the delay (in milliseconds) from when a content change is detected until the job is scheduled.</summary>
         <returns>To be added.</returns>
         <remarks>
+          <para>Set the delay (in milliseconds) from when a content change is detected until the job is scheduled. If there are more changes during that time, the delay will be reset to start at the time of the most recent change.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setTriggerContentUpdateDelay(long)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setTriggerContentUpdateDelay</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1225,9 +1535,18 @@
       </Parameters>
       <Docs>
         <param name="userInitiated">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Indicates that this job is being scheduled to fulfill an explicit user request.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Indicates that this job is being scheduled to fulfill an explicit user request. As such, user-initiated jobs can only be scheduled when the app is in the foreground or in a state where launching an activity is allowed, as defined here. Attempting to schedule one outside of these conditions will return a JobScheduler.RESULT_FAILURE.</para>
+          <para>This should NOT be used for automatic features.</para>
+          <para>All user-initiated jobs must have an associated notification, set via JobService.setNotification(JobParameters,int,Notification,int), and will be shown in the Task Manager when running. These jobs cannot be rescheduled by the app if the user stops the job via system provided affordance (such as the Task Manager). Thus, it is best practice and recommended to provide action buttons in the associated notification to allow the user to stop the job gracefully and allow for rescheduling.</para>
+          <para>If the app doesn't hold the Manifest.permission.RUN_USER_INITIATED_JOBS permission when scheduling a user-initiated job, JobScheduler will throw a SecurityException.</para>
+          <para>In Build.VERSION_CODES.UPSIDE_DOWN_CAKE, user-initiated jobs can only be used for network data transfers. As such, they must specify a required network via setRequiredNetwork(NetworkRequest) or setRequiredNetworkType(int).</para>
+          <para>These jobs will not be subject to quotas and will be started immediately once scheduled if all constraints are met and the device system health allows for additional tasks. They are also given JobInfo.PRIORITY_MAX by default, and the priority cannot be changed. Requires Manifest.permission.RUN_USER_INITIATED_JOBS</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setUserInitiated(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setUserInitiated</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
