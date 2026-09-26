@@ -3269,7 +3269,8 @@ static class ImporterProgram
         }
 
         if (element.Name.LocalName != "para" ||
-            element.HasAttributes)
+            element.HasAttributes ||
+            !HasPlainTextOrInlineCodeContent(element))
             return [];
 
         var prose = NormalizeRemarksText(
@@ -4009,6 +4010,16 @@ static class ImporterProgram
         value = string.Concat(element.Nodes().OfType<XText>().Select(node => node.Value));
         return true;
     }
+
+    static bool HasPlainTextOrInlineCodeContent(XElement element) =>
+        element.Nodes().All(node => node switch
+        {
+            XText text when text is not XCData => true,
+            XElement child when child.Name.LocalName == "c" &&
+                !child.HasAttributes &&
+                HasPlainTextContent(child, out _) => true,
+            _ => false,
+        });
 
     static string NormalizeStaleNestedConstructorLinks(
         string text,
@@ -5810,6 +5821,13 @@ static class ImporterProgram
             inlineMarkupReplacement.Remarks?.Select(paragraph => paragraph.Text)
                 .SequenceEqual(["The exact JNI overload is required."]) == true,
             "remarks overlap recognizes existing source prose with inline markup");
+        var unsafeInlineMarkup = XElement.Parse(
+            "<para>Sets the <c>widget</c> title.<!-- authored comment --></para>");
+        Assert(
+            MatchingSourceFragmentIndexes(
+                unsafeInlineMarkup,
+                ExpandRemarksFragments(mappedDocs.Paragraphs)).Count == 0,
+            "remarks overlap does not treat comments as source prose");
         var partialOverlapDocs = mappedDocs with
         {
             Paragraphs =
