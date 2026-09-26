@@ -254,11 +254,17 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IExternalApproverRequestListener" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="deviceAddress">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">is the channel created at initialize(Context,Looper,ChannelListener). This value cannot be null.</param>
+        <param name="deviceAddress">the peer which is bound to the external approver. This value cannot be null.</param>
+        <param name="listener">for callback when the framework needs to notify the external approver. This value cannot be null.</param>
+        <summary>Set the external approver for a specific peer.</summary>
+        <remarks>
+          <para>Set the external approver for a specific peer. This API associates a specific peer with an approver. When an incoming request is received from a peer, an authorization request is routed to the attached approver. The approver then calls setConnectionRequestResult(Channel,MacAddress,int,ActionListener) to send the result to the WiFi service. A specific peer (identified by its MacAddress) can only be attached to a single approver. The previous approver will be detached once a new approver is attached. The approver will also be detached automatically when the channel is closed.</para>
+          <para>When an approver is attached, ExternalApproverRequestListener.onAttached(MacAddress) is called. When an approver is detached, ExternalApproverRequestListener.onDetached(MacAddress,int) is called. When an incoming request is received, ExternalApproverRequestListener.onConnectionRequested(int,WifiP2pConfig,WifiP2pDevice) is called. When a WPS PIN or a Wi-Fi Direct R2 pairing bootstrapping PIN is generated, ExternalApproverRequestListener.onPinGenerated(MacAddress,String) is called.</para>
+          <para>The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. Requires Manifest.permission.MANAGE_WIFI_NETWORK_SELECTION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#addExternalApprover(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.MacAddress,%20android.net.wifi.p2p.WifiP2pManager.ExternalApproverRequestListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.addExternalApprover</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddLocalService">
@@ -290,12 +296,18 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="servInfo">is a local service information.</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Register a local service for service discovery.</summary>
         <remarks>
+          <para>Register a local service for service discovery. If a local service is registered, the framework automatically responds to a service discovery request from a peer.</para>
+          <para>The function call immediately returns after sending a request to add a local service to the framework. The application is notified of a success or failure to add service through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>The service information is set through WifiP2pServiceInfo. or its subclass calls WifiP2pUpnpServiceInfo.newInstance or WifiP2pDnsSdServiceInfo.newInstance for a Upnp or Bonjour service respectively</para>
+          <para>The service information can be cleared with calls to removeLocalService(Channel, WifiP2pServiceInfo, ActionListener) or clearLocalServices(Channel, ActionListener).</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#addLocalService(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.nsd.WifiP2pServiceInfo,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.addLocalService</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
@@ -330,12 +342,18 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="req">is the service discovery request.</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Add a service discovery request.</summary>
         <remarks>
+          <para>Add a service discovery request.</para>
+          <para>The function call immediately returns after sending a request to add service discovery request to the framework. The application is notified of a success or failure to add service through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>The USD based service information are set in the service request through WifiP2pServiceRequest.WifiP2pServiceRequest(WifiP2pUsdBasedServiceConfig). Application must use isWiFiDirectR2Supported() to determine whether the device supports USD based service discovery. If isWiFiDirectR2Supported() return false then this method will throw UnsupportedOperationException for service request information containing USD service configuration.</para>
+          <para>After service discovery request is added, you can initiate service discovery by discoverServices(Channel, ActionListener).</para>
+          <para>The added service requests can be cleared with calls to removeServiceRequest(Channel,WifiP2pServiceRequest,ActionListener) or clearServiceRequests(Channel,ActionListener).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#addServiceRequest(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.nsd.WifiP2pServiceRequest,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.addServiceRequest</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
@@ -413,13 +431,16 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Cancel any ongoing p2p group negotiation
 
  </summary>
         <remarks>
+          <para>Cancel any ongoing p2p group negotiation</para>
+          <para>The function call immediately returns after sending a connection cancellation request to the framework. The application is notified of a success or failure to initiate cancellation through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#cancelConnect(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.cancelConnect</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 14" />
@@ -453,11 +474,14 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Clear all registered local services of service discovery.</summary>
         <remarks>
+          <para>Clear all registered local services of service discovery.</para>
+          <para>The function call immediately returns after sending a request to clear all local services to the framework. The application is notified of a success or failure to add service through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#clearLocalServices(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.clearLocalServices</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
@@ -491,11 +515,14 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Clear all registered service discovery requests.</summary>
         <remarks>
+          <para>Clear all registered service discovery requests.</para>
+          <para>The function call immediately returns after sending a request to clear all service discovery requests to the framework. The application is notified of a success or failure to add service through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#clearServiceRequests(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.clearServiceRequests</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
@@ -530,12 +557,20 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="config">options as described in <see cref="T:Android.Net.Wifi.P2p.WifiP2pConfig" /> class</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Start a p2p connection to a device with the specified configuration.</summary>
         <remarks>
+          <para>Start a p2p connection to a device with the specified configuration.</para>
+          <para>The function call immediately returns after sending a connection request to the framework. The application is notified of a success or failure to initiate connect through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>An app should use WifiP2pConfig.Builder to build the configuration for this API, ex. call WifiP2pConfig.Builder.setDeviceAddress(MacAddress) to set the peer MAC address and WifiP2pConfig.Builder.enablePersistentMode(boolean) to configure the persistent mode.</para>
+          <para>Register for WIFI_P2P_CONNECTION_CHANGED_ACTION intent to determine when the framework notifies of a change in connectivity.</para>
+          <para>If the current device is not part of a p2p group, a connect request initiates a group negotiation with the peer.</para>
+          <para>If the current device is part of an existing p2p group or has created a p2p group with createGroup(Channel, WifiP2pConfig, ActionListener), an invitation to join the group is sent to the peer device.</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#connect(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pConfig,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.connect</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 14" />
@@ -807,11 +842,17 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Create a p2p group with the current device as the group owner.</summary>
         <remarks>
+          <para>Create a p2p group with the current device as the group owner. This essentially creates an access point that can accept connections from legacy clients as well as other p2p devices.</para>
+          <para>Note: This function would normally not be used unless the current device needs to form a p2p connection with a legacy client</para>
+          <para>The function call immediately returns after sending a group creation request to the framework. The application is notified of a success or failure to initiate group creation through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>Application can request for the group details with requestGroupInfo(Channel, GroupInfoListener).</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#createGroup(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.createGroup</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 14" />
@@ -857,11 +898,20 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="config">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener). This value cannot be null.</param>
+        <param name="config">the configuration of a p2p group. This value may be null.</param>
+        <param name="listener">for callbacks on success or failure. Can be null.</param>
+        <summary>Create a p2p group with the current device as the group owner.</summary>
+        <remarks>
+          <para>Create a p2p group with the current device as the group owner. This essentially creates an access point that can accept connections from legacy clients as well as other p2p devices.</para>
+          <para>An app should use WifiP2pConfig.Builder to build the configuration for a group.</para>
+          <para>Note: This function would normally not be used unless the current device needs to form a p2p group as a Group Owner and allow peers to join it as either Group Clients or legacy Wi-Fi STAs.</para>
+          <para>The function call immediately returns after sending a group creation request to the framework. The application is notified of a success or failure to initiate group creation through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>Application can request for the group details with requestGroupInfo(Channel, GroupInfoListener).</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#createGroup(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pConfig,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.createGroup</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DiscoverPeers">
@@ -892,11 +942,17 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Initiate peer discovery.</summary>
         <remarks>
+          <para>Initiate peer discovery. A discovery process involves scanning for available Wi-Fi peers for the purpose of establishing a connection.</para>
+          <para>The function call immediately returns after sending a discovery request to the framework. The application is notified of a success or failure to initiate discovery through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>The discovery remains active until a connection is initiated or a p2p group is formed. Register for WIFI_P2P_PEERS_CHANGED_ACTION intent to determine when the framework notifies of a change as peers are discovered.</para>
+          <para>Upon receiving a WIFI_P2P_PEERS_CHANGED_ACTION intent, an application can request the list of peers using requestPeers(Channel, PeerListListener).</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#discoverPeers(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.discoverPeers</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 14" />
@@ -937,10 +993,19 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener) This value cannot be null.</param>
+        <param name="listener">for callbacks on success or failure. This value may be null.</param>
+        <summary>Scan only the social channels.</summary>
+        <remarks>
+          <para>Scan only the social channels. A discovery process involves scanning for available Wi-Fi peers for the purpose of establishing a connection.</para>
+          <para>The function call immediately returns after sending a discovery request to the framework. The application is notified of a success or failure to initiate discovery through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>The discovery remains active until a connection is initiated or a p2p group is formed. Register for WIFI_P2P_PEERS_CHANGED_ACTION intent to determine when the framework notifies of a change as peers are discovered.</para>
+          <para>Upon receiving a WIFI_P2P_PEERS_CHANGED_ACTION intent, an application can request the list of peers using requestPeers(Channel, PeerListListener).</para>
+          <para>The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para>Use isChannelConstrainedDiscoverySupported() to determine whether the device supports this feature. If isChannelConstrainedDiscoverySupported() return false then this method will throw UnsupportedOperationException.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#discoverPeersOnSocialChannels(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.discoverPeersOnSocialChannels</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DiscoverPeersOnSpecificFrequency">
@@ -979,11 +1044,20 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="frequencyMhz">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener) This value cannot be null.</param>
+        <param name="frequencyMhz">is the frequency of the channel to use for peer discovery.</param>
+        <param name="listener">for callbacks on success or failure. This value may be null.</param>
+        <summary>Scan only a single channel specified by frequency.</summary>
+        <remarks>
+          <para>Scan only a single channel specified by frequency. A discovery process involves scanning for available Wi-Fi peers for the purpose of establishing a connection.</para>
+          <para>The function call immediately returns after sending a discovery request to the framework. The application is notified of a success or failure to initiate discovery through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>The discovery remains active until a connection is initiated or a p2p group is formed. Register for WIFI_P2P_PEERS_CHANGED_ACTION intent to determine when the framework notifies of a change as peers are discovered.</para>
+          <para>Upon receiving a WIFI_P2P_PEERS_CHANGED_ACTION intent, an application can request the list of peers using requestPeers(Channel, PeerListListener).</para>
+          <para>The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para>Use isChannelConstrainedDiscoverySupported() to determine whether the device supports this feature. If isChannelConstrainedDiscoverySupported() return false then this method will throw UnsupportedOperationException.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#discoverPeersOnSpecificFrequency(android.net.wifi.p2p.WifiP2pManager.Channel,%20int,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.discoverPeersOnSpecificFrequency</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DiscoverServices">
@@ -1014,11 +1088,17 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Initiate service discovery.</summary>
         <remarks>
+          <para>Initiate service discovery. A discovery process involves scanning for requested services for the purpose of establishing a connection to a peer that supports an available service.</para>
+          <para>The function call immediately returns after sending a request to start service discovery to the framework. The application is notified of a success or failure to initiate discovery through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>The services to be discovered are specified with calls to addServiceRequest(Channel, WifiP2pServiceRequest, ActionListener).</para>
+          <para>The application is notified of the response against the service discovery request through listener callbacks registered by setServiceResponseListener(Channel, ServiceResponseListener) or setDnsSdResponseListeners(Channel, DnsSdServiceResponseListener, DnsSdTxtRecordListener), or setUpnpServiceResponseListener(Channel, UpnpServiceResponseListener).</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#discoverServices(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.discoverServices</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
@@ -1060,11 +1140,20 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="config">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener) This value cannot be null.</param>
+        <param name="config">is the configuration for this USD based service discovery. This value cannot be null.</param>
+        <param name="listener">for callbacks on success or failure. Can be null.</param>
+        <summary>Initiate Un-synchronized service discovery (USD) based service discovery.</summary>
+        <remarks>
+          <para>Initiate Un-synchronized service discovery (USD) based service discovery. A discovery process involves scanning for requested services for the purpose of establishing a connection to a peer that supports an available service using USD protocol. This method accepts a WifiP2pUsdBasedServiceDiscoveryConfig object specifying the desired parameters for the service discovery. The configuration object allows to specify either a band or frequency list to scan for service.</para>
+          <para>The function call immediately returns after sending a request to start service discovery to the framework. The application is notified of a success or failure to initiate discovery through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>The USD based services to be discovered are specified with calls to addServiceRequest(Channel, WifiP2pServiceRequest, ActionListener) with the service request information set through WifiP2pServiceRequest.WifiP2pServiceRequest(WifiP2pUsdBasedServiceConfig)</para>
+          <para>The application is notified of the response against the service discovery request via ServiceResponseListener.onUsdBasedServiceAvailable(WifiP2pDevice,WifiP2pUsdBasedServiceResponse) listener callback registered by setServiceResponseListener(Channel,ServiceResponseListener).</para>
+          <para>Use isWiFiDirectR2Supported() to determine whether the device supports this feature. If isWiFiDirectR2Supported() return false then this method will throw UnsupportedOperationException.</para>
+          <para>The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#discoverUsdBasedServices(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pUsdBasedServiceDiscoveryConfig,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.discoverUsdBasedServices</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Error">
@@ -1538,11 +1627,18 @@
         <Parameter Name="resultsCallback" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="resultsCallback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">It is the channel created at initialize(Context, Looper, ChannelListener). This value cannot be null.</param>
+        <param name="executor">The executor on which callback will be invoked. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="resultsCallback">A callback that will return listen state WIFI_P2P_LISTEN_STOPPED or WIFI_P2P_LISTEN_STARTED This value cannot be null.</param>
+        <summary>Get p2p listen state.</summary>
+        <remarks>
+          <para>Get p2p listen state.</para>
+          <para>This state indicates whether p2p listen has started or stopped. The valid value is one of WIFI_P2P_LISTEN_STOPPED or WIFI_P2P_LISTEN_STARTED.</para>
+          <para>This state is also included in the ACTION_WIFI_P2P_LISTEN_STATE_CHANGED broadcast event with extra EXTRA_LISTEN_STATE.</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#getListenState(android.net.wifi.p2p.WifiP2pManager.Channel,%20java.util.concurrent.Executor,%20java.util.function.Consumer&lt;java.lang.Integer&gt;)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.getListenState</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GroupCreationFailureReasonConnectionCancelled">
@@ -1854,8 +1950,10 @@
         <param name="srcLooper">is the Looper on which the callbacks are receivied</param>
         <param name="listener">for callback at loss of framework communication. Can be null.</param>
         <summary>Registers the application with the Wi-Fi framework.</summary>
-        <returns>To be added.</returns>
+        <returns>Channel instance that is necessary for performing any further p2p operations</returns>
         <remarks>
+          <para>Registers the application with the Wi-Fi framework. This function must be the first to be called before any p2p operations are performed.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#initialize(android.content.Context,%20android.os.Looper,%20android.net.wifi.p2p.WifiP2pManager.ChannelListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.initialize</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 14" />
@@ -2386,10 +2484,14 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IWifiP2pListener" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">the Executor on which to execute the callbacks. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="listener">listener for the Wi-Fi p2p connection changes. This value cannot be null.</param>
+        <summary>Add a listener to listen to Wi-Fi p2p various changes.</summary>
+        <remarks>
+          <para>Add a listener to listen to Wi-Fi p2p various changes.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#registerWifiP2pListener(java.util.concurrent.Executor,%20android.net.wifi.p2p.WifiP2pManager.WifiP2pListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.registerWifiP2pListener</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveClient">
@@ -2428,11 +2530,18 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="peerAddress">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener) This value cannot be null.</param>
+        <param name="peerAddress">MAC address of the client. This value cannot be null.</param>
+        <param name="listener">for callbacks on success or failure. Can be null.</param>
+        <summary>Remove the client with the MAC address from the group.</summary>
+        <remarks>
+          <para>Remove the client with the MAC address from the group.</para>
+          <para>The function call immediately returns after sending a client removal request to the framework. The application is notified of a success or failure to initiate client removal through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>The callbacks are triggered on the thread specified when initializing the channel, see initialize(Context, Looper, ChannelListener).</para>
+          <para>Use isGroupClientRemovalSupported() to determine whether the device supports this feature. If isGroupClientRemovalSupported() return false then this method will throw UnsupportedOperationException.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#removeClient(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.MacAddress,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.removeClient</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveExternalApprover">
@@ -2475,11 +2584,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="deviceAddress">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">is the channel created at initialize(Context,Looper,ChannelListener). This value cannot be null.</param>
+        <param name="deviceAddress">the peer which is bound to the external approver. This value cannot be null.</param>
+        <param name="listener">for callback on success or failure. This value may be null.</param>
+        <summary>Remove the external approver for a specific peer.</summary>
+        <remarks>
+          <para>Remove the external approver for a specific peer. The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. Requires Manifest.permission.MANAGE_WIFI_NETWORK_SELECTION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#removeExternalApprover(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.MacAddress,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.removeExternalApprover</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveGroup">
@@ -2510,11 +2623,14 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Remove the current p2p group.</summary>
         <remarks>
+          <para>Remove the current p2p group.</para>
+          <para>The function call immediately returns after sending a group removal request to the framework. The application is notified of a success or failure to initiate group removal through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#removeGroup(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.removeGroup</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 14" />
@@ -2549,12 +2665,15 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="servInfo">is the local service information.</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Remove a registered local service added with <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='M:Android Net Wifi P2p WifiP2pManager AddLocalService( Channel,Android Net Wifi P2p Nsd WifiP2pServiceInfo,Android Net Wifi P2p Nsd WifiP2pServiceInfo)';scope=Xamarin" title="M:Android.Net.Wifi.P2p.WifiP2pManager.AddLocalService(.Channel,Android.Net.Wifi.P2p.Nsd.WifiP2pServiceInfo,Android.Net.Wifi.P2p.Nsd.WifiP2pServiceInfo)">M:Android.Net.Wifi.P2p.WifiP2pManager.AddLocalService(.Channel,Android.Net.Wifi.P2p.Nsd.WifiP2pServiceInfo,Android.Net.Wifi.P2p.Nsd.WifiP2pServiceInfo)</a></format></summary>
         <remarks>
+          <para>Remove a registered local service added with addLocalService(Channel, WifiP2pServiceInfo, ActionListener)</para>
+          <para>The function call immediately returns after sending a request to remove a local service to the framework. The application is notified of a success or failure to add service through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#removeLocalService(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.nsd.WifiP2pServiceInfo,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.removeLocalService</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
@@ -2589,12 +2708,15 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="req">is the service discovery request.</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
-        <summary ToolPath="Untrimmed" tool="FirstSentenceInLongSummaries">To be added.</summary>
+        <summary ToolPath="Untrimmed" tool="FirstSentenceInLongSummaries">Remove a specified service discovery request added with addServiceRequest(Channel, WifiP2pServiceRequest, ActionListener)</summary>
         <remarks>
+          <para>Remove a specified service discovery request added with addServiceRequest(Channel, WifiP2pServiceRequest, ActionListener)</para>
+          <para>The function call immediately returns after sending a request to remove service discovery request to the framework. The application is notified of a success or failure to add service through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#removeServiceRequest(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.nsd.WifiP2pServiceRequest,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.removeServiceRequest</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
@@ -2628,11 +2750,13 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IConnectionInfoListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callback when connection info is available. Can be null.
 </param>
         <summary>Request device connection info.</summary>
         <remarks>
+          <para>Request device connection info.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#requestConnectionInfo(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.requestConnectionInfo</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 14" />
@@ -2666,10 +2790,19 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IDeviceInfoListener" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">is the channel created at initialize(Context,Looper,ChannelListener). This value cannot be null.</param>
+        <param name="listener">for callback when network info is available. This value cannot be null.</param>
+        <summary>Request Device Info</summary>
+        <remarks>
+          <para>Request Device Info</para>
+          <para>This method provides the device info in the form of a WifiP2pDevice. Valid WifiP2pDevice is returned when p2p is enabled. To get information notifications on P2P getting enabled refers WIFI_P2P_STATE_ENABLED.</para>
+          <para>This WifiP2pDevice is returned using the DeviceInfoListener listener.</para>
+          <para>WifiP2pDevice.deviceAddress is only available if the caller holds the android.Manifest.permission#LOCAL_MAC_ADDRESS permission, and holds the anonymized MAC address (02:00:00:00:00:00) otherwise.</para>
+          <para>This information is also included in the WIFI_P2P_THIS_DEVICE_CHANGED_ACTION broadcast event with extra EXTRA_WIFI_P2P_DEVICE.</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#requestDeviceInfo(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.DeviceInfoListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.requestDeviceInfo</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestDirInfo">
@@ -2701,11 +2834,17 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">It is the channel created at initialize(Context, Looper, ChannelListener). This value cannot be null.</param>
+        <param name="executor">The executor on which callback will be invoked. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">An OutcomeReceiver callback for receiving WifiP2pDirInfo via OutcomeReceiver.onResult(Object). This callback will return null when DIR info doesn't exist. When this API call fails due to permission issues, state machine is busy etc., OutcomeReceiver.onError(Throwable) is called.</param>
+        <summary>Get the Device Identity Resolution (DIR) Information.</summary>
+        <remarks>
+          <para>Get the Device Identity Resolution (DIR) Information. See WifiP2pDirInfo for details Note: The results callback returns null if the device doesn't have any persistent group with device identity key information.</para>
+          <para>Use isWiFiDirectR2Supported() to determine whether the device supports this feature. If isWiFiDirectR2Supported() return false then this method will throw UnsupportedOperationException.</para>
+          <para>The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#requestDirInfo(android.net.wifi.p2p.WifiP2pManager.Channel,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;android.net.wifi.p2p.WifiP2pDirInfo,java.lang.Exception&gt;)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.requestDirInfo</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestDiscoveryState">
@@ -2736,10 +2875,16 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IDiscoveryStateListener" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">is the channel created at initialize(Context, Looper, ChannelListener). This value cannot be null.</param>
+        <param name="listener">for callback when discovery state is available. This value cannot be null.</param>
+        <summary>Request p2p discovery state.</summary>
+        <remarks>
+          <para>Request p2p discovery state.</para>
+          <para>This state indicates whether p2p discovery has started or stopped. The valid value is one of WIFI_P2P_DISCOVERY_STARTED or WIFI_P2P_DISCOVERY_STOPPED. The state is returned using the DiscoveryStateListener listener.</para>
+          <para>This state is also included in the WIFI_P2P_DISCOVERY_CHANGED_ACTION broadcast event with extra EXTRA_DISCOVERY_STATE.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#requestDiscoveryState(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.DiscoveryStateListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.requestDiscoveryState</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestGroupInfo">
@@ -2770,11 +2915,14 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IGroupInfoListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callback when group info is available. Can be null.
 </param>
         <summary>Request p2p group info.</summary>
         <remarks>
+          <para>Request p2p group info.</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#requestGroupInfo(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.GroupInfoListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.requestGroupInfo</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 14" />
@@ -2808,10 +2956,16 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+INetworkInfoListener" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">is the channel created at initialize(Context, Looper, ChannelListener). This value cannot be null.</param>
+        <param name="listener">for callback when network info is available. This value cannot be null.</param>
+        <summary>Request network info.</summary>
+        <remarks>
+          <para>Request network info.</para>
+          <para>This method provides the network info in the form of a NetworkInfo. NetworkInfo.isAvailable() indicates the p2p availability and NetworkInfo.getDetailedState() reports the current fine-grained state of the network. This NetworkInfo is returned using the NetworkInfoListener listener.</para>
+          <para>This information is also included in the WIFI_P2P_CONNECTION_CHANGED_ACTION broadcast event with extra EXTRA_NETWORK_INFO.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#requestNetworkInfo(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.NetworkInfoListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.requestNetworkInfo</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestP2pState">
@@ -2842,10 +2996,16 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IP2pStateListener" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">is the channel created at initialize(Context, Looper, ChannelListener). This value cannot be null.</param>
+        <param name="listener">for callback when p2p state is available. This value cannot be null.</param>
+        <summary>Request p2p enabled state.</summary>
+        <remarks>
+          <para>Request p2p enabled state.</para>
+          <para>This state indicates whether Wi-Fi p2p is enabled or disabled. The valid value is one of WIFI_P2P_STATE_DISABLED or WIFI_P2P_STATE_ENABLED. The state is returned using the P2pStateListener listener.</para>
+          <para>This state is also included in the WIFI_P2P_STATE_CHANGED_ACTION broadcast event with extra EXTRA_WIFI_STATE.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#requestP2pState(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.P2pStateListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.requestP2pState</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestPeers">
@@ -2876,11 +3036,14 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IPeerListListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callback when peer list is available. Can be null.
 </param>
         <summary>Request the current list of peers.</summary>
         <remarks>
+          <para>Request the current list of peers.</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#requestPeers(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.PeerListListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.requestPeers</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 14" />
@@ -2934,12 +3097,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="deviceAddress">To be added.</param>
-        <param name="result">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">is the channel created at initialize(Context,Looper,ChannelListener). This value cannot be null.</param>
+        <param name="deviceAddress">the peer which is bound to the external approver. This value cannot be null.</param>
+        <param name="result">the response for the incoming request. Value is one of the following: CONNECTION_REQUEST_ACCEPT; CONNECTION_REQUEST_REJECT; CONNECTION_REQUEST_DEFER_TO_SERVICE; CONNECTION_REQUEST_DEFER_SHOW_PIN_TO_SERVICE; CONNECTION_REQUEST_DEFER_SHOW_PASSWORD_TO_SERVICE</param>
+        <param name="listener">for callback on success or failure. This value may be null.</param>
+        <summary>Set the result for the incoming request from a specific peer.</summary>
+        <remarks>
+          <para>Set the result for the incoming request from a specific peer. The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. Requires Manifest.permission.MANAGE_WIFI_NETWORK_SELECTION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#setConnectionRequestResult(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.MacAddress,%20int,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.setConnectionRequestResult</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetConnectionRequestResult">
@@ -2998,13 +3165,17 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="deviceAddress">To be added.</param>
-        <param name="result">To be added.</param>
-        <param name="pinOrPassword">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">is the channel created at initialize(Context,Looper,ChannelListener). This value cannot be null.</param>
+        <param name="deviceAddress">the peer which is bound to the external approver. This value cannot be null.</param>
+        <param name="result">the response for the incoming request. Value is one of the following: CONNECTION_REQUEST_ACCEPT; CONNECTION_REQUEST_REJECT; CONNECTION_REQUEST_DEFER_TO_SERVICE; CONNECTION_REQUEST_DEFER_SHOW_PIN_TO_SERVICE; CONNECTION_REQUEST_DEFER_SHOW_PASSWORD_TO_SERVICE</param>
+        <param name="pinOrPassword">the WPS PIN or Wi-Fi Direct R2 pairing bootstrapping PIN/Password for the incoming request. This value may be null.</param>
+        <param name="listener">for callback on success or failure. This value may be null.</param>
+        <summary>Set the result with PIN for the incoming request from a specific peer.</summary>
+        <remarks>
+          <para>Set the result with PIN for the incoming request from a specific peer. The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. Requires Manifest.permission.MANAGE_WIFI_NETWORK_SELECTION</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#setConnectionRequestResult(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.MacAddress,%20int,%20java.lang.String,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.setConnectionRequestResult</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetDnsSdResponseListeners">
@@ -3076,10 +3247,13 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IServiceResponseListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
+        <param name="listener">for callbacks on receiving service discovery response.</param>
+        <summary>Register a callback to be invoked on receiving service discovery response.</summary>
         <remarks>
+          <para>Register a callback to be invoked on receiving service discovery response. Used only for vendor specific protocol right now. For Bonjour or Upnp, use setDnsSdResponseListeners(Channel, DnsSdServiceResponseListener, DnsSdTxtRecordListener) or setUpnpServiceResponseListener(Channel, UpnpServiceResponseListener) respectively.</para>
+          <para>see discoverServices(Channel, ActionListener) for the detail.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#setServiceResponseListener(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ServiceResponseListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.setServiceResponseListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -3112,12 +3286,15 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IUpnpServiceResponseListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callbacks on receiving service discovery response.
 </param>
         <summary>Register a callback to be invoked on receiving upnp service discovery
  response.</summary>
         <remarks>
+          <para>Register a callback to be invoked on receiving upnp service discovery response.</para>
+          <para>see discoverServices(Channel, ActionListener) for the detail.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#setUpnpServiceResponseListener(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.UpnpServiceResponseListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.setUpnpServiceResponseListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
@@ -3159,11 +3336,19 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="vendorElements">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">is the channel created at initialize(Context,Looper,ChannelListener). This value cannot be null.</param>
+        <param name="vendorElements">application information as vendor-specific information elements. This value cannot be null.</param>
+        <param name="listener">for callback when network info is available. This value may be null.</param>
+        <summary>Set/Clear vendor specific information elements (VSIEs) to be published during Wi-Fi Direct (P2P) discovery.</summary>
+        <remarks>
+          <para>Set/Clear vendor specific information elements (VSIEs) to be published during Wi-Fi Direct (P2P) discovery. Once Channel.close() is called, the vendor information elements will be cleared from framework. The information element format is defined in the IEEE 802.11-2016 spec Table 9-77.</para>
+          <para>To clear the previously set vendor elements, call this API with an empty List.</para>
+          <para>The maximum accumulated length of all VSIEs must be before the limit specified by getP2pMaxAllowedVendorElementsLengthBytes().</para>
+          <para>To publish vendor elements, this API should be called before peer discovery API, ex. discoverPeers(Channel,ActionListener).</para>
+          <para>Use isSetVendorElementsSupported() to determine whether the device supports this feature. If isSetVendorElementsSupported() return false then this method will throw UnsupportedOperationException. Requires Manifest.permission.NEARBY_WIFI_DEVICES and Manifest.permission.OVERRIDE_WIFI_CONFIG</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#setVendorElements(android.net.wifi.p2p.WifiP2pManager.Channel,%20java.util.List&lt;android.net.wifi.ScanResult.InformationElement&gt;,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.setVendorElements</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetWfdInfo">
@@ -3206,11 +3391,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="wfdInfo">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener) This value cannot be null.</param>
+        <param name="wfdInfo">the Wifi Display information to set. This value cannot be null.</param>
+        <param name="listener">for callbacks on success or failure. Can be null.</param>
+        <summary>Set Wifi Display information.</summary>
+        <remarks>
+          <para>Set Wifi Display information. Requires Manifest.permission.CONFIGURE_WIFI_DISPLAY</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#setWfdInfo(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pWfdInfo,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.setWfdInfo</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StartListening">
@@ -3248,10 +3437,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="channel">is the channel created at initialize(Context,Looper,ChannelListener) This value cannot be null.</param>
+        <param name="listener">for callbacks on success or failure. This value may be null.</param>
+        <summary>Force p2p to enter listen state.</summary>
+        <remarks>
+          <para>Force p2p to enter listen state. When this API is called, this device will periodically enter LISTENING state until stopListening(Channel,ActionListener) or stopPeerDiscovery(Channel,ActionListener) are called. While in LISTENING state, this device will dwell at its social channel and respond to probe requests from other Wi-Fi Direct peers.</para>
+          <para>If targeting Build.VERSION_CODES.TIRAMISU or later, the application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION. If targeting an earlier release than Build.VERSION_CODES.TIRAMISU, the application must have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#startListening(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.startListening</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StartPeerDiscovery">
@@ -3290,11 +3484,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="config">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener) This value cannot be null.</param>
+        <param name="config">is the configuration for this peer discovery. This value cannot be null.</param>
+        <param name="listener">for callbacks on success or failure. This value may be null.</param>
+        <summary>Initiate peer discovery.</summary>
+        <remarks>
+          <para>Initiate peer discovery. A discovery process involves scanning for available Wi-Fi peers for the purpose of establishing a connection. See discoverPeers(Channel,ActionListener) for more details. This method accepts a WifiP2pDiscoveryConfig object specifying the desired parameters for the peer discovery. The configuration object allows the specification of the scan type (ex. FULL, SOCIAL) and the inclusion of vendor-specific configuration data. The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#startPeerDiscovery(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pDiscoveryConfig,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.startPeerDiscovery</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StartUsdBasedLocalServiceAdvertisement">
@@ -3334,12 +3532,21 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="servInfo">To be added.</param>
-        <param name="config">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener) This value cannot be null.</param>
+        <param name="servInfo">is a local service information. This value cannot be null.</param>
+        <param name="config">is the configuration for this service discovery advertisement. This value cannot be null.</param>
+        <param name="listener">for callbacks on success or failure. Can be null.</param>
+        <summary>Start a service discovery advertisement using Un-synchronized service discovery (USD).</summary>
+        <remarks>
+          <para>Start a service discovery advertisement using Un-synchronized service discovery (USD). Once startUsdBasedLocalServiceAdvertisement(Channel,WifiP2pServiceInfo,WifiP2pUsdBasedLocalServiceAdvertisementConfig,ActionListener) is called, the device will go to the channel frequency requested via WifiP2pUsdBasedLocalServiceAdvertisementConfig and responds to a service discovery request from a peer.</para>
+          <para>The service information is set through WifiP2pServiceInfo.WifiP2pServiceInfo(WifiP2pUsdBasedServiceConfig)</para>
+          <para>The function call immediately returns after sending a request to start the service advertisement to the framework. The application is notified of a success or failure to start service advertisement through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>The service information can be cleared with calls to removeLocalService(Channel, WifiP2pServiceInfo, ActionListener) or clearLocalServices(Channel, ActionListener).</para>
+          <para>Use isWiFiDirectR2Supported() to determine whether the device supports this feature. If isWiFiDirectR2Supported() return false then this method will throw UnsupportedOperationException.</para>
+          <para>The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#startUsdBasedLocalServiceAdvertisement(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.nsd.WifiP2pServiceInfo,%20android.net.wifi.p2p.WifiP2pUsdBasedLocalServiceAdvertisementConfig,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.startUsdBasedLocalServiceAdvertisement</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StopListening">
@@ -3377,10 +3584,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="channel">is the channel created at initialize(Context,Looper,ChannelListener) This value cannot be null.</param>
+        <param name="listener">for callbacks on success or failure. This value may be null.</param>
+        <summary>Force p2p to exit listen state.</summary>
+        <remarks>
+          <para>Force p2p to exit listen state. When this API is called, this device will stop entering LISTENING state periodically which is triggered by startListening(Channel,ActionListener). If there are running peer discovery which is triggered by discoverPeers(Channel,ActionListener) or running service discovery which is triggered by discoverServices(Channel,ActionListener), they will be stopped as well.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#stopListening(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.stopListening</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StopPeerDiscovery">
@@ -3411,13 +3622,17 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IActionListener" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
+        <param name="channel">is the channel created at initialize(Context, Looper, ChannelListener)</param>
         <param name="listener">for callbacks on success or failure. Can be null.
 </param>
         <summary>Stop an ongoing peer discovery
 
  </summary>
         <remarks>
+          <para>Stop an ongoing peer discovery</para>
+          <para>The function call immediately returns after sending a stop request to the framework. The application is notified of a success or failure to initiate stop through listener callbacks ActionListener.onSuccess or ActionListener.onFailure.</para>
+          <para>If P2P Group is in the process of being created, this call will fail (report failure via listener. The applicantion should listen to WIFI_P2P_CONNECTION_CHANGED_ACTION to ensure the state is not NetworkInfo.State.CONNECTING and repeat calling when the state changes.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#stopPeerDiscovery(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pManager.ActionListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.stopPeerDiscovery</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
@@ -3512,9 +3727,13 @@
         <Parameter Name="listener" Type="Android.Net.Wifi.P2p.WifiP2pManager+IWifiP2pListener" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="listener">the listener to be removed. This value cannot be null.</param>
+        <summary>Remove a listener added using registerWifiP2pListener(Executor,WifiP2pListener)</summary>
+        <remarks>
+          <para>Remove a listener added using registerWifiP2pListener(Executor,WifiP2pListener)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#unregisterWifiP2pListener(android.net.wifi.p2p.WifiP2pManager.WifiP2pListener)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.unregisterWifiP2pListener</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ValidateDirInfo">
@@ -3547,12 +3766,18 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="dirInfo">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">It is the channel created at initialize(Context, Looper, ChannelListener). This value cannot be null.</param>
+        <param name="dirInfo">WifiP2pDirInfo to validate. This value cannot be null.</param>
+        <param name="executor">The executor on which callback will be invoked. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">An OutcomeReceiver callback for receiving the result via OutcomeReceiver.onResult(Object) indicating whether the DIR info of P2P device is of a paired device. {code true} for paired, false for not paired. When this API call fails due to permission issues, state machine is busy etc., OutcomeReceiver.onError(Throwable) is called. This value cannot be null.</param>
+        <summary>Validate the Device Identity Resolution (DIR) Information of a P2P device.</summary>
+        <remarks>
+          <para>Validate the Device Identity Resolution (DIR) Information of a P2P device. See WifiP2pDirInfo for details. Framework takes the WifiP2pDirInfo and derives a set of Tag values based on the cached Device Identity Keys (DevIK) of all paired peers saved in the device. If a derived Tag value matches the Tag value received in the WifiP2pDirInfo, the device is identified as a paired peer and returns true.</para>
+          <para>Use isWiFiDirectR2Supported() to determine whether the device supports this feature. If isWiFiDirectR2Supported() return false then this method will throw UnsupportedOperationException.</para>
+          <para>The application must have Manifest.permission.NEARBY_WIFI_DEVICES with android:usesPermissionFlags="neverForLocation". If the application does not declare android:usesPermissionFlags="neverForLocation", then it must also have Manifest.permission.ACCESS_FINE_LOCATION.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager#validateDirInfo(android.net.wifi.p2p.WifiP2pManager.Channel,%20android.net.wifi.p2p.WifiP2pDirInfo,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;java.lang.Boolean,java.lang.Exception&gt;)" title="Reference documentation">Android reference for <code>android.net.wifi.p2p.WifiP2pManager.validateDirInfo</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WifiP2pConnectionChangedAction">
