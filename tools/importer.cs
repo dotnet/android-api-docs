@@ -3273,8 +3273,7 @@ static class ImporterProgram
             !HasPlainTextOrInlineCodeContent(element))
             return [];
 
-        var prose = NormalizeRemarksText(
-            element.ToString(SaveOptions.DisableFormatting));
+        var prose = NormalizeText(element.Value);
         return sourceFragments
             .Select((fragment, index) => (fragment, index))
             .Where(item => !item.fragment.IsCode &&
@@ -5806,7 +5805,7 @@ static class ImporterProgram
                 .SequenceEqual(["The exact JNI overload is required."]) == true,
             "remarks placeholders retain source prose not already documented");
         var inlineMarkupRemarks = XElement.Parse(
-            "<remarks><para>Sets the <c>widget</c> title.</para><para>To be added.</para></remarks>");
+            "<remarks><para>Sets the widget <c>title</c>.</para><para>To be added.</para></remarks>");
         var inlineMarkupPlaceholder = Placeholder.Create(
             inlineMarkupRemarks.Elements("para").Last(),
             0);
@@ -5820,7 +5819,7 @@ static class ImporterProgram
         Assert(
             inlineMarkupReplacement.Remarks?.Select(paragraph => paragraph.Text)
                 .SequenceEqual(["The exact JNI overload is required."]) == true,
-            "remarks overlap recognizes existing source prose with inline markup");
+            "remarks overlap recognizes punctuation-adjacent inline markup");
         var unsafeInlineMarkup = XElement.Parse(
             "<para>Sets the <c>widget</c> title.<!-- authored comment --></para>");
         Assert(
