@@ -5794,6 +5794,22 @@ static class ImporterProgram
             duplicateSummaryReplacement.Remarks?.Select(paragraph => paragraph.Text)
                 .SequenceEqual(["The exact JNI overload is required."]) == true,
             "remarks placeholders retain source prose not already documented");
+        var inlineMarkupRemarks = XElement.Parse(
+            "<remarks><para>Sets the <c>widget</c> title.</para><para>To be added.</para></remarks>");
+        var inlineMarkupPlaceholder = Placeholder.Create(
+            inlineMarkupRemarks.Elements("para").Last(),
+            0);
+        var inlineMarkupReplacement = LimitOverlappingRemarksReplacement(
+            inlineMarkupPlaceholder,
+            mappedDocs,
+            ReplacementFor(
+                inlineMarkupPlaceholder,
+                mappedDocs),
+            inlineMarkupRemarks);
+        Assert(
+            inlineMarkupReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual(["The exact JNI overload is required."]) == true,
+            "remarks overlap recognizes existing source prose with inline markup");
         var partialOverlapDocs = mappedDocs with
         {
             Paragraphs =
@@ -8244,6 +8260,11 @@ static class ImporterProgram
             SourcePage.HtmlText("<p>Use <code>for (;;) { process(); }</code> for a processing loop.</p>") ==
                 "Use for (;;) { process(); } for a processing loop.",
             "inline Java code semicolons are preserved");
+        Assert(
+            SourcePage.HtmlText(
+                "<p>Use the following code:<button type=\"button\">Copy</button></p>") ==
+                "Use the following code:",
+            "Javadoc button controls are excluded from prose");
         Assert(
             SourcePage.HtmlText(
                 "<p>Supported loops:</p><ul><li><code>for (;;) { process(); }</code></li></ul><p>continue.</p>") ==
