@@ -40,7 +40,14 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Timestamp is synchronized to choreographer.</para>
+          <para>The timestamp of the output images are overridden with choreographer pulses from the display subsystem for smoother display of camera frames. An output target of SurfaceView uses this time base by default. Note that the timestamp override is done for fixed camera frame rate only.</para>
+          <para>This timestamp base isn't applicable to SurfaceTexture targets. SurfaceTexture's updateTexImage function always uses the latest image from the camera stream. In the case of a TextureView, the image is displayed right away.</para>
+          <para>Timestamps with this time base cannot directly match the timestamps in CameraCaptureSession.CaptureCallback.onCaptureStarted, CameraCaptureSession.CaptureCallback.onReadoutStarted, or the sensor timestamps in CaptureResult. This timestamp base shouldn't be used if the timestamp needs to be used for audio-video synchronization.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#TIMESTAMP_BASE_CHOREOGRAPHER_SYNCED" title="Reference documentation">Android reference for <code>android.hardware.camera2.params.OutputConfiguration.TIMESTAMP_BASE_CHOREOGRAPHER_SYNCED</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Default">
@@ -68,7 +75,13 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Default timestamp base.</para>
+          <para>The camera device decides the timestamp based on the properties of the output surface.</para>
+          <para>Note that the reduction of frame jitter for SurfaceView and SurfaceTexture comes with slight increase in photon-to-photon latency, which is the time from when photons hit the scene to when the corresponding pixels show up on the screen. If the photon-to-photon latency is more important than the smoothness of viewfinder, TIMESTAMP_BASE_SENSOR should be used instead.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#TIMESTAMP_BASE_DEFAULT" title="Reference documentation">Android reference for <code>android.hardware.camera2.params.OutputConfiguration.TIMESTAMP_BASE_DEFAULT</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Monotonic">
@@ -96,7 +109,13 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Timestamp base roughly the same as SystemClock.uptimeMillis().</para>
+          <para>The timestamps of the output images are monotonically increasing, and are roughly in the same time base as SystemClock.uptimeMillis(). The timestamps with this time base can be directly used for audio-video sync in video recording.</para>
+          <para>If the camera device's CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE is REALTIME, timestamps with this time base cannot directly match the timestamps in CameraCaptureSession.CaptureCallback.onCaptureStarted, CameraCaptureSession.CaptureCallback.onReadoutStarted, or the sensor timestamps in CaptureResult.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#TIMESTAMP_BASE_MONOTONIC" title="Reference documentation">Android reference for <code>android.hardware.camera2.params.OutputConfiguration.TIMESTAMP_BASE_MONOTONIC</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Realtime">
@@ -124,7 +143,14 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Timestamp base roughly the same as SystemClock.elapsedRealtime().</para>
+          <para>The timestamps of the output images are roughly in the same time base as SystemClock.elapsedRealtime(). The timestamps with this time base cannot be directly used for audio-video sync in video recording.</para>
+          <para>If the camera device's CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE is UNKNOWN, timestamps with this time base cannot directly match the timestamps in CameraCaptureSession.CaptureCallback.onCaptureStarted, CameraCaptureSession.CaptureCallback.onReadoutStarted, or the sensor timestamps in CaptureResult.</para>
+          <para>If using a REALTIME timestamp base on a device that supports only TIMESTAMP_SOURCE_UNKNOWN, the accuracy of timestamps is only what is guaranteed in the documentation for UNKNOWN. In particular, they have no guarantees about being accurate enough to use in fusing image data with the output of inertial sensors, for features such as image stabilization or augmented reality.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#TIMESTAMP_BASE_REALTIME" title="Reference documentation">Android reference for <code>android.hardware.camera2.params.OutputConfiguration.TIMESTAMP_BASE_REALTIME</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Sensor">
@@ -152,7 +178,12 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Timestamp base of CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE.</para>
+          <para>The timestamps of the output images are in the time base as specified by CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE. The application can look up the corresponding result metadata by matching the timestamp with a CameraCaptureSession.CaptureCallback.onCaptureStarted, or with a CameraCaptureSession.CaptureCallback.onReadoutStarted if readout timestamp is used.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/params/OutputConfiguration#TIMESTAMP_BASE_SENSOR" title="Reference documentation">Android reference for <code>android.hardware.camera2.params.OutputConfiguration.TIMESTAMP_BASE_SENSOR</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
   </Members>
