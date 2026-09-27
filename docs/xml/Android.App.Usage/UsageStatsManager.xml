@@ -380,10 +380,17 @@
         <Parameter Name="query" Type="Android.App.Usage.AppUsageDurationQuery" />
       </Parameters>
       <Docs>
-        <param name="query">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="query">the AppUsageDurationQuery used to specify the query parameters. This value cannot be null.</param>
+        <summary>Gets application usage stats for the given time range, aggregated by the specified interval.</summary>
+        <returns>a list of AppUsageDuration for each app used for the given time interval. This value cannot be null.</returns>
+        <remarks>
+          <para>Gets application usage stats for the given time range, aggregated by the specified interval.</para>
+          <para>The usage statistics are pre-aggregated internally into calendar-aligned boundaries (e.g., for INTERVAL_DAILY, a day is defined as midnight to midnight local time). The returned list will only contain apps that have been used in this time range.</para>
+          <para>The returned list will contain one or more AppUsageDuration objects for each package, with usage data aggregated within each interval bucket that falls within the time range between AppUsageDurationQuery.getStartTimeMillis() and AppUsageDurationQuery.getEndTimeMillis(), which may include the expanded interval periods as described above.</para>
+          <para>Data can only be queried for the past 30 days. Queries for longer time ranges will return an empty list. Requires Manifest.permission.QUERY_APP_USAGE</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/usage/UsageStatsManager#queryAppUsageDuration(android.app.usage.AppUsageDurationQuery)" title="Reference documentation">Android reference for <code>android.app.usage.UsageStatsManager.queryAppUsageDuration</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="QueryConfigurations">

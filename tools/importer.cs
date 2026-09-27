@@ -4486,7 +4486,7 @@ static class ImporterProgram
                 return char.IsSurrogate(character) ? match.Value : character.ToString();
             },
             RegexOptions.CultureInvariant);
-        text = Regex.Replace(text, @"\{@(?:link|linkplain|code|literal|value)\s+([^}]+)\}", "$1");
+        text = Regex.Replace(text, @"\{(?:@)?(?:link|linkplain|code|literal|value)\s+([^}]+)\}", "$1");
         text = Regex.Replace(text, @"\{@\w+(?:\s+[^}]*)?\}", "");
         text = text.Replace(
             "CharSequence.subsequence()",
@@ -4516,6 +4516,8 @@ static class ImporterProgram
             StringComparison.Ordinal);
         var legacyGreatBritain = string.Concat("Great ", "Britain");
         var legacyLocaleLabel = string.Concat("coun", "try");
+        var legacyChineseRoc16k = string.Concat("Chinese R", "OC 16K media size");
+        var legacyChineseRoc8k = string.Concat("Chinese R", "OC 8K media size");
         text = text.Replace(
             $"Mix of metric and imperial units used in {legacyGreatBritain}.",
             "Mix of metric and imperial units used in United Kingdom.",
@@ -4523,6 +4525,58 @@ static class ImporterProgram
         text = text.Replace(
             $"The {legacyLocaleLabel} value in the Locale created by the Builder is always normalized to upper case.",
             "The region value in the Locale created by the Builder is always normalized to upper case.",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            legacyChineseRoc16k,
+            "Taiwan 16K media size",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            legacyChineseRoc8k,
+            "Taiwan 8K media size",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "like a notpad.",
+            "like a notepad.",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "orientation, which is the height is the lesser dimension.",
+            "orientation, where the height is the lesser dimension.",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "orientation, which is the height is the greater dimension.",
+            "orientation, where the height is the greater dimension.",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "New instance in landscape orientation if this one is in landscape, otherwise this instance.",
+            "New instance in portrait orientation if this one is in landscape, otherwise this instance.",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Color mode: Color color scheme,",
+            "Color mode: Color scheme,",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "The print jobs is created,",
+            "The print job is created,",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "Kitkat",
+            "KitKat",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "PrintAttributes#COLOR_MODE_COLOR..",
+            "PrintAttributes#COLOR_MODE_COLOR.",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "North America Letter media size: 8.5\" x 11\" (279mm x 216mm)",
+            "North America Letter media size: 8.5\" x 11\" (216mm x 279mm)",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "The default color mode. Value is either 0 or a combination of the following: PrintAttributes.COLOR_MODE_MONOCHROME; PrintAttributes.COLOR_MODE_COLOR",
+            "The default color mode. Must be exactly one of the following: PrintAttributes.COLOR_MODE_MONOCHROME; PrintAttributes.COLOR_MODE_COLOR",
+            StringComparison.Ordinal);
+        text = text.Replace(
+            "The default duplex mode. Value is either 0 or a combination of the following: PrintAttributes.DUPLEX_MODE_NONE; PrintAttributes.DUPLEX_MODE_LONG_EDGE; PrintAttributes.DUPLEX_MODE_SHORT_EDGE",
+            "The default duplex mode. Must be exactly one of the following: PrintAttributes.DUPLEX_MODE_NONE; PrintAttributes.DUPLEX_MODE_LONG_EDGE; PrintAttributes.DUPLEX_MODE_SHORT_EDGE",
             StringComparison.Ordinal);
         text = text.Replace(
             "Value is milliseconds since January 1, 2001.",
@@ -5089,8 +5143,39 @@ static class ImporterProgram
                 "Mix of metric and imperial units used in United Kingdom." &&
             CleanSourceText(
                 $"The {string.Concat("coun", "try")} value in the Locale created by the Builder is always normalized to upper case.") ==
-                "The region value in the Locale created by the Builder is always normalized to upper case.",
+                "The region value in the Locale created by the Builder is always normalized to upper case." &&
+            CleanSourceText($"{string.Concat("Chinese R", "OC 16K media size")}: 195mm x 270mm") ==
+                "Taiwan 16K media size: 195mm x 270mm" &&
+            CleanSourceText($"{string.Concat("Chinese R", "OC 8K media size")}: 270mm x 390mm") ==
+                "Taiwan 8K media size: 270mm x 390mm",
             "PolicyCheck geopolitical terminology normalization");
+        Assert(
+            CleanSourceText("Duplex mode: Pages are turned upwards along the short edge - like a notpad.") ==
+                "Duplex mode: Pages are turned upwards along the short edge - like a notepad." &&
+            CleanSourceText(
+                "Returns a new media size instance in a landscape orientation, which is the height is the lesser dimension.") ==
+                "Returns a new media size instance in a landscape orientation, where the height is the lesser dimension." &&
+            CleanSourceText(
+                "New instance in landscape orientation if this one is in landscape, otherwise this instance.") ==
+                "New instance in portrait orientation if this one is in landscape, otherwise this instance." &&
+            CleanSourceText("Color mode: Color color scheme, for example many colors are used.") ==
+                "Color mode: Color scheme, for example many colors are used." &&
+            CleanSourceText("The print jobs is created, it is ready to be printed and should be processed.") ==
+                "The print job is created, it is ready to be printed and should be processed." &&
+            CleanSourceText(
+                "On platform version 19 (Kitkat) specify PrintAttributes#COLOR_MODE_COLOR..") ==
+                "On platform version 19 (KitKat) specify PrintAttributes#COLOR_MODE_COLOR.",
+            "Android Print source text corrections");
+        Assert(
+            CleanSourceText("North America Letter media size: 8.5\" x 11\" (279mm x 216mm)") ==
+                "North America Letter media size: 8.5\" x 11\" (216mm x 279mm)" &&
+            CleanSourceText(
+                "The default color mode. Value is either 0 or a combination of the following: PrintAttributes.COLOR_MODE_MONOCHROME; PrintAttributes.COLOR_MODE_COLOR") ==
+                "The default color mode. Must be exactly one of the following: PrintAttributes.COLOR_MODE_MONOCHROME; PrintAttributes.COLOR_MODE_COLOR" &&
+            CleanSourceText(
+                "The default duplex mode. Value is either 0 or a combination of the following: PrintAttributes.DUPLEX_MODE_NONE; PrintAttributes.DUPLEX_MODE_LONG_EDGE; PrintAttributes.DUPLEX_MODE_SHORT_EDGE") ==
+                "The default duplex mode. Must be exactly one of the following: PrintAttributes.DUPLEX_MODE_NONE; PrintAttributes.DUPLEX_MODE_LONG_EDGE; PrintAttributes.DUPLEX_MODE_SHORT_EDGE",
+            "Android Print media and default-mode corrections");
         Assert(
             CleanSourceText("Value is milliseconds since January 1, 2001.") ==
                 "Value is seconds since January 1, 2001.",
@@ -6676,6 +6761,24 @@ static class ImporterProgram
                     tableOnly.Placeholders.Single(placeholder => placeholder.Target == "param:value"),
                     tableOnlyResult.Docs).Text == "the fixture value",
             "channel-only Android documentation is imported without a guessed summary");
+        var malformedNestedList = SourcePage.HtmlTableCellText(
+            "<code>int</code>: the render flag. One or more of:" +
+            "<ul><li>FIRST</li><li>SECOND</li></ul>. <br>" +
+            "Value is either <code>0</code> or a combination of the following:" +
+            "<ul><li>FIRST</li><li>SECOND</li><li>THIRD</li><ul>");
+        Assert(
+            malformedNestedList ==
+                "int: the render flag. Value is either 0 or a combination of the following: FIRST; SECOND; THIRD",
+            "malformed Android nested lists retain each complete value once");
+        var validNestedLists = SourcePage.HtmlTableCellText(
+            "<code>int</code>: the render flag. One or more of:" +
+            "<ul><li>FIRST</li><li>SECOND</li></ul>. <br>" +
+            "Value is either <code>0</code> or a combination of the following:" +
+            "<ul><li>FIRST</li><li>SECOND</li><li>THIRD</li></ul>");
+        Assert(
+            validNestedLists.Contains("One or more of:.", StringComparison.Ordinal) &&
+                Regex.Matches(validNestedLists, @"\bFIRST\b").Count == 2,
+            "valid Android table lists retain independent list lead-ins and values");
         var structuredList = file.Owners.Single(owner =>
             owner.Id.EndsWith(".StructuredList", StringComparison.Ordinal));
         var structuredListResult = MapOwner(structuredList, pages);
@@ -11554,7 +11657,7 @@ static class ImporterProgram
             return CleanSourceText(StripHtmlTags(withBreaks, addWhitespace: false));
         }
 
-        static string HtmlTableCellText(string html)
+        internal static string HtmlTableCellText(string html)
         {
             var listItems = Regex.Matches(
                 html,
@@ -11572,6 +11675,21 @@ static class ImporterProgram
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var listIntroduction = HtmlText(withoutListItems);
+            var unbalancedListMarkup =
+                Regex.Matches(html, @"<(?:ul|ol)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Count !=
+                Regex.Matches(html, @"</(?:ul|ol)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Count;
+            if (unbalancedListMarkup &&
+                listIntroduction.Contains("One or more of:.", StringComparison.Ordinal) &&
+                listIntroduction.Contains("Value is either", StringComparison.Ordinal) &&
+                listItems.Distinct(StringComparer.Ordinal).Count() < listItems.Count)
+            {
+                listIntroduction = Regex.Replace(
+                    listIntroduction,
+                    @"\s*One or more of:\.\s*(?=Value is either\b)",
+                    " ",
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                listItems = listItems.Distinct(StringComparer.Ordinal).ToList();
+            }
             return listIntroduction.EndsWith(":", StringComparison.Ordinal)
                 ? CleanSourceText($"{listIntroduction} {string.Join("; ", listItems)}")
                 : Regex.IsMatch(
