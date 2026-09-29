@@ -911,6 +911,7 @@ static class ImporterProgram
         {
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
+        docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
 
@@ -962,6 +963,34 @@ static class ImporterProgram
                 .Where(paragraph => !IsSynchronousGeocoderBoilerplate(paragraph.Text))
                 .ToList(),
         };
+
+    static SourceDocs WithoutKnownUnsafeHardwareBufferCreateRemark(
+        string ownerId,
+        SourceDocs docs)
+    {
+        const string owner =
+            "M:Android.Hardware.HardwareBuffer.Create(System.Int32,System.Int32,Android.Hardware.HardwareBufferFormat,System.Int32,Android.Hardware.HardwareBufferUsage)";
+        const string sourceUrl =
+            "https://developer.android.com/reference/android/hardware/HardwareBuffer#create(int,%20int,%20int,%20int,%20long)";
+        const string unsafeRemark =
+            "Calling this method will throw an IllegalStateException if format is not a supported Format type.";
+
+        if (!ownerId.Equals(owner, StringComparison.Ordinal) ||
+            !docs.SourceUrl.Equals(sourceUrl, StringComparison.Ordinal))
+        {
+            return docs;
+        }
+
+        return docs with
+        {
+            Paragraphs = docs.Paragraphs
+                .Where(paragraph => paragraph.IsCode ||
+                    !NormalizeText(paragraph.Text).Equals(
+                        unsafeRemark,
+                        StringComparison.Ordinal))
+                .ToList(),
+        };
+    }
 
     static bool IsSynchronousGeocoderBoilerplate(string text)
     {
@@ -4995,6 +5024,35 @@ static class ImporterProgram
         var sourcePath = Path.Combine(fixtureRoot, "source.xml");
         var androidHtml = File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html"));
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
+        var unsafeHardwareBufferDocs = new SourceDocs(
+            "",
+            [
+                new SourceParagraph(
+                    "Calling this method will throw an IllegalStateException if format is not a supported Format type.",
+                    false),
+                new SourceParagraph("Retained source prose.", false),
+            ],
+            new Dictionary<string, string>(),
+            "",
+            new Dictionary<string, string>(),
+            "https://developer.android.com/reference/android/hardware/HardwareBuffer#create(int,%20int,%20int,%20int,%20long)",
+            "Android reference",
+            "Android");
+        var filteredHardwareBufferDocs = WithoutKnownUnsafeHardwareBufferCreateRemark(
+            "M:Android.Hardware.HardwareBuffer.Create(System.Int32,System.Int32,Android.Hardware.HardwareBufferFormat,System.Int32,Android.Hardware.HardwareBufferUsage)",
+            unsafeHardwareBufferDocs);
+        Assert(
+            filteredHardwareBufferDocs.Paragraphs.Count == 1 &&
+            filteredHardwareBufferDocs.Paragraphs[0].Text == "Retained source prose.",
+            "HardwareBuffer Create omits the contradicted IllegalStateException remark");
+        Assert(
+            WithoutKnownUnsafeHardwareBufferCreateRemark(
+                "M:Android.Hardware.HardwareBuffer.Create(System.Int32,System.Int32,Android.Hardware.HardwareBufferFormat,System.Int32,Android.Hardware.HardwareBufferUsage)",
+                unsafeHardwareBufferDocs with
+                {
+                    SourceUrl = "https://developer.android.com/reference/android/hardware/HardwareBuffer",
+                }).Paragraphs.Count == 2,
+            "HardwareBuffer Create filter requires the exact source channel");
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
