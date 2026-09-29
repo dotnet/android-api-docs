@@ -3126,11 +3126,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="fallback">To be added.</param>
-        <param name="targets">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="fallback">the fallback method handle that is called when the selector is not within the range [0, N).</param>
+        <param name="targets">array of target method handles.</param>
+        <summary>Creates a table switch method handle, which can be used to switch over a set of target method handles, based on a given target index, called selector.</summary>
+        <returns>the table switch method handle.</returns>
+        <remarks>
+          <para>Creates a table switch method handle, which can be used to switch over a set of target method handles, based on a given target index, called selector. For a selector value of n, where n falls in the range [0, N), and where N is the number of target method handles, the table switch method handle will invoke the n-th target method handle from the list of target method handles. For a selector value that does not fall in the range [0, N), the table switch method handle will invoke the given fallback method handle. All method handles passed to this method must have the same type, with the additional requirement that the leading parameter be of type int. The leading parameter represents the selector. Any trailing parameters present in the type will appear on the returned table switch method handle as well. Any arguments assigned to these parameters will be forwarded, together with the selector value, to the selected method handle when invoking it.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/invoke/MethodHandles.html#tableSwitch(java.lang.invoke.MethodHandle,java.lang.invoke.MethodHandle...)" title="Reference documentation">Java reference for <code>java.lang.invoke.MethodHandles.tableSwitch</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -3399,11 +3402,14 @@
         <Parameter Name="type" Type="Java.Lang.Invoke.MethodType" />
       </Parameters>
       <Docs>
-        <param name="accessMode">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="accessMode">the VarHandle access mode</param>
+        <param name="type">the desired target type</param>
+        <summary>Produces a special invoker method handle which can be used to invoke a signature-polymorphic access mode method on any VarHandle whose associated access mode type is compatible with the given type.</summary>
+        <returns>a method handle suitable for invoking an access mode method of any VarHandle whose access mode type is of the given type.</returns>
+        <remarks>
+          <para>Produces a special invoker method handle which can be used to invoke a signature-polymorphic access mode method on any VarHandle whose associated access mode type is compatible with the given type. The resulting invoker will have a type which is exactly equal to the desired given type, except that it will accept an additional leading argument of type VarHandle.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/invoke/MethodHandles.html#varHandleExactInvoker(java.lang.invoke.VarHandle.AccessMode,java.lang.invoke.MethodType)" title="Reference documentation">Java reference for <code>java.lang.invoke.MethodHandles.varHandleExactInvoker</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="VarHandleInvoker">
@@ -3434,11 +3440,14 @@
         <Parameter Name="type" Type="Java.Lang.Invoke.MethodType" />
       </Parameters>
       <Docs>
-        <param name="accessMode">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="accessMode">the VarHandle access mode</param>
+        <param name="type">the desired target type</param>
+        <summary>Produces a special invoker method handle which can be used to invoke a signature-polymorphic access mode method on any VarHandle whose associated access mode type is compatible with the given type.</summary>
+        <returns>a method handle suitable for invoking an access mode method of any VarHandle whose access mode type is convertible to the given type.</returns>
+        <remarks>
+          <para>Produces a special invoker method handle which can be used to invoke a signature-polymorphic access mode method on any VarHandle whose associated access mode type is compatible with the given type. The resulting invoker will have a type which is exactly equal to the desired given type, except that it will accept an additional leading argument of type VarHandle. Before invoking its target, if the access mode type differs from the desired given type, the invoker will apply reference casts as necessary and box, unbox, or widen primitive values, as if by asType. Similarly, the return value will be converted as necessary. This method is equivalent to the following code (though it may be more efficient): publicLookup().findVirtual(VarHandle.class, accessMode.name(), type)</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/invoke/MethodHandles.html#varHandleInvoker(java.lang.invoke.VarHandle.AccessMode,java.lang.invoke.MethodType)" title="Reference documentation">Java reference for <code>java.lang.invoke.MethodHandles.varHandleInvoker</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WhileLoop">
