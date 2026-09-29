@@ -256,9 +256,17 @@
         <ReturnType>Java.Lang.IIterable</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns an object to iterate over the underlying file stores.</summary>
+        <value>An object to iterate over the backing file stores</value>
         <remarks>
+          <para>Returns an object to iterate over the underlying file stores. The elements of the returned iterator are the FileStores for this file system. The order of the elements is not defined and the file stores may change during the lifetime of the Java virtual machine. When an I/O error occurs, perhaps because a file store is not accessible, then it is not returned by the iterator. In the case of the default provider, and a security manager is installed, the security manager is invoked to check RuntimePermission("getFileStoreAttributes"). If denied, then no file stores are returned by the iterator. In addition, the security manager's SecurityManager.checkRead(String) method is invoked to check read access to the file store's top-most directory. If denied, the file store is not returned by the iterator. It is system dependent if the permission checks are done when the iterator is obtained or during iteration.</para>
+          <code lang="text/java">    for (FileStore store: FileSystems.getDefault().getFileStores()) {
+        long total = store.getTotalSpace() / 1024;
+        long used = (store.getTotalSpace() - store.getUnallocatedSpace()) / 1024;
+        long avail = store.getUsableSpace() / 1024;
+        System.out.format("%-20s %12d %12d %12d%n", store, total, used, avail);
+    }</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/FileSystem.html#getFileStores()" title="Reference documentation">Java reference for <code>java.nio.file.FileSystem.getFileStores</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -516,9 +524,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Tells whether or not this file system is open.</summary>
+        <value>true if, and only if, this file system is open</value>
         <remarks>
+          <para>Tells whether or not this file system is open. File systems created by the default provider are always open.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/FileSystem.html#isOpen()" title="Reference documentation">Java reference for <code>java.nio.file.FileSystem.isOpen</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -547,9 +557,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Tells whether or not this file system allows only read-only access to its file stores.</summary>
+        <value>true if, and only if, this file system provides read-only access</value>
         <remarks>
+          <para>Tells whether or not this file system allows only read-only access to its file stores.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/FileSystem.html#isReadOnly()" title="Reference documentation">Java reference for <code>java.nio.file.FileSystem.isReadOnly</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -728,9 +740,11 @@
         <ReturnType>Java.Lang.IIterable</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns an object to iterate over the paths of the root directories.</summary>
+        <value>An object to iterate over the root directories</value>
         <remarks>
+          <para>Returns an object to iterate over the paths of the root directories. A file system provides access to a file store that may be composed of a number of distinct file hierarchies, each with its own top-level root directory. Unless denied by the security manager, each element in the returned iterator corresponds to the root directory of a distinct file hierarchy. The order of the elements is not defined. The file hierarchies may change during the lifetime of the Java virtual machine. For example, in some implementations, the insertion of removable media may result in the creation of a new file hierarchy with its own top-level directory. There is no guarantee that a root directory can be accessed. When a security manager is installed, it is invoked to check access to the each root directory. If denied, the root directory is not returned by the iterator. In the case of the default provider, the SecurityManager.checkRead(String) method is invoked to check read access to each root directory. It is system dependent if the permission checks are done when the iterator is obtained or during iteration.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/FileSystem.html#getRootDirectories()" title="Reference documentation">Java reference for <code>java.nio.file.FileSystem.getRootDirectories</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -759,9 +773,11 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the name separator, represented as a string.</summary>
+        <value>The name separator</value>
         <remarks>
+          <para>Returns the name separator, represented as a string. The name separator is used to separate names in a path string. An implementation may support multiple name separators in which case this method returns an implementation specific default name separator. This separator is used when creating path strings by invoking the toString() method. In the case of the default provider, this method returns the same separator as File.separator.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/FileSystem.html#getSeparator()" title="Reference documentation">Java reference for <code>java.nio.file.FileSystem.getSeparator</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -917,9 +933,13 @@
         <ReturnType>Java.Nio.FileNio.Attributes.UserPrincipalLookupService</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the UserPrincipalLookupService for this file system (optional operation).</summary>
+        <value>The UserPrincipalLookupService for this file system</value>
         <remarks>
+          <para>Returns the UserPrincipalLookupService for this file system (optional operation). The resulting lookup service may be used to lookup user or group names.</para>
+          <code lang="text/java">    UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
+    Files.setOwner(path, lookupService.lookupPrincipalByName("joe"));</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/FileSystem.html#getUserPrincipalLookupService()" title="Reference documentation">Java reference for <code>java.nio.file.FileSystem.getUserPrincipalLookupService</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

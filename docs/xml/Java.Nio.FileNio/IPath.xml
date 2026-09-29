@@ -348,9 +348,11 @@
         <ReturnType>Java.Nio.FileNio.IPath</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the name of the file or directory denoted by this path as a Path object.</summary>
+        <value>a path representing the name of the file or directory, or null if this path has zero elements</value>
         <remarks>
+          <para>Returns the name of the file or directory denoted by this path as a Path object. The file name is the farthest element from the root in the directory hierarchy.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html#getFileName()" title="Reference documentation">Java reference for <code>java.nio.file.Path.getFileName</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -379,9 +381,11 @@
         <ReturnType>Java.Nio.FileNio.FileSystem</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the file system that created this object.</summary>
+        <value>the file system that created this object</value>
         <remarks>
+          <para>Returns the file system that created this object.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html#getFileSystem()" title="Reference documentation">Java reference for <code>java.nio.file.Path.getFileSystem</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -504,9 +508,11 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Tells whether or not this path is absolute.</summary>
+        <value>true if, and only if, this path is absolute</value>
         <remarks>
+          <para>Tells whether or not this path is absolute. An absolute path is complete in that it doesn't need to be combined with other path information in order to locate a file.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html#isAbsolute()" title="Reference documentation">Java reference for <code>java.nio.file.Path.isAbsolute</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -584,9 +590,11 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the number of name elements in the path.</summary>
+        <value>the number of elements in the path, or 0 if this path only represents a root component</value>
         <remarks>
+          <para>Returns the number of name elements in the path.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html#getNameCount()" title="Reference documentation">Java reference for <code>java.nio.file.Path.getNameCount</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -750,11 +758,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="first">To be added.</param>
-        <param name="more">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="first">the path string or initial part of the path string</param>
+        <param name="more">additional strings to be joined to form the path string</param>
+        <summary>Returns a Path by converting a path string, or a sequence of strings that when joined form a path string.</summary>
+        <returns>the resulting Path</returns>
+        <remarks>
+          <para>Returns a Path by converting a path string, or a sequence of strings that when joined form a path string. If more does not specify any elements then the value of the first parameter is the path string to convert. If more specifies one or more elements then each non-empty string, including first, is considered to be a sequence of name elements and is joined to form a path string. The details as to how the Strings are joined is provider specific but typically they will be joined using the name-separator as the separator. For example, if the name separator is "/" and getPath("/foo","bar","gus") is invoked, then the path string "/foo/bar/gus" is converted to a Path. A Path representing an empty path is returned if first is the empty string and more does not contain any non-empty strings. The Path is obtained by invoking the getPath method of the default FileSystem. Note that while this method is very convenient, using it will imply an assumed reference to the default FileSystem and limit the utility of the calling code. Hence it should not be used in library code intended for flexible reuse. A more flexible alternative is to use an existing Path instance as an anchor, such as:</para>
+          <code lang="text/java">    Path dir = ...
+    Path path = dir.resolve("file");</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html#of(java.lang.String,java.lang.String...)" title="Reference documentation">Java reference for <code>java.nio.file.Path.of</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parent">
@@ -781,9 +794,12 @@
         <ReturnType>Java.Nio.FileNio.IPath</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the parent path, or null if this path does not have a parent.</summary>
+        <value>a path representing the path's parent</value>
         <remarks>
+          <para>Returns the parent path, or null if this path does not have a parent. The parent of this path object consists of this path's root component, if any, and each element in the path except for the farthest from the root in the directory hierarchy. This method does not access the file system; the path or its parent may not exist. Furthermore, this method does not eliminate special names such as "." and ".." that may be used in some implementations. On UNIX for example, the parent of "/a/b/c" is "/a/b", and the parent of "x/y/." is "x/y". This method may be used with the normalize method, to eliminate redundant names, for cases where shell-like navigation is required. If this path has more than one element, and no root component, then this method is equivalent to evaluating the expression:</para>
+          <code lang="text/java">    subpath(0, getNameCount()-1);</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html#getParent()" title="Reference documentation">Java reference for <code>java.nio.file.Path.getParent</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -901,7 +917,7 @@
       <Docs>
         <param name="watcher">The watch service to which this object is to be registered</param>
         <param name="events">The events for which this object should be registered</param>
-        <param name="modifiers">To be added.</param>
+        <param name="modifiers">the modifiers, if any, that modify how the object is registered</param>
         <summary>Registers the file located by this path with a watch service.</summary>
         <returns>A key representing the registration of this object with the
                      given watch service</returns>
@@ -911,6 +927,7 @@
               <a href="https://developer.android.com/reference/java/nio/file/Path#register(java.nio.file.WatchService,%20java.nio.file.Kind)" title="Reference documentation">Java documentation for <code>java.nio.file.Path.register(java.nio.file.WatchService, java.nio.file.Kind)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html#register(java.nio.file.WatchService,java.nio.file.WatchEvent.Kind[],java.nio.file.WatchEvent.Modifier...)" title="Reference documentation">Java reference for <code>java.nio.file.Path.register</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1219,9 +1236,11 @@
         <ReturnType>Java.Nio.FileNio.IPath</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Returns the root component of this path as a Path object, or null if this path does not have a root component.</summary>
+        <value>a path representing the root component of this path, or null</value>
         <remarks>
+          <para>Returns the root component of this path as a Path object, or null if this path does not have a root component.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html#getRoot()" title="Reference documentation">Java reference for <code>java.nio.file.Path.getRoot</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
