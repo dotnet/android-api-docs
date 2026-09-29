@@ -446,57 +446,6 @@ static class ImporterProgram
                         }
                     }
 
-                    var reviewRepairTarget = mapping.Docs is null
-                        ? null
-                        : InputMethodServicesReviewRepairTarget(
-                            owner.Id,
-                            mapping.Docs.SourceUrl);
-                    if (!ownerChanged && mapping.Docs is not null &&
-                        reviewRepairTarget is not null)
-                    {
-                        var refreshed = reviewRepairTarget == "remarks"
-                            ? RemoveDuplicatedRemarksSourceParagraph(
-                                text,
-                                file,
-                                owner,
-                                mapping.Docs)
-                            : RenderExistingSourceParameterMarkup(
-                                text,
-                                file,
-                                owner,
-                                mapping.Docs);
-
-                        if (!refreshed.Equals(text, StringComparison.Ordinal))
-                        {
-                            file.UpdateBlockOffsets(owner.Order, refreshed);
-                            if (remaining == 0)
-                            {
-                                RestoreOffsetsAfterSkippedRepair(file, owner, text);
-                                report.Entries.Add(ReportEntry.Skipped(
-                                    file.RelativePath,
-                                    owner.Id,
-                                    reviewRepairTarget,
-                                    "max_changes_reached",
-                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
-                                    mapping.SourceUrl));
-                            }
-                            else
-                            {
-                                text = refreshed;
-                                file.UpdateBlockOffsets(owner.Order, text);
-                                fileChanged = true;
-                                ownerChanged = true;
-                                remaining--;
-                                report.Entries.Add(ReportEntry.Changed(
-                                    "would_apply",
-                                    file.RelativePath,
-                                    owner.Id,
-                                    reviewRepairTarget,
-                                    mapping.SourceUrl));
-                            }
-                        }
-                    }
-
                     var canRepairExistingDocumentation = !ownerChanged;
                     if (canRepairExistingDocumentation &&
                         mapping.Docs is not null &&
@@ -1121,121 +1070,6 @@ static class ImporterProgram
             .Select(index => sourceFragments[index])
             .ToList();
         return Replacement.UseRemarks(limited);
-    }
-
-    static string RemoveDuplicatedRemarksSourceParagraph(
-        string text,
-        LoadedFile file,
-        DocsOwner owner,
-        SourceDocs sourceDocs)
-    {
-        var block = file.DocsBlocks[owner.Order];
-        var blockText = text[block.Start..block.End];
-        if (!TryParseDocsBlock(blockText, out var docs) ||
-            docs.Element("remarks") is not XElement remarks ||
-            !HasExactOfficialSourceReference(docs, sourceDocs))
-        {
-            return text;
-        }
-
-        var elements = remarks.Elements().ToList();
-        var sourceFragments = ExpandRemarksFragments(sourceDocs.Paragraphs);
-        for (var index = 0; index < elements.Count - 1; index++)
-        {
-            var candidate = elements[index];
-            if (candidate.Name.LocalName != "para" ||
-                !HasPlainTextContent(candidate, out var candidateText))
-            {
-                continue;
-            }
-
-            var candidateFragments = MatchingSourceFragmentIndexes(
-                candidate,
-                sourceFragments);
-            if (candidateFragments.Count != 1 ||
-                !NormalizeSourceProseForComparison(candidateText).Equals(
-                    NormalizeSourceProseForComparison(
-                        sourceFragments[candidateFragments[0]].Text),
-                    StringComparison.Ordinal) ||
-                !MatchingSourceFragmentIndexes(
-                    elements[index + 1],
-                    sourceFragments).Contains(candidateFragments[0]) ||
-                !TryGetElementSpan(blockText, candidate, out var candidateSpan))
-            {
-                continue;
-            }
-
-            var lineStart = blockText.LastIndexOf('\n', candidateSpan.Start);
-            lineStart = lineStart < 0 ? 0 : lineStart + 1;
-            var removalStart = string.IsNullOrWhiteSpace(
-                blockText[lineStart..candidateSpan.Start])
-                ? lineStart
-                : candidateSpan.Start;
-            var lineEnd = blockText.IndexOf('\n', candidateSpan.End);
-            var removalEnd = lineEnd >= 0 &&
-                string.IsNullOrWhiteSpace(blockText[candidateSpan.End..lineEnd])
-                ? lineEnd + 1
-                : candidateSpan.End;
-            var updatedBlock = blockText[..removalStart] +
-                blockText[removalEnd..];
-            return text[..block.Start] + updatedBlock + text[block.End..];
-        }
-
-        return text;
-    }
-
-    static string RenderExistingSourceParameterMarkup(
-        string text,
-        LoadedFile file,
-        DocsOwner owner,
-        SourceDocs sourceDocs)
-    {
-        var block = file.DocsBlocks[owner.Order];
-        var blockText = text[block.Start..block.End];
-        if (!TryParseDocsBlock(blockText, out var docs) ||
-            !HasExactOfficialSourceReference(docs, sourceDocs))
-        {
-            return text;
-        }
-
-        var replacements = new List<(XmlSpan Span, string Text)>();
-        foreach (var parameter in docs.Elements("param"))
-        {
-            var name = (string?)parameter.Attribute("name");
-            if (name is null ||
-                !sourceDocs.Parameters.TryGetValue(name, out var sourceText) ||
-                !HasPlainTextContent(parameter, out var existingText))
-            {
-                continue;
-            }
-
-            var expectedText = RemoveLeadingJavaType(sourceText);
-            var replacementText = RenderReviewedAndroidConstantReferences(expectedText);
-            if (NormalizeText(existingText) != NormalizeText(expectedText) ||
-                replacementText == XmlEscape(expectedText) ||
-                !TryGetElementSpan(blockText, parameter, out var parameterSpan) ||
-                !TryGetDirectTextElementContentSpan(
-                    blockText,
-                    parameterSpan,
-                    out var contentSpan))
-            {
-                continue;
-            }
-
-            replacements.Add((contentSpan, replacementText));
-        }
-
-        if (replacements.Count == 0)
-            return text;
-
-        var updatedBlock = blockText;
-        foreach (var replacement in replacements.OrderByDescending(
-                     replacement => replacement.Span.Start))
-        {
-            updatedBlock = updatedBlock[..replacement.Span.Start] +
-                replacement.Text + updatedBlock[replacement.Span.End..];
-        }
-        return text[..block.Start] + updatedBlock + text[block.End..];
     }
 
     static List<string> SplitSourceSentences(string text)
@@ -3877,49 +3711,9 @@ static class ImporterProgram
         docs.Descendants("para").Any(paragraph =>
             TryGetImporterSourceReferenceUrl(paragraph, out _));
 
-    static bool HasExactOfficialSourceReference(
-        XElement docs,
-        SourceDocs sourceDocs) =>
-        docs.Descendants("a").Any(anchor =>
-            (string?)anchor.Attribute("title") == "Reference documentation" &&
-            UrlsEqual(
-                WebUtility.HtmlDecode((string?)anchor.Attribute("href") ?? ""),
-                sourceDocs.SourceUrl));
-
     static bool HasImporterSourceReference(string blockText) =>
         TryParseXmlElement(blockText, out var element) &&
         HasImporterSourceReference(element);
-
-    static string? InputMethodServicesReviewRepairTarget(
-        string ownerId,
-        string sourceUrl)
-    {
-        if (ownerId ==
-                "M:Android.InputMethodServices.InputMethodService.InputMethodImpl.BindInput(Android.Views.InputMethods.InputBinding)" &&
-            UrlsEqual(
-                sourceUrl,
-                "https://developer.android.com/reference/android/inputmethodservice/InputMethodService.InputMethodImpl#bindInput(android.view.inputmethod.InputBinding)"))
-        {
-            return "remarks";
-        }
-
-        if (ownerId ==
-                "M:Android.InputMethodServices.InputMethodService.InputMethodImpl.UnbindInput" &&
-            UrlsEqual(
-                sourceUrl,
-                "https://developer.android.com/reference/android/inputmethodservice/InputMethodService.InputMethodImpl#unbindInput()"))
-        {
-            return "remarks";
-        }
-
-        return ownerId ==
-                "M:Android.InputMethodServices.InputMethodService.InputMethodSessionImpl.ToggleSoftInput(Android.Views.InputMethods.ShowFlags,Android.Views.InputMethods.HideSoftInputFlags)" &&
-            UrlsEqual(
-                sourceUrl,
-                "https://developer.android.com/reference/android/inputmethodservice/InputMethodService.InputMethodSessionImpl#toggleSoftInput(int,%20int)")
-            ? "param"
-            : null;
-    }
 
     static SourceReferenceCleanupResult RemoveStaleSourceLinks(
         string blockText,
@@ -4660,16 +4454,6 @@ static class ImporterProgram
 
     static string XmlEscape(string value) =>
         new XText(CleanSourceText(value)).ToString(SaveOptions.DisableFormatting);
-
-    static string RenderReviewedAndroidConstantReferences(string value)
-    {
-        var escaped = XmlEscape(value);
-        return Regex.Replace(
-            escaped,
-            @"\b(?<type>[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\.(?<member>[A-Z][A-Z0-9_]*)\b",
-            match => $"<c>{match.Groups["type"].Value}#{match.Groups["member"].Value}</c>",
-            RegexOptions.CultureInvariant);
-    }
 
     static string RenderDocumentationParagraph(SourceParagraph paragraph, string indent) =>
         paragraph.IsCode
@@ -6151,23 +5935,24 @@ static class ImporterProgram
             methodReferenceReplacement.Text == "" &&
                 methodReferenceReplacement.Remarks?.Count == 0,
             "remarks overlap removes placeholders covered by inline method references");
+        const string methodReferenceDocsText =
+            "<Docs><remarks><para>Calls <c>InputMethodService#onBindInput()</c> when done.</para><para>To be added.</para></remarks></Docs>";
         Assert(
-            RenderReviewedAndroidConstantReferences(
-                "Value is either 0 or InputMethodManager.SHOW_IMPLICIT; InputMethodManager.SHOW_FORCED.") ==
-                "Value is either 0 or <c>InputMethodManager#SHOW_IMPLICIT</c>; <c>InputMethodManager#SHOW_FORCED</c>.",
-            "reviewed Android constants render as code references");
-        Assert(
-            InputMethodServicesReviewRepairTarget(
-                "M:Android.InputMethodServices.InputMethodService.InputMethodImpl.BindInput(Android.Views.InputMethods.InputBinding)",
-                "https://developer.android.com/reference/android/inputmethodservice/InputMethodService.InputMethodImpl#bindInput(android.view.inputmethod.InputBinding)") ==
-                "remarks" &&
-            InputMethodServicesReviewRepairTarget(
-                "M:Android.InputMethodServices.InputMethodService.InputMethodImpl.BindInput(Android.Views.InputMethods.InputBinding)",
-                "https://developer.android.com/reference/android/inputmethodservice/InputMethodService.InputMethodImpl#unbindInput()") is null &&
-            InputMethodServicesReviewRepairTarget(
-                "M:Android.Example.Widget.SetTitle(System.String)",
-                "https://developer.android.com/reference/android/example/Widget#setTitle(java.lang.String)") is null,
-            "review repairs are restricted to exact reviewed InputMethodServices mappings");
+            TryReplacePlaceholder(
+                methodReferenceDocsText,
+                new DocsBlock(0, 0, methodReferenceDocsText.Length),
+                methodReferencePlaceholder,
+                methodReferenceReplacement,
+                out var appliedMethodReferenceText,
+                out _) &&
+            XDocument.Parse(appliedMethodReferenceText)
+                .Root!
+                .Element("remarks")!
+                .Elements("para")
+                .ToList() is [var preservedMethodReference] &&
+            preservedMethodReference.Value == "Calls InputMethodService#onBindInput() when done." &&
+            preservedMethodReference.Element("c")?.Value == "InputMethodService#onBindInput()",
+            "remarks overlap removes only the placeholder while preserving inline method markup");
         var unsafeInlineMarkup = XElement.Parse(
             "<para>Sets the <c>widget</c> title.<!-- authored comment --></para>");
         Assert(
