@@ -1046,9 +1046,7 @@ static class ImporterProgram
             .ToList();
         if (missing.Count == 0)
         {
-            return Replacement.Skip(
-                "source_remarks_overlap_existing_documentation",
-                "Existing remarks already contain every exact source prose fragment.");
+            return Replacement.RemoveRemarksPlaceholder();
         }
 
         var beforePlaceholder = representedElements
@@ -1716,19 +1714,27 @@ static class ImporterProgram
         if (remarksReplacement is not null && placeholder.Name == "para")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-            var replacementMarkup = TryGetLineWhitespaceIndent(
+            var replacementStart = elementStart;
+            string replacementMarkup;
+            if (TryGetLineWhitespaceIndent(
                     blockText,
                     elementStart,
-                    out _,
-                    out var indent)
-                ? string.Join(
+                    out var lineStart,
+                    out var indent))
+            {
+                replacementStart = lineStart;
+                replacementMarkup = string.Join(
                     newline,
                     remarksReplacement.Select(paragraph =>
-                        RenderDocumentationParagraph(paragraph, indent)))
-                : string.Concat(
+                        RenderDocumentationParagraph(paragraph, indent)));
+            }
+            else
+            {
+                replacementMarkup = string.Concat(
                     remarksReplacement.Select(paragraph =>
                         RenderDocumentationParagraph(paragraph, "")));
-            var replacementParagraphBlock = blockText[..elementStart] + replacementMarkup +
+            }
+            var replacementParagraphBlock = blockText[..replacementStart] + replacementMarkup +
                 blockText[elementEnd..];
             updated = text[..block.Start] + replacementParagraphBlock + text[block.End..];
             error = "";
@@ -3273,12 +3279,12 @@ static class ImporterProgram
             !HasPlainTextOrInlineCodeContent(element))
             return [];
 
-        var prose = NormalizeText(element.Value);
+        var prose = NormalizeSourceProseForComparison(element.Value);
         return sourceFragments
             .Select((fragment, index) => (fragment, index))
             .Where(item => !item.fragment.IsCode &&
                 prose.Contains(
-                    NormalizeText(item.fragment.Text),
+                    NormalizeSourceProseForComparison(item.fragment.Text),
                     StringComparison.OrdinalIgnoreCase))
             .Select(item => item.index)
             .ToList();
@@ -4658,6 +4664,13 @@ static class ImporterProgram
     static string NormalizeText(string value) =>
         Regex.Replace(WebUtility.HtmlDecode(value).Replace('\u00a0', ' '), @"\s+", " ").Trim();
 
+    static string NormalizeSourceProseForComparison(string value) =>
+        Regex.Replace(
+            NormalizeText(value),
+            @"(?<type>[A-Za-z_]\w*)\.(?<member>[A-Za-z_]\w*)\(",
+            "${type}#${member}(",
+            RegexOptions.CultureInvariant);
+
     static string NormalizeNormalWhitespace(string value) =>
         Regex.Replace(value, @"\s+", " ").Trim();
 
@@ -5905,6 +5918,91 @@ static class ImporterProgram
             inlineMarkupReplacement.Remarks?.Select(paragraph => paragraph.Text)
                 .SequenceEqual(["The exact JNI overload is required."]) == true,
             "remarks overlap recognizes punctuation-adjacent inline markup");
+        var methodReferenceDocs = mappedDocs with
+        {
+            Paragraphs =
+            [
+                new SourceParagraph(
+                    "Calls InputMethodService.onBindInput() when done. This method must be called from the main thread of your app.",
+                    IsCode: false),
+            ],
+        };
+        var methodReferenceRemarks = XElement.Parse(
+            "<remarks><para>Calls <c>InputMethodService#onBindInput()</c> when done.</para><para>To be added.</para></remarks>");
+        var methodReferencePlaceholder = Placeholder.Create(
+            methodReferenceRemarks.Elements("para").Last(),
+            0);
+        var methodReferenceReplacement = LimitOverlappingRemarksReplacement(
+            methodReferencePlaceholder,
+            methodReferenceDocs,
+            ReplacementFor(
+                methodReferencePlaceholder,
+                methodReferenceDocs),
+            methodReferenceRemarks);
+        Assert(
+            methodReferenceReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual(
+                    ["This method must be called from the main thread of your app."]) == true,
+            "remarks overlap retains source guidance not represented by inline method references");
+        const string methodReferenceDocsText =
+            "<Docs><remarks><para>Calls <c>InputMethodService#onBindInput()</c> when done.</para><para>To be added.</para></remarks></Docs>";
+        Assert(
+            TryReplacePlaceholder(
+                methodReferenceDocsText,
+                new DocsBlock(0, 0, methodReferenceDocsText.Length),
+                methodReferencePlaceholder,
+                methodReferenceReplacement,
+                out var appliedMethodReferenceText,
+                out _) &&
+            XDocument.Parse(appliedMethodReferenceText)
+                .Root!
+                .Element("remarks")!
+                .Elements("para")
+                .ToList() is [var preservedMethodReference, var importedThreadRequirement] &&
+            preservedMethodReference.Value == "Calls InputMethodService#onBindInput() when done." &&
+            preservedMethodReference.Element("c")?.Value == "InputMethodService#onBindInput()" &&
+            importedThreadRequirement.Value ==
+                "This method must be called from the main thread of your app.",
+            "remarks overlap preserves inline method markup and imports independent source guidance");
+        const string multilineMethodReferenceDocsText =
+            "<Docs>\n  <remarks>\n    <para>Calls <c>InputMethodService#onBindInput()</c> when done.</para>\n    <para>To be added.</para>\n  </remarks>\n</Docs>";
+        var multilineMethodReferenceRemarks = XElement.Parse(
+            multilineMethodReferenceDocsText).Element("remarks")!;
+        var multilineMethodReferencePlaceholder = Placeholder.Create(
+            multilineMethodReferenceRemarks.Elements("para").Last(),
+            0);
+        var multilineMethodReferenceReplacement = LimitOverlappingRemarksReplacement(
+            multilineMethodReferencePlaceholder,
+            methodReferenceDocs,
+            ReplacementFor(
+                multilineMethodReferencePlaceholder,
+                methodReferenceDocs),
+            multilineMethodReferenceRemarks);
+        Assert(
+            TryReplacePlaceholder(
+                multilineMethodReferenceDocsText,
+                new DocsBlock(0, 0, multilineMethodReferenceDocsText.Length),
+                multilineMethodReferencePlaceholder,
+                multilineMethodReferenceReplacement,
+                out var appliedMultilineMethodReferenceText,
+                out _) &&
+            appliedMultilineMethodReferenceText.Contains(
+                "\n    <para>This method must be called from the main thread of your app.</para>",
+                StringComparison.Ordinal) &&
+            !appliedMultilineMethodReferenceText.Contains(
+                "\n        <para>This method must be called from the main thread of your app.</para>",
+                StringComparison.Ordinal),
+            "multiline remarks replacements preserve the placeholder indentation");
+        Assert(
+            SourcePage.ExtractParagraphs(
+                "<p><p>Calls <code>InputMethodService.onBindInput()</code> when done.</p>.<br>This method must be called from the main thread of your app.</p></p>")
+                .Select(paragraph => paragraph.Text)
+                .SequenceEqual(
+                    [
+                        "Calls InputMethodService.onBindInput() when done.",
+                        "This method must be called from the main thread of your app.",
+                    ]),
+            "malformed Android method markup retains independent main-thread guidance");
         var unsafeInlineMarkup = XElement.Parse(
             "<para>Sets the <c>widget</c> title.<!-- authored comment --></para>");
         Assert(
@@ -11370,6 +11468,11 @@ static class ImporterProgram
                 @"</p>\s*\.\s*<br>\s*(?=Requires\b)",
                 "<br>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            html = Regex.Replace(
+                html,
+                @"</p>\s*\.\s*<br>\s*(?<thread>This method must be called from the main thread of your app\.)\s*</p>\s*</p>",
+                "</p><p>${thread}</p>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var paragraphs = new List<(int Position, SourceParagraph Paragraph)>();
             var codeRanges = new List<(int Start, int End, SourceParagraph Paragraph)>();
             var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
@@ -12036,6 +12139,8 @@ static class ImporterProgram
         public static Replacement Use(string text) => new(text, null, "");
         public static Replacement UseRemarks(IReadOnlyList<SourceParagraph> remarks) =>
             new(remarks[0].Text, null, "", remarks);
+        public static Replacement RemoveRemarksPlaceholder() =>
+            new("", null, "", []);
         public static Replacement Skip(string reason, string detail) => new(null, reason, detail);
     }
 
