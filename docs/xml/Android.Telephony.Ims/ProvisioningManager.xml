@@ -122,8 +122,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="capability">To be added.</param>
-        <param name="tech">To be added.</param>
+        <param name="capability">Value is either 0 or a combination of the following: MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VOICE; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VIDEO; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_UT; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_SMS; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_CALL_COMPOSER; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_CALL_COMPOSER_BUSINESS_ONLY</param>
+        <param name="tech">Value is one of the following: ImsRegistrationImplBase.REGISTRATION_TECH_NONE; ImsRegistrationImplBase.REGISTRATION_TECH_LTE; ImsRegistrationImplBase.REGISTRATION_TECH_IWLAN; ImsRegistrationImplBase.REGISTRATION_TECH_CROSS_SIM; ImsRegistrationImplBase.REGISTRATION_TECH_NR; ImsRegistrationImplBase.REGISTRATION_TECH_3G</param>
         <summary>Get the provisioning status for the IMS MmTel capability specified.</summary>
         <returns>true if the device is provisioned for the capability or does not require
             provisioning, false if the capability does require provisioning and has not been
@@ -200,8 +200,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="capability">To be added.</param>
-        <param name="tech">To be added.</param>
+        <param name="capability">Value is either 0 or a combination of the following: ImsRcsManager.CAPABILITY_TYPE_NONE; ImsRcsManager.CAPABILITY_TYPE_OPTIONS_UCE; ImsRcsManager.CAPABILITY_TYPE_PRESENCE_UCE</param>
+        <param name="tech">Value is one of the following: ImsRegistrationImplBase.REGISTRATION_TECH_NONE; ImsRegistrationImplBase.REGISTRATION_TECH_LTE; ImsRegistrationImplBase.REGISTRATION_TECH_IWLAN; ImsRegistrationImplBase.REGISTRATION_TECH_CROSS_SIM; ImsRegistrationImplBase.REGISTRATION_TECH_NR; ImsRegistrationImplBase.REGISTRATION_TECH_3G</param>
         <summary>Get the provisioning status for the IMS RCS capability specified.</summary>
         <returns>true if the device is provisioned for the capability or does not require
             provisioning, false if the capability does require provisioning and has not been
@@ -277,8 +277,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="capability">To be added.</param>
-        <param name="tech">To be added.</param>
+        <param name="capability">Value is either 0 or a combination of the following: MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VOICE; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VIDEO; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_UT; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_SMS; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_CALL_COMPOSER; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_CALL_COMPOSER_BUSINESS_ONLY</param>
+        <param name="tech">Value is one of the following: ImsRegistrationImplBase.REGISTRATION_TECH_NONE; ImsRegistrationImplBase.REGISTRATION_TECH_LTE; ImsRegistrationImplBase.REGISTRATION_TECH_IWLAN; ImsRegistrationImplBase.REGISTRATION_TECH_CROSS_SIM; ImsRegistrationImplBase.REGISTRATION_TECH_NR; ImsRegistrationImplBase.REGISTRATION_TECH_3G</param>
         <summary>Indicates whether provisioning for the MMTEL capability and IMS registration technology
             specified is required or not</summary>
         <returns>true if provisioning is required for the MMTEL capability and IMS
@@ -353,8 +353,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="capability">To be added.</param>
-        <param name="tech">To be added.</param>
+        <param name="capability">Value is either 0 or a combination of the following: ImsRcsManager.CAPABILITY_TYPE_NONE; ImsRcsManager.CAPABILITY_TYPE_OPTIONS_UCE; ImsRcsManager.CAPABILITY_TYPE_PRESENCE_UCE</param>
+        <param name="tech">Value is one of the following: ImsRegistrationImplBase.REGISTRATION_TECH_NONE; ImsRegistrationImplBase.REGISTRATION_TECH_LTE; ImsRegistrationImplBase.REGISTRATION_TECH_IWLAN; ImsRegistrationImplBase.REGISTRATION_TECH_CROSS_SIM; ImsRegistrationImplBase.REGISTRATION_TECH_NR; ImsRegistrationImplBase.REGISTRATION_TECH_3G</param>
         <summary>Indicates whether provisioning for the RCS capability and IMS registration technology
             specified is required or not</summary>
         <returns>true if provisioning is required for the RCS capability and IMS
@@ -444,10 +444,16 @@
         <Parameter Name="callback" Type="Android.Telephony.Ims.ProvisioningManager+FeatureProvisioningCallback" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">The executor that the callback methods will be called on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">The callback instance being registered. This value cannot be null.</param>
+        <summary>Register a new FeatureProvisioningCallback, which is used to listen for IMS feature provisioning updates.</summary>
+        <remarks>
+          <para>Register a new FeatureProvisioningCallback, which is used to listen for IMS feature provisioning updates.</para>
+          <para>When the subscription associated with this callback is removed (SIM removed, ESIM swap,etc...), this callback will automatically be removed.</para>
+          <para>Requires Permission: android.Manifest.permission#READ_PRIVILEGED_PHONE_STATE, Manifest.permission.READ_PRECISE_PHONE_STATE, or that the caller has carrier privileges (see TelephonyManager.hasCarrierPrivileges()).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/ims/ProvisioningManager#registerFeatureProvisioningChangedCallback(java.util.concurrent.Executor,%20android.telephony.ims.ProvisioningManager.FeatureProvisioningCallback)" title="Reference documentation">Android reference for <code>android.telephony.ims.ProvisioningManager.registerFeatureProvisioningChangedCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetProvisioningStatusForCapability">
@@ -497,8 +503,8 @@
         <Parameter Name="isProvisioned" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="capability">To be added.</param>
-        <param name="tech">To be added.</param>
+        <param name="capability">Value is either 0 or a combination of the following: MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VOICE; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_VIDEO; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_UT; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_SMS; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_CALL_COMPOSER; MmTelFeature.MmTelCapabilities.CAPABILITY_TYPE_CALL_COMPOSER_BUSINESS_ONLY</param>
+        <param name="tech">Value is one of the following: ImsRegistrationImplBase.REGISTRATION_TECH_NONE; ImsRegistrationImplBase.REGISTRATION_TECH_LTE; ImsRegistrationImplBase.REGISTRATION_TECH_IWLAN; ImsRegistrationImplBase.REGISTRATION_TECH_CROSS_SIM; ImsRegistrationImplBase.REGISTRATION_TECH_NR; ImsRegistrationImplBase.REGISTRATION_TECH_3G</param>
         <param name="isProvisioned">true if the device is provisioned for UT over IMS, false otherwise.</param>
         <summary>Set the provisioning status for the IMS MmTel capability using the specified subscription.</summary>
         <remarks>
@@ -573,8 +579,8 @@
         <Parameter Name="isProvisioned" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="capability">To be added.</param>
-        <param name="tech">To be added.</param>
+        <param name="capability">Value is either 0 or a combination of the following: ImsRcsManager.CAPABILITY_TYPE_NONE; ImsRcsManager.CAPABILITY_TYPE_OPTIONS_UCE; ImsRcsManager.CAPABILITY_TYPE_PRESENCE_UCE</param>
+        <param name="tech">Value is one of the following: ImsRegistrationImplBase.REGISTRATION_TECH_NONE; ImsRegistrationImplBase.REGISTRATION_TECH_LTE; ImsRegistrationImplBase.REGISTRATION_TECH_IWLAN; ImsRegistrationImplBase.REGISTRATION_TECH_CROSS_SIM; ImsRegistrationImplBase.REGISTRATION_TECH_NR; ImsRegistrationImplBase.REGISTRATION_TECH_3G</param>
         <param name="isProvisioned">true if the device is provisioned for the RCS capability specified,
                                  false otherwise.</param>
         <summary>Set the provisioning status for the IMS RCS capability using the specified subscription.</summary>
@@ -688,9 +694,13 @@
         <Parameter Name="callback" Type="Android.Telephony.Ims.ProvisioningManager+FeatureProvisioningCallback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="callback">The existing FeatureProvisioningCallback to be removed. This value cannot be null.</param>
+        <summary>Unregisters a previously registered FeatureProvisioningCallback instance.</summary>
+        <remarks>
+          <para>Unregisters a previously registered FeatureProvisioningCallback instance. When the subscription associated with this callback is removed (SIM removed, ESIM swap, etc...), this callback will automatically be removed. If this method is called for an inactive subscription, it will result in a no-op.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/ims/ProvisioningManager#unregisterFeatureProvisioningChangedCallback(android.telephony.ims.ProvisioningManager.FeatureProvisioningCallback)" title="Reference documentation">Android reference for <code>android.telephony.ims.ProvisioningManager.unregisterFeatureProvisioningChangedCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
