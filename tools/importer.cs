@@ -446,6 +446,55 @@ static class ImporterProgram
                         }
                     }
 
+                    if (!ownerChanged && mapping.Docs is not null)
+                    {
+                        var refreshed = RemoveDuplicatedRemarksSourceParagraph(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs);
+                        var repairTarget = "remarks";
+                        if (refreshed.Equals(text, StringComparison.Ordinal))
+                        {
+                            refreshed = RenderExistingSourceParameterMarkup(
+                                text,
+                                file,
+                                owner,
+                                mapping.Docs);
+                            repairTarget = "param";
+                        }
+
+                        if (!refreshed.Equals(text, StringComparison.Ordinal))
+                        {
+                            file.UpdateBlockOffsets(owner.Order, refreshed);
+                            if (remaining == 0)
+                            {
+                                RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    repairTarget,
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                            else
+                            {
+                                text = refreshed;
+                                file.UpdateBlockOffsets(owner.Order, text);
+                                fileChanged = true;
+                                ownerChanged = true;
+                                remaining--;
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    repairTarget,
+                                    mapping.SourceUrl));
+                            }
+                        }
+                    }
+
                     var canRepairExistingDocumentation = !ownerChanged;
                     if (canRepairExistingDocumentation &&
                         mapping.Docs is not null &&
@@ -1046,9 +1095,7 @@ static class ImporterProgram
             .ToList();
         if (missing.Count == 0)
         {
-            return Replacement.Skip(
-                "source_remarks_overlap_existing_documentation",
-                "Existing remarks already contain every exact source prose fragment.");
+            return Replacement.RemoveRemarksPlaceholder();
         }
 
         var beforePlaceholder = representedElements
@@ -1072,6 +1119,121 @@ static class ImporterProgram
             .Select(index => sourceFragments[index])
             .ToList();
         return Replacement.UseRemarks(limited);
+    }
+
+    static string RemoveDuplicatedRemarksSourceParagraph(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var docs) ||
+            docs.Element("remarks") is not XElement remarks ||
+            !HasOfficialSourceReference(docs))
+        {
+            return text;
+        }
+
+        var elements = remarks.Elements().ToList();
+        var sourceFragments = ExpandRemarksFragments(sourceDocs.Paragraphs);
+        for (var index = 0; index < elements.Count - 1; index++)
+        {
+            var candidate = elements[index];
+            if (candidate.Name.LocalName != "para" ||
+                !HasPlainTextContent(candidate, out var candidateText))
+            {
+                continue;
+            }
+
+            var candidateFragments = MatchingSourceFragmentIndexes(
+                candidate,
+                sourceFragments);
+            if (candidateFragments.Count != 1 ||
+                !NormalizeSourceProseForComparison(candidateText).Equals(
+                    NormalizeSourceProseForComparison(
+                        sourceFragments[candidateFragments[0]].Text),
+                    StringComparison.Ordinal) ||
+                !MatchingSourceFragmentIndexes(
+                    elements[index + 1],
+                    sourceFragments).Contains(candidateFragments[0]) ||
+                !TryGetElementSpan(blockText, candidate, out var candidateSpan))
+            {
+                continue;
+            }
+
+            var lineStart = blockText.LastIndexOf('\n', candidateSpan.Start);
+            lineStart = lineStart < 0 ? 0 : lineStart + 1;
+            var removalStart = string.IsNullOrWhiteSpace(
+                blockText[lineStart..candidateSpan.Start])
+                ? lineStart
+                : candidateSpan.Start;
+            var lineEnd = blockText.IndexOf('\n', candidateSpan.End);
+            var removalEnd = lineEnd >= 0 &&
+                string.IsNullOrWhiteSpace(blockText[candidateSpan.End..lineEnd])
+                ? lineEnd + 1
+                : candidateSpan.End;
+            var updatedBlock = blockText[..removalStart] +
+                blockText[removalEnd..];
+            return text[..block.Start] + updatedBlock + text[block.End..];
+        }
+
+        return text;
+    }
+
+    static string RenderExistingSourceParameterMarkup(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var docs) ||
+            !HasOfficialSourceReference(docs))
+        {
+            return text;
+        }
+
+        var replacements = new List<(XmlSpan Span, string Text)>();
+        foreach (var parameter in docs.Elements("param"))
+        {
+            var name = (string?)parameter.Attribute("name");
+            if (name is null ||
+                !sourceDocs.Parameters.TryGetValue(name, out var sourceText) ||
+                !HasPlainTextContent(parameter, out var existingText))
+            {
+                continue;
+            }
+
+            var expectedText = RemoveLeadingJavaType(sourceText);
+            var replacementText = XmlEscapeDocumentationText(expectedText);
+            if (NormalizeText(existingText) != NormalizeText(expectedText) ||
+                replacementText == XmlEscape(expectedText) ||
+                !TryGetElementSpan(blockText, parameter, out var parameterSpan) ||
+                !TryGetDirectTextElementContentSpan(
+                    blockText,
+                    parameterSpan,
+                    out var contentSpan))
+            {
+                continue;
+            }
+
+            replacements.Add((contentSpan, replacementText));
+        }
+
+        if (replacements.Count == 0)
+            return text;
+
+        var updatedBlock = blockText;
+        foreach (var replacement in replacements.OrderByDescending(
+                     replacement => replacement.Span.Start))
+        {
+            updatedBlock = updatedBlock[..replacement.Span.Start] +
+                replacement.Text + updatedBlock[replacement.Span.End..];
+        }
+        return text[..block.Start] + updatedBlock + text[block.End..];
     }
 
     static List<string> SplitSourceSentences(string text)
@@ -1712,7 +1874,7 @@ static class ImporterProgram
             error = $"Could not locate the structurally identified {placeholder.Target} placeholder in its <Docs> block.";
             return false;
         }
-        var escaped = XmlEscape(replacement);
+        var escaped = XmlEscapeDocumentationText(replacement);
         if (remarksReplacement is not null && placeholder.Name == "para")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
@@ -3273,12 +3435,12 @@ static class ImporterProgram
             !HasPlainTextOrInlineCodeContent(element))
             return [];
 
-        var prose = NormalizeText(element.Value);
+        var prose = NormalizeSourceProseForComparison(element.Value);
         return sourceFragments
             .Select((fragment, index) => (fragment, index))
             .Where(item => !item.fragment.IsCode &&
                 prose.Contains(
-                    NormalizeText(item.fragment.Text),
+                    NormalizeSourceProseForComparison(item.fragment.Text),
                     StringComparison.OrdinalIgnoreCase))
             .Select(item => item.index)
             .ToList();
@@ -3712,6 +3874,12 @@ static class ImporterProgram
     static bool HasImporterSourceReference(XElement docs) =>
         docs.Descendants("para").Any(paragraph =>
             TryGetImporterSourceReferenceUrl(paragraph, out _));
+
+    static bool HasOfficialSourceReference(XElement docs) =>
+        docs.Descendants("a").Any(anchor =>
+            (string?)anchor.Attribute("title") == "Reference documentation" &&
+            IsOfficialSourceReferenceUrl(
+                WebUtility.HtmlDecode((string?)anchor.Attribute("href") ?? "")));
 
     static bool HasImporterSourceReference(string blockText) =>
         TryParseXmlElement(blockText, out var element) &&
@@ -4457,10 +4625,20 @@ static class ImporterProgram
     static string XmlEscape(string value) =>
         new XText(CleanSourceText(value)).ToString(SaveOptions.DisableFormatting);
 
+    static string XmlEscapeDocumentationText(string value)
+    {
+        var escaped = XmlEscape(value);
+        return Regex.Replace(
+            escaped,
+            @"\b(?<type>[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\.(?<member>[A-Z][A-Z0-9_]*)\b",
+            match => $"<c>{match.Groups["type"].Value}#{match.Groups["member"].Value}</c>",
+            RegexOptions.CultureInvariant);
+    }
+
     static string RenderDocumentationParagraph(SourceParagraph paragraph, string indent) =>
         paragraph.IsCode
             ? $"{indent}<code lang=\"text/java\">{new XText(paragraph.Text).ToString(SaveOptions.DisableFormatting)}</code>"
-            : $"{indent}<para>{XmlEscape(paragraph.Text)}</para>";
+            : $"{indent}<para>{XmlEscapeDocumentationText(paragraph.Text)}</para>";
 
     static XElement DocumentationElement(SourceParagraph paragraph) =>
         XElement.Parse(RenderDocumentationParagraph(paragraph, ""));
@@ -4657,6 +4835,13 @@ static class ImporterProgram
 
     static string NormalizeText(string value) =>
         Regex.Replace(WebUtility.HtmlDecode(value).Replace('\u00a0', ' '), @"\s+", " ").Trim();
+
+    static string NormalizeSourceProseForComparison(string value) =>
+        Regex.Replace(
+            NormalizeText(value),
+            @"(?<type>[A-Za-z_]\w*)\.(?<member>[A-Za-z_]\w*)\(",
+            "${type}#${member}(",
+            RegexOptions.CultureInvariant);
 
     static string NormalizeNormalWhitespace(string value) =>
         Regex.Replace(value, @"\s+", " ").Trim();
@@ -5905,6 +6090,39 @@ static class ImporterProgram
             inlineMarkupReplacement.Remarks?.Select(paragraph => paragraph.Text)
                 .SequenceEqual(["The exact JNI overload is required."]) == true,
             "remarks overlap recognizes punctuation-adjacent inline markup");
+        var methodReferenceDocs = mappedDocs with
+        {
+            Paragraphs =
+            [
+                new SourceParagraph(
+                    "Calls InputMethodService.onBindInput() when done.",
+                    IsCode: false),
+            ],
+        };
+        var methodReferenceRemarks = XElement.Parse(
+            "<remarks><para>Calls <c>InputMethodService#onBindInput()</c> when done.</para><para>To be added.</para></remarks>");
+        var methodReferencePlaceholder = Placeholder.Create(
+            methodReferenceRemarks.Elements("para").Last(),
+            0);
+        var methodReferenceReplacement = LimitOverlappingRemarksReplacement(
+            methodReferencePlaceholder,
+            methodReferenceDocs,
+            ReplacementFor(
+                methodReferencePlaceholder,
+                methodReferenceDocs),
+            methodReferenceRemarks);
+        Assert(
+            methodReferenceReplacement.Text == "" &&
+                methodReferenceReplacement.Remarks?.Count == 0,
+            "remarks overlap removes placeholders covered by inline method references");
+        Assert(
+            RenderDocumentationParagraph(
+                new SourceParagraph(
+                    "Value is either 0 or InputMethodManager.SHOW_IMPLICIT; InputMethodManager.SHOW_FORCED.",
+                    IsCode: false),
+                "") ==
+                "<para>Value is either 0 or <c>InputMethodManager#SHOW_IMPLICIT</c>; <c>InputMethodManager#SHOW_FORCED</c>.</para>",
+            "qualified Android constants render as code references");
         var unsafeInlineMarkup = XElement.Parse(
             "<para>Sets the <c>widget</c> title.<!-- authored comment --></para>");
         Assert(
@@ -12036,6 +12254,8 @@ static class ImporterProgram
         public static Replacement Use(string text) => new(text, null, "");
         public static Replacement UseRemarks(IReadOnlyList<SourceParagraph> remarks) =>
             new(remarks[0].Text, null, "", remarks);
+        public static Replacement RemoveRemarksPlaceholder() =>
+            new("", null, "", []);
         public static Replacement Skip(string reason, string detail) => new(null, reason, detail);
     }
 
