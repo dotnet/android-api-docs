@@ -454,6 +454,8 @@ static class ImporterProgram
                     var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
                     var enumListRepair = mapping.Docs is not null &&
                         HasImporterOwnedEnumListGap(owner, mapping.Docs);
+                    var summarySourceTextRepair = mapping.Docs is not null &&
+                        HasImporterOwnedSummarySourceTextRefresh(owner, mapping.Docs);
                     var enumDiscardedMetadataRepair = mapping.Docs is not null &&
                         HasEnumDiscardedMetadataCandidate(file, owner);
                     var augmentedRemarksRepair = HasAugmentedRemarksPlaceholder(file, owner);
@@ -468,6 +470,7 @@ static class ImporterProgram
                         mapping.Docs is not null &&
                         (enumSummaryRepair ||
                          enumListRepair ||
+                        summarySourceTextRepair ||
                          enumDiscardedMetadataRepair ||
                          augmentedRemarksRepair ||
                          truncatedSummaryRepair ||
@@ -475,9 +478,11 @@ static class ImporterProgram
                          metadataOnlyRemarksRepair ||
                          channelOnlyMetadataRepair))
                     {
-                        var refreshed = truncatedSummaryRepair
-                            ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
-                            : text;
+                        var refreshed = summarySourceTextRepair
+                            ? RefreshImporterOwnedSummarySourceText(text, file, owner, mapping.Docs)
+                            : truncatedSummaryRepair
+                                ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
+                                : text;
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                             file.UpdateBlockOffsets(owner.Order, refreshed);
                         if (codeExampleRepair)
@@ -2284,11 +2289,13 @@ static class ImporterProgram
         var existingSourceParagraphs = existing.Take(sourceReferenceIndex).ToList();
         if (!MatchesSourceParagraphSubsequence(
                 existingSourceParagraphs,
-                expectedSourceParagraphs) &&
+                expectedSourceParagraphs,
+                allowKnownAndroidCorrections: true) &&
             (!HasLegacyFormattedSourceReference(existing[sourceReferenceIndex]) ||
              !MatchesSourceParagraphSubsequence(
                  CoalesceLegacyNestedCodeContainers(existingSourceParagraphs),
-                 expectedSourceParagraphs)))
+                 expectedSourceParagraphs,
+                 allowKnownAndroidCorrections: true)))
         {
             return new RemarksRefreshResult(
                 text,
@@ -2296,7 +2303,11 @@ static class ImporterProgram
                 "The existing remarks prose was not an ordered structural subset of the exact mapped source.");
         }
 
-        if (existingSourceParagraphs.Count == expectedSourceParagraphs.Count)
+        if (existingSourceParagraphs.Count == expectedSourceParagraphs.Count &&
+            existingSourceParagraphs.Zip(
+                expectedSourceParagraphs,
+                (actual, expected) => ImporterMarkupEquals(actual, expected))
+                .All(equal => equal))
         {
             return new RemarksRefreshResult(
                 text,
@@ -2459,10 +2470,14 @@ static class ImporterProgram
 
     static bool MatchesSourceParagraphSubsequence(
         IReadOnlyList<XElement> existing,
-        IReadOnlyList<XElement> expected)
+        IReadOnlyList<XElement> expected,
+        bool allowKnownAndroidCorrections = false)
     {
         if (existing.Count == 0 ||
-            !ImporterMarkupEquals(existing[0], expected[0]))
+            !ImporterMarkupEquals(
+                existing[0],
+                expected[0],
+                allowKnownAndroidCorrections))
         {
             return false;
         }
@@ -2471,7 +2486,10 @@ static class ImporterProgram
         foreach (var element in existing.Skip(1))
         {
             while (expectedIndex < expected.Count &&
-                !ImporterMarkupEquals(element, expected[expectedIndex]))
+                !ImporterMarkupEquals(
+                    element,
+                    expected[expectedIndex],
+                    allowKnownAndroidCorrections))
             {
                 expectedIndex++;
             }
@@ -2510,7 +2528,10 @@ static class ImporterProgram
             $"{remarksIndent}</remarks>";
     }
 
-    static bool ImporterMarkupEquals(XElement actual, XElement expected)
+    static bool ImporterMarkupEquals(
+        XElement actual,
+        XElement expected,
+        bool allowKnownAndroidCorrections = false)
     {
         if (actual.Name != expected.Name ||
             actual.Attributes().Count() != expected.Attributes().Count() ||
@@ -2543,14 +2564,23 @@ static class ImporterProgram
             if (actualNodes[index] is XElement actualElement &&
                 expectedNodes[index] is XElement expectedElement)
             {
-                if (!ImporterMarkupEquals(actualElement, expectedElement))
+                if (!ImporterMarkupEquals(
+                        actualElement,
+                        expectedElement,
+                        allowKnownAndroidCorrections))
                     return false;
             }
             else if (actualNodes[index] is XText actualText &&
                      expectedNodes[index] is XText expectedText)
             {
-                if (!NormalizeText(actualText.Value).Equals(
-                    NormalizeText(expectedText.Value),
+                var actualValue = allowKnownAndroidCorrections
+                    ? NormalizeText(SourcePage.NormalizeAndroidSourceText(actualText.Value))
+                    : NormalizeText(actualText.Value);
+                var expectedValue = allowKnownAndroidCorrections
+                    ? NormalizeText(SourcePage.NormalizeAndroidSourceText(expectedText.Value))
+                    : NormalizeText(expectedText.Value);
+                if (!actualValue.Equals(
+                    expectedValue,
                     StringComparison.Ordinal))
                 {
                     return false;
@@ -4554,6 +4584,100 @@ static class ImporterProgram
                  candidate.Text.StartsWith(existing.Text, StringComparison.Ordinal))));
     }
 
+    static bool HasImporterOwnedSummarySourceTextRefresh(DocsOwner owner, SourceDocs docs)
+    {
+        if (owner.Docs.Element("summary") is not XElement summary)
+        {
+            return false;
+        }
+
+        return HasImporterOwnedSummarySourceTextRefresh(summary, docs);
+    }
+
+    static bool HasImporterOwnedSummarySourceTextRefresh(XElement summary, SourceDocs docs)
+    {
+        if (docs.SourceKind != "android" ||
+            !HasImporterOwnedEnumMetadata(summary, docs))
+        {
+            return false;
+        }
+
+        var content = summary.Nodes()
+            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
+            .ToList();
+        if (content.Any(node => node is not XElement element ||
+                (element.Name != "para" && element.Name != "code") ||
+                (element.Name == "para" &&
+                 !IsImporterOwnedEnumMetadataParagraph(element, docs) &&
+                 element.HasElements) ||
+                (element.Name == "code" &&
+                 (!string.Equals((string?)element.Attribute("lang"), "text/java",
+                     StringComparison.Ordinal) ||
+                  element.HasElements))))
+        {
+            return false;
+        }
+
+        var current = content
+            .Cast<XElement>()
+            .Where(element => element.Name != "para" ||
+                !IsImporterOwnedEnumMetadataParagraph(element, docs))
+            .Select(element => new SourceParagraph(
+                element.Name == "code" ? element.Value : CleanSourceText(element.Value),
+                element.Name == "code"))
+            .ToList();
+        var source = docs.Paragraphs
+            .Select(paragraph => new SourceParagraph(
+                paragraph.IsCode ? paragraph.Text : CleanSourceText(paragraph.Text),
+                paragraph.IsCode))
+            .Where(paragraph => paragraph.IsCode ||
+                IsMeaningfulChannel(paragraph.Text, "remarks"))
+            .ToList();
+
+        if (current.Count != source.Count)
+            return false;
+
+        var foundKnownArtifact = false;
+        foreach (var (existing, candidate) in current.Zip(source))
+        {
+            if (existing.IsCode != candidate.IsCode)
+                return false;
+            if (existing.Text.Equals(candidate.Text, StringComparison.Ordinal))
+                continue;
+            if (!existing.Text.Contains(
+                    "AccessibilityServiceAccessibilityService.getWindows()",
+                    StringComparison.Ordinal) ||
+                !SourcePage.NormalizeAndroidSourceText(existing.Text).Equals(
+                    candidate.Text,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+            foundKnownArtifact = true;
+        }
+
+        return foundKnownArtifact;
+    }
+
+    static string RefreshImporterOwnedSummarySourceText(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var refreshedBlock = AddEnumSummaryMetadata(
+            blockText,
+            file,
+            owner,
+            docs,
+            allowCreation: false);
+        return refreshedBlock.Equals(blockText, StringComparison.Ordinal)
+            ? text
+            : text[..block.Start] + refreshedBlock + text[block.End..];
+    }
+
     static bool HasPotentialEnumListRepair(LoadedFile file, DocsOwner owner) =>
         owner.IsEnumField &&
         HasImporterSourceReference(file, owner);
@@ -4654,6 +4778,7 @@ static class ImporterProgram
             sourceParagraphs.Skip(1).Any(paragraph =>
                 !IsDeprecationParagraph(paragraph));
         var listRepairEligible = HasImporterOwnedEnumListGap(owner, docs);
+        var sourceTextRepairEligible = HasImporterOwnedSummarySourceTextRefresh(owner, docs);
         var creationEligible = !hasReferenceMetadata &&
             !hasAttribution &&
             allowCreation &&
@@ -4667,7 +4792,8 @@ static class ImporterProgram
             StringComparer.Ordinal);
         if (hasReferenceMetadata || hasAttribution)
         {
-            if (alreadyComplete || (!repairEligible && !listRepairEligible))
+            if (alreadyComplete ||
+                (!repairEligible && !listRepairEligible && !sourceTextRepairEligible))
                 return blockText;
         }
         else if (!allowCreation)
@@ -4688,7 +4814,7 @@ static class ImporterProgram
         var summaryIndent = candidateIndent.All(char.IsWhiteSpace) ? candidateIndent : "";
         var paraIndent = summaryIndent + "  ";
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
-        var additions = repairEligible || creationEligible || listRepairEligible
+        var additions = repairEligible || creationEligible || listRepairEligible || sourceTextRepairEligible
             ? sourceDocumentation
                 .Select(paragraph => RenderDocumentationParagraph(paragraph, paraIndent))
                 .ToList()
@@ -8928,6 +9054,16 @@ static class ImporterProgram
             "Javadoc button controls are excluded from prose");
         Assert(
             SourcePage.HtmlText(
+                "<p>calling AccessibilityService<code><a href=\"#getWindows\">AccessibilityService.getWindows()</a></code> will return an empty list</p>") ==
+                "calling AccessibilityService.getWindows() will return an empty list",
+            "adjacent Android receiver text and linked member reference are not duplicated");
+        Assert(
+            SourcePage.HtmlText(
+                "<p>The callback will occur on the services's main thread if the handler is null.</p>") ==
+                "The callback will occur on the service's main thread if the handler is null.",
+            "known Android service-thread typo is corrected");
+        Assert(
+            SourcePage.HtmlText(
                 "<p>Supported loops:</p><ul><li><code>for (;;) { process(); }</code></li></ul><p>continue.</p>") ==
                 "Supported loops: for (;;) { process(); } continue.",
             "inline Java code semicolons are preserved in list prose");
@@ -12356,7 +12492,23 @@ static class ImporterProgram
                 @"</?(?:p|div|li|tr|td|th|dd|dt|br|ul|ol|blockquote)\b[^>]*>",
                 " ",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            return CleanSourceText(StripHtmlTags(withBreaks, addWhitespace: false));
+            return NormalizeAndroidSourceText(
+                CleanSourceText(StripHtmlTags(withBreaks, addWhitespace: false)));
+        }
+
+        internal static string NormalizeAndroidSourceText(string text)
+        {
+            text = Regex.Replace(
+                text,
+                @"(?<![A-Za-z0-9_.])(?<type>[A-Z][A-Za-z0-9_]*)\k<type>\.(?<member>[A-Za-z_][A-Za-z0-9_]*\([^)]*\))",
+                "${type}.${member}",
+                RegexOptions.CultureInvariant);
+
+            // Correct a known typo on the Android SoftKeyboardController reference page.
+            return text.Replace(
+                "services's main thread if the handler is null",
+                "service's main thread if the handler is null",
+                StringComparison.Ordinal);
         }
 
         internal static string HtmlTableCellText(string html)
