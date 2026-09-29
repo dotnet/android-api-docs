@@ -911,7 +911,54 @@ static class ImporterProgram
         {
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
+        docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    static SourceDocs WithoutKnownUnsafeAndroidSourceChannels(string ownerId, SourceDocs docs)
+    {
+        var sourceText = string.Join(
+            "\n",
+            new[] { docs.Summary, docs.Returns }
+                .Concat(docs.Paragraphs.Select(paragraph => paragraph.Text))
+                .Concat(docs.Parameters.Values));
+        var targets = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (ownerId == "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)" &&
+            sourceText.Contains(
+                "solicited (aka active - publish packets are transmitted over-the-air)",
+                StringComparison.Ordinal) &&
+            sourceText.Contains(
+                "unsolicited (aka passive - no publish packets are transmitted",
+                StringComparison.Ordinal))
+        {
+            const string detail =
+                "The exact Android source reverses the documented solicited and unsolicited publish semantics.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
+        if ((ownerId is
+                "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetMaxDistanceMm(System.Int32)" or
+                "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetMinDistanceMm(System.Int32)") &&
+            sourceText.Contains("min <= distance <= max", StringComparison.Ordinal) &&
+            sourceText.Contains("distance <= max or distance >= min", StringComparison.Ordinal))
+        {
+            targets["remarks"] =
+                "The exact Android source combines mutually exclusive legacy and ingress/egress geofence rules.";
+        }
+
+        if (ownerId == "M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPort(System.Int32)" &&
+            docs.Parameters.TryGetValue("port", out var port) &&
+            port.Contains("between 0 and 65535 inclusive", StringComparison.Ordinal))
+        {
+            targets["param:port"] =
+                "The exact Android source allows port 0 even though the corresponding setter rejects non-positive ports.";
+        }
+
+        return targets.Count == 0
+            ? docs
+            : docs with { UnsafeTargets = targets };
     }
 
     static SourceDocs WithSemanticSummaryIfNecessary(SourceDocs docs) =>
@@ -1055,6 +1102,9 @@ static class ImporterProgram
         SourceDocs docs,
         bool isEnumField = false)
     {
+        if (docs.UnsafeTargets?.TryGetValue(placeholder.Target, out var unsafeTargetDetail) == true)
+            return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
+
         if (placeholder.IsImporterMetadataRepair)
             return RemarksReplacementOrSkip(docs.Paragraphs, "source_remarks_missing");
 
@@ -10241,6 +10291,65 @@ static class ImporterProgram
             _ = XDocument.Load(tempPath, LoadOptions.PreserveWhitespace);
             Assert(true, "atomic write produced valid XML");
 
+            var unsafePublishDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)",
+                new SourceDocs(
+                    "Specify the type: solicited (aka active - publish packets are transmitted over-the-air), or unsolicited (aka passive - no publish packets are transmitted).",
+                    [],
+                    new Dictionary<string, string>(),
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setPublishType(int)",
+                    "android.net.wifi.aware.PublishConfig.Builder.setPublishType",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "summary", "", "summary"),
+                    unsafePublishDocs).Reason == "source_channel_ambiguous" &&
+                ReplacementFor(
+                    new Placeholder(1, "remarks", "", "remarks"),
+                    unsafePublishDocs).Reason == "source_channel_ambiguous",
+                "unsafe publish session semantics are not imported");
+
+            var unsafeGeofenceDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetMaxDistanceMm(System.Int32)",
+                new SourceDocs(
+                    "Configure the maximum distance.",
+                    [new SourceParagraph(
+                        "Discovery with min <= distance <= max. The ingress rule is distance <= max or distance >= min.",
+                        false)],
+                    new Dictionary<string, string>(),
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/net/wifi/aware/SubscribeConfig.Builder#setMaxDistanceMm(int)",
+                    "android.net.wifi.aware.SubscribeConfig.Builder.setMaxDistanceMm",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "remarks", "", "remarks"),
+                    unsafeGeofenceDocs).Reason == "source_channel_ambiguous",
+                "unsafe geofence remarks are not imported");
+
+            var unsafePortDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPort(System.Int32)",
+                new SourceDocs(
+                    "Configure the port.",
+                    [],
+                    new Dictionary<string, string>
+                    {
+                        ["port"] = "A positive integer. Value is between 0 and 65535 inclusive",
+                    },
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setPort(int)",
+                    "android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setPort",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "param", "port", "param:port"),
+                    unsafePortDocs).Reason == "source_channel_ambiguous",
+                "unsafe port range is not imported");
+
             var pendingReport = new ImportReport
             {
                 Mode = "apply",
@@ -12295,7 +12404,8 @@ static class ImporterProgram
         Dictionary<string, string> Exceptions,
         string SourceUrl,
         string SourceLabel,
-        string SourceKind);
+        string SourceKind,
+        IReadOnlyDictionary<string, string>? UnsafeTargets = null);
 
     static class Descriptor
     {
