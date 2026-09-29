@@ -1714,19 +1714,27 @@ static class ImporterProgram
         if (remarksReplacement is not null && placeholder.Name == "para")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-            var replacementMarkup = TryGetLineWhitespaceIndent(
+            var replacementStart = elementStart;
+            string replacementMarkup;
+            if (TryGetLineWhitespaceIndent(
                     blockText,
                     elementStart,
-                    out _,
-                    out var indent)
-                ? string.Join(
+                    out var lineStart,
+                    out var indent))
+            {
+                replacementStart = lineStart;
+                replacementMarkup = string.Join(
                     newline,
                     remarksReplacement.Select(paragraph =>
-                        RenderDocumentationParagraph(paragraph, indent)))
-                : string.Concat(
+                        RenderDocumentationParagraph(paragraph, indent)));
+            }
+            else
+            {
+                replacementMarkup = string.Concat(
                     remarksReplacement.Select(paragraph =>
                         RenderDocumentationParagraph(paragraph, "")));
-            var replacementParagraphBlock = blockText[..elementStart] + replacementMarkup +
+            }
+            var replacementParagraphBlock = blockText[..replacementStart] + replacementMarkup +
                 blockText[elementEnd..];
             updated = text[..block.Start] + replacementParagraphBlock + text[block.End..];
             error = "";
@@ -5956,6 +5964,35 @@ static class ImporterProgram
             importedThreadRequirement.Value ==
                 "This method must be called from the main thread of your app.",
             "remarks overlap preserves inline method markup and imports independent source guidance");
+        const string multilineMethodReferenceDocsText =
+            "<Docs>\n  <remarks>\n    <para>Calls <c>InputMethodService#onBindInput()</c> when done.</para>\n    <para>To be added.</para>\n  </remarks>\n</Docs>";
+        var multilineMethodReferenceRemarks = XElement.Parse(
+            multilineMethodReferenceDocsText).Element("remarks")!;
+        var multilineMethodReferencePlaceholder = Placeholder.Create(
+            multilineMethodReferenceRemarks.Elements("para").Last(),
+            0);
+        var multilineMethodReferenceReplacement = LimitOverlappingRemarksReplacement(
+            multilineMethodReferencePlaceholder,
+            methodReferenceDocs,
+            ReplacementFor(
+                multilineMethodReferencePlaceholder,
+                methodReferenceDocs),
+            multilineMethodReferenceRemarks);
+        Assert(
+            TryReplacePlaceholder(
+                multilineMethodReferenceDocsText,
+                new DocsBlock(0, 0, multilineMethodReferenceDocsText.Length),
+                multilineMethodReferencePlaceholder,
+                multilineMethodReferenceReplacement,
+                out var appliedMultilineMethodReferenceText,
+                out _) &&
+            appliedMultilineMethodReferenceText.Contains(
+                "\n    <para>This method must be called from the main thread of your app.</para>",
+                StringComparison.Ordinal) &&
+            !appliedMultilineMethodReferenceText.Contains(
+                "\n        <para>This method must be called from the main thread of your app.</para>",
+                StringComparison.Ordinal),
+            "multiline remarks replacements preserve the placeholder indentation");
         Assert(
             SourcePage.ExtractParagraphs(
                 "<p><p>Calls <code>InputMethodService.onBindInput()</code> when done.</p>.<br>This method must be called from the main thread of your app.</p></p>")
