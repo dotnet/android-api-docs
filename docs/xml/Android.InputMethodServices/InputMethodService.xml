@@ -573,8 +573,14 @@
       </Parameters>
       <Docs>
         <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Finishes the current connectionless stylus handwriting session and delivers the result.</summary>
+        <remarks>
+          <para>Finishes the current connectionless stylus handwriting session and delivers the result.</para>
+          <para>This dismisses the ink window and stops intercepting stylus MotionEvents.</para>
+          <para>Note for IME developers: Call this method at any time to finish the current handwriting session. Generally, this should be invoked after a short timeout, giving the user enough time to start the next stylus stroke, if any. By default, system will time-out after few seconds. To override default timeout, use setStylusHandwritingSessionTimeout(Duration).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/inputmethodservice/InputMethodService#finishConnectionlessStylusHandwriting(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.inputmethodservice.InputMethodService.finishConnectionlessStylusHandwriting</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FinishConnectionlessStylusHandwriting">
@@ -1620,9 +1626,18 @@
         <Parameter Name="visible" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="visible">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="visible">whether the button is requested visible or not.</param>
+        <summary>Called when the requested visibility of a custom IME Switcher button changes.</summary>
+        <remarks>
+          <para>Called when the requested visibility of a custom IME Switcher button changes.</para>
+          <para>When this method is called with true by the system, the IME must show a button within its UI to switch IMEs. When it is called with false, it must hide this button.</para>
+          <para>Normally, the system provides a button for switching to a different IME when that is appropriate. Under certain circumstances, namely when the IME successfully asks to hide the system-provided navigation bar (with getWindowInsetsController().hide(captionBar())), providing this button is delegated to the IME through this callback.</para>
+          <para>This does not depend on the current visibility of the IME. It could be called with true while the IME is hidden, in which case the IME should prepare to show the button as soon as the IME itself is shown.</para>
+          <para>This is only called when the requested visibility changes. The default value is false and as such, this will not be called initially if the resulting value is false.</para>
+          <para>This can be called at any time after onCreate(), even if the IME is not currently visible. However, this is not guaranteed to be called before the IME is shown, as it may depend on the IME requesting to hide the system-provided navigation bar. If the request is sent during the showing flow (e.g. during onStartInputView(EditorInfo, boolean)), this will be called shortly after onWindowShown(), but before the first IME frame is drawn.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/inputmethodservice/InputMethodService#onCustomImeSwitcherButtonRequestedVisible(boolean)" title="Reference documentation">Android reference for <code>android.inputmethodservice.InputMethodService.onCustomImeSwitcherButtonRequestedVisible</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnDisplayCompletions">
@@ -2718,9 +2733,15 @@
       <Docs>
         <param name="inputType">To be added.</param>
         <param name="cursorAnchorInfo">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>Called when an app requests to start a connectionless stylus handwriting session using one of InputMethodManager.startConnectionlessStylusHandwriting(View,CursorAnchorInfo,Executor,ConnectionlessHandwritingCallback), InputMethodManager.startConnectionlessStylusHandwritingForDelegation(View,CursorAnchorInfo,Executor,ConnectionlessHandwritingCallback), or InputMethodManager.startConnectionlessStylusHandwritingForDelegation(View,CursorAnchorInfo,String,Executor,ConnectionlessHandwritingCallback).</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called when an app requests to start a connectionless stylus handwriting session using one of InputMethodManager.startConnectionlessStylusHandwriting(View,CursorAnchorInfo,Executor,ConnectionlessHandwritingCallback), InputMethodManager.startConnectionlessStylusHandwritingForDelegation(View,CursorAnchorInfo,Executor,ConnectionlessHandwritingCallback), or InputMethodManager.startConnectionlessStylusHandwritingForDelegation(View,CursorAnchorInfo,String,Executor,ConnectionlessHandwritingCallback).</para>
+          <para>A connectionless stylus handwriting session differs from a regular session in that an input connection is not used to communicate with a text editor. Instead, the recognised text is delivered when the IME finishes the connectionless session using finishConnectionlessStylusHandwriting(CharSequence).</para>
+          <para>If the IME can start the connectionless handwriting session, it should return true, ensure its inking views are attached to the getStylusHandwritingWindow(), and handle stylus input received from onStylusHandwritingMotionEvent(MotionEvent) on the getStylusHandwritingWindow().</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/inputmethodservice/InputMethodService#onStartConnectionlessStylusHandwriting(int,%20android.view.inputmethod.CursorAnchorInfo)" title="Reference documentation">Android reference for <code>android.inputmethodservice.InputMethodService.onStartConnectionlessStylusHandwriting</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnStartInput">
@@ -3929,9 +3950,16 @@
         <Parameter Name="handwritingRegion" Type="Android.Graphics.Region" />
       </Parameters>
       <Docs>
-        <param name="handwritingRegion">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="handwritingRegion">new stylus handwritable Region that can accept stylus touch. This value cannot be null.</param>
+        <summary>Sets a new stylus handwriting region as user continues to write on an editor on screen.</summary>
+        <remarks>
+          <para>Sets a new stylus handwriting region as user continues to write on an editor on screen. Stylus strokes that are started within the touchableRegion are treated as continuation of handwriting and all the events outside are passed-through to the IME target app, causing stylus handwriting to finish finishStylusHandwriting(). By default, the entire screen area is handwritable and touchableRegion resets after each handwriting session.</para>
+          <para>For example, the IME can use this API to dynamically expand the stylus handwriting region on every stylus stroke as user continues to write on an editor. The region should grow around the last stroke so that a UI element below the IME window is still interactable when it is spaced sufficiently away (~2 character dimensions) from last stroke.</para>
+          <para>Note: Setting handwriting touchable region is supported on IMEs that support stylus handwriting InputMethodInfo.supportsStylusHandwriting().</para>
+          <para>Note: If the IME decides to use this API, it should be updating the desired region accordingly, on configuration changes, such as changes of screen bounds, density.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/inputmethodservice/InputMethodService#setStylusHandwritingRegion(android.graphics.Region)" title="Reference documentation">Android reference for <code>android.inputmethodservice.InputMethodService.setStylusHandwritingRegion</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ShouldOfferSwitchingToNextInputMethod">
