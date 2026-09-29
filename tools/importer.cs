@@ -8845,6 +8845,13 @@ static class ImporterProgram
                 multiBridgeParagraphs[2].Text == "Second: Three; Four" &&
                 multiBridgeParagraphs[3].Text == "Last.",
             "multiple list bridges retain following paragraphs and nested list content");
+        var missingJavaSignaturePeriod = SourcePage.ExtractBlocks(
+            "<div class=\"block\">Sets a value.<p>The method signature is of the form <code>(T value)void</code></p><p>The symbolic type descriptor must match.</p></div>");
+        Assert(
+            missingJavaSignaturePeriod.Count == 1 &&
+                missingJavaSignaturePeriod[0].Text ==
+                "Sets a value. The method signature is of the form (T value)void. The symbolic type descriptor must match.",
+            "Java signature paragraph boundaries preserve a sentence separator");
 
         var enumFile = LoadedFile.Load(
             repositoryRoot,
@@ -11918,7 +11925,7 @@ static class ImporterProgram
                 paragraphs.Add((position, new SourceParagraph(value, IsCode: false)));
         }
 
-        static List<SourceParagraph> ExtractBlocks(string html) =>
+        internal static List<SourceParagraph> ExtractBlocks(string html) =>
             Regex.Matches(
                 html,
                 @"<div\b(?<attrs>[^>]*)>(?<body>.*?)</div>",
@@ -11941,6 +11948,7 @@ static class ImporterProgram
 
         static List<SourceParagraph> ExtractBlockParagraphs(string html)
         {
+            html = NormalizeJavaSignatureParagraphBoundary(html);
             var codeExamples = Regex.Matches(
                 html,
                 @"<pre\b[^>]*>(?<body>.*?)</pre>",
@@ -11964,6 +11972,13 @@ static class ImporterProgram
             AddBlockTextParagraph(html[position..], paragraphs);
             return paragraphs;
         }
+
+        static string NormalizeJavaSignatureParagraphBoundary(string html) =>
+            Regex.Replace(
+                html,
+                @"(?<signature>The method signature is of the form\s*<code\b[^>]*>.*?</code>)\s*</p>\s*(?<next><p\b[^>]*>\s*)(?=The symbolic type descriptor\b)",
+                match => match.Groups["signature"].Value + ".</p>" + match.Groups["next"].Value,
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         static void AddBlockTextParagraph(
             string html,
