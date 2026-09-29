@@ -101,11 +101,17 @@
         <Parameter Name="amount" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="temporal">To be added.</param>
-        <param name="amount">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="temporal">the temporal object to adjust, not null</param>
+        <param name="amount">the amount of this unit to add, positive or negative</param>
+        <summary>Returns a copy of the specified temporal object with the specified period added.</summary>
+        <returns>the adjusted temporal object, not null</returns>
         <remarks>
+          <para>Returns a copy of the specified temporal object with the specified period added. The period added is a multiple of this unit. For example, this method could be used to add "3 days" to a date by calling this method on the instance representing "days", passing the date and the period "3". The period to be added may be negative, which is equivalent to subtraction. There are two equivalent ways of using this method. The first is to invoke this method directly. The second is to use Temporal.plus(long, TemporalUnit):</para>
+          <code lang="text/java">   // these two lines are equivalent, but the second approach is recommended
+   temporal = thisUnit.addTo(temporal);
+   temporal = temporal.plus(thisUnit);</code>
+          <para>It is recommended to use the second approach, plus(TemporalUnit), as it is a lot clearer to read in code. Implementations should perform any queries or calculations using the units available in ChronoUnit or the fields available in ChronoField. If the unit is not supported an UnsupportedTemporalTypeException must be thrown. Implementations must not alter the specified temporal object. Instead, an adjusted copy of the original must be returned. This provides equivalent, safe behavior for immutable and mutable implementations.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#addTo(R,long)" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.addTo</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -141,11 +147,22 @@
         <Parameter Name="temporal2Exclusive" Type="Java.Time.Temporal.ITemporal" />
       </Parameters>
       <Docs>
-        <param name="temporal1Inclusive">To be added.</param>
-        <param name="temporal2Exclusive">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="temporal1Inclusive">the base temporal object, not null</param>
+        <param name="temporal2Exclusive">the other temporal object, exclusive, not null</param>
+        <summary>Calculates the amount of time between two temporal objects.</summary>
+        <returns>the amount of time between temporal1Inclusive and temporal2Exclusive in terms of this unit; positive if temporal2Exclusive is later than temporal1Inclusive, negative if earlier</returns>
+        <remarks>
+          <para>Calculates the amount of time between two temporal objects. This calculates the amount in terms of this unit. The start and end points are supplied as temporal objects and must be of compatible types. The implementation will convert the second type to be an instance of the first type before the calculating the amount. The result will be negative if the end is before the start. For example, the amount in hours between two temporal objects can be calculated using HOURS.between(startTime, endTime). The calculation returns a whole number, representing the number of complete units between the two temporals. For example, the amount in hours between the times 11:30 and 13:29 will only be one hour as it is one minute short of two hours. There are two equivalent ways of using this method. The first is to invoke this method directly. The second is to use Temporal.until(Temporal, TemporalUnit):</para>
+          <code lang="text/java">   // these two lines are equivalent
+   between = thisUnit.between(start, end);
+   between = start.until(end, thisUnit);</code>
+          <para>The choice should be made based on which makes the code more readable. For example, this method allows the number of days between two dates to be calculated:</para>
+          <code lang="text/java">  long daysBetween = DAYS.between(start, end);
+  // or alternatively
+  long daysBetween = start.until(end, DAYS);</code>
+          <para>Implementations should perform any queries or calculations using the units available in ChronoUnit or the fields available in ChronoField. If the unit is not supported an UnsupportedTemporalTypeException must be thrown. Implementations must not alter the specified temporal objects.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#between(java.time.temporal.Temporal,java.time.temporal.Temporal)" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.between</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Centuries">
@@ -172,9 +189,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a century.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a century. For the ISO calendar system, it is equal to 100 years. When used with other calendar systems it must correspond to an integral number of days and is normally an integral number of years.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#CENTURIES" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.CENTURIES</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -203,9 +222,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a day.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a day. For the ISO calendar system, it is the standard day from midnight to midnight. The estimated duration of a day is 24 Hours. When used with other calendar systems it must correspond to the day defined by the rising and setting of the Sun on Earth. It is not required that days begin at midnight - when converting between calendar systems, the date should be equivalent at midday.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#DAYS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.DAYS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -234,9 +255,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a decade.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a decade. For the ISO calendar system, it is equal to 10 years. When used with other calendar systems it must correspond to an integral number of days and is normally an integral number of years.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#DECADES" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.DECADES</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -311,9 +334,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of an era.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of an era. The ISO calendar system doesn't have eras thus it is impossible to add an era to a date or date-time. The estimated duration of the era is artificially defined as 1,000,000,000 Years. When used with other calendar systems there are no restrictions on the unit.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#ERAS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.ERAS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -342,9 +367,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Artificial unit that represents the concept of forever.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Artificial unit that represents the concept of forever. This is primarily used with TemporalField to represent unbounded fields such as the year or era. The estimated duration of this unit is artificially defined as the largest duration supported by Duration.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#FOREVER" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.FOREVER</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -373,9 +400,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of half a day, as used in AM/PM.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of half a day, as used in AM/PM. For the ISO calendar system, it is equal to 12 hours.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#HALF_DAYS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.HALF_DAYS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -404,9 +433,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of an hour.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of an hour. For the ISO calendar system, it is equal to 60 minutes.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#HOURS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.HOURS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -675,9 +706,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a microsecond.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a microsecond. For the ISO calendar system, it is equal to the 1,000,000th part of the second unit.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#MICROS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.MICROS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -706,9 +739,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a millennium.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a millennium. For the ISO calendar system, it is equal to 1000 years. When used with other calendar systems it must correspond to an integral number of days and is normally an integral number of years.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#MILLENNIA" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.MILLENNIA</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -737,9 +772,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a millisecond.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a millisecond. For the ISO calendar system, it is equal to the 1000th part of the second unit.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#MILLIS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.MILLIS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -768,9 +805,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a minute.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a minute. For the ISO calendar system, it is equal to 60 seconds.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#MINUTES" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.MINUTES</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -799,9 +838,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a month.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a month. For the ISO calendar system, the length of the month varies by month-of-year. The estimated duration of a month is one twelfth of 365.2425 Days. When used with other calendar systems it must correspond to an integral number of days.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#MONTHS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.MONTHS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -830,9 +871,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a nanosecond, the smallest supported unit of time.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a nanosecond, the smallest supported unit of time. For the ISO calendar system, it is equal to the 1,000,000,000th part of the second unit.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#NANOS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.NANOS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -861,9 +904,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a second.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a second. For the ISO calendar system, it is equal to the second in the SI system of units, except around a leap-second.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#SECONDS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.SECONDS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -965,10 +1010,12 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">the name of the enum constant to be returned.</param>
+        <summary>Returns the enum constant of this class with the specified name.</summary>
+        <returns>the enum constant with the specified name</returns>
         <remarks>
+          <para>Returns the enum constant of this class with the specified name. The string must match exactly an identifier used to declare an enum constant in this class. (Extraneous whitespace characters are not permitted.)</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#valueOf(java.lang.String)" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.valueOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1004,9 +1051,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns an array containing the constants of this enum class, in the order they are declared.</summary>
+        <returns>an array containing the constants of this enum class, in the order they are declared</returns>
         <remarks>
+          <para>Returns an array containing the constants of this enum class, in the order they are declared.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#values()" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.values</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1035,9 +1084,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a week.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a week. For the ISO calendar system, it is equal to 7 days. When used with other calendar systems it must correspond to an integral number of days.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#WEEKS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.WEEKS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1066,9 +1117,11 @@
         <ReturnType>Java.Time.Temporal.ChronoUnit</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unit that represents the concept of a year.</summary>
         <value>To be added.</value>
         <remarks>
+          <para>Unit that represents the concept of a year. For the ISO calendar system, it is equal to 12 months. The estimated duration of a year is 365.2425 Days. When used with other calendar systems it must correspond to an integral number of days or months roughly equal to a year defined by the passage of the Earth around the Sun.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoUnit.html#YEARS" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoUnit.YEARS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
