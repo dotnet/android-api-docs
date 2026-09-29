@@ -446,23 +446,25 @@ static class ImporterProgram
                         }
                     }
 
-                    if (!ownerChanged && mapping.Docs is not null)
+                    var reviewRepairTarget = mapping.Docs is null
+                        ? null
+                        : InputMethodServicesReviewRepairTarget(
+                            owner.Id,
+                            mapping.Docs.SourceUrl);
+                    if (!ownerChanged && mapping.Docs is not null &&
+                        reviewRepairTarget is not null)
                     {
-                        var refreshed = RemoveDuplicatedRemarksSourceParagraph(
-                            text,
-                            file,
-                            owner,
-                            mapping.Docs);
-                        var repairTarget = "remarks";
-                        if (refreshed.Equals(text, StringComparison.Ordinal))
-                        {
-                            refreshed = RenderExistingSourceParameterMarkup(
+                        var refreshed = reviewRepairTarget == "remarks"
+                            ? RemoveDuplicatedRemarksSourceParagraph(
+                                text,
+                                file,
+                                owner,
+                                mapping.Docs)
+                            : RenderExistingSourceParameterMarkup(
                                 text,
                                 file,
                                 owner,
                                 mapping.Docs);
-                            repairTarget = "param";
-                        }
 
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
@@ -473,7 +475,7 @@ static class ImporterProgram
                                 report.Entries.Add(ReportEntry.Skipped(
                                     file.RelativePath,
                                     owner.Id,
-                                    repairTarget,
+                                    reviewRepairTarget,
                                     "max_changes_reached",
                                     $"The --max-changes limit of {options.MaxChanges} was reached.",
                                     mapping.SourceUrl));
@@ -489,7 +491,7 @@ static class ImporterProgram
                                     "would_apply",
                                     file.RelativePath,
                                     owner.Id,
-                                    repairTarget,
+                                    reviewRepairTarget,
                                     mapping.SourceUrl));
                             }
                         }
@@ -1131,7 +1133,7 @@ static class ImporterProgram
         var blockText = text[block.Start..block.End];
         if (!TryParseDocsBlock(blockText, out var docs) ||
             docs.Element("remarks") is not XElement remarks ||
-            !HasOfficialSourceReference(docs))
+            !HasExactOfficialSourceReference(docs, sourceDocs))
         {
             return text;
         }
@@ -1191,7 +1193,7 @@ static class ImporterProgram
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
         if (!TryParseDocsBlock(blockText, out var docs) ||
-            !HasOfficialSourceReference(docs))
+            !HasExactOfficialSourceReference(docs, sourceDocs))
         {
             return text;
         }
@@ -1208,7 +1210,7 @@ static class ImporterProgram
             }
 
             var expectedText = RemoveLeadingJavaType(sourceText);
-            var replacementText = XmlEscapeDocumentationText(expectedText);
+            var replacementText = RenderReviewedAndroidConstantReferences(expectedText);
             if (NormalizeText(existingText) != NormalizeText(expectedText) ||
                 replacementText == XmlEscape(expectedText) ||
                 !TryGetElementSpan(blockText, parameter, out var parameterSpan) ||
@@ -1874,7 +1876,7 @@ static class ImporterProgram
             error = $"Could not locate the structurally identified {placeholder.Target} placeholder in its <Docs> block.";
             return false;
         }
-        var escaped = XmlEscapeDocumentationText(replacement);
+        var escaped = XmlEscape(replacement);
         if (remarksReplacement is not null && placeholder.Name == "para")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
@@ -3875,15 +3877,49 @@ static class ImporterProgram
         docs.Descendants("para").Any(paragraph =>
             TryGetImporterSourceReferenceUrl(paragraph, out _));
 
-    static bool HasOfficialSourceReference(XElement docs) =>
+    static bool HasExactOfficialSourceReference(
+        XElement docs,
+        SourceDocs sourceDocs) =>
         docs.Descendants("a").Any(anchor =>
             (string?)anchor.Attribute("title") == "Reference documentation" &&
-            IsOfficialSourceReferenceUrl(
-                WebUtility.HtmlDecode((string?)anchor.Attribute("href") ?? "")));
+            UrlsEqual(
+                WebUtility.HtmlDecode((string?)anchor.Attribute("href") ?? ""),
+                sourceDocs.SourceUrl));
 
     static bool HasImporterSourceReference(string blockText) =>
         TryParseXmlElement(blockText, out var element) &&
         HasImporterSourceReference(element);
+
+    static string? InputMethodServicesReviewRepairTarget(
+        string ownerId,
+        string sourceUrl)
+    {
+        if (ownerId ==
+                "M:Android.InputMethodServices.InputMethodService.InputMethodImpl.BindInput(Android.Views.InputMethods.InputBinding)" &&
+            UrlsEqual(
+                sourceUrl,
+                "https://developer.android.com/reference/android/inputmethodservice/InputMethodService.InputMethodImpl#bindInput(android.view.inputmethod.InputBinding)"))
+        {
+            return "remarks";
+        }
+
+        if (ownerId ==
+                "M:Android.InputMethodServices.InputMethodService.InputMethodImpl.UnbindInput" &&
+            UrlsEqual(
+                sourceUrl,
+                "https://developer.android.com/reference/android/inputmethodservice/InputMethodService.InputMethodImpl#unbindInput()"))
+        {
+            return "remarks";
+        }
+
+        return ownerId ==
+                "M:Android.InputMethodServices.InputMethodService.InputMethodSessionImpl.ToggleSoftInput(Android.Views.InputMethods.ShowFlags,Android.Views.InputMethods.HideSoftInputFlags)" &&
+            UrlsEqual(
+                sourceUrl,
+                "https://developer.android.com/reference/android/inputmethodservice/InputMethodService.InputMethodSessionImpl#toggleSoftInput(int,%20int)")
+            ? "param"
+            : null;
+    }
 
     static SourceReferenceCleanupResult RemoveStaleSourceLinks(
         string blockText,
@@ -4625,7 +4661,7 @@ static class ImporterProgram
     static string XmlEscape(string value) =>
         new XText(CleanSourceText(value)).ToString(SaveOptions.DisableFormatting);
 
-    static string XmlEscapeDocumentationText(string value)
+    static string RenderReviewedAndroidConstantReferences(string value)
     {
         var escaped = XmlEscape(value);
         return Regex.Replace(
@@ -4638,7 +4674,7 @@ static class ImporterProgram
     static string RenderDocumentationParagraph(SourceParagraph paragraph, string indent) =>
         paragraph.IsCode
             ? $"{indent}<code lang=\"text/java\">{new XText(paragraph.Text).ToString(SaveOptions.DisableFormatting)}</code>"
-            : $"{indent}<para>{XmlEscapeDocumentationText(paragraph.Text)}</para>";
+            : $"{indent}<para>{XmlEscape(paragraph.Text)}</para>";
 
     static XElement DocumentationElement(SourceParagraph paragraph) =>
         XElement.Parse(RenderDocumentationParagraph(paragraph, ""));
@@ -6116,13 +6152,22 @@ static class ImporterProgram
                 methodReferenceReplacement.Remarks?.Count == 0,
             "remarks overlap removes placeholders covered by inline method references");
         Assert(
-            RenderDocumentationParagraph(
-                new SourceParagraph(
-                    "Value is either 0 or InputMethodManager.SHOW_IMPLICIT; InputMethodManager.SHOW_FORCED.",
-                    IsCode: false),
-                "") ==
-                "<para>Value is either 0 or <c>InputMethodManager#SHOW_IMPLICIT</c>; <c>InputMethodManager#SHOW_FORCED</c>.</para>",
-            "qualified Android constants render as code references");
+            RenderReviewedAndroidConstantReferences(
+                "Value is either 0 or InputMethodManager.SHOW_IMPLICIT; InputMethodManager.SHOW_FORCED.") ==
+                "Value is either 0 or <c>InputMethodManager#SHOW_IMPLICIT</c>; <c>InputMethodManager#SHOW_FORCED</c>.",
+            "reviewed Android constants render as code references");
+        Assert(
+            InputMethodServicesReviewRepairTarget(
+                "M:Android.InputMethodServices.InputMethodService.InputMethodImpl.BindInput(Android.Views.InputMethods.InputBinding)",
+                "https://developer.android.com/reference/android/inputmethodservice/InputMethodService.InputMethodImpl#bindInput(android.view.inputmethod.InputBinding)") ==
+                "remarks" &&
+            InputMethodServicesReviewRepairTarget(
+                "M:Android.InputMethodServices.InputMethodService.InputMethodImpl.BindInput(Android.Views.InputMethods.InputBinding)",
+                "https://developer.android.com/reference/android/inputmethodservice/InputMethodService.InputMethodImpl#unbindInput()") is null &&
+            InputMethodServicesReviewRepairTarget(
+                "M:Android.Example.Widget.SetTitle(System.String)",
+                "https://developer.android.com/reference/android/example/Widget#setTitle(java.lang.String)") is null,
+            "review repairs are restricted to exact reviewed InputMethodServices mappings");
         var unsafeInlineMarkup = XElement.Parse(
             "<para>Sets the <c>widget</c> title.<!-- authored comment --></para>");
         Assert(
