@@ -259,11 +259,15 @@
         <Parameter Name="required" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="channelInMhz">To be added.</param>
-        <param name="required">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="channelInMhz">Channel frequency in Mhz. Value is 0 or greater</param>
+        <param name="required">If set to true, Channel request is specified and must be respected. If the firmware cannot honor the request then the data-path request is rejected. Otherwise, requested channelInMhz is a recommendation and may be overridden by the firmware.</param>
+        <summary>Configure the Channel frequency for the Wi-Fi Aware connection being requested.</summary>
+        <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure the Channel frequency for the Wi-Fi Aware connection being requested. This method is optional - if not called, then channelInMhz to use will be decided by firmware. Only use this when WifiAwareManager.isSetChannelOnDataPathSupported() is true, otherwise the set channelInMhz will be ignored.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setChannelFrequencyMhz(int,%20boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setChannelFrequencyMhz</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetDataPathSecurityConfig">
@@ -293,10 +297,14 @@
         <Parameter Name="securityConfig" Type="Android.Net.Wifi.Aware.WifiAwareDataPathSecurityConfig" />
       </Parameters>
       <Docs>
-        <param name="securityConfig">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="securityConfig">The (optional) security config to be used to encrypt the link. This value cannot be null.</param>
+        <summary>Configure security config for the Wi-Fi Aware connection being requested.</summary>
+        <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure security config for the Wi-Fi Aware connection being requested. This method is optional - if not called, then an Open (unencrypted) connection will be created. Note: this method is the superset of the setPmk(byte[]) and setPskPassphrase(String).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setDataPathSecurityConfig(android.net.wifi.aware.WifiAwareDataPathSecurityConfig)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setDataPathSecurityConfig</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPmk">
@@ -326,10 +334,14 @@
         <Parameter Name="pmk" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="pmk">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="pmk">A PMK (pairwise master key, see IEEE 802.11i) specifying the key to use for encrypting the data-path. Use the setPskPassphrase(String) to specify a Passphrase. This value cannot be null.</param>
+        <summary>Configure the PMK for the Wi-Fi Aware connection being requested.</summary>
+        <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure the PMK for the Wi-Fi Aware connection being requested. This method is optional - if not called, then an Open (unencrypted) connection will be created. Note: Use setDataPathSecurityConfig(WifiAwareDataPathSecurityConfig) to avoid interoperability issues when devices support different cipher suites by explicitly specifying a cipher suite as opposed to relying on a default cipher suite.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setPmk(byte[])" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setPmk</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPort">
@@ -359,10 +371,15 @@
         <Parameter Name="port" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="port">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="port">A positive integer indicating the port to be used for communication. Value is between 0 and 65535 inclusive</param>
+        <summary>Configure the port number which will be used to create a connection over this link.</summary>
+        <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure the port number which will be used to create a connection over this link. This configuration should only be done on the server device, e.g. the device creating the ServerSocket.</para>
+          <para>Notes: The server device must be the Publisher device!; The port information can only be specified on secure links, specified using setDataPathSecurityConfig(WifiAwareDataPathSecurityConfig)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setPort(int)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setPort</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPskPassphrase">
@@ -392,10 +409,14 @@
         <Parameter Name="pskPassphrase" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pskPassphrase">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="pskPassphrase">The (optional) passphrase to be used to encrypt the link. Use the setPmk(byte[]) to specify a PMK. This value cannot be null.</param>
+        <summary>Configure the PSK Passphrase for the Wi-Fi Aware connection being requested.</summary>
+        <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure the PSK Passphrase for the Wi-Fi Aware connection being requested. This method is optional - if not called, then an Open (unencrypted) connection will be created. Note: Use setDataPathSecurityConfig(WifiAwareDataPathSecurityConfig) to avoid interoperability issues when devices support different cipher suites by explicitly specifying a cipher suite as opposed to relying on a default cipher suite. WifiAwareDataPathSecurityConfig.Builder.Builder(int)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setPskPassphrase(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setPskPassphrase</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetTransportProtocol">
@@ -425,10 +446,15 @@
         <Parameter Name="transportProtocol" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="transportProtocol">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="transportProtocol">The transport protocol to be used for communication. Value is between 0 and 255 inclusive</param>
+        <summary>Configure the transport protocol which will be used to create a connection over this link.</summary>
+        <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure the transport protocol which will be used to create a connection over this link. This configuration should only be done on the server device, e.g. the device creating the ServerSocket for TCP.</para>
+          <para>Notes: The server device must be the Publisher device!; The transport protocol information can only be specified on secure links, specified using setDataPathSecurityConfig(WifiAwareDataPathSecurityConfig) The transport protocol number is assigned by the Internet Assigned Numbers Authority (IANA) https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setTransportProtocol(int)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setTransportProtocol</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

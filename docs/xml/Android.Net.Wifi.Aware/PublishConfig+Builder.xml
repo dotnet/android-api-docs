@@ -179,10 +179,14 @@
         <Parameter Name="securityConfig" Type="Android.Net.Wifi.Aware.WifiAwareDataPathSecurityConfig" />
       </Parameters>
       <Docs>
-        <param name="securityConfig">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="securityConfig">The (optional) security config to be used to create security context Identifier. This value cannot be null.</param>
+        <summary>Configure security config for the Wi-Fi Aware publish session.</summary>
+        <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure security config for the Wi-Fi Aware publish session. The security config set here must be the same as the one used to request Wi-Fi Aware data-path connection using WifiAwareNetworkSpecifier.Builder.setDataPathSecurityConfig(WifiAwareDataPathSecurityConfig). This security config will create a security identifier (SCID) which contains a PMKID and transmitted in the publish message. The device which subscribe this session can get this info by ServiceDiscoveryInfo.getScid() This method is optional - if not called, then no security context identifier will be passed in the publish message, then no security context identifier will be provided in the ServiceDiscoveryInfo on the subscriber. Security can still be negotiated using out-of-band (OOB) mechanisms.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setDataPathSecurityConfig(android.net.wifi.aware.WifiAwareDataPathSecurityConfig)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setDataPathSecurityConfig</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetFrameworkOffloadedPairingEnabled">
@@ -212,10 +216,16 @@
         <Parameter Name="enabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="enabled">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="enabled">If true, enable framework offloaded auto-pairing.</param>
+        <summary>Configure whether to enable framework offloaded auto-pairing for this publish session.</summary>
+        <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure whether to enable framework offloaded auto-pairing for this publish session.</para>
+          <para>If this is enabled, the wifi framework will attempt to perform Wi-Fi Aware pairing automatically before starting the NAN datapath. When pairing happens for the first time, user authorization may be required (such as entering a pincode or password on the system UI).</para>
+          <para>As a result, apps are highly recommended to increase their connection timeout to at least 30 seconds when starting a datapath with this field enabled. Additionally, if the app is using framework offloaded pairing, the framework will override the AwarePairingConfig with a framework managed configuration.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setFrameworkOffloadedPairingEnabled(boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setFrameworkOffloadedPairingEnabled</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetInstantCommunicationModeEnabled">
@@ -246,11 +256,16 @@
         <Parameter Name="band" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="enabled">To be added.</param>
-        <param name="band">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="enabled">true for enable instant communication mode, default is false.</param>
+        <param name="band">When setting to ScanResult.WIFI_BAND_5_GHZ, device will try to enable instant communication mode on 5Ghz, but may fall back to 2.4Ghz due to regulatory requirements. Value is one of the following: ScanResult.WIFI_BAND_24_GHZ; ScanResult.WIFI_BAND_5_GHZ</param>
+        <summary>Configure whether to enable and use instant communication for this publish session.</summary>
+        <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure whether to enable and use instant communication for this publish session. Instant communication will speed up service discovery and any data-path set up as part of this session. Use Characteristics.isInstantCommunicationModeSupported() to check if the device supports this feature.</para>
+          <para>Note: due to increased power requirements of this mode - it will only remain enabled for 30 seconds from the time the discovery session is started.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setInstantCommunicationModeEnabled(boolean,%20int)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setInstantCommunicationModeEnabled</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetMatchFilter">
@@ -291,10 +306,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="matchFilter">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="matchFilter">A list of match filter entries (each of which is an arbitrary byte array). This value may be null.</param>
+        <summary>The match filter for a publish session.</summary>
+        <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
         <remarks>
+          <para>The match filter for a publish session. Used to determine whether a service discovery occurred - in addition to relying on the service name.</para>
+          <para>Optional. Empty by default.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setMatchFilter(java.util.List&lt;byte[]&gt;)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setMatchFilter</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -333,10 +351,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="config">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="config">The pairing config set to the peer. Only valid when Characteristics.isAwarePairingSupported() is true. This value may be null.</param>
+        <summary>Set the AwarePairingConfig for this publish session, the peer can use this info to determine the config of the following bootstrapping, pairing setup/verification request.</summary>
+        <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
+        <remarks>
+          <para>Set the AwarePairingConfig for this publish session, the peer can use this info to determine the config of the following bootstrapping, pairing setup/verification request.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setPairingConfig(android.net.wifi.aware.AwarePairingConfig)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setPairingConfig</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPublishType">
@@ -377,10 +399,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="publishType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="publishType">Publish session type: PublishConfig.PUBLISH_TYPE_SOLICITED or PublishConfig.PUBLISH_TYPE_UNSOLICITED (the default). Value is one of the following: PublishConfig.PUBLISH_TYPE_UNSOLICITED; PublishConfig.PUBLISH_TYPE_SOLICITED</param>
+        <summary>Specify the type of the publish session: solicited (aka active - publish packets are transmitted over-the-air), or unsolicited (aka passive - no publish packets are transmitted, a match is made against an active subscribe session whose packets are transmitted over-the-air).</summary>
+        <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
         <remarks>
+          <para>Specify the type of the publish session: solicited (aka active - publish packets are transmitted over-the-air), or unsolicited (aka passive - no publish packets are transmitted, a match is made against an active subscribe session whose packets are transmitted over-the-air).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setPublishType(int)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setPublishType</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -416,10 +440,16 @@
         <Parameter Name="enable" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="enable">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="enable">If true, ranging is supported on request of the peer.</param>
+        <summary>Configure whether the publish discovery session supports ranging and allows peers to measure distance to it.</summary>
+        <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
+        <remarks>
+          <para>Configure whether the publish discovery session supports ranging and allows peers to measure distance to it. This API is used in conjunction with SubscribeConfig.Builder.setEgressDistanceMm(int) and SubscribeConfig.Builder.setIngressDistanceMm(int) to specify a minimum and/or maximum distance at which discovery will be triggered.</para>
+          <para>Optional. Disabled by default - i.e. any peer attempt to measure distance to this device will be refused and discovery will proceed without ranging constraints.</para>
+          <para>The device must support Wi-Fi RTT for this feature to be used. Feature support is checked as described in android.net.wifi.rtt.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setRangingEnabled(boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setRangingEnabled</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetServiceName">
@@ -455,10 +485,15 @@
         <Parameter Name="serviceName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="serviceName">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="serviceName">The service name for the publish session. This value cannot be null.</param>
+        <summary>Specify the service name of the publish session.</summary>
+        <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
         <remarks>
+          <para>Specify the service name of the publish session. The actual on-air value is a 6 byte hashed representation of this string.</para>
+          <para>The Service Name is a UTF-8 encoded string from 1 to 255 bytes in length. The only acceptable single-byte UTF-8 symbols for a Service Name are alphanumeric values (A-Z, a-z, 0-9), the hyphen ('-'), the period ('.') and the underscore ('_'). All valid multi-byte UTF-8 characters are acceptable in a Service Name.</para>
+          <para>Note: for compatibility with devices running Android 11 or older, avoid using underscore ('_') symbol as a single-byte UTF-8 service name.</para>
+          <para>Must be called - an empty ServiceName is not valid.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setServiceName(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setServiceName</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -494,10 +529,13 @@
         <Parameter Name="serviceSpecificInfo" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="serviceSpecificInfo">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="serviceSpecificInfo">A byte-array for the service-specific information field. This value may be null.</param>
+        <summary>Specify service specific information for the publish session.</summary>
+        <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
         <remarks>
+          <para>Specify service specific information for the publish session. This is a free-form byte array available to the application to send additional information as part of the discovery operation - it will not be used to determine whether a publish/subscribe match occurs.</para>
+          <para>Optional. Empty by default.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setServiceSpecificInfo(byte[])" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setServiceSpecificInfo</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -533,10 +571,12 @@
         <Parameter Name="enable" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="enable">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="enable">If true the terminate callback will be called when the publish is terminated. Otherwise it will not be called.</param>
+        <summary>Configure whether a publish terminate notification DiscoverySessionCallback.onSessionTerminated() is reported back to the callback.</summary>
+        <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
         <remarks>
+          <para>Configure whether a publish terminate notification DiscoverySessionCallback.onSessionTerminated() is reported back to the callback.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setTerminateNotificationEnabled(boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setTerminateNotificationEnabled</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -572,10 +612,13 @@
         <Parameter Name="ttlSec" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ttlSec">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ttlSec">Lifetime of a publish session in seconds.</param>
+        <summary>Sets the time interval (in seconds) an unsolicited ( PublishConfig.Builder.setPublishType(int)) publish session will be alive - broadcasting a packet.</summary>
+        <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
         <remarks>
+          <para>Sets the time interval (in seconds) an unsolicited ( PublishConfig.Builder.setPublishType(int)) publish session will be alive - broadcasting a packet. When the TTL is reached an event will be generated for DiscoverySessionCallback.onSessionTerminated() [unless setTerminateNotificationEnabled(boolean) disables the callback].</para>
+          <para>Optional. 0 by default - indicating the session doesn't terminate on its own. Session will be terminated when DiscoverySession.close() is called.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setTtlSec(int)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setTtlSec</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
