@@ -4709,6 +4709,11 @@ static class ImporterProgram
             "CharSequence.subsequence()",
             "CharSequence.subSequence()",
             StringComparison.Ordinal);
+        text = Regex.Replace(
+            text,
+            @"(?<permission>Requires android\.Manifest\.permission\.[A-Z_]+)(?:\s+\k<permission>)+",
+            "${permission}",
+            RegexOptions.CultureInvariant);
         text = Regex.Replace(text, @"(?<!\w)#(?=[A-Za-z_])", "");
         text = Regex.Replace(
             text,
@@ -7354,6 +7359,11 @@ static class ImporterProgram
             CleanSourceText("Triggers a custom UI before before autofilling the screen.") ==
                 "Triggers a custom UI before autofilling the screen.",
             "Android duplicate word cleanup");
+        Assert(
+            CleanSourceText(
+                "Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE") ==
+                    "Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE",
+            "Android duplicate permission requirement cleanup");
         Assert(
             CleanSourceText("Altough similiarly named with another method.") ==
                 "Although similarly named with another method.",
