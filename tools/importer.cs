@@ -5915,7 +5915,7 @@ static class ImporterProgram
             Paragraphs =
             [
                 new SourceParagraph(
-                    "Calls InputMethodService.onBindInput() when done.",
+                    "Calls InputMethodService.onBindInput() when done. This method must be called from the main thread of your app.",
                     IsCode: false),
             ],
         };
@@ -5932,9 +5932,10 @@ static class ImporterProgram
                 methodReferenceDocs),
             methodReferenceRemarks);
         Assert(
-            methodReferenceReplacement.Text == "" &&
-                methodReferenceReplacement.Remarks?.Count == 0,
-            "remarks overlap removes placeholders covered by inline method references");
+            methodReferenceReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual(
+                    ["This method must be called from the main thread of your app."]) == true,
+            "remarks overlap retains source guidance not represented by inline method references");
         const string methodReferenceDocsText =
             "<Docs><remarks><para>Calls <c>InputMethodService#onBindInput()</c> when done.</para><para>To be added.</para></remarks></Docs>";
         Assert(
@@ -5949,10 +5950,22 @@ static class ImporterProgram
                 .Root!
                 .Element("remarks")!
                 .Elements("para")
-                .ToList() is [var preservedMethodReference] &&
+                .ToList() is [var preservedMethodReference, var importedThreadRequirement] &&
             preservedMethodReference.Value == "Calls InputMethodService#onBindInput() when done." &&
-            preservedMethodReference.Element("c")?.Value == "InputMethodService#onBindInput()",
-            "remarks overlap removes only the placeholder while preserving inline method markup");
+            preservedMethodReference.Element("c")?.Value == "InputMethodService#onBindInput()" &&
+            importedThreadRequirement.Value ==
+                "This method must be called from the main thread of your app.",
+            "remarks overlap preserves inline method markup and imports independent source guidance");
+        Assert(
+            SourcePage.ExtractParagraphs(
+                "<p><p>Calls <code>InputMethodService.onBindInput()</code> when done.</p>.<br>This method must be called from the main thread of your app.</p></p>")
+                .Select(paragraph => paragraph.Text)
+                .SequenceEqual(
+                    [
+                        "Calls InputMethodService.onBindInput() when done.",
+                        "This method must be called from the main thread of your app.",
+                    ]),
+            "malformed Android method markup retains independent main-thread guidance");
         var unsafeInlineMarkup = XElement.Parse(
             "<para>Sets the <c>widget</c> title.<!-- authored comment --></para>");
         Assert(
@@ -11417,6 +11430,11 @@ static class ImporterProgram
                 html,
                 @"</p>\s*\.\s*<br>\s*(?=Requires\b)",
                 "<br>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            html = Regex.Replace(
+                html,
+                @"</p>\s*\.\s*<br>\s*(?<thread>This method must be called from the main thread of your app\.)\s*</p>\s*</p>",
+                "</p><p>${thread}</p>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var paragraphs = new List<(int Position, SourceParagraph Paragraph)>();
             var codeRanges = new List<(int Start, int End, SourceParagraph Paragraph)>();
