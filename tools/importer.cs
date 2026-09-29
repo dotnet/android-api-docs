@@ -381,12 +381,56 @@ static class ImporterProgram
                         }
                     }
 
+                    var unsafeParameterRepair = RepairKnownUnsafeParameter(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (unsafeParameterRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "param:duration",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = unsafeParameterRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "param:duration",
+                                mapping.SourceUrl,
+                                "importer_known_unsafe_parameter_repair",
+                                "Restored an importer-generated parameter to its placeholder because the exact Android source permits a value rejected by the referenced API."));
+                        }
+                    }
+
                     foreach (var placeholder in owner.Placeholders.OrderBy(item => item.Order))
                     {
                         var replacement = ReplacementFor(
                             placeholder,
                             mapping.Docs!,
                             owner.IsEnumField);
+                        if (IsKnownUnsafeContinueStrokeDuration(
+                                mapping.SourceUrl,
+                                placeholder.Target))
+                        {
+                            replacement = Replacement.Skip(
+                                "source_channel_ambiguous",
+                                "The exact Android ContinueStroke source permits zero duration even though the constructed StrokeDescription requires a positive duration.");
+                        }
                         replacement = LimitOverlappingRemarksReplacement(
                             placeholder,
                             mapping.Docs!,
@@ -973,6 +1017,18 @@ static class ImporterProgram
                 "The exact Android source allows port 0 even though the corresponding setter rejects non-positive ports.";
         }
 
+        if (IsKnownUnsafeContinueStrokeDuration(docs.SourceUrl) &&
+            sourceText.Contains(
+                "duration for the new stroke",
+                StringComparison.OrdinalIgnoreCase) &&
+            sourceText.Contains(
+                "must not be negative",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            targets["param:duration"] =
+                "The exact Android source permits zero duration even though ContinueStroke constructs a StrokeDescription that requires a positive duration.";
+        }
+
         return targets.Count == 0
             ? docs
             : docs with
@@ -981,6 +1037,27 @@ static class ImporterProgram
                 UnsafeTargets = targets,
             };
     }
+
+    const string KnownUnsafeContinueStrokeSourceUrl =
+        "https://developer.android.com/reference/android/accessibilityservice/GestureDescription.StrokeDescription#continueStroke(android.graphics.Path,%20long,%20long,%20boolean)";
+
+    static bool IsKnownUnsafeContinueStrokeDuration(string sourceUrl) =>
+        UrlsEqual(sourceUrl, KnownUnsafeContinueStrokeSourceUrl) ||
+        sourceUrl.Contains(
+            "GestureDescription.StrokeDescription#continueStroke",
+            StringComparison.Ordinal);
+
+    static bool IsKnownUnsafeContinueStrokeDuration(
+        string sourceUrl,
+        string target) =>
+        target == "param:duration" &&
+        IsKnownUnsafeContinueStrokeDuration(sourceUrl);
+
+    static bool IsUnsafeContinueStrokeDuration(SourceDocs docs) =>
+        IsKnownUnsafeContinueStrokeDuration(docs.SourceUrl) &&
+        docs.Parameters.TryGetValue("duration", out var duration) &&
+        duration.Contains("duration for the new stroke", StringComparison.OrdinalIgnoreCase) &&
+        duration.Contains("must not be negative", StringComparison.OrdinalIgnoreCase);
 
     static SourceDocs WithSemanticSummaryIfNecessary(SourceDocs docs) =>
         IsMeaningfulChannel(docs.Summary, "summary")
@@ -2834,6 +2911,39 @@ static class ImporterProgram
         var updatedBlock = blockText[..paragraphSpan.Start] + replacement +
             blockText[paragraphSpan.End..];
         return JavaProseRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
+    static UnsafeParameterRepairResult RepairKnownUnsafeParameter(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        const string unsafeDuration =
+            "The duration for the new stroke. Must not be negative.";
+        if (!IsKnownUnsafeContinueStrokeDuration(sourceDocs.SourceUrl))
+        {
+            return UnsafeParameterRepairResult.NoChange(text);
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            actualDocs.Elements("param").SingleOrDefault(parameter =>
+                (string?)parameter.Attribute("name") == "duration") is not XElement duration ||
+            duration.Attributes().Count() != 1 ||
+            !HasPlainTextContent(duration, out var currentDuration) ||
+            !currentDuration.Equals(unsafeDuration, StringComparison.Ordinal) ||
+            !TryGetElementSpan(blockText, duration, out var durationSpan))
+        {
+            return UnsafeParameterRepairResult.NoChange(text);
+        }
+
+        const string placeholder = "<param name=\"duration\">To be added.</param>";
+        var updatedBlock = blockText[..durationSpan.Start] + placeholder +
+            blockText[durationSpan.End..];
+        return UnsafeParameterRepairResult.RepairedText(
             text[..block.Start] + updatedBlock + text[block.End..]);
     }
 
@@ -10603,6 +10713,26 @@ static class ImporterProgram
                     unsafePortDocs).Reason == "source_channel_ambiguous",
                 "unsafe port range is not imported");
 
+            var unsafeContinueStrokeDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.AccessibilityServices.GestureDescription.StrokeDescription.ContinueStroke(Android.Graphics.Path,System.Int64,System.Int64,System.Boolean)",
+                new SourceDocs(
+                    "Create a new stroke that will continue this one.",
+                    [],
+                    new Dictionary<string, string>
+                    {
+                        ["duration"] = "The duration for the new stroke. Must not be negative.",
+                    },
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/accessibilityservice/GestureDescription.StrokeDescription#continueStroke(android.graphics.Path,%20long,%20long,%20boolean)",
+                    "android.accessibilityservice.GestureDescription.StrokeDescription.continueStroke",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "param", "duration", "param:duration"),
+                    unsafeContinueStrokeDocs).Reason == "source_channel_ambiguous",
+                "unsafe ContinueStroke duration is not imported");
+
             var unsafeMetadataDocument = XDocument.Parse(
                 fixtureText,
                 LoadOptions.PreserveWhitespace);
@@ -11112,6 +11242,14 @@ static class ImporterProgram
             new(text, false);
 
         public static JavaProseRepairResult RepairedText(string text) =>
+            new(text, true);
+    }
+    sealed record UnsafeParameterRepairResult(string Text, bool Repaired)
+    {
+        public static UnsafeParameterRepairResult NoChange(string text) =>
+            new(text, false);
+
+        public static UnsafeParameterRepairResult RepairedText(string text) =>
             new(text, true);
     }
     sealed record SourceReferenceCleanupSkip(string Reason, string Detail)
