@@ -938,6 +938,17 @@ static class ImporterProgram
             targets["remarks"] = detail;
         }
 
+        if (ownerId == "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetSubscribeType(Android.Net.Wifi.Aware.SubscribeType)" &&
+            sourceText.Contains(
+                "passive (no subscribe packets are transmitted, a match is made against a solicited/active publish session",
+                StringComparison.Ordinal))
+        {
+            const string detail =
+                "The exact Android source pairs passive subscribers with the wrong publish-session type.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
         if ((ownerId is
                 "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetMaxDistanceMm(System.Int32)" or
                 "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetMinDistanceMm(System.Int32)") &&
@@ -958,7 +969,11 @@ static class ImporterProgram
 
         return targets.Count == 0
             ? docs
-            : docs with { UnsafeTargets = targets };
+            : docs with
+            {
+                Paragraphs = targets.ContainsKey("remarks") ? [] : docs.Paragraphs,
+                UnsafeTargets = targets,
+            };
     }
 
     static SourceDocs WithSemanticSummaryIfNecessary(SourceDocs docs) =>
@@ -10295,7 +10310,9 @@ static class ImporterProgram
                 "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)",
                 new SourceDocs(
                     "Specify the type: solicited (aka active - publish packets are transmitted over-the-air), or unsolicited (aka passive - no publish packets are transmitted).",
-                    [],
+                    [new SourceParagraph(
+                        "Solicited (aka active - publish packets are transmitted over-the-air).",
+                        false)],
                     new Dictionary<string, string>(),
                     "",
                     new Dictionary<string, string>(),
@@ -10308,8 +10325,32 @@ static class ImporterProgram
                     unsafePublishDocs).Reason == "source_channel_ambiguous" &&
                 ReplacementFor(
                     new Placeholder(1, "remarks", "", "remarks"),
-                    unsafePublishDocs).Reason == "source_channel_ambiguous",
+                    unsafePublishDocs).Reason == "source_channel_ambiguous" &&
+                unsafePublishDocs.Paragraphs.Count == 0,
                 "unsafe publish session semantics are not imported");
+
+            var unsafeSubscribeDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetSubscribeType(Android.Net.Wifi.Aware.SubscribeType)",
+                new SourceDocs(
+                    "Sets the type: passive (no subscribe packets are transmitted, a match is made against a solicited/active publish session).",
+                    [new SourceParagraph(
+                        "Passive subscribers match a solicited/active publish session.",
+                        false)],
+                    new Dictionary<string, string>(),
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/net/wifi/aware/SubscribeConfig.Builder#setSubscribeType(int)",
+                    "android.net.wifi.aware.SubscribeConfig.Builder.setSubscribeType",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "summary", "", "summary"),
+                    unsafeSubscribeDocs).Reason == "source_channel_ambiguous" &&
+                ReplacementFor(
+                    new Placeholder(1, "remarks", "", "remarks"),
+                    unsafeSubscribeDocs).Reason == "source_channel_ambiguous" &&
+                unsafeSubscribeDocs.Paragraphs.Count == 0,
+                "unsafe subscribe session semantics are not imported");
 
             var unsafeGeofenceDocs = WithoutKnownUnsafeAndroidSourceChannels(
                 "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetMaxDistanceMm(System.Int32)",
@@ -10327,7 +10368,8 @@ static class ImporterProgram
             Assert(
                 ReplacementFor(
                     new Placeholder(0, "remarks", "", "remarks"),
-                    unsafeGeofenceDocs).Reason == "source_channel_ambiguous",
+                    unsafeGeofenceDocs).Reason == "source_channel_ambiguous" &&
+                unsafeGeofenceDocs.Paragraphs.Count == 0,
                 "unsafe geofence remarks are not imported");
 
             var unsafePortDocs = WithoutKnownUnsafeAndroidSourceChannels(
@@ -10349,6 +10391,37 @@ static class ImporterProgram
                     new Placeholder(0, "param", "port", "param:port"),
                     unsafePortDocs).Reason == "source_channel_ambiguous",
                 "unsafe port range is not imported");
+
+            var unsafeMetadataDocument = XDocument.Parse(
+                fixtureText,
+                LoadOptions.PreserveWhitespace);
+            var unsafeMetadataMember = unsafeMetadataDocument.Root!
+                .Element("Members")!
+                .Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "SetTitle");
+            unsafeMetadataMember.Element("Docs")!
+                .Element("remarks")!
+                .ReplaceWith(XElement.Parse($"<remarks><para>{AndroidAttribution}</para></remarks>"));
+            var unsafeMetadataPath = Path.Combine(tempDirectory, "unsafe-source-metadata.xml");
+            File.WriteAllText(
+                unsafeMetadataPath,
+                unsafeMetadataDocument.ToString(SaveOptions.DisableFormatting),
+                new UTF8Encoding(false));
+            var unsafeMetadataFile = LoadedFile.Load(repositoryRoot, unsafeMetadataPath);
+            unsafeMetadataFile.SelectOwners("SetTitle");
+            var unsafeMetadataOwner = unsafeMetadataFile.Owners.Single();
+            var unsafeMetadataResult = AddSourceDocumentationIfSafe(
+                unsafeMetadataFile.Text,
+                unsafeMetadataFile,
+                unsafeMetadataOwner,
+                unsafePublishDocs);
+            Assert(
+                unsafeMetadataResult.Contains(unsafePublishDocs.SourceUrl, StringComparison.Ordinal) &&
+                unsafeMetadataResult.Contains(AndroidAttribution, StringComparison.Ordinal) &&
+                !unsafeMetadataResult.Contains(
+                    "solicited (aka active - publish packets are transmitted over-the-air)",
+                    StringComparison.Ordinal),
+                "unsafe source metadata insertion preserves attribution without source prose");
 
             var pendingReport = new ImportReport
             {
