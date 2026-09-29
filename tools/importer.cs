@@ -52,6 +52,25 @@ static class ImporterProgram
             "true if the value was replaced",
             "the previous value associated with the specified key, or <c>null</c> if there was no mapping for the key"),
     ];
+    static readonly KnownJavaExampleRepair[] KnownJavaExampleRepairs =
+    [
+        new(
+            JavaReference + "java.base/java/time/temporal/ChronoField.html#adjustInto(R,long)",
+            "   // these two lines are equivalent, but the second approach is recommended\n" +
+            "   temporal = thisField.adjustInto(temporal);\n" +
+            "   temporal = temporal.with(thisField);",
+            "   // these two lines are equivalent, but the second approach is recommended\n" +
+            "   temporal = thisField.adjustInto(temporal, newValue);\n" +
+            "   temporal = temporal.with(thisField, newValue);"),
+        new(
+            JavaReference + "java.base/java/time/temporal/ChronoUnit.html#addTo(R,long)",
+            "   // these two lines are equivalent, but the second approach is recommended\n" +
+            "   temporal = thisUnit.addTo(temporal);\n" +
+            "   temporal = temporal.plus(thisUnit);",
+            "   // these two lines are equivalent, but the second approach is recommended\n" +
+            "   temporal = thisUnit.addTo(temporal, amount);\n" +
+            "   temporal = temporal.plus(amount, thisUnit);"),
+    ];
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -280,6 +299,42 @@ static class ImporterProgram
                                 mapping.SourceUrl,
                                 "importer_known_boolean_return_repair",
                                 "Replaced an exact importer-generated Boolean return description with the exact official Java return contract."));
+                        }
+                    }
+
+                    var javaExampleRepair = RepairKnownJavaExample(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (javaExampleRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = javaExampleRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                mapping.SourceUrl,
+                                "importer_known_java_example_repair",
+                                "Corrected an exact importer-generated Java example using its documented parameter names."));
                         }
                     }
 
@@ -2531,6 +2586,64 @@ static class ImporterProgram
             HasExactKnownBooleanReturnMarkup(returns, repair)
             ? repair
             : null;
+    }
+
+    static JavaExampleRepairResult RepairKnownJavaExample(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownJavaExampleRepair(actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Element("remarks")?.Elements("code").SingleOrDefault(code =>
+                IsKnownJavaExampleRepairCandidate(code, repair)) is not XElement code ||
+            !TryGetElementSpan(blockText, code, out var codeSpan))
+        {
+            return JavaExampleRepairResult.NoChange(text);
+        }
+
+        var replacement = $"<code lang=\"text/java\">{new XText(repair.CorrectCode).ToString(SaveOptions.DisableFormatting)}</code>";
+        var updatedBlock = blockText[..codeSpan.Start] + replacement +
+            blockText[codeSpan.End..];
+        return JavaExampleRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
+    static KnownJavaExampleRepair? FindKnownJavaExampleRepair(
+        XElement docs,
+        SourceDocs sourceDocs)
+    {
+        if (!HasExactImporterSourceReference(docs, sourceDocs))
+            return null;
+
+        var repair = KnownJavaExampleRepairs.SingleOrDefault(candidate =>
+            UrlsEqual(candidate.SourceUrl, sourceDocs.SourceUrl));
+        if (repair is null ||
+            docs.Element("remarks")?.Elements("code").Where(code =>
+                IsKnownJavaExampleRepairCandidate(code, repair)).Count() != 1)
+        {
+            return null;
+        }
+
+        return repair;
+    }
+
+    static bool IsKnownJavaExampleRepairCandidate(
+        XElement code,
+        KnownJavaExampleRepair repair)
+    {
+        if (code.Attributes().Count() != 1 ||
+            (string?)code.Attribute("lang") != "text/java" ||
+            !code.Nodes().All(node => node is XText && node is not XCData))
+        {
+            return false;
+        }
+
+        return code.Value.Equals(repair.IncompleteCode, StringComparison.Ordinal);
     }
 
     static bool HasExactImporterSourceReference(XElement docs, SourceDocs sourceDocs)
@@ -6478,6 +6591,53 @@ static class ImporterProgram
             SourceKind = "android",
         };
         var mappedSourceKind = mappedDocs.SourceKind == "android" ? "Android" : "Java";
+        var knownJavaExampleDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownJavaExampleRepairs[0].SourceUrl,
+            SourceLabel = "java.time.temporal.TemporalField.adjustInto",
+            SourceKind = "java",
+        };
+        var knownJavaExampleMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "remarks",
+                new XElement(
+                    "code",
+                    new XAttribute("lang", "text/java"),
+                    KnownJavaExampleRepairs[0].IncompleteCode),
+                ImporterSourceReference(knownJavaExampleDocs)));
+        Assert(
+            FindKnownJavaExampleRepair(
+                knownJavaExampleMarkup,
+                knownJavaExampleDocs) == KnownJavaExampleRepairs[0],
+            "exact known Java examples are eligible for parameter repairs");
+        knownJavaExampleMarkup.Element("remarks")!.Element("code")!.Value =
+            KnownJavaExampleRepairs[0].IncompleteCode.Replace(
+                "temporal.with(thisField);",
+                "temporal.with(otherField);",
+                StringComparison.Ordinal);
+        Assert(
+            FindKnownJavaExampleRepair(
+                knownJavaExampleMarkup,
+                knownJavaExampleDocs) is null,
+            "Java example repairs preserve altered importer-like code");
+        knownJavaExampleMarkup.Element("remarks")!.Element("code")!.Value =
+            KnownJavaExampleRepairs[0].IncompleteCode.Replace(
+                "\n",
+                "\n  ",
+                StringComparison.Ordinal);
+        Assert(
+            FindKnownJavaExampleRepair(
+                knownJavaExampleMarkup,
+                knownJavaExampleDocs) is null,
+            "Java example repairs preserve whitespace-modified code");
+        knownJavaExampleMarkup.Element("remarks")!.Element("code")!.Value =
+            KnownJavaExampleRepairs[0].CorrectCode;
+        Assert(
+            FindKnownJavaExampleRepair(
+                knownJavaExampleMarkup,
+                knownJavaExampleDocs) is null,
+            "correct Java examples remain idempotent");
         var rawSignatureBlock = Regex.Replace(
             file.Text[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End],
             @"<remarks\b[^>]*>.*?</remarks>",
@@ -10369,6 +10529,10 @@ static class ImporterProgram
         string IncorrectReturn,
         string CorrectReturn,
         string IncorrectMarkup);
+    sealed record KnownJavaExampleRepair(
+        string SourceUrl,
+        string IncompleteCode,
+        string CorrectCode);
     sealed record BooleanReturnRepairSkip(string Reason, string Detail);
     sealed record BooleanReturnRepairResult(
         string Text,
@@ -10386,6 +10550,14 @@ static class ImporterProgram
             string reason,
             string detail) =>
             new(text, false, new BooleanReturnRepairSkip(reason, detail));
+    }
+    sealed record JavaExampleRepairResult(string Text, bool Repaired)
+    {
+        public static JavaExampleRepairResult NoChange(string text) =>
+            new(text, false);
+
+        public static JavaExampleRepairResult RepairedText(string text) =>
+            new(text, true);
     }
     sealed record SourceReferenceCleanupSkip(string Reason, string Detail)
     {
