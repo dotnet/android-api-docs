@@ -230,11 +230,19 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IDiscoveryListener" />
       </Parameters>
       <Docs>
-        <param name="discoveryRequest">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="discoveryRequest">the DiscoveryRequest object which specifies the discovery parameters such as service type, subtype and network. This value cannot be null.</param>
+        <param name="executor">Executor to run listener callbacks with. This value cannot be null.</param>
+        <param name="listener">The listener notifies of a successful discovery and is used to stop discovery on this serviceType through a call on stopServiceDiscovery(DiscoveryListener). This value cannot be null.</param>
+        <summary>Initiates service discovery to browse for instances of a service type.</summary>
+        <remarks>
+          <para>Initiates service discovery to browse for instances of a service type. Service discovery consumes network bandwidth and will continue until the application calls stopServiceDiscovery(DiscoveryListener).</para>
+          <para>The function call immediately returns after sending a request to start service discovery to the framework. The application is notified of a success to initiate discovery through the callback DiscoveryListener.onDiscoveryStarted or a failure through DiscoveryListener.onStartDiscoveryFailed.</para>
+          <para>Upon successful start, application is notified when a service is found with DiscoveryListener.onServiceFound or when a service is lost with DiscoveryListener.onServiceLost.</para>
+          <para>Upon failure to start, service discovery is not active and application does not need to invoke stopServiceDiscovery(DiscoveryListener)</para>
+          <para>The application should call stopServiceDiscovery(DiscoveryListener) when discovery of this service type is no longer required, and/or whenever the application is paused or stopped.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#discoverServices(android.net.nsd.DiscoveryRequest,%20java.util.concurrent.Executor,%20android.net.nsd.NsdManager.DiscoveryListener)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.discoverServices</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DiscoverServices">
@@ -340,13 +348,21 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IDiscoveryListener" />
       </Parameters>
       <Docs>
-        <param name="serviceType">To be added.</param>
-        <param name="protocolType">To be added.</param>
-        <param name="network">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="serviceType">The service type being discovered. Examples include "_http._tcp" for http services or "_ipp._tcp" for printers. This value cannot be null.</param>
+        <param name="protocolType">The service discovery protocol</param>
+        <param name="network">Network to discover services on, or null to discover on all available networks</param>
+        <param name="executor">Executor to run listener callbacks with. This value cannot be null.</param>
+        <param name="listener">The listener notifies of a successful discovery and is used to stop discovery on this serviceType through a call on stopServiceDiscovery(DiscoveryListener). This value cannot be null.</param>
+        <summary>Initiate service discovery to browse for instances of a service type.</summary>
+        <remarks>
+          <para>Initiate service discovery to browse for instances of a service type. Service discovery consumes network bandwidth and will continue until the application calls stopServiceDiscovery(DiscoveryListener).</para>
+          <para>The function call immediately returns after sending a request to start service discovery to the framework. The application is notified of a success to initiate discovery through the callback DiscoveryListener.onDiscoveryStarted or a failure through DiscoveryListener.onStartDiscoveryFailed.</para>
+          <para>Upon successful start, application is notified when a service is found with DiscoveryListener.onServiceFound or when a service is lost with DiscoveryListener.onServiceLost.</para>
+          <para>Upon failure to start, service discovery is not active and application does not need to invoke stopServiceDiscovery(DiscoveryListener)</para>
+          <para>The application should call stopServiceDiscovery(DiscoveryListener) when discovery of this service type is no longer required, and/or whenever the application is paused or stopped.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#discoverServices(java.lang.String,%20int,%20android.net.Network,%20java.util.concurrent.Executor,%20android.net.nsd.NsdManager.DiscoveryListener)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.discoverServices</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DiscoverServices">
@@ -391,13 +407,22 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IDiscoveryListener" />
       </Parameters>
       <Docs>
-        <param name="serviceType">To be added.</param>
-        <param name="protocolType">To be added.</param>
-        <param name="networkRequest">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="serviceType">The service type being discovered. Examples include "_http._tcp" for http services or "_ipp._tcp" for printers. This value cannot be null.</param>
+        <param name="protocolType">The service discovery protocol</param>
+        <param name="networkRequest">Request specifying networks that should be considered when discovering. This value cannot be null.</param>
+        <param name="executor">Executor to run listener callbacks with. This value cannot be null.</param>
+        <param name="listener">The listener notifies of a successful discovery and is used to stop discovery on this serviceType through a call on stopServiceDiscovery(DiscoveryListener). This value cannot be null.</param>
+        <summary>Initiate service discovery to browse for instances of a service type.</summary>
+        <remarks>
+          <para>Initiate service discovery to browse for instances of a service type. Service discovery consumes network bandwidth and will continue until the application calls stopServiceDiscovery(DiscoveryListener).</para>
+          <para>The function call immediately returns after sending a request to start service discovery to the framework. The application is notified of a success to initiate discovery through the callback DiscoveryListener.onDiscoveryStarted or a failure through DiscoveryListener.onStartDiscoveryFailed.</para>
+          <para>Upon successful start, application is notified when a service is found with DiscoveryListener.onServiceFound or when a service is lost with DiscoveryListener.onServiceLost.</para>
+          <para>Upon failure to start, service discovery is not active and application does not need to invoke stopServiceDiscovery(DiscoveryListener)</para>
+          <para>The application should call stopServiceDiscovery(DiscoveryListener) when discovery of this service type is no longer required, and/or whenever the application is paused or stopped.</para>
+          <para>During discovery, new networks may connect or existing networks may disconnect - for example if wifi is reconnected. When a service was found on a network that disconnects, DiscoveryListener.onServiceLost will be called. If a new network connects that matches the NetworkRequest, DiscoveryListener.onServiceFound will be called for services found on that network. Applications that do not want to track networks themselves are encouraged to use this method instead of other overloads of discoverServices, as they will receive proper notifications when a service becomes available or unavailable due to network changes. Requires Manifest.permission.ACCESS_NETWORK_STATE</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#discoverServices(java.lang.String,%20int,%20android.net.NetworkRequest,%20java.util.concurrent.Executor,%20android.net.nsd.NsdManager.DiscoveryListener)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.discoverServices</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraNsdState">
@@ -888,11 +913,17 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IRegistrationListener" />
       </Parameters>
       <Docs>
-        <param name="advertisingRequest">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="advertisingRequest">service being registered. This value cannot be null.</param>
+        <param name="executor">Executor to run listener callbacks with. This value cannot be null.</param>
+        <param name="listener">The listener notifies of a successful registration and is used to unregister this service through a call on unregisterService(RegistrationListener). Cannot be null.</param>
+        <summary>Register a service to be discovered by other services.</summary>
+        <remarks>
+          <para>Register a service to be discovered by other services.</para>
+          <para>The function call immediately returns after sending a request to register service to the framework. The application is notified of a successful registration through the callback RegistrationListener.onServiceRegistered or a failure through RegistrationListener.onRegistrationFailed.</para>
+          <para>The application should call unregisterService(RegistrationListener) when the service registration is no longer required, and/or whenever the application is stopped.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#registerService(android.net.nsd.AdvertisingRequest,%20java.util.concurrent.Executor,%20android.net.nsd.NsdManager.RegistrationListener)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.registerService</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterService">
@@ -989,12 +1020,18 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IRegistrationListener" />
       </Parameters>
       <Docs>
-        <param name="serviceInfo">To be added.</param>
-        <param name="protocolType">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="serviceInfo">The service being registered. This value cannot be null.</param>
+        <param name="protocolType">The service discovery protocol</param>
+        <param name="executor">Executor to run listener callbacks with. This value cannot be null.</param>
+        <param name="listener">The listener notifies of a successful registration and is used to unregister this service through a call on unregisterService(RegistrationListener). Cannot be null.</param>
+        <summary>Register a service to be discovered by other services.</summary>
+        <remarks>
+          <para>Register a service to be discovered by other services.</para>
+          <para>The function call immediately returns after sending a request to register service to the framework. The application is notified of a successful registration through the callback RegistrationListener.onServiceRegistered or a failure through RegistrationListener.onRegistrationFailed.</para>
+          <para>The application should call unregisterService(RegistrationListener) when the service registration is no longer required, and/or whenever the application is stopped.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#registerService(android.net.nsd.NsdServiceInfo,%20int,%20java.util.concurrent.Executor,%20android.net.nsd.NsdManager.RegistrationListener)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.registerService</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterServiceInfoCallback">
@@ -1069,11 +1106,16 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IServiceInfoCallback" />
       </Parameters>
       <Docs>
-        <param name="serviceInfo">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="serviceInfo">the service to receive updates for. This value cannot be null.</param>
+        <param name="executor">Executor to run callbacks with. This value cannot be null.</param>
+        <param name="listener">to receive callback upon service update. This value cannot be null.</param>
+        <summary>Register a callback to listen for updates to a service.</summary>
+        <remarks>
+          <para>Register a callback to listen for updates to a service. An application can listen to a service to continuously monitor availability of given service. The callback methods will be called on the passed executor. And service updates are sent with continuous calls to ServiceInfoCallback.onServiceUpdated. This is different from resolveService(NsdServiceInfo, ResolveListener) which provides one shot service information.</para>
+          <para>This API listens to updates for one service at a time. Applications need to cancel the registration before registering the same callback instance again. Upon failure to register a callback for example if it's a duplicated registration, the application is notified through ServiceInfoCallback.onServiceInfoCallbackRegistrationFailed with FAILURE_BAD_PARAMETERS.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#registerServiceInfoCallback(android.net.nsd.NsdServiceInfo,%20java.util.concurrent.Executor,%20android.net.nsd.NsdManager.ServiceInfoCallback)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.registerServiceInfoCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ResolveService">
@@ -1160,11 +1202,16 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IResolveListener" />
       </Parameters>
       <Docs>
-        <param name="serviceInfo">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="serviceInfo">service to be resolved. This value cannot be null.</param>
+        <param name="executor">Executor to run listener callbacks with. This value cannot be null.</param>
+        <param name="listener">to receive callback upon success or failure. This value cannot be null.</param>
+        <summary>Resolve a discovered service.</summary>
+        <remarks>
+          <para>This method was deprecated in API level 34. the returned ServiceInfo may get stale at any time after resolution, including immediately after the callback is called, and may not contain some service information that could be delivered later, like additional host addresses. Prefer using registerServiceInfoCallback(DiscoveryRequest, Executor, ServiceInfoCallback), which will keep the application up-to-date with the state of the service.</para>
+          <para>Resolve a discovered service. An application can resolve a service right before establishing a connection to fetch the IP and port details on which to setup the connection.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#resolveService(android.net.nsd.NsdServiceInfo,%20java.util.concurrent.Executor,%20android.net.nsd.NsdManager.ResolveListener)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.resolveService</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ServicePermissionDenied">
@@ -1311,9 +1358,15 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IResolveListener" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="listener">This should be a listener object that was passed to resolveService(NsdServiceInfo, ResolveListener). It identifies the resolution that should be stopped and notifies of a successful or unsuccessful stop. This value cannot be null.</param>
+        <summary>Stop service resolution initiated with resolveService(NsdServiceInfo, ResolveListener).</summary>
+        <remarks>
+          <para>Stop service resolution initiated with resolveService(NsdServiceInfo, ResolveListener). A successful stop is notified with a call to ResolveListener.onResolutionStopped.</para>
+          <para>Upon failure to stop service resolution for example if resolution is done or the requester stops resolution repeatedly, the application is notified ResolveListener.onStopResolutionFailed with FAILURE_OPERATION_NOT_RUNNING</para>
+          <para>If the listener is not already registered, for apps running on devices with T SDK extension &lt; 22, this will throw with IllegalArgumentException.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#stopServiceResolution(android.net.nsd.NsdManager.ResolveListener)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.stopServiceResolution</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -1447,9 +1500,14 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IServiceInfoCallback" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="listener">This should be a listener object that was passed to registerServiceInfoCallback(DiscoveryRequest, Executor, ServiceInfoCallback). It identifies the registration that should be unregistered and notifies of a successful or unsuccessful stop. This value cannot be null.</param>
+        <summary>Unregister a callback registered with registerServiceInfoCallback(DiscoveryRequest, Executor, ServiceInfoCallback).</summary>
+        <remarks>
+          <para>Unregister a callback registered with registerServiceInfoCallback(DiscoveryRequest, Executor, ServiceInfoCallback). A successful unregistration is notified with a call to ServiceInfoCallback.onServiceInfoCallbackUnregistered. The same callback can only be reused after this is called.</para>
+          <para>If the listener is not already registered, for apps running on devices with T SDK extension &lt; 22, this will throw with IllegalArgumentException.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#unregisterServiceInfoCallback(android.net.nsd.NsdManager.ServiceInfoCallback)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.unregisterServiceInfoCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
