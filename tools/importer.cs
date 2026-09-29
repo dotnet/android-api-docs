@@ -912,6 +912,7 @@ static class ImporterProgram
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
+        docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
 
@@ -1024,6 +1025,34 @@ static class ImporterProgram
                 .Where(paragraph => !IsSynchronousGeocoderBoilerplate(paragraph.Text))
                 .ToList(),
         };
+
+    static SourceDocs WithoutKnownUnsafeHardwareBufferCreateRemark(
+        string ownerId,
+        SourceDocs docs)
+    {
+        const string owner =
+            "M:Android.Hardware.HardwareBuffer.Create(System.Int32,System.Int32,Android.Hardware.HardwareBufferFormat,System.Int32,Android.Hardware.HardwareBufferUsage)";
+        const string sourceUrl =
+            "https://developer.android.com/reference/android/hardware/HardwareBuffer#create(int,%20int,%20int,%20int,%20long)";
+        const string unsafeRemark =
+            "Calling this method will throw an IllegalStateException if format is not a supported Format type.";
+
+        if (!ownerId.Equals(owner, StringComparison.Ordinal) ||
+            !docs.SourceUrl.Equals(sourceUrl, StringComparison.Ordinal))
+        {
+            return docs;
+        }
+
+        return docs with
+        {
+            Paragraphs = docs.Paragraphs
+                .Where(paragraph => paragraph.IsCode ||
+                    !NormalizeText(paragraph.Text).Equals(
+                        unsafeRemark,
+                        StringComparison.Ordinal))
+                .ToList(),
+        };
+    }
 
     static bool IsSynchronousGeocoderBoilerplate(string text)
     {
@@ -4774,6 +4803,11 @@ static class ImporterProgram
             "CharSequence.subsequence()",
             "CharSequence.subSequence()",
             StringComparison.Ordinal);
+        text = Regex.Replace(
+            text,
+            @"(?<permission>Requires android\.Manifest\.permission\.[A-Z_]+)(?:\s+\k<permission>)+",
+            "${permission}",
+            RegexOptions.CultureInvariant);
         text = Regex.Replace(text, @"(?<!\w)#(?=[A-Za-z_])", "");
         text = Regex.Replace(
             text,
@@ -5060,6 +5094,35 @@ static class ImporterProgram
         var sourcePath = Path.Combine(fixtureRoot, "source.xml");
         var androidHtml = File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html"));
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
+        var unsafeHardwareBufferDocs = new SourceDocs(
+            "",
+            [
+                new SourceParagraph(
+                    "Calling this method will throw an IllegalStateException if format is not a supported Format type.",
+                    false),
+                new SourceParagraph("Retained source prose.", false),
+            ],
+            new Dictionary<string, string>(),
+            "",
+            new Dictionary<string, string>(),
+            "https://developer.android.com/reference/android/hardware/HardwareBuffer#create(int,%20int,%20int,%20int,%20long)",
+            "Android reference",
+            "Android");
+        var filteredHardwareBufferDocs = WithoutKnownUnsafeHardwareBufferCreateRemark(
+            "M:Android.Hardware.HardwareBuffer.Create(System.Int32,System.Int32,Android.Hardware.HardwareBufferFormat,System.Int32,Android.Hardware.HardwareBufferUsage)",
+            unsafeHardwareBufferDocs);
+        Assert(
+            filteredHardwareBufferDocs.Paragraphs.Count == 1 &&
+            filteredHardwareBufferDocs.Paragraphs[0].Text == "Retained source prose.",
+            "HardwareBuffer Create omits the contradicted IllegalStateException remark");
+        Assert(
+            WithoutKnownUnsafeHardwareBufferCreateRemark(
+                "M:Android.Hardware.HardwareBuffer.Create(System.Int32,System.Int32,Android.Hardware.HardwareBufferFormat,System.Int32,Android.Hardware.HardwareBufferUsage)",
+                unsafeHardwareBufferDocs with
+                {
+                    SourceUrl = "https://developer.android.com/reference/android/hardware/HardwareBuffer",
+                }).Paragraphs.Count == 2,
+            "HardwareBuffer Create filter requires the exact source channel");
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
@@ -7420,6 +7483,11 @@ static class ImporterProgram
                 "Triggers a custom UI before autofilling the screen.",
             "Android duplicate word cleanup");
         Assert(
+            CleanSourceText(
+                "Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE") ==
+                    "Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE",
+            "Android duplicate permission requirement cleanup");
+        Assert(
             CleanSourceText("Altough similiarly named with another method.") ==
                 "Although similarly named with another method.",
             "Android spelling cleanup");
@@ -8910,6 +8978,13 @@ static class ImporterProgram
                 multiBridgeParagraphs[2].Text == "Second: Three; Four" &&
                 multiBridgeParagraphs[3].Text == "Last.",
             "multiple list bridges retain following paragraphs and nested list content");
+        var missingJavaSignaturePeriod = SourcePage.ExtractBlocks(
+            "<div class=\"block\">Sets a value.<p>The method signature is of the form <code>(T value)void</code></p><p>The symbolic type descriptor must match.</p></div>");
+        Assert(
+            missingJavaSignaturePeriod.Count == 1 &&
+                missingJavaSignaturePeriod[0].Text ==
+                "Sets a value. The method signature is of the form (T value)void. The symbolic type descriptor must match.",
+            "Java signature paragraph boundaries preserve a sentence separator");
 
         var enumFile = LoadedFile.Load(
             repositoryRoot,
@@ -12100,7 +12175,7 @@ static class ImporterProgram
                 paragraphs.Add((position, new SourceParagraph(value, IsCode: false)));
         }
 
-        static List<SourceParagraph> ExtractBlocks(string html) =>
+        internal static List<SourceParagraph> ExtractBlocks(string html) =>
             Regex.Matches(
                 html,
                 @"<div\b(?<attrs>[^>]*)>(?<body>.*?)</div>",
@@ -12123,6 +12198,7 @@ static class ImporterProgram
 
         static List<SourceParagraph> ExtractBlockParagraphs(string html)
         {
+            html = NormalizeJavaSignatureParagraphBoundary(html);
             var codeExamples = Regex.Matches(
                 html,
                 @"<pre\b[^>]*>(?<body>.*?)</pre>",
@@ -12146,6 +12222,13 @@ static class ImporterProgram
             AddBlockTextParagraph(html[position..], paragraphs);
             return paragraphs;
         }
+
+        static string NormalizeJavaSignatureParagraphBoundary(string html) =>
+            Regex.Replace(
+                html,
+                @"(?<signature>The method signature is of the form\s*<code\b[^>]*>.*?</code>)\s*</p>\s*(?<next><p\b[^>]*>\s*)(?=The symbolic type descriptor\b)",
+                match => match.Groups["signature"].Value + ".</p>" + match.Groups["next"].Value,
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         static void AddBlockTextParagraph(
             string html,
