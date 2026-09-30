@@ -70,6 +70,23 @@ static class ImporterProgram
             "   // these two lines are equivalent, but the second approach is recommended\n" +
             "   temporal = thisUnit.addTo(temporal, amount);\n" +
             "   temporal = temporal.plus(amount, thisUnit);"),
+        new(
+            JavaReference + "java.base/java/time/zone/ZoneRules.html#getTransition(java.time.LocalDateTime)",
+            "  ZoneOffsetTransition trans = rules.getTransition(localDT);\n" +
+            "  if (trans != null) {\n" +
+            "    // Gap or Overlap: determine what to do from transition\n" +
+            "  } else {\n" +
+            "    // Normal case: only one valid offset\n" +
+            "    zoneOffset = rule.getOffset(localDT);\n" +
+            "  }",
+            "  ZoneOffsetTransition trans = rules.getTransition(localDT);\n" +
+            "  if (trans != null) {\n" +
+            "    // Gap or Overlap: determine what to do from transition\n" +
+            "  } else {\n" +
+            "    // Normal case: only one valid offset\n" +
+            "    zoneOffset = rules.getOffset(localDT);\n" +
+            "  }",
+            "M:Java.Time.Zone.ZoneRules.GetTransition(Java.Time.LocalDateTime)"),
     ];
     static readonly KnownJavaProseRepair[] KnownJavaProseRepairs =
     [
@@ -2985,7 +3002,7 @@ static class ImporterProgram
         var blockText = text[block.Start..block.End];
         if (!TryParseDocsBlock(blockText, out var actualDocs) ||
             !XNode.DeepEquals(actualDocs, owner.Docs) ||
-            FindKnownJavaExampleRepair(actualDocs, sourceDocs) is not { } repair ||
+            FindKnownJavaExampleRepair(actualDocs, sourceDocs, owner.Id) is not { } repair ||
             actualDocs.Element("remarks")?.Elements("code").SingleOrDefault(code =>
                 IsKnownJavaExampleRepairCandidate(code, repair)) is not XElement code ||
             !TryGetElementSpan(blockText, code, out var codeSpan))
@@ -3002,7 +3019,8 @@ static class ImporterProgram
 
     static KnownJavaExampleRepair? FindKnownJavaExampleRepair(
         XElement docs,
-        SourceDocs sourceDocs)
+        SourceDocs sourceDocs,
+        string? memberId = null)
     {
         if (!HasExactImporterSourceReference(docs, sourceDocs))
             return null;
@@ -3010,6 +3028,17 @@ static class ImporterProgram
         var repair = KnownJavaExampleRepairs.SingleOrDefault(candidate =>
             UrlsEqual(candidate.SourceUrl, sourceDocs.SourceUrl));
         if (repair is null ||
+            (repair.MemberId is not null &&
+             (repair.MemberId != memberId ||
+              docs.Element("remarks") is not XElement remarks ||
+              !ImporterMarkupEquals(
+                  remarks,
+                  XElement.Parse(RenderImporterOwnedRemarks(
+                      UsableRemarks(sourceDocs.Paragraphs),
+                      sourceDocs,
+                      "\n",
+                      "",
+                      ""))))) ||
             docs.Element("remarks")?.Elements("code").Where(code =>
                 IsKnownJavaExampleRepairCandidate(code, repair)).Count() != 1)
         {
@@ -7360,6 +7389,86 @@ static class ImporterProgram
                 knownJavaExampleMarkup,
                 knownJavaExampleDocs) is null,
             "correct Java examples remain idempotent");
+        var zoneTransitionRepair = KnownJavaExampleRepairs.Single(repair =>
+            repair.MemberId == "M:Java.Time.Zone.ZoneRules.GetTransition(Java.Time.LocalDateTime)");
+        var zoneTransitionDocs = javaExampleDocs with
+        {
+            SourceUrl = zoneTransitionRepair.SourceUrl,
+            SourceLabel = "java.time.zone.ZoneRules.getTransition",
+            SourceKind = "java",
+            Paragraphs =
+            [
+                new SourceParagraph("One technique, using this method, would be:", IsCode: false),
+                new SourceParagraph(zoneTransitionRepair.IncompleteCode, IsCode: true),
+            ],
+        };
+        var zoneTransitionMarkup = new XElement(
+            "Docs",
+            XElement.Parse(RenderImporterOwnedRemarks(
+                UsableRemarks(zoneTransitionDocs.Paragraphs),
+                zoneTransitionDocs,
+                "\n",
+                "",
+                "")));
+        Assert(
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs,
+                zoneTransitionRepair.MemberId) == zoneTransitionRepair,
+            "the exact ZoneRules member, source, and complete importer-owned example allow the receiver typo repair");
+        Assert(
+            FindKnownJavaExampleRepair(zoneTransitionMarkup, zoneTransitionDocs) is null &&
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs,
+                zoneTransitionRepair.MemberId + ".Altered") is null &&
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs with { SourceUrl = zoneTransitionDocs.SourceUrl + ".Altered" },
+                zoneTransitionRepair.MemberId) is null &&
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs with
+                {
+                    Paragraphs = [new SourceParagraph("Different source prose.", IsCode: false)],
+                },
+                zoneTransitionRepair.MemberId) is null,
+            "the ZoneRules repair rejects missing or mismatched members, URLs, and source structure");
+        Action<XElement>[] authoredZoneTransitionChanges =
+        [
+            docs => docs.Element("remarks")!.AddFirst(new XElement("para", "Authored prose.")),
+            docs => docs.Element("remarks")!.AddFirst(new XComment("Authored comment.")),
+            docs => docs.Element("remarks")!.Element("code")!.Add(new XElement("c", "authored")),
+            docs => docs.Element("remarks")!.Element("code")!.ReplaceNodes(
+                new XCData(zoneTransitionRepair.IncompleteCode)),
+            docs => docs.Element("remarks")!.Element("code")!.SetAttributeValue("authored", "true"),
+            docs => docs.Element("remarks")!.Element("code")!.Value =
+                zoneTransitionRepair.IncompleteCode.Replace("rule.getOffset", "other.getOffset", StringComparison.Ordinal),
+            docs => docs.Element("remarks")!.Element("code")!.Value =
+                zoneTransitionRepair.IncompleteCode.Replace("\n", "\n  ", StringComparison.Ordinal),
+            docs => docs.Element("remarks")!.Add(ImporterSourceReference(zoneTransitionDocs)),
+        ];
+        Assert(
+            authoredZoneTransitionChanges.All(change =>
+            {
+                var authored = new XElement(zoneTransitionMarkup);
+                change(authored);
+                var before = new XElement(authored);
+                return FindKnownJavaExampleRepair(
+                    authored,
+                    zoneTransitionDocs,
+                    zoneTransitionRepair.MemberId) is null &&
+                    XNode.DeepEquals(authored, before);
+            }),
+            "the ZoneRules repair preserves authored prose, comments, markup, CDATA, code changes, whitespace, and duplicate references");
+        zoneTransitionMarkup.Element("remarks")!.Element("code")!.Value =
+            zoneTransitionRepair.CorrectCode;
+        Assert(
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs,
+                zoneTransitionRepair.MemberId) is null,
+            "the corrected ZoneRules example is idempotent");
         var knownJavaProseDocs = javaExampleDocs with
         {
             SourceUrl = KnownJavaProseRepairs[0].SourceUrl,
@@ -11562,7 +11671,8 @@ static class ImporterProgram
     sealed record KnownJavaExampleRepair(
         string SourceUrl,
         string IncompleteCode,
-        string CorrectCode);
+        string CorrectCode,
+        string? MemberId = null);
     sealed record KnownJavaProseRepair(
         string SourceUrl,
         string IncorrectText,
