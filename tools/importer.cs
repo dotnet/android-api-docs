@@ -3253,6 +3253,14 @@ static class ImporterProgram
         var elements = remarks.Elements().ToList();
         var sourceReferenceIndex = elements.FindIndex(element =>
             TryGetImporterSourceReferenceUrl(element, out _));
+        if (sourceReferenceIndex <= 0 ||
+            !ImporterMarkupEquals(
+                elements[sourceReferenceIndex],
+                ImporterSourceReference(sourceDocs)))
+        {
+            return false;
+        }
+
         var actualSourceParagraphs = elements.Take(sourceReferenceIndex).ToList();
         var expectedSourceParagraphs = ExpandRemarksFragments(sourceDocs.Paragraphs)
             .Select(DocumentationElement)
@@ -7583,6 +7591,23 @@ static class ImporterProgram
                 knownAndroidRemarksMarkup.Element("remarks")!,
                 knownAndroidRemarksDocs),
             "corrected Android remarks remain importer-owned on refresh");
+        var wrongReferenceAndroidRemarksMarkup = new XElement(knownAndroidRemarksMarkup);
+        var wrongReferenceAndroidRemarks = wrongReferenceAndroidRemarksMarkup.Element("remarks")!;
+        var sourceReferenceIndex = wrongReferenceAndroidRemarks
+            .Elements("para")
+            .ToList()
+            .FindIndex(paragraph => TryGetImporterSourceReferenceUrl(paragraph, out _));
+        wrongReferenceAndroidRemarks.Elements("para").ElementAt(sourceReferenceIndex).ReplaceWith(
+            ImporterSourceReference(knownAndroidRemarksDocs with
+            {
+                SourceUrl = "https://developer.android.com/reference/android/app/admin/DevicePolicyResourcesManager#getDrawable(java.lang.String,java.lang.String,java.util.function.Supplier)",
+            }));
+        Assert(
+            !IsKnownAndroidRemarksRepairCorrected(
+                KnownAndroidRemarksRepairs[0].MemberId,
+                wrongReferenceAndroidRemarks,
+                knownAndroidRemarksDocs),
+            "corrected Android remarks require the exact importer source reference");
         var rawSignatureBlock = Regex.Replace(
             file.Text[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End],
             @"<remarks\b[^>]*>.*?</remarks>",
