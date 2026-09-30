@@ -95,6 +95,19 @@ static class ImporterProgram
             "Calls to this API will not return null unless no updated drawable was found and the call to defaultStringLoader returned null.",
             "Calls to this API will not return null unless no updated string was found and the call to defaultStringLoader returned null."),
     ];
+    static readonly KnownAndroidSummaryRepair[] KnownAndroidSummaryRepairs =
+    [
+        new(
+            AndroidReference + "android/app/admin/DevicePolicyManager#RESET_PASSWORD_DO_NOT_ASK_CREDENTIALS_ON_BOOT",
+            "F:Android.App.Admin.ResetPasswordFlags.DoNotAskCredentialsOnBoot",
+            "resetPasswordWithToken(ComponentName, String, byte, int)",
+            "resetPasswordWithToken(ComponentName, String, byte[], int)"),
+        new(
+            AndroidReference + "android/app/admin/DevicePolicyManager#RESET_PASSWORD_REQUIRE_ENTRY",
+            "F:Android.App.Admin.ResetPasswordFlags.RequireEntry",
+            "resetPasswordWithToken(ComponentName, String, byte, int)",
+            "resetPasswordWithToken(ComponentName, String, byte[], int)"),
+    ];
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -434,6 +447,42 @@ static class ImporterProgram
                         }
                     }
 
+                    var unsafeUserRestrictionRepair = RepairKnownUnsafeUserRestrictionParameter(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (unsafeUserRestrictionRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "param:restriction",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = unsafeUserRestrictionRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "param:restriction",
+                                mapping.SourceUrl,
+                                "importer_known_unsafe_user_restriction_repair",
+                                "Restored an importer-generated user-restriction parameter to its placeholder because the exact Android source includes an application-restriction sentinel."));
+                        }
+                    }
+
                     var androidParameterRepair = RepairKnownAndroidParameter(
                         text,
                         file,
@@ -467,6 +516,42 @@ static class ImporterProgram
                                 mapping.SourceUrl,
                                 "importer_known_android_parameter_repair",
                                 "Corrected an exact importer-generated Android parameter description using Android API documentation."));
+                        }
+                    }
+
+                    var androidSummaryRepair = RepairKnownAndroidSummary(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (androidSummaryRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "summary",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = androidSummaryRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "summary",
+                                mapping.SourceUrl,
+                                "importer_known_android_summary_repair",
+                                "Corrected an exact importer-owned Android reset-token method signature."));
                         }
                     }
 
@@ -1119,6 +1204,39 @@ static class ImporterProgram
                 "The exact Android source permits zero duration even though ContinueStroke constructs a StrokeDescription that requires a positive duration.";
         }
 
+        if (IsKnownUnsafeUserRestrictionParameter(ownerId, docs))
+        {
+            targets["param:restriction"] =
+                "The exact Android source lists an application-restriction sentinel that is explicitly not a user restriction.";
+        }
+
+        var summaryRepair = KnownAndroidSummaryRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(ownerId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(docs.SourceUrl, StringComparison.Ordinal));
+        if (summaryRepair is not null &&
+            (docs.Summary.Contains(summaryRepair.IncorrectText, StringComparison.Ordinal) ||
+             docs.Paragraphs.Any(paragraph => paragraph.Text.Contains(
+                 summaryRepair.IncorrectText,
+                 StringComparison.Ordinal))))
+        {
+            docs = docs with
+            {
+                Summary = docs.Summary.Replace(
+                    summaryRepair.IncorrectText,
+                    summaryRepair.CorrectText,
+                    StringComparison.Ordinal),
+                Paragraphs =
+                docs.Paragraphs.Select(paragraph => paragraph with
+                    {
+                        Text = paragraph.Text.Replace(
+                            summaryRepair.IncorrectText,
+                            summaryRepair.CorrectText,
+                            StringComparison.Ordinal),
+                    })
+                    .ToList(),
+            };
+        }
+
         return targets.Count == 0
             ? docs
             : docs with
@@ -1127,6 +1245,17 @@ static class ImporterProgram
                 UnsafeTargets = targets,
             };
     }
+
+    const string KnownUnsafeUserRestrictionSourceUrl =
+        "https://developer.android.com/reference/android/app/admin/DevicePolicyIdentifiers#getIdentifierForUserRestriction(java.lang.String)";
+
+    static bool IsKnownUnsafeUserRestrictionParameter(string ownerId, SourceDocs docs) =>
+        ownerId.Equals(
+            "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.String)",
+            StringComparison.Ordinal) &&
+        docs.SourceUrl.Equals(KnownUnsafeUserRestrictionSourceUrl, StringComparison.Ordinal) &&
+        docs.Parameters.TryGetValue("restriction", out var restriction) &&
+        restriction.Contains("UserManager.KEY_RESTRICTIONS_PENDING", StringComparison.Ordinal);
 
     const string KnownUnsafeContinueStrokeSourceUrl =
         "https://developer.android.com/reference/android/accessibilityservice/GestureDescription.StrokeDescription#continueStroke(android.graphics.Path,%20long,%20long,%20boolean)";
@@ -3087,6 +3216,47 @@ static class ImporterProgram
             text[..block.Start] + updatedBlock + text[block.End..]);
     }
 
+    static UnsafeParameterRepairResult RepairKnownUnsafeUserRestrictionParameter(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        if (!IsKnownUnsafeUserRestrictionParameter(owner.Id, sourceDocs))
+            return UnsafeParameterRepairResult.NoChange(text);
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            !HasSingleImporterSourceUrl(
+                actualDocs,
+                KnownUnsafeUserRestrictionSourceUrl) ||
+            actualDocs.Elements("param").SingleOrDefault(parameter =>
+                (string?)parameter.Attribute("name") == "restriction") is not XElement restriction ||
+            restriction.Attributes().Count() != 1 ||
+            !HasPlainTextContent(restriction, out var currentRestriction) ||
+            !currentRestriction.StartsWith(
+                "Value is one of the following:",
+                StringComparison.Ordinal) ||
+            !currentRestriction.Contains(
+                "UserManager.KEY_RESTRICTIONS_PENDING",
+                StringComparison.Ordinal) ||
+            !currentRestriction.EndsWith(
+                "This value cannot be null.",
+                StringComparison.Ordinal) ||
+            !TryGetElementSpan(blockText, restriction, out var restrictionSpan))
+        {
+            return UnsafeParameterRepairResult.NoChange(text);
+        }
+
+        const string placeholder = "<param name=\"restriction\">To be added.</param>";
+        var updatedBlock = blockText[..restrictionSpan.Start] + placeholder +
+            blockText[restrictionSpan.End..];
+        return UnsafeParameterRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
     static KnownJavaProseRepair? FindKnownJavaProseRepair(
         XElement docs,
         SourceDocs sourceDocs)
@@ -3167,6 +3337,75 @@ static class ImporterProgram
         }
 
         return repair;
+    }
+
+    static JavaProseRepairResult RepairKnownAndroidSummary(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownAndroidSummaryRepair(owner.Id, actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Element("summary")?.Elements("para").FirstOrDefault() is not XElement paragraph ||
+            !HasPlainTextContent(paragraph, out var paragraphText) ||
+            !TryGetElementSpan(blockText, paragraph, out var paragraphSpan))
+        {
+            return JavaProseRepairResult.NoChange(text);
+        }
+
+        var replacement = $"<para>{XmlEscape(paragraphText.Replace(
+            repair.IncorrectText,
+            repair.CorrectText,
+            StringComparison.Ordinal))}</para>";
+        var updatedBlock = blockText[..paragraphSpan.Start] + replacement +
+            blockText[paragraphSpan.End..];
+        return JavaProseRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
+    static KnownAndroidSummaryRepair? FindKnownAndroidSummaryRepair(
+        string memberId,
+        XElement docs,
+        SourceDocs sourceDocs)
+    {
+        if (!HasExactImporterSourceReference(docs, sourceDocs))
+            return null;
+
+        var repair = KnownAndroidSummaryRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(memberId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(sourceDocs.SourceUrl, StringComparison.Ordinal));
+        var summary = docs.Element("summary");
+        if (repair is null ||
+            summary is null ||
+            summary.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText text => !string.IsNullOrWhiteSpace(text.Value),
+                _ => true,
+            }) ||
+            summary.Elements().ToList() is not [XElement paragraph, XElement sourceReference, XElement attribution] ||
+            paragraph.Name != "para" ||
+            paragraph.HasAttributes ||
+            !HasPlainTextContent(paragraph, out var paragraphText) ||
+            !ImporterMarkupEquals(sourceReference, ImporterSourceReference(sourceDocs)) ||
+            !IsImporterAttributionParagraph(attribution))
+        {
+            return null;
+        }
+
+        return sourceDocs.Paragraphs.Count(sourceParagraph =>
+            paragraphText.Equals(
+                sourceParagraph.Text.Replace(
+                    repair.CorrectText,
+                    repair.IncorrectText,
+                    StringComparison.Ordinal),
+                StringComparison.Ordinal)) == 1
+            ? repair
+            : null;
     }
 
     static AndroidRemarksRepairResult RepairKnownAndroidRemarks(
@@ -3298,6 +3537,22 @@ static class ImporterProgram
             ImporterMarkupEquals(
                 sourceReferences[0],
                 ImporterSourceReference(sourceDocs));
+    }
+
+    static bool HasSingleImporterSourceUrl(XElement docs, string sourceUrl)
+    {
+        var sourceUrls = docs
+            .Descendants("a")
+            .Where(anchor =>
+                anchor.Name == "a" &&
+                HasExactAttributes(
+                    anchor,
+                    ("href", ""),
+                    ("title", "Reference documentation")))
+            .Select(anchor => WebUtility.HtmlDecode((string?)anchor.Attribute("href") ?? ""))
+            .Where(IsOfficialSourceReferenceUrl)
+            .ToList();
+        return sourceUrls.Count == 1 && UrlsEqual(sourceUrls[0], sourceUrl);
     }
 
     static bool HasExactKnownBooleanReturnMarkup(
@@ -7608,6 +7863,83 @@ static class ImporterProgram
                 wrongReferenceAndroidRemarks,
                 knownAndroidRemarksDocs),
             "corrected Android remarks require the exact importer source reference");
+        var unsafeUserRestrictionDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownUnsafeUserRestrictionSourceUrl,
+            Parameters = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["restriction"] =
+                    "Value is one of the following: UserManager.DISALLOW_ADD_USER; UserManager.KEY_RESTRICTIONS_PENDING. This value cannot be null.",
+            },
+        };
+        var filteredUserRestrictionDocs = WithoutKnownUnsafeAndroidSourceChannels(
+            "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.String)",
+            unsafeUserRestrictionDocs);
+        Assert(
+            filteredUserRestrictionDocs.UnsafeTargets?.ContainsKey("param:restriction") == true,
+            "application-restriction sentinels are not imported as user-policy keys");
+        Assert(
+            WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.Int32)",
+                unsafeUserRestrictionDocs).UnsafeTargets is null,
+            "user-restriction filtering requires the exact managed member");
+        Assert(
+            WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.String)",
+                unsafeUserRestrictionDocs with
+                {
+                    SourceUrl = "https://developer.android.com/reference/android/app/admin/DevicePolicyIdentifiers#getIdentifierForApplicationRestriction(java.lang.String)",
+                }).UnsafeTargets is null,
+            "user-restriction filtering requires the exact Android source URL");
+        Assert(
+            WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.String)",
+                unsafeUserRestrictionDocs with
+                {
+                    Parameters = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["restriction"] =
+                            "Value is one of the following: UserManager.DISALLOW_ADD_USER. This value cannot be null.",
+                    },
+                }).UnsafeTargets is null,
+            "user-restriction filtering requires the unsafe source token");
+        var knownAndroidSummaryDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownAndroidSummaryRepairs[0].SourceUrl,
+            SourceLabel = "android.app.admin.DevicePolicyManager.RESET_PASSWORD_DO_NOT_ASK_CREDENTIALS_ON_BOOT",
+            SourceKind = "android",
+            Paragraphs =
+            [
+                new SourceParagraph(
+                    "Flag for " + KnownAndroidSummaryRepairs[0].CorrectText + ".",
+                    false),
+            ],
+        };
+        var incorrectAndroidSummary = knownAndroidSummaryDocs.Paragraphs[0].Text.Replace(
+            KnownAndroidSummaryRepairs[0].CorrectText,
+            KnownAndroidSummaryRepairs[0].IncorrectText,
+            StringComparison.Ordinal);
+        var knownAndroidSummaryMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "summary",
+                new XElement("para", incorrectAndroidSummary),
+                ImporterSourceReference(knownAndroidSummaryDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        Assert(
+            FindKnownAndroidSummaryRepair(
+                KnownAndroidSummaryRepairs[0].MemberId,
+                knownAndroidSummaryMarkup,
+                knownAndroidSummaryDocs) == KnownAndroidSummaryRepairs[0],
+            "exact importer-owned Android summaries are eligible for signature correction");
+        knownAndroidSummaryMarkup.Element("summary")!.Element("para")!.Value =
+            knownAndroidSummaryDocs.Paragraphs[0].Text;
+        Assert(
+            FindKnownAndroidSummaryRepair(
+                KnownAndroidSummaryRepairs[0].MemberId,
+                knownAndroidSummaryMarkup,
+                knownAndroidSummaryDocs) is null,
+            "corrected Android summaries remain idempotent");
         var rawSignatureBlock = Regex.Replace(
             file.Text[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End],
             @"<remarks\b[^>]*>.*?</remarks>",
@@ -11673,6 +12005,11 @@ static class ImporterProgram
         string IncorrectText,
         string CorrectText);
     sealed record KnownAndroidRemarksRepair(
+        string SourceUrl,
+        string MemberId,
+        string IncorrectText,
+        string CorrectText);
+    sealed record KnownAndroidSummaryRepair(
         string SourceUrl,
         string MemberId,
         string IncorrectText,
