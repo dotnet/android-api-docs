@@ -77,8 +77,10 @@ their trailing colon only when they use a source-proven code-introduction form;
 ordinary incomplete prose remains excluded.
 Android CDDL introductions ending in `CBOR with the following CDDL:` are likewise
 retained only immediately before a non-empty code block, preserving certificate
-extension metadata that introduces the schema. A standalone introduction or
-unrelated incomplete Android prose remains excluded.
+extension metadata that introduces the schema. This is checked in parsed block
+order for both nested and sibling paragraph/code elements. Empty code or
+intervening paragraphs cannot make a later code block eligible. A standalone
+introduction or unrelated incomplete Android prose remains excluded.
 Source-proven Java remarks with an
 exact Android attribution can receive missing ordered source fragments without
 altering that attribution. A plain source paragraph may own one exact
