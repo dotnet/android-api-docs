@@ -4536,7 +4536,7 @@
  the Intent at that point will <i>not</i> be seen here.</param>
         <summary>Implement to return the implementation of the internal accessibility
             service interface.</summary>
-        <returns>To be added.</returns>
+        <returns>Return an IBinder through which clients can call on to the service.</returns>
         <remarks>
           <para>Implement to return the implementation of the internal accessibility
             service interface.</para>
@@ -5775,11 +5775,17 @@
         <Parameter Name="callback" Type="Android.AccessibilityServices.AccessibilityService+ITakeScreenshotCallback" />
       </Parameters>
       <Docs>
-        <param name="accessibilityWindowId">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="accessibilityWindowId">The window id, from AccessibilityWindowInfo.getId().</param>
+        <param name="executor">Executor on which to run the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">The callback invoked when taking screenshot has succeeded or failed. See TakeScreenshotCallback for details. This value cannot be null.</param>
+        <summary>Takes a screenshot of the specified window and returns it via an AccessibilityService.ScreenshotResult.</summary>
+        <remarks>
+          <para>Takes a screenshot of the specified window and returns it via an AccessibilityService.ScreenshotResult. You can use Bitmap.wrapHardwareBuffer to construct the bitmap from the ScreenshotResult's payload.</para>
+          <para>Note: In order to take screenshots your service has to declare the capability to take screenshot by setting the R.styleable.AccessibilityService_canTakeScreenshot property in its meta-data. For details refer to SERVICE_META_DATA.</para>
+          <para>Both this method and takeScreenshot(int, Executor, TakeScreenshotCallback) can be used for machine learning-based visual screen understanding. Use takeScreenshotOfWindow if your target window might be visually underneath an accessibility overlay (from your or another accessibility service) in order to capture the window contents without the screenshot being covered by the overlay contents drawn on the screen.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/accessibilityservice/AccessibilityService#takeScreenshotOfWindow(int,%20java.util.concurrent.Executor,%20android.accessibilityservice.AccessibilityService.TakeScreenshotCallback)" title="Reference documentation">Android reference for <code>android.accessibilityservice.AccessibilityService.takeScreenshotOfWindow</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

@@ -52,6 +52,41 @@ static class ImporterProgram
             "true if the value was replaced",
             "the previous value associated with the specified key, or <c>null</c> if there was no mapping for the key"),
     ];
+    static readonly KnownJavaExampleRepair[] KnownJavaExampleRepairs =
+    [
+        new(
+            JavaReference + "java.base/java/time/temporal/ChronoField.html#adjustInto(R,long)",
+            "   // these two lines are equivalent, but the second approach is recommended\n" +
+            "   temporal = thisField.adjustInto(temporal);\n" +
+            "   temporal = temporal.with(thisField);",
+            "   // these two lines are equivalent, but the second approach is recommended\n" +
+            "   temporal = thisField.adjustInto(temporal, newValue);\n" +
+            "   temporal = temporal.with(thisField, newValue);"),
+        new(
+            JavaReference + "java.base/java/time/temporal/ChronoUnit.html#addTo(R,long)",
+            "   // these two lines are equivalent, but the second approach is recommended\n" +
+            "   temporal = thisUnit.addTo(temporal);\n" +
+            "   temporal = temporal.plus(thisUnit);",
+            "   // these two lines are equivalent, but the second approach is recommended\n" +
+            "   temporal = thisUnit.addTo(temporal, amount);\n" +
+            "   temporal = temporal.plus(amount, thisUnit);"),
+    ];
+    static readonly KnownJavaProseRepair[] KnownJavaProseRepairs =
+    [
+        new(
+            JavaReference + "java.base/java/time/temporal/ChronoUnit.html#ERAS",
+            "Unit that represents the concept of an era. The ISO calendar system doesn't have eras thus it is impossible to add an era to a date or date-time. The estimated duration of the era is artificially defined as 1,000,000,000 Years. When used with other calendar systems there are no restrictions on the unit.",
+            "Unit that represents the concept of an era. The estimated duration of the era is artificially defined as 1,000,000,000 Years. When used with other calendar systems there are no restrictions on the unit."),
+    ];
+    static readonly KnownAndroidParameterRepair[] KnownAndroidParameterRepairs =
+    [
+        new(
+            AndroidReference + "android/net/vcn/VcnCellUnderlyingNetworkTemplate.Builder#setOperatorPlmnIds(java.util.Set<java.lang.String>)",
+            "M:Android.Net.Vcn.VcnCellUnderlyingNetworkTemplate.Builder.SetOperatorPlmnIds(System.Collections.Generic.ICollection{System.String})",
+            "operatorPlmnIds",
+            "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MNC and MCC, and thus consists of 5 or 6 decimal digits. This value cannot be null.",
+            "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MCC and MNC, and thus consists of 5 or 6 decimal digits. This value cannot be null."),
+    ];
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -283,12 +318,164 @@ static class ImporterProgram
                         }
                     }
 
+                    var javaExampleRepair = RepairKnownJavaExample(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (javaExampleRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = javaExampleRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                mapping.SourceUrl,
+                                "importer_known_java_example_repair",
+                                "Corrected an exact importer-generated Java example using its documented parameter names."));
+                        }
+                    }
+
+                    var javaProseRepair = RepairKnownJavaProse(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (javaProseRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = javaProseRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                mapping.SourceUrl,
+                                "importer_known_java_prose_repair",
+                                "Removed an exact importer-generated Java statement contradicted by Android API documentation."));
+                        }
+                    }
+
+                    var unsafeParameterRepair = RepairKnownUnsafeParameter(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (unsafeParameterRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "param:duration",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = unsafeParameterRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "param:duration",
+                                mapping.SourceUrl,
+                                "importer_known_unsafe_parameter_repair",
+                                "Restored an importer-generated parameter to its placeholder because the exact Android source permits a value rejected by the referenced API."));
+                        }
+                    }
+
+                    var androidParameterRepair = RepairKnownAndroidParameter(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (androidParameterRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                $"param:{androidParameterRepair.ParameterName}",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = androidParameterRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                $"param:{androidParameterRepair.ParameterName}",
+                                mapping.SourceUrl,
+                                "importer_known_android_parameter_repair",
+                                "Corrected an exact importer-generated Android parameter description using Android API documentation."));
+                        }
+                    }
+
                     foreach (var placeholder in owner.Placeholders.OrderBy(item => item.Order))
                     {
                         var replacement = ReplacementFor(
                             placeholder,
                             mapping.Docs!,
                             owner.IsEnumField);
+                        if (IsKnownUnsafeContinueStrokeDuration(
+                                mapping.SourceUrl,
+                                placeholder.Target))
+                        {
+                            replacement = Replacement.Skip(
+                                "source_channel_ambiguous",
+                                "The exact Android ContinueStroke source permits zero duration even though the constructed StrokeDescription requires a positive duration.");
+                        }
                         replacement = LimitOverlappingRemarksReplacement(
                             placeholder,
                             mapping.Docs!,
@@ -356,20 +543,25 @@ static class ImporterProgram
                     var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
                     var enumListRepair = mapping.Docs is not null &&
                         HasImporterOwnedEnumListGap(owner, mapping.Docs);
+                    var summarySourceTextRepair = mapping.Docs is not null &&
+                        HasImporterOwnedSummarySourceTextRefresh(owner, mapping.Docs);
                     var enumDiscardedMetadataRepair = mapping.Docs is not null &&
                         HasEnumDiscardedMetadataCandidate(file, owner);
                     var augmentedRemarksRepair = HasAugmentedRemarksPlaceholder(file, owner);
                     var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
                     var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
                     var metadataOnlyRemarksRepair = HasMetadataOnlyRemarks(file, owner);
-                    var channelOnlyMetadataRepair = HasChannelOnlySourceMetadata(
-                        file,
-                        owner,
-                        mapping.Docs!);
+                    var channelOnlyMetadataRepair =
+                        mapping.Docs!.UnsafeTargets?.ContainsKey("remarks") != true &&
+                        HasChannelOnlySourceMetadata(
+                            file,
+                            owner,
+                            mapping.Docs);
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
                         (enumSummaryRepair ||
                          enumListRepair ||
+                        summarySourceTextRepair ||
                          enumDiscardedMetadataRepair ||
                          augmentedRemarksRepair ||
                          truncatedSummaryRepair ||
@@ -377,9 +569,11 @@ static class ImporterProgram
                          metadataOnlyRemarksRepair ||
                          channelOnlyMetadataRepair))
                     {
-                        var refreshed = truncatedSummaryRepair
-                            ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
-                            : text;
+                        var refreshed = summarySourceTextRepair
+                            ? RefreshImporterOwnedSummarySourceText(text, file, owner, mapping.Docs)
+                            : truncatedSummaryRepair
+                                ? ReplaceTruncatedSummary(text, file, owner, mapping.Docs)
+                                : text;
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                             file.UpdateBlockOffsets(owner.Order, refreshed);
                         if (codeExampleRepair)
@@ -813,8 +1007,142 @@ static class ImporterProgram
         {
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
+        docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
+        docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
+        docs = WithoutKnownUnsafeRemoteEntryGuidance(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
+
+    static SourceDocs WithoutKnownUnsafeAndroidSourceChannels(string ownerId, SourceDocs docs)
+    {
+        var sourceText = string.Join(
+            "\n",
+            new[] { docs.Summary, docs.Returns }
+                .Concat(docs.Paragraphs.Select(paragraph => paragraph.Text))
+                .Concat(docs.Parameters.Values));
+        var targets = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (ownerId == "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)" &&
+            sourceText.Contains(
+                "solicited (aka active - publish packets are transmitted over-the-air)",
+                StringComparison.Ordinal) &&
+            sourceText.Contains(
+                "unsolicited (aka passive - no publish packets are transmitted",
+                StringComparison.Ordinal))
+        {
+            const string detail =
+                "The exact Android source reverses the documented solicited and unsolicited publish semantics.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
+        if (ownerId == "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetSubscribeType(Android.Net.Wifi.Aware.SubscribeType)" &&
+            sourceText.Contains(
+                "passive (no subscribe packets are transmitted, a match is made against a solicited/active publish session",
+                StringComparison.Ordinal))
+        {
+            const string detail =
+                "The exact Android source pairs passive subscribers with the wrong publish-session type.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
+        if ((ownerId is
+                "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetMaxDistanceMm(System.Int32)" or
+                "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetMinDistanceMm(System.Int32)") &&
+            sourceText.Contains("min <= distance <= max", StringComparison.Ordinal) &&
+            sourceText.Contains("distance <= max or distance >= min", StringComparison.Ordinal))
+        {
+            targets["remarks"] =
+                "The exact Android source combines mutually exclusive legacy and ingress/egress geofence rules.";
+        }
+
+        if (ownerId == "M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPort(System.Int32)" &&
+            docs.Parameters.TryGetValue("port", out var port) &&
+            port.Contains("between 0 and 65535 inclusive", StringComparison.Ordinal))
+        {
+            targets["param:port"] =
+                "The exact Android source allows port 0 even though the corresponding setter rejects non-positive ports.";
+        }
+
+        if (IsKnownUnsafeContinueStrokeDuration(docs.SourceUrl) &&
+            sourceText.Contains(
+                "duration for the new stroke",
+                StringComparison.OrdinalIgnoreCase) &&
+            sourceText.Contains(
+                "must not be negative",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            targets["param:duration"] =
+                "The exact Android source permits zero duration even though ContinueStroke constructs a StrokeDescription that requires a positive duration.";
+        }
+
+        if (ownerId == "M:Android.AdServices.AdSelection.PersistAdSelectionResultRequest.Builder.SetAdSelectionResult(System.Byte[])" &&
+            UrlsEqual(
+                docs.SourceUrl,
+                "https://developer.android.com/reference/android/adservices/adselection/PersistAdSelectionResultRequest.Builder#setAdSelectionResult(byte[])") &&
+            docs.Summary.Equals(
+                "Sets the ad selection result String.",
+                StringComparison.Ordinal) &&
+            docs.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(
+                ["Sets the ad selection result String."],
+                StringComparer.Ordinal))
+        {
+            const string detail =
+                "The exact Android source describes the byte-array input as a String.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
+        if (ownerId == "M:Android.AdServices.AdSelection.ReportEventRequest.Builder.SetReportingDestinations(System.Int32)" &&
+            UrlsEqual(
+                docs.SourceUrl,
+                "https://developer.android.com/reference/android/adservices/adselection/ReportEventRequest.Builder#setReportingDestinations(int)") &&
+            docs.Summary.Equals(
+                "Sets the bitfield of reporting destinations to report to (buyer, seller, or both).",
+                StringComparison.Ordinal) &&
+            docs.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(
+                [
+                    "Sets the bitfield of reporting destinations to report to (buyer, seller, or both).",
+                    "See ReportEventRequest.getReportingDestinations() for more information.",
+                ],
+                StringComparer.Ordinal))
+        {
+            const string detail =
+                "The exact Android source omits the valid component-seller reporting destination.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
+        return targets.Count == 0
+            ? docs
+            : docs with
+            {
+                Paragraphs = targets.ContainsKey("remarks") ? [] : docs.Paragraphs,
+                UnsafeTargets = targets,
+            };
+    }
+
+    const string KnownUnsafeContinueStrokeSourceUrl =
+        "https://developer.android.com/reference/android/accessibilityservice/GestureDescription.StrokeDescription#continueStroke(android.graphics.Path,%20long,%20long,%20boolean)";
+
+    static bool IsKnownUnsafeContinueStrokeDuration(string sourceUrl) =>
+        UrlsEqual(sourceUrl, KnownUnsafeContinueStrokeSourceUrl) ||
+        sourceUrl.Contains(
+            "GestureDescription.StrokeDescription#continueStroke",
+            StringComparison.Ordinal);
+
+    static bool IsKnownUnsafeContinueStrokeDuration(
+        string sourceUrl,
+        string target) =>
+        target == "param:duration" &&
+        IsKnownUnsafeContinueStrokeDuration(sourceUrl);
+
+    static bool IsUnsafeContinueStrokeDuration(SourceDocs docs) =>
+        IsKnownUnsafeContinueStrokeDuration(docs.SourceUrl) &&
+        docs.Parameters.TryGetValue("duration", out var duration) &&
+        duration.Contains("duration for the new stroke", StringComparison.OrdinalIgnoreCase) &&
+        duration.Contains("must not be negative", StringComparison.OrdinalIgnoreCase);
 
     static SourceDocs WithSemanticSummaryIfNecessary(SourceDocs docs) =>
         IsMeaningfulChannel(docs.Summary, "summary")
@@ -864,6 +1192,81 @@ static class ImporterProgram
                 .Where(paragraph => !IsSynchronousGeocoderBoilerplate(paragraph.Text))
                 .ToList(),
         };
+
+    static SourceDocs WithoutKnownUnsafeHardwareBufferCreateRemark(
+        string ownerId,
+        SourceDocs docs)
+    {
+        const string owner =
+            "M:Android.Hardware.HardwareBuffer.Create(System.Int32,System.Int32,Android.Hardware.HardwareBufferFormat,System.Int32,Android.Hardware.HardwareBufferUsage)";
+        const string sourceUrl =
+            "https://developer.android.com/reference/android/hardware/HardwareBuffer#create(int,%20int,%20int,%20int,%20long)";
+        const string unsafeRemark =
+            "Calling this method will throw an IllegalStateException if format is not a supported Format type.";
+
+        if (!ownerId.Equals(owner, StringComparison.Ordinal) ||
+            !docs.SourceUrl.Equals(sourceUrl, StringComparison.Ordinal))
+        {
+            return docs;
+        }
+
+        return docs with
+        {
+            Paragraphs = docs.Paragraphs
+                .Where(paragraph => paragraph.IsCode ||
+                    !NormalizeText(paragraph.Text).Equals(
+                        unsafeRemark,
+                        StringComparison.Ordinal))
+                .ToList(),
+        };
+    }
+
+    static SourceDocs WithoutKnownUnsafeRemoteEntryGuidance(
+        string ownerId,
+        SourceDocs docs)
+    {
+        const string remoteGetOwner =
+            "M:Android.Service.Credentials.BeginGetCredentialResponse.Builder.SetRemoteCredentialEntry(Android.Service.Credentials.RemoteEntry)";
+        const string remoteGetUrl =
+            "https://developer.android.com/reference/android/service/credentials/BeginGetCredentialResponse.Builder#setRemoteCredentialEntry(android.service.credentials.RemoteEntry)";
+        const string remoteGetEntryGuidance =
+            "When constructing the CredentialEntry object, the pendingIntent must be set such that it leads to an activity that can provide UI to fulfill the request on a remote device. When user selects this remoteCredentialEntry, the system will invoke the pendingIntent set on the CredentialEntry.";
+        const string remoteGetResponseGuidance =
+            "Once the remote credential flow is complete, the Activity result should be set to Activity.RESULT_OK and an extra with the CredentialProviderService.EXTRA_GET_CREDENTIAL_RESPONSE key should be populated with a Credential object.";
+        const string remoteCreateOwner =
+            "M:Android.Service.Credentials.BeginCreateCredentialResponse.Builder.SetRemoteCreateEntry(Android.Service.Credentials.RemoteEntry)";
+        const string remoteCreateUrl =
+            "https://developer.android.com/reference/android/service/credentials/BeginCreateCredentialResponse.Builder#setRemoteCreateEntry(android.service.credentials.RemoteEntry)";
+        const string remoteCreateEntryGuidance =
+            "When constructing the CreateEntry object, the pendingIntent must be set such that it leads to an activity that can provide UI to fulfill the request on a remote device. When user selects this remoteCreateEntry, the system will invoke the pendingIntent set on the CreateEntry.";
+
+        string[]? unsafeRemarks = ownerId switch
+        {
+            remoteGetOwner when docs.SourceUrl.Equals(remoteGetUrl, StringComparison.Ordinal) =>
+            [
+                remoteGetEntryGuidance,
+                remoteGetResponseGuidance,
+            ],
+            remoteCreateOwner when docs.SourceUrl.Equals(remoteCreateUrl, StringComparison.Ordinal) =>
+            [
+                remoteCreateEntryGuidance,
+            ],
+            _ => null,
+        };
+        if (unsafeRemarks is null)
+            return docs;
+
+        var normalizedUnsafeRemarks = unsafeRemarks
+            .Select(NormalizeText)
+            .ToHashSet(StringComparer.Ordinal);
+        return docs with
+        {
+            Paragraphs = docs.Paragraphs
+                .Where(paragraph => paragraph.IsCode ||
+                    !normalizedUnsafeRemarks.Contains(NormalizeText(paragraph.Text)))
+                .ToList(),
+        };
+    }
 
     static bool IsSynchronousGeocoderBoilerplate(string text)
     {
@@ -957,6 +1360,19 @@ static class ImporterProgram
         SourceDocs docs,
         bool isEnumField = false)
     {
+        if (docs.UnsafeTargets?.TryGetValue(placeholder.Target, out var unsafeTargetDetail) == true)
+            return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
+
+        if (docs.HasMalformedSourceMarkup &&
+            docs.SourceUrl.Equals(
+                "https://developer.android.com/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder#setFetchUri(android.net.Uri)",
+                StringComparison.Ordinal))
+        {
+            return Replacement.Skip(
+                "source_documentation_malformed",
+                "The official Android source contains malformed trailing markup in its FetchAndJoinCustomAudienceRequest.getFetchUri reference.");
+        }
+
         if (placeholder.IsImporterMetadataRepair)
             return RemarksReplacementOrSkip(docs.Paragraphs, "source_remarks_missing");
 
@@ -1046,9 +1462,7 @@ static class ImporterProgram
             .ToList();
         if (missing.Count == 0)
         {
-            return Replacement.Skip(
-                "source_remarks_overlap_existing_documentation",
-                "Existing remarks already contain every exact source prose fragment.");
+            return Replacement.RemoveRemarksPlaceholder();
         }
 
         var beforePlaceholder = representedElements
@@ -1498,6 +1912,7 @@ static class ImporterProgram
                 "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates",
                 StringComparison.OrdinalIgnoreCase) ||
             unpunctuated.Contains("ERROR(", StringComparison.Ordinal) ||
+            unpunctuated.Contains("()}", StringComparison.Ordinal) ||
             Regex.IsMatch(
                 unpunctuated,
                 @"^Last updated \d{4}-\d{2}-\d{2} UTC$",
@@ -1716,19 +2131,27 @@ static class ImporterProgram
         if (remarksReplacement is not null && placeholder.Name == "para")
         {
             var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-            var replacementMarkup = TryGetLineWhitespaceIndent(
+            var replacementStart = elementStart;
+            string replacementMarkup;
+            if (TryGetLineWhitespaceIndent(
                     blockText,
                     elementStart,
-                    out _,
-                    out var indent)
-                ? string.Join(
+                    out var lineStart,
+                    out var indent))
+            {
+                replacementStart = lineStart;
+                replacementMarkup = string.Join(
                     newline,
                     remarksReplacement.Select(paragraph =>
-                        RenderDocumentationParagraph(paragraph, indent)))
-                : string.Concat(
+                        RenderDocumentationParagraph(paragraph, indent)));
+            }
+            else
+            {
+                replacementMarkup = string.Concat(
                     remarksReplacement.Select(paragraph =>
                         RenderDocumentationParagraph(paragraph, "")));
-            var replacementParagraphBlock = blockText[..elementStart] + replacementMarkup +
+            }
+            var replacementParagraphBlock = blockText[..replacementStart] + replacementMarkup +
                 blockText[elementEnd..];
             updated = text[..block.Start] + replacementParagraphBlock + text[block.End..];
             error = "";
@@ -2086,11 +2509,13 @@ static class ImporterProgram
         var existingSourceParagraphs = existing.Take(sourceReferenceIndex).ToList();
         if (!MatchesSourceParagraphSubsequence(
                 existingSourceParagraphs,
-                expectedSourceParagraphs) &&
+                expectedSourceParagraphs,
+                allowKnownAndroidCorrections: true) &&
             (!HasLegacyFormattedSourceReference(existing[sourceReferenceIndex]) ||
              !MatchesSourceParagraphSubsequence(
                  CoalesceLegacyNestedCodeContainers(existingSourceParagraphs),
-                 expectedSourceParagraphs)))
+                 expectedSourceParagraphs,
+                 allowKnownAndroidCorrections: true)))
         {
             return new RemarksRefreshResult(
                 text,
@@ -2098,7 +2523,11 @@ static class ImporterProgram
                 "The existing remarks prose was not an ordered structural subset of the exact mapped source.");
         }
 
-        if (existingSourceParagraphs.Count == expectedSourceParagraphs.Count)
+        if (existingSourceParagraphs.Count == expectedSourceParagraphs.Count &&
+            existingSourceParagraphs.Zip(
+                expectedSourceParagraphs,
+                (actual, expected) => ImporterMarkupEquals(actual, expected))
+                .All(equal => equal))
         {
             return new RemarksRefreshResult(
                 text,
@@ -2261,10 +2690,14 @@ static class ImporterProgram
 
     static bool MatchesSourceParagraphSubsequence(
         IReadOnlyList<XElement> existing,
-        IReadOnlyList<XElement> expected)
+        IReadOnlyList<XElement> expected,
+        bool allowKnownAndroidCorrections = false)
     {
         if (existing.Count == 0 ||
-            !ImporterMarkupEquals(existing[0], expected[0]))
+            !ImporterMarkupEquals(
+                existing[0],
+                expected[0],
+                allowKnownAndroidCorrections))
         {
             return false;
         }
@@ -2273,7 +2706,10 @@ static class ImporterProgram
         foreach (var element in existing.Skip(1))
         {
             while (expectedIndex < expected.Count &&
-                !ImporterMarkupEquals(element, expected[expectedIndex]))
+                !ImporterMarkupEquals(
+                    element,
+                    expected[expectedIndex],
+                    allowKnownAndroidCorrections))
             {
                 expectedIndex++;
             }
@@ -2312,7 +2748,10 @@ static class ImporterProgram
             $"{remarksIndent}</remarks>";
     }
 
-    static bool ImporterMarkupEquals(XElement actual, XElement expected)
+    static bool ImporterMarkupEquals(
+        XElement actual,
+        XElement expected,
+        bool allowKnownAndroidCorrections = false)
     {
         if (actual.Name != expected.Name ||
             actual.Attributes().Count() != expected.Attributes().Count() ||
@@ -2345,14 +2784,23 @@ static class ImporterProgram
             if (actualNodes[index] is XElement actualElement &&
                 expectedNodes[index] is XElement expectedElement)
             {
-                if (!ImporterMarkupEquals(actualElement, expectedElement))
+                if (!ImporterMarkupEquals(
+                        actualElement,
+                        expectedElement,
+                        allowKnownAndroidCorrections))
                     return false;
             }
             else if (actualNodes[index] is XText actualText &&
                      expectedNodes[index] is XText expectedText)
             {
-                if (!NormalizeText(actualText.Value).Equals(
-                    NormalizeText(expectedText.Value),
+                var actualValue = allowKnownAndroidCorrections
+                    ? NormalizeText(SourcePage.NormalizeAndroidSourceText(actualText.Value))
+                    : NormalizeText(actualText.Value);
+                var expectedValue = allowKnownAndroidCorrections
+                    ? NormalizeText(SourcePage.NormalizeAndroidSourceText(expectedText.Value))
+                    : NormalizeText(expectedText.Value);
+                if (!actualValue.Equals(
+                    expectedValue,
                     StringComparison.Ordinal))
                 {
                     return false;
@@ -2422,8 +2870,8 @@ static class ImporterProgram
         bool replacedRemarksPlaceholder,
         bool importedSourceChannel,
         SourceDocs docs) =>
-        !deferredRemarksPlaceholder ||
-        replacedRemarksPlaceholder;
+        docs.UnsafeTargets?.ContainsKey("remarks") != true &&
+        (!deferredRemarksPlaceholder || replacedRemarksPlaceholder);
 
     static bool HasCopiedDescriptionRepairCandidate(LoadedFile file, DocsOwner owner)
     {
@@ -2525,6 +2973,203 @@ static class ImporterProgram
             HasExactKnownBooleanReturnMarkup(returns, repair)
             ? repair
             : null;
+    }
+
+    static JavaExampleRepairResult RepairKnownJavaExample(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownJavaExampleRepair(actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Element("remarks")?.Elements("code").SingleOrDefault(code =>
+                IsKnownJavaExampleRepairCandidate(code, repair)) is not XElement code ||
+            !TryGetElementSpan(blockText, code, out var codeSpan))
+        {
+            return JavaExampleRepairResult.NoChange(text);
+        }
+
+        var replacement = $"<code lang=\"text/java\">{new XText(repair.CorrectCode).ToString(SaveOptions.DisableFormatting)}</code>";
+        var updatedBlock = blockText[..codeSpan.Start] + replacement +
+            blockText[codeSpan.End..];
+        return JavaExampleRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
+    static KnownJavaExampleRepair? FindKnownJavaExampleRepair(
+        XElement docs,
+        SourceDocs sourceDocs)
+    {
+        if (!HasExactImporterSourceReference(docs, sourceDocs))
+            return null;
+
+        var repair = KnownJavaExampleRepairs.SingleOrDefault(candidate =>
+            UrlsEqual(candidate.SourceUrl, sourceDocs.SourceUrl));
+        if (repair is null ||
+            docs.Element("remarks")?.Elements("code").Where(code =>
+                IsKnownJavaExampleRepairCandidate(code, repair)).Count() != 1)
+        {
+            return null;
+        }
+
+        return repair;
+    }
+
+    static bool IsKnownJavaExampleRepairCandidate(
+        XElement code,
+        KnownJavaExampleRepair repair)
+    {
+        if (code.Attributes().Count() != 1 ||
+            (string?)code.Attribute("lang") != "text/java" ||
+            !code.Nodes().All(node => node is XText && node is not XCData))
+        {
+            return false;
+        }
+
+        return code.Value.Equals(repair.IncompleteCode, StringComparison.Ordinal);
+    }
+
+    static JavaProseRepairResult RepairKnownJavaProse(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownJavaProseRepair(actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Element("remarks")?.Elements("para").FirstOrDefault() is not XElement paragraph ||
+            !TryGetElementSpan(blockText, paragraph, out var paragraphSpan))
+        {
+            return JavaProseRepairResult.NoChange(text);
+        }
+
+        var replacement = $"<para>{XmlEscape(repair.CorrectText)}</para>";
+        var updatedBlock = blockText[..paragraphSpan.Start] + replacement +
+            blockText[paragraphSpan.End..];
+        return JavaProseRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
+    static UnsafeParameterRepairResult RepairKnownUnsafeParameter(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        const string unsafeDuration =
+            "The duration for the new stroke. Must not be negative.";
+        if (!IsKnownUnsafeContinueStrokeDuration(sourceDocs.SourceUrl))
+        {
+            return UnsafeParameterRepairResult.NoChange(text);
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            actualDocs.Elements("param").SingleOrDefault(parameter =>
+                (string?)parameter.Attribute("name") == "duration") is not XElement duration ||
+            duration.Attributes().Count() != 1 ||
+            !HasPlainTextContent(duration, out var currentDuration) ||
+            !currentDuration.Equals(unsafeDuration, StringComparison.Ordinal) ||
+            !TryGetElementSpan(blockText, duration, out var durationSpan))
+        {
+            return UnsafeParameterRepairResult.NoChange(text);
+        }
+
+        const string placeholder = "<param name=\"duration\">To be added.</param>";
+        var updatedBlock = blockText[..durationSpan.Start] + placeholder +
+            blockText[durationSpan.End..];
+        return UnsafeParameterRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
+    static KnownJavaProseRepair? FindKnownJavaProseRepair(
+        XElement docs,
+        SourceDocs sourceDocs)
+    {
+        if (!HasExactImporterSourceReference(docs, sourceDocs))
+            return null;
+
+        var repair = KnownJavaProseRepairs.SingleOrDefault(candidate =>
+            candidate.SourceUrl.Equals(sourceDocs.SourceUrl, StringComparison.Ordinal));
+        if (repair is null ||
+            docs.Element("remarks") is not XElement remarks ||
+            remarks.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText text => !string.IsNullOrWhiteSpace(text.Value),
+                _ => true,
+            }) ||
+            remarks.Elements().ToList() is not [XElement paragraph, XElement sourceReference, XElement attribution] ||
+            paragraph.Name != "para" ||
+            paragraph.HasAttributes ||
+            !HasPlainTextContent(paragraph, out var paragraphText) ||
+            !paragraphText.Equals(repair.IncorrectText, StringComparison.Ordinal) ||
+            !IsCanonicalImporterSourceReferenceParagraph(sourceReference) ||
+            !IsImporterAttributionParagraph(attribution))
+        {
+            return null;
+        }
+
+        return repair;
+    }
+
+    static AndroidParameterRepairResult RepairKnownAndroidParameter(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownAndroidParameterRepair(owner.Id, actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Elements("param").SingleOrDefault(parameter =>
+                (string?)parameter.Attribute("name") == repair.ParameterName) is not XElement parameter ||
+            !TryGetElementSpan(blockText, parameter, out var parameterSpan))
+        {
+            return AndroidParameterRepairResult.NoChange(text);
+        }
+
+        var replacement =
+            $"<param name=\"{XmlAttributeEscape(repair.ParameterName)}\">{XmlEscape(repair.CorrectText)}</param>";
+        var updatedBlock = blockText[..parameterSpan.Start] + replacement +
+            blockText[parameterSpan.End..];
+        return AndroidParameterRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..],
+            repair.ParameterName);
+    }
+
+    static KnownAndroidParameterRepair? FindKnownAndroidParameterRepair(
+        string memberId,
+        XElement docs,
+        SourceDocs sourceDocs)
+    {
+        if (!HasExactImporterSourceReference(docs, sourceDocs))
+            return null;
+
+        var repair = KnownAndroidParameterRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(memberId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(sourceDocs.SourceUrl, StringComparison.Ordinal));
+        if (repair is null ||
+            docs.Elements("param").Where(parameter =>
+                (string?)parameter.Attribute("name") == repair.ParameterName).ToList() is not [XElement parameter] ||
+            parameter.Attributes().Count() != 1 ||
+            !HasPlainTextContent(parameter, out var parameterText) ||
+            !parameterText.Equals(repair.IncorrectText, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return repair;
     }
 
     static bool HasExactImporterSourceReference(XElement docs, SourceDocs sourceDocs)
@@ -3273,12 +3918,12 @@ static class ImporterProgram
             !HasPlainTextOrInlineCodeContent(element))
             return [];
 
-        var prose = NormalizeText(element.Value);
+        var prose = NormalizeSourceProseForComparison(element.Value);
         return sourceFragments
             .Select((fragment, index) => (fragment, index))
             .Where(item => !item.fragment.IsCode &&
                 prose.Contains(
-                    NormalizeText(item.fragment.Text),
+                    NormalizeSourceProseForComparison(item.fragment.Text),
                     StringComparison.OrdinalIgnoreCase))
             .Select(item => item.index)
             .ToList();
@@ -4243,6 +4888,100 @@ static class ImporterProgram
                  candidate.Text.StartsWith(existing.Text, StringComparison.Ordinal))));
     }
 
+    static bool HasImporterOwnedSummarySourceTextRefresh(DocsOwner owner, SourceDocs docs)
+    {
+        if (owner.Docs.Element("summary") is not XElement summary)
+        {
+            return false;
+        }
+
+        return HasImporterOwnedSummarySourceTextRefresh(summary, docs);
+    }
+
+    static bool HasImporterOwnedSummarySourceTextRefresh(XElement summary, SourceDocs docs)
+    {
+        if (docs.SourceKind != "android" ||
+            !HasImporterOwnedEnumMetadata(summary, docs))
+        {
+            return false;
+        }
+
+        var content = summary.Nodes()
+            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
+            .ToList();
+        if (content.Any(node => node is not XElement element ||
+                (element.Name != "para" && element.Name != "code") ||
+                (element.Name == "para" &&
+                 !IsImporterOwnedEnumMetadataParagraph(element, docs) &&
+                 element.HasElements) ||
+                (element.Name == "code" &&
+                 (!string.Equals((string?)element.Attribute("lang"), "text/java",
+                     StringComparison.Ordinal) ||
+                  element.HasElements))))
+        {
+            return false;
+        }
+
+        var current = content
+            .Cast<XElement>()
+            .Where(element => element.Name != "para" ||
+                !IsImporterOwnedEnumMetadataParagraph(element, docs))
+            .Select(element => new SourceParagraph(
+                element.Name == "code" ? element.Value : CleanSourceText(element.Value),
+                element.Name == "code"))
+            .ToList();
+        var source = docs.Paragraphs
+            .Select(paragraph => new SourceParagraph(
+                paragraph.IsCode ? paragraph.Text : CleanSourceText(paragraph.Text),
+                paragraph.IsCode))
+            .Where(paragraph => paragraph.IsCode ||
+                IsMeaningfulChannel(paragraph.Text, "remarks"))
+            .ToList();
+
+        if (current.Count != source.Count)
+            return false;
+
+        var foundKnownArtifact = false;
+        foreach (var (existing, candidate) in current.Zip(source))
+        {
+            if (existing.IsCode != candidate.IsCode)
+                return false;
+            if (existing.Text.Equals(candidate.Text, StringComparison.Ordinal))
+                continue;
+            if (!existing.Text.Contains(
+                    "AccessibilityServiceAccessibilityService.getWindows()",
+                    StringComparison.Ordinal) ||
+                !SourcePage.NormalizeAndroidSourceText(existing.Text).Equals(
+                    candidate.Text,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+            foundKnownArtifact = true;
+        }
+
+        return foundKnownArtifact;
+    }
+
+    static string RefreshImporterOwnedSummarySourceText(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var refreshedBlock = AddEnumSummaryMetadata(
+            blockText,
+            file,
+            owner,
+            docs,
+            allowCreation: false);
+        return refreshedBlock.Equals(blockText, StringComparison.Ordinal)
+            ? text
+            : text[..block.Start] + refreshedBlock + text[block.End..];
+    }
+
     static bool HasPotentialEnumListRepair(LoadedFile file, DocsOwner owner) =>
         owner.IsEnumField &&
         HasImporterSourceReference(file, owner);
@@ -4343,6 +5082,7 @@ static class ImporterProgram
             sourceParagraphs.Skip(1).Any(paragraph =>
                 !IsDeprecationParagraph(paragraph));
         var listRepairEligible = HasImporterOwnedEnumListGap(owner, docs);
+        var sourceTextRepairEligible = HasImporterOwnedSummarySourceTextRefresh(owner, docs);
         var creationEligible = !hasReferenceMetadata &&
             !hasAttribution &&
             allowCreation &&
@@ -4356,7 +5096,8 @@ static class ImporterProgram
             StringComparer.Ordinal);
         if (hasReferenceMetadata || hasAttribution)
         {
-            if (alreadyComplete || (!repairEligible && !listRepairEligible))
+            if (alreadyComplete ||
+                (!repairEligible && !listRepairEligible && !sourceTextRepairEligible))
                 return blockText;
         }
         else if (!allowCreation)
@@ -4377,7 +5118,7 @@ static class ImporterProgram
         var summaryIndent = candidateIndent.All(char.IsWhiteSpace) ? candidateIndent : "";
         var paraIndent = summaryIndent + "  ";
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
-        var additions = repairEligible || creationEligible || listRepairEligible
+        var additions = repairEligible || creationEligible || listRepairEligible || sourceTextRepairEligible
             ? sourceDocumentation
                 .Select(paragraph => RenderDocumentationParagraph(paragraph, paraIndent))
                 .ToList()
@@ -4492,6 +5233,11 @@ static class ImporterProgram
             "CharSequence.subsequence()",
             "CharSequence.subSequence()",
             StringComparison.Ordinal);
+        text = Regex.Replace(
+            text,
+            @"(?<permission>Requires android\.Manifest\.permission\.[A-Z_]+)(?:\s+\k<permission>)+",
+            "${permission}",
+            RegexOptions.CultureInvariant);
         text = Regex.Replace(text, @"(?<!\w)#(?=[A-Za-z_])", "");
         text = Regex.Replace(
             text,
@@ -4658,6 +5404,13 @@ static class ImporterProgram
     static string NormalizeText(string value) =>
         Regex.Replace(WebUtility.HtmlDecode(value).Replace('\u00a0', ' '), @"\s+", " ").Trim();
 
+    static string NormalizeSourceProseForComparison(string value) =>
+        Regex.Replace(
+            NormalizeText(value),
+            @"(?<type>[A-Za-z_]\w*)\.(?<member>[A-Za-z_]\w*)\(",
+            "${type}#${member}(",
+            RegexOptions.CultureInvariant);
+
     static string NormalizeNormalWhitespace(string value) =>
         Regex.Replace(value, @"\s+", " ").Trim();
 
@@ -4771,6 +5524,78 @@ static class ImporterProgram
         var sourcePath = Path.Combine(fixtureRoot, "source.xml");
         var androidHtml = File.ReadAllText(Path.Combine(fixtureRoot, "android-reference.html"));
         var javaHtml = File.ReadAllText(Path.Combine(fixtureRoot, "java-reference.html"));
+        var unsafeHardwareBufferDocs = new SourceDocs(
+            "",
+            [
+                new SourceParagraph(
+                    "Calling this method will throw an IllegalStateException if format is not a supported Format type.",
+                    false),
+                new SourceParagraph("Retained source prose.", false),
+            ],
+            new Dictionary<string, string>(),
+            "",
+            new Dictionary<string, string>(),
+            "https://developer.android.com/reference/android/hardware/HardwareBuffer#create(int,%20int,%20int,%20int,%20long)",
+            "Android reference",
+            "Android");
+        var filteredHardwareBufferDocs = WithoutKnownUnsafeHardwareBufferCreateRemark(
+            "M:Android.Hardware.HardwareBuffer.Create(System.Int32,System.Int32,Android.Hardware.HardwareBufferFormat,System.Int32,Android.Hardware.HardwareBufferUsage)",
+            unsafeHardwareBufferDocs);
+        Assert(
+            filteredHardwareBufferDocs.Paragraphs.Count == 1 &&
+            filteredHardwareBufferDocs.Paragraphs[0].Text == "Retained source prose.",
+            "HardwareBuffer Create omits the contradicted IllegalStateException remark");
+        Assert(
+            WithoutKnownUnsafeHardwareBufferCreateRemark(
+                "M:Android.Hardware.HardwareBuffer.Create(System.Int32,System.Int32,Android.Hardware.HardwareBufferFormat,System.Int32,Android.Hardware.HardwareBufferUsage)",
+                unsafeHardwareBufferDocs with
+                {
+                    SourceUrl = "https://developer.android.com/reference/android/hardware/HardwareBuffer",
+                }).Paragraphs.Count == 2,
+            "HardwareBuffer Create filter requires the exact source channel");
+        var unsafeRemoteGetDocs = WithoutKnownUnsafeRemoteEntryGuidance(
+            "M:Android.Service.Credentials.BeginGetCredentialResponse.Builder.SetRemoteCredentialEntry(Android.Service.Credentials.RemoteEntry)",
+            new SourceDocs(
+                "",
+                [
+                    new SourceParagraph(
+                        "When constructing the CredentialEntry object, the pendingIntent must be set such that it leads to an activity that can provide UI to fulfill the request on a remote device. When user selects this remoteCredentialEntry, the system will invoke the pendingIntent set on the CredentialEntry.",
+                        false),
+                    new SourceParagraph(
+                        "Once the remote credential flow is complete, the Activity result should be set to Activity.RESULT_OK and an extra with the CredentialProviderService.EXTRA_GET_CREDENTIAL_RESPONSE key should be populated with a Credential object.",
+                        false),
+                    new SourceParagraph("Retained remote credential guidance.", false),
+                ],
+                new Dictionary<string, string>(),
+                "",
+                new Dictionary<string, string>(),
+                "https://developer.android.com/reference/android/service/credentials/BeginGetCredentialResponse.Builder#setRemoteCredentialEntry(android.service.credentials.RemoteEntry)",
+                "android.service.credentials.BeginGetCredentialResponse.Builder.setRemoteCredentialEntry",
+                "Android"));
+        Assert(
+            unsafeRemoteGetDocs.Paragraphs.Count == 1 &&
+            unsafeRemoteGetDocs.Paragraphs[0].Text == "Retained remote credential guidance.",
+            "remote credential guidance omits contradicted entry and response payload instructions");
+        var unsafeRemoteCreateDocs = WithoutKnownUnsafeRemoteEntryGuidance(
+            "M:Android.Service.Credentials.BeginCreateCredentialResponse.Builder.SetRemoteCreateEntry(Android.Service.Credentials.RemoteEntry)",
+            new SourceDocs(
+                "",
+                [
+                    new SourceParagraph(
+                        "When constructing the CreateEntry object, the pendingIntent must be set such that it leads to an activity that can provide UI to fulfill the request on a remote device. When user selects this remoteCreateEntry, the system will invoke the pendingIntent set on the CreateEntry.",
+                        false),
+                    new SourceParagraph("Retained remote create guidance.", false),
+                ],
+                new Dictionary<string, string>(),
+                "",
+                new Dictionary<string, string>(),
+                "https://developer.android.com/reference/android/service/credentials/BeginCreateCredentialResponse.Builder#setRemoteCreateEntry(android.service.credentials.RemoteEntry)",
+                "android.service.credentials.BeginCreateCredentialResponse.Builder.setRemoteCreateEntry",
+                "Android"));
+        Assert(
+            unsafeRemoteCreateDocs.Paragraphs.Count == 1 &&
+            unsafeRemoteCreateDocs.Paragraphs[0].Text == "Retained remote create guidance.",
+            "remote create guidance omits contradicted entry instruction");
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
@@ -5652,6 +6477,29 @@ static class ImporterProgram
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
         Assert(androidPage.TypeDocs?.Summary == "Represents a fixture widget.", "Android type summary");
+        var fetchUriRequest = new SourceRequest(
+            "android/adservices/customaudience/FetchAndJoinCustomAudienceRequest$Builder",
+            "https://developer.android.com/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder",
+            "android");
+        var malformedFetchUriDocs = SourcePage.Parse(fetchUriRequest, androidHtml)
+            .Members.Single(member => member.Name == "setFetchUri").Docs!;
+        Assert(
+            malformedFetchUriDocs.HasMalformedSourceMarkup &&
+            ReplacementFor(
+                new Placeholder(0, "summary", "", "summary"),
+                malformedFetchUriDocs).Reason == "source_documentation_malformed",
+            "malformed FetchAndJoinCustomAudienceRequest fetch URI source skip");
+        var correctedFetchUriDocs = SourcePage.Parse(
+            fetchUriRequest,
+            androidHtml.Replace(" ()}", "", StringComparison.Ordinal))
+            .Members.Single(member => member.Name == "setFetchUri").Docs!;
+        Assert(
+            !correctedFetchUriDocs.HasMalformedSourceMarkup &&
+            ReplacementFor(
+                new Placeholder(0, "summary", "", "summary"),
+                correctedFetchUriDocs).Text ==
+                "Sets the Uri from which the custom audience is to be fetched.",
+            "corrected FetchAndJoinCustomAudienceRequest fetch URI source imports normally");
         var repeatedAndroidPage = SourcePage.Parse(
             request,
             File.ReadAllText(Path.Combine(
@@ -5905,6 +6753,91 @@ static class ImporterProgram
             inlineMarkupReplacement.Remarks?.Select(paragraph => paragraph.Text)
                 .SequenceEqual(["The exact JNI overload is required."]) == true,
             "remarks overlap recognizes punctuation-adjacent inline markup");
+        var methodReferenceDocs = mappedDocs with
+        {
+            Paragraphs =
+            [
+                new SourceParagraph(
+                    "Calls InputMethodService.onBindInput() when done. This method must be called from the main thread of your app.",
+                    IsCode: false),
+            ],
+        };
+        var methodReferenceRemarks = XElement.Parse(
+            "<remarks><para>Calls <c>InputMethodService#onBindInput()</c> when done.</para><para>To be added.</para></remarks>");
+        var methodReferencePlaceholder = Placeholder.Create(
+            methodReferenceRemarks.Elements("para").Last(),
+            0);
+        var methodReferenceReplacement = LimitOverlappingRemarksReplacement(
+            methodReferencePlaceholder,
+            methodReferenceDocs,
+            ReplacementFor(
+                methodReferencePlaceholder,
+                methodReferenceDocs),
+            methodReferenceRemarks);
+        Assert(
+            methodReferenceReplacement.Remarks?.Select(paragraph => paragraph.Text)
+                .SequenceEqual(
+                    ["This method must be called from the main thread of your app."]) == true,
+            "remarks overlap retains source guidance not represented by inline method references");
+        const string methodReferenceDocsText =
+            "<Docs><remarks><para>Calls <c>InputMethodService#onBindInput()</c> when done.</para><para>To be added.</para></remarks></Docs>";
+        Assert(
+            TryReplacePlaceholder(
+                methodReferenceDocsText,
+                new DocsBlock(0, 0, methodReferenceDocsText.Length),
+                methodReferencePlaceholder,
+                methodReferenceReplacement,
+                out var appliedMethodReferenceText,
+                out _) &&
+            XDocument.Parse(appliedMethodReferenceText)
+                .Root!
+                .Element("remarks")!
+                .Elements("para")
+                .ToList() is [var preservedMethodReference, var importedThreadRequirement] &&
+            preservedMethodReference.Value == "Calls InputMethodService#onBindInput() when done." &&
+            preservedMethodReference.Element("c")?.Value == "InputMethodService#onBindInput()" &&
+            importedThreadRequirement.Value ==
+                "This method must be called from the main thread of your app.",
+            "remarks overlap preserves inline method markup and imports independent source guidance");
+        const string multilineMethodReferenceDocsText =
+            "<Docs>\n  <remarks>\n    <para>Calls <c>InputMethodService#onBindInput()</c> when done.</para>\n    <para>To be added.</para>\n  </remarks>\n</Docs>";
+        var multilineMethodReferenceRemarks = XElement.Parse(
+            multilineMethodReferenceDocsText).Element("remarks")!;
+        var multilineMethodReferencePlaceholder = Placeholder.Create(
+            multilineMethodReferenceRemarks.Elements("para").Last(),
+            0);
+        var multilineMethodReferenceReplacement = LimitOverlappingRemarksReplacement(
+            multilineMethodReferencePlaceholder,
+            methodReferenceDocs,
+            ReplacementFor(
+                multilineMethodReferencePlaceholder,
+                methodReferenceDocs),
+            multilineMethodReferenceRemarks);
+        Assert(
+            TryReplacePlaceholder(
+                multilineMethodReferenceDocsText,
+                new DocsBlock(0, 0, multilineMethodReferenceDocsText.Length),
+                multilineMethodReferencePlaceholder,
+                multilineMethodReferenceReplacement,
+                out var appliedMultilineMethodReferenceText,
+                out _) &&
+            appliedMultilineMethodReferenceText.Contains(
+                "\n    <para>This method must be called from the main thread of your app.</para>",
+                StringComparison.Ordinal) &&
+            !appliedMultilineMethodReferenceText.Contains(
+                "\n        <para>This method must be called from the main thread of your app.</para>",
+                StringComparison.Ordinal),
+            "multiline remarks replacements preserve the placeholder indentation");
+        Assert(
+            SourcePage.ExtractParagraphs(
+                "<p><p>Calls <code>InputMethodService.onBindInput()</code> when done.</p>.<br>This method must be called from the main thread of your app.</p></p>")
+                .Select(paragraph => paragraph.Text)
+                .SequenceEqual(
+                    [
+                        "Calls InputMethodService.onBindInput() when done.",
+                        "This method must be called from the main thread of your app.",
+                    ]),
+            "malformed Android method markup retains independent main-thread guidance");
         var unsafeInlineMarkup = XElement.Parse(
             "<para>Sets the <c>widget</c> title.<!-- authored comment --></para>");
         Assert(
@@ -6380,6 +7313,141 @@ static class ImporterProgram
             SourceKind = "android",
         };
         var mappedSourceKind = mappedDocs.SourceKind == "android" ? "Android" : "Java";
+        var knownJavaExampleDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownJavaExampleRepairs[0].SourceUrl,
+            SourceLabel = "java.time.temporal.TemporalField.adjustInto",
+            SourceKind = "java",
+        };
+        var knownJavaExampleMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "remarks",
+                new XElement(
+                    "code",
+                    new XAttribute("lang", "text/java"),
+                    KnownJavaExampleRepairs[0].IncompleteCode),
+                ImporterSourceReference(knownJavaExampleDocs)));
+        Assert(
+            FindKnownJavaExampleRepair(
+                knownJavaExampleMarkup,
+                knownJavaExampleDocs) == KnownJavaExampleRepairs[0],
+            "exact known Java examples are eligible for parameter repairs");
+        knownJavaExampleMarkup.Element("remarks")!.Element("code")!.Value =
+            KnownJavaExampleRepairs[0].IncompleteCode.Replace(
+                "temporal.with(thisField);",
+                "temporal.with(otherField);",
+                StringComparison.Ordinal);
+        Assert(
+            FindKnownJavaExampleRepair(
+                knownJavaExampleMarkup,
+                knownJavaExampleDocs) is null,
+            "Java example repairs preserve altered importer-like code");
+        knownJavaExampleMarkup.Element("remarks")!.Element("code")!.Value =
+            KnownJavaExampleRepairs[0].IncompleteCode.Replace(
+                "\n",
+                "\n  ",
+                StringComparison.Ordinal);
+        Assert(
+            FindKnownJavaExampleRepair(
+                knownJavaExampleMarkup,
+                knownJavaExampleDocs) is null,
+            "Java example repairs preserve whitespace-modified code");
+        knownJavaExampleMarkup.Element("remarks")!.Element("code")!.Value =
+            KnownJavaExampleRepairs[0].CorrectCode;
+        Assert(
+            FindKnownJavaExampleRepair(
+                knownJavaExampleMarkup,
+                knownJavaExampleDocs) is null,
+            "correct Java examples remain idempotent");
+        var knownJavaProseDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownJavaProseRepairs[0].SourceUrl,
+            SourceLabel = "java.time.temporal.ChronoUnit.ERAS",
+            SourceKind = "java",
+        };
+        var knownJavaProseMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "remarks",
+                new XElement("para", KnownJavaProseRepairs[0].IncorrectText),
+                ImporterSourceReference(knownJavaProseDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        Assert(
+            FindKnownJavaProseRepair(
+                knownJavaProseMarkup,
+                knownJavaProseDocs) == KnownJavaProseRepairs[0],
+            "exact known Java prose is eligible for Android-verified correction");
+        var authoredJavaProseMarkup = new XElement(knownJavaProseMarkup);
+        authoredJavaProseMarkup.Element("remarks")!.AddFirst(
+            new XText("Keep this authored prose."));
+        Assert(
+            FindKnownJavaProseRepair(
+                authoredJavaProseMarkup,
+                knownJavaProseDocs) is null,
+            "Java prose repairs preserve direct authored prose");
+        var encodedJavaProseDocs = knownJavaProseDocs with
+        {
+            SourceUrl = KnownJavaProseRepairs[0].SourceUrl.Replace(
+                "#",
+                "%23",
+                StringComparison.Ordinal),
+        };
+        var encodedJavaProseMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "remarks",
+                new XElement("para", KnownJavaProseRepairs[0].IncorrectText),
+                ImporterSourceReference(encodedJavaProseDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        Assert(
+            FindKnownJavaProseRepair(
+                encodedJavaProseMarkup,
+                encodedJavaProseDocs) is null,
+            "Java prose repairs require an exact source URL");
+        knownJavaProseMarkup.Element("remarks")!.Element("para")!.Value =
+            KnownJavaProseRepairs[0].CorrectText;
+        Assert(
+            FindKnownJavaProseRepair(
+                knownJavaProseMarkup,
+                knownJavaProseDocs) is null,
+            "corrected Java prose remains idempotent");
+        var knownAndroidParameterDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownAndroidParameterRepairs[0].SourceUrl,
+            SourceLabel = "android.net.vcn.VcnCellUnderlyingNetworkTemplate.Builder.setOperatorPlmnIds",
+            SourceKind = "android",
+        };
+        var knownAndroidParameterMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "param",
+                new XAttribute("name", KnownAndroidParameterRepairs[0].ParameterName),
+                KnownAndroidParameterRepairs[0].IncorrectText),
+            new XElement(
+                "remarks",
+                ImporterSourceReference(knownAndroidParameterDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        Assert(
+            FindKnownAndroidParameterRepair(
+                KnownAndroidParameterRepairs[0].MemberId,
+                knownAndroidParameterMarkup,
+                knownAndroidParameterDocs) == KnownAndroidParameterRepairs[0],
+            "exact known Android parameter prose is eligible for correction");
+        Assert(
+            FindKnownAndroidParameterRepair(
+                KnownAndroidParameterRepairs[0].MemberId + ".Altered",
+                knownAndroidParameterMarkup,
+                knownAndroidParameterDocs) is null,
+            "Android parameter repairs require the exact managed member");
+        knownAndroidParameterMarkup.Element("param")!.Value =
+            KnownAndroidParameterRepairs[0].CorrectText;
+        Assert(
+            FindKnownAndroidParameterRepair(
+                KnownAndroidParameterRepairs[0].MemberId,
+                knownAndroidParameterMarkup,
+                knownAndroidParameterDocs) is null,
+            "corrected Android parameter prose remains idempotent");
         var rawSignatureBlock = Regex.Replace(
             file.Text[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End],
             @"<remarks\b[^>]*>.*?</remarks>",
@@ -6900,6 +7968,13 @@ static class ImporterProgram
         Assert(
             incompleteSummary.Reason == "source_channel_not_meaningful",
             "incomplete source summary skip");
+        var malformedSourceMarkup = ChannelValueOrSkip(
+            "See FetchAndJoinCustomAudienceRequest.getFetchUri() ()} for details.",
+            "remarks",
+            "source_remarks_missing");
+        Assert(
+            malformedSourceMarkup.Reason == "source_channel_not_meaningful",
+            "malformed source markup skip");
         var completeGenericSummary = ChannelValueOrSkip(
             "Type used when the service can save the contents of a screen, but cannot describe what the content is for.",
             "summary",
@@ -6946,6 +8021,11 @@ static class ImporterProgram
             CleanSourceText("Triggers a custom UI before before autofilling the screen.") ==
                 "Triggers a custom UI before autofilling the screen.",
             "Android duplicate word cleanup");
+        Assert(
+            CleanSourceText(
+                "Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE") ==
+                    "Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE",
+            "Android duplicate permission requirement cleanup");
         Assert(
             CleanSourceText("Altough similiarly named with another method.") ==
                 "Although similarly named with another method.",
@@ -8387,6 +9467,16 @@ static class ImporterProgram
             "Javadoc button controls are excluded from prose");
         Assert(
             SourcePage.HtmlText(
+                "<p>calling AccessibilityService<code><a href=\"#getWindows\">AccessibilityService.getWindows()</a></code> will return an empty list</p>") ==
+                "calling AccessibilityService.getWindows() will return an empty list",
+            "adjacent Android receiver text and linked member reference are not duplicated");
+        Assert(
+            SourcePage.HtmlText(
+                "<p>The callback will occur on the services's main thread if the handler is null.</p>") ==
+                "The callback will occur on the service's main thread if the handler is null.",
+            "known Android service-thread typo is corrected");
+        Assert(
+            SourcePage.HtmlText(
                 "<p>Supported loops:</p><ul><li><code>for (;;) { process(); }</code></li></ul><p>continue.</p>") ==
                 "Supported loops: for (;;) { process(); } continue.",
             "inline Java code semicolons are preserved in list prose");
@@ -8437,6 +9527,13 @@ static class ImporterProgram
                 multiBridgeParagraphs[2].Text == "Second: Three; Four" &&
                 multiBridgeParagraphs[3].Text == "Last.",
             "multiple list bridges retain following paragraphs and nested list content");
+        var missingJavaSignaturePeriod = SourcePage.ExtractBlocks(
+            "<div class=\"block\">Sets a value.<p>The method signature is of the form <code>(T value)void</code></p><p>The symbolic type descriptor must match.</p></div>");
+        Assert(
+            missingJavaSignaturePeriod.Count == 1 &&
+                missingJavaSignaturePeriod[0].Text ==
+                "Sets a value. The method signature is of the form (T value)void. The symbolic type descriptor must match.",
+            "Java signature paragraph boundaries preserve a sentence separator");
 
         var enumFile = LoadedFile.Load(
             repositoryRoot,
@@ -9833,6 +10930,197 @@ static class ImporterProgram
             _ = XDocument.Load(tempPath, LoadOptions.PreserveWhitespace);
             Assert(true, "atomic write produced valid XML");
 
+            var unsafePublishDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)",
+                new SourceDocs(
+                    "Specify the type: solicited (aka active - publish packets are transmitted over-the-air), or unsolicited (aka passive - no publish packets are transmitted).",
+                    [new SourceParagraph(
+                        "Solicited (aka active - publish packets are transmitted over-the-air).",
+                        false)],
+                    new Dictionary<string, string>(),
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setPublishType(int)",
+                    "android.net.wifi.aware.PublishConfig.Builder.setPublishType",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "summary", "", "summary"),
+                    unsafePublishDocs).Reason == "source_channel_ambiguous" &&
+                ReplacementFor(
+                    new Placeholder(1, "remarks", "", "remarks"),
+                    unsafePublishDocs).Reason == "source_channel_ambiguous" &&
+                unsafePublishDocs.Paragraphs.Count == 0,
+                "unsafe publish session semantics are not imported");
+
+            var unsafeSubscribeDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetSubscribeType(Android.Net.Wifi.Aware.SubscribeType)",
+                new SourceDocs(
+                    "Sets the type: passive (no subscribe packets are transmitted, a match is made against a solicited/active publish session).",
+                    [new SourceParagraph(
+                        "Passive subscribers match a solicited/active publish session.",
+                        false)],
+                    new Dictionary<string, string>(),
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/net/wifi/aware/SubscribeConfig.Builder#setSubscribeType(int)",
+                    "android.net.wifi.aware.SubscribeConfig.Builder.setSubscribeType",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "summary", "", "summary"),
+                    unsafeSubscribeDocs).Reason == "source_channel_ambiguous" &&
+                ReplacementFor(
+                    new Placeholder(1, "remarks", "", "remarks"),
+                    unsafeSubscribeDocs).Reason == "source_channel_ambiguous" &&
+                unsafeSubscribeDocs.Paragraphs.Count == 0,
+                "unsafe subscribe session semantics are not imported");
+
+            var unsafeGeofenceDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetMaxDistanceMm(System.Int32)",
+                new SourceDocs(
+                    "Configure the maximum distance.",
+                    [new SourceParagraph(
+                        "Discovery with min <= distance <= max. The ingress rule is distance <= max or distance >= min.",
+                        false)],
+                    new Dictionary<string, string>(),
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/net/wifi/aware/SubscribeConfig.Builder#setMaxDistanceMm(int)",
+                    "android.net.wifi.aware.SubscribeConfig.Builder.setMaxDistanceMm",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "remarks", "", "remarks"),
+                    unsafeGeofenceDocs).Reason == "source_channel_ambiguous" &&
+                unsafeGeofenceDocs.Paragraphs.Count == 0,
+                "unsafe geofence remarks are not imported");
+
+            var unsafePortDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPort(System.Int32)",
+                new SourceDocs(
+                    "Configure the port.",
+                    [],
+                    new Dictionary<string, string>
+                    {
+                        ["port"] = "A positive integer. Value is between 0 and 65535 inclusive",
+                    },
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setPort(int)",
+                    "android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setPort",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "param", "port", "param:port"),
+                    unsafePortDocs).Reason == "source_channel_ambiguous",
+                "unsafe port range is not imported");
+
+            var unsafeContinueStrokeDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.AccessibilityServices.GestureDescription.StrokeDescription.ContinueStroke(Android.Graphics.Path,System.Int64,System.Int64,System.Boolean)",
+                new SourceDocs(
+                    "Create a new stroke that will continue this one.",
+                    [],
+                    new Dictionary<string, string>
+                    {
+                        ["duration"] = "The duration for the new stroke. Must not be negative.",
+                    },
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/accessibilityservice/GestureDescription.StrokeDescription#continueStroke(android.graphics.Path,%20long,%20long,%20boolean)",
+                    "android.accessibilityservice.GestureDescription.StrokeDescription.continueStroke",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "param", "duration", "param:duration"),
+                    unsafeContinueStrokeDocs).Reason == "source_channel_ambiguous",
+                "unsafe ContinueStroke duration is not imported");
+
+            var unsafeAdSelectionResultDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.AdServices.AdSelection.PersistAdSelectionResultRequest.Builder.SetAdSelectionResult(System.Byte[])",
+                new SourceDocs(
+                    "Sets the ad selection result String.",
+                    [new SourceParagraph("Sets the ad selection result String.", false)],
+                    new Dictionary<string, string>(),
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/adservices/adselection/PersistAdSelectionResultRequest.Builder#setAdSelectionResult(byte[])",
+                    "android.adservices.adselection.PersistAdSelectionResultRequest.Builder.setAdSelectionResult",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "summary", "", "summary"),
+                    unsafeAdSelectionResultDocs).Reason == "source_channel_ambiguous" &&
+                ReplacementFor(
+                    new Placeholder(1, "remarks", "", "remarks"),
+                    unsafeAdSelectionResultDocs).Reason == "source_channel_ambiguous" &&
+                unsafeAdSelectionResultDocs.Paragraphs.Count == 0,
+                "unsafe ad selection byte-array wording is not imported");
+
+            var unsafeReportingDestinationDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.AdServices.AdSelection.ReportEventRequest.Builder.SetReportingDestinations(System.Int32)",
+                new SourceDocs(
+                    "Sets the bitfield of reporting destinations to report to (buyer, seller, or both).",
+                    [
+                        new SourceParagraph(
+                            "Sets the bitfield of reporting destinations to report to (buyer, seller, or both).",
+                            false),
+                        new SourceParagraph(
+                            "See ReportEventRequest.getReportingDestinations() for more information.",
+                            false),
+                    ],
+                    new Dictionary<string, string>(),
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/adservices/adselection/ReportEventRequest.Builder#setReportingDestinations(int)",
+                    "android.adservices.adselection.ReportEventRequest.Builder.setReportingDestinations",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "summary", "", "summary"),
+                    unsafeReportingDestinationDocs).Reason == "source_channel_ambiguous" &&
+                ReplacementFor(
+                    new Placeholder(1, "remarks", "", "remarks"),
+                    unsafeReportingDestinationDocs).Reason == "source_channel_ambiguous" &&
+                !ShouldAddSourceDocumentation(
+                    deferredRemarksPlaceholder: false,
+                    replacedRemarksPlaceholder: false,
+                    importedSourceChannel: true,
+                    unsafeReportingDestinationDocs) &&
+                unsafeReportingDestinationDocs.Paragraphs.Count == 0,
+                "unsafe reporting destination wording and metadata are not imported");
+
+            var unsafeMetadataDocument = XDocument.Parse(
+                fixtureText,
+                LoadOptions.PreserveWhitespace);
+            var unsafeMetadataMember = unsafeMetadataDocument.Root!
+                .Element("Members")!
+                .Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "SetTitle");
+            unsafeMetadataMember.Element("Docs")!
+                .Element("remarks")!
+                .ReplaceWith(XElement.Parse($"<remarks><para>{AndroidAttribution}</para></remarks>"));
+            var unsafeMetadataPath = Path.Combine(tempDirectory, "unsafe-source-metadata.xml");
+            File.WriteAllText(
+                unsafeMetadataPath,
+                unsafeMetadataDocument.ToString(SaveOptions.DisableFormatting),
+                new UTF8Encoding(false));
+            var unsafeMetadataFile = LoadedFile.Load(repositoryRoot, unsafeMetadataPath);
+            unsafeMetadataFile.SelectOwners("SetTitle");
+            var unsafeMetadataOwner = unsafeMetadataFile.Owners.Single();
+            var unsafeMetadataResult = AddSourceDocumentationIfSafe(
+                unsafeMetadataFile.Text,
+                unsafeMetadataFile,
+                unsafeMetadataOwner,
+                unsafePublishDocs);
+            Assert(
+                unsafeMetadataResult.Contains(unsafePublishDocs.SourceUrl, StringComparison.Ordinal) &&
+                unsafeMetadataResult.Contains(AndroidAttribution, StringComparison.Ordinal) &&
+                !unsafeMetadataResult.Contains(
+                    "solicited (aka active - publish packets are transmitted over-the-air)",
+                    StringComparison.Ordinal),
+                "unsafe source metadata insertion preserves attribution without source prose");
+
             var pendingReport = new ImportReport
             {
                 Mode = "apply",
@@ -10271,6 +11559,20 @@ static class ImporterProgram
         string IncorrectReturn,
         string CorrectReturn,
         string IncorrectMarkup);
+    sealed record KnownJavaExampleRepair(
+        string SourceUrl,
+        string IncompleteCode,
+        string CorrectCode);
+    sealed record KnownJavaProseRepair(
+        string SourceUrl,
+        string IncorrectText,
+        string CorrectText);
+    sealed record KnownAndroidParameterRepair(
+        string SourceUrl,
+        string MemberId,
+        string ParameterName,
+        string IncorrectText,
+        string CorrectText);
     sealed record BooleanReturnRepairSkip(string Reason, string Detail);
     sealed record BooleanReturnRepairResult(
         string Text,
@@ -10288,6 +11590,43 @@ static class ImporterProgram
             string reason,
             string detail) =>
             new(text, false, new BooleanReturnRepairSkip(reason, detail));
+    }
+    sealed record JavaExampleRepairResult(string Text, bool Repaired)
+    {
+        public static JavaExampleRepairResult NoChange(string text) =>
+            new(text, false);
+
+        public static JavaExampleRepairResult RepairedText(string text) =>
+            new(text, true);
+    }
+    sealed record AndroidParameterRepairResult(
+        string Text,
+        bool Repaired,
+        string ParameterName)
+    {
+        public static AndroidParameterRepairResult NoChange(string text) =>
+            new(text, false, string.Empty);
+
+        public static AndroidParameterRepairResult RepairedText(
+            string text,
+            string parameterName) =>
+            new(text, true, parameterName);
+    }
+    sealed record JavaProseRepairResult(string Text, bool Repaired)
+    {
+        public static JavaProseRepairResult NoChange(string text) =>
+            new(text, false);
+
+        public static JavaProseRepairResult RepairedText(string text) =>
+            new(text, true);
+    }
+    sealed record UnsafeParameterRepairResult(string Text, bool Repaired)
+    {
+        public static UnsafeParameterRepairResult NoChange(string text) =>
+            new(text, false);
+
+        public static UnsafeParameterRepairResult RepairedText(string text) =>
+            new(text, true);
     }
     sealed record SourceReferenceCleanupSkip(string Reason, string Detail)
     {
@@ -11130,7 +12469,8 @@ static class ImporterProgram
                 exceptions,
                 url,
                 $"{request.JavaPath.Replace('/', '.').Replace('$', '.')}.{title}",
-                request.Kind);
+                request.Kind,
+                HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal));
         }
 
         static string ExtractAndroidTableValue(string fragment, string heading)
@@ -11370,6 +12710,11 @@ static class ImporterProgram
                 @"</p>\s*\.\s*<br>\s*(?=Requires\b)",
                 "<br>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            html = Regex.Replace(
+                html,
+                @"</p>\s*\.\s*<br>\s*(?<thread>This method must be called from the main thread of your app\.)\s*</p>\s*</p>",
+                "</p><p>${thread}</p>",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             var paragraphs = new List<(int Position, SourceParagraph Paragraph)>();
             var codeRanges = new List<(int Start, int End, SourceParagraph Paragraph)>();
             var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
@@ -11481,7 +12826,7 @@ static class ImporterProgram
                 paragraphs.Add((position, new SourceParagraph(value, IsCode: false)));
         }
 
-        static List<SourceParagraph> ExtractBlocks(string html) =>
+        internal static List<SourceParagraph> ExtractBlocks(string html) =>
             Regex.Matches(
                 html,
                 @"<div\b(?<attrs>[^>]*)>(?<body>.*?)</div>",
@@ -11504,6 +12849,7 @@ static class ImporterProgram
 
         static List<SourceParagraph> ExtractBlockParagraphs(string html)
         {
+            html = NormalizeJavaSignatureParagraphBoundary(html);
             var codeExamples = Regex.Matches(
                 html,
                 @"<pre\b[^>]*>(?<body>.*?)</pre>",
@@ -11527,6 +12873,13 @@ static class ImporterProgram
             AddBlockTextParagraph(html[position..], paragraphs);
             return paragraphs;
         }
+
+        static string NormalizeJavaSignatureParagraphBoundary(string html) =>
+            Regex.Replace(
+                html,
+                @"(?<signature>The method signature is of the form\s*<code\b[^>]*>.*?</code>)\s*</p>\s*(?<next><p\b[^>]*>\s*)(?=The symbolic type descriptor\b)",
+                match => match.Groups["signature"].Value + ".</p>" + match.Groups["next"].Value,
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         static void AddBlockTextParagraph(
             string html,
@@ -11654,7 +13007,23 @@ static class ImporterProgram
                 @"</?(?:p|div|li|tr|td|th|dd|dt|br|ul|ol|blockquote)\b[^>]*>",
                 " ",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            return CleanSourceText(StripHtmlTags(withBreaks, addWhitespace: false));
+            return NormalizeAndroidSourceText(
+                CleanSourceText(StripHtmlTags(withBreaks, addWhitespace: false)));
+        }
+
+        internal static string NormalizeAndroidSourceText(string text)
+        {
+            text = Regex.Replace(
+                text,
+                @"(?<![A-Za-z0-9_.])(?<type>[A-Z][A-Za-z0-9_]*)\k<type>\.(?<member>[A-Za-z_][A-Za-z0-9_]*\([^)]*\))",
+                "${type}.${member}",
+                RegexOptions.CultureInvariant);
+
+            // Correct a known typo on the Android SoftKeyboardController reference page.
+            return text.Replace(
+                "services's main thread if the handler is null",
+                "service's main thread if the handler is null",
+                StringComparison.Ordinal);
         }
 
         internal static string HtmlTableCellText(string html)
@@ -11858,7 +13227,9 @@ static class ImporterProgram
         Dictionary<string, string> Exceptions,
         string SourceUrl,
         string SourceLabel,
-        string SourceKind);
+        string SourceKind,
+        IReadOnlyDictionary<string, string>? UnsafeTargets = null,
+        bool HasMalformedSourceMarkup = false);
 
     static class Descriptor
     {
@@ -12036,6 +13407,8 @@ static class ImporterProgram
         public static Replacement Use(string text) => new(text, null, "");
         public static Replacement UseRemarks(IReadOnlyList<SourceParagraph> remarks) =>
             new(remarks[0].Text, null, "", remarks);
+        public static Replacement RemoveRemarksPlaceholder() =>
+            new("", null, "", []);
         public static Replacement Skip(string reason, string detail) => new(null, reason, detail);
     }
 
