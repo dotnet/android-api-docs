@@ -87,6 +87,14 @@ static class ImporterProgram
             "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MNC and MCC, and thus consists of 5 or 6 decimal digits. This value cannot be null.",
             "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MCC and MNC, and thus consists of 5 or 6 decimal digits. This value cannot be null."),
     ];
+    static readonly KnownAndroidRemarksRepair[] KnownAndroidRemarksRepairs =
+    [
+        new(
+            AndroidReference + "android/app/admin/DevicePolicyResourcesManager#getString(java.lang.String,%20java.util.function.Supplier<java.lang.String>,%20java.lang.Object[])",
+            "M:Android.App.Admin.DevicePolicyResourcesManager.GetString(System.String,Java.Util.Functions.ISupplier,Java.Lang.Object[])",
+            "Calls to this API will not return null unless no updated drawable was found and the call to defaultStringLoader returned null.",
+            "Calls to this API will not return null unless no updated string was found and the call to defaultStringLoader returned null."),
+    ];
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -459,6 +467,42 @@ static class ImporterProgram
                                 mapping.SourceUrl,
                                 "importer_known_android_parameter_repair",
                                 "Corrected an exact importer-generated Android parameter description using Android API documentation."));
+                        }
+                    }
+
+                    var androidRemarksRepair = RepairKnownAndroidRemarks(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (androidRemarksRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = androidRemarksRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                mapping.SourceUrl,
+                                "importer_known_android_remarks_repair",
+                                "Corrected an exact importer-owned Android string-resource paragraph."));
                         }
                     }
 
@@ -2438,6 +2482,9 @@ static class ImporterProgram
                 "The exact source member did not provide usable remarks to refresh.");
         }
 
+        if (IsKnownAndroidRemarksRepairCorrected(owner.Id, remarks, docs))
+            return new RemarksRefreshResult(text, null, null);
+
         var existing = remarks.Elements().ToList();
         var sourceReferenceIndex = existing.FindIndex(element =>
             TryGetImporterSourceReferenceUrl(
@@ -3120,6 +3167,117 @@ static class ImporterProgram
         }
 
         return repair;
+    }
+
+    static AndroidRemarksRepairResult RepairKnownAndroidRemarks(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownAndroidRemarksRepair(owner.Id, actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Element("remarks")?.Elements("para").SingleOrDefault(paragraph =>
+                HasPlainTextContent(paragraph, out var paragraphText) &&
+                paragraphText.Equals(repair.IncorrectText, StringComparison.Ordinal)) is not XElement paragraph ||
+            !TryGetElementSpan(blockText, paragraph, out var paragraphSpan))
+        {
+            return AndroidRemarksRepairResult.NoChange(text);
+        }
+
+        var replacement = $"<para>{XmlEscape(repair.CorrectText)}</para>";
+        var updatedBlock = blockText[..paragraphSpan.Start] + replacement +
+            blockText[paragraphSpan.End..];
+        return AndroidRemarksRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
+    static KnownAndroidRemarksRepair? FindKnownAndroidRemarksRepair(
+        string memberId,
+        XElement docs,
+        SourceDocs sourceDocs)
+    {
+        if (!HasExactImporterSourceReference(docs, sourceDocs))
+            return null;
+
+        var repair = KnownAndroidRemarksRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(memberId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(sourceDocs.SourceUrl, StringComparison.Ordinal));
+        var remarks = docs.Element("remarks");
+        if (repair is null ||
+            remarks is null ||
+            !IsPotentialImporterOwnedRemarks(remarks, sourceDocs.SourceKind))
+        {
+            return null;
+        }
+
+        var elements = remarks.Elements().ToList();
+        var sourceReferenceIndex = elements.FindIndex(element =>
+            TryGetImporterSourceReferenceUrl(element, out _));
+        var expectedSourceParagraphs = ExpandRemarksFragments(sourceDocs.Paragraphs)
+            .Select(DocumentationElement)
+            .ToList();
+        var actualSourceParagraphs = elements.Take(sourceReferenceIndex).ToList();
+        if (actualSourceParagraphs.Count != expectedSourceParagraphs.Count ||
+            actualSourceParagraphs.Zip(
+                    expectedSourceParagraphs,
+                    (actual, expected) => ImporterMarkupEquals(actual, expected))
+                .Any(equal => !equal) ||
+            actualSourceParagraphs.Count(paragraph =>
+                HasPlainTextContent(paragraph, out var paragraphText) &&
+                paragraphText.Equals(repair.IncorrectText, StringComparison.Ordinal)) != 1)
+        {
+            return null;
+        }
+
+        return repair;
+    }
+
+    static bool IsKnownAndroidRemarksRepairCorrected(
+        string memberId,
+        XElement remarks,
+        SourceDocs sourceDocs)
+    {
+        var repair = KnownAndroidRemarksRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(memberId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(sourceDocs.SourceUrl, StringComparison.Ordinal));
+        if (repair is null ||
+            !IsPotentialImporterOwnedRemarks(remarks, sourceDocs.SourceKind))
+        {
+            return false;
+        }
+
+        var elements = remarks.Elements().ToList();
+        var sourceReferenceIndex = elements.FindIndex(element =>
+            TryGetImporterSourceReferenceUrl(element, out _));
+        var actualSourceParagraphs = elements.Take(sourceReferenceIndex).ToList();
+        var expectedSourceParagraphs = ExpandRemarksFragments(sourceDocs.Paragraphs)
+            .Select(DocumentationElement)
+            .ToList();
+        if (actualSourceParagraphs.Count != expectedSourceParagraphs.Count)
+            return false;
+
+        var correctedParagraphs = 0;
+        foreach (var pair in actualSourceParagraphs.Zip(expectedSourceParagraphs))
+        {
+            if (ImporterMarkupEquals(pair.First, pair.Second))
+                continue;
+
+            if (!HasPlainTextContent(pair.First, out var actualText) ||
+                !HasPlainTextContent(pair.Second, out var expectedText) ||
+                !actualText.Equals(repair.CorrectText, StringComparison.Ordinal) ||
+                !expectedText.Equals(repair.IncorrectText, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            correctedParagraphs++;
+        }
+
+        return correctedParagraphs == 1;
     }
 
     static bool HasExactImporterSourceReference(XElement docs, SourceDocs sourceDocs)
@@ -7375,6 +7533,56 @@ static class ImporterProgram
                 knownAndroidParameterMarkup,
                 knownAndroidParameterDocs) is null,
             "corrected Android parameter prose remains idempotent");
+        var knownAndroidRemarksDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownAndroidRemarksRepairs[0].SourceUrl,
+            SourceLabel = "android.app.admin.DevicePolicyResourcesManager.getString",
+            SourceKind = "android",
+            Paragraphs =
+            [
+                new SourceParagraph("Returns a localized formatted string.", false),
+                new SourceParagraph(KnownAndroidRemarksRepairs[0].IncorrectText, false),
+            ],
+        };
+        var knownAndroidRemarksMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "remarks",
+                new XElement("para", knownAndroidRemarksDocs.Paragraphs[0].Text),
+                new XElement("para", KnownAndroidRemarksRepairs[0].IncorrectText),
+                ImporterSourceReference(knownAndroidRemarksDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        Assert(
+            FindKnownAndroidRemarksRepair(
+                KnownAndroidRemarksRepairs[0].MemberId,
+                knownAndroidRemarksMarkup,
+                knownAndroidRemarksDocs) == KnownAndroidRemarksRepairs[0],
+            "exact importer-owned Android remarks are eligible for correction");
+        var authoredAndroidRemarksMarkup = new XElement(knownAndroidRemarksMarkup);
+        authoredAndroidRemarksMarkup.Element("remarks")!.AddFirst(
+            new XElement("para", "Keep this authored prose."));
+        Assert(
+            FindKnownAndroidRemarksRepair(
+                KnownAndroidRemarksRepairs[0].MemberId,
+                authoredAndroidRemarksMarkup,
+                knownAndroidRemarksDocs) is null,
+            "Android remarks repairs preserve authored prose");
+        knownAndroidRemarksMarkup.Element("remarks")!
+            .Elements("para")
+            .ElementAt(1)
+            .Value = KnownAndroidRemarksRepairs[0].CorrectText;
+        Assert(
+            FindKnownAndroidRemarksRepair(
+                KnownAndroidRemarksRepairs[0].MemberId,
+                knownAndroidRemarksMarkup,
+                knownAndroidRemarksDocs) is null,
+            "corrected Android remarks remain idempotent");
+        Assert(
+            IsKnownAndroidRemarksRepairCorrected(
+                KnownAndroidRemarksRepairs[0].MemberId,
+                knownAndroidRemarksMarkup.Element("remarks")!,
+                knownAndroidRemarksDocs),
+            "corrected Android remarks remain importer-owned on refresh");
         var rawSignatureBlock = Regex.Replace(
             file.Text[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End],
             @"<remarks\b[^>]*>.*?</remarks>",
@@ -11439,6 +11647,11 @@ static class ImporterProgram
         string ParameterName,
         string IncorrectText,
         string CorrectText);
+    sealed record KnownAndroidRemarksRepair(
+        string SourceUrl,
+        string MemberId,
+        string IncorrectText,
+        string CorrectText);
     sealed record BooleanReturnRepairSkip(string Reason, string Detail);
     sealed record BooleanReturnRepairResult(
         string Text,
@@ -11477,6 +11690,14 @@ static class ImporterProgram
             string text,
             string parameterName) =>
             new(text, true, parameterName);
+    }
+    sealed record AndroidRemarksRepairResult(string Text, bool Repaired)
+    {
+        public static AndroidRemarksRepairResult NoChange(string text) =>
+            new(text, false);
+
+        public static AndroidRemarksRepairResult RepairedText(string text) =>
+            new(text, true);
     }
     sealed record JavaProseRepairResult(string Text, bool Repaired)
     {
