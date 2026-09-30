@@ -7987,6 +7987,15 @@ static class ImporterProgram
                     },
                 }).UnsafeTargets is null,
             "user-restriction filtering requires the unsafe source token");
+        const string authoredRestrictionWarning =
+            "Value is one of the following: UserManager.DISALLOW_ADD_USER. Do not use " +
+            "UserManager.KEY_RESTRICTIONS_PENDING: it is an application-restriction sentinel, " +
+            "not a user restriction. This value cannot be null.";
+        Assert(
+            !authoredRestrictionWarning.Equals(
+                unsafeUserRestrictionDocs.Parameters["restriction"],
+                StringComparison.Ordinal),
+            "reviewer-authored user-restriction warning does not equal the complete rendered source parameter");
         var knownAndroidSummaryDocs = javaExampleDocs with
         {
             SourceUrl = KnownAndroidSummaryRepairs[0].SourceUrl,
