@@ -61,6 +61,14 @@ The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
 documentation is preserved.
+Four channel-specific corrections cover the known `Android.Ranging.Ble.CS`
+source typos in the security-level-one enum summary, builder Bluetooth-address
+parameter, and parcel-write summary and remarks. They require the exact managed
+member, canonical source URL, full original plain text, and complete source-proven
+importer paragraph/reference/attribution structure. Authored or mixed markup,
+changed source text, and duplicate channels are preserved. The same narrow
+allow-list corrects newly imported source channels so later refreshes cannot
+reintroduce these defects; no general grammar or punctuation normalization occurs.
 Java-signature remarks repairs likewise require only an unmodified Java signature,
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
