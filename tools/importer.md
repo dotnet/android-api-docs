@@ -57,6 +57,14 @@ eligibility is evaluated against the untouched summary and requires exactly
 three importer-owned
 paragraphs: plain deprecation prose, the exact field source reference, and exact
 Android attribution. Additional nodes or markup preserve the summary verbatim.
+Repair of the known `Control.StatefulBuilder.setControlTemplate` paragraph boundary
+is restricted to its exact Android member URL and verified lead-in/description,
+preserving the source's blank line as two paragraphs without inventing punctuation.
+The corresponding summary and remarks are regenerated together only when the
+managed member ID, full old plain-text summary/remarks, exact source reference,
+and Android attribution all match the prior importer output. Authored additions,
+mixed content, source changes, and unsafe XML locations are reported and preserved.
+The two-channel repair requires at least two remaining changes in the batch.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
