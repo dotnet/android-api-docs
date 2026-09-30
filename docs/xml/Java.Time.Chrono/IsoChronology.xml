@@ -454,7 +454,7 @@
         <Parameter Name="zone" Type="Java.Time.ZoneId" />
       </Parameters>
       <Docs>
-        <param name="zone">To be added.</param>
+        <param name="zone">the zone ID to use, not null</param>
         <summary>Obtains the current ISO local date from the system clock in the specified time-zone.</summary>
         <returns>the current ISO local date using the system clock, not null</returns>
         <remarks>
@@ -468,6 +468,7 @@
               <a href="https://developer.android.com/reference/java/time/chrono/IsoChronology#dateNow(java.time.ZoneId)" title="Reference documentation">Java documentation for <code>java.time.chrono.IsoChronology.dateNow(java.time.ZoneId)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/IsoChronology.html#dateNow(java.time.ZoneId)" title="Reference documentation">Java reference for <code>java.time.chrono.IsoChronology.dateNow</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -668,10 +669,13 @@
         <Parameter Name="eraValue" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="eraValue">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="eraValue">the era value</param>
+        <summary>Creates the chronology era object from the numeric value.</summary>
+        <returns>the calendar system era, not null</returns>
+        <remarks>
+          <para>Creates the chronology era object from the numeric value. The era is, conceptually, the largest division of the time-line. Most calendar systems have a single epoch dividing the time-line into two eras. However, some have multiple eras, such as one for the reign of each leader. The exact meaning is determined by the chronology according to the following constraints. The era in use at 1970-01-01 must have the value 1. Later eras must have sequentially higher values. Earlier eras must have sequentially lower values. Each chronology must refer to an enum or similar singleton to provide the era values. This method returns the singleton era of the correct type for the specified era value.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/IsoChronology.html#eraOf(int)" title="Reference documentation">Java reference for <code>java.time.chrono.IsoChronology.eraOf</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Eras">
@@ -705,9 +709,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Gets the list of eras for the chronology.</summary>
+        <returns>the list of eras for the chronology, may be immutable, not null</returns>
+        <remarks>
+          <para>Gets the list of eras for the chronology. Most calendar systems have an era, within which the year has meaning. If the calendar system does not support the concept of eras, an empty list must be returned.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/IsoChronology.html#eras()" title="Reference documentation">Java reference for <code>java.time.chrono.IsoChronology.eras</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Id">
@@ -825,7 +832,10 @@
         <value>
           <c>true</c>
         </value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>IsoChronology is an ISO based chronology, which supports fields in IsoFields, such as DAY_OF_QUARTER and QUARTER_OF_YEAR.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/IsoChronology.html#isIsoBased()" title="Reference documentation">Java reference for <code>java.time.chrono.IsoChronology.isIsoBased</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsLeapYear">
@@ -1071,11 +1081,14 @@
         <Parameter Name="yearOfEra" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="era">To be added.</param>
-        <param name="yearOfEra">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="era">the era of the correct type for the chronology, not null</param>
+        <param name="yearOfEra">the chronology year-of-era</param>
+        <summary>Calculates the proleptic-year given the era and year-of-era.</summary>
+        <returns>the proleptic-year</returns>
+        <remarks>
+          <para>Calculates the proleptic-year given the era and year-of-era. This combines the era and year-of-era into the single proleptic-year field. If the chronology makes active use of eras, such as JapaneseChronology then the year-of-era will be validated against the era. For other chronologies, validation is optional.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/IsoChronology.html#prolepticYear(java.time.chrono.Era,int)" title="Reference documentation">Java reference for <code>java.time.chrono.IsoChronology.prolepticYear</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Range">
@@ -1105,10 +1118,13 @@
         <Parameter Name="field" Type="Java.Time.Temporal.ChronoField" />
       </Parameters>
       <Docs>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="field">the field to get the range for, not null</param>
+        <summary>Gets the range of valid values for the specified field.</summary>
+        <returns>the range of valid values for the field, not null</returns>
+        <remarks>
+          <para>Gets the range of valid values for the specified field. All fields can be expressed as a long integer. This method returns an object that describes the valid range for that value. Note that the result only describes the minimum and maximum valid values and it is important not to read too much into them. For example, there could be values within the range that are invalid for the field. This method will return a result whether or not the chronology supports the field.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/chrono/IsoChronology.html#range(java.time.temporal.ChronoField)" title="Reference documentation">Java reference for <code>java.time.chrono.IsoChronology.range</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
