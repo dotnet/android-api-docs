@@ -962,6 +962,7 @@ static class ImporterProgram
         }
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
+        docs = WithoutKnownUnsafeRemoteEntryGuidance(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
 
@@ -1132,6 +1133,53 @@ static class ImporterProgram
                     !NormalizeText(paragraph.Text).Equals(
                         unsafeRemark,
                         StringComparison.Ordinal))
+                .ToList(),
+        };
+    }
+
+    static SourceDocs WithoutKnownUnsafeRemoteEntryGuidance(
+        string ownerId,
+        SourceDocs docs)
+    {
+        const string remoteGetOwner =
+            "M:Android.Service.Credentials.BeginGetCredentialResponse.Builder.SetRemoteCredentialEntry(Android.Service.Credentials.RemoteEntry)";
+        const string remoteGetUrl =
+            "https://developer.android.com/reference/android/service/credentials/BeginGetCredentialResponse.Builder#setRemoteCredentialEntry(android.service.credentials.RemoteEntry)";
+        const string remoteGetEntryGuidance =
+            "When constructing the CredentialEntry object, the pendingIntent must be set such that it leads to an activity that can provide UI to fulfill the request on a remote device. When user selects this remoteCredentialEntry, the system will invoke the pendingIntent set on the CredentialEntry.";
+        const string remoteGetResponseGuidance =
+            "Once the remote credential flow is complete, the Activity result should be set to Activity.RESULT_OK and an extra with the CredentialProviderService.EXTRA_GET_CREDENTIAL_RESPONSE key should be populated with a Credential object.";
+        const string remoteCreateOwner =
+            "M:Android.Service.Credentials.BeginCreateCredentialResponse.Builder.SetRemoteCreateEntry(Android.Service.Credentials.RemoteEntry)";
+        const string remoteCreateUrl =
+            "https://developer.android.com/reference/android/service/credentials/BeginCreateCredentialResponse.Builder#setRemoteCreateEntry(android.service.credentials.RemoteEntry)";
+        const string remoteCreateEntryGuidance =
+            "When constructing the CreateEntry object, the pendingIntent must be set such that it leads to an activity that can provide UI to fulfill the request on a remote device. When user selects this remoteCreateEntry, the system will invoke the pendingIntent set on the CreateEntry.";
+
+        string[]? unsafeRemarks = ownerId switch
+        {
+            remoteGetOwner when docs.SourceUrl.Equals(remoteGetUrl, StringComparison.Ordinal) =>
+            [
+                remoteGetEntryGuidance,
+                remoteGetResponseGuidance,
+            ],
+            remoteCreateOwner when docs.SourceUrl.Equals(remoteCreateUrl, StringComparison.Ordinal) =>
+            [
+                remoteCreateEntryGuidance,
+            ],
+            _ => null,
+        };
+        if (unsafeRemarks is null)
+            return docs;
+
+        var normalizedUnsafeRemarks = unsafeRemarks
+            .Select(NormalizeText)
+            .ToHashSet(StringComparer.Ordinal);
+        return docs with
+        {
+            Paragraphs = docs.Paragraphs
+                .Where(paragraph => paragraph.IsCode ||
+                    !normalizedUnsafeRemarks.Contains(NormalizeText(paragraph.Text)))
                 .ToList(),
         };
     }
@@ -5359,6 +5407,49 @@ static class ImporterProgram
                     SourceUrl = "https://developer.android.com/reference/android/hardware/HardwareBuffer",
                 }).Paragraphs.Count == 2,
             "HardwareBuffer Create filter requires the exact source channel");
+        var unsafeRemoteGetDocs = WithoutKnownUnsafeRemoteEntryGuidance(
+            "M:Android.Service.Credentials.BeginGetCredentialResponse.Builder.SetRemoteCredentialEntry(Android.Service.Credentials.RemoteEntry)",
+            new SourceDocs(
+                "",
+                [
+                    new SourceParagraph(
+                        "When constructing the CredentialEntry object, the pendingIntent must be set such that it leads to an activity that can provide UI to fulfill the request on a remote device. When user selects this remoteCredentialEntry, the system will invoke the pendingIntent set on the CredentialEntry.",
+                        false),
+                    new SourceParagraph(
+                        "Once the remote credential flow is complete, the Activity result should be set to Activity.RESULT_OK and an extra with the CredentialProviderService.EXTRA_GET_CREDENTIAL_RESPONSE key should be populated with a Credential object.",
+                        false),
+                    new SourceParagraph("Retained remote credential guidance.", false),
+                ],
+                new Dictionary<string, string>(),
+                "",
+                new Dictionary<string, string>(),
+                "https://developer.android.com/reference/android/service/credentials/BeginGetCredentialResponse.Builder#setRemoteCredentialEntry(android.service.credentials.RemoteEntry)",
+                "android.service.credentials.BeginGetCredentialResponse.Builder.setRemoteCredentialEntry",
+                "Android"));
+        Assert(
+            unsafeRemoteGetDocs.Paragraphs.Count == 1 &&
+            unsafeRemoteGetDocs.Paragraphs[0].Text == "Retained remote credential guidance.",
+            "remote credential guidance omits contradicted entry and response payload instructions");
+        var unsafeRemoteCreateDocs = WithoutKnownUnsafeRemoteEntryGuidance(
+            "M:Android.Service.Credentials.BeginCreateCredentialResponse.Builder.SetRemoteCreateEntry(Android.Service.Credentials.RemoteEntry)",
+            new SourceDocs(
+                "",
+                [
+                    new SourceParagraph(
+                        "When constructing the CreateEntry object, the pendingIntent must be set such that it leads to an activity that can provide UI to fulfill the request on a remote device. When user selects this remoteCreateEntry, the system will invoke the pendingIntent set on the CreateEntry.",
+                        false),
+                    new SourceParagraph("Retained remote create guidance.", false),
+                ],
+                new Dictionary<string, string>(),
+                "",
+                new Dictionary<string, string>(),
+                "https://developer.android.com/reference/android/service/credentials/BeginCreateCredentialResponse.Builder#setRemoteCreateEntry(android.service.credentials.RemoteEntry)",
+                "android.service.credentials.BeginCreateCredentialResponse.Builder.setRemoteCreateEntry",
+                "Android"));
+        Assert(
+            unsafeRemoteCreateDocs.Paragraphs.Count == 1 &&
+            unsafeRemoteCreateDocs.Paragraphs[0].Text == "Retained remote create guidance.",
+            "remote create guidance omits contradicted entry instruction");
         var file = LoadedFile.Load(repositoryRoot, sourcePath);
         var fixtureText = file.Text;
         file.SelectOwners(null, new InterfaceMemberResolver(docsRoot));
