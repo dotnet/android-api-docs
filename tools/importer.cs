@@ -87,6 +87,16 @@ static class ImporterProgram
             "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MNC and MCC, and thus consists of 5 or 6 decimal digits. This value cannot be null.",
             "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MCC and MNC, and thus consists of 5 or 6 decimal digits. This value cannot be null."),
     ];
+    static readonly KnownAndroidProseRepair[] KnownAndroidProseRepairs =
+    [
+        new(
+            AndroidReference + "android/adservices/measurement/DeletionRequest.Builder#setDeletionMode(int)",
+            "M:Android.AdServices.Measurement.DeletionRequest.Builder.SetDeletionMode(Android.AdServices.Measurement.DeletionRequestDeletionMode)",
+            "Set the match behavior for the supplied params.",
+            "Set the deletion mode for the supplied params.",
+            "Set the match behavior for the supplied params. DeletionRequest.DELETION_MODE_ALL: All data associated with the selected records will be deleted. DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA: All data except the internal system data (e.g. rate limits) associated with the selected records will be deleted.",
+            "Set the deletion mode for the supplied params. DeletionRequest.DELETION_MODE_ALL: All data associated with the selected records will be deleted. DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA: All data except the internal system data (e.g. rate limits) associated with the selected records will be deleted."),
+    ];
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -459,6 +469,48 @@ static class ImporterProgram
                                 mapping.SourceUrl,
                                 "importer_known_android_parameter_repair",
                                 "Corrected an exact importer-generated Android parameter description using Android API documentation."));
+                        }
+                    }
+
+                    var androidProseRepair = RepairKnownAndroidProse(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (androidProseRepair.Repaired)
+                    {
+                        if (remaining < 2)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            foreach (var target in new[] { "summary", "remarks" })
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                        }
+                        else
+                        {
+                            text = androidProseRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining -= 2;
+                            foreach (var target in new[] { "summary", "remarks" })
+                            {
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    mapping.SourceUrl,
+                                    "importer_known_android_prose_repair",
+                                    "Corrected an exact importer-generated Android source typo that confuses deletion mode with match behavior."));
+                            }
                         }
                     }
 
@@ -1268,6 +1320,11 @@ static class ImporterProgram
             targets.Add("value");
         if (HasKnownIncorrectBooleanReturnRepairCandidate(file, owner))
             targets.Add("returns");
+        if (HasKnownAndroidProseRepairCandidate(file, owner))
+        {
+            targets.Add("summary");
+            targets.Add("remarks");
+        }
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
             HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
@@ -1301,7 +1358,8 @@ static class ImporterProgram
         HasIncompleteCodeExampleRemarks(file, owner) ||
         HasMetadataOnlyRemarks(file, owner) ||
         HasCopiedDescriptionRepairCandidate(file, owner) ||
-        HasKnownIncorrectBooleanReturnRepairCandidate(file, owner);
+        HasKnownIncorrectBooleanReturnRepairCandidate(file, owner) ||
+        HasKnownAndroidProseRepairCandidate(file, owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
         LoadedFile file,
@@ -3115,6 +3173,99 @@ static class ImporterProgram
             parameter.Attributes().Count() != 1 ||
             !HasPlainTextContent(parameter, out var parameterText) ||
             !parameterText.Equals(repair.IncorrectText, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return repair;
+    }
+
+    static bool HasKnownAndroidProseRepairCandidate(LoadedFile file, DocsOwner owner)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return TryParseDocsBlock(file.Text[block.Start..block.End], out var docs) &&
+            FindKnownAndroidProseRepair(owner.Id, docs, null) is not null;
+    }
+
+    static AndroidProseRepairResult RepairKnownAndroidProse(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownAndroidProseRepair(owner.Id, actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Element("summary") is not XElement summary ||
+            actualDocs.Element("remarks")?.Elements("para").FirstOrDefault() is not XElement paragraph ||
+            !TryGetElementSpan(blockText, summary, out var summaryElementSpan) ||
+            !TryGetElementSpan(blockText, paragraph, out var paragraphElementSpan) ||
+            !TryGetDirectTextElementContentSpan(blockText, summaryElementSpan, out var summarySpan) ||
+            !TryGetDirectTextElementContentSpan(blockText, paragraphElementSpan, out var paragraphSpan))
+        {
+            return AndroidProseRepairResult.NoChange(text);
+        }
+
+        var edits = new[]
+        {
+            new XmlSpanEdit(summarySpan, XmlEscape(repair.CorrectSummary)),
+            new XmlSpanEdit(paragraphSpan, XmlEscape(repair.CorrectRemarks)),
+        };
+        foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
+        {
+            blockText = blockText[..edit.Span.Start] + edit.Replacement +
+                blockText[edit.Span.End..];
+        }
+        return AndroidProseRepairResult.RepairedText(
+            text[..block.Start] + blockText + text[block.End..]);
+    }
+
+    static KnownAndroidProseRepair? FindKnownAndroidProseRepair(
+        string memberId,
+        XElement docs,
+        SourceDocs? sourceDocs)
+    {
+        var sourceUrls = docs
+            .Descendants("para")
+            .Select(paragraph => TryGetImporterSourceReferenceUrl(paragraph, out var sourceUrl)
+                ? sourceUrl
+                : null)
+            .Where(sourceUrl => sourceUrl is not null)
+            .Cast<string>()
+            .ToList();
+        if (sourceUrls.Count != 1 ||
+            docs.Element("summary") is not XElement summary ||
+            summary.HasAttributes ||
+            !HasPlainTextContent(summary, out var summaryText) ||
+            docs.Element("remarks") is not XElement remarks ||
+            remarks.HasAttributes ||
+            remarks.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText text => !string.IsNullOrWhiteSpace(text.Value),
+                _ => true,
+            }) ||
+            remarks.Elements().ToList() is not [XElement paragraph, XElement sourceReference, XElement attribution] ||
+            paragraph.Name != "para" ||
+            paragraph.HasAttributes ||
+            !HasPlainTextContent(paragraph, out var paragraphText) ||
+            !IsCanonicalImporterSourceReferenceParagraph(sourceReference) ||
+            !IsImporterAttributionParagraph(attribution))
+        {
+            return null;
+        }
+
+        var repair = KnownAndroidProseRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(memberId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(sourceUrls[0], StringComparison.Ordinal));
+        if (repair is null ||
+            !summaryText.Equals(repair.IncorrectSummary, StringComparison.Ordinal) ||
+            !paragraphText.Equals(repair.IncorrectRemarks, StringComparison.Ordinal) ||
+            (sourceDocs is not null &&
+                (!sourceDocs.SourceUrl.Equals(repair.SourceUrl, StringComparison.Ordinal) ||
+                 !HasExactImporterSourceReference(docs, sourceDocs))))
         {
             return null;
         }
@@ -7375,6 +7526,74 @@ static class ImporterProgram
                 knownAndroidParameterMarkup,
                 knownAndroidParameterDocs) is null,
             "corrected Android parameter prose remains idempotent");
+        var knownAndroidProseDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownAndroidProseRepairs[0].SourceUrl,
+            SourceLabel = "android.adservices.measurement.DeletionRequest.Builder.setDeletionMode",
+            SourceKind = "android",
+        };
+        var knownAndroidProseMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "param",
+                new XAttribute("name", "deletionMode"),
+                "Value is one of the following: DeletionRequest.DELETION_MODE_ALL; DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA"),
+            new XElement("summary", KnownAndroidProseRepairs[0].IncorrectSummary),
+            new XElement("returns", "To be added."),
+            new XElement(
+                "remarks",
+                new XElement("para", KnownAndroidProseRepairs[0].IncorrectRemarks),
+                ImporterSourceReference(knownAndroidProseDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId,
+                knownAndroidProseMarkup,
+                knownAndroidProseDocs) == KnownAndroidProseRepairs[0],
+            "exact known Android deletion mode prose is eligible for correction");
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId + ".Altered",
+                knownAndroidProseMarkup,
+                knownAndroidProseDocs) is null,
+            "Android deletion mode prose repair requires the exact managed member");
+        var attributedAndroidSummaryMarkup = new XElement(knownAndroidProseMarkup);
+        attributedAndroidSummaryMarkup.Element("summary")!.SetAttributeValue(
+            XNamespace.Xml + "lang",
+            "en");
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId,
+                attributedAndroidSummaryMarkup,
+                knownAndroidProseDocs) is null,
+            "Android deletion mode prose repair preserves attributed summaries");
+        var attributedAndroidRemarksMarkup = new XElement(knownAndroidProseMarkup);
+        attributedAndroidRemarksMarkup.Element("remarks")!.SetAttributeValue(
+            XNamespace.Xml + "space",
+            "preserve");
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId,
+                attributedAndroidRemarksMarkup,
+                knownAndroidProseDocs) is null,
+            "Android deletion mode prose repair preserves attributed remarks");
+        var alteredAndroidProseMarkup = new XElement(knownAndroidProseMarkup);
+        alteredAndroidProseMarkup.Element("summary")!.Value =
+            KnownAndroidProseRepairs[0].IncorrectSummary + " Authored.";
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId,
+                alteredAndroidProseMarkup,
+                knownAndroidProseDocs) is null,
+            "Android deletion mode prose repair preserves altered summaries");
+        knownAndroidProseMarkup.Element("summary")!.Value =
+            KnownAndroidProseRepairs[0].CorrectSummary;
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId,
+                knownAndroidProseMarkup,
+                knownAndroidProseDocs) is null,
+            "corrected Android deletion mode prose remains idempotent");
         var rawSignatureBlock = Regex.Replace(
             file.Text[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End],
             @"<remarks\b[^>]*>.*?</remarks>",
@@ -11439,6 +11658,13 @@ static class ImporterProgram
         string ParameterName,
         string IncorrectText,
         string CorrectText);
+    sealed record KnownAndroidProseRepair(
+        string SourceUrl,
+        string MemberId,
+        string IncorrectSummary,
+        string CorrectSummary,
+        string IncorrectRemarks,
+        string CorrectRemarks);
     sealed record BooleanReturnRepairSkip(string Reason, string Detail);
     sealed record BooleanReturnRepairResult(
         string Text,
@@ -11477,6 +11703,14 @@ static class ImporterProgram
             string text,
             string parameterName) =>
             new(text, true, parameterName);
+    }
+    sealed record AndroidProseRepairResult(string Text, bool Repaired)
+    {
+        public static AndroidProseRepairResult NoChange(string text) =>
+            new(text, false);
+
+        public static AndroidProseRepairResult RepairedText(string text) =>
+            new(text, true);
     }
     sealed record JavaProseRepairResult(string Text, bool Repaired)
     {
