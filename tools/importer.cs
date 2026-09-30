@@ -1007,6 +1007,7 @@ static class ImporterProgram
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
                     fields[0].Url);
+            fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
             return MappingResult.Success(WithSemanticSummaryIfNecessary(fieldDocs));
         }
 
@@ -1073,6 +1074,21 @@ static class ImporterProgram
                 .Concat(docs.Paragraphs.Select(paragraph => paragraph.Text))
                 .Concat(docs.Parameters.Values));
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (ownerId == "F:Android.Net.IpSec.Ike.SaProposalPseudorandomFunction.Sha2512" &&
+            docs.SourceKind == "android" &&
+            docs.SourceUrl.Equals(
+                AndroidReference + "android/net/ipsec/ike/SaProposal#PSEUDORANDOM_FUNCTION_SHA2_512",
+                StringComparison.Ordinal) &&
+            docs.Summary.Equals("HMAC-SHA2-384 Pseudorandom Function.", StringComparison.Ordinal) &&
+            docs.Paragraphs is [SourceParagraph { IsCode: false } paragraph] &&
+            paragraph.Text.Equals("HMAC-SHA2-384 Pseudorandom Function.", StringComparison.Ordinal))
+        {
+            const string detail =
+                "The exact Android SHA2-512 field source incorrectly describes SHA2-384.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
 
         if (ownerId == "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)" &&
             sourceText.Contains(
@@ -10164,6 +10180,9 @@ static class ImporterProgram
         var enumPipelinePath = Path.Combine(
             docsRoot,
             $"WidgetKind.compact-importer-self-test-{Environment.ProcessId}.xml");
+        var ikePrfPipelinePath = Path.Combine(
+            docsRoot,
+            $"SaProposalPseudorandomFunction.importer-self-test-{Environment.ProcessId}.xml");
         Directory.CreateDirectory(tempDirectory);
         try
         {
@@ -11309,6 +11328,225 @@ static class ImporterProgram
                 unsafeReportingDestinationDocs.Paragraphs.Count == 0,
                 "unsafe reporting destination wording and metadata are not imported");
 
+            const string ikePrfOwnerId =
+                "F:Android.Net.IpSec.Ike.SaProposalPseudorandomFunction.Sha2512";
+            var ikePrfSourceDocs = new SourceDocs(
+                "HMAC-SHA2-384 Pseudorandom Function.",
+                [new SourceParagraph("HMAC-SHA2-384 Pseudorandom Function.", false)],
+                new Dictionary<string, string>(),
+                "",
+                new Dictionary<string, string>(),
+                AndroidReference + "android/net/ipsec/ike/SaProposal#PSEUDORANDOM_FUNCTION_SHA2_512",
+                "android.net.ipsec.ike.SaProposal.PSEUDORANDOM_FUNCTION_SHA2_512",
+                "android");
+            var unsafeIkePrfDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                ikePrfOwnerId,
+                ikePrfSourceDocs);
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "summary", "", "summary"),
+                    unsafeIkePrfDocs,
+                    isEnumField: true).Reason == "source_channel_ambiguous" &&
+                unsafeIkePrfDocs.Paragraphs.Count == 0 &&
+                !ShouldAddSourceDocumentation(
+                    deferredRemarksPlaceholder: false,
+                    replacedRemarksPlaceholder: false,
+                    importedSourceChannel: false,
+                    unsafeIkePrfDocs),
+                "the exact SHA2-512 copy error is excluded without invented prose or metadata");
+            Assert(
+                ReferenceEquals(
+                    WithoutKnownUnsafeAndroidSourceChannels(ikePrfOwnerId, unsafeIkePrfDocs),
+                    unsafeIkePrfDocs),
+                "SHA2-512 source exclusion is idempotent");
+            foreach (var unaffectedIkePrfDocs in new[]
+            {
+                ikePrfSourceDocs with { SourceKind = "java" },
+                ikePrfSourceDocs with { SourceUrl = ikePrfSourceDocs.SourceUrl + ".Altered" },
+                ikePrfSourceDocs with
+                {
+                    SourceUrl = ikePrfSourceDocs.SourceUrl.Replace("_512", "_384", StringComparison.Ordinal),
+                },
+                ikePrfSourceDocs with { Summary = "HMAC-SHA2-512 Pseudorandom Function." },
+                ikePrfSourceDocs with
+                {
+                    Paragraphs = [new SourceParagraph("HMAC-SHA2-512 Pseudorandom Function.", false)],
+                },
+                ikePrfSourceDocs with
+                {
+                    Paragraphs = [new SourceParagraph(ikePrfSourceDocs.Summary, true)],
+                },
+                ikePrfSourceDocs with
+                {
+                    Paragraphs =
+                    [
+                        ikePrfSourceDocs.Paragraphs[0],
+                        new SourceParagraph("Additional source prose.", false),
+                    ],
+                },
+            })
+            {
+                Assert(
+                    ReferenceEquals(
+                        WithoutKnownUnsafeAndroidSourceChannels(ikePrfOwnerId, unaffectedIkePrfDocs),
+                        unaffectedIkePrfDocs),
+                    "SHA2-512 exclusion requires the complete exact Android source fragment");
+            }
+            Assert(
+                ReferenceEquals(
+                    WithoutKnownUnsafeAndroidSourceChannels(
+                        ikePrfOwnerId.Replace("Sha2512", "Sha2384", StringComparison.Ordinal),
+                        ikePrfSourceDocs),
+                    ikePrfSourceDocs),
+                "SHA2-512 exclusion requires the exact managed field identity");
+            var ikePrfFieldOwner = enumFavorite with
+            {
+                Id = ikePrfOwnerId,
+                MemberRegistration = new MemberRegistration(
+                    "PSEUDORANDOM_FUNCTION_SHA2_512",
+                    null,
+                    true),
+            };
+            var ikePrfPages = new Dictionary<string, SourceLoadResult>
+            {
+                [ikePrfFieldOwner.SourceRequest!.Url] = SourceLoadResult.Success(new SourcePage
+                {
+                    Members =
+                    [
+                        new SourceMember(
+                            "PSEUDORANDOM_FUNCTION_SHA2_512",
+                            false,
+                            true,
+                            [],
+                            ikePrfSourceDocs,
+                            ikePrfSourceDocs.SourceUrl),
+                    ],
+                }),
+            };
+            var mappedIkePrfDocs = MapOwner(ikePrfFieldOwner, ikePrfPages).Docs!;
+            Assert(
+                ReplacementFor(enumSummary, mappedIkePrfDocs, true).Reason ==
+                    "source_channel_ambiguous",
+                "exact registered fields route through the unsafe source guard");
+            Assert(
+                !HasImporterOwnedSummarySourceTextRefresh(
+                    new XElement(
+                        "summary",
+                        new XElement("para", "Authored SHA2-512 documentation."),
+                        ImporterSourceReference(ikePrfSourceDocs),
+                        XElement.Parse($"<para>{AndroidAttribution}</para>")),
+                    mappedIkePrfDocs),
+                "unsafe SHA2-512 source cannot replace authored or previously imported documentation");
+
+            var ikePrfFixtureText = File.ReadAllText(
+                Path.Combine(fixtureRoot, "ike-prf-source.xml"));
+            var ikePrfCacheDirectory = Path.Combine(tempDirectory, "ike-prf-cache");
+            Directory.CreateDirectory(ikePrfCacheDirectory);
+            var ikePrfCachePath = Path.Combine(
+                ikePrfCacheDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
+                    AndroidReference + "android/net/ipsec/ike/SaProposal"))).ToLowerInvariant() + ".html");
+            File.WriteAllText(
+                ikePrfCachePath,
+                File.ReadAllText(Path.Combine(fixtureRoot, "ike-prf-android-reference.html")),
+                new UTF8Encoding(false));
+            File.WriteAllText(ikePrfPipelinePath, ikePrfFixtureText, new UTF8Encoding(false));
+            var ikePrfPipelineReportPath = Path.Combine(tempDirectory, "ike-prf-first-fill");
+            string[] ikePrfPipelineArguments =
+            [
+                "--path", ikePrfPipelinePath,
+                "--namespace", "Android.Net.IpSec.Ike",
+                "--offline",
+                "--cache", ikePrfCacheDirectory,
+                "--max-changes", "2",
+                "--apply",
+                "--report", ikePrfPipelineReportPath,
+            ];
+            Assert(
+                RunAsync(ikePrfPipelineArguments).GetAwaiter().GetResult() == 0,
+                "registered IKE field first-fill pipeline succeeds");
+            var ikePrfFirstFillText = File.ReadAllText(ikePrfPipelinePath);
+            var ikePrfFirstFillDocument = XDocument.Parse(ikePrfFirstFillText);
+            var ikePrfMembers = ikePrfFirstFillDocument.Root!.Element("Members")!.Elements("Member");
+            Assert(
+                ikePrfMembers.Single(member => (string?)member.Attribute("MemberName") == "Sha2512")
+                    .Element("Docs")!.Element("summary")!.Value == "To be added." &&
+                ikePrfMembers.Single(member => (string?)member.Attribute("MemberName") == "Sha2384")
+                    .Element("Docs")!.Element("summary")!.Value.StartsWith(
+                        "HMAC-SHA2-384 Pseudorandom Function.", StringComparison.Ordinal),
+                "first-fill excludes SHA2-512 misinformation while importing the matching SHA2-384 field");
+            using (var ikePrfFirstFillReport = JsonDocument.Parse(
+                File.ReadAllText(ikePrfPipelineReportPath + ".json")))
+            {
+                Assert(
+                    ikePrfFirstFillReport.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    ikePrfFirstFillReport.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("member").GetString() == ikePrfOwnerId &&
+                        entry.GetProperty("target").GetString() == "summary" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "first-fill reports the unsafe IKE field rather than applying it");
+            }
+            Assert(
+                RunAsync(ikePrfPipelineArguments).GetAwaiter().GetResult() == 0 &&
+                File.ReadAllText(ikePrfPipelinePath) == ikePrfFirstFillText,
+                "registered IKE first-fill and its unsafe skip are byte-idempotent on second apply");
+            var ikePrfFixtureDocument = XDocument.Parse(ikePrfFixtureText);
+            foreach (var preservedIkePrfSummary in new[]
+            {
+                new XElement("summary", "Authored SHA2-512 documentation."),
+                new XElement("summary",
+                    new XElement("para", "Authored ", new XElement("c", "SHA2-512"), " documentation."),
+                    ImporterSourceReference(ikePrfSourceDocs),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")),
+                new XElement("summary",
+                    new XElement("para", ikePrfSourceDocs.Summary),
+                    ImporterSourceReference(ikePrfSourceDocs with
+                    {
+                        SourceUrl = ikePrfSourceDocs.SourceUrl + ".Altered",
+                    }),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")),
+            })
+            {
+                var preservedIkePrfDocument = new XDocument(ikePrfFixtureDocument);
+                preservedIkePrfDocument.Root!.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == "Sha2512")
+                    .Element("Docs")!.Element("summary")!
+                    .ReplaceWith(new XElement(preservedIkePrfSummary));
+                var preservedIkePrfText = preservedIkePrfDocument.ToString(SaveOptions.DisableFormatting);
+                File.WriteAllText(ikePrfPipelinePath, preservedIkePrfText, new UTF8Encoding(false));
+                Assert(
+                    RunAsync([.. ikePrfPipelineArguments, "--member", "Sha2512"])
+                        .GetAwaiter().GetResult() == 0 &&
+                    File.ReadAllText(ikePrfPipelinePath) == preservedIkePrfText,
+                    "IKE source exclusion preserves authored, mixed-content and mismatched-provenance output");
+            }
+            var correctedIkePrfSource = File.ReadAllText(ikePrfCachePath)
+                .ReplaceLineEndings("\n")
+                .Replace(
+                    "<pre class=\"api-signature\">public static final int PSEUDORANDOM_FUNCTION_SHA2_512</pre>\n" +
+                    "<p>HMAC-SHA2-384 Pseudorandom Function.</p>",
+                    "<pre class=\"api-signature\">public static final int PSEUDORANDOM_FUNCTION_SHA2_512</pre>\n" +
+                    "<p>HMAC-SHA2-512 Pseudorandom Function.</p>",
+                    StringComparison.Ordinal);
+            Assert(
+                correctedIkePrfSource.Contains("<p>HMAC-SHA2-512 Pseudorandom Function.</p>",
+                    StringComparison.Ordinal),
+                "corrected IKE source fixture setup");
+            File.WriteAllText(ikePrfCachePath, correctedIkePrfSource, new UTF8Encoding(false));
+            File.WriteAllText(ikePrfPipelinePath, ikePrfFixtureText, new UTF8Encoding(false));
+            Assert(
+                RunAsync([.. ikePrfPipelineArguments, "--member", "Sha2512"])
+                    .GetAwaiter().GetResult() == 0 &&
+                File.ReadAllText(ikePrfPipelinePath).Contains(
+                    "<para>HMAC-SHA2-512 Pseudorandom Function.</para>", StringComparison.Ordinal),
+                "a future corrected official source remains eligible for exact first-fill");
+            var correctedIkePrfText = File.ReadAllText(ikePrfPipelinePath);
+            Assert(
+                RunAsync([.. ikePrfPipelineArguments, "--member", "Sha2512"])
+                    .GetAwaiter().GetResult() == 0 &&
+                File.ReadAllText(ikePrfPipelinePath) == correctedIkePrfText,
+                "corrected IKE source first-fill is byte-idempotent on second apply");
+
             var unsafeMetadataDocument = XDocument.Parse(
                 fixtureText,
                 LoadOptions.PreserveWhitespace);
@@ -11401,6 +11639,8 @@ static class ImporterProgram
                 File.Delete(compactForEachPipelinePath);
             if (File.Exists(enumPipelinePath))
                 File.Delete(enumPipelinePath);
+            if (File.Exists(ikePrfPipelinePath))
+                File.Delete(ikePrfPipelinePath);
             Directory.Delete(tempDirectory, true);
         }
 

@@ -35,7 +35,11 @@ registrations, unknown type descriptors, overload mismatches, ambiguous matches,
 inherited-only detail, missing documentation channels, or source text that contains
 only a Java type, nullability marker, cross-reference heading, or standalone
 deprecation boilerplate. Android page license/trademark footers and update timestamps
-are filtered, and literal Unicode escapes are decoded before XML escaping. HTML tags
+are filtered, and literal Unicode escapes are decoded before XML escaping. Source
+prose is not imported for the exact `SaProposal.PSEUDORANDOM_FUNCTION_SHA2_512` field
+when its complete Android description incorrectly names HMAC-SHA2-384. That channel
+is reported as ambiguous instead of inventing replacement prose; existing authored
+or imported documentation is preserved. HTML tags
 are removed with quoted attributes intact, and empty table description cells remain
 empty rather than shifting Java types into prose. Java `deprecation-block` containers
 are excluded before selecting exact `block` documentation. Android return tables are
