@@ -1324,6 +1324,15 @@ static class ImporterProgram
         if (docs.UnsafeTargets?.TryGetValue(placeholder.Target, out var unsafeTargetDetail) == true)
             return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
 
+        if (docs.SourceUrl.Equals(
+                "https://developer.android.com/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder#setFetchUri(android.net.Uri)",
+                StringComparison.Ordinal))
+        {
+            return Replacement.Skip(
+                "source_documentation_malformed",
+                "The official Android source contains malformed trailing markup in its FetchAndJoinCustomAudienceRequest.getFetchUri reference.");
+        }
+
         if (placeholder.IsImporterMetadataRepair)
             return RemarksReplacementOrSkip(docs.Paragraphs, "source_remarks_missing");
 
@@ -1863,6 +1872,7 @@ static class ImporterProgram
                 "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates",
                 StringComparison.OrdinalIgnoreCase) ||
             unpunctuated.Contains("ERROR(", StringComparison.Ordinal) ||
+            unpunctuated.Contains("()}", StringComparison.Ordinal) ||
             Regex.IsMatch(
                 unpunctuated,
                 @"^Last updated \d{4}-\d{2}-\d{2} UTC$",
@@ -7895,6 +7905,27 @@ static class ImporterProgram
         Assert(
             incompleteSummary.Reason == "source_channel_not_meaningful",
             "incomplete source summary skip");
+        var malformedSourceMarkup = ChannelValueOrSkip(
+            "See FetchAndJoinCustomAudienceRequest.getFetchUri() ()} for details.",
+            "remarks",
+            "source_remarks_missing");
+        Assert(
+            malformedSourceMarkup.Reason == "source_channel_not_meaningful",
+            "malformed source markup skip");
+        var malformedFetchUriDocs = new SourceDocs(
+            "Sets the Uri from which the custom audience is to be fetched.",
+            [],
+            new Dictionary<string, string>(StringComparer.Ordinal),
+            "",
+            new Dictionary<string, string>(StringComparer.Ordinal),
+            "https://developer.android.com/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder#setFetchUri(android.net.Uri)",
+            "Android reference",
+            "android");
+        Assert(
+            ReplacementFor(
+                new Placeholder(0, "summary", "", "summary"),
+                malformedFetchUriDocs).Reason == "source_documentation_malformed",
+            "malformed FetchAndJoinCustomAudienceRequest fetch URI source skip");
         var completeGenericSummary = ChannelValueOrSkip(
             "Type used when the service can save the contents of a screen, but cannot describe what the content is for.",
             "summary",
