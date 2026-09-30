@@ -1084,6 +1084,7 @@ static class ImporterProgram
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
                     fields[0].Url);
+            fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
             return MappingResult.Success(WithSemanticSummaryIfNecessary(fieldDocs));
         }
 
@@ -1210,6 +1211,23 @@ static class ImporterProgram
         {
             targets["param:restriction"] =
                 "The exact Android source lists an application-restriction sentinel that is explicitly not a user restriction.";
+        }
+
+        if (ownerId == "M:Android.AdServices.Measurement.DeletionRequest.Builder.SetDeletionMode(Android.AdServices.Measurement.DeletionRequestDeletionMode)" &&
+            UrlsEqual(
+                docs.SourceUrl,
+                "https://developer.android.com/reference/android/adservices/measurement/DeletionRequest.Builder#setDeletionMode(int)") &&
+            docs.Summary.Equals(
+                "Set the match behavior for the supplied params.",
+                StringComparison.Ordinal) &&
+            docs.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(
+                ["Set the match behavior for the supplied params."],
+                StringComparer.Ordinal))
+        {
+            const string detail =
+                "The exact Android source describes deletion mode as match behavior.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
         }
 
         var summaryRepair = KnownAndroidSummaryRepairs.SingleOrDefault(candidate =>
@@ -3286,15 +3304,8 @@ static class ImporterProgram
                 (string?)parameter.Attribute("name") == "restriction") is not XElement restriction ||
             restriction.Attributes().Count() != 1 ||
             !HasPlainTextContent(restriction, out var currentRestriction) ||
-            !currentRestriction.StartsWith(
-                "Value is one of the following:",
-                StringComparison.Ordinal) ||
-            !currentRestriction.Contains(
-                "UserManager.KEY_RESTRICTIONS_PENDING",
-                StringComparison.Ordinal) ||
-            !currentRestriction.EndsWith(
-                "This value cannot be null.",
-                StringComparison.Ordinal) ||
+            !sourceDocs.Parameters.TryGetValue("restriction", out var sourceRestriction) ||
+            !currentRestriction.Equals(sourceRestriction, StringComparison.Ordinal) ||
             !TryGetElementSpan(blockText, restriction, out var restrictionSpan))
         {
             return UnsafeParameterRepairResult.NoChange(text);
