@@ -78,6 +78,15 @@ static class ImporterProgram
             "Unit that represents the concept of an era. The ISO calendar system doesn't have eras thus it is impossible to add an era to a date or date-time. The estimated duration of the era is artificially defined as 1,000,000,000 Years. When used with other calendar systems there are no restrictions on the unit.",
             "Unit that represents the concept of an era. The estimated duration of the era is artificially defined as 1,000,000,000 Years. When used with other calendar systems there are no restrictions on the unit."),
     ];
+    static readonly KnownAndroidParameterRepair[] KnownAndroidParameterRepairs =
+    [
+        new(
+            AndroidReference + "android/net/vcn/VcnCellUnderlyingNetworkTemplate.Builder#setOperatorPlmnIds(java.util.Set<java.lang.String>)",
+            "M:Android.Net.Vcn.VcnCellUnderlyingNetworkTemplate.Builder.SetOperatorPlmnIds(System.Collections.Generic.ICollection{System.String})",
+            "operatorPlmnIds",
+            "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MNC and MCC, and thus consists of 5 or 6 decimal digits. This value cannot be null.",
+            "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MCC and MNC, and thus consists of 5 or 6 decimal digits. This value cannot be null."),
+    ];
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -414,6 +423,42 @@ static class ImporterProgram
                                 mapping.SourceUrl,
                                 "importer_known_unsafe_parameter_repair",
                                 "Restored an importer-generated parameter to its placeholder because the exact Android source permits a value rejected by the referenced API."));
+                        }
+                    }
+
+                    var androidParameterRepair = RepairKnownAndroidParameter(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (androidParameterRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                $"param:{androidParameterRepair.ParameterName}",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = androidParameterRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                $"param:{androidParameterRepair.ParameterName}",
+                                mapping.SourceUrl,
+                                "importer_known_android_parameter_repair",
+                                "Corrected an exact importer-generated Android parameter description using Android API documentation."));
                         }
                     }
 
@@ -3019,6 +3064,57 @@ static class ImporterProgram
             !paragraphText.Equals(repair.IncorrectText, StringComparison.Ordinal) ||
             !IsCanonicalImporterSourceReferenceParagraph(sourceReference) ||
             !IsImporterAttributionParagraph(attribution))
+        {
+            return null;
+        }
+
+        return repair;
+    }
+
+    static AndroidParameterRepairResult RepairKnownAndroidParameter(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownAndroidParameterRepair(owner.Id, actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Elements("param").SingleOrDefault(parameter =>
+                (string?)parameter.Attribute("name") == repair.ParameterName) is not XElement parameter ||
+            !TryGetElementSpan(blockText, parameter, out var parameterSpan))
+        {
+            return AndroidParameterRepairResult.NoChange(text);
+        }
+
+        var replacement =
+            $"<param name=\"{XmlAttributeEscape(repair.ParameterName)}\">{XmlEscape(repair.CorrectText)}</param>";
+        var updatedBlock = blockText[..parameterSpan.Start] + replacement +
+            blockText[parameterSpan.End..];
+        return AndroidParameterRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..],
+            repair.ParameterName);
+    }
+
+    static KnownAndroidParameterRepair? FindKnownAndroidParameterRepair(
+        string memberId,
+        XElement docs,
+        SourceDocs sourceDocs)
+    {
+        if (!HasExactImporterSourceReference(docs, sourceDocs))
+            return null;
+
+        var repair = KnownAndroidParameterRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(memberId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(sourceDocs.SourceUrl, StringComparison.Ordinal));
+        if (repair is null ||
+            docs.Elements("param").Where(parameter =>
+                (string?)parameter.Attribute("name") == repair.ParameterName).ToList() is not [XElement parameter] ||
+            parameter.Attributes().Count() != 1 ||
+            !HasPlainTextContent(parameter, out var parameterText) ||
+            !parameterText.Equals(repair.IncorrectText, StringComparison.Ordinal))
         {
             return null;
         }
@@ -7243,6 +7339,42 @@ static class ImporterProgram
                 knownJavaProseMarkup,
                 knownJavaProseDocs) is null,
             "corrected Java prose remains idempotent");
+        var knownAndroidParameterDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownAndroidParameterRepairs[0].SourceUrl,
+            SourceLabel = "android.net.vcn.VcnCellUnderlyingNetworkTemplate.Builder.setOperatorPlmnIds",
+            SourceKind = "android",
+        };
+        var knownAndroidParameterMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "param",
+                new XAttribute("name", KnownAndroidParameterRepairs[0].ParameterName),
+                KnownAndroidParameterRepairs[0].IncorrectText),
+            new XElement(
+                "remarks",
+                ImporterSourceReference(knownAndroidParameterDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        Assert(
+            FindKnownAndroidParameterRepair(
+                KnownAndroidParameterRepairs[0].MemberId,
+                knownAndroidParameterMarkup,
+                knownAndroidParameterDocs) == KnownAndroidParameterRepairs[0],
+            "exact known Android parameter prose is eligible for correction");
+        Assert(
+            FindKnownAndroidParameterRepair(
+                KnownAndroidParameterRepairs[0].MemberId + ".Altered",
+                knownAndroidParameterMarkup,
+                knownAndroidParameterDocs) is null,
+            "Android parameter repairs require the exact managed member");
+        knownAndroidParameterMarkup.Element("param")!.Value =
+            KnownAndroidParameterRepairs[0].CorrectText;
+        Assert(
+            FindKnownAndroidParameterRepair(
+                KnownAndroidParameterRepairs[0].MemberId,
+                knownAndroidParameterMarkup,
+                knownAndroidParameterDocs) is null,
+            "corrected Android parameter prose remains idempotent");
         var rawSignatureBlock = Regex.Replace(
             file.Text[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End],
             @"<remarks\b[^>]*>.*?</remarks>",
@@ -11301,6 +11433,12 @@ static class ImporterProgram
         string SourceUrl,
         string IncorrectText,
         string CorrectText);
+    sealed record KnownAndroidParameterRepair(
+        string SourceUrl,
+        string MemberId,
+        string ParameterName,
+        string IncorrectText,
+        string CorrectText);
     sealed record BooleanReturnRepairSkip(string Reason, string Detail);
     sealed record BooleanReturnRepairResult(
         string Text,
@@ -11326,6 +11464,19 @@ static class ImporterProgram
 
         public static JavaExampleRepairResult RepairedText(string text) =>
             new(text, true);
+    }
+    sealed record AndroidParameterRepairResult(
+        string Text,
+        bool Repaired,
+        string ParameterName)
+    {
+        public static AndroidParameterRepairResult NoChange(string text) =>
+            new(text, false, string.Empty);
+
+        public static AndroidParameterRepairResult RepairedText(
+            string text,
+            string parameterName) =>
+            new(text, true, parameterName);
     }
     sealed record JavaProseRepairResult(string Text, bool Repaired)
     {
