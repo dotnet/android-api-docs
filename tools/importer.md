@@ -74,7 +74,12 @@ importer-owned source-reference element and only replace direct-text summaries
 or remarks paragraphs; mixed-content paragraphs are reported and preserved.
 Java explanatory lead-ins immediately preceding a code block are retained with
 their trailing colon only when they use a source-proven code-introduction form;
-ordinary incomplete prose remains excluded. Source-proven Java remarks with an
+ordinary incomplete prose remains excluded.
+Android CDDL introductions ending in `CBOR with the following CDDL:` are likewise
+retained only immediately before a non-empty code block, preserving certificate
+extension metadata that introduces the schema. A standalone introduction or
+unrelated incomplete Android prose remains excluded.
+Source-proven Java remarks with an
 exact Android attribution can receive missing ordered source fragments without
 altering that attribution. A plain source paragraph may own one exact
 whitespace-normalized source fragment or one exact consecutive sequence of

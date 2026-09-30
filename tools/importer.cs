@@ -1549,9 +1549,16 @@ static class ImporterProgram
                 : IsMeaningfulChannel(paragraph.Text, "remarks") ||
                   (index + 1 < cleaned.Count &&
                    cleaned[index + 1].IsCode &&
-                   IsExplanatoryJavaCodeLeadIn(paragraph.Text)))
+                   !string.IsNullOrWhiteSpace(cleaned[index + 1].Text) &&
+                   (IsExplanatoryJavaCodeLeadIn(paragraph.Text) ||
+                    IsCddlCodeLeadIn(paragraph.Text))))
             .ToList();
     }
+
+    static bool IsCddlCodeLeadIn(string text) =>
+        NormalizeText(text).EndsWith(
+            "CBOR with the following CDDL:",
+            StringComparison.Ordinal);
 
     static bool IsExplanatoryJavaCodeLeadIn(string text) =>
         Regex.IsMatch(
@@ -6629,6 +6636,37 @@ static class ImporterProgram
                 nestedExampleDocs.Paragraphs[1],
                 "  ") == "  <code lang=\"text/java\">widget.setTitle(title);</code>",
             "code examples render as ECMA code blocks");
+        const string cddlLeadIn =
+            "If the implementation is feature version 202101 or later, " +
+            "each X.509 certificate contains an X.509 extension at OID 1.3.6.1.4.1.11129.2.1.26 which " +
+            "contains a DER encoded OCTET STRING with the bytes of the CBOR with the following CDDL:";
+        var cddlParagraphs = SourcePage.ExtractParagraphs(
+            "<p>" + cddlLeadIn +
+            "<div></div><devsite-code><pre>ProofOfBinding = [\"ProofOfBinding\", bstr]</pre></devsite-code>" +
+            "<p>This CBOR binds the issuer data to the credential.</p>");
+        Assert(
+            cddlParagraphs.SequenceEqual(
+                [
+                    new SourceParagraph(cddlLeadIn, IsCode: false),
+                    new SourceParagraph("ProofOfBinding = [\"ProofOfBinding\", bstr]", IsCode: true),
+                    new SourceParagraph("This CBOR binds the issuer data to the credential.", IsCode: false),
+                ]) &&
+                UsableRemarks(cddlParagraphs).SequenceEqual(cddlParagraphs),
+            "Android CDDL code lead-ins retain their certificate metadata and trailing colon");
+        Assert(
+            SourcePage.ExtractParagraphs("<p>" + cddlLeadIn + "</p>").Count == 0 &&
+                SourcePage.ExtractParagraphs(
+                    "<p>" + cddlLeadIn + "<pre> </pre></p>").Count == 0 &&
+                SourcePage.ExtractParagraphs(
+                    "<p>" + cddlLeadIn + "<p>Separate prose.</p><pre>schema = bstr</pre>")
+                    .All(paragraph => paragraph.Text != cddlLeadIn) &&
+                UsableRemarks([new SourceParagraph(cddlLeadIn, IsCode: false)]).Count == 0,
+            "Android CDDL lead-ins require an immediately following nonempty code block");
+        Assert(
+            SourcePage.ExtractParagraphs(
+                "<p>This ordinary incomplete prose ends with a colon:<pre>schema = bstr</pre></p>")
+                .SequenceEqual([new SourceParagraph("schema = bstr", IsCode: true)]),
+            "ordinary incomplete Android prose before code blocks remains excluded");
         var signaturePage = SourcePage.Parse(
             request,
             androidHtml.Replace(
@@ -12751,7 +12789,11 @@ static class ImporterProgram
                 {
                     if (code.Start < textStart)
                         continue;
-                    AddSourceTextParagraph(html[textStart..code.Start], textStart, paragraphs);
+                    AddSourceTextParagraph(
+                        html[textStart..code.Start],
+                        textStart,
+                        paragraphs,
+                        isImmediatelyBeforeCode: true);
                     paragraphs.Add((code.Start, code.Paragraph));
                     textStart = code.End;
                 }
@@ -12819,10 +12861,14 @@ static class ImporterProgram
         static void AddSourceTextParagraph(
             string html,
             int position,
-            List<(int Position, SourceParagraph Paragraph)> paragraphs)
+            List<(int Position, SourceParagraph Paragraph)> paragraphs,
+            bool isImmediatelyBeforeCode = false)
         {
-            var value = CleanSourceParagraph(HtmlText(html));
-            if (IsMeaningfulChannel(value, "remarks"))
+            var sourceText = CleanSourceText(HtmlText(html));
+            var value = CleanSourceParagraph(sourceText);
+            if (isImmediatelyBeforeCode && IsCddlCodeLeadIn(sourceText))
+                paragraphs.Add((position, new SourceParagraph(sourceText, IsCode: false)));
+            else if (IsMeaningfulChannel(value, "remarks"))
                 paragraphs.Add((position, new SourceParagraph(value, IsCode: false)));
         }
 
