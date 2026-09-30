@@ -1324,7 +1324,8 @@ static class ImporterProgram
         if (docs.UnsafeTargets?.TryGetValue(placeholder.Target, out var unsafeTargetDetail) == true)
             return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
 
-        if (docs.SourceUrl.Equals(
+        if (docs.HasMalformedSourceMarkup &&
+            docs.SourceUrl.Equals(
                 "https://developer.android.com/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder#setFetchUri(android.net.Uri)",
                 StringComparison.Ordinal))
         {
@@ -6437,6 +6438,29 @@ static class ImporterProgram
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
         Assert(androidPage.TypeDocs?.Summary == "Represents a fixture widget.", "Android type summary");
+        var fetchUriRequest = new SourceRequest(
+            "android/adservices/customaudience/FetchAndJoinCustomAudienceRequest$Builder",
+            "https://developer.android.com/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder",
+            "android");
+        var malformedFetchUriDocs = SourcePage.Parse(fetchUriRequest, androidHtml)
+            .Members.Single(member => member.Name == "setFetchUri").Docs!;
+        Assert(
+            malformedFetchUriDocs.HasMalformedSourceMarkup &&
+            ReplacementFor(
+                new Placeholder(0, "summary", "", "summary"),
+                malformedFetchUriDocs).Reason == "source_documentation_malformed",
+            "malformed FetchAndJoinCustomAudienceRequest fetch URI source skip");
+        var correctedFetchUriDocs = SourcePage.Parse(
+            fetchUriRequest,
+            androidHtml.Replace(" ()}", "", StringComparison.Ordinal))
+            .Members.Single(member => member.Name == "setFetchUri").Docs!;
+        Assert(
+            !correctedFetchUriDocs.HasMalformedSourceMarkup &&
+            ReplacementFor(
+                new Placeholder(0, "summary", "", "summary"),
+                correctedFetchUriDocs).Text ==
+                "Sets the Uri from which the custom audience is to be fetched.",
+            "corrected FetchAndJoinCustomAudienceRequest fetch URI source imports normally");
         var repeatedAndroidPage = SourcePage.Parse(
             request,
             File.ReadAllText(Path.Combine(
@@ -7912,20 +7936,6 @@ static class ImporterProgram
         Assert(
             malformedSourceMarkup.Reason == "source_channel_not_meaningful",
             "malformed source markup skip");
-        var malformedFetchUriDocs = new SourceDocs(
-            "Sets the Uri from which the custom audience is to be fetched.",
-            [],
-            new Dictionary<string, string>(StringComparer.Ordinal),
-            "",
-            new Dictionary<string, string>(StringComparer.Ordinal),
-            "https://developer.android.com/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder#setFetchUri(android.net.Uri)",
-            "Android reference",
-            "android");
-        Assert(
-            ReplacementFor(
-                new Placeholder(0, "summary", "", "summary"),
-                malformedFetchUriDocs).Reason == "source_documentation_malformed",
-            "malformed FetchAndJoinCustomAudienceRequest fetch URI source skip");
         var completeGenericSummary = ChannelValueOrSkip(
             "Type used when the service can save the contents of a screen, but cannot describe what the content is for.",
             "summary",
@@ -12366,7 +12376,8 @@ static class ImporterProgram
                 exceptions,
                 url,
                 $"{request.JavaPath.Replace('/', '.').Replace('$', '.')}.{title}",
-                request.Kind);
+                request.Kind,
+                HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal));
         }
 
         static string ExtractAndroidTableValue(string fragment, string heading)
@@ -13124,7 +13135,8 @@ static class ImporterProgram
         string SourceUrl,
         string SourceLabel,
         string SourceKind,
-        IReadOnlyDictionary<string, string>? UnsafeTargets = null);
+        IReadOnlyDictionary<string, string>? UnsafeTargets = null,
+        bool HasMalformedSourceMarkup = false);
 
     static class Descriptor
     {
