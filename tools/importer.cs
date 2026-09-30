@@ -680,10 +680,12 @@ static class ImporterProgram
                     var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
                     var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
                     var metadataOnlyRemarksRepair = HasMetadataOnlyRemarks(file, owner);
-                    var channelOnlyMetadataRepair = HasChannelOnlySourceMetadata(
-                        file,
-                        owner,
-                        mapping.Docs!);
+                    var channelOnlyMetadataRepair =
+                        mapping.Docs!.UnsafeTargets?.ContainsKey("remarks") != true &&
+                        HasChannelOnlySourceMetadata(
+                            file,
+                            owner,
+                            mapping.Docs);
                     if (!ownerChanged &&
                         mapping.Docs is not null &&
                         (enumSummaryRepair ||
@@ -1237,6 +1239,43 @@ static class ImporterProgram
             };
         }
 
+        if (ownerId == "M:Android.AdServices.AdSelection.PersistAdSelectionResultRequest.Builder.SetAdSelectionResult(System.Byte[])" &&
+            UrlsEqual(
+                docs.SourceUrl,
+                "https://developer.android.com/reference/android/adservices/adselection/PersistAdSelectionResultRequest.Builder#setAdSelectionResult(byte[])") &&
+            docs.Summary.Equals(
+                "Sets the ad selection result String.",
+                StringComparison.Ordinal) &&
+            docs.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(
+                ["Sets the ad selection result String."],
+                StringComparer.Ordinal))
+        {
+            const string detail =
+                "The exact Android source describes the byte-array input as a String.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
+        if (ownerId == "M:Android.AdServices.AdSelection.ReportEventRequest.Builder.SetReportingDestinations(System.Int32)" &&
+            UrlsEqual(
+                docs.SourceUrl,
+                "https://developer.android.com/reference/android/adservices/adselection/ReportEventRequest.Builder#setReportingDestinations(int)") &&
+            docs.Summary.Equals(
+                "Sets the bitfield of reporting destinations to report to (buyer, seller, or both).",
+                StringComparison.Ordinal) &&
+            docs.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(
+                [
+                    "Sets the bitfield of reporting destinations to report to (buyer, seller, or both).",
+                    "See ReportEventRequest.getReportingDestinations() for more information.",
+                ],
+                StringComparer.Ordinal))
+        {
+            const string detail =
+                "The exact Android source omits the valid component-seller reporting destination.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
         return targets.Count == 0
             ? docs
             : docs with
@@ -1496,6 +1535,16 @@ static class ImporterProgram
     {
         if (docs.UnsafeTargets?.TryGetValue(placeholder.Target, out var unsafeTargetDetail) == true)
             return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
+
+        if (docs.HasMalformedSourceMarkup &&
+            docs.SourceUrl.Equals(
+                "https://developer.android.com/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder#setFetchUri(android.net.Uri)",
+                StringComparison.Ordinal))
+        {
+            return Replacement.Skip(
+                "source_documentation_malformed",
+                "The official Android source contains malformed trailing markup in its FetchAndJoinCustomAudienceRequest.getFetchUri reference.");
+        }
 
         if (placeholder.IsImporterMetadataRepair)
             return RemarksReplacementOrSkip(docs.Paragraphs, "source_remarks_missing");
@@ -2036,6 +2085,7 @@ static class ImporterProgram
                 "Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates",
                 StringComparison.OrdinalIgnoreCase) ||
             unpunctuated.Contains("ERROR(", StringComparison.Ordinal) ||
+            unpunctuated.Contains("()}", StringComparison.Ordinal) ||
             Regex.IsMatch(
                 unpunctuated,
                 @"^Last updated \d{4}-\d{2}-\d{2} UTC$",
@@ -2996,8 +3046,8 @@ static class ImporterProgram
         bool replacedRemarksPlaceholder,
         bool importedSourceChannel,
         SourceDocs docs) =>
-        !deferredRemarksPlaceholder ||
-        replacedRemarksPlaceholder;
+        docs.UnsafeTargets?.ContainsKey("remarks") != true &&
+        (!deferredRemarksPlaceholder || replacedRemarksPlaceholder);
 
     static bool HasCopiedDescriptionRepairCandidate(LoadedFile file, DocsOwner owner)
     {
@@ -6848,6 +6898,29 @@ static class ImporterProgram
         var request = file.Owners[0].SourceRequest!;
         var androidPage = SourcePage.Parse(request, androidHtml);
         Assert(androidPage.TypeDocs?.Summary == "Represents a fixture widget.", "Android type summary");
+        var fetchUriRequest = new SourceRequest(
+            "android/adservices/customaudience/FetchAndJoinCustomAudienceRequest$Builder",
+            "https://developer.android.com/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder",
+            "android");
+        var malformedFetchUriDocs = SourcePage.Parse(fetchUriRequest, androidHtml)
+            .Members.Single(member => member.Name == "setFetchUri").Docs!;
+        Assert(
+            malformedFetchUriDocs.HasMalformedSourceMarkup &&
+            ReplacementFor(
+                new Placeholder(0, "summary", "", "summary"),
+                malformedFetchUriDocs).Reason == "source_documentation_malformed",
+            "malformed FetchAndJoinCustomAudienceRequest fetch URI source skip");
+        var correctedFetchUriDocs = SourcePage.Parse(
+            fetchUriRequest,
+            androidHtml.Replace(" ()}", "", StringComparison.Ordinal))
+            .Members.Single(member => member.Name == "setFetchUri").Docs!;
+        Assert(
+            !correctedFetchUriDocs.HasMalformedSourceMarkup &&
+            ReplacementFor(
+                new Placeholder(0, "summary", "", "summary"),
+                correctedFetchUriDocs).Text ==
+                "Sets the Uri from which the custom audience is to be fetched.",
+            "corrected FetchAndJoinCustomAudienceRequest fetch URI source imports normally");
         var repeatedAndroidPage = SourcePage.Parse(
             request,
             File.ReadAllText(Path.Combine(
@@ -8460,6 +8533,13 @@ static class ImporterProgram
         Assert(
             incompleteSummary.Reason == "source_channel_not_meaningful",
             "incomplete source summary skip");
+        var malformedSourceMarkup = ChannelValueOrSkip(
+            "See FetchAndJoinCustomAudienceRequest.getFetchUri() ()} for details.",
+            "remarks",
+            "source_remarks_missing");
+        Assert(
+            malformedSourceMarkup.Reason == "source_channel_not_meaningful",
+            "malformed source markup skip");
         var completeGenericSummary = ChannelValueOrSkip(
             "Type used when the service can save the contents of a screen, but cannot describe what the content is for.",
             "summary",
@@ -11521,6 +11601,60 @@ static class ImporterProgram
                     unsafeContinueStrokeDocs).Reason == "source_channel_ambiguous",
                 "unsafe ContinueStroke duration is not imported");
 
+            var unsafeAdSelectionResultDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.AdServices.AdSelection.PersistAdSelectionResultRequest.Builder.SetAdSelectionResult(System.Byte[])",
+                new SourceDocs(
+                    "Sets the ad selection result String.",
+                    [new SourceParagraph("Sets the ad selection result String.", false)],
+                    new Dictionary<string, string>(),
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/adservices/adselection/PersistAdSelectionResultRequest.Builder#setAdSelectionResult(byte[])",
+                    "android.adservices.adselection.PersistAdSelectionResultRequest.Builder.setAdSelectionResult",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "summary", "", "summary"),
+                    unsafeAdSelectionResultDocs).Reason == "source_channel_ambiguous" &&
+                ReplacementFor(
+                    new Placeholder(1, "remarks", "", "remarks"),
+                    unsafeAdSelectionResultDocs).Reason == "source_channel_ambiguous" &&
+                unsafeAdSelectionResultDocs.Paragraphs.Count == 0,
+                "unsafe ad selection byte-array wording is not imported");
+
+            var unsafeReportingDestinationDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.AdServices.AdSelection.ReportEventRequest.Builder.SetReportingDestinations(System.Int32)",
+                new SourceDocs(
+                    "Sets the bitfield of reporting destinations to report to (buyer, seller, or both).",
+                    [
+                        new SourceParagraph(
+                            "Sets the bitfield of reporting destinations to report to (buyer, seller, or both).",
+                            false),
+                        new SourceParagraph(
+                            "See ReportEventRequest.getReportingDestinations() for more information.",
+                            false),
+                    ],
+                    new Dictionary<string, string>(),
+                    "",
+                    new Dictionary<string, string>(),
+                    "https://developer.android.com/reference/android/adservices/adselection/ReportEventRequest.Builder#setReportingDestinations(int)",
+                    "android.adservices.adselection.ReportEventRequest.Builder.setReportingDestinations",
+                    "android"));
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "summary", "", "summary"),
+                    unsafeReportingDestinationDocs).Reason == "source_channel_ambiguous" &&
+                ReplacementFor(
+                    new Placeholder(1, "remarks", "", "remarks"),
+                    unsafeReportingDestinationDocs).Reason == "source_channel_ambiguous" &&
+                !ShouldAddSourceDocumentation(
+                    deferredRemarksPlaceholder: false,
+                    replacedRemarksPlaceholder: false,
+                    importedSourceChannel: true,
+                    unsafeReportingDestinationDocs) &&
+                unsafeReportingDestinationDocs.Paragraphs.Count == 0,
+                "unsafe reporting destination wording and metadata are not imported");
+
             var unsafeMetadataDocument = XDocument.Parse(
                 fixtureText,
                 LoadOptions.PreserveWhitespace);
@@ -12918,7 +13052,8 @@ static class ImporterProgram
                 exceptions,
                 url,
                 $"{request.JavaPath.Replace('/', '.').Replace('$', '.')}.{title}",
-                request.Kind);
+                request.Kind,
+                HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal));
         }
 
         static string ExtractAndroidTableValue(string fragment, string heading)
@@ -13676,7 +13811,8 @@ static class ImporterProgram
         string SourceUrl,
         string SourceLabel,
         string SourceKind,
-        IReadOnlyDictionary<string, string>? UnsafeTargets = null);
+        IReadOnlyDictionary<string, string>? UnsafeTargets = null,
+        bool HasMalformedSourceMarkup = false);
 
     static class Descriptor
     {
