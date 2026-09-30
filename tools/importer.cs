@@ -10530,9 +10530,125 @@ static class ImporterProgram
         var enumPipelinePath = Path.Combine(
             docsRoot,
             $"WidgetKind.compact-importer-self-test-{Environment.ProcessId}.xml");
+        var resetPasswordFlagsPipelinePath = Path.Combine(
+            docsRoot,
+            "Android.App.Admin",
+            $"ResetPasswordFlags.importer-self-test-{Environment.ProcessId}.xml");
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            File.Copy(
+                Path.Combine(docsRoot, "Android.App.Admin", "ResetPasswordFlags.xml"),
+                resetPasswordFlagsPipelinePath);
+            var resetPasswordFlagsFixture = XDocument.Load(
+                resetPasswordFlagsPipelinePath,
+                LoadOptions.PreserveWhitespace);
+            var resetFieldIds = new[]
+            {
+                "F:Android.App.Admin.ResetPasswordFlags.DoNotAskCredentialsOnBoot",
+                "F:Android.App.Admin.ResetPasswordFlags.RequireEntry",
+            };
+            foreach (var member in resetPasswordFlagsFixture
+                .Root!.Element("Members")!.Elements("Member")
+                .Where(member => member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    resetFieldIds.Contains(
+                        (string?)signature.Attribute("Value"),
+                        StringComparer.Ordinal))))
+            {
+                member.Element("Docs")!.Element("summary")!.ReplaceWith(
+                    new XElement("summary", "To be added."));
+            }
+            resetPasswordFlagsFixture.Save(resetPasswordFlagsPipelinePath);
+
+            var resetPasswordFlagsFile = LoadedFile.Load(
+                repositoryRoot,
+                resetPasswordFlagsPipelinePath);
+            resetPasswordFlagsFile.SelectOwners(
+                null,
+                new InterfaceMemberResolver(docsRoot));
+            var resetOwners = resetPasswordFlagsFile.Owners
+                .Where(owner => resetFieldIds.Contains(owner.Id, StringComparer.Ordinal))
+                .ToList();
+            Assert(
+                resetOwners.Count == 2 &&
+                    resetOwners.All(owner => owner.MemberRegistration?.IsField == true),
+                "ResetPasswordFlags fixture retains both registered field owners");
+            var resetSourceUrl = resetOwners[0].SourceRequest!.Url;
+            Assert(
+                resetOwners.All(owner => owner.SourceRequest!.Url == resetSourceUrl),
+                "ResetPasswordFlags fixture shares one source page");
+            var resetCacheDirectory = Path.Combine(tempDirectory, "reset-password-flags-cache");
+            Directory.CreateDirectory(resetCacheDirectory);
+            var resetCacheKey = Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(resetSourceUrl))).ToLowerInvariant();
+            File.WriteAllText(
+                Path.Combine(resetCacheDirectory, resetCacheKey + ".html"),
+                """
+                <!doctype html><html><body><main id="jd-content">
+                <h3 class="api-name" id="RESET_PASSWORD_DO_NOT_ASK_CREDENTIALS_ON_BOOT">RESET_PASSWORD_DO_NOT_ASK_CREDENTIALS_ON_BOOT</h3>
+                <p>Flag for resetPasswordWithToken(ComponentName, String, byte, int).</p>
+                <h3 class="api-name" id="RESET_PASSWORD_REQUIRE_ENTRY">RESET_PASSWORD_REQUIRE_ENTRY</h3>
+                <p>Flag for resetPasswordWithToken(ComponentName, String, byte, int).</p>
+                </main></body></html>
+                """,
+                new UTF8Encoding(false));
+            var resetReportPath = Path.Combine(tempDirectory, "reset-password-flags-pipeline");
+            var resetExitCode = RunAsync(
+                [
+                    "--path", resetPasswordFlagsPipelinePath,
+                    "--namespace", "Android.App.Admin",
+                    "--offline",
+                    "--cache", resetCacheDirectory,
+                    "--max-changes", "2",
+                    "--apply",
+                    "--report", resetReportPath,
+                ]).GetAwaiter().GetResult();
+            var appliedResetText = File.ReadAllText(resetPasswordFlagsPipelinePath);
+            var appliedResetDocument = XDocument.Parse(
+                appliedResetText,
+                LoadOptions.PreserveWhitespace);
+            var resetSummaries = appliedResetDocument
+                .Root!.Element("Members")!.Elements("Member")
+                .Where(member => member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    resetFieldIds.Contains(
+                        (string?)signature.Attribute("Value"),
+                        StringComparer.Ordinal)))
+                .Select(member => member.Element("Docs")!.Element("summary")!.Value)
+                .ToList();
+            var resetSecondReportPath = Path.Combine(
+                tempDirectory,
+                "reset-password-flags-pipeline-second");
+            var resetSecondExitCode = RunAsync(
+                [
+                    "--path", resetPasswordFlagsPipelinePath,
+                    "--namespace", "Android.App.Admin",
+                    "--offline",
+                    "--cache", resetCacheDirectory,
+                    "--max-changes", "2",
+                    "--apply",
+                    "--report", resetSecondReportPath,
+                ]).GetAwaiter().GetResult();
+            using var resetSecondReport = JsonDocument.Parse(
+                File.ReadAllText(resetSecondReportPath + ".json"));
+            Assert(
+                resetExitCode == 0 &&
+                    resetSummaries.Count == 2 &&
+                    resetSummaries.All(summary =>
+                        summary.Contains(
+                            "resetPasswordWithToken(ComponentName, String, byte[], int)",
+                            StringComparison.Ordinal) &&
+                        !summary.Contains(
+                            "resetPasswordWithToken(ComponentName, String, byte, int)",
+                            StringComparison.Ordinal)) &&
+                    resetSecondExitCode == 0 &&
+                    resetSecondReport.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllText(resetPasswordFlagsPipelinePath).Equals(
+                        appliedResetText,
+                        StringComparison.Ordinal),
+                "ResetPasswordFlags registered-field first-fill uses byte[] for both fields and the second offline apply is byte-identical");
+
             var forEachSourcePath = Path.Combine(
                 docsRoot,
                 "Java.Util.Concurrent",
@@ -11767,6 +11883,8 @@ static class ImporterProgram
                 File.Delete(compactForEachPipelinePath);
             if (File.Exists(enumPipelinePath))
                 File.Delete(enumPipelinePath);
+            if (File.Exists(resetPasswordFlagsPipelinePath))
+                File.Delete(resetPasswordFlagsPipelinePath);
             Directory.Delete(tempDirectory, true);
         }
 
