@@ -12,6 +12,16 @@ return await ImporterProgram.RunAsync(args);
 static class ImporterProgram
 {
     const string AndroidReference = "https://developer.android.com/reference/";
+    const string DreamFocusSourceUrl =
+        AndroidReference + "android/service/dreams/DreamService#onWindowFocusChanged(boolean)";
+    const string DreamFocusMemberId =
+        "M:Android.Service.Dreams.DreamService.OnWindowFocusChanged(System.Boolean)";
+    const string IncorrectDreamFocusRemark =
+        "This hook is called whenever the window focus changes. See View.onWindowFocusChangedNotLocked(boolean) for more information.";
+    const string CorrectDreamFocusRemark =
+        "This hook is called whenever the window focus changes. See View.onWindowFocusChanged(boolean) for more information.";
+    const string StaleDreamFocusSourceLink =
+        "<a href=\"/reference/android/view/View#onWindowFocusChanged(boolean)\">View.onWindowFocusChangedNotLocked(boolean)</a>";
     const string JavaReference = "https://docs.oracle.com/en/java/javase/21/docs/api/";
     const string UserAgent = "dotnet-android-api-docs-importer/1.0 (+https://github.com/dotnet/android-api-docs)";
     const int MaximumDownloadBytes = 12 * 1024 * 1024;
@@ -2835,7 +2845,46 @@ static class ImporterProgram
         var remarks = owner.Docs.Element("remarks");
         return remarks is not null &&
             (IsPotentialImporterOwnedRemarks(remarks, owner.SourceRequest.Kind) ||
-             IsPotentialHybridImporterOwnedRemarks(remarks, owner.SourceRequest.Kind));
+             IsPotentialHybridImporterOwnedRemarks(remarks, owner.SourceRequest.Kind) ||
+             FindDreamFocusRepairParagraph(owner.Id, owner.Docs, null) is not null);
+    }
+
+    static XElement? FindDreamFocusRepairParagraph(
+        string memberId,
+        XElement document,
+        SourceDocs? source)
+    {
+        if (memberId != DreamFocusMemberId ||
+            document.Element("remarks") is not XElement remarks ||
+            remarks.HasAttributes ||
+            SignificantNodes(remarks) is not
+                [XElement paragraph, XElement sourceReference, XElement attribution] ||
+            paragraph.Name != "para" ||
+            paragraph.HasAttributes ||
+            !HasPlainTextContent(paragraph, out var value) ||
+            value != IncorrectDreamFocusRemark ||
+            !IsImporterAttributionParagraph(attribution))
+        {
+            return null;
+        }
+        var expectedSource = new SourceDocs(
+            "", [], new(), "", new(), DreamFocusSourceUrl,
+            "android.service.dreams.DreamService.onWindowFocusChanged", "android");
+        var legacyReference = XElement.Parse(
+            $"<para><format type=\"text/html\"><a href=\"{DreamFocusSourceUrl}\" " +
+            "title=\"Reference documentation\">Java documentation for " +
+            "<code>android.service.dreams.DreamService.onWindowFocusChanged(boolean)</code>." +
+            "</a></format></para>");
+        if ((!ImporterMarkupEquals(sourceReference, ImporterSourceReference(expectedSource)) &&
+             !ImporterMarkupEquals(sourceReference, legacyReference)) ||
+            (source is not null &&
+                (source.SourceKind != "android" ||
+                 source.SourceUrl != DreamFocusSourceUrl ||
+                 source.Paragraphs is not [{ Text: CorrectDreamFocusRemark, IsCode: false }])))
+        {
+            return null;
+        }
+        return paragraph;
     }
 
     static RemarksRefreshResult RefreshImporterOwnedRemarks(
@@ -2852,6 +2901,23 @@ static class ImporterProgram
                 text,
                 "existing_remarks_not_importer_owned",
                 "The current <Docs> block could not be parsed before rebuilding importer-owned remarks.");
+        }
+        if (FindDreamFocusRepairParagraph(owner.Id, document, docs) is XElement focusParagraph)
+        {
+            if (!TryGetElementSpan(blockText, focusParagraph, out var focusSpan))
+            {
+                return new RemarksRefreshResult(
+                    text,
+                    "existing_remarks_not_importer_owned",
+                    "The exact importer-owned focus paragraph could not be located safely.");
+            }
+            var correctedBlock = blockText[..focusSpan.Start] +
+                $"<para>{XmlEscape(CorrectDreamFocusRemark)}</para>" +
+                blockText[focusSpan.End..];
+            return new RemarksRefreshResult(
+                text[..block.Start] + correctedBlock + text[block.End..],
+                null,
+                null);
         }
         var remarks = document.Element("remarks");
         if (remarks is not null &&
@@ -8818,6 +8884,100 @@ static class ImporterProgram
                 knownJavaProseMarkup,
                 knownJavaProseDocs) is null,
             "corrected Java prose remains idempotent");
+        var dreamFocusRequest = SourceRequest.Create("android/service/dreams/DreamService")!;
+        var dreamFocusHtml =
+            "<h3 class=\"api-name\" id=\"onWindowFocusChanged(boolean)\">onWindowFocusChanged</h3>" +
+            "<p>This hook is called whenever the window focus changes. See " +
+            $"<code>{StaleDreamFocusSourceLink}</code> for more information.</p>";
+        var dreamFocusDocs = SourcePage.Parse(dreamFocusRequest, dreamFocusHtml)
+            .Members.Single().Docs!;
+        Assert(
+            dreamFocusDocs.Paragraphs is [{ Text: CorrectDreamFocusRemark }] &&
+            ReplacementFor(new Placeholder(0, "remarks", "", "remarks"), dreamFocusDocs)
+                .Remarks is [{ Text: CorrectDreamFocusRemark }],
+            "DreamService focus imports the exact official link target instead of its stale label");
+        Assert(
+            SourcePage.Parse(
+                SourceRequest.Create("android/example/Widget")!,
+                dreamFocusHtml).Members.Single().Docs!.Paragraphs[0].Text ==
+                IncorrectDreamFocusRemark &&
+            SourcePage.Parse(
+                dreamFocusRequest,
+                dreamFocusHtml.Replace(
+                    "#onWindowFocusChanged(boolean)\">",
+                    "#other(boolean)\">",
+                    StringComparison.Ordinal)).Members.Single().Docs!.Paragraphs[0].Text ==
+                IncorrectDreamFocusRemark,
+            "focus source-label correction requires the exact declaring source and hyperlink target");
+        var dreamFocusMarkup = new XElement(
+            "Docs",
+            new XElement("summary", "Retain this authored summary."),
+            new XElement(
+                "remarks",
+                new XElement("para", IncorrectDreamFocusRemark),
+                ImporterSourceReference(dreamFocusDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
+        var dreamFocusBlock = file.DocsBlocks[setTitle.Order];
+        var dreamFocusText =
+            fixtureText[..dreamFocusBlock.Start] +
+            dreamFocusMarkup.ToString(SaveOptions.DisableFormatting) +
+            fixtureText[dreamFocusBlock.End..];
+        var dreamFocusOwner = setTitle with { Id = DreamFocusMemberId };
+        file.UpdateBlockOffsets(setTitle.Order, dreamFocusText);
+        var correctedDreamFocus = RefreshImporterOwnedRemarks(
+            dreamFocusText, file, dreamFocusOwner, dreamFocusDocs);
+        Assert(
+            correctedDreamFocus.Reason is null &&
+            correctedDreamFocus.Text == dreamFocusText.Replace(
+                IncorrectDreamFocusRemark, CorrectDreamFocusRemark, StringComparison.Ordinal),
+            $"focus repair changes only the exact paragraph and retains authored summary and metadata bytes ({correctedDreamFocus.Reason}: {correctedDreamFocus.Detail})");
+        file.UpdateBlockOffsets(setTitle.Order, correctedDreamFocus.Text);
+        Assert(
+            RefreshImporterOwnedRemarks(
+                correctedDreamFocus.Text, file, dreamFocusOwner, dreamFocusDocs).Reason ==
+                "source_remarks_current",
+            "focus reference repair is idempotent");
+        foreach (var authoredFocusParagraph in new[]
+        {
+            $"<para>{IncorrectDreamFocusRemark} Additional authored guidance.</para>",
+            $"<para><c>{IncorrectDreamFocusRemark}</c></para>",
+            $"<para><![CDATA[{IncorrectDreamFocusRemark}]]></para>",
+            $"<para><!--Keep-->{IncorrectDreamFocusRemark}</para>",
+            $"<para><?keep guidance?>{IncorrectDreamFocusRemark}</para>",
+            $"<para>{IncorrectDreamFocusRemark}</para><para>Additional authored guidance.</para>",
+        })
+        {
+            var authoredFocusText = dreamFocusText.Replace(
+                $"<para>{IncorrectDreamFocusRemark}</para>",
+                authoredFocusParagraph,
+                StringComparison.Ordinal);
+            file.UpdateBlockOffsets(setTitle.Order, authoredFocusText);
+            var authoredFocusResult = RefreshImporterOwnedRemarks(
+                authoredFocusText, file, dreamFocusOwner, dreamFocusDocs);
+            Assert(
+                authoredFocusResult.Text == authoredFocusText &&
+                authoredFocusResult.Reason == "existing_remarks_not_importer_owned",
+                "focus repair preserves authored prose, mixed content, CDATA, comments, and processing instructions");
+        }
+        file.UpdateBlockOffsets(setTitle.Order, dreamFocusText);
+        Assert(
+            RefreshImporterOwnedRemarks(
+                dreamFocusText, file, setTitle, dreamFocusDocs).Text == dreamFocusText &&
+            RefreshImporterOwnedRemarks(
+                dreamFocusText, file, dreamFocusOwner,
+                dreamFocusDocs with { SourceUrl = DreamFocusSourceUrl + ".Altered" }).Text ==
+                dreamFocusText,
+            "focus repair requires the exact managed owner and mapped source reference");
+        var authoredFocusAttribution = dreamFocusText.Replace(
+            "Portions of this page", "Authored portions of this page", StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, authoredFocusAttribution);
+        Assert(
+            RefreshImporterOwnedRemarks(
+                authoredFocusAttribution, file, dreamFocusOwner, dreamFocusDocs).Text ==
+                authoredFocusAttribution,
+            "focus repair preserves authored attribution");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var knownAndroidParameterDocs = javaExampleDocs with
         {
             SourceUrl = KnownAndroidParameterRepairs[0].SourceUrl,
@@ -11419,6 +11579,10 @@ static class ImporterProgram
         var enumPipelinePath = Path.Combine(
             docsRoot,
             $"WidgetKind.compact-importer-self-test-{Environment.ProcessId}.xml");
+        var dreamFocusPipelinePath = Path.Combine(
+            docsRoot,
+            "Android.Service.Dreams",
+            $"DreamService.importer-self-test-{Environment.ProcessId}.xml");
         var zoneTransitionPipelinePath = Path.Combine(
             docsRoot,
             "Java.Time.Zone",
@@ -11426,6 +11590,130 @@ static class ImporterProgram
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            var dreamFocusCache = Path.Combine(tempDirectory, "dream-focus-cache");
+            Directory.CreateDirectory(dreamFocusCache);
+            var dreamFocusCachePath = Path.Combine(
+                dreamFocusCache,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(dreamFocusRequest.Url)))
+                    .ToLowerInvariant() + ".html");
+            File.WriteAllText(dreamFocusCachePath, dreamFocusHtml, new UTF8Encoding(false));
+            var dreamFocusFirstFill = $"""
+                <Type Name="DreamService" FullName="Android.Service.Dreams.DreamService">
+                  <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("android/service/dreams/DreamService", DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
+                  <Docs><summary>Retain this type summary.</summary><remarks /></Docs>
+                  <Members>
+                    <Member MemberName="OnWindowFocusChanged">
+                      <MemberSignature Language="DocId" Value="{DreamFocusMemberId}" />
+                      <MemberType>Method</MemberType>
+                      <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("onWindowFocusChanged", "(Z)V", "")]</AttributeName></Attribute></Attributes>
+                      <Parameters><Parameter Name="hasFocus" Type="System.Boolean" /></Parameters>
+                      <ReturnValue><ReturnType>System.Void</ReturnType></ReturnValue>
+                      <Docs><param name="hasFocus">Retain this parameter.</param><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+                    </Member>
+                  </Members>
+                </Type>
+                """;
+            File.WriteAllText(dreamFocusPipelinePath, dreamFocusFirstFill, new UTF8Encoding(false));
+            int RunDreamFocusPipeline(string stage, int expectedChanges)
+            {
+                var reportPath = Path.Combine(tempDirectory, "dream-focus-" + stage);
+                var exitCode = RunAsync(
+                    [
+                        "--path", dreamFocusPipelinePath,
+                        "--namespace", "Android.Service.Dreams",
+                        "--member", "OnWindowFocusChanged",
+                        "--offline", "--cache", dreamFocusCache,
+                        "--max-changes", "2", "--apply", "--report", reportPath,
+                    ]).GetAwaiter().GetResult();
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(
+                    exitCode == 0 &&
+                    report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("appliedCount").GetInt32() == expectedChanges,
+                    $"registered DreamService focus complete importer pipeline {stage}");
+                return report.RootElement.GetProperty("filesChanged").GetInt32();
+            }
+            RunDreamFocusPipeline("first-fill", 2);
+            var firstFilledDreamFocus = File.ReadAllText(dreamFocusPipelinePath);
+            Assert(
+                firstFilledDreamFocus.Contains(CorrectDreamFocusRemark, StringComparison.Ordinal) &&
+                !firstFilledDreamFocus.Contains("onWindowFocusChangedNotLocked", StringComparison.Ordinal) &&
+                firstFilledDreamFocus.Contains("Retain this parameter.", StringComparison.Ordinal),
+                "actual registered callback first-fill preserves the official target identity and existing channels");
+            var firstFilledDreamFocusBytes = File.ReadAllBytes(dreamFocusPipelinePath);
+            Assert(
+                RunDreamFocusPipeline("first-fill-repeat", 0) == 0 &&
+                firstFilledDreamFocusBytes.SequenceEqual(File.ReadAllBytes(dreamFocusPipelinePath)),
+                "registered callback first-fill follow-up is byte-identical");
+            foreach (var legacy in new[] { false, true })
+            {
+                var staleFocusOutput = firstFilledDreamFocus.Replace(
+                    CorrectDreamFocusRemark, IncorrectDreamFocusRemark, StringComparison.Ordinal);
+                if (legacy)
+                {
+                    staleFocusOutput = staleFocusOutput.Replace(
+                        "Android reference for <code>android.service.dreams.DreamService.onWindowFocusChanged</code>",
+                        "Java documentation for <code>android.service.dreams.DreamService.onWindowFocusChanged(boolean)</code>",
+                        StringComparison.Ordinal);
+                }
+                File.WriteAllText(dreamFocusPipelinePath, staleFocusOutput, new UTF8Encoding(false));
+                RunDreamFocusPipeline("repair-" + legacy, 1);
+                Assert(
+                    File.ReadAllText(dreamFocusPipelinePath) == staleFocusOutput.Replace(
+                        IncorrectDreamFocusRemark, CorrectDreamFocusRemark, StringComparison.Ordinal),
+                    "complete pipeline repairs only the exact old paragraph with canonical or retained legacy reference");
+                var repairedDreamFocusBytes = File.ReadAllBytes(dreamFocusPipelinePath);
+                Assert(
+                    RunDreamFocusPipeline("repair-repeat-" + legacy, 0) == 0 &&
+                    repairedDreamFocusBytes.SequenceEqual(File.ReadAllBytes(dreamFocusPipelinePath)),
+                    "complete pipeline repair follow-up has zero edits and identical bytes");
+            }
+            var unsupportedFocusOutput = firstFilledDreamFocus.Replace(
+                CorrectDreamFocusRemark, IncorrectDreamFocusRemark, StringComparison.Ordinal);
+            File.WriteAllText(dreamFocusPipelinePath, unsupportedFocusOutput, new UTF8Encoding(false));
+            File.WriteAllText(
+                dreamFocusCachePath,
+                dreamFocusHtml.Replace(
+                    "#onWindowFocusChanged(boolean)\">", "#other(boolean)\">", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            var unsupportedFocusBytes = File.ReadAllBytes(dreamFocusPipelinePath);
+            Assert(
+                RunDreamFocusPipeline("unproven-target", 0) == 0 &&
+                unsupportedFocusBytes.SequenceEqual(File.ReadAllBytes(dreamFocusPipelinePath)),
+                "complete pipeline preserves old output when the source target does not prove the correction");
+            File.WriteAllText(dreamFocusCachePath, dreamFocusHtml, new UTF8Encoding(false));
+            var focusPipelineMismatches = new Dictionary<string, string>
+            {
+                ["member-mismatch"] = unsupportedFocusOutput.Replace(
+                    DreamFocusMemberId, DreamFocusMemberId + ".Altered", StringComparison.Ordinal),
+                ["registration-mismatch"] = unsupportedFocusOutput.Replace(
+                    "\"(Z)V\"", "\"(I)V\"", StringComparison.Ordinal),
+                ["source-reference-mismatch"] = unsupportedFocusOutput.Replace(
+                    DreamFocusSourceUrl, DreamFocusSourceUrl + ".Altered", StringComparison.Ordinal),
+                ["authored-provenance"] = unsupportedFocusOutput.Replace(
+                    "Portions of this page", "Authored portions of this page", StringComparison.Ordinal),
+                ["authored-paragraph"] = unsupportedFocusOutput.Replace(
+                    IncorrectDreamFocusRemark,
+                    IncorrectDreamFocusRemark + " Additional authored guidance.",
+                    StringComparison.Ordinal),
+                ["mixed-content"] = unsupportedFocusOutput.Replace(
+                    IncorrectDreamFocusRemark, $"<c>{IncorrectDreamFocusRemark}</c>", StringComparison.Ordinal),
+                ["cdata"] = unsupportedFocusOutput.Replace(
+                    IncorrectDreamFocusRemark, $"<![CDATA[{IncorrectDreamFocusRemark}]]>", StringComparison.Ordinal),
+                ["comment"] = unsupportedFocusOutput.Replace(
+                    IncorrectDreamFocusRemark, $"<!--Keep-->{IncorrectDreamFocusRemark}", StringComparison.Ordinal),
+                ["processing-instruction"] = unsupportedFocusOutput.Replace(
+                    IncorrectDreamFocusRemark, $"<?keep guidance?>{IncorrectDreamFocusRemark}", StringComparison.Ordinal),
+            };
+            foreach (var (stage, mismatchText) in focusPipelineMismatches)
+            {
+                File.WriteAllText(dreamFocusPipelinePath, mismatchText, new UTF8Encoding(false));
+                var mismatchBytes = File.ReadAllBytes(dreamFocusPipelinePath);
+                Assert(
+                    RunDreamFocusPipeline(stage, 0) == 0 &&
+                    mismatchBytes.SequenceEqual(File.ReadAllBytes(dreamFocusPipelinePath)),
+                    $"complete focus pipeline preserves byte-identical output for {stage}");
+            }
             var zoneTransitionSource = LoadedFile.Load(
                 repositoryRoot,
                 Path.Combine(docsRoot, "Java.Time.Zone", "ZoneOffsetTransitionRule.xml"));
@@ -13022,6 +13310,8 @@ static class ImporterProgram
         }
         finally
         {
+            if (File.Exists(dreamFocusPipelinePath))
+                File.Delete(dreamFocusPipelinePath);
             if (File.Exists(forEachPipelinePath))
                 File.Delete(forEachPipelinePath);
             if (File.Exists(compactForEachPipelinePath))
@@ -14478,6 +14768,16 @@ static class ImporterProgram
                 @"<pre\b(?=[^>]*\bclass=[""'][^""']*\bapi-signature\b[^""']*[""'])[^>]*>.*?</pre>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (url == DreamFocusSourceUrl)
+            {
+                prose = prose.Replace(
+                    StaleDreamFocusSourceLink,
+                    StaleDreamFocusSourceLink.Replace(
+                        "View.onWindowFocusChangedNotLocked(boolean)",
+                        "View.onWindowFocusChanged(boolean)",
+                        StringComparison.Ordinal),
+                    StringComparison.Ordinal);
+            }
             var paragraphs = ExtractParagraphs(prose);
             if (paragraphs.Count == 0 &&
                 parameters.Count == 0 &&
