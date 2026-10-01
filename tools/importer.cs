@@ -920,6 +920,37 @@ static class ImporterProgram
                                     : "Corrected the exact importer-owned EAP builder return typo."));
                         }
                     }
+                    var wifiRttRemarksRepair = RepairKnownUnsafeWifiRttRemarks(
+                        text, file, owner, mapping.Docs!);
+                    if (wifiRttRemarksRepair.Reason is not null)
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id, "remarks", wifiRttRemarksRepair.Reason,
+                            wifiRttRemarksRepair.Detail!, mapping.SourceUrl));
+                    }
+                    else if (wifiRttRemarksRepair.Text != text)
+                    {
+                        if (remaining == 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath, owner.Id, "remarks", "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = wifiRttRemarksRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply", file.RelativePath, owner.Id, "remarks", mapping.SourceUrl,
+                                "importer_known_unsafe_wifi_rtt_remarks_repair",
+                                "Withheld exact importer-owned stale Android remarks while retaining the source reference and attribution."));
+                        }
+                    }
+
                     foreach (var placeholder in owner.Placeholders.OrderBy(item => item.Order))
                     {
                         var replacement = ReplacementFor(
@@ -1141,6 +1172,7 @@ static class ImporterProgram
 
                     if (canRepairExistingDocumentation &&
                         mapping.Docs is not null &&
+                        mapping.Docs.UnsafeTargets?.ContainsKey("remarks") != true &&
                         HasPotentialImporterOwnedRemarksRefresh(file, owner))
                     {
                         var remarksRefresh = RefreshImporterOwnedRemarks(
@@ -1704,6 +1736,38 @@ static class ImporterProgram
                 .Concat(docs.Paragraphs.Select(paragraph => paragraph.Text))
                 .Concat(docs.Parameters.Values));
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
+        var wifiRttRemarksGuard = FindKnownUnsafeWifiRttRemarks(ownerId, docs);
+        if (wifiRttRemarksGuard is not null)
+            targets["remarks"] = wifiRttRemarksGuard.Detail;
+
+        if (ownerId == WifiRttMcSupportOwner &&
+            docs.SourceUrl.Equals(WifiRttMcSupportSourceUrl, StringComparison.Ordinal) &&
+            docs.SourceKind == "android" &&
+            docs.SourceLabel == "android.net.wifi.rtt.ResponderConfig.Builder.set80211mcSupported" &&
+            docs.Summary.Equals(WifiRttMcSupportSourceText, StringComparison.Ordinal) &&
+            docs.Paragraphs.SequenceEqual([new SourceParagraph(WifiRttMcSupportSourceText, false)]))
+        {
+            const string detail =
+                "The exact Android source incorrectly excludes separately configured IEEE 802.11az ranging when IEEE 802.11mc support is false.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
+        if (ownerId == WifiRttChannelWidthOwner &&
+            docs.SourceUrl.Equals(WifiRttChannelWidthSourceUrl, StringComparison.Ordinal) &&
+            docs.SourceKind == "android" &&
+            docs.SourceLabel == "android.net.wifi.rtt.ResponderConfig.Builder.setChannelWidth" &&
+            docs.Summary.Equals(WifiRttChannelWidthSourceText, StringComparison.Ordinal) &&
+            docs.Paragraphs.SequenceEqual([new SourceParagraph(WifiRttChannelWidthSourceText, false)]) &&
+            docs.Parameters.TryGetValue("channelWidth", out var channelWidth) &&
+            channelWidth.Equals(WifiRttChannelWidthParameterText, StringComparison.Ordinal))
+        {
+            const string detail =
+                "The exact Android source describes encoded ScanResult channel-width constants as numeric MHz values.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+            targets["param:channelWidth"] = detail;
+        }
 
         if (ownerId == "F:Android.Net.IpSec.Ike.Exceptions.IkeProtocolErrorType.NoAdditionalSas" &&
             docs.SourceKind == "android" &&
@@ -1844,6 +1908,7 @@ static class ImporterProgram
             {
                 Paragraphs = targets.ContainsKey("remarks") ? [] : docs.Paragraphs,
                 UnsafeTargets = targets,
+                WithheldRemarks = wifiRttRemarksGuard is null ? docs.WithheldRemarks : docs.Paragraphs,
             };
     }
 
@@ -2011,6 +2076,78 @@ static class ImporterProgram
 
     const string KnownUnsafeContinueStrokeSourceUrl =
         "https://developer.android.com/reference/android/accessibilityservice/GestureDescription.StrokeDescription#continueStroke(android.graphics.Path,%20long,%20long,%20boolean)";
+
+    const string WifiRttMcSupportOwner =
+        "M:Android.Net.Wifi.Rtt.ResponderConfig.Builder.Set80211mcSupported(System.Boolean)";
+    const string WifiRttMcSupportSourceUrl =
+        "https://developer.android.com/reference/android/net/wifi/rtt/ResponderConfig.Builder#set80211mcSupported(boolean)";
+    const string WifiRttMcSupportSourceText =
+        "Sets an indication the access point can to respond to the two-sided Wi-Fi RTT protocol, but, if false, indicates only one-sided Wi-Fi RTT is possible.";
+    const string WifiRttChannelWidthOwner =
+        "M:Android.Net.Wifi.Rtt.ResponderConfig.Builder.SetChannelWidth(System.Int32)";
+    const string WifiRttChannelWidthSourceUrl =
+        "https://developer.android.com/reference/android/net/wifi/rtt/ResponderConfig.Builder#setChannelWidth(int)";
+    const string WifiRttChannelWidthSourceText =
+        "Sets the channel bandwidth in MHz.";
+    const string WifiRttChannelWidthParameterText =
+        "int: the bandwidth of the channel in MHz. Value is one of the following: " +
+        "ScanResult.CHANNEL_WIDTH_20MHZ; ScanResult.CHANNEL_WIDTH_40MHZ; ScanResult.CHANNEL_WIDTH_80MHZ; " +
+        "ScanResult.CHANNEL_WIDTH_160MHZ; ScanResult.CHANNEL_WIDTH_80MHZ_PLUS_MHZ; ScanResult.CHANNEL_WIDTH_320MHZ";
+
+    sealed record KnownUnsafeWifiRttRemarks(
+        string MemberId,
+        string SourceUrl,
+        string SourceLabel,
+        string Summary,
+        List<SourceParagraph> Paragraphs,
+        string Detail);
+
+    static readonly KnownUnsafeWifiRttRemarks[] KnownUnsafeWifiRttRemarksGuards =
+    [
+        new(
+            "M:Android.Net.Wifi.Rtt.ResponderConfig.Builder.SetMacAddress(Android.Net.MacAddress)",
+            AndroidReference + "android/net/wifi/rtt/ResponderConfig.Builder#setMacAddress(android.net.MacAddress)",
+            "android.net.wifi.rtt.ResponderConfig.Builder.setMacAddress",
+            "Sets the Responder MAC Address.",
+            [
+                new("Sets the Responder MAC Address.", false),
+                new("A responder must be identified by either a MacAddress or a PeerHandle (for Aware peers, set via setPeerHandle(PeerHandle)), but not both.", false),
+                new("Note: This method sets the MAC address. If a PeerHandle was previously set using setPeerHandle(PeerHandle), both identifiers might be temporarily present within the builder. The final validation ensuring that only one of these identifiers is exclusively set occurs during the build() operation. If build() is called when both a MAC address and a PeerHandle are configured or when neither is set, it will result in an IllegalArgumentException.", false),
+            ],
+            "The exact Android remarks exclude valid USD-only responder identification."),
+        new(
+            "M:Android.Net.Wifi.Rtt.PasnConfig.Builder.SetWifiSsid(Android.Net.Wifi.WifiSsid)",
+            AndroidReference + "android/net/wifi/rtt/PasnConfig.Builder#setWifiSsid(android.net.wifi.WifiSsid)",
+            "android.net.wifi.rtt.PasnConfig.Builder.setWifiSsid",
+            "Sets the Wi-Fi Service Set Identifier (SSID).",
+            [
+                new("Sets the Wi-Fi Service Set Identifier (SSID). This is used to get the saved profile to retrieve password if password is not set using setPassword(String). Note: If password and SSID is not set, secure ranging will use unauthenticated PASN.", false),
+            ],
+            "The exact Android remarks overlook PMK-based authenticated PASN without a password or SSID."),
+        new(
+            "P:Android.Net.Wifi.Rtt.PasnConfig.WifiSsid",
+            AndroidReference + "android/net/wifi/rtt/PasnConfig#getWifiSsid()",
+            "android.net.wifi.rtt.PasnConfig.getWifiSsid",
+            "Get Wifi SSID which is used to retrieve saved network profile if getPassword() is null.",
+            [
+                new("Get Wifi SSID which is used to retrieve saved network profile if getPassword() is null. If Wifi SSID and password are not set and there is no saved profile corresponding to the responder, unauthenticated PASN will be used if RangingRequest.getSecurityMode() allows. See SECURITY_MODE_* for more details.", false),
+            ],
+            "The exact Android remarks overlook PMK-based authenticated PASN without a password or SSID."),
+    ];
+
+    static KnownUnsafeWifiRttRemarks? FindKnownUnsafeWifiRttRemarks(string memberId, SourceDocs docs) =>
+        docs.SourceKind != "android" || docs.HasMalformedSourceMarkup
+            ? null
+            : KnownUnsafeWifiRttRemarksGuards.SingleOrDefault(guard =>
+                guard.MemberId == memberId &&
+                guard.SourceUrl == docs.SourceUrl &&
+                guard.SourceLabel == docs.SourceLabel &&
+                guard.Summary == docs.Summary &&
+                guard.Paragraphs.SequenceEqual(docs.Paragraphs));
+
+    static bool HasKnownUnsafeWifiRttRemarksCandidate(DocsOwner owner) =>
+        KnownUnsafeWifiRttRemarksGuards.Any(guard => guard.MemberId == owner.Id) &&
+        owner.Docs.Elements("remarks").Any();
 
     static bool IsKnownUnsafeContinueStrokeDuration(string sourceUrl) =>
         UrlsEqual(sourceUrl, KnownUnsafeContinueStrokeSourceUrl) ||
@@ -2186,6 +2323,8 @@ static class ImporterProgram
             .ToHashSet(StringComparer.Ordinal);
         targets.UnionWith(KnownAndroidTextRepairCandidateTargets(owner));
         targets.UnionWith(KnownEapChannelRepairCandidateTargets(owner));
+        if (HasKnownUnsafeWifiRttRemarksCandidate(owner))
+            targets.Add("remarks");
         targets.UnionWith(KnownUnsafeIkeRepairCandidateTargets(owner));
         targets.UnionWith(KnownControlsLifecycleRepairTargets(owner));
         if (IsEnumSummaryRepairCandidate(owner) ||
@@ -2244,6 +2383,7 @@ static class ImporterProgram
         HasKnownIncorrectBooleanReturnRepairCandidate(file, owner) ||
         KnownAndroidTextRepairCandidateTargets(owner).Count > 0 ||
         KnownEapChannelRepairCandidateTargets(owner).Count > 0 ||
+        HasKnownUnsafeWifiRttRemarksCandidate(owner) ||
         KnownUnsafeIkeRepairCandidateTargets(owner).Count > 0 ||
         HasKnownAndroidProseRepairCandidate(file, owner) ||
         HasKnownUnsafeZoneTransitionTimeCandidate(owner);
@@ -2266,7 +2406,9 @@ static class ImporterProgram
         SourceDocs docs,
         bool isEnumField = false)
     {
-        if (docs.UnsafeTargets?.TryGetValue(placeholder.Target, out var unsafeTargetDetail) == true)
+        var sourceTarget = docs.WithheldRemarks is not null && placeholder.Name == "para"
+            ? "remarks" : placeholder.Target;
+        if (docs.UnsafeTargets?.TryGetValue(sourceTarget, out var unsafeTargetDetail) == true)
             return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
 
         if (docs.HasMalformedSourceMarkup &&
@@ -3223,6 +3365,8 @@ static class ImporterProgram
         bool addMetadataForChannelOnlyMember = false)
     {
         cleanupSkip = null;
+        if (docs.WithheldRemarks is not null)
+            return text;
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
 
@@ -4213,6 +4357,46 @@ static class ImporterProgram
         return UnsafeParameterRepairResult.RepairedText(
             text[..block.Start] + updatedBlock + text[block.End..],
             parameterName);
+    }
+
+    static RemarksRefreshResult RepairKnownUnsafeWifiRttRemarks(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        if (sourceDocs.WithheldRemarks is null ||
+            sourceDocs.UnsafeTargets?.ContainsKey("remarks") != true ||
+            FindKnownUnsafeWifiRttRemarks(
+                owner.Id, sourceDocs with { Paragraphs = sourceDocs.WithheldRemarks }) is not { } guard)
+            return new RemarksRefreshResult(text, null, null);
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            actualDocs.Elements("remarks").ToList() is not [XElement remarks])
+            return new RemarksRefreshResult(text, "existing_remarks_not_importer_owned",
+                "The exact stale remarks channel could not be located unambiguously.");
+        if (owner.Placeholders.Any(placeholder => placeholder.Name is "remarks" or "para"))
+            return new RemarksRefreshResult(text, null, null);
+
+        var expected = new XElement("remarks",
+            guard.Paragraphs.Select(DocumentationElement),
+            ImporterSourceReference(sourceDocs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        if (!ImporterMarkupEquals(remarks, expected) ||
+            !TryGetElementSpan(blockText, remarks, out var span))
+            return new RemarksRefreshResult(text, "existing_remarks_not_importer_owned",
+                "The stale remarks do not exactly match the complete source prose, reference and attribution; authored or mixed content was retained.");
+
+        var remarksIndent = file.IndentAt(block.Start) + "  ";
+        var replacement = RenderImporterOwnedRemarks(
+            [new SourceParagraph("To be added.", false)],
+            sourceDocs, file.Newline, remarksIndent, remarksIndent + "  ");
+        var updated = blockText[..span.Start] + replacement + blockText[span.End..];
+        return new RemarksRefreshResult(
+            text[..block.Start] + updated + text[block.End..], null, null);
     }
 
     static KnownJavaProseRepair? FindKnownJavaProseRepair(
@@ -14433,7 +14617,9 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: Android/Java exact matching, ICU text and Health Connect importer regressions, ordered paragraph/code preservation, strict importer-owned remarks refreshes, metadata-only and placeholder repairs, source-channel validation, XML parsing, and atomic writes.");
+        TestWifiRttSourceGuards(repositoryRoot);
+        TestWifiRttRemarksGuards(repositoryRoot);
+        Console.WriteLine("SELF-TEST PASS: Android/Java exact matching, ICU text and Health Connect importer regressions, ordered paragraph/code preservation, strict importer-owned remarks refreshes, metadata-only and placeholder repairs, source-channel validation, Wi-Fi RTT first-fill safety, XML parsing, and atomic writes.");
         return 0;
     }
 
@@ -14681,6 +14867,169 @@ static class ImporterProgram
             Directory.Delete(directory, recursive: true);
         }
         Console.WriteLine("SELF-TEST PASS: optional EAP getter registered FIRST-FILL, one-budget withdrawal, persisted byte repeats, corrected-source eligibility, independent negatives, and pinned no-options implementation audit (not Java runtime execution).");
+    }
+
+    static void TestWifiRttSourceGuards(string repositoryRoot)
+    {
+        var original = new SourceDocs(
+            WifiRttMcSupportSourceText,
+            [new SourceParagraph(WifiRttMcSupportSourceText, false)],
+            new Dictionary<string, string> { ["supports80211mc"] = "the ability to support the Wi-Fi RTT protocol" },
+            "the builder to facilitate chaining builder.setXXX(..).setXXX(..).",
+            new Dictionary<string, string>(),
+            WifiRttMcSupportSourceUrl,
+            "android.net.wifi.rtt.ResponderConfig.Builder.set80211mcSupported",
+            "android");
+        TestWifiRttSourceGuard(repositoryRoot, WifiRttMcSupportOwner, original, blockParameter: false);
+        TestWifiRttSourceGuard(
+            repositoryRoot,
+            WifiRttChannelWidthOwner,
+            original with
+            {
+                Summary = WifiRttChannelWidthSourceText,
+                Paragraphs = [new SourceParagraph(WifiRttChannelWidthSourceText, false)],
+                Parameters = new Dictionary<string, string> { ["channelWidth"] = WifiRttChannelWidthParameterText },
+                SourceUrl = WifiRttChannelWidthSourceUrl,
+                SourceLabel = "android.net.wifi.rtt.ResponderConfig.Builder.setChannelWidth",
+            },
+            blockParameter: true);
+    }
+
+    static void TestWifiRttSourceGuard(
+        string repositoryRoot,
+        string ownerId,
+        SourceDocs original,
+        bool blockParameter)
+    {
+        var parameter = original.Parameters.Single();
+        var method = original.SourceLabel.Split('.').Last();
+        var anchor = original.SourceUrl.Split('#')[1];
+        var guarded = WithoutKnownUnsafeAndroidSourceChannels(ownerId, original);
+        Assert(
+            ReplacementFor(new Placeholder(0, "summary", "", "summary"), guarded).Reason ==
+                "source_channel_ambiguous" &&
+            ReplacementFor(new Placeholder(1, "remarks", "", "remarks"), guarded).Reason ==
+                "source_channel_ambiguous" &&
+            (ReplacementFor(new Placeholder(2, "param", parameter.Key, $"param:{parameter.Key}"), guarded).Reason ==
+                (blockParameter ? "source_channel_ambiguous" : null)) &&
+            ReplacementFor(new Placeholder(3, "returns", "", "returns"), guarded).Reason is null,
+            "Wi-Fi RTT source guard skips only the exact unsafe source channels");
+        foreach (var other in new[]
+        {
+            original with { SourceUrl = original.SourceUrl + "-other" },
+            original with { SourceKind = "java" },
+            original with { SourceLabel = original.SourceLabel + "-other" },
+            original with { Summary = "Different source summary." },
+            original with { Paragraphs = [new SourceParagraph(original.Summary + " Additional source prose.", false)] },
+            original with { Paragraphs = [new SourceParagraph(original.Summary, true)] },
+        })
+        {
+            Assert(
+                WithoutKnownUnsafeAndroidSourceChannels(ownerId, other).UnsafeTargets is null,
+                "Wi-Fi RTT guard requires the complete exact original source and provenance");
+        }
+        Assert(
+            WithoutKnownUnsafeAndroidSourceChannels(ownerId + "-other", original).UnsafeTargets is null,
+            "Wi-Fi RTT guard requires the exact managed member");
+        if (blockParameter)
+        {
+            Assert(
+                WithoutKnownUnsafeAndroidSourceChannels(
+                    ownerId,
+                    original with { Parameters = new Dictionary<string, string> { [parameter.Key] = "Different source parameter." } })
+                    .UnsafeTargets is null,
+                "Wi-Fi RTT channel-width guard requires the complete original parameter text");
+        }
+
+        var sourcePath = Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Net.Wifi.Rtt", "ResponderConfig+Builder.xml");
+        var pipelinePath = Path.Combine(
+            Path.GetDirectoryName(sourcePath)!, $"ResponderConfig+Builder.importer-self-test-{Environment.ProcessId}.xml");
+        var tempDirectory = Path.Combine(
+            Path.GetTempPath(), $"wifi-rtt-importer-self-test-{Environment.ProcessId}");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var document = XDocument.Load(sourcePath, LoadOptions.PreserveWhitespace);
+            var root = document.Root!;
+            var member = root.Element("Members")!.Elements("Member").Single(element =>
+                element.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == ownerId));
+            root.Element("Members")!.ReplaceNodes(new XElement(member));
+            member = root.Element("Members")!.Element("Member")!;
+            var cacheKey = Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(original.SourceUrl.Split('#')[0]))).ToLowerInvariant();
+            File.WriteAllText(
+                Path.Combine(tempDirectory, cacheKey + ".html"),
+                $"""
+                <h3 class="api-name" id="{anchor}">{method}</h3>
+                <pre class="api-signature">public ResponderConfig.Builder {method} ({(blockParameter ? "int" : "boolean")} {parameter.Key})</pre>
+                <p>{original.Summary}</p>
+                <table><tr><th colspan="2">Parameters</th></tr>
+                <tr><td>{parameter.Key}</td><td>{(blockParameter ? "" : "<code>boolean</code>: ")}{parameter.Value}</td></tr></table>
+                <table><tr><th colspan="2">Returns</th></tr>
+                <tr><td>ResponderConfig.Builder</td><td>the builder to facilitate chaining builder.setXXX(..).setXXX(..).</td></tr></table>
+                """,
+                new UTF8Encoding(false));
+            foreach (var channelMarkup in new[]
+            {
+                "To be added.",
+                "Authored documentation.",
+                "Authored <c>mixed content</c>.",
+                "<![CDATA[Authored </remarks> text.]]>",
+                "<!-- Authored comment -->Authored documentation.",
+                "<?authored keep?>Authored documentation.",
+                "Authored documentation." + ImporterSourceReference(original) + $"<para>{AndroidAttribution}</para>",
+                "Authored documentation." + ImporterSourceReference(original with { SourceUrl = original.SourceUrl + "-other" }) +
+                    $"<para>{AndroidAttribution}</para>",
+            })
+            {
+                var docs = XElement.Parse(
+                    $"<Docs><param name=\"{parameter.Key}\">To be added.</param><summary>{channelMarkup}</summary>" +
+                    $"<returns>To be added.</returns><remarks>{channelMarkup}</remarks></Docs>",
+                    LoadOptions.PreserveWhitespace);
+                member.Element("Docs")!.ReplaceWith(docs);
+                var summaryBefore = docs.Element("summary")!.ToString(SaveOptions.DisableFormatting);
+                var remarksBefore = docs.Element("remarks")!.ToString(SaveOptions.DisableFormatting);
+                File.WriteAllText(pipelinePath, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var reportPath = Path.Combine(tempDirectory, "pipeline-report");
+                string[] args =
+                [
+                    "--path", pipelinePath, "--namespace", "Android.Net.Wifi.Rtt",
+                    "--member", ownerId, "--offline", "--cache", tempDirectory,
+                    "--max-changes", "2", "--apply", "--report", reportPath,
+                ];
+                Assert(RunAsync(args).GetAwaiter().GetResult() == 0, "Wi-Fi RTT full first-fill import succeeds");
+                var after = XDocument.Load(pipelinePath, LoadOptions.PreserveWhitespace)
+                    .Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                Assert(
+                    after.Element("summary")!.ToString(SaveOptions.DisableFormatting) == summaryBefore &&
+                    after.Element("remarks")!.ToString(SaveOptions.DisableFormatting) == remarksBefore &&
+                    after.Element("param")!.Value == (blockParameter ? "To be added." : parameter.Value) &&
+                    after.Element("returns")!.Value == original.Returns,
+                    "Wi-Fi RTT first-fill preserves unsafe, authored, mixed, CDATA, comment, PI and provenance channels");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                if (channelMarkup == "To be added.")
+                {
+                    Assert(
+                        report.RootElement.GetProperty("entries").EnumerateArray().Count(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") == (blockParameter ? 3 : 2),
+                        "Wi-Fi RTT unsafe first-fill channels are explicitly reported");
+                }
+                var bytes = File.ReadAllBytes(pipelinePath);
+                Assert(
+                    RunAsync(args).GetAwaiter().GetResult() == 0 &&
+                    bytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                    $"Wi-Fi RTT full first-fill import is idempotent: {channelMarkup}");
+            }
+        }
+        finally
+        {
+            if (File.Exists(pipelinePath))
+                File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, true);
+        }
     }
 
     static void TestKnownEapChannelCorrections(string repositoryRoot)
@@ -15084,6 +15433,271 @@ static class ImporterProgram
         {
             if (File.Exists(path))
                 File.Delete(path);
+        }
+    }
+
+    static void TestWifiRttRemarksGuards(string repositoryRoot)
+    {
+        foreach (var guard in KnownUnsafeWifiRttRemarksGuards)
+        {
+            var typeName = guard.SourceLabel[..guard.SourceLabel.LastIndexOf('.')];
+            var fileName = typeName["android.net.wifi.rtt.".Length..].Replace('.', '+') + ".xml";
+            var sourcePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Net.Wifi.Rtt", fileName);
+            var fixtureDirectory = Path.Combine(Path.GetDirectoryName(sourcePath)!,
+                $".rtt-remarks-self-test-{Guid.NewGuid():N}");
+            var fixturePath = "";
+            var fixtureNumber = 0;
+            var cache = Path.Combine(Path.GetTempPath(),
+                $"wifi-rtt-remarks-self-test-{Environment.ProcessId}");
+            Directory.CreateDirectory(cache);
+            Directory.CreateDirectory(fixtureDirectory);
+            try
+            {
+                var document = XDocument.Load(sourcePath, LoadOptions.PreserveWhitespace);
+                var originalMember = new XElement(document.Root!.Element("Members")!.Elements("Member").Single(member =>
+                    member.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == guard.MemberId)));
+                var originalDocs = new XElement(originalMember.Element("Docs")!);
+                var source = new SourceDocs(
+                    guard.Summary, guard.Paragraphs,
+                    originalDocs.Elements("param").ToDictionary(
+                        parameter => (string)parameter.Attribute("name")!, parameter => parameter.Value),
+                    originalDocs.Element("returns")?.Value ?? "",
+                    [], guard.SourceUrl, guard.SourceLabel, "android");
+                var filtered = WithoutKnownUnsafeAndroidSourceChannels(guard.MemberId, source);
+                Assert(filtered.UnsafeTargets?.Keys.SequenceEqual(["remarks"]) == true &&
+                    filtered.Summary == source.Summary && filtered.Parameters == source.Parameters &&
+                    filtered.Returns == source.Returns,
+                    "Wi-Fi RTT stale-contract guards withhold only remarks and retain every safe channel");
+                var ownedRemarks = new XElement("remarks",
+                    source.Paragraphs.Select(DocumentationElement),
+                    ImporterSourceReference(source), XElement.Parse($"<para>{AndroidAttribution}</para>"));
+                var pagePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(guard.SourceUrl.Split('#')[0]))).ToLowerInvariant() + ".html");
+
+                void WritePage(IEnumerable<SourceParagraph> paragraphs)
+                {
+                    var method = guard.SourceLabel.Split('.').Last();
+                    var parameter = source.Parameters.FirstOrDefault();
+                    var signatureParameter = parameter.Key is null ? "" :
+                        (parameter.Key == "macAddress" ? "MacAddress " : "WifiSsid ") + parameter.Key;
+                    var returnType = parameter.Key is null ? "WifiSsid" : typeName.Split('.').TakeLast(2).Aggregate(
+                        (left, right) => left + "." + right);
+                    File.WriteAllText(pagePath,
+                        $"<h3 class=\"api-name\" id=\"{guard.SourceUrl.Split('#')[1]}\">{method}</h3>" +
+                        $"<pre class=\"api-signature\">public {returnType} {method} ({signatureParameter})</pre>" +
+                        string.Concat(paragraphs.Select(paragraph => $"<p>{WebUtility.HtmlEncode(paragraph.Text)}</p>")) +
+                        (parameter.Key is null ? "" :
+                            "<table><tr><th colspan=\"2\">Parameters</th></tr>" +
+                            $"<tr><td>{parameter.Key}</td><td>{WebUtility.HtmlEncode(parameter.Value)}</td></tr></table>") +
+                        "<table><tr><th colspan=\"2\">Returns</th></tr>" +
+                        $"<tr><td>{returnType}</td><td>{WebUtility.HtmlEncode(source.Returns)}</td></tr></table>",
+                        new UTF8Encoding(false));
+                }
+
+                void WriteFixture(XElement remarks, bool firstFill = false, bool duplicate = false)
+                {
+                    fixturePath = Path.Combine(fixtureDirectory, $"{++fixtureNumber:D2}.xml");
+                    var member = new XElement(originalMember);
+                    var docs = member.Element("Docs")!;
+                    if (firstFill)
+                    {
+                        foreach (var channel in docs.Elements().Where(channel =>
+                            channel.Name.LocalName is "summary" or "param" or "returns" or "value"))
+                            channel.ReplaceNodes("To be added.");
+                    }
+                    docs.Element("remarks")!.ReplaceWith(new XElement(remarks));
+                    if (duplicate)
+                        docs.Add(new XElement(remarks));
+                    document.Root!.Element("Members")!.ReplaceNodes(member);
+                    File.WriteAllText(fixturePath, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                }
+
+                XElement ReadDocs() => XDocument.Load(fixturePath, LoadOptions.PreserveWhitespace)
+                    .Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+
+                JsonDocument RunPipeline(bool apply = true, int limit = 10)
+                {
+                    var arguments = new List<string>
+                    {
+                        "--path", fixturePath, "--namespace", "Android.Net.Wifi.Rtt",
+                        "--member", guard.MemberId, "--offline", "--cache", cache,
+                        "--max-changes", limit.ToString(), "--report", Path.Combine(cache, "report"),
+                    };
+                    if (apply)
+                        arguments.Add("--apply");
+                    Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                        "Wi-Fi RTT registered-member remarks pipeline succeeds");
+                    var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(cache, "report.json")));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "Wi-Fi RTT registered-member remarks pipeline reports no errors");
+                    return report;
+                }
+
+                void AssertIdempotence(bool withheld = false)
+                {
+                    var before = File.ReadAllBytes(fixturePath);
+                    using var report = RunPipeline();
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(fixturePath)),
+                        "Wi-Fi RTT registered first-fill, repair and authored preservation are byte-idempotent");
+                    if (withheld)
+                        Assert(report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                            !report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                                entry.GetProperty("reason").GetString() == "existing_remarks_not_importer_owned"),
+                            "Wi-Fi RTT withheld direct/paragraph placeholders report the exact unsafe contract, not missing or authored source");
+                }
+
+                WritePage(source.Paragraphs);
+                WriteFixture(new XElement("remarks", "To be added."), firstFill: true);
+                using (var firstFill = RunPipeline())
+                {
+                    var after = ReadDocs();
+                    Assert(after.Element("remarks")!.Value == "To be added." &&
+                        after.Element("summary")!.Value == guard.Summary &&
+                        source.Parameters.All(parameter => after.Elements("param").Single(element =>
+                            (string?)element.Attribute("name") == parameter.Key).Value == parameter.Value) &&
+                        (source.Returns.Length == 0 || after.Element("returns")!.Value == source.Returns) &&
+                        firstFill.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("target").GetString() == "remarks" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                        "Actual registered first-fill withholds stale remarks, reports the gap, and fills safe nullable/builder channels");
+                }
+                AssertIdempotence(withheld: true);
+
+                WriteFixture(new XElement("remarks", new XElement("para", "To be added."),
+                    ImporterSourceReference(source), XElement.Parse($"<para>{AndroidAttribution}</para>")),
+                    firstFill: true);
+                using (var paragraphFirstFill = RunPipeline())
+                    Assert(ReadDocs().Element("remarks")!.Elements("para").First().Value == "To be added." &&
+                        paragraphFirstFill.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("target").GetString() == "para" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                        "Actual registered paragraph first-fill retains metadata and reports the same exact unsafe remarks guard");
+                AssertIdempotence(withheld: true);
+
+                WriteFixture(ownedRemarks);
+                var repairBefore = File.ReadAllBytes(fixturePath);
+                using (var dryRun = RunPipeline(apply: false, limit: 1))
+                    Assert(dryRun.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        repairBefore.SequenceEqual(File.ReadAllBytes(fixturePath)),
+                        "Wi-Fi RTT stale remarks repair dry-run is read-only and counted");
+                using (var repair = RunPipeline(limit: 1))
+                {
+                    var after = ReadDocs();
+                    var expected = new XElement("remarks", new XElement("para", "To be added."),
+                        ImporterSourceReference(source), XElement.Parse($"<para>{AndroidAttribution}</para>"));
+                    Assert(repair.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        ImporterMarkupEquals(after.Element("remarks")!, expected),
+                        "Wi-Fi RTT bounded repair withholds only complete owned stale prose and retains source metadata");
+                    var beforeOtherChannels = new XElement(originalDocs);
+                    beforeOtherChannels.Element("remarks")!.Remove();
+                    after.Element("remarks")!.Remove();
+                    Assert(XNode.DeepEquals(beforeOtherChannels, after),
+                        "Wi-Fi RTT repairs preserve all safe and existing non-placeholder channels");
+                }
+                AssertIdempotence(withheld: true);
+
+                WriteFixture(ownedRemarks);
+                var decoyDocument = XDocument.Load(fixturePath, LoadOptions.PreserveWhitespace);
+                decoyDocument.Root!.Element("Members")!.Element("Member")!.Element("Docs")!.AddFirst(
+                    new XComment(ownedRemarks.ToString(SaveOptions.DisableFormatting)),
+                    new XCData("<remarks>Authored literal </remarks> text.</remarks>"),
+                    new XProcessingInstruction("authored", "remarks"));
+                File.WriteAllText(fixturePath, decoyDocument.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                using (var decoyRepair = RunPipeline(limit: 1))
+                    Assert(decoyRepair.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        ReadDocs().Nodes().OfType<XComment>().Single().Value ==
+                            ownedRemarks.ToString(SaveOptions.DisableFormatting) &&
+                        ReadDocs().Nodes().OfType<XCData>().Single().Value ==
+                            "<remarks>Authored literal </remarks> text.</remarks>" &&
+                        ReadDocs().Nodes().OfType<XProcessingInstruction>().Single().Data == "remarks",
+                        "Wi-Fi RTT complete owned repair locates the real remarks without editing literal comment/CDATA/PI decoys");
+                AssertIdempotence();
+
+                foreach (var mutation in new Action<XElement>[]
+                {
+                    remarks => remarks.ReplaceNodes("Authored documentation."),
+                    remarks => remarks.Elements("para").First().ReplaceNodes(
+                        new XElement("c", remarks.Elements("para").First().Value)),
+                    remarks => remarks.Elements("para").First().ReplaceNodes(
+                        new XCData(remarks.Elements("para").First().Value)),
+                    remarks => remarks.Elements("para").First().Add(new XComment("Authored")),
+                    remarks => remarks.AddFirst(new XProcessingInstruction("authored", "keep")),
+                    remarks => remarks.SetAttributeValue("authored", "keep"),
+                    remarks => remarks.Elements("para").First().SetAttributeValue("authored", "keep"),
+                    remarks => remarks.Elements("para").First().Value += " Authored.",
+                    remarks => remarks.AddFirst(new XElement("para", "Authored preface.")),
+                    remarks => remarks.Elements().Last().Remove(),
+                    remarks => remarks.Elements().Last().Add(new XComment("Authored attribution")),
+                    remarks => remarks.Descendants("a").First().SetAttributeValue("href", guard.SourceUrl + "-other"),
+                    remarks => remarks.Descendants("code").Single().Value += "-other",
+                    remarks => remarks.Add(new XElement(remarks.Elements().First())),
+                    remarks => remarks.Elements().First().AddBeforeSelf(
+                        new XElement(remarks.Elements().ElementAt(1))),
+                })
+                {
+                    var authored = new XElement(ownedRemarks);
+                    mutation(authored);
+                    WriteFixture(authored);
+                    var before = File.ReadAllBytes(fixturePath);
+                    using var report = RunPipeline();
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(fixturePath)) &&
+                        report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() is
+                                "existing_remarks_not_importer_owned" or "legacy_attribution_not_importer_owned"),
+                        "Wi-Fi RTT actual registered repair preserves and reports authored/mixed/CDATA/comment/PI/provenance/complete-structure mismatches");
+                    AssertIdempotence();
+                }
+                WriteFixture(ownedRemarks, duplicate: true);
+                var duplicateBefore = File.ReadAllBytes(fixturePath);
+                using (var report = RunPipeline())
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        duplicateBefore.SequenceEqual(File.ReadAllBytes(fixturePath)),
+                        "Wi-Fi RTT remarks repairs preserve duplicate channels");
+
+                WriteFixture(ownedRemarks);
+                var loaded = LoadedFile.Load(repositoryRoot, fixturePath);
+                loaded.SelectOwners(guard.MemberId, new InterfaceMemberResolver(Path.Combine(repositoryRoot, "docs", "xml")), null);
+                var owner = loaded.Owners.Single();
+                foreach (var mismatch in new[]
+                {
+                    source with { SourceUrl = source.SourceUrl + "-other" },
+                    source with { SourceKind = "java" },
+                    source with { SourceLabel = source.SourceLabel + "-other" },
+                    source with { Summary = source.Summary + " Changed." },
+                    source with { Paragraphs = [new SourceParagraph(source.Paragraphs[0].Text + " Changed.", false)] },
+                    source with { Paragraphs = [new SourceParagraph(source.Paragraphs[0].Text, true)] },
+                    source with { HasMalformedSourceMarkup = true },
+                })
+                {
+                    var mismatched = WithoutKnownUnsafeAndroidSourceChannels(guard.MemberId, mismatch);
+                    Assert(mismatched.UnsafeTargets is null &&
+                        RepairKnownUnsafeWifiRttRemarks(loaded.Text, loaded, owner, mismatched).Text == loaded.Text,
+                        "Wi-Fi RTT guards and repairs require exact complete source text, identity, kind and URL");
+                }
+                Assert(WithoutKnownUnsafeAndroidSourceChannels(guard.MemberId + "-other", source).UnsafeTargets is null &&
+                    RepairKnownUnsafeWifiRttRemarks(
+                        loaded.Text, loaded, owner with { Id = guard.MemberId + "-other" }, filtered).Text == loaded.Text,
+                    "Wi-Fi RTT source guards and repairs require the exact registered managed member");
+
+                WritePage([new SourceParagraph(guard.Summary, false)]);
+                WriteFixture(new XElement("remarks", "To be added."), firstFill: true);
+                using (var corrected = RunPipeline())
+                    Assert(ReadDocs().Element("remarks")!.Elements("para").First().Value == guard.Summary &&
+                        !corrected.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                        "Wi-Fi RTT actual registered first-fill keeps corrected official source prose eligible");
+                AssertIdempotence();
+            }
+            finally
+            {
+                Directory.Delete(fixtureDirectory, true);
+                Directory.Delete(cache, true);
+            }
         }
     }
 
@@ -17900,7 +18514,8 @@ static class ImporterProgram
         string SourceKind,
         IReadOnlyDictionary<string, string>? UnsafeTargets = null,
         bool HasMalformedSourceMarkup = false,
-        KnownEapChannelCorrection? EapCorrection = null);
+        KnownEapChannelCorrection? EapCorrection = null,
+        List<SourceParagraph>? WithheldRemarks = null);
 
     static class Descriptor
     {
