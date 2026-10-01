@@ -1445,6 +1445,7 @@ static class ImporterProgram
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
                     fields[0].Url);
+            fieldDocs = WithoutKnownMalformedConversationAnniversary(owner, registration, fieldDocs);
             fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
@@ -1726,6 +1727,36 @@ static class ImporterProgram
                 paragraph.IsCode || paragraph.Text != RssiMalformedDefault).ToList(),
             UnsafeTargets = targets,
         };
+    }
+
+    static SourceDocs WithoutKnownMalformedConversationAnniversary(
+        DocsOwner owner,
+        MemberRegistration registration,
+        SourceDocs docs)
+    {
+        const string original =
+            "Constant representing that the conversation user and the device user are celebrating and anniversary today.";
+        if (owner.Id != "F:Android.App.People.ConversationActivity.Anniversary" ||
+            !owner.IsEnumField ||
+            owner.SourceRequest?.JavaPath != "android/app/people/ConversationStatus" ||
+            registration != new MemberRegistration("ACTIVITY_ANNIVERSARY", null, true) ||
+            owner.Member is null ||
+            Registration.JniField(owner.Member) != new JniFieldRegistration(
+                "android/app/people/ConversationStatus", "ACTIVITY_ANNIVERSARY") ||
+            owner.Member.Element("ReturnValue")?.Element("ReturnType")?.Value !=
+                "Android.App.People.ConversationActivity" ||
+            docs.SourceKind != "android" ||
+            docs.SourceUrl != AndroidReference + "android/app/people/ConversationStatus#ACTIVITY_ANNIVERSARY" ||
+            docs.Summary != original ||
+            docs.Paragraphs is not [{ IsCode: false, Text: original }])
+            return docs;
+
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["summary"] =
+            "The exact Android anniversary field prose says 'and anniversary'; no replacement wording was guessed.";
+        return docs with { UnsafeTargets = targets };
     }
 
     static SourceDocs WithoutKnownUnsafeAndroidSourceChannels(string ownerId, SourceDocs docs)
@@ -12641,6 +12672,7 @@ static class ImporterProgram
         try
         {
             TestIkeEnumSourceExclusion(repositoryRoot, docsRoot, tempDirectory);
+            TestConversationAnniversarySourceExclusion(repositoryRoot, docsRoot, tempDirectory);
 
             TestKnownUnsafeIkeDocumentation(repositoryRoot, fixtureRoot, tempDirectory);
             var dreamFocusCache = Path.Combine(tempDirectory, "dream-focus-cache");
@@ -15427,6 +15459,172 @@ static class ImporterProgram
                 Assert(
                     Apply("ike-enum-authored") == 0 && File.ReadAllBytes(path).SequenceEqual(authoredBytes),
                     "IKE source exclusion preserves authored, mixed, CDATA, comment, PI, attribute, reference, attribution and metadata channels");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    static void TestConversationAnniversarySourceExclusion(
+        string repositoryRoot,
+        string docsRoot,
+        string tempDirectory)
+    {
+        const string memberId = "F:Android.App.People.ConversationActivity.Anniversary";
+        const string original =
+            "Constant representing that the conversation user and the device user are celebrating and anniversary today.";
+        const string corrected =
+            "Constant representing that the conversation user and the device user are celebrating an anniversary today.";
+        const string audio =
+            "Constant representing that the conversation user is listening to music or other audio like a podcast.";
+        var sourceUrl = AndroidReference + "android/app/people/ConversationStatus";
+        var html = $"""
+            <html><body><main id="jd-content">
+            <h2 class="api-section">Constants</h2>
+            <h3 class="api-name" id="ACTIVITY_ANNIVERSARY">ACTIVITY_ANNIVERSARY</h3>
+            <pre class="api-signature">public static final int ACTIVITY_ANNIVERSARY</pre>
+            <p>{original}</p><p>Constant Value: 2 (0x00000002)</p>
+            <h3 class="api-name" id="ACTIVITY_AUDIO">ACTIVITY_AUDIO</h3>
+            <pre class="api-signature">public static final int ACTIVITY_AUDIO</pre>
+            <p>{audio}</p><p>Constant Value: 4 (0x00000004)</p>
+            </main></body></html>
+            """;
+        var fixture = XDocument.Load(
+            Path.Combine(docsRoot, "Android.App.People", "ConversationActivity.xml"),
+            LoadOptions.PreserveWhitespace);
+        foreach (var member in fixture.Root!.Element("Members")!.Elements("Member"))
+        {
+            if ((string?)member.Attribute("MemberName") is "Anniversary" or "Audio")
+                member.Element("Docs")!.ReplaceWith(
+                    new XElement("Docs", new XElement("summary", "To be added.")));
+        }
+        var path = Path.Combine(docsRoot, $"ConversationActivity.importer-self-test-{Environment.ProcessId}.xml");
+        var cache = Path.Combine(tempDirectory, "people-anniversary-cache");
+        Directory.CreateDirectory(cache);
+        var cachePath = Path.Combine(cache,
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceUrl))).ToLowerInvariant() + ".html");
+        try
+        {
+            File.WriteAllText(path, fixture.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            var file = LoadedFile.Load(repositoryRoot, path);
+            file.SelectOwners(null);
+            var owner = file.Owners.Single(candidate => candidate.Id == memberId);
+            var registration = owner.MemberRegistration!;
+            var page = SourcePage.Parse(owner.SourceRequest!, html);
+            var raw = page.Members.Single(member => member.Name == "ACTIVITY_ANNIVERSARY").Docs!;
+            Assert(
+                raw.UnsafeTargets is null && raw.SourceKind == "android" &&
+                    raw.SourceUrl == sourceUrl + "#ACTIVITY_ANNIVERSARY" &&
+                    raw.Summary == original &&
+                    raw.Paragraphs is [{ IsCode: false, Text: original }] &&
+                    WithoutKnownMalformedConversationAnniversary(owner, registration, raw)
+                        .UnsafeTargets?.ContainsKey("summary") == true,
+                "raw complete anniversary source and actual enum/JniField metadata positively seed the exact exclusion");
+            foreach (var source in new[]
+            {
+                raw with { SourceKind = "java" },
+                raw with { SourceUrl = sourceUrl + "#ACTIVITY_OTHER" },
+                raw with { Summary = corrected },
+                raw with { Paragraphs = [new SourceParagraph(corrected, false)] },
+                raw with { Paragraphs = [new SourceParagraph(original, true)] },
+                raw with { Paragraphs = [.. raw.Paragraphs, new SourceParagraph("Additional official context.", false)] },
+            })
+                Assert(
+                    WithoutKnownMalformedConversationAnniversary(owner, registration, source).UnsafeTargets is null,
+                    "anniversary exclusion requires exact complete unfiltered source and canonical Android provenance");
+            var wrongField = new XElement(owner.Member!);
+            foreach (var attribute in wrongField.Descendants("AttributeName"))
+                attribute.Value = attribute.Value.Replace(
+                    "JniField=\"android/app/people/ConversationStatus.ACTIVITY_ANNIVERSARY\"",
+                    "JniField=\"android/app/people/OtherStatus.ACTIVITY_ANNIVERSARY\"",
+                    StringComparison.Ordinal);
+            var wrongReturn = new XElement(owner.Member!);
+            wrongReturn.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32";
+            foreach (var candidate in new[]
+            {
+                owner with { Id = memberId + ".Other" },
+                owner with { IsEnumField = false },
+                owner with { SourceRequest = owner.SourceRequest! with { JavaPath = "android/app/people/OtherStatus" } },
+                owner with { Member = wrongField },
+                owner with { Member = wrongReturn },
+            })
+                Assert(
+                    WithoutKnownMalformedConversationAnniversary(candidate, registration, raw).UnsafeTargets is null,
+                    "anniversary exclusion requires the exact managed enum, source owner, JniField owner and managed return type");
+            Assert(
+                WithoutKnownMalformedConversationAnniversary(owner,
+                    new MemberRegistration("ACTIVITY_OTHER", null, true), raw).UnsafeTargets is null,
+                "anniversary exclusion requires the exact registered JNI field");
+
+            int Apply(string label) => RunAsync(
+                [
+                    "--path", path, "--namespace", "Android.App.People",
+                    "--offline", "--cache", cache, "--max-changes", "1", "--apply",
+                    "--report", Path.Combine(tempDirectory, label),
+                ]).GetAwaiter().GetResult();
+            XElement Member(XDocument document, string name) => document.Root!.Element("Members")!
+                .Elements("Member").Single(member => (string?)member.Attribute("MemberName") == name);
+            Assert(Apply("people-anniversary-first") == 0, "unfiltered registered anniversary first-fill pipeline succeeds");
+            var appliedBytes = File.ReadAllBytes(path);
+            var applied = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+            Assert(
+                Member(applied, "Anniversary").Element("Docs")!.Element("summary")!.Value == "To be added." &&
+                    Member(applied, "Audio").Element("Docs")!.Element("summary")!.Elements("para").First().Value == audio,
+                "max-one production first fill withholds anniversary while persisting exact safe sibling prose");
+            using (var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(tempDirectory, "people-anniversary-first.json"))))
+                Assert(
+                    report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("member").GetString() == memberId &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "anniversary production report explicitly distinguishes one safe fill and the withheld malformed channel");
+            var reset = new XDocument(applied);
+            Member(reset, "Audio").Element("Docs")!.ReplaceWith(new XElement(Member(fixture, "Audio").Element("Docs")!));
+            Assert(XNode.DeepEquals(reset, fixture), "anniversary first fill preserves entire unfiltered fixture and API metadata");
+            Assert(Apply("people-anniversary-repeat") == 0 && File.ReadAllBytes(path).SequenceEqual(appliedBytes),
+                "anniversary production repeat is byte-identical with zero writes");
+            using (var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(tempDirectory, "people-anniversary-repeat.json"))))
+                Assert(
+                    report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "anniversary repeat report confirms zero applied operations, changed files and errors");
+
+            File.WriteAllText(cachePath, html.Replace(original, corrected, StringComparison.Ordinal), new UTF8Encoding(false));
+            Assert(Apply("people-anniversary-corrected") == 0 &&
+                Member(XDocument.Load(path), "Anniversary").Element("Docs")!.Element("summary")!
+                    .Elements("para").First().Value == corrected,
+                "future corrected official anniversary source remains eligible in the real first-fill pipeline");
+            File.WriteAllText(path, Encoding.UTF8.GetString(appliedBytes), new UTF8Encoding(false));
+            File.WriteAllText(cachePath, html.Replace($"<p>{original}</p>", "", StringComparison.Ordinal), new UTF8Encoding(false));
+            Assert(Apply("people-anniversary-removed") == 0 && File.ReadAllBytes(path).SequenceEqual(appliedBytes),
+                "removed source prose leaves the anniversary placeholder untouched without inferred replacement");
+
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            foreach (var markup in new[]
+            {
+                $"<summary>{original}</summary>",
+                "<summary>Authored <c>anniversary</c> description.</summary>",
+                $"<summary><![CDATA[{original}]]></summary>",
+                $"<summary><!-- preserve -->{original}</summary>",
+                $"<summary><?preserve original?>{original}</summary>",
+                $"<summary audience=\"authored\">{original}</summary>",
+                $"<summary>{original}</summary><summary>Duplicate channel.</summary>",
+                $"<summary><para>{original}</para><para>{AndroidAttribution}</para></summary>",
+                $"<summary><para>{original}</para>{ImporterSourceReference(raw)}<para>{AndroidAttribution}</para></summary>",
+            })
+            {
+                Member(applied, "Anniversary").Element("Docs")!.ReplaceWith(
+                    XElement.Parse("<Docs>" + markup + "</Docs>", LoadOptions.PreserveWhitespace));
+                File.WriteAllText(path, applied.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var before = File.ReadAllBytes(path);
+                Assert(Apply("people-anniversary-authored") == 0 && File.ReadAllBytes(path).SequenceEqual(before),
+                    "anniversary exclusion does not repair existing prose, authored/mixed/CDATA/comment/PI/duplicate/attribution markup");
             }
         }
         finally
