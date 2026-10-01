@@ -95,6 +95,21 @@ The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
 documentation is preserved.
+Android.App.Admin repairs normalize the exact two ResetPasswordFlags
+`resetPasswordWithToken` field descriptions from the source's scalar `byte`
+notation to the registered `byte[]` signature before field rendering. The
+restriction repair requires the exact managed member, source URL, rendered
+parameter channel, and prior importer-owned output before restoring an unsafe
+application-restriction sentinel to its placeholder. Exact member/URL/source
+typo repairs apply only to proven importer-owned markup; authored and mixed
+documentation remains unchanged, while a corrected importer-owned block stays
+eligible for future refreshes.
+For `DeviceAdminService.onBind`, the exact canonical source/member/plain-paragraph
+allow-list removes only the contradicted nullable-binder sentence from new remarks.
+The same write-time correction covers attribution-only enrichment, overlapping
+remarks placeholders, and incomplete importer-owned refreshes. Strict recognition
+of prior importer-owned XML still uses the unmodified official source; API
+metadata, other documentation channels, and Binder-thread guidance are preserved.
 The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
 source label is corrected only on its exact official member URL when the source
 hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported
@@ -109,6 +124,18 @@ importer paragraph/reference/attribution structure. Authored or mixed markup,
 changed source text, and duplicate channels are preserved. The same narrow
 allow-list corrects newly imported source channels so later refreshes cannot
 reintroduce these defects; no general grammar or punctuation normalization occurs.
+The same exact-text allow-list corrects `Tile.writeToParcel`'s `in to` typo.
+For QuickSettings, the exact inherited `TileService.onBind` intent parameter is
+withheld because its claim that extras are invisible contradicts the framework
+binder extras. The nullable-binder prose and return channel remain eligible:
+the implementation can return null after a remote-service failure. Only the
+exact `Tile.STATE_ACTIVE` paragraph's incorrect default-state sentence is
+excluded, retaining its active-state description and all other source paragraphs.
+New tiles actually initialize to `STATE_INACTIVE`. These guards require the
+exact managed member, canonical Android source URL, and original channel or
+paragraph; unrelated summary edits and additional safe paragraphs cannot disable
+them. Corrected official source remains eligible, and existing authored content
+is not withdrawn.
 Exact EAP channel guards additionally require the complete official source
 contract, canonical URL and reference label, registered JNI descriptor, managed
 return and parameter types, and (for repairs) the complete original importer-owned
@@ -218,6 +245,22 @@ managed member ID, official `getRetryPolicy()` URL, and complete source return
 text match the known incorrect flag-combination wording. Retry policies are
 mutually exclusive codes, not flags. The guard does not affect other channels,
 members, URLs, corrected source text, or existing authored documentation.
+
+The `ProtoOutputStream.makeToken(int, boolean, int, int, int)` remarks channel
+is skipped only for its exact managed identity, registered JNI owner/signature,
+managed return type, canonical Android URL, and complete original source paragraph
+anywhere in the source remarks. Unrelated summary edits or added safe paragraphs
+before or after that paragraph cannot re-enable its import.
+That paragraph mixes capacities of 512 and 524,288 with the maximum encoded
+values of 9-bit and 19-bit fields. Wrapped depth checks and negative object IDs
+do not make those stated maxima representable. The safe summary remains eligible;
+correcting or removing the unsafe paragraph restores remarks eligibility.
+Other source text and existing authored documentation are preserved. No
+implementation-derived replacement prose is imported.
+The logical remarks exclusion also covers nested paragraph placeholders (including
+those in summaries), metadata-only enrichment, placeholder cleanup, Java-signature
+repair, and importer-owned refresh. These layouts retain their complete original
+bytes; excluded operations are reported against `remarks`, not `summary`.
 
 The `IkeProtocolErrorType.NoAdditionalSas` enum summary is skipped when its exact
 managed field, canonical `IkeProtocolException.ERROR_TYPE_NO_ADDITIONAL_SAS`
