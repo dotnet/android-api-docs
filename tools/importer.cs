@@ -897,7 +897,8 @@ static class ImporterProgram
                         var replacement = ReplacementFor(
                             placeholder,
                             mapping.Docs!,
-                            owner.IsEnumField);
+                            owner.IsEnumField,
+                            owner.Id);
                         if (IsKnownUnsafeContinueStrokeDuration(
                                 mapping.SourceUrl,
                                 placeholder.Target))
@@ -2124,10 +2125,32 @@ static class ImporterProgram
     static Replacement ReplacementFor(
         Placeholder placeholder,
         SourceDocs docs,
-        bool isEnumField = false)
+        bool isEnumField = false,
+        string? ownerId = null)
     {
         if (docs.UnsafeTargets?.TryGetValue(placeholder.Target, out var unsafeTargetDetail) == true)
             return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
+
+        if (docs.SourceKind == "android" &&
+            ownerId is not null &&
+            (placeholder.Name is "remarks" or "para" ||
+             placeholder.IsImporterMetadataRepair))
+        {
+            var repair = KnownAndroidRemarksRepairs.SingleOrDefault(candidate =>
+                candidate.MemberId.Equals(ownerId, StringComparison.Ordinal) &&
+                candidate.SourceUrl.Equals(docs.SourceUrl, StringComparison.Ordinal));
+            if (repair is not null)
+            {
+                docs = docs with
+                {
+                    Paragraphs = docs.Paragraphs.Select(paragraph =>
+                        !paragraph.IsCode &&
+                        paragraph.Text.Equals(repair.IncorrectText, StringComparison.Ordinal)
+                            ? paragraph with { Text = repair.CorrectText }
+                            : paragraph).ToList(),
+                };
+            }
+        }
 
         if (docs.HasMalformedSourceMarkup &&
             docs.SourceUrl.Equals(
