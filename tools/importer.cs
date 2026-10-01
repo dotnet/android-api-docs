@@ -1424,6 +1424,20 @@ static class ImporterProgram
                 .Concat(docs.Parameters.Values));
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
 
+        if (ownerId == "F:Android.Net.IpSec.Ike.Exceptions.IkeProtocolErrorType.NoAdditionalSas" &&
+            docs.SourceKind == "android" &&
+            docs.SourceUrl.Equals(
+                AndroidReference + "android/net/ipsec/ike/exceptions/IkeProtocolException#ERROR_TYPE_NO_ADDITIONAL_SAS",
+                StringComparison.Ordinal) &&
+            docs.Summary == "No additional SAa are acceptable" &&
+            docs.Paragraphs is [{ IsCode: false, Text: "No additional SAa are acceptable" }])
+        {
+            const string detail =
+                "The exact Android field prose contains the undefined term 'SAa'; no replacement terminology was guessed.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
         if (ownerId == "F:Android.Net.IpSec.Ike.SaProposalPseudorandomFunction.Sha2512" &&
             docs.SourceKind == "android" &&
             docs.SourceUrl.Equals(
@@ -12156,6 +12170,8 @@ static class ImporterProgram
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            TestIkeEnumSourceExclusion(repositoryRoot, docsRoot, tempDirectory);
+
             TestKnownUnsafeIkeDocumentation(repositoryRoot, fixtureRoot, tempDirectory);
             var dreamFocusCache = Path.Combine(tempDirectory, "dream-focus-cache");
             Directory.CreateDirectory(dreamFocusCache);
@@ -14133,6 +14149,198 @@ static class ImporterProgram
 
         Console.WriteLine("SELF-TEST PASS: Android/Java exact matching, ICU text and Health Connect importer regressions, ordered paragraph/code preservation, strict importer-owned remarks refreshes, metadata-only and placeholder repairs, source-channel validation, XML parsing, and atomic writes.");
         return 0;
+    }
+
+    static void TestIkeEnumSourceExclusion(
+        string repositoryRoot,
+        string docsRoot,
+        string tempDirectory)
+    {
+        const string memberId =
+            "F:Android.Net.IpSec.Ike.Exceptions.IkeProtocolErrorType.NoAdditionalSas";
+        const string unsafeText = "No additional SAa are acceptable";
+        const string safeText = "IKE authentication failed";
+        var sourceUrl = AndroidReference +
+            "android/net/ipsec/ike/exceptions/IkeProtocolException";
+        var html = """
+            <html><body><main id="jd-content">
+            <h2 class="api-section">Constants</h2>
+            <h3 class="api-name" id="ERROR_TYPE_AUTHENTICATION_FAILED">ERROR_TYPE_AUTHENTICATION_FAILED</h3>
+            <pre class="api-signature">public static final int ERROR_TYPE_AUTHENTICATION_FAILED</pre>
+            <p>IKE authentication failed</p>
+            <p>Constant Value: 24 (0x00000018)</p>
+            <h3 class="api-name" id="ERROR_TYPE_NO_ADDITIONAL_SAS">ERROR_TYPE_NO_ADDITIONAL_SAS</h3>
+            <pre class="api-signature">public static final int ERROR_TYPE_NO_ADDITIONAL_SAS</pre>
+            <p>No additional SAa are acceptable</p>
+            <p>Constant Value: 35 (0x00000023)</p>
+            </main></body></html>
+            """;
+        var fixture = XDocument.Load(
+            Path.Combine(docsRoot, "Android.Net.IpSec.Ike.Exceptions", "IkeProtocolErrorType.xml"),
+            LoadOptions.PreserveWhitespace);
+        fixture.Root!.Element("Docs")!.ReplaceWith(
+            new XElement("Docs", new XElement("summary", "Authored enum overview.")));
+        foreach (var member in fixture.Root.Element("Members")!.Elements("Member").ToList())
+        {
+            if ((string?)member.Attribute("MemberName") is "AuthenticationFailed" or "NoAdditionalSas")
+                member.Element("Docs")!.ReplaceWith(
+                    new XElement("Docs", new XElement("summary", "To be added.")));
+            else
+                member.Remove();
+        }
+        var path = Path.Combine(
+            docsRoot,
+            $"IkeProtocolErrorType.importer-self-test-{Environment.ProcessId}.xml");
+        var cache = Path.Combine(tempDirectory, "ike-enum-cache");
+        Directory.CreateDirectory(cache);
+        var cacheKey = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceUrl)))
+            .ToLowerInvariant();
+        var cachePath = Path.Combine(cache, cacheKey + ".html");
+        File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+        try
+        {
+            File.WriteAllText(path, fixture.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            var file = LoadedFile.Load(repositoryRoot, path);
+            file.SelectOwners("NoAdditionalSas");
+            var owner = file.Owners.Single();
+            var page = SourcePage.Parse(owner.SourceRequest!, html);
+            var mapping = MapOwner(
+                owner,
+                new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [sourceUrl] = SourceLoadResult.Success(page),
+                });
+            var unsafeDocs = mapping.Docs!;
+            Assert(
+                owner.Id == memberId && owner.IsEnumField &&
+                    (string?)file.Root.Elements("TypeSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "C#").Attribute("Value") ==
+                        "public enum IkeProtocolErrorType" &&
+                    owner.MemberRegistration is { IsField: true, Name: "ERROR_TYPE_NO_ADDITIONAL_SAS" } &&
+                    unsafeDocs.Summary == unsafeText &&
+                    ReplacementFor(owner.Placeholders.Single(), unsafeDocs, true).Reason ==
+                        "source_channel_ambiguous",
+                "the actual managed enum and JniField production mapping exclude the exact malformed source before the field early return");
+            var rawDocs = page.Members.Single(member =>
+                member.IsField && member.Name == "ERROR_TYPE_NO_ADDITIONAL_SAS").Docs!;
+            Assert(
+                rawDocs.UnsafeTargets is null &&
+                    rawDocs.SourceKind == "android" &&
+                    rawDocs.SourceUrl == sourceUrl + "#ERROR_TYPE_NO_ADDITIONAL_SAS" &&
+                    rawDocs.Summary == unsafeText &&
+                    rawDocs.Paragraphs is [{ IsCode: false, Text: unsafeText }] &&
+                    WithoutKnownUnsafeAndroidSourceChannels(memberId, rawDocs)
+                        .UnsafeTargets?.ContainsKey("summary") == true,
+                "unfiltered parsed field is a positive exclusion seed with its complete original paragraph");
+            foreach (var (id, source) in new[]
+            {
+                (memberId + ".Other", rawDocs),
+                (memberId, rawDocs with { SourceUrl = sourceUrl + "#ERROR_TYPE_OTHER" }),
+                (memberId, rawDocs with { SourceKind = "java" }),
+                (memberId, rawDocs with { Summary = "No additional SAs are acceptable" }),
+                (memberId, rawDocs with
+                {
+                    Paragraphs = [new SourceParagraph("No additional SAs are acceptable", false)],
+                }),
+                (memberId, rawDocs with
+                {
+                    Paragraphs = [new SourceParagraph(unsafeText, true)],
+                }),
+                (memberId, rawDocs with
+                {
+                    Paragraphs = [.. rawDocs.Paragraphs, new SourceParagraph("Additional source context.", false)],
+                }),
+            })
+            {
+                Assert(
+                    WithoutKnownUnsafeAndroidSourceChannels(id, source).UnsafeTargets is null,
+                    "IKE exclusion requires the complete original source, exact managed field, canonical URL and Android provenance");
+            }
+            Assert(
+                ReplacementFor(new Placeholder(0, "returns", "", "returns"),
+                    unsafeDocs with { Returns = "Unrelated return channel." }).Text ==
+                    "Unrelated return channel.",
+                "IKE field exclusion preserves unrelated documentation channels");
+
+            int Apply(string report) => RunAsync(
+                [
+                    "--path", path,
+                    "--namespace", "Android.Net.IpSec.Ike.Exceptions",
+                    "--offline", "--cache", cache,
+                    "--max-changes", "10", "--apply",
+                    "--report", Path.Combine(tempDirectory, report),
+                ]).GetAwaiter().GetResult();
+
+            Assert(Apply("ike-enum-first") == 0, "IKE enum production first fill succeeds");
+            var appliedBytes = File.ReadAllBytes(path);
+            var applied = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+            var safeDocs = applied.Root!.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "AuthenticationFailed")
+                .Element("Docs")!;
+            var summary = safeDocs.Element("summary")!;
+            Assert(
+                summary.Elements("para").First().Value == safeText &&
+                    ContainsSourceUrl(summary, sourceUrl + "#ERROR_TYPE_AUTHENTICATION_FAILED") &&
+                    summary.Elements("para").Any(IsImporterAttributionParagraph) &&
+                    safeDocs.Element("remarks") is null,
+                "actual JniField first fill publishes exact safe prose, canonical source reference and attribution inside the enum summary");
+            var unsafeMember = applied.Root.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "NoAdditionalSas");
+            Assert(
+                XNode.DeepEquals(unsafeMember.Element("Docs"), new XElement(
+                    "Docs", new XElement("summary", "To be added."))),
+                "the malformed field remains a placeholder without fabricated metadata");
+            using (var report = JsonDocument.Parse(
+                File.ReadAllText(Path.Combine(tempDirectory, "ike-enum-first.json"))))
+            {
+                Assert(
+                    report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("member").GetString() == memberId &&
+                            entry.GetProperty("target").GetString() == "summary" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "production report distinguishes the safe first fill from the exact excluded summary");
+            }
+            var reset = new XDocument(applied);
+            reset.Root!.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "AuthenticationFailed")
+                .Element("Docs")!.ReplaceWith(new XElement(
+                    "Docs", new XElement("summary", "To be added.")));
+            Assert(XNode.DeepEquals(reset, fixture), "IKE first fill preserves all API and unrelated XML");
+            Assert(
+                Apply("ike-enum-repeat") == 0 && File.ReadAllBytes(path).SequenceEqual(appliedBytes),
+                "IKE production repeat is zero-edit and byte-identical");
+
+            foreach (var markup in new[]
+            {
+                "<summary>Authored field description.</summary>",
+                "<summary>Authored <c>SA</c> description.</summary>",
+                "<summary><![CDATA[Authored field description.]]></summary>",
+                "<summary><!-- Authored comment -->Authored field description.</summary>",
+                "<summary><?authored preserve?>Authored field description.</summary>",
+                "<summary audience=\"authored\">Authored field description.</summary>",
+                "<summary><para>Authored description.</para><para><a href=\"" +
+                    sourceUrl + "#ERROR_TYPE_NO_ADDITIONAL_SAS\">Authored reference.</a></para></summary>",
+                "<summary><para>Authored description.</para><para>" + AndroidAttribution + "</para></summary>",
+                "<summary>Authored description.</summary><remarks><para>Added in API level 31.</para></remarks>",
+                "<summary>Authored <para>To be added.</para> description.</summary>",
+            })
+            {
+                unsafeMember.Element("Docs")!.ReplaceWith(XElement.Parse("<Docs>" + markup + "</Docs>",
+                    LoadOptions.PreserveWhitespace));
+                File.WriteAllText(path, applied.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var authoredBytes = File.ReadAllBytes(path);
+                Assert(
+                    Apply("ike-enum-authored") == 0 && File.ReadAllBytes(path).SequenceEqual(authoredBytes),
+                    "IKE source exclusion preserves authored, mixed, CDATA, comment, PI, attribute, reference, attribution and metadata channels");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
     }
 
     static void TestKnownUnsafeIkeDocumentation(string repositoryRoot, string fixtureRoot, string tempDirectory)
