@@ -1261,6 +1261,7 @@ static class ImporterProgram
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
+        docs = WithoutKnownUnsafeProtoTokenRemark(owner, docs);
         docs = WithoutKnownUnsafeJavaSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
         docs = WithoutKnownUnsafeRemoteEntryGuidance(owner.Id, docs);
@@ -1340,6 +1341,39 @@ static class ImporterProgram
             }
         }
         return docs;
+    }
+
+    const string ProtoTokenMemberId =
+        "M:Android.Util.Proto.ProtoOutputStream.MakeToken(System.Int32,System.Boolean,System.Int32,System.Int32,System.Int32)";
+    const string ProtoTokenSourceUrl =
+        AndroidReference + "android/util/proto/ProtoOutputStream#makeToken(int,%20boolean,%20int,%20int,%20int)";
+    const string UnsafeProtoTokenParagraph =
+        "Make a token. Bits 61-63 - tag size (So we can go backwards later if the object had not data) " +
+        "- 3 bits, max value 7, max value needed 5 Bit 60 - true if the object is repeated " +
+        "(lets us require endObject or endRepeatedObject) Bits 59-51 - depth (For error checking) " +
+        "- 9 bits, max value 512, when checking, value is masked (if we really are more than 512 levels deep) " +
+        "Bits 32-50 - objectId (For error checking) - 19 bits, max value 524,288. that's a lot of objects. " +
+        "IDs will wrap because of the overflow, and only the tokens are compared. " +
+        "Bits 0-31 - offset of interest for the object.";
+
+    static SourceDocs WithoutKnownUnsafeProtoTokenRemark(DocsOwner owner, SourceDocs docs)
+    {
+        if (owner.Id != ProtoTokenMemberId ||
+            owner.SourceRequest?.JavaPath != "android/util/proto/ProtoOutputStream" ||
+            owner.MemberRegistration is not { Name: "makeToken", Descriptor: "(IZIII)J", IsField: false } ||
+            (string?)owner.Member?.Element("ReturnValue")?.Element("ReturnType") != "System.Int64" ||
+            docs.SourceKind != "android" || docs.SourceUrl != ProtoTokenSourceUrl ||
+            docs.Summary != "Make a token." ||
+            docs.Paragraphs is not [{ IsCode: false, Text: UnsafeProtoTokenParagraph }])
+        {
+            return docs;
+        }
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["remarks"] =
+            "The exact Android token paragraph calls capacities 512 and 524,288 maximum field values, but packed values are masked to 511 and 524,287; wrapped depths and negative object IDs do not make the stated maxima representable.";
+        return docs with { UnsafeTargets = targets };
     }
 
     static SourceDocs WithoutKnownUnsafeAndroidSourceChannels(string ownerId, SourceDocs docs)
@@ -6742,12 +6776,182 @@ static class ImporterProgram
         }
     }
 
+    static void TestProtoTokenRemark(string repositoryRoot, string fixtureRoot)
+    {
+        var fixtureText = File.ReadAllText(Path.Combine(fixtureRoot, "proto-token.xml"));
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "proto-token.html"));
+        var file = LoadedFile.Load(repositoryRoot, Path.Combine(fixtureRoot, "proto-token.xml"));
+        file.SelectOwners("MakeToken");
+        var owner = file.Owners.Single();
+        var request = owner.SourceRequest!;
+        var page = SourcePage.Parse(request, html);
+        var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+        {
+            [request.Url] = SourceLoadResult.Success(page),
+        };
+        var mapped = MapOwner(owner, pages);
+        var source = mapped.Docs!;
+        var remarks = new Placeholder(0, "remarks", "", "remarks");
+        Assert(owner.Id == ProtoTokenMemberId &&
+            owner.MemberRegistration is { Name: "makeToken", Descriptor: "(IZIII)J", IsField: false } &&
+            source.Paragraphs is [{ IsCode: false, Text: UnsafeProtoTokenParagraph }] &&
+            ReplacementFor(remarks, source) is { Text: null, Reason: "source_channel_ambiguous" } &&
+            ReplacementFor(new Placeholder(1, "summary", "", "summary"), source).Text == "Make a token.",
+            "registered ProtoOutputStream MakeToken rejects only the exact unsafe bit-range remarks");
+
+        var rawSource = source with { UnsafeTargets = null };
+        foreach (var changed in new[]
+        {
+            rawSource with { SourceUrl = source.SourceUrl + ".Other" },
+            rawSource with { SourceKind = "java" },
+            rawSource with { Summary = "Changed summary." },
+            rawSource with { Paragraphs = [new SourceParagraph(UnsafeProtoTokenParagraph + " Changed.", false)] },
+            rawSource with { Paragraphs = [new SourceParagraph(UnsafeProtoTokenParagraph, true)] },
+            rawSource with { Paragraphs = [new SourceParagraph(
+                UnsafeProtoTokenParagraph.Replace("max value 512", "max value 511", StringComparison.Ordinal)
+                    .Replace("max value 524,288", "max value 524,287", StringComparison.Ordinal), false)] },
+            rawSource with { Paragraphs = [.. rawSource.Paragraphs, new SourceParagraph("Additional source prose.", false)] },
+        })
+        {
+            Assert(WithoutKnownUnsafeProtoTokenRemark(owner, changed) == changed &&
+                ReplacementFor(remarks, changed).Text is not null,
+                "Proto token exclusion preserves different URLs, provenance, full source text and future corrected prose");
+        }
+        foreach (var changed in new[]
+        {
+            owner with { Id = owner.Id + ".Other" },
+            owner with { SourceRequest = SourceRequest.Create("android/util/proto/Other") },
+            owner with { MemberRegistration = new MemberRegistration("makeOtherToken", "(IZIII)J", false) },
+            owner with { MemberRegistration = new MemberRegistration("makeToken", "(IZIII)I", false) },
+            owner with { MemberRegistration = new MemberRegistration("makeToken", null, true) },
+            owner with { MemberRegistration = null },
+            owner with { Member = new XElement("Member",
+                new XElement("ReturnValue", new XElement("ReturnType", "System.Int32"))) },
+        })
+        {
+            Assert(WithoutKnownUnsafeProtoTokenRemark(changed, rawSource) == rawSource,
+                "Proto token exclusion requires exact managed identity, JNI owner/name/descriptor and return binding");
+        }
+        var wrongDescriptor = MapOwner(owner with
+        {
+            MemberRegistration = new MemberRegistration("makeToken", "(IIIII)J", false),
+        }, pages);
+        Assert(wrongDescriptor.Docs is null,
+            "Proto token mapping does not guess a mismatched registered overload");
+
+        var token = $"proto-token-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var tempDirectory = Path.Combine(repositoryRoot, "tools", token);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Util.Proto", token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var cachePath = Path.Combine(tempDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            File.WriteAllText(pipelinePath, fixtureText.Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+            var originalBytes = File.ReadAllBytes(pipelinePath);
+            JsonDocument RunPipeline(bool apply, int limit)
+            {
+                var reportPath = Path.Combine(tempDirectory, "report");
+                var args = new List<string>
+                {
+                    "--path", pipelinePath, "--namespace", "Android.Util.Proto",
+                    "--offline", "--cache", tempDirectory, "--member", "MakeToken",
+                    "--max-changes", limit.ToString(), "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Proto token registered production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Proto token production pipeline has no errors");
+                return report;
+            }
+            using (var dry = RunPipeline(false, 1))
+                Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                    dry.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("target").GetString() == "remarks" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(originalBytes),
+                    "Proto token first fill dry run rejects unsafe remarks without writes");
+            using (var applied = RunPipeline(true, 1))
+                Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "Proto token first fill applies only one safe summary");
+            var safeBytes = File.ReadAllBytes(pipelinePath);
+            var safeDocument = XDocument.Load(pipelinePath, LoadOptions.PreserveWhitespace);
+            var safeDocs = safeDocument.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+            Assert(safeDocs.Element("summary")!.Value == "Make a token." &&
+                safeDocs.Element("remarks")!.Value.StartsWith("To be added.", StringComparison.Ordinal),
+                "Proto token first fill preserves the unsafe remarks placeholder");
+            Assert(safeDocs.Element("remarks")!.Value == "To be added." &&
+                !safeDocs.Element("remarks")!.HasElements,
+                "Proto token first fill does not modify excluded remarks even for metadata");
+            Assert(safeBytes.Take(3).SequenceEqual(new byte[] { 0xef, 0xbb, 0xbf }) &&
+                !Regex.IsMatch(File.ReadAllText(pipelinePath), "(?<!\\r)\\n"),
+                "Proto token first fill preserves BOM and CRLF");
+            using (var repeated = RunPipeline(true, 1))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(safeBytes),
+                    "Proto token persisted repeat applies zero writes byte-for-byte");
+
+            var authoredRemarks = new[]
+            {
+                new XElement("remarks", "Authored remarks."),
+                new XElement("remarks", new XCData(UnsafeProtoTokenParagraph)),
+                new XElement("remarks", new XComment("Authored comment."), "Authored remarks."),
+                new XElement("remarks", new XProcessingInstruction("authored", "keep"), "Authored remarks."),
+                new XElement("remarks", new XElement("para", "Authored ", new XElement("c", "mixed"), " remarks.")),
+                new XElement("remarks",
+                    new XElement("para", UnsafeProtoTokenParagraph),
+                    ImporterSourceReference(rawSource),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")),
+            };
+            foreach (var authored in authoredRemarks)
+            {
+                var document = new XDocument(safeDocument);
+                document.Root!.Element("Members")!.Element("Member")!.Element("Docs")!
+                    .Element("remarks")!.ReplaceWith(authored);
+                File.WriteAllText(pipelinePath, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var before = File.ReadAllBytes(pipelinePath);
+                using var preserved = RunPipeline(true, 1);
+                Assert(preserved.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(before),
+                    "Proto token guard preserves authored, CDATA, comments, processing instructions and mixed remarks");
+            }
+
+            File.WriteAllBytes(pipelinePath, safeBytes);
+            File.WriteAllText(cachePath, html.Replace("max value 512", "max value 511", StringComparison.Ordinal)
+                .Replace("max value 524,288", "max value 524,287", StringComparison.Ordinal), new UTF8Encoding(false));
+            using (var corrected = RunPipeline(true, 1))
+                Assert(corrected.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "Proto token future corrected official remarks remain eligible in production");
+            var correctedBytes = File.ReadAllBytes(pipelinePath);
+            var correctedDocs = XDocument.Load(pipelinePath).Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+            Assert(correctedDocs.Element("remarks")!.Value.Contains("max value 511", StringComparison.Ordinal) &&
+                correctedDocs.Element("remarks")!.Value.Contains("max value 524,287", StringComparison.Ordinal) &&
+                HasExactImporterSourceReference(correctedDocs, source),
+                "Proto token corrected source retains full canonical provenance");
+            using (var repeated = RunPipeline(true, 1))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(correctedBytes),
+                    "Proto token corrected persisted repeat is byte-identical");
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
         TestKnownAndroidTextRepairs();
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
+        TestProtoTokenRemark(repositoryRoot, fixtureRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
         Assert(
