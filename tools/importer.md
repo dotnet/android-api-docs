@@ -61,6 +61,12 @@ The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
 documentation is preserved.
+The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
+source label is corrected only on its exact official member URL when the source
+hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported
+paragraph is repaired only for the exact managed callback, complete old plain-text
+paragraph, matching source reference, and unchanged recognized attribution.
+Other prose, mixed content, and metadata are preserved.
 Java-signature remarks repairs likewise require only an unmodified Java signature,
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
