@@ -31,6 +31,21 @@ static class ImporterProgram
     const string RssiMalformedDefault =
         "Defaults to ERROR(RangingUpdateRate.UPDATE_RATE_NORMAL/android.ranging.raw.RawRangingDevice.RangingUpdateRate#UPDATE_RATE_NORMAL RangingUpdateRate.UPDATE_RATE_NORMAL)";
     const string JavaReference = "https://docs.oracle.com/en/java/javase/21/docs/api/";
+    const string QuickSettingsBindMemberId =
+        "M:Android.Service.QuickSettings.TileService.OnBind(Android.Content.Intent)";
+    const string QuickSettingsBindSourceUrl =
+        AndroidReference + "android/service/quicksettings/TileService#onBind(android.content.Intent)";
+    const string QuickSettingsBindIntent =
+        "The Intent that was used to bind to this service, as given to Context.bindService. " +
+        "Note that any extras that were included with the Intent at that point will not be seen here.";
+    const string QuickSettingsActiveMemberId =
+        "F:Android.Service.QuickSettings.TileState.Active";
+    const string QuickSettingsActiveSourceUrl =
+        AndroidReference + "android/service/quicksettings/Tile#STATE_ACTIVE";
+    const string QuickSettingsActiveDescription =
+        "This represents a tile that is currently active. (e.g. wifi is connected, bluetooth is on, cast is casting).";
+    const string QuickSettingsIncorrectActiveDescription =
+        QuickSettingsActiveDescription + " This is the default state.";
     const string UserAgent = "dotnet-android-api-docs-importer/1.0 (+https://github.com/dotnet/android-api-docs)";
     const int MaximumDownloadBytes = 12 * 1024 * 1024;
     const string AndroidAttribution =
@@ -167,6 +182,18 @@ static class ImporterProgram
     ];
     static readonly KnownAndroidTextRepair[] KnownAndroidTextRepairs =
     [
+        new(
+            AndroidReference + "android/service/quicksettings/Tile#writeToParcel(android.os.Parcel,%20int)",
+            "M:Android.Service.QuickSettings.Tile.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
+            "summary",
+            "Flatten this object in to a Parcel.",
+            "Flatten this object into a Parcel."),
+        new(
+            AndroidReference + "android/service/quicksettings/Tile#writeToParcel(android.os.Parcel,%20int)",
+            "M:Android.Service.QuickSettings.Tile.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
+            "remarks",
+            "Flatten this object in to a Parcel.",
+            "Flatten this object into a Parcel."),
         new(
             AndroidReference + "android/ranging/ble/cs/BleCsRangingCapabilities#CS_SECURITY_LEVEL_ONE",
             "F:Android.Ranging.Ble.CS.BleCsRangingCapabilitiesCsSecurityLevel.One",
@@ -1447,6 +1474,7 @@ static class ImporterProgram
                     fields[0].Url);
             fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
+            fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
                 WithKnownAndroidTextCorrections(owner.Id, fieldDocs)));
         }
@@ -1509,7 +1537,40 @@ static class ImporterProgram
         docs = WithoutKnownMalformedRssiDefault(owner, registration, docs);
         docs = WithKnownAndroidTextCorrections(owner.Id, docs);
         docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
+        docs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    static SourceDocs WithoutKnownUnsafeQuickSettingsChannels(string memberId, SourceDocs docs)
+    {
+        if (docs.SourceKind != "android")
+            return docs;
+        if (memberId == QuickSettingsBindMemberId &&
+            docs.SourceUrl == QuickSettingsBindSourceUrl &&
+            docs.Parameters.TryGetValue("intent", out var intent) &&
+            RemoveLeadingJavaType(intent) == QuickSettingsBindIntent)
+        {
+            var targets = docs.UnsafeTargets is null
+                ? new Dictionary<string, string>(StringComparer.Ordinal)
+                : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+            targets["param:intent"] =
+                "The inherited Service parameter claims extras are invisible, but TileService.onBind reads the SystemUI binder extras.";
+            return docs with { UnsafeTargets = targets };
+        }
+        if (memberId == QuickSettingsActiveMemberId &&
+            docs.SourceUrl == QuickSettingsActiveSourceUrl)
+        {
+            return docs with
+            {
+                Summary = docs.Summary == QuickSettingsIncorrectActiveDescription
+                    ? QuickSettingsActiveDescription : docs.Summary,
+                Paragraphs = docs.Paragraphs.Select(paragraph =>
+                    !paragraph.IsCode && paragraph.Text == QuickSettingsIncorrectActiveDescription
+                        ? paragraph with { Text = QuickSettingsActiveDescription }
+                        : paragraph).ToList(),
+            };
+        }
+        return docs;
     }
 
     sealed record KnownControlsLifecycleRepair(
@@ -7788,6 +7849,7 @@ static class ImporterProgram
     static int RunSelfTest(string repositoryRoot)
     {
         TestKnownAndroidTextRepairs();
+        TestQuickSettingsSources(repositoryRoot);
         TestKnownEapChannelCorrections(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
@@ -15981,6 +16043,280 @@ static class ImporterProgram
                 if (File.Exists(pipelinePath))
                     File.Delete(pipelinePath);
             }
+        }
+    }
+
+    static void TestQuickSettingsSources(string repositoryRoot)
+    {
+        var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
+        var cache = Path.Combine(Path.GetTempPath(), "quicksettings-cache-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(cache);
+        var pipelinePaths = new List<string>();
+        try
+        {
+            foreach (var (typeName, javaName, fixture, memberNames) in new[]
+            {
+                ("TileService", "TileService", "quicksettings-service-android-reference.html", new[] { "OnBind" }),
+                ("TileState", "Tile", "quicksettings-tile-android-reference.html", new[] { "Active", "Inactive", "Unavailable" }),
+                ("Tile", "Tile", "quicksettings-tile-android-reference.html", new[] { "WriteToParcel" }),
+            })
+            {
+                var request = SourceRequest.Create("android/service/quicksettings/" + javaName)!;
+                var html = File.ReadAllText(Path.Combine(fixtureRoot, fixture));
+                var page = SourcePage.Parse(request, html);
+                var pages = new Dictionary<string, SourceLoadResult>
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                };
+                var cachePath = Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                var document = XDocument.Load(Path.Combine(repositoryRoot, "docs", "xml",
+                    "Android.Service.QuickSettings", typeName + ".xml"), LoadOptions.PreserveWhitespace);
+                document.Root!.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored type documentation."));
+                var members = document.Root.Element("Members")!;
+                members.Elements("Member").Where(member =>
+                    !memberNames.Contains((string?)member.Attribute("MemberName"))).Remove();
+                foreach (var member in members.Elements("Member"))
+                {
+                    var docs = member.Element("Docs")!;
+                    docs.ReplaceNodes(
+                        member.Element("Parameters")?.Elements("Parameter").Select(parameter =>
+                            new XElement("param", new XAttribute("name", (string)parameter.Attribute("Name")!), "To be added.")),
+                        new XElement("summary", "To be added."),
+                        typeName == "TileService" ? new XElement("returns", "To be added.") : null,
+                        new XElement("remarks", XElement.Parse($"<para>{AndroidAttribution}</para>")));
+                }
+                var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Service.QuickSettings",
+                    "quicksettings-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+                pipelinePaths.Add(path);
+                var seed = document.ToString(SaveOptions.DisableFormatting).Replace("\n", "\r\n", StringComparison.Ordinal);
+                File.WriteAllText(path, seed, new UTF8Encoding(true));
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                var owners = file.Owners.Where(owner => owner.Member is not null).ToList();
+                Assert(owners.Count == memberNames.Length &&
+                    owners.All(owner => owner.IsEnumField == (typeName == "TileState")),
+                    "actual public enum metadata classifies all QuickSettings fields and only fields");
+                foreach (var owner in owners)
+                {
+                    var raw = page.Members.Single(member => member.Name == owner.MemberRegistration!.Name).Docs!;
+                    var mapped = MapOwner(owner, pages);
+                    Assert(mapped.ErrorReason is null && mapped.Docs is not null,
+                        "actual QuickSettings JNI metadata maps the unfiltered official fixture");
+                    if (owner.Id == QuickSettingsBindMemberId)
+                    {
+                        Assert(RemoveLeadingJavaType(raw.Parameters["intent"]) == QuickSettingsBindIntent &&
+                            mapped.Docs!.UnsafeTargets!.ContainsKey("param:intent") &&
+                            mapped.Docs.Summary == raw.Summary &&
+                            mapped.Docs.Returns == raw.Returns &&
+                            mapped.Docs.Paragraphs.SequenceEqual(raw.Paragraphs),
+                            "only the extras parameter is withheld; nullable binder and thread prose remain");
+                        var context = raw with
+                        {
+                            Summary = "Changed safe summary.",
+                            Paragraphs = [new("Safe context before.", false), .. raw.Paragraphs, new("Safe context after.", false)],
+                        };
+                        Assert(WithoutKnownUnsafeQuickSettingsChannels(owner.Id, context)
+                            .UnsafeTargets!.ContainsKey("param:intent"),
+                            "unrelated source summary and safe paragraphs cannot disable the intent guard");
+                        foreach (var parameters in new[]
+                        {
+                            new Dictionary<string, string> { ["other"] = raw.Parameters["intent"] },
+                            new Dictionary<string, string> { ["intent"] = raw.Parameters["intent"] + " Changed." },
+                        })
+                        {
+                            var differentChannel = raw with { Parameters = parameters };
+                            Assert(WithoutKnownUnsafeQuickSettingsChannels(owner.Id, differentChannel) == differentChannel,
+                                "intent guard requires the exact parameter name and complete source channel");
+                        }
+                    }
+                    else if (owner.Id == QuickSettingsActiveMemberId)
+                    {
+                        Assert(raw.Paragraphs.Any(paragraph => paragraph.Text == QuickSettingsIncorrectActiveDescription) &&
+                            mapped.Docs!.Paragraphs.Any(paragraph => paragraph.Text == QuickSettingsActiveDescription) &&
+                            mapped.Docs.Paragraphs.All(paragraph => !paragraph.Text.Contains("default state", StringComparison.Ordinal)),
+                            "the real projected Active field removes only its contradicted default sentence");
+                        var context = raw with
+                        {
+                            Summary = "Changed safe summary.",
+                            Paragraphs = [new("Safe context before.", false), .. raw.Paragraphs, new("Safe context after.", false)],
+                        };
+                        var filtered = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, context);
+                        Assert(filtered.Summary == context.Summary &&
+                            filtered.Paragraphs.First() == context.Paragraphs.First() &&
+                            filtered.Paragraphs.Last() == context.Paragraphs.Last() &&
+                            filtered.Paragraphs.Any(paragraph => paragraph.Text == QuickSettingsActiveDescription),
+                            "Active paragraph recognition is independent of unrelated source context");
+                        var corrected = raw with
+                        {
+                            Paragraphs = [new(QuickSettingsActiveDescription, false)],
+                        };
+                        Assert(WithoutKnownUnsafeQuickSettingsChannels(owner.Id, corrected).Paragraphs
+                            .SequenceEqual(corrected.Paragraphs),
+                            "removed incorrect Active sentence leaves corrected source untouched");
+                    }
+                    else if (typeName == "TileState")
+                    {
+                        Assert(mapped.Docs!.Paragraphs.SequenceEqual(raw.Paragraphs),
+                            "Inactive and Unavailable retain their complete official conditions");
+                    }
+                    if (owner.Id is QuickSettingsBindMemberId or QuickSettingsActiveMemberId)
+                    {
+                        foreach (var mismatch in new[]
+                        {
+                            raw with { SourceKind = "java" },
+                            raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                        })
+                        {
+                            Assert(WithoutKnownUnsafeQuickSettingsChannels(owner.Id, mismatch) == mismatch,
+                                "QuickSettings guard requires exact source kind and canonical URL");
+                        }
+                        Assert(WithoutKnownUnsafeQuickSettingsChannels(owner.Id + ".Other", raw) == raw,
+                            "QuickSettings guard requires the exact managed member");
+                        var wrongMember = new XElement(owner.Member!);
+                        foreach (var attribute in wrongMember.Element("Attributes")!.Descendants("AttributeName"))
+                            attribute.Value = attribute.Value.Replace(
+                                owner.MemberRegistration!.Name, "differentMember", StringComparison.Ordinal);
+                        Assert(MapOwner(owner with
+                        {
+                            Member = wrongMember,
+                            MemberRegistration = Registration.Member(wrongMember),
+                        }, pages).Docs is null,
+                            "wrong actual JNI binding cannot import guarded source");
+                        Assert(MapOwner(owner with
+                        {
+                            SourceRequest = SourceRequest.Create("android/service/quicksettings/OtherOwner"),
+                        }, pages).Docs is null,
+                            "wrong actual JNI owner cannot import guarded source");
+                        if (!owner.MemberRegistration!.IsField)
+                            Assert(MapOwner(owner with
+                            {
+                                MemberRegistration = owner.MemberRegistration with { Descriptor = "(I)Landroid/os/IBinder;" },
+                            }, pages).Docs is null,
+                                "same JNI method name with a different descriptor cannot import guarded source");
+                    }
+                }
+                string[] arguments =
+                [
+                    "--path", path, "--namespace", "Android.Service.QuickSettings",
+                    "--offline", "--cache", cache, "--max-changes", "1", "--apply",
+                    "--report", Path.Combine(cache, typeName + "-report"),
+                ];
+                var seedBytes = File.ReadAllBytes(path);
+                Assert(RunAsync(arguments).GetAwaiter().GetResult() == 0,
+                    "registered QuickSettings first fill succeeds with a one-channel budget");
+                var first = XDocument.Load(path);
+                var firstMember = first.Root!.Element("Members")!.Elements("Member").First();
+                if (typeName == "TileService")
+                {
+                    Assert(firstMember.Element("Docs")!.Element("param")!.Value == "To be added.",
+                        "the unsafe intent is withheld before consuming the first-fill budget");
+                }
+                if (typeName == "TileState")
+                {
+                    var summary = firstMember.Element("Docs")!.Element("summary")!;
+                    Assert(summary.Elements("para").Any(paragraph => paragraph.Value == QuickSettingsActiveDescription) &&
+                        summary.Descendants("a").Any(link => (string?)link.Attribute("href") == QuickSettingsActiveSourceUrl) &&
+                        IsImporterAttributionParagraph(summary.Elements("para").Last()) &&
+                        !summary.Value.Contains("default state", StringComparison.Ordinal),
+                        "actual enum first fill publishes safe prose, field reference and attribution inside summary");
+                }
+                arguments[Array.IndexOf(arguments, "--max-changes") + 1] = "10";
+                Assert(RunAsync(arguments).GetAwaiter().GetResult() == 0,
+                    "remaining reviewed QuickSettings channels import with a conservative budget");
+                var filledBytes = File.ReadAllBytes(path);
+                if (typeName == "Tile")
+                {
+                    var docs = XDocument.Load(path).Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                    Assert(docs.Element("summary")!.Value == "Flatten this object into a Parcel." &&
+                        docs.Element("remarks")!.Elements("para").Any(paragraph =>
+                            paragraph.Value == "Flatten this object into a Parcel.") &&
+                        docs.Element("param")!.Value ==
+                            "The Parcel in which the object should be written. This value cannot be null.",
+                        "actual registered parcel fill corrects only the verified spelling and retains its meaningful destination");
+                }
+                Assert(!filledBytes.SequenceEqual(seedBytes) &&
+                    filledBytes.AsSpan(0, 3).SequenceEqual(new byte[] { 0xef, 0xbb, 0xbf }) &&
+                    !Regex.IsMatch(Encoding.UTF8.GetString(filledBytes), @"(?<!\r)\n"),
+                    "actual first fills are nonvacuous and retain BOM and CRLF");
+                Assert(RunAsync(arguments).GetAwaiter().GetResult() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(filledBytes),
+                    "persisted QuickSettings repeat apply writes no changed bytes");
+                using (var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(cache, typeName + "-report.json"))))
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("filesChanged").GetInt32() == 0,
+                        "persisted QuickSettings repeat reports zero writes");
+                if (typeName is "TileService" or "TileState")
+                {
+                    var paragraph = typeName == "TileService"
+                        ? page.Members.Single().Docs!.Paragraphs.First().Text
+                        : QuickSettingsIncorrectActiveDescription;
+                    var contextualHtml = html.Replace("<p>" + paragraph + "</p>",
+                        "<p>Safe context before.</p><p>" + paragraph + "</p><p>Safe context after.</p>",
+                        StringComparison.Ordinal);
+                    Assert(contextualHtml != html, "registered safe-context fixture mutation is nonvacuous");
+                    File.WriteAllText(cachePath, contextualHtml, new UTF8Encoding(false));
+                    File.WriteAllText(path, seed, new UTF8Encoding(true));
+                    Assert(RunAsync(arguments).GetAwaiter().GetResult() == 0,
+                        "registered first fill with an edited summary and safe surrounding source succeeds");
+                    var contextualDocs = XDocument.Load(path).Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                    var published = contextualDocs.Element(typeName == "TileState" ? "summary" : "remarks")!;
+                    Assert(published.Elements("para").Any(node => node.Value == "Safe context before.") &&
+                        published.Elements("para").Any(node => node.Value == "Safe context after.") &&
+                        (typeName == "TileService"
+                            ? contextualDocs.Element("param")!.Value == "To be added."
+                            : !published.Value.Contains("default state", StringComparison.Ordinal) &&
+                                published.Elements("para").Any(node => node.Value == QuickSettingsActiveDescription)),
+                        "production first fill still withholds the unsafe channel or sentence after independent source context changes");
+                    var contextualBytes = File.ReadAllBytes(path);
+                    Assert(RunAsync(arguments).GetAwaiter().GetResult() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(contextualBytes),
+                        "registered contextual first fill remains byte-idempotent on persisted repeat");
+                }
+                var correctedHtml = typeName == "TileService"
+                    ? html.Replace(QuickSettingsBindIntent, "The Intent that was used to bind to this service.", StringComparison.Ordinal)
+                    : html.Replace(QuickSettingsIncorrectActiveDescription, QuickSettingsActiveDescription, StringComparison.Ordinal);
+                File.WriteAllText(cachePath, correctedHtml, new UTF8Encoding(false));
+                File.WriteAllText(path, seed, new UTF8Encoding(true));
+                Assert(RunAsync(arguments).GetAwaiter().GetResult() == 0,
+                    "future corrected QuickSettings source remains eligible");
+                if (typeName == "TileService")
+                    Assert(XDocument.Load(path).Root!.Element("Members")!.Element("Member")!
+                        .Element("Docs")!.Element("param")!.Value == "The Intent that was used to bind to this service.",
+                        "future corrected intent parameter imports instead of retaining an obsolete guard");
+                foreach (var mutation in new Action<XElement>[]
+                {
+                    docs => docs.Element("summary")!.ReplaceNodes(new XCData("Authored summary.")),
+                    docs => docs.Element("summary")!.ReplaceNodes(new XComment("Authored"), new XText("Authored summary.")),
+                    docs => docs.Element("summary")!.ReplaceNodes(new XProcessingInstruction("authored", "keep"), new XText("Authored summary.")),
+                    docs => docs.Element("summary")!.ReplaceNodes(new XElement("c", "Authored summary.")),
+                    docs =>
+                    {
+                        docs.Element("summary")!.Value = "Authored summary.";
+                        docs.Add(new XElement("summary", "Duplicate authored summary."));
+                    },
+                })
+                {
+                    var authored = XDocument.Parse(seed, LoadOptions.PreserveWhitespace);
+                    var docs = authored.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                    mutation(docs);
+                    var summaries = docs.Elements("summary").Select(element => element.ToString(SaveOptions.DisableFormatting)).ToArray();
+                    File.WriteAllText(path, authored.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                    Assert(RunAsync(arguments).GetAwaiter().GetResult() == 0 &&
+                        XDocument.Load(path, LoadOptions.PreserveWhitespace).Root!.Element("Members")!.Element("Member")!
+                            .Element("Docs")!.Elements("summary").Select(element => element.ToString(SaveOptions.DisableFormatting))
+                            .SequenceEqual(summaries),
+                        "QuickSettings first fill preserves authored mixed nodes and duplicate summaries");
+                }
+            }
+        }
+        finally
+        {
+            foreach (var path in pipelinePaths)
+                if (File.Exists(path))
+                    File.Delete(path);
+            Directory.Delete(cache, true);
         }
     }
 
