@@ -109,6 +109,27 @@ importer paragraph/reference/attribution structure. Authored or mixed markup,
 changed source text, and duplicate channels are preserved. The same narrow
 allow-list corrects newly imported source channels so later refreshes cannot
 reintroduce these defects; no general grammar or punctuation normalization occurs.
+Exact EAP channel guards additionally require the complete official source
+contract, canonical URL and reference label, registered JNI descriptor, managed
+return and parameter types, and (for repairs) the complete original importer-owned
+Docs. `EapAkaInfo.Builder.SetReauthId` skips the source parameter that wrongly
+describes a re-authentication ID as the client's EAP identity; an exact prior
+import is withdrawn to its placeholder rather than replaced with inferred prose.
+`EapSessionConfig.Builder.SetEapMsChapV2Config` corrects only the full known
+`faciliate` return text. Both guards operate on first-fill imports as well as
+strict prior-owned repairs. Changed source contracts, authored or mixed markup,
+CDATA, comments, processing instructions, attributes, references, attribution,
+and managed metadata prevent repairs and are preserved with a reported skip.
+The registered `EapSessionConfig.EapAkaConfig.EapAkaOption` getter's exact
+non-null return guarantee is withheld only from its published value channel.
+The supported two-argument builder passes null options through the constructor
+to the getter; pinned implementation excerpts verify this path without serving
+as replacement prose or a Java runtime test. First-fill suppression depends on
+the full defective return contract, registered getter descriptor, canonical
+Android URL, and source kind, not unrelated summary or safe paragraph wording.
+Withdrawal requires the complete original plain importer-owned Docs, reference,
+and attribution and consumes one change. Future corrected source, including
+removal of the false guarantee, remains eligible; no API metadata is changed.
 The same exact allow-list covers the RSSI builder's Bluetooth-address parameter
 and RSSI parcel-write summary and remarks. The RSSI update-rate setter's malformed
 default paragraph (an unresolved `ERROR(...)` label linked to the site root) is
@@ -246,3 +267,23 @@ Limitations:
 - Only existing placeholders are replaced. Exception text is filled only when
   an existing managed `cref` has one unambiguous source exception match.
 - Source-page layout changes cause conservative skips rather than guessed text.
+- The exact stale `ResponderConfig.Builder.set80211mcSupported(boolean)` summary
+  and remarks are reported and skipped because they incorrectly rule out the
+  separately configured IEEE 802.11az protocol when IEEE 802.11mc support is false.
+  This guard requires the complete original prose, canonical source URL, source
+  identity and managed member; valid parameter and return channels remain eligible.
+- The exact `ResponderConfig.Builder.setChannelWidth(int)` summary, remarks and
+  parameter text are likewise skipped when they describe encoded `ScanResult`
+  channel-width constants as numeric MHz values. The full original parameter
+  description must also match; the valid builder return channel remains eligible.
+- Exact stale remarks for `ResponderConfig.Builder.setMacAddress(MacAddress)`
+  exclude valid USD-only identification, while `PasnConfig.Builder.setWifiSsid`
+  and `PasnConfig.getWifiSsid` overlook PMK-authenticated PASN without a password
+  or SSID. Only these three remarks channels are withheld when the managed
+  member, canonical URL, source identity, complete summary and ordered original
+  paragraphs match. Safe summaries, parameters and returns remain eligible,
+  as does changed official prose. A bounded repair replaces the complete stale
+  importer-owned prose with a placeholder only when the entire remarks structure,
+  reference and attribution match; the reference and attribution are retained.
+  Authored or mixed XML, CDATA, comments, processing instructions, duplicate
+  channels and mismatched provenance are reported and preserved.
