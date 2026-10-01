@@ -95,8 +95,13 @@ The options-taking `MediaBrowser.subscribe` and callback-taking `unsubscribe`
 overloads omit options matching and callback identity in two reference
 paragraphs. Only those exact paragraphs are excluded, with an explicit
 `source_channel_ambiguous` report; the remaining reference prose is retained.
-Filtering requires the registered managed member, canonical Android URL, and
-complete unchanged source summary and paragraph sequence. A prior imported copy
+First-fill filtering requires the exact registered managed/JNI owner, name and
+full descriptor, canonical Android URL and source label, and the complete known
+unsafe plain paragraph. It is independent of summary and surrounding safe
+context changes, retaining every other source paragraph in order and every other
+channel unchanged. Corrected, removed, and code-only versions remain eligible.
+Strict prior-owned repair recognition still requires the complete unchanged
+source summary and paragraph sequence. A prior imported copy
 can lose only its unsafe paragraph when its complete plain summary, ordered
 remarks, source reference, and attribution match known importer output.
 Authored or mixed nodes, duplicate channels, altered sources, and mismatched
