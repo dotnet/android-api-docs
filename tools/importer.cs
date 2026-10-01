@@ -183,6 +183,18 @@ static class ImporterProgram
             "remarks",
             "Flatten this object in to a Parcel.",
             "Flatten this object into a Parcel."),
+        new(
+            AndroidReference + "android/app/blob/BlobHandle#writeToParcel(android.os.Parcel,%20int)",
+            "M:Android.App.Blob.BlobHandle.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
+            "summary",
+            "Flatten this object in to a Parcel.",
+            "Flatten this object into a Parcel."),
+        new(
+            AndroidReference + "android/app/blob/BlobHandle#writeToParcel(android.os.Parcel,%20int)",
+            "M:Android.App.Blob.BlobHandle.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
+            "remarks",
+            "Flatten this object in to a Parcel.",
+            "Flatten this object into a Parcel."),
     ];
     static readonly KnownAndroidProseRepair[] KnownAndroidProseRepairs =
     [
@@ -6964,6 +6976,7 @@ static class ImporterProgram
     {
         TestKnownAndroidTextRepairs();
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
+        TestBlobParcelTextCorrection(repositoryRoot, fixtureRoot);
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
@@ -14070,6 +14083,173 @@ static class ImporterProgram
                 if (File.Exists(pipelinePath))
                     File.Delete(pipelinePath);
             }
+        }
+    }
+
+    static void TestBlobParcelTextCorrection(string repositoryRoot, string fixtureRoot)
+    {
+        const string memberId =
+            "M:Android.App.Blob.BlobHandle.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)";
+        const string incorrect = "Flatten this object in to a Parcel.";
+        const string correct = "Flatten this object into a Parcel.";
+        var source = LoadedFile.Load(repositoryRoot, Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.App.Blob", "BlobHandle.xml"));
+        source.SelectOwners(memberId);
+        var owner = source.Owners.Single();
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "android-blob-handle.html"));
+        var request = owner.SourceRequest!;
+        var page = SourcePage.Parse(request, html);
+        var raw = page.Members.Single(member => member.Name == "writeToParcel").Docs;
+        Assert(raw.Summary == incorrect && raw.Paragraphs.Single().Text == incorrect,
+            "Blob parcel fixture retains the unfiltered official source typo");
+        var mapping = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+        {
+            [request.Url] = SourceLoadResult.Success(page),
+        });
+        Assert(mapping.Docs?.Summary == correct &&
+            mapping.Docs.Paragraphs.Single().Text == correct,
+            "actual Blob registration and JNI map to the exact corrected source channels");
+        Assert(WithKnownAndroidTextCorrections(memberId + ".Other", raw) == raw &&
+            WithKnownAndroidTextCorrections(memberId, raw with { SourceKind = "java" }).Summary == incorrect &&
+            WithKnownAndroidTextCorrections(memberId, raw with { SourceUrl = raw.SourceUrl + ".Other" }).Summary == incorrect,
+            "raw Blob correction negatives have a positive precondition and vary only member or provenance");
+
+        var document = new XDocument(source.Root.Document!);
+        document.Root!.Element("Members")!.ReplaceNodes(new XElement(owner.Member!));
+        var docs = document.Root.Element("Members")!.Element("Member")!.Element("Docs")!;
+        docs.ReplaceNodes(
+            new XElement("param", new XAttribute("name", "dest"), "To be added."),
+            new XElement("param", new XAttribute("name", "flags"), "To be added."),
+            new XElement("summary", "To be added."),
+            new XElement("remarks", "To be added."));
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Blob",
+            $"blob-parcel-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}.xml");
+        var temp = Path.Combine(Path.GetTempPath(), $"blob-parcel-self-test-{Guid.NewGuid():N}");
+        var cache = Path.Combine(temp, "cache");
+        Directory.CreateDirectory(cache);
+        var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+            Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+        File.WriteAllText(Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+            Encoding.UTF8.GetBytes(request.Url.Replace("BlobHandle", "OtherHandle", StringComparison.Ordinal))))
+            .ToLowerInvariant() + ".html"), html, new UTF8Encoding(false));
+        var ordinal = 0;
+        int RunPipeline(int limit = 10)
+        {
+            var reportPath = Path.Combine(temp, $"report-{ordinal++}");
+            var exit = RunAsync(
+            [
+                "--path", path, "--namespace", "Android.App.Blob", "--member", "WriteToParcel",
+                "--cache", cache, "--offline", "--apply", "--max-changes",
+                limit.ToString(System.Globalization.CultureInfo.InvariantCulture), "--report", reportPath,
+            ]).GetAwaiter().GetResult();
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(exit == 0 && report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                "registered Blob parcel production pipeline succeeds");
+            return report.RootElement.GetProperty("appliedCount").GetInt32();
+        }
+        void Write(XDocument xml) =>
+            File.WriteAllText(path, xml.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+        XElement CurrentDocs() =>
+            XDocument.Load(path).Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+        void AssertRepeat()
+        {
+            var bytes = File.ReadAllBytes(path);
+            Assert(RunPipeline() == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                "actual persisted Blob parcel repeat has zero writes and identical bytes");
+        }
+        try
+        {
+            Write(document);
+            Assert(RunPipeline(1) == 1 && RunPipeline(1) == 1 && RunPipeline(1) == 1,
+                "Blob parcel first-fill respects each one-change budget");
+            var filled = CurrentDocs();
+            Assert(filled.Element("summary")!.Value == correct &&
+                filled.Element("remarks")!.Elements("para").First().Value == correct &&
+                HasExactImporterSourceReference(filled.Element("remarks")!, mapping.Docs!) &&
+                IsImporterAttributionParagraph(filled.Element("remarks")!.Elements("para").Last()) &&
+                filled.Elements("param").Single(parameter => (string?)parameter.Attribute("name") == "dest")
+                    .Value == "To be added." &&
+                filled.Elements("param").Single(parameter => (string?)parameter.Attribute("name") == "flags")
+                    .Value.Contains("Parcelable.PARCELABLE_WRITE_RETURN_VALUE", StringComparison.Ordinal),
+                "registered first-fill corrects both channels and retains meaningful flags but not nullability-only dest");
+            AssertRepeat();
+            var priorOwned = XDocument.Load(path);
+            var priorDocs = priorOwned.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+            priorDocs.Element("summary")!.Value = incorrect;
+            priorDocs.Element("remarks")!.Elements("para").First().Value = incorrect;
+            Write(priorOwned);
+            Assert(RunPipeline() == 2 && CurrentDocs().Element("summary")!.Value == correct &&
+                CurrentDocs().Element("remarks")!.Elements("para").First().Value == correct,
+                "strict complete prior importer-owned Blob text repairs both exact channels");
+            AssertRepeat();
+
+            Action<XElement>[] mutations =
+            [
+                current => current.Element("remarks")!.AddFirst(new XElement("para", "Authored guidance.")),
+                current => current.Element("remarks")!.Add(new XComment("Authored")),
+                current => current.Element("remarks")!.Add(new XProcessingInstruction("keep", "authored")),
+                current => current.Element("remarks")!.Elements("para").First().ReplaceNodes(new XCData(incorrect)),
+                current => current.Element("remarks")!.Elements("para").First().ReplaceNodes(new XElement("c", incorrect)),
+                current => current.Element("remarks")!.Elements("para").First().SetAttributeValue("authored", "true"),
+                current => current.Element("remarks")!.Elements("para").Last().Add(new XComment("Authored")),
+                current => current.Element("remarks")!.Elements("para").Last().Remove(),
+                current => current.Element("remarks")!.Descendants("a").First().SetAttributeValue("href", raw.SourceUrl + ".Other"),
+                current => current.Add(new XElement(current.Element("remarks")!)),
+            ];
+            foreach (var mutation in mutations)
+            {
+                var authored = new XDocument(priorOwned);
+                mutation(authored.Root!.Element("Members")!.Element("Member")!.Element("Docs")!);
+                Write(authored);
+                AssertRepeat();
+            }
+            foreach (var mutation in new Action<XElement>[]
+            {
+                current => current.Add(new XElement(current.Element("summary")!)),
+                current => current.Element("summary")!.ReplaceNodes(new XCData(incorrect)),
+                current => current.Element("summary")!.ReplaceNodes(new XElement("c", incorrect)),
+                current => current.Element("summary")!.Add(new XComment("Authored")),
+                current => current.Element("summary")!.Add(new XProcessingInstruction("keep", "authored")),
+            })
+            {
+                var authored = new XDocument(priorOwned);
+                var authoredDocs = authored.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                mutation(authoredDocs);
+                var summaries = authoredDocs.Elements("summary").Select(element =>
+                    element.ToString(SaveOptions.DisableFormatting)).ToList();
+                Write(authored);
+                Assert(RunPipeline() == 1 && CurrentDocs().Elements("summary").Select(element =>
+                    element.ToString(SaveOptions.DisableFormatting)).SequenceEqual(summaries),
+                    "authored and duplicate summary channels remain unchanged while the independent owned remarks repair stays eligible");
+                AssertRepeat();
+            }
+            foreach (var replacement in new[]
+            {
+                ("android/app/blob/BlobHandle", "android/app/blob/OtherHandle"),
+                ("writeToParcel", "otherWriteToParcel"),
+                ("(Landroid/os/Parcel;I)V", "(Landroid/os/Parcel;J)V"),
+                (memberId, memberId + ".Other"),
+            })
+            {
+                File.WriteAllText(path, priorOwned.ToString(SaveOptions.DisableFormatting)
+                    .Replace(replacement.Item1, replacement.Item2, StringComparison.Ordinal), new UTF8Encoding(false));
+                AssertRepeat();
+            }
+            File.WriteAllText(cachePath, html.Replace(incorrect, correct, StringComparison.Ordinal), new UTF8Encoding(false));
+            Write(document);
+            Assert(RunPipeline() == 3 && CurrentDocs().Element("summary")!.Value == correct &&
+                CurrentDocs().Element("remarks")!.Elements("para").First().Value == correct,
+                "future corrected official Blob source remains eligible");
+            AssertRepeat();
+            File.WriteAllText(cachePath, html.Replace(incorrect, incorrect + " Changed.", StringComparison.Ordinal), new UTF8Encoding(false));
+            Write(priorOwned);
+            AssertRepeat();
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(temp, recursive: true);
         }
     }
 
