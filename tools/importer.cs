@@ -14704,7 +14704,8 @@ static class ImporterProgram
         var html = File.ReadAllText(Path.Combine(fixtureRoot, "android-blob-handle.html"));
         var request = owner.SourceRequest!;
         var page = SourcePage.Parse(request, html);
-        var raw = page.Members.Single(member => member.Name == "writeToParcel").Docs;
+        var raw = page.Members.Single(member => member.Name == "writeToParcel").Docs
+            ?? throw new InvalidOperationException("Blob parcel source fixture has no documentation.");
         Assert(raw.Summary == incorrect && raw.Paragraphs.Single().Text == incorrect,
             "Blob parcel fixture retains the unfiltered official source typo");
         var mapping = MapOwner(owner, new Dictionary<string, SourceLoadResult>
