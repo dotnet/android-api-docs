@@ -102,7 +102,10 @@
         <param name="instant">The instant to find the daylight savings for. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
         <summary>Gets the amount of daylight savings in use for the specified instant in this zone.</summary>
         <returns>The difference between the standard offset and the actual offset in use at the specified instant.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Gets the amount of daylight savings in use for the specified instant in this zone. This provides access to historic information on how the amount of daylight savings has changed over time. This is the difference between the standard offset and the actual offset. Typically the amount is zero during winter and one hour during summer. Time-zones are second-based, so the nanosecond part of the duration will be zero. This default implementation calculates the duration from the actual and standard offsets.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#getDaylightSavings(java.time.Instant)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.getDaylightSavings</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="instant" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
@@ -136,7 +139,10 @@
         <param name="instant">The instant to find the offset for. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
         <summary>Gets the offset applicable at the specified instant in these rules.</summary>
         <returns>The offset applicable at the specified instant.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Gets the offset applicable at the specified instant in these rules. The mapping from an instant to an offset is simple, there is only one valid offset for each instant. This method returns that offset.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#getOffset(java.time.Instant)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.getOffset</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="instant" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
@@ -170,7 +176,10 @@
         <param name="localDateTime">The local date-time to query. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
         <summary>Gets a suitable offset for the specified local date-time in these rules.</summary>
         <returns>The best available offset for the local date-time; for a gap or overlap, the offset before the transition.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Gets a suitable offset for the specified local date-time in these rules. The mapping from a local date-time to an offset is not straightforward. There are three cases: Normal, with one valid offset. For the vast majority of the year, the normal case applies, where there is a single valid offset for the local date-time; Gap, with zero valid offsets. This is when clocks jump forward typically due to the spring daylight savings change from "winter" to "summer". In a gap there are local date-time values with no valid offset; Overlap, with two valid offsets. This is when clocks are set back typically due to the autumn daylight savings change from "summer" to "winter". In an overlap there are local date-time values with two valid offsets. Thus, for any given local date-time there can be zero, one or two valid offsets. This method returns the single offset in the Normal case, and in the Gap or Overlap case it returns the offset before the transition. Since, in the case of Gap and Overlap, the offset returned is a "best" value, rather than the "correct" value, it should be treated with care. Applications that care about the correct offset should use a combination of this method, getValidOffsets(LocalDateTime) and getTransition(LocalDateTime).</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#getOffset(java.time.LocalDateTime)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.getOffset</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="localDateTime" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
@@ -204,7 +213,10 @@
         <param name="instant">The instant to find the offset information for; <see langword="null" /> may be ignored if the rules have a single standard offset for all instants.</param>
         <summary>Gets the standard offset for the specified instant in this zone.</summary>
         <returns>The standard offset for the specified instant.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Gets the standard offset for the specified instant in this zone. This provides access to historic information on how the standard offset has changed over time. The standard offset is the offset before any daylight saving time is applied. This is typically the offset applicable during winter.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#getStandardOffset(java.time.Instant)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.getStandardOffset</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTransition">
@@ -237,7 +249,17 @@
         <param name="localDateTime">The local date-time to query for an offset transition. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
         <summary>Gets the offset transition applicable at the specified local date-time in these rules.</summary>
         <returns>The transition for a gap or overlap; otherwise, <see langword="null" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Gets the offset transition applicable at the specified local date-time in these rules. The mapping from a local date-time to an offset is not straightforward. There are three cases: Normal, with one valid offset. For the vast majority of the year, the normal case applies, where there is a single valid offset for the local date-time; Gap, with zero valid offsets. This is when clocks jump forward typically due to the spring daylight savings change from "winter" to "summer". In a gap there are local date-time values with no valid offset; Overlap, with two valid offsets. This is when clocks are set back typically due to the autumn daylight savings change from "summer" to "winter". In an overlap there are local date-time values with two valid offsets. A transition is used to model the cases of a Gap or Overlap. The Normal case will return null. There are various ways to handle the conversion from a LocalDateTime.</para>
+          <code lang="text/java">  ZoneOffsetTransition trans = rules.getTransition(localDT);
+  if (trans != null) {
+    // Gap or Overlap: determine what to do from transition
+  } else {
+    // Normal case: only one valid offset
+    zoneOffset = rules.getOffset(localDT);
+  }</code>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#getTransition(java.time.LocalDateTime)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.getTransition</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="localDateTime" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
@@ -277,7 +299,19 @@
         <param name="localDateTime">The local date-time to query for valid offsets. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
         <summary>Gets the offsets applicable at the specified local date-time in these rules.</summary>
         <returns>A potentially immutable list of valid offsets. The list has zero entries for a gap, one for a normal local date-time, and two for an overlap; in an overlap, the earlier offset is first.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Gets the offset applicable at the specified local date-time in these rules. The mapping from a local date-time to an offset is not straightforward. There are three cases: Normal, with one valid offset. For the vast majority of the year, the normal case applies, where there is a single valid offset for the local date-time; Gap, with zero valid offsets. This is when clocks jump forward typically due to the spring daylight savings change from "winter" to "summer". In a gap there are local date-time values with no valid offset; Overlap, with two valid offsets. This is when clocks are set back typically due to the autumn daylight savings change from "summer" to "winter". In an overlap there are local date-time values with two valid offsets. Thus, for any given local date-time there can be zero, one or two valid offsets. This method returns that list of valid offsets, which is a list of size 0, 1 or 2. In the case where there are two offsets, the earlier offset is returned at index 0 and the later offset at index 1. There are various ways to handle the conversion from a LocalDateTime.</para>
+          <code lang="text/java">  List&lt;ZoneOffset&gt; validOffsets = rules.getValidOffsets(localDT);
+  if (validOffsets.size() == 1) {
+    // Normal case: only one valid offset
+    zoneOffset = validOffsets.get(0);
+  } else {
+    // Gap or Overlap: determine what to do from transition (which will be non-null)
+    ZoneOffsetTransition trans = rules.getTransition(localDT);
+  }</code>
+          <para>In theory, it is possible for there to be more than two valid offsets. This would happen if clocks to be put back more than once in quick succession. This has never happened in the history of time-zones and thus has no special handling. However, if it were to happen, then the list would return more than 2 entries.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#getValidOffsets(java.time.LocalDateTime)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.getValidOffsets</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="localDateTime" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
@@ -312,7 +346,10 @@
         <summary>Checks whether the specified instant is in daylight savings.</summary>
         <returns><see langword="true" /> if the specified instant is in daylight savings; otherwise, <see langword="false" />.</returns>
 
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Checks if the specified instant is in daylight savings. This checks if the standard offset and the actual offset are the same for the specified instant. If they are not, it is assumed that daylight savings is in operation. This default implementation compares the actual and standard offsets.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#isDaylightSavings(java.time.Instant)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.isDaylightSavings</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="instant" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
@@ -390,7 +427,10 @@
         <summary>Checks whether the offset date-time is valid for these rules.</summary>
         <returns><see langword="true" /> if the offset date-time is valid for these rules; otherwise, <see langword="false" />.</returns>
 
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Checks if the offset date-time is valid for these rules. To be valid, the local date-time must not be in a gap and the offset must match one of the valid offsets. This default implementation checks if getValidOffsets(java.time.LocalDateTime) contains the specified offset.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#isValidOffset(java.time.LocalDateTime,java.time.ZoneOffset)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.isValidOffset</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="localDateTime" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
@@ -488,7 +528,10 @@
         <param name="instant">The instant after which to get the next transition. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
         <summary>Gets the next transition after the specified instant.</summary>
         <returns>The next transition after the specified instant, or <see langword="null" /> if it is after the last transition.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Gets the next transition after the specified instant. This returns details of the next transition after the specified instant. For example, if the instant represents a point where "Summer" daylight savings time applies, then the method will return the transition to the next "Winter" time.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#nextTransition(java.time.Instant)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.nextTransition</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="instant" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
@@ -522,7 +565,10 @@
         <param name="offset">The non-null offset to use for the rules.</param>
         <summary>Obtains an instance of <see cref="T:Java.Time.Zone.ZoneRules" /> with a fixed offset.</summary>
         <returns>The zone rules with the specified fixed offset.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Obtains an instance of ZoneRules that has fixed zone rules.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#of(java.time.ZoneOffset)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.of</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="offset" /> is <see langword="null" />.</exception>
       </Docs>
     </Member>
@@ -585,7 +631,10 @@
         <param name="lastRules">The non-null recurring last rules, with at most 16 entries.</param>
         <summary>Obtains an instance of <see cref="T:Java.Time.Zone.ZoneRules" />.</summary>
         <returns>The zone rules.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Obtains an instance of a ZoneRules.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#of(java.time.ZoneOffset,java.time.ZoneOffset,java.util.List,java.util.List,java.util.List)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.of</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if any argument is <see langword="null" />.</exception>
         <exception cref="T:Java.Lang.IllegalArgumentException">Thrown if <paramref name="lastRules" /> contains more than 16 rules.</exception>
       </Docs>
@@ -620,7 +669,10 @@
         <param name="instant">The instant before which to get the previous transition. Fixed-offset rules may ignore <see langword="null" />; variable rules do not.</param>
         <summary>Gets the previous transition before the specified instant.</summary>
         <returns>The previous transition before the specified instant, or <see langword="null" /> if it is before the first transition.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Gets the previous transition before the specified instant. This returns details of the previous transition before the specified instant. For example, if the instant represents a point where "summer" daylight saving time applies, then the method will return the transition from the previous "winter" time.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneRules.html#previousTransition(java.time.Instant)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneRules.previousTransition</code>.</a></format></para>
+        </remarks>
         <exception cref="T:Java.Lang.NullPointerException">Thrown if <paramref name="instant" /> is <see langword="null" /> and the rules are not fixed-offset.</exception>
       </Docs>
     </Member>
