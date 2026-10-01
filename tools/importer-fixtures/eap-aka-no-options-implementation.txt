@@ -1,0 +1,39 @@
+Implementation audit excerpts, not a Java runtime test or documentation source.
+Pinned revision: c893964d0504d12cf17918961c4d5eab685a1d6c
+https://android.googlesource.com/platform/packages/modules/IPsec/+/c893964d0504d12cf17918961c4d5eab685a1d6c/src/java/android/net/eap/EapSessionConfig.java
+
+public Builder setEapAkaConfig(int subId, @UiccAppType int apptype) {
+    setEapAkaConfig(subId, apptype, null);
+    return this;
+}
+
+public Builder setEapAkaConfig(
+        int subId, @UiccAppType int apptype, @NonNull EapAkaOption options) {
+    mEapConfigs.put(
+            EapMethodConfig.EAP_TYPE_AKA, new EapAkaConfig(subId, apptype, options));
+    return this;
+}
+
+public EapAkaConfig(int subId, @UiccAppType int apptype, EapAkaOption options) {
+    this(EAP_TYPE_AKA, subId, apptype, options);
+}
+
+EapAkaConfig(int methodType, int subId, @UiccAppType int apptype, EapAkaOption options) {
+    super(methodType, subId, apptype);
+    mEapAkaOption = options;
+}
+
+public EapAkaOption getEapAkaOption() {
+    return mEapAkaOption;
+}
+
+https://android.googlesource.com/platform/packages/modules/IPsec/+/c893964d0504d12cf17918961c4d5eab685a1d6c/src/java/com/android/internal/net/eap/statemachine/EapAkaMethodStateMachine.java
+
+private byte[] getReauthIdentity() {
+    EapAkaConfig akaConfig = (EapAkaConfig) mEapUiccConfig;
+    if (akaConfig.getEapAkaOption() != null
+            && akaConfig.getEapAkaOption().getReauthId() != null) {
+        return akaConfig.getEapAkaOption().getReauthId();
+    }
+    return null;
+}
