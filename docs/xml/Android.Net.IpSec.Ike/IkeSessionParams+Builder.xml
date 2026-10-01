@@ -147,10 +147,14 @@
         <Parameter Name="ikeOption" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ikeOption">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="ikeOption">the option to be enabled. Value is one of the following: IkeSessionParams.IKE_OPTION_ACCEPT_ANY_REMOTE_ID; IkeSessionParams.IKE_OPTION_EAP_ONLY_AUTH; IkeSessionParams.IKE_OPTION_MOBIKE; IkeSessionParams.IKE_OPTION_FORCE_PORT_4500; IkeSessionParams.IKE_OPTION_INITIAL_CONTACT</param>
+        <summary>Sets the specified IKE Option as enabled.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the specified IKE Option as enabled.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#addIkeOption(int)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.addIkeOption</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddIkeSaProposal">
@@ -180,10 +184,14 @@
         <Parameter Name="proposal" Type="Android.Net.IpSec.Ike.IkeSaProposal" />
       </Parameters>
       <Docs>
-        <param name="proposal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="proposal">IKE SA proposal. This value cannot be null.</param>
+        <summary>Adds an IKE SA proposal to the IkeSessionParams being built.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Adds an IKE SA proposal to the IkeSessionParams being built.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#addIkeSaProposal(android.net.ipsec.ike.IkeSaProposal)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.addIkeSaProposal</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -284,10 +292,14 @@
         <Parameter Name="ikeOption" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ikeOption">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="ikeOption">the option to be disabled. Value is one of the following: IkeSessionParams.IKE_OPTION_ACCEPT_ANY_REMOTE_ID; IkeSessionParams.IKE_OPTION_EAP_ONLY_AUTH; IkeSessionParams.IKE_OPTION_MOBIKE; IkeSessionParams.IKE_OPTION_FORCE_PORT_4500; IkeSessionParams.IKE_OPTION_INITIAL_CONTACT</param>
+        <summary>Resets (disables) the specified IKE Option.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Resets (disables) the specified IKE Option.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#removeIkeOption(int)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.removeIkeOption</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetAuthDigitalSignature">
@@ -326,12 +338,19 @@
         <Parameter Name="clientPrivateKey" Type="Java.Security.IPrivateKey" />
       </Parameters>
       <Docs>
-        <param name="serverCaCert">To be added.</param>
-        <param name="clientEndCert">To be added.</param>
-        <param name="clientPrivateKey">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="serverCaCert">the CA certificate for validating the received server certificate(s). If a certificate is provided, it MUST be the root CA used by the server, or authentication will fail. If no certificate is provided, any root CA in the system's truststore is considered acceptable. This value may be null.</param>
+        <param name="clientEndCert">the end certificate for remote server to verify the locally generated signature. This value cannot be null.</param>
+        <param name="clientPrivateKey">private key to generate outbound digital signature. The PrivateKey MUST be an instance of RSAKey. This value cannot be null.</param>
+        <summary>Configures the IkeSession to use public-key-signature-based authentication.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Configures the IkeSession to use public-key-signature-based authentication.</para>
+          <para>The public key included by the client end certificate and the private key used for signing MUST be a matching key pair.</para>
+          <para>The IKE library will use the strongest signature algorithm supported by both sides.</para>
+          <para>Currenly only RSA digital signature is supported.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setAuthDigitalSignature(java.security.cert.X509Certificate,%20java.security.cert.X509Certificate,%20java.security.PrivateKey)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setAuthDigitalSignature</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetAuthDigitalSignature">
@@ -371,13 +390,20 @@
         <Parameter Name="clientPrivateKey" Type="Java.Security.IPrivateKey" />
       </Parameters>
       <Docs>
-        <param name="serverCaCert">To be added.</param>
-        <param name="clientEndCert">To be added.</param>
-        <param name="clientIntermediateCerts">To be added.</param>
-        <param name="clientPrivateKey">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="serverCaCert">the CA certificate for validating the received server certificate(s). If a null value is provided, IKE library will try all default CA certificates stored in Android system to do the validation. Otherwise, it will only use the provided CA certificate.</param>
+        <param name="clientEndCert">the end certificate for remote server to verify locally generated signature. This value cannot be null.</param>
+        <param name="clientIntermediateCerts">intermediate certificates for the remote server to validate the end certificate. This value cannot be null.</param>
+        <param name="clientPrivateKey">private key to generate outbound digital signature. The PrivateKey MUST be an instance of RSAKey. This value cannot be null.</param>
+        <summary>Configures the IkeSession to use public-key-signature-based authentication.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Configures the IkeSession to use public-key-signature-based authentication.</para>
+          <para>The public key included by the client end certificate and the private key used for signing MUST be a matching key pair.</para>
+          <para>The IKE library will use the strongest signature algorithm supported by both sides.</para>
+          <para>Currenly only RSA digital signature is supported.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setAuthDigitalSignature(java.security.cert.X509Certificate,%20java.security.cert.X509Certificate,%20java.util.List&lt;java.security.cert.X509Certificate&gt;,%20java.security.PrivateKey)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setAuthDigitalSignature</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetAuthEap">
@@ -415,11 +441,19 @@
         <Parameter Name="eapConfig" Type="Android.Net.Eap.EapSessionConfig" />
       </Parameters>
       <Docs>
-        <param name="serverCaCert">To be added.</param>
+        <param name="serverCaCert">the CA certificate for validating the received server certificate(s). If a certificate is provided, it MUST be the root CA used by the server, or authentication will fail. If no certificate is provided, any root CA in the system's truststore is considered acceptable. This value may be null.</param>
         <param name="eapConfig">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Configures the IkeSession to use EAP authentication.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Configures the IkeSession to use EAP authentication.</para>
+          <para>Not all EAP methods provide mutual authentication. As such EAP MUST be used in conjunction with a public-key-signature-based authentication of the remote server, unless EAP-Only authentication is enabled.</para>
+          <para>Callers may enable EAP-Only authentication by setting IkeSessionParams.IKE_OPTION_EAP_ONLY_AUTH, which will make IKE library request the remote to use EAP-Only authentication. The remote may opt to reject the request, at which point the received certificates and authentication payload WILL be validated with the provided root CA or system's truststore as usual. Only safe EAP methods as listed in RFC 5998 will be accepted for EAP-Only authentication.</para>
+          <para>If IkeSessionParams.IKE_OPTION_EAP_ONLY_AUTH is set, callers MUST configure EAP as the authentication method and all EAP methods set in EAP Session configuration MUST be safe methods that are accepted for EAP-Only authentication. Otherwise callers will get an exception when building the IkeSessionParams</para>
+          <para>Callers MUST declare only one authentication method. Calling this function will override the previously set authentication configuration.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setAuthEap(java.security.cert.X509Certificate,%20android.net.eap.EapSessionConfig)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setAuthEap</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetAuthPsk">
@@ -449,10 +483,17 @@
         <Parameter Name="sharedKey" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="sharedKey">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="sharedKey">the shared key. This value cannot be null.</param>
+        <summary>Configures the IkeSession to use pre-shared-key-based authentication.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Configures the IkeSession to use pre-shared-key-based authentication.</para>
+          <para>Both client and server MUST be authenticated using the provided shared key. IKE authentication will fail if the remote peer tries to use other authentication methods.</para>
+          <para>Callers MUST declare only one authentication method. Calling this function will override the previously set authentication configuration.</para>
+          <para>Callers SHOULD NOT use this if any other authentication methods can be used; PSK-based authentication is generally considered insecure.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setAuthPsk(byte[])" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setAuthPsk</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetDpdDelaySeconds">
@@ -483,9 +524,13 @@
       </Parameters>
       <Docs>
         <param name="dpdDelaySeconds">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Sets the Dead Peer Detection(DPD) delay in seconds.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the Dead Peer Detection(DPD) delay in seconds.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setDpdDelaySeconds(int)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setDpdDelaySeconds</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLifetimeSeconds">
@@ -518,9 +563,14 @@
       <Docs>
         <param name="hardLifetimeSeconds">To be added.</param>
         <param name="softLifetimeSeconds">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Sets hard and soft lifetimes.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets hard and soft lifetimes.</para>
+          <para>Lifetimes will not be negotiated with the remote IKE server.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setLifetimeSeconds(int,%20int)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setLifetimeSeconds</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLocalIdentification">
@@ -550,10 +600,15 @@
         <Parameter Name="identification" Type="Android.Net.IpSec.Ike.IkeIdentification" />
       </Parameters>
       <Docs>
-        <param name="identification">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="identification">the local IKE identification. This value cannot be null.</param>
+        <summary>Sets local IKE identification for the IkeSessionParams being built.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets local IKE identification for the IkeSessionParams being built.</para>
+          <para>It is not allowed to use KEY ID together with digital-signature-based authentication as per RFC 7296.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setLocalIdentification(android.net.ipsec.ike.IkeIdentification)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setLocalIdentification</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetNattKeepAliveDelaySeconds">
@@ -584,9 +639,13 @@
       </Parameters>
       <Docs>
         <param name="nattKeepaliveDelaySeconds">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Sets the Network Address Translation Traversal (NATT) keepalive delay in seconds.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the Network Address Translation Traversal (NATT) keepalive delay in seconds.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setNattKeepAliveDelaySeconds(int)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setNattKeepAliveDelaySeconds</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetNetwork">
@@ -623,10 +682,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="network">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="network">the Network that IKE Session will use, or null to clear the previously set Network</param>
+        <summary>Sets the Network for the IkeSessionParams being built.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the Network for the IkeSessionParams being built.</para>
+          <para>If no Network is provided, the default Network (as per ConnectivityManager.getActiveNetwork()) will be used when constructing an IkeSession.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setNetwork(android.net.Network)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setNetwork</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRemoteIdentification">
@@ -656,10 +720,14 @@
         <Parameter Name="identification" Type="Android.Net.IpSec.Ike.IkeIdentification" />
       </Parameters>
       <Docs>
-        <param name="identification">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="identification">the remote IKE identification. This value cannot be null.</param>
+        <summary>Sets remote IKE identification for the IkeSessionParams being built.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets remote IKE identification for the IkeSessionParams being built.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setRemoteIdentification(android.net.ipsec.ike.IkeIdentification)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setRemoteIdentification</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRetransmissionTimeoutsMillis">
@@ -689,10 +757,16 @@
         <Parameter Name="retransTimeoutMillisList" Type="System.Int32[]" />
       </Parameters>
       <Docs>
-        <param name="retransTimeoutMillisList">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="retransTimeoutMillisList">the array of relative retransmission timeout in milliseconds. This value cannot be null.</param>
+        <summary>Sets the retransmission timeout list in milliseconds.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the retransmission timeout list in milliseconds.</para>
+          <para>Configures the retransmission by providing an array of relative retransmission timeouts in milliseconds. After sending out a request and before receiving the response, the IKE Session will iterate through the array and wait for the relative timeout before the next retry. If the last timeout is exceeded, the IKE Session will be terminated.</para>
+          <para>Each element in the array MUST be a value from 500 ms to 1800000 ms (30 minutes). The length of the array MUST NOT exceed 10. This retransmission timeout list defaults to {0.5s, 1s, 2s, 4s, 8s}</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setRetransmissionTimeoutsMillis(int[])" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setRetransmissionTimeoutsMillis</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetServerHostname">
@@ -722,10 +796,14 @@
         <Parameter Name="serverHostname" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="serverHostname">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="serverHostname">the hostname of the IKE server, such as "ike.android.com". This value cannot be null.</param>
+        <summary>Sets the server hostname for the IkeSessionParams being built.</summary>
+        <returns>Builder this, to facilitate chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the server hostname for the IkeSessionParams being built.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams.Builder#setServerHostname(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.Builder.setServerHostname</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
