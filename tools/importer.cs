@@ -14303,8 +14303,20 @@ static class ImporterProgram
                     ("corrected-default", html.Replace(RssiMalformedDefault["Defaults to ".Length..],
                         "UPDATE_RATE_NORMAL.", StringComparison.Ordinal),
                         "Defaults to UPDATE_RATE_NORMAL."),
+                    ("removed-default", html.Replace(
+                        "<p>Defaults to <code><a href=\"/\">" +
+                        RssiMalformedDefault["Defaults to ".Length..] + "</a></code></p>",
+                        "", StringComparison.Ordinal), RssiUpdateRateLead),
                 })
                 {
+                    if (stage is "corrected-default" or "removed-default")
+                    {
+                        var future = SourcePage.Parse(request, changedHtml).Members
+                            .Single(member => member.Name == "setRangingUpdateRate").Docs!;
+                        Assert(ReferenceEquals(WithoutKnownMalformedRssiDefault(owner, registration, future), future) &&
+                            !future.Paragraphs.Any(paragraph => paragraph.Text == RssiMalformedDefault),
+                            "corrected or removed RSSI defaults do not trigger the old-source exclusion");
+                    }
                     File.WriteAllText(Path.Combine(cache,
                         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url)))
                             .ToLowerInvariant() + ".html"), changedHtml, new UTF8Encoding(false));
