@@ -29,6 +29,49 @@ static class ImporterProgram
         "Android Open Source Project</a></format> and used according to terms described in the " +
         "<format type=\"text/html\"><a href=\"https://creativecommons.org/licenses/by/2.5/\">" +
         "Creative Commons 2.5 Attribution License.</a></format>";
+    const string ControlTemplateMemberId =
+        "M:Android.Service.Controls.Control.StatefulBuilder.SetControlTemplate(Android.Service.Controls.Templates.ControlTemplate)";
+    const string ControlTemplateSourceUrl =
+        AndroidReference + "android/service/controls/Control.StatefulBuilder#setControlTemplate(android.service.controls.templates.ControlTemplate)";
+    const string ControlTemplateLead =
+        "Set the ControlTemplate to define the primary user interaction";
+    const string ControlTemplateDescription =
+        "Devices may support a variety of user interactions, and all interactions cannot be represented " +
+        "with a single ControlTemplate. Therefore, the selected template should be most closely aligned " +
+        "with what the expected primary device action will be. Any secondary interactions can be done " +
+        "via the setAppIntent(PendingIntent).";
+    const string LegacyControlTemplateParagraph =
+        ControlTemplateLead + " " + ControlTemplateDescription;
+    const string LegacyControlTemplateSummary =
+        ControlTemplateLead + " Devices may support a variety of user interactions, and all interactions " +
+        "cannot be represented with a single ControlTemplate.";
+    static readonly KnownControlsLifecycleRepair[] KnownControlsLifecycleRepairs =
+    [
+        new(
+            "M:Android.Service.Controls.ControlsProviderService.OnBind(Android.Content.Intent)",
+            AndroidReference + "android/service/controls/ControlsProviderService#onBind(android.content.Intent)",
+            "Return the communication channel to the service.",
+            [
+                "Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.",
+                "Note that unlike other application components, calls on to the IBinder interface returned here may not happen on the main thread of the process. More information about the main thread can be found in Processes and Threads.",
+            ],
+            [
+                "Return the communication channel to the service.",
+                "The returned IBinder is usually for a complex interface that has been described using aidl.",
+            ],
+            null),
+        new(
+            "M:Android.Service.Controls.ControlsProviderService.OnUnbind(Android.Content.Intent)",
+            AndroidReference + "android/service/controls/ControlsProviderService#onUnbind(android.content.Intent)",
+            "Called when all clients have disconnected from a particular interface published by the service.",
+            [
+                "Called when all clients have disconnected from a particular interface published by the service. The default implementation does nothing and returns false.",
+            ],
+            [
+                "Called when all clients have disconnected from a particular interface published by the service.",
+            ],
+            "Return true if you would like to have the service's onRebind(Intent) method later called when new clients bind to it."),
+    ];
     static readonly KnownBooleanReturnRepair[] KnownBooleanReturnRepairs =
     [
         new(
@@ -279,6 +322,83 @@ static class ImporterProgram
                     var mapping = MapOwner(owner, pages);
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
+
+                    var lifecycleTargets = KnownControlsLifecycleRepairTargets(owner);
+                    if (lifecycleTargets.Count > 0)
+                    {
+                        var lifecycleRepair = RepairKnownControlsLifecycle(
+                            text, file, owner, mapping.Docs!);
+                        if (lifecycleRepair.Reason is not null || remaining < lifecycleTargets.Count)
+                        {
+                            foreach (var target in lifecycleTargets)
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath, owner.Id, target,
+                                    lifecycleRepair.Reason ?? "max_changes_reached",
+                                    lifecycleRepair.Detail ??
+                                        $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                        }
+                        else
+                        {
+                            text = lifecycleRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining -= lifecycleTargets.Count;
+                            foreach (var target in lifecycleTargets)
+                            {
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply", file.RelativePath, owner.Id, target,
+                                    mapping.SourceUrl,
+                                    "importer_known_unsafe_controls_lifecycle_repair",
+                                    "Withdrew exact inherited Service contracts contradicted by the final ControlsProviderService implementations; retained only verified reference prose."));
+                            }
+                        }
+                    }
+
+                    if (HasKnownAndroidParagraphBoundaryRepairCandidate(owner))
+                    {
+                        var boundaryRepair = RepairKnownAndroidParagraphBoundary(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs!);
+                        if (boundaryRepair.Reason is not null || remaining < 2)
+                        {
+                            foreach (var target in new[] { "summary", "remarks" })
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    boundaryRepair.Reason ?? "max_changes_reached",
+                                    boundaryRepair.Detail ??
+                                        $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                        }
+                        else if (!boundaryRepair.Text.Equals(text, StringComparison.Ordinal))
+                        {
+                            text = boundaryRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining -= 2;
+                            foreach (var target in new[] { "summary", "remarks" })
+                            {
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    mapping.SourceUrl,
+                                    "importer_known_android_paragraph_boundary_repair",
+                                    "Restored the exact official source paragraph boundary in an importer-owned summary and remarks."));
+                            }
+                        }
+                    }
 
                     var copiedDescriptionRepair = RepairCopiedDescriptionLabels(
                         text,
@@ -1135,7 +1255,47 @@ static class ImporterProgram
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
         docs = WithoutKnownUnsafeRemoteEntryGuidance(owner.Id, docs);
         docs = WithKnownAndroidTextCorrections(owner.Id, docs);
+        docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    sealed record KnownControlsLifecycleRepair(
+        string MemberId,
+        string SourceUrl,
+        string Summary,
+        string[] OriginalParagraphs,
+        string[] FirstParagraphReplacement,
+        string? IncorrectReturn)
+    {
+        public IEnumerable<string> SafeParagraphs =>
+            FirstParagraphReplacement.Concat(OriginalParagraphs.Skip(1));
+    }
+
+    static SourceDocs WithoutKnownUnsafeControlsLifecycleChannels(string ownerId, SourceDocs docs)
+    {
+        var repair = KnownControlsLifecycleRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId == ownerId &&
+            candidate.SourceUrl == docs.SourceUrl &&
+            docs.SourceKind == "android");
+        if (repair is null)
+            return docs;
+
+        var paragraphs = docs.Paragraphs.SelectMany(paragraph =>
+            !paragraph.IsCode && paragraph.Text == repair.OriginalParagraphs[0]
+                ? repair.FirstParagraphReplacement
+                    .Select(text => new SourceParagraph(text, false))
+                : [paragraph]).ToList();
+        if (repair.IncorrectReturn is not null &&
+            RemoveLeadingJavaType(docs.Returns) == repair.IncorrectReturn)
+        {
+            var targets = docs.UnsafeTargets is null
+                ? new Dictionary<string, string>(StringComparer.Ordinal)
+                : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+            targets["returns"] =
+                "The inherited Service return describes a caller choice, but ControlsProviderService.onUnbind is final and always returns true.";
+            return docs with { Paragraphs = paragraphs, UnsafeTargets = targets };
+        }
+        return docs with { Paragraphs = paragraphs };
     }
 
     static SourceDocs WithKnownAndroidTextCorrections(string memberId, SourceDocs docs)
@@ -1504,8 +1664,11 @@ static class ImporterProgram
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
         targets.UnionWith(KnownAndroidTextRepairCandidateTargets(owner));
+        targets.UnionWith(KnownControlsLifecycleRepairTargets(owner));
         if (IsEnumSummaryRepairCandidate(owner) ||
             HasTruncatedImporterSummary(file, owner) ||
+            KnownControlsLifecycleRepairTargets(owner).Count > 0 ||
+            HasKnownAndroidParagraphBoundaryRepairCandidate(owner) ||
             HasCopiedDescriptionSummaryRepairCandidate(file, owner) ||
             HasPotentialEnumListRepair(file, owner))
             targets.Add("summary");
@@ -1521,6 +1684,7 @@ static class ImporterProgram
         if (HasKnownUnsafeZoneTransitionTimeCandidate(owner))
             targets.Add("param:time");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
+            HasKnownAndroidParagraphBoundaryRepairCandidate(owner) ||
             HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
             HasMetadataOnlyRemarks(file, owner) ||
@@ -1550,6 +1714,7 @@ static class ImporterProgram
         HasAugmentedRemarksPlaceholder(file, owner) ||
         HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
         HasTruncatedImporterSummary(file, owner) ||
+        HasKnownAndroidParagraphBoundaryRepairCandidate(owner) ||
         HasIncompleteCodeExampleRemarks(file, owner) ||
         HasMetadataOnlyRemarks(file, owner) ||
         HasCopiedDescriptionRepairCandidate(file, owner) ||
@@ -3536,6 +3701,179 @@ static class ImporterProgram
             ImporterMarkupEquals(
                 sourceReferences[0],
                 ImporterSourceReference(sourceDocs));
+    }
+
+    static bool HasKnownAndroidParagraphBoundaryRepairCandidate(DocsOwner owner) =>
+        owner.Id.Equals(ControlTemplateMemberId, StringComparison.Ordinal) &&
+        owner.Docs.Elements("summary").ToList() is [XElement summary] &&
+        !summary.HasAttributes &&
+        HasPlainTextContent(summary, out var summaryText) &&
+        summaryText.Equals(LegacyControlTemplateSummary, StringComparison.Ordinal);
+
+    static List<string> KnownControlsLifecycleRepairTargets(DocsOwner owner)
+    {
+        var repair = KnownControlsLifecycleRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId == owner.Id);
+        if (repair is null)
+            return [];
+
+        var targets = new List<string>();
+        if (owner.Docs.Elements("remarks").Any(remarks =>
+                NormalizeText(remarks.Value).Contains(repair.OriginalParagraphs[0], StringComparison.Ordinal)))
+            targets.Add("remarks");
+        if (repair.IncorrectReturn is not null &&
+            owner.Docs.Elements("returns").Any(returns =>
+                NormalizeText(returns.Value) == repair.IncorrectReturn))
+            targets.Add("returns");
+        return targets;
+    }
+
+    sealed record ControlsLifecycleRepairResult(string Text, string? Reason, string? Detail);
+
+    static ControlsLifecycleRepairResult RepairKnownControlsLifecycle(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var targets = KnownControlsLifecycleRepairTargets(owner);
+        if (targets.Count == 0)
+            return new(text, null, null);
+        var repair = KnownControlsLifecycleRepairs.Single(candidate => candidate.MemberId == owner.Id);
+        if (sourceDocs.SourceKind != "android" ||
+            sourceDocs.SourceUrl != repair.SourceUrl ||
+            sourceDocs.Summary != repair.Summary ||
+            !sourceDocs.Paragraphs.SequenceEqual(
+                repair.SafeParagraphs.Select(paragraph => new SourceParagraph(paragraph, false))) ||
+            (targets.Contains("returns") &&
+                (sourceDocs.UnsafeTargets?.ContainsKey("returns") != true ||
+                 RemoveLeadingJavaType(sourceDocs.Returns) != repair.IncorrectReturn)))
+        {
+            return new(text, "source_controls_lifecycle_mismatch",
+                "The exact lifecycle source did not match the verified unsafe inherited contracts and retained reference fragments.");
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs))
+            return new(text, "controls_lifecycle_target_not_located",
+                "The parser-selected Docs block did not match the untouched owner.");
+
+        var expectedRemarks = new XElement("remarks",
+            repair.OriginalParagraphs.Select(paragraph => new XElement("para", paragraph)),
+            ImporterSourceReference(sourceDocs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        var correctedRemarks = XElement.Parse(RenderImporterOwnedRemarks(
+            sourceDocs.Paragraphs, sourceDocs, file.Newline, "", ""));
+        if (actualDocs.Elements("summary").ToList() is not [XElement summary] ||
+            summary.HasAttributes ||
+            !HasPlainTextContent(summary, out var summaryText) ||
+            summaryText != repair.Summary ||
+            actualDocs.Elements("remarks").ToList() is not [XElement remarks] ||
+            !ImporterMarkupEquals(remarks, targets.Contains("remarks") ? expectedRemarks : correctedRemarks) ||
+            actualDocs.Elements("returns").ToList() is not [XElement returns] ||
+            (targets.Contains("returns") &&
+                (returns.HasAttributes ||
+                 !HasPlainTextContent(returns, out var returnText) ||
+                 returnText != repair.IncorrectReturn)))
+        {
+            return new(text, "existing_controls_lifecycle_not_importer_owned",
+                "The complete lifecycle channels, exact source reference, and attribution did not match the known importer output.");
+        }
+
+        var edits = new List<XmlSpanEdit>();
+        foreach (var target in targets)
+        {
+            var element = target == "remarks" ? remarks : returns;
+            if (!TryGetElementSpan(blockText, element, out var span))
+                return new(text, "controls_lifecycle_target_not_located",
+                    "The verified lifecycle channel could not be located without scanning authored XML.");
+            var indent = file.IndentAt(block.Start) + "  ";
+            edits.Add(new(span, target == "remarks"
+                ? RenderImporterOwnedRemarks(sourceDocs.Paragraphs, sourceDocs, file.Newline, indent, indent + "  ")
+                : "<returns>To be added.</returns>"));
+        }
+        foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
+            blockText = blockText[..edit.Span.Start] + edit.Replacement + blockText[edit.Span.End..];
+        return new(text[..block.Start] + blockText + text[block.End..], null, null);
+    }
+
+    sealed record ParagraphBoundaryRepairResult(string Text, string? Reason, string? Detail);
+
+    static ParagraphBoundaryRepairResult RepairKnownAndroidParagraphBoundary(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        if (!HasKnownAndroidParagraphBoundaryRepairCandidate(owner))
+            return new(text, null, null);
+
+        if (sourceDocs.SourceKind != "android" ||
+            !sourceDocs.SourceUrl.Equals(ControlTemplateSourceUrl, StringComparison.Ordinal) ||
+            sourceDocs.Summary != ControlTemplateLead ||
+            sourceDocs.Paragraphs.Any(paragraph => paragraph.IsCode) ||
+            !sourceDocs.Paragraphs.Select(paragraph => paragraph.Text)
+                .SequenceEqual([ControlTemplateLead, ControlTemplateDescription]))
+        {
+            return new(
+                text,
+                "source_paragraph_boundary_mismatch",
+                "The exact known member did not provide the verified source paragraph boundary.");
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs))
+        {
+            return new(
+                text,
+                "paragraph_boundary_target_not_located",
+                "The parser-selected Docs block did not match the untouched owner.");
+        }
+
+        var expectedRemarks = new XElement(
+            "remarks",
+            new XElement("para", LegacyControlTemplateParagraph),
+            ImporterSourceReference(sourceDocs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        if (actualDocs.Elements("remarks").ToList() is not [XElement remarks] ||
+            !ImporterMarkupEquals(remarks, expectedRemarks))
+        {
+            return new(
+                text,
+                "existing_paragraph_boundary_not_importer_owned",
+                "The complete old remarks, exact source reference, and attribution did not match the known importer output.");
+        }
+
+        var summary = actualDocs.Element("summary")!;
+        if (!TryGetElementSpan(blockText, summary, out var summarySpan) ||
+            !TryGetElementSpan(blockText, remarks, out var remarksSpan))
+        {
+            return new(
+                text,
+                "paragraph_boundary_target_not_located",
+                "The verified summary and remarks could not be located without scanning authored XML.");
+        }
+
+        var remarksIndent = file.IndentAt(block.Start) + "  ";
+        var edits = new[]
+        {
+            new XmlSpanEdit(summarySpan, $"<summary>{XmlEscape(sourceDocs.Summary)}</summary>"),
+            new XmlSpanEdit(
+                remarksSpan,
+                RenderImporterOwnedRemarks(
+                    sourceDocs.Paragraphs,
+                    sourceDocs,
+                    file.Newline,
+                    remarksIndent,
+                    remarksIndent + "  ")),
+        };
+        foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
+            blockText = blockText[..edit.Span.Start] + edit.Replacement + blockText[edit.Span.End..];
+        return new(text[..block.Start] + blockText + text[block.End..], null, null);
     }
 
     static List<string> KnownAndroidTextRepairCandidateTargets(DocsOwner owner) =>
@@ -5945,10 +6283,405 @@ static class ImporterProgram
         return Path.GetFullPath(resolved);
     }
 
+    static void TestControlTemplateParagraphBoundary(string repositoryRoot, string fixtureRoot)
+    {
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "controls-template-android-reference.html"))
+            .Replace("\r\n", "\n", StringComparison.Ordinal);
+        var request = SourceRequest.Create("android/service/controls/Control$StatefulBuilder")!;
+        var sourceDocs = SourcePage.Parse(request, html).Members.Single().Docs!;
+        Assert(
+            sourceDocs.Summary == ControlTemplateLead &&
+            sourceDocs.Paragraphs.Select(paragraph => paragraph.Text)
+                .SequenceEqual([ControlTemplateLead, ControlTemplateDescription]) &&
+            sourceDocs.Paragraphs.All(paragraph => !paragraph.IsCode),
+            "ControlTemplate official blank line separates the unpunctuated lead-in without inventing punctuation");
+        var crlfDocs = SourcePage.Parse(request, html.Replace("\n", "\r\n", StringComparison.Ordinal))
+            .Members.Single().Docs!;
+        Assert(
+            crlfDocs.Paragraphs.SequenceEqual(sourceDocs.Paragraphs),
+            "ControlTemplate source paragraph boundary handles CRLF");
+        foreach (var (candidate, url) in new[]
+        {
+            (html, ControlTemplateSourceUrl + ".Altered"),
+            (html.Replace("primary user interaction", "authored user interaction", StringComparison.Ordinal),
+                ControlTemplateSourceUrl),
+            (html.Replace("Devices may support", "Devices can support", StringComparison.Ordinal),
+                ControlTemplateSourceUrl),
+            (html.Replace("interaction\n\nDevices", "interaction\nDevices", StringComparison.Ordinal),
+                ControlTemplateSourceUrl),
+            (html.Replace("interaction\n\nDevices", "interaction.\n\nDevices", StringComparison.Ordinal),
+                ControlTemplateSourceUrl),
+            ("<p>Ordinary text\n\nMore ordinary text.</p>", ControlTemplateSourceUrl),
+            ("<pre>" + LegacyControlTemplateParagraph + "</pre>", ControlTemplateSourceUrl),
+        })
+        {
+            Assert(
+                SourcePage.NormalizeKnownAndroidParagraphBoundary(candidate, url) == candidate,
+                "known paragraph boundary does not reinterpret other sources, line wrapping, completed sentences, or code");
+        }
+
+        var file = LoadedFile.Load(
+            repositoryRoot,
+            Path.Combine(fixtureRoot, "controls-template-source.xml"));
+        file.SelectOwners("SetControlTemplate");
+        var owner = file.Owners.Single();
+        var blockStart = file.DocsBlocks[owner.Order].Start;
+        var blockEnd = file.DocsBlocks[owner.Order].End;
+        var fixtureText = file.Text;
+        var originalDocs = new XElement(owner.Docs);
+        var mapped = MapOwner(
+            owner,
+            new Dictionary<string, SourceLoadResult>
+            {
+                [request.Url] = SourceLoadResult.Success(SourcePage.Parse(request, html)),
+            });
+        Assert(
+            mapped.ErrorReason is null && mapped.Docs?.Summary == ControlTemplateLead,
+            "ControlTemplate fixture maps the exact JNI overload");
+
+        (string Before, ParagraphBoundaryRepairResult Repair) RepairCase(
+            XElement docs,
+            SourceDocs? source = null,
+            string? memberId = null)
+        {
+            var docsText = docs.ToString(SaveOptions.DisableFormatting);
+            var text = fixtureText[..blockStart] + docsText + fixtureText[blockEnd..];
+            file.UpdateBlockOffsets(owner.Order, text);
+            var candidate = owner with
+            {
+                Id = memberId ?? owner.Id,
+                Docs = XElement.Parse(docsText, LoadOptions.PreserveWhitespace),
+            };
+            return (text, RepairKnownAndroidParagraphBoundary(text, file, candidate, source ?? sourceDocs));
+        }
+
+        var repaired = RepairCase(new XElement(originalDocs));
+        var repairedDocs = XElement.Parse(repaired.Repair.Text)
+            .Element("Members")!.Element("Member")!.Element("Docs")!;
+        Assert(
+            repaired.Repair.Reason is null &&
+            repaired.Repair.Text != repaired.Before &&
+            repairedDocs.Element("summary")!.Value == ControlTemplateLead &&
+            repairedDocs.Element("remarks")!.Elements("para").Take(2)
+                .Select(paragraph => paragraph.Value)
+                .SequenceEqual([ControlTemplateLead, ControlTemplateDescription]) &&
+            HasExactImporterSourceReference(repairedDocs, sourceDocs) &&
+            ImporterMarkupEquals(
+                repairedDocs.Element("remarks")!.Elements("para").Last(),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")) &&
+            XNode.DeepEquals(repairedDocs.Element("param"), originalDocs.Element("param")) &&
+            XNode.DeepEquals(repairedDocs.Element("returns"), originalDocs.Element("returns")),
+            "guarded ControlTemplate regeneration repairs both channels and preserves authored parameters, returns, reference, and attribution");
+        var repeated = RepairCase(repairedDocs);
+        Assert(
+            repeated.Repair.Text == repeated.Before && repeated.Repair.Reason is null,
+            "ControlTemplate paragraph repair is idempotent");
+        var wrongMember = RepairCase(originalDocs, memberId: ControlTemplateMemberId + ".Altered");
+        Assert(
+            wrongMember.Repair.Text == wrongMember.Before,
+            "ControlTemplate paragraph repair requires exact managed identity");
+        foreach (var source in new[]
+        {
+            sourceDocs with { SourceUrl = ControlTemplateSourceUrl + ".Altered" },
+            sourceDocs with { SourceKind = "java" },
+            sourceDocs with { Summary = ControlTemplateLead + "." },
+            sourceDocs with { Paragraphs = [new SourceParagraph(ControlTemplateLead, true)] },
+            sourceDocs with { Paragraphs = [new SourceParagraph(LegacyControlTemplateParagraph, false)] },
+        })
+        {
+            var preserved = RepairCase(originalDocs, source);
+            Assert(
+                preserved.Repair.Text == preserved.Before &&
+                preserved.Repair.Reason == "source_paragraph_boundary_mismatch",
+                "ControlTemplate paragraph repair reports and preserves changed source contracts");
+        }
+
+        var authoredVariants = new List<XElement>();
+        void AuthoredVariant(Action<XElement> alter)
+        {
+            var docs = new XElement(originalDocs);
+            alter(docs);
+            authoredVariants.Add(docs);
+        }
+        AuthoredVariant(docs => docs.Element("summary")!.Add(new XElement("c", "Authored content.")));
+        AuthoredVariant(docs => docs.Element("summary")!.ReplaceWith(
+            new XElement("summary", new XCData(LegacyControlTemplateSummary))));
+        AuthoredVariant(docs => docs.Add(new XElement(docs.Element("summary")!)));
+        AuthoredVariant(docs => docs.Element("remarks")!.AddFirst(new XElement("para", "Authored content.")));
+        AuthoredVariant(docs => docs.Element("remarks")!.Element("para")!.Add(new XElement("c", "")));
+        AuthoredVariant(docs => docs.Element("remarks")!.AddFirst(new XComment("Authored content.")));
+        AuthoredVariant(docs => docs.Element("remarks")!.AddFirst(new XProcessingInstruction("authored", "keep")));
+        AuthoredVariant(docs => docs.Element("remarks")!.Element("para")!.ReplaceWith(
+            new XElement("para", new XCData(LegacyControlTemplateParagraph))));
+        AuthoredVariant(docs => docs.Element("remarks")!.Elements("para").ElementAt(1)
+            .Descendants("a").Single().SetAttributeValue("href", ControlTemplateSourceUrl + ".Altered"));
+        AuthoredVariant(docs => docs.Element("remarks")!.Elements("para").ElementAt(1)
+            .Descendants("a").Single().Add(new XElement("c", "")));
+        AuthoredVariant(docs => docs.Element("remarks")!.Elements("para").Last().Add(" Authored content."));
+        AuthoredVariant(docs => docs.Element("remarks")!.Elements("para").Last().Remove());
+        AuthoredVariant(docs => docs.Add(new XElement(docs.Element("remarks")!)));
+        foreach (var docs in authoredVariants)
+        {
+            var preserved = RepairCase(docs);
+            Assert(
+                preserved.Repair.Text == preserved.Before,
+                "ControlTemplate paragraph repair preserves authored, mixed, duplicate, CDATA, comment, and processing-instruction nodes");
+        }
+
+        file.UpdateBlockOffsets(owner.Order, repaired.Before);
+        var mismatchedDocs = new XElement(originalDocs);
+        mismatchedDocs.Element("param")!.Value = "Changed owner snapshot.";
+        var mismatch = RepairKnownAndroidParagraphBoundary(
+            repaired.Before,
+            file,
+            owner with { Docs = mismatchedDocs },
+            sourceDocs);
+        Assert(
+            mismatch.Text == repaired.Before &&
+            mismatch.Reason == "paragraph_boundary_target_not_located",
+            "ControlTemplate paragraph repair preserves parser-correspondence mismatches");
+    }
+
+    static void TestControlsLifecycle(string repositoryRoot, string fixtureRoot)
+    {
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "controls-lifecycle-android-reference.html"));
+        var request = SourceRequest.Create("android/service/controls/ControlsProviderService")!;
+        var page = SourcePage.Parse(request, html);
+        var file = LoadedFile.Load(repositoryRoot, Path.Combine(fixtureRoot, "controls-lifecycle-source.xml"));
+        file.SelectOwners(null);
+        var fixtureText = file.Text;
+        var pages = new Dictionary<string, SourceLoadResult>
+        {
+            [request.Url] = SourceLoadResult.Success(page),
+        };
+        foreach (var owner in file.Owners.Where(owner => owner.Member is not null))
+        {
+            file.UpdateBlockOffsets(owner.Order, fixtureText);
+            var start = file.DocsBlocks[owner.Order].Start;
+            var end = file.DocsBlocks[owner.Order].End;
+            var originalDocs = new XElement(owner.Docs);
+            var rule = KnownControlsLifecycleRepairs.Single(repair => repair.MemberId == owner.Id);
+            var mapping = MapOwner(owner, pages);
+            var source = mapping.Docs!;
+            var rawSource = page.Members.Single(member => member.Name == owner.MemberRegistration!.Name).Docs!;
+            Assert(mapping.ErrorReason is null &&
+                rawSource.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(rule.OriginalParagraphs) &&
+                source.Summary == rule.Summary &&
+                source.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(rule.SafeParagraphs),
+                "registered Controls lifecycle mapping retains only exact safe reference sentences");
+            Assert(rule.IncorrectReturn is null ||
+                ReplacementFor(new Placeholder(0, "returns", "", "returns"), source).Reason == "source_channel_ambiguous",
+                "Controls OnUnbind caller-choice return is suppressed before first fill");
+            foreach (var (memberId, mismatched) in new[]
+            {
+                (owner.Id + ".Other", rawSource),
+                (owner.Id, rawSource with { SourceUrl = rawSource.SourceUrl + ".Other" }),
+                (owner.Id, rawSource with { SourceKind = "java" }),
+            })
+            {
+                Assert(ReferenceEquals(
+                    WithoutKnownUnsafeControlsLifecycleChannels(memberId, mismatched), mismatched),
+                    "Controls lifecycle filtering requires the exact member, URL, and Android provenance");
+            }
+            var changedProse = rawSource with
+            {
+                Paragraphs = [new SourceParagraph(rule.OriginalParagraphs[0] + " Changed source.", false)],
+            };
+            Assert(WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, changedProse)
+                .Paragraphs.SequenceEqual(changedProse.Paragraphs),
+                "Controls lifecycle filtering does not truncate changed source prose");
+
+            (string Before, ControlsLifecycleRepairResult Result) RepairCase(
+                XElement docs, SourceDocs? candidateSource = null, string? memberId = null)
+            {
+                var docsText = docs.ToString(SaveOptions.DisableFormatting);
+                var text = fixtureText[..start] + docsText + fixtureText[end..];
+                file.UpdateBlockOffsets(owner.Order, text);
+                var candidate = owner with
+                {
+                    Id = memberId ?? owner.Id,
+                    Docs = XElement.Parse(docsText, LoadOptions.PreserveWhitespace),
+                };
+                return (text, RepairKnownControlsLifecycle(text, file, candidate, candidateSource ?? source));
+            }
+
+            var repaired = RepairCase(originalDocs);
+            var repairedDocs = XElement.Parse(repaired.Result.Text).Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == owner.Member!.Attribute("MemberName")!.Value)
+                .Element("Docs")!;
+            Assert(repaired.Result.Reason is null && repaired.Result.Text != repaired.Before &&
+                XNode.DeepEquals(repairedDocs.Element("summary"), originalDocs.Element("summary")) &&
+                XNode.DeepEquals(repairedDocs.Element("param"), originalDocs.Element("param")) &&
+                repairedDocs.Element("remarks")!.Elements("para").Take(rule.SafeParagraphs.Count())
+                    .Select(paragraph => paragraph.Value).SequenceEqual(rule.SafeParagraphs) &&
+                HasExactImporterSourceReference(repairedDocs, source) &&
+                ImporterMarkupEquals(repairedDocs.Element("remarks")!.Elements("para").Last(),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")) &&
+                repairedDocs.Element("returns")!.Value == "To be added.",
+                "Controls lifecycle old-import repair preserves correct summary, authored parameter, source reference, and attribution");
+            var repeated = RepairCase(repairedDocs);
+            Assert(repeated.Result.Text == repeated.Before && repeated.Result.Reason is null,
+                "Controls lifecycle repair is idempotent");
+            var wrongMember = RepairCase(originalDocs, memberId: owner.Id + ".Other");
+            Assert(wrongMember.Result.Text == wrongMember.Before,
+                "Controls lifecycle repair requires the exact managed identity");
+            var mismatchSources = new List<SourceDocs>
+            {
+                source with { SourceUrl = source.SourceUrl + ".Other" },
+                source with { SourceKind = "java" },
+                source with { Summary = source.Summary + " Changed." },
+                source with { Paragraphs = [new SourceParagraph(rule.Summary, true)] },
+                source with { Paragraphs = rawSource.Paragraphs },
+            };
+            if (rule.IncorrectReturn is not null)
+                mismatchSources.AddRange([
+                    source with { Returns = source.Returns + " Changed." },
+                    source with { UnsafeTargets = null },
+                ]);
+            foreach (var mismatched in mismatchSources)
+            {
+                var preserved = RepairCase(originalDocs, mismatched);
+                Assert(preserved.Result.Text == preserved.Before &&
+                    preserved.Result.Reason == "source_controls_lifecycle_mismatch",
+                    "Controls lifecycle repair reports changed source text and provenance without edits");
+            }
+
+            var authoredVariants = new List<XElement>();
+            void Variant(Action<XElement> alter)
+            {
+                var docs = new XElement(originalDocs);
+                alter(docs);
+                authoredVariants.Add(docs);
+            }
+            Variant(docs => docs.Element("summary")!.Add(" Authored addition."));
+            Variant(docs => docs.Element("summary")!.ReplaceNodes(new XCData(rule.Summary)));
+            Variant(docs => docs.Add(new XElement(docs.Element("summary")!)));
+            Variant(docs => docs.Element("remarks")!.Element("para")!.Add(" Authored addition."));
+            Variant(docs => docs.Element("remarks")!.Element("para")!.Add(new XElement("c", "")));
+            Variant(docs => docs.Element("remarks")!.Element("para")!.ReplaceNodes(
+                new XCData(rule.OriginalParagraphs[0])));
+            Variant(docs => docs.Element("remarks")!.AddFirst(new XComment("Authored comment.")));
+            Variant(docs => docs.Element("remarks")!.AddFirst(new XProcessingInstruction("authored", "keep")));
+            Variant(docs => docs.Element("remarks")!.Add(new XElement("para", "Authored paragraph.")));
+            Variant(docs => docs.Add(new XElement(docs.Element("remarks")!)));
+            Variant(docs => docs.Element("remarks")!.Elements("para").Single(paragraph =>
+                TryGetImporterSourceReferenceUrl(paragraph, out _))
+                .Descendants("a").Single().SetAttributeValue("href", rule.SourceUrl + ".Other"));
+            Variant(docs => docs.Element("remarks")!.Elements("para").Single(paragraph =>
+                TryGetImporterSourceReferenceUrl(paragraph, out _))
+                .Descendants("a").Single().Add(new XElement("c", "")));
+            Variant(docs => docs.Element("remarks")!.Elements("para").Last().Add(" Authored attribution."));
+            Variant(docs => docs.Element("remarks")!.Elements("para").Last().Remove());
+            Variant(docs => docs.Add(new XElement(docs.Element("returns")!)));
+            if (rule.IncorrectReturn is not null)
+            {
+                Variant(docs => docs.Element("returns")!.Add(new XElement("c", "")));
+                Variant(docs => docs.Element("returns")!.ReplaceNodes(new XCData(rule.IncorrectReturn)));
+                Variant(docs => docs.Element("returns")!.Add(new XComment("Authored return.")));
+                Variant(docs => docs.Element("returns")!.Add(new XProcessingInstruction("authored", "keep")));
+            }
+            foreach (var docs in authoredVariants)
+            {
+                var preserved = RepairCase(docs);
+                Assert(preserved.Result.Text == preserved.Before &&
+                    preserved.Result.Reason == "existing_controls_lifecycle_not_importer_owned",
+                    "Controls lifecycle repair preserves and reports authored/full-text, mixed, CDATA, comment, PI, duplicate, and metadata mismatches");
+            }
+            file.UpdateBlockOffsets(owner.Order, repaired.Before);
+            var mismatchedDocs = new XElement(originalDocs);
+            mismatchedDocs.Element("param")!.Value = "Changed owner snapshot.";
+            var mismatch = RepairKnownControlsLifecycle(repaired.Before, file,
+                owner with { Docs = mismatchedDocs }, source);
+            Assert(mismatch.Text == repaired.Before && mismatch.Reason == "controls_lifecycle_target_not_located",
+                "Controls lifecycle repair preserves parser-correspondence mismatches");
+        }
+
+        var token = $"controls-lifecycle-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var tempDirectory = Path.Combine(repositoryRoot, "tools", token);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Service.Controls", token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var cachePath = Path.Combine(tempDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            File.WriteAllText(pipelinePath, fixtureText.Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(false));
+            var originalBytes = File.ReadAllBytes(pipelinePath);
+            JsonDocument RunPipeline(bool apply, int limit, string? member = null)
+            {
+                var reportPath = Path.Combine(tempDirectory, "report");
+                var args = new List<string>
+                {
+                    "--path", pipelinePath, "--namespace", "Android.Service.Controls",
+                    "--offline", "--cache", tempDirectory,
+                    "--max-changes", limit.ToString(), "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                if (member is not null)
+                    args.AddRange(["--member", member]);
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Controls lifecycle registered pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Controls lifecycle pipeline reports zero errors");
+                return report;
+            }
+            using (var limited = RunPipeline(true, 1, "OnUnbind"))
+            {
+                Assert(limited.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(originalBytes),
+                    "Controls OnUnbind two-channel repair cannot partially apply with max-one");
+            }
+            using (var measured = RunPipeline(false, 3))
+                Assert(measured.RootElement.GetProperty("wouldApplyCount").GetInt32() == 3,
+                    "Controls lifecycle dry run measures all three old-import channels");
+            using (var applied = RunPipeline(true, 3))
+                Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 3,
+                    "Controls lifecycle pipeline repairs exactly three channels");
+            var repairedBytes = File.ReadAllBytes(pipelinePath);
+            using (var repeated = RunPipeline(true, 10))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(repairedBytes),
+                    "Controls lifecycle old-import rerun has zero operations and is byte-identical");
+
+            var firstFill = XElement.Parse(fixtureText, LoadOptions.PreserveWhitespace);
+            foreach (var docs in firstFill.Element("Members")!.Elements("Member").Select(member => member.Element("Docs")!))
+                foreach (var target in new[] { "summary", "returns", "remarks" })
+                    docs.Element(target)!.ReplaceNodes("To be added.");
+            File.WriteAllText(pipelinePath, firstFill.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            using (var filled = RunPipeline(true, 10))
+                Assert(filled.RootElement.GetProperty("appliedCount").GetInt32() == 4,
+                    "registered Controls first-fill imports safe summaries and remarks, not the unsafe return");
+            var filledText = File.ReadAllText(pipelinePath);
+            var filledXml = XElement.Parse(filledText);
+            Assert(!filledText.Contains("May return null", StringComparison.Ordinal) &&
+                !filledText.Contains("The default implementation does nothing", StringComparison.Ordinal) &&
+                !filledText.Contains("Return true if you would like", StringComparison.Ordinal) &&
+                filledXml.Element("Members")!.Elements("Member").All(member =>
+                    member.Element("Docs")!.Element("returns")!.Value == "To be added." &&
+                    member.Element("Docs")!.Element("param")!.Value == "Existing parameter documentation."),
+                "actual registered first-fill never emits unsafe inherited prose or overwrites authored parameters");
+            var filledBytes = File.ReadAllBytes(pipelinePath);
+            using (var repeated = RunPipeline(true, 10))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(filledBytes),
+                    "Controls lifecycle first-fill rerun has zero operations and is byte-identical");
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
         TestKnownAndroidTextRepairs();
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
+        TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
+        TestControlsLifecycle(repositoryRoot, fixtureRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
         Assert(
@@ -13716,6 +14449,7 @@ static class ImporterProgram
             string title,
             string url)
         {
+            fragment = NormalizeKnownAndroidParagraphBoundary(fragment, url);
             var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (Match row in Regex.Matches(
                 fragment,
@@ -13760,6 +14494,23 @@ static class ImporterProgram
                 $"{request.JavaPath.Replace('/', '.').Replace('$', '.')}.{title}",
                 request.Kind,
                 HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal));
+        }
+
+        internal static string NormalizeKnownAndroidParagraphBoundary(string html, string sourceUrl)
+        {
+            if (!sourceUrl.Equals(ControlTemplateSourceUrl, StringComparison.Ordinal))
+                return html;
+
+            return Regex.Replace(
+                html,
+                @"(?<open><p\b[^>]*>)(?<lead>.*?)\r?\n[ \t]*\r?\n[ \t]*(?<description>.*?)</p>",
+                match =>
+                    HtmlText(match.Groups["lead"].Value) == ControlTemplateLead &&
+                    HtmlText(match.Groups["description"].Value) == ControlTemplateDescription
+                        ? match.Groups["open"].Value + match.Groups["lead"].Value +
+                            "</p><p>" + match.Groups["description"].Value + "</p>"
+                        : match.Value,
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         }
 
         static string ExtractAndroidTableValue(string fragment, string heading)
