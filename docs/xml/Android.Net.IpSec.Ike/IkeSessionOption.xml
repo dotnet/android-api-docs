@@ -40,7 +40,12 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>If set, the IKE library will accept any remote (server) identity, even if it does not match the configured remote identity</para>
+          <para>See Builder.setRemoteIdentification(IkeIdentification)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams#IKE_OPTION_ACCEPT_ANY_REMOTE_ID" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.IKE_OPTION_ACCEPT_ANY_REMOTE_ID</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="EapOnlyAuth">
@@ -68,7 +73,12 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>If set, and EAP has been configured as the authentication method, the IKE library will request that the remote (also) use an EAP-only authentication flow.</para>
+          <para>@see Builder.setAuthEap(X509Certificate,EapSessionConfig)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams#IKE_OPTION_EAP_ONLY_AUTH" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.IKE_OPTION_EAP_ONLY_AUTH</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="ForcePort4500">
@@ -96,7 +106,12 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Configures the IKE session to always send to port 4500.</para>
+          <para>If set, the IKE Session will be initiated and maintained exclusively using destination port 4500, regardless of the presence of NAT. Otherwise, the IKE Session will be initiated on destination port 500; then, if either a NAT is detected or both MOBIKE and NAT-T are supported by the peer, it will proceed on port 4500.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams#IKE_OPTION_FORCE_PORT_4500" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.IKE_OPTION_FORCE_PORT_4500</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="InitialContact">
@@ -124,7 +139,14 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>If set, the IKE library will send INITIAL_CONTACT notification to the peers.</para>
+          <para>If this option is set, the INITIAL_CONTACT notification payload is sent in IKE_AUTH. The client can use this option to assert to the peer that this IKE SA is the only IKE SA currently active between the authenticated identities.</para>
+          <para>@see "https://tools.ietf.org/html/rfc7296#section-2.4" RFC 7296, Internet Key Exchange Protocol Version 2 (IKEv2)</para>
+          <para>@see Builder.addIkeOption(int)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams#IKE_OPTION_INITIAL_CONTACT" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.IKE_OPTION_INITIAL_CONTACT</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Mobike">
@@ -152,7 +174,16 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>If set, the IKE Session will attempt to handle IP address changes using RFC4555 MOBIKE.</para>
+          <para>Upon IP address changes (including Network changes), the IKE session will initiate an RFC 4555 MOBIKE procedure, migrating both this IKE Session and associated IPsec Transforms to the new local and remote address pair.</para>
+          <para>Checking whether or not MOBIKE is supported by both the IKE library and the server in an IKE Session is done via IkeSessionConfiguration.isIkeExtensionEnabled(int).</para>
+          <para>It is recommended that IKE_OPTION_MOBIKE be enabled unless precluded for compatibility reasons.</para>
+          <para>If this option is set for an IKE Session, Transport-mode SAs will not be allowed in that Session.</para>
+          <para>Callers that need to perform migration of IPsec transforms and tunnels MUST implement migration specific methods in IkeSessionCallback and ChildSessionCallback.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ipsec/ike/IkeSessionParams#IKE_OPTION_MOBIKE" title="Reference documentation">Android reference for <code>android.net.ipsec.ike.IkeSessionParams.IKE_OPTION_MOBIKE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
   </Members>

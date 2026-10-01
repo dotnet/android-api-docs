@@ -35,7 +35,22 @@ registrations, unknown type descriptors, overload mismatches, ambiguous matches,
 inherited-only detail, missing documentation channels, or source text that contains
 only a Java type, nullability marker, cross-reference heading, or standalone
 deprecation boilerplate. Android page license/trademark footers and update timestamps
-are filtered, and literal Unicode escapes are decoded before XML escaping. HTML tags
+are filtered, and literal Unicode escapes are decoded before XML escaping. Source
+prose is not imported for the exact `SaProposal.PSEUDORANDOM_FUNCTION_SHA2_512` field
+when its complete Android description incorrectly names HMAC-SHA2-384. That channel
+is reported as ambiguous instead of inventing replacement prose; existing authored
+or imported documentation is preserved.
+Three further exact IKE channels are withheld rather than importing contradicted
+contracts: the IPv6 requested-prefix getter's `-1` sentinel, the IKE-SA DH list
+advertising `DH_GROUP_NONE`, and the Child-SA encryption list advertising 3DES.
+The exact MOBIKE paragraph that confuses target SDK with device OS is excluded
+while retaining its other official paragraphs. These member/source/full-text
+guards do not affect valid sibling SA choices or shared constant descriptions.
+Prior importer-owned copies can be withdrawn only when the complete original
+source-reference/attribution structure and plain original channel match;
+authored or mixed content, comments, CDATA, processing instructions, duplicate
+channels, mismatched binding metadata, and changed source text are preserved.
+Future corrected official source remains eligible. HTML tags
 are removed with quoted attributes intact, and empty table description cells remain
 empty rather than shifting Java types into prose. Java `deprecation-block` containers
 are excluded before selecting exact `block` documentation. Android return tables are
