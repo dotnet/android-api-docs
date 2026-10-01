@@ -195,6 +195,41 @@ static class ImporterProgram
             "Set the deletion mode for the supplied params. DeletionRequest.DELETION_MODE_ALL: All data associated with the selected records will be deleted. DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA: All data except the internal system data (e.g. rate limits) associated with the selected records will be deleted."),
     ];
 
+    static readonly KnownUnsafeIkeChannel[] KnownUnsafeIkeChannels =
+    [
+        new(
+            "P:Android.Net.IpSec.Ike.TunnelModeChildSessionParams.IConfigRequestIpv6Address.PrefixLength",
+            AndroidReference + "android/net/ipsec/ike/TunnelModeChildSessionParams.ConfigRequestIpv6Address#getPrefixLength()",
+            "value",
+            "The requested prefix length, or -1 if no specific IPv6 address was requested",
+            "The exact Android getter-return source names -1 instead of the implemented unspecified-prefix sentinel."),
+        new(
+            "M:Android.Net.IpSec.Ike.IkeSaProposal.Builder.AddDhGroup(System.Int32)",
+            AndroidReference + "android/net/ipsec/ike/IkeSaProposal.Builder#addDhGroup(int)",
+            "param:dhGroup",
+            "to add to IkeSaProposal. Value is one of the following: SaProposal.DH_GROUP_NONE; SaProposal.DH_GROUP_1024_BIT_MODP; SaProposal.DH_GROUP_1536_BIT_MODP; SaProposal.DH_GROUP_2048_BIT_MODP; SaProposal.DH_GROUP_3072_BIT_MODP; SaProposal.DH_GROUP_4096_BIT_MODP; SaProposal.DH_GROUP_CURVE_25519",
+            "The exact Android IKE-SA parameter source advertises DH_GROUP_NONE although IKE proposals reject it."),
+        new(
+            "M:Android.Net.IpSec.Ike.ChildSaProposal.Builder.AddEncryptionAlgorithm(System.Int32,System.Int32)",
+            AndroidReference + "android/net/ipsec/ike/ChildSaProposal.Builder#addEncryptionAlgorithm(int,%20int)",
+            "param:algorithm",
+            "encryption algorithm to add to ChildSaProposal. Value is one of the following: SaProposal.ENCRYPTION_ALGORITHM_3DES; SaProposal.ENCRYPTION_ALGORITHM_AES_CBC; SaProposal.ENCRYPTION_ALGORITHM_AES_CTR; SaProposal.ENCRYPTION_ALGORITHM_AES_GCM_8; SaProposal.ENCRYPTION_ALGORITHM_AES_GCM_12; SaProposal.ENCRYPTION_ALGORITHM_AES_GCM_16; SaProposal.ENCRYPTION_ALGORITHM_CHACHA20_POLY1305",
+            "The exact Android Child-SA parameter source advertises 3DES without a supported IPsec algorithm mapping."),
+    ];
+    const string IkeMobikeMemberId = "F:Android.Net.IpSec.Ike.IkeSessionOption.Mobike";
+    const string IkeMobikeSourceUrl =
+        AndroidReference + "android/net/ipsec/ike/IkeSessionParams#IKE_OPTION_MOBIKE";
+    static readonly string[] IkeMobikeSourceParagraphs =
+    [
+        "If set, the IKE Session will attempt to handle IP address changes using RFC4555 MOBIKE.",
+        "Upon IP address changes (including Network changes), the IKE session will initiate an RFC 4555 MOBIKE procedure, migrating both this IKE Session and associated IPsec Transforms to the new local and remote address pair.",
+        "The IKE library will first attempt to enable MOBIKE to handle the changes of underlying network and addresses. For callers targeting SDK Build.VERSION_CODES.S_V2 and earlier, this option will implicitly enable the support for rekey-based mobility, and thus if the server does not support MOBIKE, the IKE Session will try migration by rekeying all associated IPsec SAs. This rekey-based mobility feature is not best-practice and has technical issues; accordingly, it will no longer be enabled for callers targeting SDK Build.VERSION_CODES.TIRAMISU and above.",
+        "Checking whether or not MOBIKE is supported by both the IKE library and the server in an IKE Session is done via IkeSessionConfiguration.isIkeExtensionEnabled(int).",
+        "It is recommended that IKE_OPTION_MOBIKE be enabled unless precluded for compatibility reasons.",
+        "If this option is set for an IKE Session, Transport-mode SAs will not be allowed in that Session.",
+        "Callers that need to perform migration of IPsec transforms and tunnels MUST implement migration specific methods in IkeSessionCallback and ChildSessionCallback.",
+    ];
+
     public static async Task<int> RunAsync(string[] args)
     {
         Options options;
@@ -455,6 +490,41 @@ static class ImporterProgram
                                     "Replaced an exact importer-generated Javadoc copied-description label."));
                             }
                         }
+                    }
+
+                    var ikeRepairCandidates = KnownUnsafeIkeRepairCandidateTargets(owner);
+                    var ikeRepair = RepairKnownUnsafeIkeDocumentation(text, file, owner, mapping.Docs!);
+                    foreach (var target in ikeRepairCandidates)
+                    {
+                        if (ikeRepair.Targets.Contains(target) && remaining > 0)
+                        {
+                            text = ikeRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply", file.RelativePath, owner.Id, target, mapping.SourceUrl,
+                                "importer_unsafe_ike_source_withdrawal",
+                                "Withheld an exact unsafe IKE source channel or paragraph under strict importer-ownership guards."));
+                        }
+                        else
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath, owner.Id, target,
+                                ikeRepair.Targets.Contains(target) ? "max_changes_reached" : "importer_unsafe_ike_channel_not_owned",
+                                ikeRepair.Targets.Contains(target)
+                                    ? $"The --max-changes limit of {options.MaxChanges} was reached."
+                                    : "The exact source and original importer-owned channel structure could not both be verified; documentation was preserved.",
+                                mapping.SourceUrl));
+                        }
+                    }
+                    if (mapping.Docs!.UnsafeTargets?.TryGetValue("summary:paragraph", out var ikeParagraphDetail) == true)
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id, "summary:paragraph",
+                            "source_channel_ambiguous", ikeParagraphDetail, mapping.SourceUrl));
                     }
 
                     var booleanReturnRepair = RepairKnownBooleanReturn(
@@ -1207,6 +1277,8 @@ static class ImporterProgram
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
                     fields[0].Url);
+            fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
+            fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
                 WithKnownAndroidTextCorrections(owner.Id, fieldDocs)));
         }
@@ -1261,6 +1333,7 @@ static class ImporterProgram
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
+        docs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeJavaSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
         docs = WithoutKnownUnsafeRemoteEntryGuidance(owner.Id, docs);
@@ -1369,6 +1442,21 @@ static class ImporterProgram
         {
             targets["remarks"] =
                 "The exact Android constructor remarks assert strict range endpoints; this channel is withheld rather than guessing an inclusive-endpoint correction.";
+        }
+
+        if (ownerId == "F:Android.Net.IpSec.Ike.SaProposalPseudorandomFunction.Sha2512" &&
+            docs.SourceKind == "android" &&
+            docs.SourceUrl.Equals(
+                AndroidReference + "android/net/ipsec/ike/SaProposal#PSEUDORANDOM_FUNCTION_SHA2_512",
+                StringComparison.Ordinal) &&
+            docs.Summary.Equals("HMAC-SHA2-384 Pseudorandom Function.", StringComparison.Ordinal) &&
+            docs.Paragraphs is [SourceParagraph { IsCode: false } paragraph] &&
+            paragraph.Text.Equals("HMAC-SHA2-384 Pseudorandom Function.", StringComparison.Ordinal))
+        {
+            const string detail =
+                "The exact Android SHA2-512 field source incorrectly describes SHA2-384.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
         }
 
         if (ownerId == "P:Android.Security.KeyStoreException.RetryPolicy" &&
@@ -1482,6 +1570,134 @@ static class ImporterProgram
                 Paragraphs = targets.ContainsKey("remarks") ? [] : docs.Paragraphs,
                 UnsafeTargets = targets,
             };
+    }
+
+    static bool MatchesKnownUnsafeIkeChannel(KnownUnsafeIkeChannel channel, string memberId, SourceDocs docs) =>
+        memberId == channel.MemberId &&
+        docs.SourceKind == "android" &&
+        docs.SourceUrl == channel.SourceUrl &&
+        (channel.Target == "value"
+            ? docs.Returns == channel.IncorrectText
+            : docs.Parameters.TryGetValue(channel.Target["param:".Length..], out var parameter) &&
+              RemoveLeadingJavaType(parameter) == channel.IncorrectText);
+
+    static bool MatchesIkeMobikeSource(string memberId, SourceDocs docs) =>
+        memberId == IkeMobikeMemberId &&
+        docs.SourceKind == "android" &&
+        docs.SourceUrl == IkeMobikeSourceUrl &&
+        docs.Summary == IkeMobikeSourceParagraphs[0] &&
+        docs.Paragraphs.All(paragraph => !paragraph.IsCode) &&
+        docs.Paragraphs.Select(paragraph => paragraph.Text)
+            .SequenceEqual(IkeMobikeSourceParagraphs, StringComparer.Ordinal);
+
+    static SourceDocs WithoutKnownUnsafeIkeSourceChannels(string memberId, SourceDocs docs)
+    {
+        var channels = KnownUnsafeIkeChannels.Where(channel =>
+            MatchesKnownUnsafeIkeChannel(channel, memberId, docs)).ToList();
+        var mobike = MatchesIkeMobikeSource(memberId, docs);
+        if (channels.Count == 0 && !mobike)
+            return docs;
+
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        foreach (var channel in channels)
+            targets[channel.Target] = channel.Detail;
+        if (mobike)
+        {
+            targets["summary:paragraph"] =
+                "The exact Android MOBIKE paragraph describes the target SDK instead of the device OS as the rekey-mobility condition.";
+        }
+        return docs with
+        {
+            UnsafeTargets = targets,
+            Paragraphs = mobike
+                ? docs.Paragraphs.Where((_, index) => index != 2).ToList()
+                : docs.Paragraphs,
+        };
+    }
+
+    static List<string> KnownUnsafeIkeRepairCandidateTargets(DocsOwner owner)
+    {
+        var targets = KnownUnsafeIkeChannels.Where(channel => channel.MemberId == owner.Id)
+            .Where(channel => owner.Docs.Elements(channel.Target.Split(':')[0]).Any(element =>
+                (channel.Target == "value" ||
+                 (string?)element.Attribute("name") == channel.Target["param:".Length..]) &&
+                element.Value == channel.IncorrectText))
+            .Select(channel => channel.Target).ToList();
+        if (owner.Id == IkeMobikeMemberId &&
+            owner.Docs.Elements("summary").Any(summary =>
+                summary.Elements("para").Any(paragraph => paragraph.Value == IkeMobikeSourceParagraphs[2])))
+            targets.Add("summary");
+        return targets;
+    }
+
+    static AndroidTextRepairResult RepairKnownUnsafeIkeDocumentation(
+        string text, LoadedFile file, DocsOwner owner, SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            actualDocs.HasAttributes ||
+            actualDocs.Nodes().Any(node => node is not XElement &&
+                (node is not XText whitespace || node is XCData || !string.IsNullOrWhiteSpace(whitespace.Value))) ||
+            !HasExactImporterSourceReference(actualDocs, sourceDocs))
+            return new AndroidTextRepairResult(text, []);
+
+        var channel = KnownUnsafeIkeChannels.SingleOrDefault(candidate =>
+            MatchesKnownUnsafeIkeChannel(candidate, owner.Id, sourceDocs));
+        XElement? element = null;
+        string? target = null;
+        string replacement = "";
+        if (channel is not null)
+        {
+            var parts = channel.Target.Split(':');
+            if (actualDocs.Elements(parts[0]).Where(candidate =>
+                    parts.Length == 1 || (string?)candidate.Attribute("name") == parts[1])
+                    .ToList() is not [XElement original] ||
+                original.Attributes().Count() != (parts.Length == 1 ? 0 : 1) ||
+                !HasPlainTextContent(original, out var originalText) ||
+                originalText != channel.IncorrectText ||
+                actualDocs.Elements("remarks").ToList() is not [XElement remarks] ||
+                !ImporterMarkupEquals(remarks, XElement.Parse(RenderImporterOwnedRemarks(
+                    UsableRemarks(sourceDocs.Paragraphs), sourceDocs, "\n", "", ""))) ||
+                (parts.Length == 1
+                    ? owner.Member?.Element("ReturnValue")?.Element("ReturnType")?.Value != "System.Int32"
+                    : owner.Member?.Element("Parameters")?.Elements("Parameter").Where(parameter =>
+                        (string?)parameter.Attribute("Name") == parts[1] &&
+                        (string?)parameter.Attribute("Type") == "System.Int32").Count() != 1))
+                return new AndroidTextRepairResult(text, []);
+            element = original;
+            target = channel.Target;
+            replacement = new XElement(original.Name, original.Attributes(), "To be added.")
+                .ToString(SaveOptions.DisableFormatting);
+        }
+        else if (owner.IsEnumField && owner.Id == IkeMobikeMemberId &&
+            sourceDocs.UnsafeTargets?.ContainsKey("summary:paragraph") == true)
+        {
+            var originalSource = sourceDocs with
+            {
+                Paragraphs = IkeMobikeSourceParagraphs.Select(paragraph => new SourceParagraph(paragraph, false)).ToList(),
+            };
+            if (!MatchesIkeMobikeSource(owner.Id, originalSource) ||
+                !sourceDocs.Paragraphs.SequenceEqual(originalSource.Paragraphs.Where((_, index) => index != 2)) ||
+                actualDocs.Elements("summary").ToList() is not [XElement summary])
+                return new AndroidTextRepairResult(text, []);
+            var expected = XElement.Parse(RenderImporterOwnedRemarks(
+                originalSource.Paragraphs, originalSource, "\n", "", ""));
+            expected.Name = "summary";
+            if (!ImporterMarkupEquals(summary, expected))
+                return new AndroidTextRepairResult(text, []);
+            element = summary.Elements("para").ElementAt(2);
+            target = "summary";
+        }
+        if (element is null || target is null || !TryGetElementSpan(blockText, element, out var span))
+            return new AndroidTextRepairResult(text, []);
+        if (replacement.Length == 0 && !TryGetElementRemovalSpan(blockText, span, out span))
+            return new AndroidTextRepairResult(text, []);
+        var updated = blockText[..span.Start] + replacement + blockText[span.End..];
+        return new AndroidTextRepairResult(text[..block.Start] + updated + text[block.End..], [target]);
     }
 
     const string KnownUnsafeZoneTransitionMemberId =
@@ -1694,6 +1910,7 @@ static class ImporterProgram
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
         targets.UnionWith(KnownAndroidTextRepairCandidateTargets(owner));
+        targets.UnionWith(KnownUnsafeIkeRepairCandidateTargets(owner));
         targets.UnionWith(KnownControlsLifecycleRepairTargets(owner));
         if (IsEnumSummaryRepairCandidate(owner) ||
             HasTruncatedImporterSummary(file, owner) ||
@@ -1750,6 +1967,7 @@ static class ImporterProgram
         HasCopiedDescriptionRepairCandidate(file, owner) ||
         HasKnownIncorrectBooleanReturnRepairCandidate(file, owner) ||
         KnownAndroidTextRepairCandidateTargets(owner).Count > 0 ||
+        KnownUnsafeIkeRepairCandidateTargets(owner).Count > 0 ||
         HasKnownAndroidProseRepairCandidate(file, owner) ||
         HasKnownUnsafeZoneTransitionTimeCandidate(owner);
 
@@ -11787,6 +12005,9 @@ static class ImporterProgram
         var enumPipelinePath = Path.Combine(
             docsRoot,
             $"WidgetKind.compact-importer-self-test-{Environment.ProcessId}.xml");
+        var ikePrfPipelinePath = Path.Combine(
+            docsRoot,
+            $"SaProposalPseudorandomFunction.importer-self-test-{Environment.ProcessId}.xml");
         var dreamFocusPipelinePath = Path.Combine(
             docsRoot,
             "Android.Service.Dreams",
@@ -11798,6 +12019,7 @@ static class ImporterProgram
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            TestKnownUnsafeIkeDocumentation(repositoryRoot, fixtureRoot, tempDirectory);
             var dreamFocusCache = Path.Combine(tempDirectory, "dream-focus-cache");
             Directory.CreateDirectory(dreamFocusCache);
             var dreamFocusCachePath = Path.Combine(
@@ -13432,6 +13654,245 @@ static class ImporterProgram
                 unsafeReportingDestinationDocs.Paragraphs.Count == 0,
                 "unsafe reporting destination wording and metadata are not imported");
 
+            const string ikePrfOwnerId =
+                "F:Android.Net.IpSec.Ike.SaProposalPseudorandomFunction.Sha2512";
+            var ikePrfSourceDocs = new SourceDocs(
+                "HMAC-SHA2-384 Pseudorandom Function.",
+                [new SourceParagraph("HMAC-SHA2-384 Pseudorandom Function.", false)],
+                new Dictionary<string, string>(),
+                "",
+                new Dictionary<string, string>(),
+                AndroidReference + "android/net/ipsec/ike/SaProposal#PSEUDORANDOM_FUNCTION_SHA2_512",
+                "android.net.ipsec.ike.SaProposal.PSEUDORANDOM_FUNCTION_SHA2_512",
+                "android");
+            var unsafeIkePrfDocs = WithoutKnownUnsafeAndroidSourceChannels(
+                ikePrfOwnerId,
+                ikePrfSourceDocs);
+            Assert(
+                ReplacementFor(
+                    new Placeholder(0, "summary", "", "summary"),
+                    unsafeIkePrfDocs,
+                    isEnumField: true).Reason == "source_channel_ambiguous" &&
+                unsafeIkePrfDocs.Paragraphs.Count == 0 &&
+                !ShouldAddSourceDocumentation(
+                    deferredRemarksPlaceholder: false,
+                    replacedRemarksPlaceholder: false,
+                    importedSourceChannel: false,
+                    unsafeIkePrfDocs),
+                "the exact SHA2-512 copy error is excluded without invented prose or metadata");
+            Assert(
+                ReferenceEquals(
+                    WithoutKnownUnsafeAndroidSourceChannels(ikePrfOwnerId, unsafeIkePrfDocs),
+                    unsafeIkePrfDocs),
+                "SHA2-512 source exclusion is idempotent");
+            foreach (var unaffectedIkePrfDocs in new[]
+            {
+                ikePrfSourceDocs with { SourceKind = "java" },
+                ikePrfSourceDocs with { SourceUrl = ikePrfSourceDocs.SourceUrl + ".Altered" },
+                ikePrfSourceDocs with
+                {
+                    SourceUrl = ikePrfSourceDocs.SourceUrl.Replace("_512", "_384", StringComparison.Ordinal),
+                },
+                ikePrfSourceDocs with { Summary = "HMAC-SHA2-512 Pseudorandom Function." },
+                ikePrfSourceDocs with
+                {
+                    Paragraphs = [new SourceParagraph("HMAC-SHA2-512 Pseudorandom Function.", false)],
+                },
+                ikePrfSourceDocs with
+                {
+                    Paragraphs = [new SourceParagraph(ikePrfSourceDocs.Summary, true)],
+                },
+                ikePrfSourceDocs with
+                {
+                    Paragraphs =
+                    [
+                        ikePrfSourceDocs.Paragraphs[0],
+                        new SourceParagraph("Additional source prose.", false),
+                    ],
+                },
+            })
+            {
+                Assert(
+                    ReferenceEquals(
+                        WithoutKnownUnsafeAndroidSourceChannels(ikePrfOwnerId, unaffectedIkePrfDocs),
+                        unaffectedIkePrfDocs),
+                    "SHA2-512 exclusion requires the complete exact Android source fragment");
+            }
+            Assert(
+                ReferenceEquals(
+                    WithoutKnownUnsafeAndroidSourceChannels(
+                        ikePrfOwnerId.Replace("Sha2512", "Sha2384", StringComparison.Ordinal),
+                        ikePrfSourceDocs),
+                    ikePrfSourceDocs),
+                "SHA2-512 exclusion requires the exact managed field identity");
+            var ikePrfFieldOwner = enumFavorite with
+            {
+                Id = ikePrfOwnerId,
+                MemberRegistration = new MemberRegistration(
+                    "PSEUDORANDOM_FUNCTION_SHA2_512",
+                    null,
+                    true),
+            };
+            var ikePrfPages = new Dictionary<string, SourceLoadResult>
+            {
+                [ikePrfFieldOwner.SourceRequest!.Url] = SourceLoadResult.Success(new SourcePage
+                {
+                    Members =
+                    [
+                        new SourceMember(
+                            "PSEUDORANDOM_FUNCTION_SHA2_512",
+                            false,
+                            true,
+                            [],
+                            ikePrfSourceDocs,
+                            ikePrfSourceDocs.SourceUrl),
+                    ],
+                }),
+            };
+            var mappedIkePrfDocs = MapOwner(ikePrfFieldOwner, ikePrfPages).Docs!;
+            Assert(
+                ReplacementFor(enumSummary, mappedIkePrfDocs, true).Reason ==
+                    "source_channel_ambiguous",
+                "exact registered fields route through the unsafe source guard");
+            Assert(
+                !HasImporterOwnedSummarySourceTextRefresh(
+                    new XElement(
+                        "summary",
+                        new XElement("para", "Authored SHA2-512 documentation."),
+                        ImporterSourceReference(ikePrfSourceDocs),
+                        XElement.Parse($"<para>{AndroidAttribution}</para>")),
+                    mappedIkePrfDocs),
+                "unsafe SHA2-512 source cannot replace authored or previously imported documentation");
+
+            var ikePrfFixtureText = File.ReadAllText(
+                Path.Combine(fixtureRoot, "ike-prf-source.xml"));
+            var ikePrfCacheDirectory = Path.Combine(tempDirectory, "ike-prf-cache");
+            Directory.CreateDirectory(ikePrfCacheDirectory);
+            var ikePrfCachePath = Path.Combine(
+                ikePrfCacheDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
+                    AndroidReference + "android/net/ipsec/ike/SaProposal"))).ToLowerInvariant() + ".html");
+            File.WriteAllText(
+                ikePrfCachePath,
+                File.ReadAllText(Path.Combine(fixtureRoot, "ike-prf-android-reference.html")),
+                new UTF8Encoding(false));
+            File.WriteAllText(ikePrfPipelinePath, ikePrfFixtureText, new UTF8Encoding(false));
+            var classifiedIkePrfFile = LoadedFile.Load(repositoryRoot, ikePrfPipelinePath);
+            classifiedIkePrfFile.SelectOwners(null);
+            var classifiedIkePrfOwners = classifiedIkePrfFile.Owners
+                .Where(candidate => candidate.Member is not null).ToList();
+            Assert(
+                classifiedIkePrfOwners.Count == 2 && classifiedIkePrfOwners.All(candidate => candidate.IsEnumField),
+                "the registered IKE fixture takes the production enum-summary path");
+            var ikePrfPipelineReportPath = Path.Combine(tempDirectory, "ike-prf-first-fill");
+            string[] ikePrfPipelineArguments =
+            [
+                "--path", ikePrfPipelinePath,
+                "--namespace", "Android.Net.IpSec.Ike",
+                "--offline",
+                "--cache", ikePrfCacheDirectory,
+                "--max-changes", "2",
+                "--apply",
+                "--report", ikePrfPipelineReportPath,
+            ];
+            Assert(
+                RunAsync(ikePrfPipelineArguments).GetAwaiter().GetResult() == 0,
+                "registered IKE field first-fill pipeline succeeds");
+            var ikePrfFirstFillText = File.ReadAllText(ikePrfPipelinePath);
+            var ikePrfFirstFillDocument = XDocument.Parse(ikePrfFirstFillText);
+            var ikePrfMembers = ikePrfFirstFillDocument.Root!.Element("Members")!.Elements("Member");
+            var safeIkePrfSummary = ikePrfMembers.Single(member =>
+                (string?)member.Attribute("MemberName") == "Sha2384").Element("Docs")!.Element("summary")!;
+            Assert(
+                ikePrfMembers.Single(member => (string?)member.Attribute("MemberName") == "Sha2512")
+                    .Element("Docs")!.Element("summary")!.Value == "To be added." &&
+                safeIkePrfSummary.Element("para")!.Value == "HMAC-SHA2-384 Pseudorandom Function." &&
+                HasExactImporterSourceReference(safeIkePrfSummary, ikePrfSourceDocs with
+                {
+                    SourceUrl = ikePrfSourceDocs.SourceUrl.Replace("_512", "_384", StringComparison.Ordinal),
+                    SourceLabel = ikePrfSourceDocs.SourceLabel.Replace("_512", "_384", StringComparison.Ordinal),
+                }) &&
+                IsImporterAttributionParagraph(safeIkePrfSummary.Elements("para").Last()) &&
+                ikePrfMembers.All(member => member.Element("Docs")!.Element("remarks") is null),
+                "first-fill excludes SHA2-512 misinformation while importing the matching SHA2-384 field");
+            using (var ikePrfFirstFillReport = JsonDocument.Parse(
+                File.ReadAllText(ikePrfPipelineReportPath + ".json")))
+            {
+                Assert(
+                    ikePrfFirstFillReport.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    ikePrfFirstFillReport.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("member").GetString() == ikePrfOwnerId &&
+                        entry.GetProperty("target").GetString() == "summary" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "first-fill reports the unsafe IKE field rather than applying it");
+            }
+            Assert(
+                RunAsync(ikePrfPipelineArguments).GetAwaiter().GetResult() == 0 &&
+                File.ReadAllText(ikePrfPipelinePath) == ikePrfFirstFillText,
+                "registered IKE first-fill and its unsafe skip are byte-idempotent on second apply");
+            var ikePrfFixtureDocument = XDocument.Parse(ikePrfFixtureText);
+            foreach (var preservedIkePrfSummary in new[]
+            {
+                new XElement("summary", "Authored SHA2-512 documentation."),
+                new XElement("summary",
+                    new XElement("para", "Authored ", new XElement("c", "SHA2-512"), " documentation."),
+                    ImporterSourceReference(ikePrfSourceDocs),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")),
+                new XElement("summary",
+                    new XElement("para", ikePrfSourceDocs.Summary),
+                    ImporterSourceReference(ikePrfSourceDocs with
+                    {
+                        SourceUrl = ikePrfSourceDocs.SourceUrl + ".Altered",
+                    }),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")),
+            })
+            {
+                var preservedIkePrfDocument = new XDocument(ikePrfFixtureDocument);
+                preservedIkePrfDocument.Root!.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == "Sha2512")
+                    .Element("Docs")!.Element("summary")!
+                    .ReplaceWith(new XElement(preservedIkePrfSummary));
+                var preservedIkePrfText = preservedIkePrfDocument.ToString(SaveOptions.DisableFormatting);
+                File.WriteAllText(ikePrfPipelinePath, preservedIkePrfText, new UTF8Encoding(false));
+                Assert(
+                    RunAsync([.. ikePrfPipelineArguments, "--member", "Sha2512"])
+                        .GetAwaiter().GetResult() == 0 &&
+                    File.ReadAllText(ikePrfPipelinePath) == preservedIkePrfText,
+                    "IKE source exclusion preserves authored, mixed-content and mismatched-provenance output");
+            }
+            var correctedIkePrfSource = File.ReadAllText(ikePrfCachePath)
+                .ReplaceLineEndings("\n")
+                .Replace(
+                    "<pre class=\"api-signature\">public static final int PSEUDORANDOM_FUNCTION_SHA2_512</pre>\n" +
+                    "<p>HMAC-SHA2-384 Pseudorandom Function.</p>",
+                    "<pre class=\"api-signature\">public static final int PSEUDORANDOM_FUNCTION_SHA2_512</pre>\n" +
+                    "<p>HMAC-SHA2-512 Pseudorandom Function.</p>",
+                    StringComparison.Ordinal);
+            Assert(
+                correctedIkePrfSource.Contains("<p>HMAC-SHA2-512 Pseudorandom Function.</p>",
+                    StringComparison.Ordinal),
+                "corrected IKE source fixture setup");
+            File.WriteAllText(ikePrfCachePath, correctedIkePrfSource, new UTF8Encoding(false));
+            File.WriteAllText(ikePrfPipelinePath, ikePrfFixtureText, new UTF8Encoding(false));
+            Assert(
+                RunAsync([.. ikePrfPipelineArguments, "--member", "Sha2512"])
+                    .GetAwaiter().GetResult() == 0,
+                "a future corrected official source remains eligible for exact first-fill");
+            var correctedIkePrfSummary = XDocument.Load(ikePrfPipelinePath).Root!
+                .Element("Members")!.Elements("Member").Single(member =>
+                    (string?)member.Attribute("MemberName") == "Sha2512").Element("Docs")!.Element("summary")!;
+            Assert(
+                correctedIkePrfSummary.Element("para")!.Value == "HMAC-SHA2-512 Pseudorandom Function." &&
+                HasExactImporterSourceReference(correctedIkePrfSummary, ikePrfSourceDocs) &&
+                IsImporterAttributionParagraph(correctedIkePrfSummary.Elements("para").Last()),
+                "corrected enum prose, exact reference and attribution are inside the published summary");
+            var correctedIkePrfText = File.ReadAllText(ikePrfPipelinePath);
+            Assert(
+                RunAsync([.. ikePrfPipelineArguments, "--member", "Sha2512"])
+                    .GetAwaiter().GetResult() == 0 &&
+                File.ReadAllText(ikePrfPipelinePath) == correctedIkePrfText,
+                "corrected IKE source first-fill is byte-idempotent on second apply");
+
             var unsafeMetadataDocument = XDocument.Parse(
                 fixtureText,
                 LoadOptions.PreserveWhitespace);
@@ -13526,6 +13987,8 @@ static class ImporterProgram
                 File.Delete(compactForEachPipelinePath);
             if (File.Exists(enumPipelinePath))
                 File.Delete(enumPipelinePath);
+            if (File.Exists(ikePrfPipelinePath))
+                File.Delete(ikePrfPipelinePath);
             if (File.Exists(zoneTransitionPipelinePath))
                 File.Delete(zoneTransitionPipelinePath);
             Directory.Delete(tempDirectory, true);
@@ -13533,6 +13996,289 @@ static class ImporterProgram
 
         Console.WriteLine("SELF-TEST PASS: Android/Java exact matching, ICU text and Health Connect importer regressions, ordered paragraph/code preservation, strict importer-owned remarks refreshes, metadata-only and placeholder repairs, source-channel validation, XML parsing, and atomic writes.");
         return 0;
+    }
+
+    static void TestKnownUnsafeIkeDocumentation(string repositoryRoot, string fixtureRoot, string tempDirectory)
+    {
+        var cases = KnownUnsafeIkeChannels.Select(channel =>
+            (channel.MemberId, channel.Target, channel.IncorrectText)).Append(
+                (IkeMobikeMemberId, "summary", IkeMobikeSourceParagraphs[2])).ToList();
+        var fixtureHtml = File.ReadAllText(Path.Combine(fixtureRoot, "ike-unsafe-android-reference.html"));
+        var names = new[]
+        {
+            "TunnelModeChildSessionParams+IConfigRequestIpv6Address.xml",
+            "IkeSaProposal+Builder.xml", "ChildSaProposal+Builder.xml", "IkeSessionOption.xml",
+        };
+        for (var index = 0; index < cases.Count; index++)
+        {
+            var (memberId, target, incorrect) = cases[index];
+            var source = LoadedFile.Load(repositoryRoot, Path.Combine(
+                repositoryRoot, "docs", "xml", "Android.Net.IpSec.Ike", names[index]));
+            source.SelectOwners(memberId);
+            var owner = source.Owners.Single();
+            var page = SourcePage.Parse(owner.SourceRequest!, fixtureHtml);
+            var mapping = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+            {
+                [owner.SourceRequest!.Url] = SourceLoadResult.Success(page),
+            });
+            Assert(mapping.Docs is not null, "registered unsafe IKE source maps exactly");
+            var mapped = mapping.Docs!;
+            Assert(
+                mapped.UnsafeTargets?.ContainsKey(index == 3 ? "summary:paragraph" : target) == true,
+                "registered IKE mapping withholds only the exact unsafe source channel or paragraph");
+            var raw = mapped with
+            {
+                UnsafeTargets = null,
+                Paragraphs = index == 3
+                    ? IkeMobikeSourceParagraphs.Select(text => new SourceParagraph(text, false)).ToList()
+                    : mapped.Paragraphs,
+            };
+            var changedText = raw with
+            {
+                Returns = raw.Returns + " Changed source.",
+                Parameters = raw.Parameters.ToDictionary(pair => pair.Key, pair => pair.Value + " Changed source."),
+                Paragraphs = raw.Paragraphs.Select(paragraph =>
+                    paragraph with { Text = paragraph.Text + " Changed source." }).ToList(),
+            };
+            foreach (var mismatch in new[]
+            {
+                raw with { SourceKind = "java" },
+                raw with { SourceUrl = raw.SourceUrl + ".Altered" },
+                changedText,
+                raw with
+                {
+                    Returns = index == 0 ? raw.Returns + ".Altered" : raw.Returns,
+                    Parameters = raw.Parameters.ToDictionary(
+                        pair => pair.Key + ".Altered", pair => pair.Value),
+                    Paragraphs = index == 3
+                        ? [.. raw.Paragraphs, new SourceParagraph("Additional source guidance.", false)]
+                        : raw.Paragraphs,
+                },
+            })
+            {
+                Assert(ReferenceEquals(
+                    WithoutKnownUnsafeIkeSourceChannels(memberId, mismatch), mismatch),
+                    "IKE exclusions require exact Android provenance and complete channel text");
+            }
+            Assert(
+                ReferenceEquals(WithoutKnownUnsafeIkeSourceChannels(memberId + ".Altered", raw), raw) &&
+                ReferenceEquals(WithoutKnownUnsafeIkeSourceChannels(
+                    index == 1
+                        ? "M:Android.Net.IpSec.Ike.ChildSaProposal.Builder.AddDhGroup(System.Int32)"
+                        : "M:Android.Net.IpSec.Ike.IkeSaProposal.Builder.AddEncryptionAlgorithm(System.Int32,System.Int32)",
+                    raw), raw) &&
+                ReferenceEquals(WithoutKnownUnsafeIkeSourceChannels(
+                    "F:Android.Net.IpSec.Ike.SaProposalDhGroup.None", raw), raw) &&
+                ReferenceEquals(WithoutKnownUnsafeIkeSourceChannels(
+                    "F:Android.Net.IpSec.Ike.SaProposalEncryptionAlgorithm.ThreeDes", raw), raw),
+                "member-specific exclusions preserve valid sibling algorithms and shared constants");
+            if (index is 1 or 2)
+            {
+                var siblingId = index == 1
+                    ? "M:Android.Net.IpSec.Ike.ChildSaProposal.Builder.AddDhGroup(System.Int32)"
+                    : "M:Android.Net.IpSec.Ike.IkeSaProposal.Builder.AddEncryptionAlgorithm(System.Int32,System.Int32)";
+                var sibling = LoadedFile.Load(repositoryRoot, Path.Combine(repositoryRoot,
+                    "docs", "xml", "Android.Net.IpSec.Ike", names[index == 1 ? 2 : 1]));
+                sibling.SelectOwners(siblingId);
+                var siblingOwner = sibling.Owners.Single();
+                var siblingHtml = index == 1
+                    ? fixtureHtml.Replace("IkeSaProposal", "ChildSaProposal", StringComparison.Ordinal)
+                    : fixtureHtml.Replace("ChildSaProposal", "IkeSaProposal", StringComparison.Ordinal);
+                var siblingMapping = MapOwner(siblingOwner, new Dictionary<string, SourceLoadResult>
+                {
+                    [siblingOwner.SourceRequest!.Url] = SourceLoadResult.Success(
+                        SourcePage.Parse(siblingOwner.SourceRequest, siblingHtml)),
+                });
+                var siblingTarget = index == 1 ? "dhGroup" : "algorithm";
+                Assert(siblingMapping.Docs is not null &&
+                    ReplacementFor(new Placeholder(0, "param", siblingTarget, "param:" + siblingTarget),
+                        siblingMapping.Docs).Text?.Contains(
+                            index == 1 ? "DH_GROUP_NONE" : "ENCRYPTION_ALGORITHM_3DES",
+                            StringComparison.Ordinal) == true,
+                    "actual registered sibling first-fill retains Child-SA NONE and IKE-SA 3DES");
+            }
+
+            var document = new XDocument(source.Root.Document!);
+            document.Root!.Element("Members")!.ReplaceNodes(new XElement(owner.Member!));
+            var docs = document.Root.Element("Members")!.Element("Member")!.Element("Docs")!;
+            docs.ReplaceNodes(
+                owner.Member!.Element("Parameters")?.Elements("Parameter").Select(parameter =>
+                    new XElement("param", new XAttribute("name", (string)parameter.Attribute("Name")!), "To be added.")),
+                new XElement("summary", "To be added."),
+                index == 3 ? null : new XElement(index == 0 ? "value" : "returns", "To be added."),
+                index == 3 ? null : new XElement("remarks", "To be added."));
+            var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml",
+                $"IkeUnsafe{index}.importer-self-test-{Environment.ProcessId}.xml");
+            var cache = Path.Combine(tempDirectory, $"ike-unsafe-cache-{index}");
+            Directory.CreateDirectory(cache);
+            var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(owner.SourceRequest!.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, fixtureHtml, new UTF8Encoding(false));
+
+            (int Applied, int Errors, bool Skipped) RunPipeline(string suffix, int limit = 10)
+            {
+                var reportPath = Path.Combine(tempDirectory, $"ike-unsafe-{index}-{suffix}");
+                var exit = RunAsync(
+                [
+                    "--path", pipelinePath, "--namespace", "Android.Net.IpSec.Ike",
+                    "--member", memberId, "--cache", cache, "--offline",
+                    "--apply", "--max-changes", limit.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    "--report", reportPath,
+                ]).GetAwaiter().GetResult();
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(exit == 0, "unsafe IKE production pipeline succeeds");
+                return (
+                    report.RootElement.GetProperty("appliedCount").GetInt32(),
+                    report.RootElement.GetProperty("errorCount").GetInt32(),
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"));
+            }
+
+            try
+            {
+                File.WriteAllText(pipelinePath, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var firstFill = RunPipeline("first-fill");
+                var filled = XDocument.Load(pipelinePath);
+                var filledDocs = filled.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                var parts = target.Split(':');
+                var filledChannel = filledDocs.Elements(parts[0]).Single(element =>
+                    parts.Length == 1 || (string?)element.Attribute("name") == parts[1]);
+                Assert(
+                    firstFill.Applied == (index == 0 ? 2 : index == 1 ? 3 : index == 2 ? 4 : 1) &&
+                    firstFill.Errors == 0 && firstFill.Skipped &&
+                    (index == 3
+                        ? filledChannel.Elements("para").Take(6).Select(paragraph => paragraph.Value)
+                            .SequenceEqual(IkeMobikeSourceParagraphs.Where((_, ordinal) => ordinal != 2)) &&
+                          HasExactImporterSourceReference(filledChannel, raw) &&
+                          IsImporterAttributionParagraph(filledChannel.Elements("para").Last())
+                        : filledChannel.Value == "To be added."),
+                    "production first-fill preserves all safe IKE imports and explicitly skips the unsafe channel or paragraph");
+                var filledBytes = File.ReadAllBytes(pipelinePath);
+                Assert(RunPipeline("first-fill-repeat").Applied == 0 &&
+                    filledBytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                    "IKE unsafe first-fill is byte-idempotent");
+
+                if (index == 3)
+                    filledChannel.Elements("para").ElementAt(1).AddAfterSelf(new XElement("para", incorrect));
+                else
+                    filledChannel.Value = incorrect;
+                var originalOwned = index == 3 ? filled.ToString() : filled.ToString(SaveOptions.DisableFormatting);
+                File.WriteAllText(pipelinePath, originalOwned, new UTF8Encoding(false));
+                var loaded = LoadedFile.Load(repositoryRoot, pipelinePath);
+                loaded.SelectOwners(memberId);
+                var owned = loaded.Owners.Single();
+                var expected = RepairKnownUnsafeIkeDocumentation(loaded.Text, loaded, owned, mapped);
+                Assert(expected.Targets.SequenceEqual([target]) && expected.Text != originalOwned,
+                    "exact importer-owned unsafe IKE documentation is eligible for surgical withdrawal");
+                var withdrawal = RunPipeline("withdrawal", 1);
+                Assert(withdrawal.Applied == 1 && withdrawal.Errors == 0 &&
+                    (index != 3 || withdrawal.Skipped) && File.ReadAllText(pipelinePath) == expected.Text,
+                    "bounded production withdrawal changes only the guarded channel or paragraph");
+                Assert(index != 3 || expected.Text.ReplaceLineEndings("\n").Split('\n')
+                    .All(line => line == line.TrimEnd()),
+                    "standalone MOBIKE paragraph withdrawal removes its line without leaving trailing whitespace");
+                var withdrawnBytes = File.ReadAllBytes(pipelinePath);
+                Assert(RunPipeline("withdrawal-repeat").Applied == 0 &&
+                    withdrawnBytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                    "unsafe IKE withdrawal is byte-idempotent");
+
+                foreach (var mismatch in new[]
+                {
+                    raw with { SourceKind = "java" },
+                    raw with { SourceUrl = raw.SourceUrl + ".Altered" },
+                    changedText,
+                    mapped with { Paragraphs = [new SourceParagraph("Different source prose.", false)] },
+                })
+                {
+                    Assert(RepairKnownUnsafeIkeDocumentation(
+                        originalOwned, loaded, owned, mismatch).Targets.Count == 0,
+                        "withdrawal requires exact source kind, URL, channel text and full original source fragments");
+                }
+                Assert(RepairKnownUnsafeIkeDocumentation(
+                    originalOwned, loaded, owned with { Id = memberId + ".Altered" }, mapped).Targets.Count == 0,
+                    "withdrawal requires exact managed member identity");
+
+                var containerName = index == 3 ? "summary" : "remarks";
+                Action<XElement>[] preserveChanges =
+                [
+                    current => current.Add(new XComment("Authored.")),
+                    current => current.Add(new XProcessingInstruction("keep", "authored")),
+                    current => current.SetAttributeValue("authored", "true"),
+                    current => current.Element(containerName)!.Add(new XComment("Authored.")),
+                    current => current.Element(containerName)!.Add(new XProcessingInstruction("keep", "authored")),
+                    current => current.Element(containerName)!.AddFirst(new XElement("para", "Authored guidance.")),
+                    current => current.Element(containerName)!.Elements("para").Last().Remove(),
+                    current => current.Element(containerName)!.Elements("para").Last().Add(new XComment("Authored.")),
+                    current => current.Element(containerName)!.Descendants("a").First().SetAttributeValue("href", raw.SourceUrl + ".Altered"),
+                    current => current.Element(containerName)!.Add(new XElement(current.Element(containerName)!.Elements("para").Last())),
+                    current => current.Elements(parts[0]).Single(element =>
+                        parts.Length == 1 || (string?)element.Attribute("name") == parts[1])
+                        .Add(new XComment("Authored.")),
+                    current => current.Elements(parts[0]).Single(element =>
+                        parts.Length == 1 || (string?)element.Attribute("name") == parts[1])
+                        .ReplaceNodes(new XCData(index == 3 ? incorrect : current.Element(parts[0])!.Value)),
+                    current => current.Elements(parts[0]).Single(element =>
+                        parts.Length == 1 || (string?)element.Attribute("name") == parts[1])
+                        .ReplaceNodes(new XElement("c", incorrect)),
+                    current => current.Add(new XElement(current.Elements(parts[0]).First())),
+                ];
+                var negative = 0;
+                foreach (var change in preserveChanges)
+                {
+                    var authored = XDocument.Parse(originalOwned);
+                    change(authored.Root!.Element("Members")!.Element("Member")!.Element("Docs")!);
+                    File.WriteAllText(pipelinePath, authored.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                    var authoredBytes = File.ReadAllBytes(pipelinePath);
+                    Assert(RunPipeline($"authored-{negative++}").Applied == 0 &&
+                        authoredBytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                        "production withdrawals preserve authored content, mixed markup, CDATA, comments, processing instructions, duplicates and source/attribution mismatches");
+                }
+                if (index != 3)
+                {
+                    foreach (var attribute in index == 0 ? new[] { "ReturnType" } : new[] { "Name", "Type" })
+                    {
+                        var altered = XDocument.Parse(originalOwned);
+                        var member = altered.Root!.Element("Members")!.Element("Member")!;
+                        if (index == 0)
+                            member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int64";
+                        else
+                            member.Element("Parameters")!.Elements("Parameter").Single(parameter =>
+                                (string?)parameter.Attribute("Name") == parts[1])
+                                .SetAttributeValue(attribute, "Altered");
+                        File.WriteAllText(pipelinePath, altered.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                        var alteredBytes = File.ReadAllBytes(pipelinePath);
+                        Assert(RunPipeline("binding-" + attribute).Applied == 0 &&
+                            alteredBytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                            "production withdrawals preserve mismatched managed binding types and parameter names");
+                    }
+                }
+                var corrected = index == 0 ? incorrect.Replace("-1", "0", StringComparison.Ordinal)
+                    : index == 1 ? incorrect.Replace("SaProposal.DH_GROUP_NONE; ", "", StringComparison.Ordinal)
+                    : index == 2 ? incorrect.Replace("SaProposal.ENCRYPTION_ALGORITHM_3DES; ", "", StringComparison.Ordinal)
+                    : incorrect.Replace("callers targeting SDK", "devices running", StringComparison.Ordinal);
+                File.WriteAllText(cachePath, fixtureHtml.Replace(incorrect, corrected, StringComparison.Ordinal), new UTF8Encoding(false));
+                File.WriteAllText(pipelinePath, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var correctedFill = RunPipeline("corrected-source");
+                var correctedDocs = XDocument.Load(pipelinePath).Root!.Element("Members")!
+                    .Element("Member")!.Element("Docs")!;
+                var correctedChannel = correctedDocs.Elements(parts[0]).Single(element =>
+                    parts.Length == 1 || (string?)element.Attribute("name") == parts[1]);
+                Assert(correctedFill.Applied > 0 && !correctedFill.Skipped &&
+                    (index == 3
+                        ? correctedChannel.Elements("para").Any(paragraph => paragraph.Value == corrected)
+                        : correctedChannel.Value == corrected),
+                    "future corrected official source remains eligible in the exact published channel");
+                var correctedBytes = File.ReadAllBytes(pipelinePath);
+                Assert(RunPipeline("corrected-source-repeat").Applied == 0 &&
+                    correctedBytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                    "corrected IKE source import is byte-idempotent");
+            }
+            finally
+            {
+                if (File.Exists(pipelinePath))
+                    File.Delete(pipelinePath);
+            }
+        }
     }
 
     static void TestKnownAndroidTextRepairs()
@@ -14078,6 +14824,8 @@ static class ImporterProgram
         string CorrectText);
     sealed record AndroidTextRepairTarget(KnownAndroidTextRepair Repair, XElement Element);
     sealed record AndroidTextRepairResult(string Text, IReadOnlyList<string> Targets);
+    sealed record KnownUnsafeIkeChannel(
+        string MemberId, string SourceUrl, string Target, string IncorrectText, string Detail);
     sealed record KnownAndroidProseRepair(
         string SourceUrl,
         string MemberId,
