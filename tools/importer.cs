@@ -1474,18 +1474,20 @@ static class ImporterProgram
                 .Concat(docs.Paragraphs.Select(paragraph => paragraph.Text))
                 .Concat(docs.Parameters.Values));
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
+        var preserveUnsafeRawParagraphs = false;
 
         if (docs.SourceKind == "android" &&
             ownerId == "F:Android.Ranging.Raw.RangingDeviceUpdateRate.Infrequent" &&
             docs.SourceUrl == AndroidReference + "android/ranging/raw/RawRangingDevice#UPDATE_RATE_INFREQUENT" &&
-            docs.Summary == "Infrequent ranging interval." &&
-            docs.Paragraphs is [{ IsCode: false, Text:
-                "Infrequent ranging interval. UWB - 600 milliseconds; BLE RSSI - 3 seconds; BLE CS - 5 seconds; WiFi Rtt - 8192 milliseconds otherwise; WiFi PD - 512 milliseconds." }])
+            docs.Paragraphs.Any(paragraph => !paragraph.IsCode &&
+                paragraph.Text ==
+                    "Infrequent ranging interval. UWB - 600 milliseconds; BLE RSSI - 3 seconds; BLE CS - 5 seconds; WiFi Rtt - 8192 milliseconds otherwise; WiFi PD - 512 milliseconds."))
         {
             const string detail =
                 "The exact Android WiFi RTT interval says 'otherwise' without its condition; no missing interval qualification was guessed.";
             targets["summary"] = detail;
             targets["remarks"] = detail;
+            preserveUnsafeRawParagraphs = true;
         }
 
         if (docs.SourceKind == "android" &&
@@ -1500,8 +1502,8 @@ static class ImporterProgram
         }
 
         if (docs.SourceKind == "android" &&
-            docs.Summary == "Flatten this object in to a Parcel." &&
-            docs.Paragraphs is [{ IsCode: false, Text: "Flatten this object in to a Parcel." }] &&
+            docs.Paragraphs.Any(paragraph => !paragraph.IsCode &&
+                paragraph.Text == "Flatten this object in to a Parcel.") &&
             new[] { "RawInitiatorRangingConfig", "RawRangingDevice", "RawResponderRangingConfig" }
                 .Any(type =>
                     ownerId == $"M:Android.Ranging.Raw.{type}.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" &&
@@ -1509,9 +1511,14 @@ static class ImporterProgram
         {
             const string detail =
                 "The exact Android parcel description contains 'in to'; no generic grammar correction was applied.";
-            targets["summary"] = detail;
+            if (docs.Summary == "Flatten this object in to a Parcel.")
+                targets["summary"] = detail;
             targets["remarks"] = detail;
+            preserveUnsafeRawParagraphs = true;
         }
+
+        if (preserveUnsafeRawParagraphs)
+            return docs with { UnsafeTargets = targets };
 
         if (ownerId == "F:Android.Net.IpSec.Ike.Exceptions.IkeProtocolErrorType.NoAdditionalSas" &&
             docs.SourceKind == "android" &&
@@ -14786,7 +14793,12 @@ static class ImporterProgram
                 var page = SourcePage.Parse(request, html);
                 var registration = owner.MemberRegistration!;
                 var raw = page.Members.Single(member => member.Name == registration.Name).Docs!;
-                var target = test.Member == "SetBleRssiRangingParams" ? "param:params" : "summary";
+                var target = test.Member switch
+                {
+                    "SetBleRssiRangingParams" => "param:params",
+                    "WriteToParcel" => "remarks",
+                    _ => "summary",
+                };
                 var originalChannel = target == "param:params"
                     ? RemoveLeadingJavaType(raw.Parameters["params"]) : raw.Summary;
                 Assert(raw.UnsafeTargets is null &&
@@ -14804,27 +14816,53 @@ static class ImporterProgram
                     (owner.Id + ".Other", raw),
                     (owner.Id, raw with { SourceUrl = raw.SourceUrl + ".Other" }),
                     (owner.Id, raw with { SourceKind = "java" }),
-                    (owner.Id, target == "param:params" ? raw with
+                })
+                    Assert(WithoutKnownUnsafeAndroidSourceChannels(id, changed).UnsafeTargets is null,
+                        "Raw exclusions require exact member, URL, source kind and complete channel text");
+                if (target == "param:params")
+                    Assert(WithoutKnownUnsafeAndroidSourceChannels(owner.Id, raw with
                     {
                         Parameters = new Dictionary<string, string>(raw.Parameters, StringComparer.Ordinal)
                         {
                             ["params"] = originalChannel + " Changed.",
                         },
-                    } : raw with { Summary = raw.Summary + " Changed." }),
-                })
-                    Assert(WithoutKnownUnsafeAndroidSourceChannels(id, changed).UnsafeTargets is null,
-                        "Raw exclusions require exact member, URL, source kind and complete channel text");
-                if (target == "summary")
+                    }).UnsafeTargets is null, "Raw RSSI exclusion requires the complete wrong-class parameter text");
+                else
                 {
                     foreach (var paragraphs in new[]
                     {
                         new List<SourceParagraph> { new(raw.Paragraphs[0].Text + " Changed.", false) },
                         new List<SourceParagraph> { new(raw.Paragraphs[0].Text, true) },
-                        new List<SourceParagraph> { raw.Paragraphs[0], new("Additional source context.", false) },
+                        new List<SourceParagraph> { new("Remaining safe source context.", false) },
                     })
                         Assert(WithoutKnownUnsafeAndroidSourceChannels(owner.Id,
                             raw with { Paragraphs = paragraphs }).UnsafeTargets is null,
-                            "Raw enum and parcel exclusions require the complete original plain paragraph");
+                            "Raw exclusions do not match changed, code-only or removed bad paragraphs");
+                    var unrelatedSummary = WithoutKnownUnsafeAndroidSourceChannels(owner.Id,
+                        raw with { Summary = "A safe corrected source summary." });
+                    Assert(unrelatedSummary.UnsafeTargets?.ContainsKey(target) == true &&
+                        unrelatedSummary.Paragraphs.SequenceEqual(raw.Paragraphs),
+                        "Raw exact bad paragraph stays excluded independently of unrelated summary changes");
+                    if (test.Member == "WriteToParcel")
+                        Assert(!unrelatedSummary.UnsafeTargets!.ContainsKey("summary") &&
+                            ReplacementFor(owner.Placeholders.Single(placeholder => placeholder.Target == "summary"),
+                                unrelatedSummary).Text == "A safe corrected source summary.",
+                            "Raw parcel summary and remarks exclusions are independent channels");
+                    foreach (var paragraphs in new[]
+                    {
+                        new List<SourceParagraph> { new("Safe leading context.", false), raw.Paragraphs[0] },
+                        new List<SourceParagraph> { raw.Paragraphs[0], new("Safe trailing context.", false) },
+                    })
+                    {
+                        var guarded = WithoutKnownUnsafeAndroidSourceChannels(owner.Id,
+                            raw with { Paragraphs = paragraphs });
+                        Assert(guarded.UnsafeTargets?.ContainsKey(target) == true &&
+                            guarded.Paragraphs.SequenceEqual(paragraphs),
+                            "Raw bad paragraph containment survives safe context without reordering source");
+                        if (test.Member == "WriteToParcel")
+                            Assert(guarded.UnsafeTargets!.ContainsKey("summary"),
+                                "Raw original bad parcel summary stays excluded with additional safe context");
+                    }
                 }
                 Assert(MapOwner(owner with
                 {
@@ -14834,7 +14872,33 @@ static class ImporterProgram
                     [request.Url] = SourceLoadResult.Success(page),
                 }).Docs is null, "Raw production mapping does not guess altered JNI names");
 
-                int Run(string stage, out int writes)
+                if (!registration.IsField)
+                {
+                    var changedDescriptor = test.Member == "WriteToParcel"
+                        ? "(Landroid/os/Parcel;J)V"
+                        : "(J)Landroid/ranging/raw/RawRangingDevice$Builder;";
+                    var altered = original.Replace(registration.Descriptor!, changedDescriptor, StringComparison.Ordinal);
+                    Assert(altered != original, "Raw different-JNI-descriptor negative mutates actual binding metadata");
+                    File.WriteAllText(path, altered, new UTF8Encoding(true));
+                    var alteredBytes = File.ReadAllBytes(path);
+                    var descriptorReport = Path.Combine(temp, test.File + "-different-jni-descriptor");
+                    Assert(RunAsync([
+                        "--path", path, "--namespace", "Android.Ranging.Raw", "--member", owner.Id,
+                        "--offline", "--cache", cache, "--max-changes", "1",
+                        "--apply", "--report", descriptorReport,
+                    ]).GetAwaiter().GetResult() == 0 &&
+                        alteredBytes.SequenceEqual(File.ReadAllBytes(path)),
+                        "Raw same-name different JNI descriptor has zero persisted writes");
+                    using var report = JsonDocument.Parse(File.ReadAllText(descriptorReport + ".json"));
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("entries").EnumerateArray().All(entry =>
+                            entry.GetProperty("reason").GetString() == "overload_signature_mismatch"),
+                        "Raw same-name different descriptor is rejected by the registered production mapping");
+                    File.WriteAllText(path, original, new UTF8Encoding(true));
+                }
+
+                int Run(string stage, out int writes, bool expectExcluded = true)
                 {
                     var reportPath = Path.Combine(temp, test.File + "-" + stage);
                     var exit = RunAsync([
@@ -14849,8 +14913,8 @@ static class ImporterProgram
                     Assert(report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
                         entry.GetProperty("member").GetString() == owner.Id &&
                         entry.GetProperty("target").GetString() == target &&
-                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
-                        "registered Raw report retains the explicit unsafe-channel skip");
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous") == expectExcluded,
+                        "registered Raw report excludes the same unsafe target only while its exact bad source persists");
                     return report.RootElement.GetProperty("appliedCount").GetInt32();
                 }
                 var total = 0;
@@ -14868,7 +14932,7 @@ static class ImporterProgram
                     .Single(member => (string?)member.Attribute("MemberName") == test.Member)
                     .Element("Docs")!;
                 Assert((target == "param:params" ? docs.Elements("param").Single(parameter =>
-                    (string?)parameter.Attribute("name") == "params") : docs.Element("summary"))!.Value ==
+                    (string?)parameter.Attribute("name") == "params") : docs.Element(target))!.Value ==
                         "To be added.", "Raw excluded channel remains a placeholder");
                 if (test.Member == "Infrequent")
                 {
@@ -14936,6 +15000,86 @@ static class ImporterProgram
                         .Single(member => member.Name == registration.Name).Docs!;
                     Assert(WithoutKnownUnsafeAndroidSourceChannels(owner.Id, corrected).UnsafeTargets is null,
                         "future corrected official Raw source is eligible");
+                }
+                if (target != "param:params")
+                {
+                    var badHtml = test.Member == "Infrequent"
+                        ? Regex.Match(html, @"<p>Infrequent ranging interval\.\s*<ul>.*?</ul></p></p>",
+                            RegexOptions.Singleline | RegexOptions.CultureInvariant).Value
+                        : "<p>Flatten this object in to a Parcel.</p></p>";
+                    Assert(badHtml.Length > 0 && html.Contains(badHtml, StringComparison.Ordinal),
+                        "Raw context regressions begin with the complete unfiltered original bad HTML paragraph");
+                    const string leading = "Additional official Raw guidance before the original paragraph.";
+                    const string trailing = "Additional official Raw guidance after the original paragraph.";
+                    var correctedHtml = html.Replace(
+                        badHtml,
+                        badHtml.Replace("milliseconds otherwise.", "milliseconds.", StringComparison.Ordinal)
+                            .Replace("in to a Parcel.", "into a Parcel.", StringComparison.Ordinal),
+                        StringComparison.Ordinal);
+                    var removedHtml = html.Replace(badHtml,
+                        $"<p>{leading}</p><p>{trailing}</p>", StringComparison.Ordinal);
+                    foreach (var (stage, source, expected, excluded) in new[]
+                    {
+                        ("leading-context", html.Replace(badHtml, $"<p>{leading}</p>" + badHtml,
+                            StringComparison.Ordinal), test.Expected + (test.Member == "WriteToParcel" ? 1 : 0), true),
+                        ("trailing-context", html.Replace(badHtml, badHtml + $"<p>{trailing}</p>",
+                            StringComparison.Ordinal), test.Expected, true),
+                        ("leading-trailing-context", html.Replace(badHtml,
+                            $"<p>{leading}</p>" + badHtml + $"<p>{trailing}</p>",
+                            StringComparison.Ordinal), test.Expected + (test.Member == "WriteToParcel" ? 1 : 0), true),
+                        ("corrected-paragraph", correctedHtml,
+                            test.Expected + (test.Member == "WriteToParcel" ? 2 : 1), false),
+                        ("removed-paragraph", removedHtml,
+                            test.Expected + (test.Member == "WriteToParcel" ? 2 : 1), false),
+                    })
+                    {
+                        var parsed = SourcePage.Parse(request, source).Members
+                            .Single(member => member.Name == registration.Name).Docs!;
+                        var guarded = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, parsed);
+                        Assert((guarded.UnsafeTargets?.ContainsKey(target) == true) == excluded &&
+                            guarded.Paragraphs.SequenceEqual(parsed.Paragraphs),
+                            "Raw parsed exact-body exclusion retains source order under safe context and future source changes");
+                        if (excluded)
+                        {
+                            Assert(parsed.Paragraphs.Any(paragraph => !paragraph.IsCode &&
+                                paragraph.Text == raw.Paragraphs[0].Text),
+                                "Raw context positive control retains the entire original unsafe plain paragraph");
+                            if (stage.Contains("leading", StringComparison.Ordinal))
+                                Assert(parsed.Summary == leading && parsed.Paragraphs[0].Text == leading,
+                                    "Raw actual first-fill source has a harmless changed summary before the unsafe body");
+                            if (stage.Contains("trailing", StringComparison.Ordinal))
+                                Assert(parsed.Paragraphs[^1].Text == trailing,
+                                    "Raw actual first-fill source retains safe trailing paragraph order");
+                        }
+                        File.WriteAllText(cachePath, source, new UTF8Encoding(false));
+                        File.WriteAllText(path, original, new UTF8Encoding(true));
+                        total = 0;
+                        for (var batch = 0; batch <= expected; batch++)
+                        {
+                            var applied = Run(stage + "-" + batch, out _, excluded);
+                            Assert(applied <= 1, "Raw changed-source actual first fill respects max-changes=1");
+                            total += applied;
+                            if (applied == 0)
+                                break;
+                        }
+                        Assert(total == expected, $"Raw changed-source actual first fill preserves safe channels: {stage}");
+                        var current = XElement.Load(path).Element("Members")!.Elements("Member")
+                            .Single(member => (string?)member.Attribute("MemberName") == test.Member)
+                            .Element("Docs")!;
+                        Assert((current.Element(target)!.Value == "To be added.") == excluded,
+                            "Raw actual first fill with safe context still skips the same enum summary or parcel remarks");
+                        if (test.Member == "WriteToParcel" && stage.Contains("leading", StringComparison.Ordinal))
+                            Assert(current.Element("summary")!.Value == leading,
+                                "Raw safe parcel summary remains eligible while bad remarks stay withheld");
+                        if (!excluded && stage == "removed-paragraph")
+                            Assert(current.Element(target)!.Elements("para").Take(2)
+                                .Select(paragraph => paragraph.Value).SequenceEqual([leading, trailing]),
+                                "Raw corrected eligibility publishes retained safe source fragments in order");
+                        bytes = File.ReadAllBytes(path);
+                        Assert(Run(stage + "-repeat", out writes, excluded) == 0 && writes == 0 &&
+                            bytes.SequenceEqual(File.ReadAllBytes(path)),
+                            "Raw changed-source production repeat has zero persisted writes and identical bytes");
+                    }
                 }
             }
         }

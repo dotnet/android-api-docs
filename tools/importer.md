@@ -117,22 +117,29 @@ canonical Android member URL, and complete original paragraph text.
 Its safe lead, parameter, and return documentation remain eligible, and the
 excluded paragraph is reported as `source_channel_ambiguous`. Changed or corrected
 official source is preserved; no default-value prose is inferred from implementation.
-Eight exact `Android.Ranging.Raw` channels are withheld: the infrequent-rate
-enum description's missing WiFi RTT condition, the BLE RSSI setter parameter
-description naming the different BLE CS class, and the summary/remarks of three
-parcel writers containing `in to`. These exclusions require the exact managed
-member, canonical Android URL, and complete original channel text; the enum and
-parcel exclusions also require the complete original plain source paragraph.
-Safe sibling constants, setter summary/returns, and parcel flags remain eligible.
-No replacement prose is invented, no generic grammar correction occurs, and
-existing authored or imported channels remain unchanged. Corrected official
-channels become eligible without changing the exclusion.
 Unrelated summary edits or added safe paragraphs do not re-enable the malformed
 paragraph; all other source paragraphs retain their original order.
 The site-root link describes the observed source, not a required exclusion
 predicate: the exact unresolved label remains unsafe even if its hyperlink
 changes. Canonical member-page/JNI provenance is checked independently of that
 inner hyperlink; no source-label correction is inferred from either link.
+Eight exact `Android.Ranging.Raw` channels are withheld: the infrequent-rate
+enum description's missing WiFi RTT condition, the BLE RSSI setter parameter
+description naming the different BLE CS class, and the summary/remarks of three
+parcel writers containing `in to`. These exclusions require the exact managed
+member, canonical Android URL, Android source kind, and complete original text.
+The enum summary remains withheld while its exact original non-code paragraph
+is present anywhere in the source body, independent of summary edits or added
+safe paragraphs, because enum summaries publish that body. Parcel remarks are
+likewise withheld while their exact bad non-code paragraph remains anywhere in
+the body; only the exact bad parcel summary is also withheld. A safe corrected
+parcel summary remains eligible even when the bad remarks paragraph persists.
+Safe sibling constants, setter summary/returns, and parcel flags remain eligible.
+No replacement prose is invented, no generic grammar correction occurs, and
+existing authored or imported channels remain unchanged. Official source with
+the bad paragraph corrected or removed becomes eligible without changing the exclusion.
+Changed paragraph text, code-only copies, and different member/source provenance
+are unaffected. The exclusions do not reorder source paragraphs.
 Java-signature remarks repairs likewise require only an unmodified Java signature,
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
