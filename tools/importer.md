@@ -124,6 +124,20 @@ importer paragraph/reference/attribution structure. Authored or mixed markup,
 changed source text, and duplicate channels are preserved. The same narrow
 allow-list corrects newly imported source channels so later refreshes cannot
 reintroduce these defects; no general grammar or punctuation normalization occurs.
+The same exact allow-list covers the RSSI builder's Bluetooth-address parameter
+and RSSI parcel-write summary and remarks. The RSSI update-rate setter's malformed
+default paragraph (an unresolved `ERROR(...)` label linked to the site root) is
+excluded only for its exact managed member, declaring type, full JNI registration,
+canonical Android member URL, and complete original paragraph text.
+Its safe lead, parameter, and return documentation remain eligible, and the
+excluded paragraph is reported as `source_channel_ambiguous`. Changed or corrected
+official source is preserved; no default-value prose is inferred from implementation.
+Unrelated summary edits or added safe paragraphs do not re-enable the malformed
+paragraph; all other source paragraphs retain their original order.
+The site-root link describes the observed source, not a required exclusion
+predicate: the exact unresolved label remains unsafe even if its hyperlink
+changes. Canonical member-page/JNI provenance is checked independently of that
+inner hyperlink; no source-label correction is inferred from either link.
 Java-signature remarks repairs likewise require only an unmodified Java signature,
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
