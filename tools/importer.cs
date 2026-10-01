@@ -1363,8 +1363,8 @@ static class ImporterProgram
             owner.MemberRegistration is not { Name: "makeToken", Descriptor: "(IZIII)J", IsField: false } ||
             (string?)owner.Member?.Element("ReturnValue")?.Element("ReturnType") != "System.Int64" ||
             docs.SourceKind != "android" || docs.SourceUrl != ProtoTokenSourceUrl ||
-            docs.Summary != "Make a token." ||
-            docs.Paragraphs is not [{ IsCode: false, Text: UnsafeProtoTokenParagraph }])
+            !docs.Paragraphs.Any(paragraph =>
+                paragraph is { IsCode: false, Text: UnsafeProtoTokenParagraph }))
         {
             return docs;
         }
@@ -6804,18 +6804,31 @@ static class ImporterProgram
         {
             rawSource with { SourceUrl = source.SourceUrl + ".Other" },
             rawSource with { SourceKind = "java" },
-            rawSource with { Summary = "Changed summary." },
             rawSource with { Paragraphs = [new SourceParagraph(UnsafeProtoTokenParagraph + " Changed.", false)] },
             rawSource with { Paragraphs = [new SourceParagraph(UnsafeProtoTokenParagraph, true)] },
             rawSource with { Paragraphs = [new SourceParagraph(
                 UnsafeProtoTokenParagraph.Replace("max value 512", "max value 511", StringComparison.Ordinal)
                     .Replace("max value 524,288", "max value 524,287", StringComparison.Ordinal), false)] },
-            rawSource with { Paragraphs = [.. rawSource.Paragraphs, new SourceParagraph("Additional source prose.", false)] },
+            rawSource with { Paragraphs = [new SourceParagraph("Make a token.", false)] },
         })
         {
             Assert(WithoutKnownUnsafeProtoTokenRemark(owner, changed) == changed &&
                 ReplacementFor(remarks, changed).Text is not null,
                 "Proto token exclusion preserves different URLs, provenance, full source text and future corrected prose");
+        }
+        foreach (var changed in new[]
+        {
+            rawSource with { Summary = "Changed summary." },
+            rawSource with { Paragraphs = [new SourceParagraph("Additional source prose.", false), .. rawSource.Paragraphs] },
+            rawSource with { Paragraphs = [.. rawSource.Paragraphs, new SourceParagraph("Additional source prose.", false)] },
+        })
+        {
+            var guarded = WithoutKnownUnsafeProtoTokenRemark(owner, changed);
+            Assert(ReplacementFor(remarks, guarded) is { Text: null, Reason: "source_channel_ambiguous" } &&
+                guarded.Summary == changed.Summary &&
+                guarded.Paragraphs.SequenceEqual(changed.Paragraphs) &&
+                ReplacementFor(new Placeholder(1, "summary", "", "summary"), guarded).Text == changed.Summary,
+                "Proto token remarks stay excluded when only the summary or unrelated safe paragraphs change");
         }
         foreach (var changed in new[]
         {
@@ -6896,6 +6909,54 @@ static class ImporterProgram
                     File.ReadAllBytes(pipelinePath).SequenceEqual(safeBytes),
                     "Proto token persisted repeat applies zero writes byte-for-byte");
 
+            foreach (var (changedHtml, expectedSummary) in new[]
+            {
+                (html.Replace("<p>Make a token.", "<p>Updated summary.</p><p>Make a token.", StringComparison.Ordinal),
+                    "Updated summary."),
+                (html.Replace("<p>Make a token.", "<p>Additional source prose.</p><p>Make a token.", StringComparison.Ordinal),
+                    "Additional source prose."),
+                (html.Replace("</main>", "<p>Additional source prose.</p></main>", StringComparison.Ordinal),
+                    "Make a token."),
+            })
+            {
+                File.WriteAllBytes(pipelinePath, originalBytes);
+                File.WriteAllText(cachePath, changedHtml, new UTF8Encoding(false));
+                var changedPage = SourcePage.Parse(request, changedHtml);
+                var changedMapping = MapOwner(owner,
+                    new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                    {
+                        [request.Url] = SourceLoadResult.Success(changedPage),
+                    });
+                Assert(changedMapping.Docs!.Summary == expectedSummary &&
+                    changedMapping.Docs.Paragraphs.Any(paragraph =>
+                        paragraph is { IsCode: false, Text: UnsafeProtoTokenParagraph }) &&
+                    ReplacementFor(remarks, changedMapping.Docs) is
+                        { Text: null, Reason: "source_channel_ambiguous" },
+                    "registered Proto token source parsing retains the exact unsafe paragraph amid unrelated edits");
+                using (var dry = RunPipeline(false, 1))
+                    Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(originalBytes),
+                        "Proto token edited-source first-fill dry run is bounded and write-free");
+                using (var applied = RunPipeline(true, 1))
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        applied.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("target").GetString() == "remarks" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                        "Proto token production first fill withholds unsafe remarks after summary or safe paragraph additions");
+                var changedBytes = File.ReadAllBytes(pipelinePath);
+                var changedDocs = XDocument.Load(pipelinePath).Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                Assert(changedDocs.Element("summary")!.Value == expectedSummary &&
+                    changedDocs.Element("remarks")!.Value == "To be added." &&
+                    !changedDocs.Element("remarks")!.HasElements,
+                    "Proto token edited-source first fill changes only the safe summary");
+                using (var repeated = RunPipeline(true, 1))
+                    Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(changedBytes),
+                        "Proto token edited-source persisted repeat applies zero writes byte-for-byte");
+            }
+            File.WriteAllBytes(pipelinePath, safeBytes);
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+
             var authoredRemarks = new[]
             {
                 new XElement("remarks", "Authored remarks."),
@@ -6937,6 +6998,23 @@ static class ImporterProgram
                 Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
                     File.ReadAllBytes(pipelinePath).SequenceEqual(correctedBytes),
                     "Proto token corrected persisted repeat is byte-identical");
+
+            File.WriteAllBytes(pipelinePath, safeBytes);
+            File.WriteAllText(cachePath, Regex.Replace(html, @"<p>Make a token\..*?</p>",
+                "<p>Make a token.</p>", RegexOptions.Singleline | RegexOptions.CultureInvariant),
+                new UTF8Encoding(false));
+            using (var removed = RunPipeline(true, 1))
+                Assert(removed.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "Proto token source with the unsafe paragraph removed remains eligible in production");
+            var removedBytes = File.ReadAllBytes(pipelinePath);
+            var removedDocs = XDocument.Load(pipelinePath).Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+            Assert(removedDocs.Element("remarks")!.Element("para")!.Value == "Make a token." &&
+                HasExactImporterSourceReference(removedDocs, source),
+                "Proto token removed-unsafe source retains safe prose and canonical provenance");
+            using (var repeated = RunPipeline(true, 1))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(removedBytes),
+                    "Proto token removed-unsafe persisted repeat is byte-identical");
         }
         finally
         {
