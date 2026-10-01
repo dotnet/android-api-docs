@@ -7789,6 +7789,19 @@ static class ImporterProgram
             new(text, true);
     }
 
+    static void TestAdminOnBindRawSource(string repositoryRoot)
+    {
+        var html = File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "admin-onbind-android-reference.html"));
+        var request = SourceRequest.Create("android/app/admin/DeviceAdminService")!;
+        var raw = SourcePage.Parse(request, html).Members.Single(member =>
+            member.Name == "onBind").Docs!;
+        Assert(raw.Paragraphs.Any(paragraph => !paragraph.IsCode &&
+            paragraph.Text.Contains(
+                "May return null if clients can not bind to the service.", StringComparison.Ordinal)),
+            "unfiltered official DeviceAdminService.onBind fixture retains the unsafe sentence before repair");
+    }
+
     static void TestAdminRestrictionRenderedRepair(string repositoryRoot)
     {
         const string memberId =
@@ -8036,6 +8049,7 @@ static class ImporterProgram
 
     static int RunSelfTest(string repositoryRoot)
     {
+        TestAdminOnBindRawSource(repositoryRoot);
         TestAdminRestrictionRenderedRepair(repositoryRoot);
         TestAdminResetPasswordFields(repositoryRoot);
         TestKnownAndroidTextRepairs();
