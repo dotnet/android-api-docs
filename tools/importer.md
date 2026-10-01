@@ -231,6 +231,22 @@ text match the known incorrect flag-combination wording. Retry policies are
 mutually exclusive codes, not flags. The guard does not affect other channels,
 members, URLs, corrected source text, or existing authored documentation.
 
+The `ProtoOutputStream.makeToken(int, boolean, int, int, int)` remarks channel
+is skipped only for its exact managed identity, registered JNI owner/signature,
+managed return type, canonical Android URL, and complete original source paragraph
+anywhere in the source remarks. Unrelated summary edits or added safe paragraphs
+before or after that paragraph cannot re-enable its import.
+That paragraph mixes capacities of 512 and 524,288 with the maximum encoded
+values of 9-bit and 19-bit fields. Wrapped depth checks and negative object IDs
+do not make those stated maxima representable. The safe summary remains eligible;
+correcting or removing the unsafe paragraph restores remarks eligibility.
+Other source text and existing authored documentation are preserved. No
+implementation-derived replacement prose is imported.
+The logical remarks exclusion also covers nested paragraph placeholders (including
+those in summaries), metadata-only enrichment, placeholder cleanup, Java-signature
+repair, and importer-owned refresh. These layouts retain their complete original
+bytes; excluded operations are reported against `remarks`, not `summary`.
+
 The `IkeProtocolErrorType.NoAdditionalSas` enum summary is skipped when its exact
 managed field, canonical `IkeProtocolException.ERROR_TYPE_NO_ADDITIONAL_SAS`
 Android URL, and complete source prose match `No additional SAa are acceptable`.
