@@ -109,6 +109,18 @@ importer paragraph/reference/attribution structure. Authored or mixed markup,
 changed source text, and duplicate channels are preserved. The same narrow
 allow-list corrects newly imported source channels so later refreshes cannot
 reintroduce these defects; no general grammar or punctuation normalization occurs.
+The same exact-text allow-list corrects `Tile.writeToParcel`'s `in to` typo.
+For QuickSettings, the exact inherited `TileService.onBind` intent parameter is
+withheld because its claim that extras are invisible contradicts the framework
+binder extras. The nullable-binder prose and return channel remain eligible:
+the implementation can return null after a remote-service failure. Only the
+exact `Tile.STATE_ACTIVE` paragraph's incorrect default-state sentence is
+excluded, retaining its active-state description and all other source paragraphs.
+New tiles actually initialize to `STATE_INACTIVE`. These guards require the
+exact managed member, canonical Android source URL, and original channel or
+paragraph; unrelated summary edits and additional safe paragraphs cannot disable
+them. Corrected official source remains eligible, and existing authored content
+is not withdrawn.
 Java-signature remarks repairs likewise require only an unmodified Java signature,
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
