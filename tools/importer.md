@@ -136,6 +136,27 @@ importer paragraph/reference/attribution structure. Authored or mixed markup,
 changed source text, and duplicate channels are preserved. The same narrow
 allow-list corrects newly imported source channels so later refreshes cannot
 reintroduce these defects; no general grammar or punctuation normalization occurs.
+Exact EAP channel guards additionally require the complete official source
+contract, canonical URL and reference label, registered JNI descriptor, managed
+return and parameter types, and (for repairs) the complete original importer-owned
+Docs. `EapAkaInfo.Builder.SetReauthId` skips the source parameter that wrongly
+describes a re-authentication ID as the client's EAP identity; an exact prior
+import is withdrawn to its placeholder rather than replaced with inferred prose.
+`EapSessionConfig.Builder.SetEapMsChapV2Config` corrects only the full known
+`faciliate` return text. Both guards operate on first-fill imports as well as
+strict prior-owned repairs. Changed source contracts, authored or mixed markup,
+CDATA, comments, processing instructions, attributes, references, attribution,
+and managed metadata prevent repairs and are preserved with a reported skip.
+The registered `EapSessionConfig.EapAkaConfig.EapAkaOption` getter's exact
+non-null return guarantee is withheld only from its published value channel.
+The supported two-argument builder passes null options through the constructor
+to the getter; pinned implementation excerpts verify this path without serving
+as replacement prose or a Java runtime test. First-fill suppression depends on
+the full defective return contract, registered getter descriptor, canonical
+Android URL, and source kind, not unrelated summary or safe paragraph wording.
+Withdrawal requires the complete original plain importer-owned Docs, reference,
+and attribution and consumes one change. Future corrected source, including
+removal of the false guarantee, remains eligible; no API metadata is changed.
 The same exact allow-list covers the RSSI builder's Bluetooth-address parameter
 and RSSI parcel-write summary and remarks. The RSSI update-rate setter's malformed
 default paragraph (an unresolved `ERROR(...)` label linked to the site root) is
