@@ -72,10 +72,35 @@ eligibility is evaluated against the untouched summary and requires exactly
 three importer-owned
 paragraphs: plain deprecation prose, the exact field source reference, and exact
 Android attribution. Additional nodes or markup preserve the summary verbatim.
+Repair of the known `Control.StatefulBuilder.setControlTemplate` paragraph boundary
+is restricted to its exact Android member URL and verified lead-in/description,
+preserving the source's blank line as two paragraphs without inventing punctuation.
+The corresponding summary and remarks are regenerated together only when the
+managed member ID, full old plain-text summary/remarks, exact source reference,
+and Android attribution all match the prior importer output. Authored additions,
+mixed content, source changes, and unsafe XML locations are reported and preserved.
+The two-channel repair requires at least two remaining changes in the batch.
+The final `ControlsProviderService.onBind` and `onUnbind` overrides expose inherited
+`Service` Javadoc that contradicts their implementations. Exact member-ID/source-URL
+guards remove only the verified nullable-binder and default-false remarks sentences,
+retaining the other verbatim reference sentences. The inherited `onUnbind` caller-choice
+return is reported as `source_channel_ambiguous`, not replaced with implementation-derived
+prose. Known prior importer output can be regenerated only with its complete original
+remarks, plain summary/return channels, canonical source reference, and attribution
+intact; its unsafe return is restored to `To be added.`. Authored or mixed content,
+duplicate channels, altered metadata, and changed sources are preserved and reported.
+Repairs for one member are atomic and require room for every affected channel.
+Implementation verification is not an AOSP prose fallback.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
 documentation is preserved.
+The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
+source label is corrected only on its exact official member URL when the source
+hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported
+paragraph is repaired only for the exact managed callback, complete old plain-text
+paragraph, matching source reference, and unchanged recognized attribution.
+Other prose, mixed content, and metadata are preserved.
 Four channel-specific corrections cover the known `Android.Ranging.Ble.CS`
 source typos in the security-level-one enum summary, builder Bluetooth-address
 parameter, and parcel-write summary and remarks. They require the exact managed
