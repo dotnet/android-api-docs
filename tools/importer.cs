@@ -1607,9 +1607,16 @@ static class ImporterProgram
                 : IsMeaningfulChannel(paragraph.Text, "remarks") ||
                   (index + 1 < cleaned.Count &&
                    cleaned[index + 1].IsCode &&
-                   IsExplanatoryJavaCodeLeadIn(paragraph.Text)))
+                   !string.IsNullOrWhiteSpace(cleaned[index + 1].Text) &&
+                   (IsExplanatoryJavaCodeLeadIn(paragraph.Text) ||
+                    IsCddlCodeLeadIn(paragraph.Text))))
             .ToList();
     }
+
+    static bool IsCddlCodeLeadIn(string text) =>
+        NormalizeText(text).EndsWith(
+            "CBOR with the following CDDL:",
+            StringComparison.Ordinal);
 
     static bool IsExplanatoryJavaCodeLeadIn(string text) =>
         Regex.IsMatch(
@@ -6780,6 +6787,76 @@ static class ImporterProgram
                 nestedExampleDocs.Paragraphs[1],
                 "  ") == "  <code lang=\"text/java\">widget.setTitle(title);</code>",
             "code examples render as ECMA code blocks");
+        const string cddlLeadIn =
+            "If the implementation is feature version 202101 or later, " +
+            "each X.509 certificate contains an X.509 extension at OID 1.3.6.1.4.1.11129.2.1.26 which " +
+            "contains a DER encoded OCTET STRING with the bytes of the CBOR with the following CDDL:";
+        var cddlParagraphs = SourcePage.ExtractParagraphs(
+            "<p>" + cddlLeadIn +
+            "<div></div><devsite-code><pre>ProofOfBinding = [\"ProofOfBinding\", bstr]</pre></devsite-code>" +
+            "<p>This CBOR binds the issuer data to the credential.</p>");
+        Assert(
+            cddlParagraphs.SequenceEqual(
+                [
+                    new SourceParagraph(cddlLeadIn, IsCode: false),
+                    new SourceParagraph("ProofOfBinding = [\"ProofOfBinding\", bstr]", IsCode: true),
+                    new SourceParagraph("This CBOR binds the issuer data to the credential.", IsCode: false),
+                ]) &&
+                UsableRemarks(cddlParagraphs).SequenceEqual(cddlParagraphs),
+            "Android CDDL code lead-ins retain their certificate metadata and trailing colon");
+        var siblingCddlParagraphs = SourcePage.ExtractParagraphs(
+            "<p>" + cddlLeadIn + "</p>" +
+            "<pre>ProofOfBinding = [\"ProofOfBinding\", bstr]</pre>" +
+            "<p>This CBOR binds the issuer data to the credential.</p>");
+        Assert(
+            siblingCddlParagraphs.SequenceEqual(cddlParagraphs) &&
+                UsableRemarks(siblingCddlParagraphs).SequenceEqual(cddlParagraphs),
+            "Android CDDL lead-ins precede sibling code blocks in source order");
+        Assert(
+            SourcePage.ExtractParagraphs("<p>" + cddlLeadIn + "</p>").Count == 0 &&
+                SourcePage.ExtractParagraphs(
+                    "<p>" + cddlLeadIn + "<pre> </pre></p>").Count == 0 &&
+                SourcePage.ExtractParagraphs(
+                    "<p>" + cddlLeadIn + "<p>Separate prose.</p><pre>schema = bstr</pre>")
+                    .All(paragraph => paragraph.Text != cddlLeadIn) &&
+                UsableRemarks([new SourceParagraph(cddlLeadIn, IsCode: false)]).Count == 0,
+            "Android CDDL lead-ins require an immediately following nonempty code block");
+        foreach (var separator in new[]
+        {
+            "<p>Separate prose.</p>",
+            "<p>Unrelated incomplete prose:</p>",
+            "<p></p>",
+            "<pre> </pre>",
+            "<devsite-code><pre> </pre></devsite-code>",
+        })
+        {
+            Assert(
+                SourcePage.ExtractParagraphs(
+                    "<p>" + cddlLeadIn + "</p>" + separator + "<pre>schema = bstr</pre>")
+                    .SequenceEqual(
+                        separator == "<p>Separate prose.</p>"
+                            ? [
+                                new SourceParagraph("Separate prose.", IsCode: false),
+                                new SourceParagraph("schema = bstr", IsCode: true),
+                            ]
+                            : [new SourceParagraph("schema = bstr", IsCode: true)]),
+                "Android CDDL lead-ins cannot cross intervening parsed blocks: " + separator);
+        }
+        Assert(
+            SourcePage.ExtractParagraphs("<p>" + cddlLeadIn + "</p><pre> </pre>").Count == 0 &&
+                SourcePage.ExtractParagraphs(
+                    "<p>" + cddlLeadIn + "</p><p><pre>schema = bstr</pre></p>")
+                    .SequenceEqual(
+                        [
+                            new SourceParagraph(cddlLeadIn, IsCode: false),
+                            new SourceParagraph("schema = bstr", IsCode: true),
+                        ]),
+            "Android CDDL sibling guards reject empty code but allow a code-only paragraph wrapper");
+        Assert(
+            SourcePage.ExtractParagraphs(
+                "<p>This ordinary incomplete prose ends with a colon:<pre>schema = bstr</pre></p>")
+                .SequenceEqual([new SourceParagraph("schema = bstr", IsCode: true)]),
+            "ordinary incomplete Android prose before code blocks remains excluded");
         var signaturePage = SourcePage.Parse(
             request,
             androidHtml.Replace(
@@ -6820,6 +6897,70 @@ static class ImporterProgram
             "closing delimiters do not extend non-abbreviation sentences");
 
         var setTitle = file.Owners.Single(owner => owner.Id.Contains("SetTitle", StringComparison.Ordinal));
+        var cddlRefreshDocs = nestedExampleDocs with
+        {
+            Paragraphs =
+            [
+                new SourceParagraph("Sets the widget title.", IsCode: false),
+                .. cddlParagraphs,
+            ],
+        };
+        RemarksRefreshResult RefreshCddlRemarks(XElement remarks)
+        {
+            var text = $"<Docs>{remarks.ToString(SaveOptions.DisableFormatting)}</Docs>";
+            var docs = XElement.Parse(text, LoadOptions.PreserveWhitespace);
+            var owner = setTitle with { Order = 0, Docs = docs, Placeholders = [] };
+            var refreshFile = new LoadedFile
+            {
+                Path = "Widget.Cddl.refresh.xml",
+                RelativePath = "Widget.Cddl.refresh.xml",
+                Text = text,
+                Newline = "\n",
+                HasUtf8Bom = false,
+                Root = docs,
+            };
+            refreshFile.UpdateBlockOffsets(0, text);
+            return RefreshImporterOwnedRemarks(text, refreshFile, owner, cddlRefreshDocs);
+        }
+        var partialCddlRemarks = new XElement(
+            "remarks",
+            cddlRefreshDocs.Paragraphs
+                .Where(paragraph => paragraph.Text != cddlLeadIn)
+                .Select(DocumentationElement),
+            ImporterSourceReference(cddlRefreshDocs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        var refreshedCddlRemarks = RefreshCddlRemarks(partialCddlRemarks);
+        var completeCddlRemarks = XElement.Parse(
+            refreshedCddlRemarks.Text,
+            LoadOptions.PreserveWhitespace).Element("remarks")!;
+        Assert(
+            refreshedCddlRemarks.Reason is null &&
+                completeCddlRemarks.Elements().Take(4).Select(element => element.Value)
+                    .SequenceEqual(cddlRefreshDocs.Paragraphs.Select(paragraph => paragraph.Text)),
+            "importer-owned CDDL remarks restore the exact lead-in before the source sample");
+        var repeatedCddlRefresh = RefreshCddlRemarks(completeCddlRemarks);
+        var completeCddlText = $"<Docs>{completeCddlRemarks.ToString(SaveOptions.DisableFormatting)}</Docs>";
+        Assert(
+            repeatedCddlRefresh.Reason == "source_remarks_current" &&
+                repeatedCddlRefresh.Text == completeCddlText,
+            "complete source-ordered CDDL remarks refresh is idempotent");
+        foreach (var authored in new XNode[]
+        {
+            new XText("Authored fixture guidance."),
+            new XElement("c", "Sets the widget title."),
+            new XCData("Sets the widget title."),
+            new XComment("Authored fixture annotation."),
+        })
+        {
+            var authoredRemarks = new XElement(partialCddlRemarks);
+            authoredRemarks.Elements("para").First().ReplaceNodes(authored);
+            var originalText = $"<Docs>{authoredRemarks.ToString(SaveOptions.DisableFormatting)}</Docs>";
+            var preserved = RefreshCddlRemarks(authoredRemarks);
+            Assert(
+                preserved.Reason == "existing_remarks_not_importer_owned" &&
+                    preserved.Text == originalText,
+                "CDDL refresh preserves authored or mixed-content paragraphs: " + authored.NodeType);
+        }
         var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
         {
             [request.Url] = SourceLoadResult.Success(androidPage),
@@ -12972,8 +13113,7 @@ static class ImporterProgram
                 if (isCode)
                 {
                     var value = HtmlCodeText(html[open.ContentStart..contentEnd]);
-                    if (value.Length > 0)
-                        codeRanges.Add((open.TagStart, elementEnd, new SourceParagraph(value, IsCode: true)));
+                    codeRanges.Add((open.TagStart, elementEnd, new SourceParagraph(value, IsCode: true)));
                     return;
                 }
 
@@ -12985,12 +13125,19 @@ static class ImporterProgram
                 {
                     if (code.Start < textStart)
                         continue;
-                    AddSourceTextParagraph(html[textStart..code.Start], textStart, paragraphs);
+                    AddSourceTextParagraph(
+                        html[textStart..code.Start],
+                        textStart,
+                        paragraphs);
                     paragraphs.Add((code.Start, code.Paragraph));
                     textStart = code.End;
                 }
                 if (textStart <= contentEnd)
-                    AddSourceTextParagraph(html[textStart..contentEnd], textStart, paragraphs);
+                    AddSourceTextParagraph(
+                        html[textStart..contentEnd],
+                        textStart,
+                        paragraphs,
+                        preserveEmpty: nestedCode.Count == 0);
             }
 
             foreach (Match tag in Regex.Matches(
@@ -13030,10 +13177,32 @@ static class ImporterProgram
             {
                 paragraphs.Add((code.Start, code.Paragraph));
             }
-            return paragraphs
+            var ordered = paragraphs
                 .OrderBy(paragraph => paragraph.Position)
                 .Select(paragraph => paragraph.Paragraph)
                 .ToList();
+            var usable = new List<SourceParagraph>();
+            for (var index = 0; index < ordered.Count; index++)
+            {
+                var paragraph = ordered[index];
+                if (paragraph.IsCode)
+                {
+                    if (!string.IsNullOrWhiteSpace(paragraph.Text))
+                        usable.Add(paragraph);
+                    continue;
+                }
+
+                var isCddlIntroduction = IsCddlCodeLeadIn(paragraph.Text) &&
+                    index + 1 < ordered.Count &&
+                    ordered[index + 1].IsCode &&
+                    !string.IsNullOrWhiteSpace(ordered[index + 1].Text);
+                var text = isCddlIntroduction
+                    ? paragraph.Text
+                    : CleanSourceParagraph(paragraph.Text);
+                if (isCddlIntroduction || IsMeaningfulChannel(text, "remarks"))
+                    usable.Add(paragraph with { Text = text });
+            }
+            return usable;
         }
 
         static string NormalizeNestedListParagraphs(string html) =>
@@ -13053,11 +13222,12 @@ static class ImporterProgram
         static void AddSourceTextParagraph(
             string html,
             int position,
-            List<(int Position, SourceParagraph Paragraph)> paragraphs)
+            List<(int Position, SourceParagraph Paragraph)> paragraphs,
+            bool preserveEmpty = false)
         {
-            var value = CleanSourceParagraph(HtmlText(html));
-            if (IsMeaningfulChannel(value, "remarks"))
-                paragraphs.Add((position, new SourceParagraph(value, IsCode: false)));
+            var sourceText = CleanSourceText(HtmlText(html));
+            if (preserveEmpty || sourceText.Length > 0)
+                paragraphs.Add((position, new SourceParagraph(sourceText, IsCode: false)));
         }
 
         internal static List<SourceParagraph> ExtractBlocks(string html) =>
