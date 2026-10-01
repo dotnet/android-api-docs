@@ -109,6 +109,27 @@ importer paragraph/reference/attribution structure. Authored or mixed markup,
 changed source text, and duplicate channels are preserved. The same narrow
 allow-list corrects newly imported source channels so later refreshes cannot
 reintroduce these defects; no general grammar or punctuation normalization occurs.
+Exact EAP channel guards additionally require the complete official source
+contract, canonical URL and reference label, registered JNI descriptor, managed
+return and parameter types, and (for repairs) the complete original importer-owned
+Docs. `EapAkaInfo.Builder.SetReauthId` skips the source parameter that wrongly
+describes a re-authentication ID as the client's EAP identity; an exact prior
+import is withdrawn to its placeholder rather than replaced with inferred prose.
+`EapSessionConfig.Builder.SetEapMsChapV2Config` corrects only the full known
+`faciliate` return text. Both guards operate on first-fill imports as well as
+strict prior-owned repairs. Changed source contracts, authored or mixed markup,
+CDATA, comments, processing instructions, attributes, references, attribution,
+and managed metadata prevent repairs and are preserved with a reported skip.
+The registered `EapSessionConfig.EapAkaConfig.EapAkaOption` getter's exact
+non-null return guarantee is withheld only from its published value channel.
+The supported two-argument builder passes null options through the constructor
+to the getter; pinned implementation excerpts verify this path without serving
+as replacement prose or a Java runtime test. First-fill suppression depends on
+the full defective return contract, registered getter descriptor, canonical
+Android URL, and source kind, not unrelated summary or safe paragraph wording.
+Withdrawal requires the complete original plain importer-owned Docs, reference,
+and attribution and consumes one change. Future corrected source, including
+removal of the false guarantee, remains eligible; no API metadata is changed.
 The same exact allow-list covers the RSSI builder's Bluetooth-address parameter
 and RSSI parcel-write summary and remarks. The RSSI update-rate setter's malformed
 default paragraph (an unresolved `ERROR(...)` label linked to the site root) is
@@ -123,20 +144,37 @@ The site-root link describes the observed source, not a required exclusion
 predicate: the exact unresolved label remains unsafe even if its hyperlink
 changes. Canonical member-page/JNI provenance is checked independently of that
 inner hyperlink; no source-label correction is inferred from either link.
-Eight exact `Android.Ranging.Raw` channels are withheld: the infrequent-rate
-enum description's missing WiFi RTT condition, the BLE RSSI setter parameter
+Ten exact `Android.Ranging.Raw` channels are withheld: all three update-rate
+enum summaries, the BLE RSSI setter parameter
 description naming the different BLE CS class, and the summary/remarks of three
 parcel writers containing `in to`. These exclusions require the exact managed
 member, canonical Android URL, Android source kind, and complete original text.
+Frequent and Normal advertise WiFi PD intervals contradicted by the pinned
+Android 17 implementation and omit the NAN RTT periodic-ranging enable condition.
+Infrequent has a missing WiFi RTT condition. Implementation is verification
+evidence only, never replacement documentation.
 The enum summary remains withheld while its exact original non-code paragraph
 is present anywhere in the source body, independent of summary edits or added
 safe paragraphs, because enum summaries publish that body. Parcel remarks are
 likewise withheld while their exact bad non-code paragraph remains anywhere in
 the body; only the exact bad parcel summary is also withheld. A safe corrected
 parcel summary remains eligible even when the bad remarks paragraph persists.
-Safe sibling constants, setter summary/returns, and parcel flags remain eligible.
+Setter summary/returns and parcel flags remain eligible.
 No replacement prose is invented, no generic grammar correction occurs, and
-existing authored or imported channels remain unchanged. Official source with
+existing authored or imported channels remain unchanged, except for strict
+withdrawal of the exact original importer-owned Frequent/Normal summaries.
+Withdrawal requires the exact JNI field owner/name, enum type/value/signature,
+complete original source paragraph, canonical reference label/URL, and entire
+plain summary/reference/attribution structure; it restores the placeholder in
+one operation. Authored or mixed content, CDATA, comments, processing
+instructions, attributes, duplicate channels, and altered metadata or
+provenance preserve the entire original Docs.
+Logical exclusions apply before every supported Raw writer, including nested
+paragraph placeholders, enum completion, augmented-placeholder cleanup,
+metadata-only enrichment, Java-signature and copied-description repairs,
+and importer-owned refreshes. Original source paragraphs remain available for
+strict ownership checks but cannot be rendered into withheld channels.
+Official source with
 the bad paragraph corrected or removed becomes eligible without changing the exclusion.
 Changed paragraph text, code-only copies, and different member/source provenance
 are unaffected. The exclusions do not reorder source paragraphs.
