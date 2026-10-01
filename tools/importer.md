@@ -147,6 +147,24 @@ or remarks paragraphs; mixed-content paragraphs are reported and preserved.
 Java explanatory lead-ins immediately preceding a code block are retained with
 their trailing colon only when they use a source-proven code-introduction form;
 ordinary incomplete prose remains excluded.
+The declared `Gesture`, `GesturePoint`, and `GestureStroke` `clone()` remarks
+retain three exact official colon-ended introductions only before their exact,
+adjacent nonempty clone expressions. This preserves the source's general-intent,
+non-absolute-requirement, and typical-equality qualifications in source order.
+Other URLs, changed introductions or expressions, empty code, and intervening
+blocks cannot enable these introductions. An earlier importer-owned copy that
+omitted them can be refreshed only with the exact managed/JNI identity, mapped
+canonical member URL, complete original source paragraphs and code, and complete
+original plain remarks/reference/attribution structure. Authored additions,
+mixed markup, CDATA, comments, processing instructions, duplicate remarks, and
+changed source or binding provenance are preserved. The repair retains the
+original reference and attribution element bytes. The exact prior complete
+clone remarks with normalized attribution can restore the known original
+nonbreaking spaces only when the entire source, mapped identity, plain importer
+reference/attribution, original mixed-code summary, and plain return also match;
+only that attribution element changes. Registered first-fill and
+prior-copy regression tests exercise one-operation limits and byte-identical
+zero-write repeats.
 Android CDDL introductions ending in `CBOR with the following CDDL:` are likewise
 retained only immediately before a non-empty code block, preserving certificate
 extension metadata that introduces the schema. This is checked in parsed block
