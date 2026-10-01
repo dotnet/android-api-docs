@@ -1,0 +1,27 @@
+<html><body>
+<h2>Public methods</h2>
+<h3 class="api-name" id="getPrefixLength()">getPrefixLength</h3>
+<pre class="api-signature">public abstract int getPrefixLength()</pre>
+<p>Retrieves the prefix length</p>
+<table><tr><th>Returns</th></tr><tr><td>int</td><td>The requested prefix length, or -1 if no specific IPv6 address was requested</td></tr></table>
+<h3 class="api-name" id="addDhGroup(int)">addDhGroup</h3>
+<pre class="api-signature">public IkeSaProposal.Builder addDhGroup(int dhGroup)</pre>
+<p>Adds a Diffie-Hellman Group to the SA proposal being built.</p>
+<table><tr><th>Parameters</th></tr><tr><td>dhGroup</td><td>int: to add to IkeSaProposal. Value is one of the following: SaProposal.DH_GROUP_NONE; SaProposal.DH_GROUP_1024_BIT_MODP; SaProposal.DH_GROUP_1536_BIT_MODP; SaProposal.DH_GROUP_2048_BIT_MODP; SaProposal.DH_GROUP_3072_BIT_MODP; SaProposal.DH_GROUP_4096_BIT_MODP; SaProposal.DH_GROUP_CURVE_25519</td></tr></table>
+<table><tr><th>Returns</th></tr><tr><td>IkeSaProposal.Builder</td><td>Builder of IkeSaProposal. This value cannot be null.</td></tr></table>
+<h3 class="api-name" id="addEncryptionAlgorithm(int, int)">addEncryptionAlgorithm</h3>
+<pre class="api-signature">public ChildSaProposal.Builder addEncryptionAlgorithm(int algorithm, int keyLength)</pre>
+<p>Adds an encryption algorithm with a specific key length to the SA proposal being built.</p>
+<table><tr><th>Parameters</th></tr><tr><td>algorithm</td><td>int: encryption algorithm to add to ChildSaProposal. Value is one of the following: SaProposal.ENCRYPTION_ALGORITHM_3DES; SaProposal.ENCRYPTION_ALGORITHM_AES_CBC; SaProposal.ENCRYPTION_ALGORITHM_AES_CTR; SaProposal.ENCRYPTION_ALGORITHM_AES_GCM_8; SaProposal.ENCRYPTION_ALGORITHM_AES_GCM_12; SaProposal.ENCRYPTION_ALGORITHM_AES_GCM_16; SaProposal.ENCRYPTION_ALGORITHM_CHACHA20_POLY1305</td></tr><tr><td>keyLength</td><td>int: key length of algorithm. For algorithms that have fixed key length (e.g. 3DES) only SaProposal.KEY_LEN_UNUSED is allowed.</td></tr></table>
+<table><tr><th>Returns</th></tr><tr><td>ChildSaProposal.Builder</td><td>Builder of ChildSaProposal. This value cannot be null.</td></tr></table>
+<h2>Constants</h2>
+<h3 class="api-name" id="IKE_OPTION_MOBIKE">IKE_OPTION_MOBIKE</h3>
+<pre class="api-signature">public static final int IKE_OPTION_MOBIKE</pre>
+<p>If set, the IKE Session will attempt to handle IP address changes using RFC4555 MOBIKE.</p>
+<p>Upon IP address changes (including Network changes), the IKE session will initiate an RFC 4555 MOBIKE procedure, migrating both this IKE Session and associated IPsec Transforms to the new local and remote address pair.</p>
+<p>The IKE library will first attempt to enable MOBIKE to handle the changes of underlying network and addresses. For callers targeting SDK Build.VERSION_CODES.S_V2 and earlier, this option will implicitly enable the support for rekey-based mobility, and thus if the server does not support MOBIKE, the IKE Session will try migration by rekeying all associated IPsec SAs. This rekey-based mobility feature is not best-practice and has technical issues; accordingly, it will no longer be enabled for callers targeting SDK Build.VERSION_CODES.TIRAMISU and above.</p>
+<p>Checking whether or not MOBIKE is supported by both the IKE library and the server in an IKE Session is done via IkeSessionConfiguration.isIkeExtensionEnabled(int).</p>
+<p>It is recommended that IKE_OPTION_MOBIKE be enabled unless precluded for compatibility reasons.</p>
+<p>If this option is set for an IKE Session, Transport-mode SAs will not be allowed in that Session.</p>
+<p>Callers that need to perform migration of IPsec transforms and tunnels MUST implement migration specific methods in IkeSessionCallback and ChildSessionCallback.</p>
+</body></html>
