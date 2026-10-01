@@ -842,6 +842,42 @@ static class ImporterProgram
                         }
                     }
 
+                    var unsafeUserRestrictionRepair = RepairKnownUnsafeUserRestrictionParameter(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (unsafeUserRestrictionRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "param:restriction",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = unsafeUserRestrictionRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "param:restriction",
+                                mapping.SourceUrl,
+                                "importer_known_unsafe_user_restriction_repair",
+                                "Restored an importer-generated user-restriction parameter to its placeholder because the exact Android source includes an application-restriction sentinel."));
+                        }
+                    }
+
                     var androidParameterRepair = RepairKnownAndroidParameter(
                         text,
                         file,
@@ -901,6 +937,78 @@ static class ImporterProgram
                                     "would_apply", file.RelativePath, owner.Id, target, mapping.SourceUrl,
                                     "importer_known_android_text_repair",
                                     "Corrected an allow-listed official-source typo in exact importer-owned text."));
+                        }
+                    }
+
+                    var androidSummaryRepair = RepairKnownAndroidSummary(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (androidSummaryRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "summary",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = androidSummaryRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "summary",
+                                mapping.SourceUrl,
+                                "importer_known_android_summary_repair",
+                                "Corrected an exact importer-owned Android reset-token method signature."));
+                        }
+                    }
+
+                    var androidRemarksRepair = RepairKnownAndroidRemarks(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (androidRemarksRepair.Repaired)
+                    {
+                        if (remaining == 0)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else
+                        {
+                            text = androidRemarksRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply",
+                                file.RelativePath,
+                                owner.Id,
+                                "remarks",
+                                mapping.SourceUrl,
+                                "importer_known_android_remarks_repair",
+                                "Corrected an exact importer-owned Android reference paragraph."));
                         }
                     }
 
@@ -1013,7 +1121,8 @@ static class ImporterProgram
                         var replacement = ReplacementFor(
                             placeholder,
                             mapping.Docs!,
-                            owner.IsEnumField);
+                            owner.IsEnumField,
+                            owner.Id);
                         if (IsKnownUnsafeContinueStrokeDuration(
                                 mapping.SourceUrl,
                                 placeholder.Target))
@@ -1026,13 +1135,16 @@ static class ImporterProgram
                             placeholder,
                             mapping.Docs!,
                             replacement,
-                            owner.Docs.Element("remarks"));
+                            owner.Docs.Element("remarks"),
+                            owner.Id);
                         if (replacement.Text is null)
                         {
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
-                                placeholder.Target,
+                                owner.Id == ProtoTokenMemberId && replacement.Reason == "source_channel_ambiguous" &&
+                                    (placeholder.Name == "para" || placeholder.IsImporterMetadataRepair)
+                                    ? "remarks" : placeholder.Target,
                                 replacement.Reason!,
                                 replacement.Detail,
                                 mapping.SourceUrl));
@@ -1084,6 +1196,15 @@ static class ImporterProgram
                             owner.Id,
                             placeholder.Target,
                             mapping.SourceUrl));
+                    }
+
+                    if (owner.Id == ProtoTokenMemberId &&
+                        mapping.Docs!.UnsafeTargets?.TryGetValue("remarks", out var unsafeRemarksDetail) == true &&
+                        !owner.Placeholders.Any(item => item.Name is "remarks" or "para" || item.IsImporterMetadataRepair))
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id, "remarks", "source_channel_ambiguous",
+                            unsafeRemarksDetail, mapping.SourceUrl));
                     }
 
                     var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
@@ -1157,7 +1278,9 @@ static class ImporterProgram
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
                             file.UpdateBlockOffsets(owner.Order, refreshed);
-                            var repairTarget = "summary";
+                            var repairTarget = owner.Id == ProtoTokenMemberId &&
+                                (codeExampleRepair || augmentedRemarksRepair || metadataOnlyRemarksRepair)
+                                ? "remarks" : "summary";
                             if (remaining == 0)
                             {
                                 RestoreOffsetsAfterSkippedRepair(file, owner, text);
@@ -1560,6 +1683,7 @@ static class ImporterProgram
         }
         docs = WithKnownEapChannelCorrections(owner, docs);
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
+        docs = WithoutKnownUnsafeProtoTokenRemark(owner, docs);
         docs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeJavaSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
@@ -1674,6 +1798,39 @@ static class ImporterProgram
             }
         }
         return docs;
+    }
+
+    const string ProtoTokenMemberId =
+        "M:Android.Util.Proto.ProtoOutputStream.MakeToken(System.Int32,System.Boolean,System.Int32,System.Int32,System.Int32)";
+    const string ProtoTokenSourceUrl =
+        AndroidReference + "android/util/proto/ProtoOutputStream#makeToken(int,%20boolean,%20int,%20int,%20int)";
+    const string UnsafeProtoTokenParagraph =
+        "Make a token. Bits 61-63 - tag size (So we can go backwards later if the object had not data) " +
+        "- 3 bits, max value 7, max value needed 5 Bit 60 - true if the object is repeated " +
+        "(lets us require endObject or endRepeatedObject) Bits 59-51 - depth (For error checking) " +
+        "- 9 bits, max value 512, when checking, value is masked (if we really are more than 512 levels deep) " +
+        "Bits 32-50 - objectId (For error checking) - 19 bits, max value 524,288. that's a lot of objects. " +
+        "IDs will wrap because of the overflow, and only the tokens are compared. " +
+        "Bits 0-31 - offset of interest for the object.";
+
+    static SourceDocs WithoutKnownUnsafeProtoTokenRemark(DocsOwner owner, SourceDocs docs)
+    {
+        if (owner.Id != ProtoTokenMemberId ||
+            owner.SourceRequest?.JavaPath != "android/util/proto/ProtoOutputStream" ||
+            owner.MemberRegistration is not { Name: "makeToken", Descriptor: "(IZIII)J", IsField: false } ||
+            (string?)owner.Member?.Element("ReturnValue")?.Element("ReturnType") != "System.Int64" ||
+            docs.SourceKind != "android" || docs.SourceUrl != ProtoTokenSourceUrl ||
+            !docs.Paragraphs.Any(paragraph =>
+                paragraph is { IsCode: false, Text: UnsafeProtoTokenParagraph }))
+        {
+            return docs;
+        }
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["remarks"] =
+            "The exact Android token paragraph calls capacities 512 and 524,288 maximum field values, but packed values are masked to 511 and 524,287; wrapped depths and negative object IDs do not make the stated maxima representable.";
+        return docs with { UnsafeTargets = targets, WithheldRemarks = docs.Paragraphs };
     }
 
     static bool MatchesKnownEapMember(DocsOwner owner, KnownEapChannelCorrection correction) =>
@@ -1982,6 +2139,41 @@ static class ImporterProgram
             targets["remarks"] = detail;
             targets["param:channelWidth"] = detail;
         }
+
+        if (IsKnownUnsafeUserRestrictionParameter(ownerId, docs))
+        {
+            targets["param:restriction"] =
+                "The exact Android source lists an application-restriction sentinel that is explicitly not a user restriction.";
+        }
+
+
+        var summaryRepair = KnownAndroidSummaryRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(ownerId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(docs.SourceUrl, StringComparison.Ordinal));
+        if (summaryRepair is not null &&
+            (docs.Summary.Contains(summaryRepair.IncorrectText, StringComparison.Ordinal) ||
+             docs.Paragraphs.Any(paragraph => paragraph.Text.Contains(
+                 summaryRepair.IncorrectText,
+                 StringComparison.Ordinal))))
+        {
+            docs = docs with
+            {
+                Summary = docs.Summary.Replace(
+                    summaryRepair.IncorrectText,
+                    summaryRepair.CorrectText,
+                    StringComparison.Ordinal),
+                Paragraphs =
+                docs.Paragraphs.Select(paragraph => paragraph with
+                    {
+                        Text = paragraph.Text.Replace(
+                            summaryRepair.IncorrectText,
+                            summaryRepair.CorrectText,
+                            StringComparison.Ordinal),
+                    })
+                    .ToList(),
+            };
+        }
+
 
         if (ownerId == "F:Android.Net.IpSec.Ike.Exceptions.IkeProtocolErrorType.NoAdditionalSas" &&
             docs.SourceKind == "android" &&
@@ -2618,15 +2810,42 @@ static class ImporterProgram
                 member.Name.Equals("<init>", StringComparison.Ordinal))
             : !member.IsConstructor && member.Name.Equals(name, StringComparison.Ordinal);
 
+    static SourceDocs WithKnownAndroidRemarksCorrections(string? ownerId, SourceDocs docs)
+    {
+        if (docs.SourceKind != "android" || ownerId is null)
+            return docs;
+        var repair = KnownAndroidRemarksRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(ownerId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(docs.SourceUrl, StringComparison.Ordinal));
+        if (repair is null)
+            return docs;
+        return docs with
+        {
+            Paragraphs = docs.Paragraphs.Select(paragraph =>
+                !paragraph.IsCode &&
+                paragraph.Text.Equals(repair.IncorrectText, StringComparison.Ordinal)
+                    ? paragraph with { Text = repair.CorrectText }
+                    : paragraph).ToList(),
+        };
+    }
+
     static Replacement ReplacementFor(
         Placeholder placeholder,
         SourceDocs docs,
-        bool isEnumField = false)
+        bool isEnumField = false,
+        string? ownerId = null)
     {
-        var sourceTarget = docs.WithheldRemarks is not null && placeholder.Name == "para"
+        var sourceTarget = docs.WithheldRemarks is not null &&
+            (placeholder.Name == "para" || placeholder.IsImporterMetadataRepair)
             ? "remarks" : placeholder.Target;
         if (docs.UnsafeTargets?.TryGetValue(sourceTarget, out var unsafeTargetDetail) == true)
             return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
+
+        if (placeholder.Name is "remarks" or "para" ||
+            placeholder.IsImporterMetadataRepair)
+        {
+            docs = WithKnownAndroidRemarksCorrections(ownerId, docs);
+        }
 
         if (docs.HasMalformedSourceMarkup &&
             docs.SourceUrl.Equals(
@@ -2673,7 +2892,8 @@ static class ImporterProgram
         Placeholder placeholder,
         SourceDocs docs,
         Replacement replacement,
-        XElement? existingRemarks)
+        XElement? existingRemarks,
+        string? ownerId = null)
     {
         if (placeholder.Name != "para" ||
             replacement.Remarks is null ||
@@ -2682,7 +2902,8 @@ static class ImporterProgram
             return replacement;
         }
 
-        var sourceFragments = ExpandRemarksFragments(docs.Paragraphs);
+        var sourceFragments = ExpandRemarksFragments(
+            WithKnownAndroidRemarksCorrections(ownerId, docs).Paragraphs);
         var elements = existingRemarks.Elements().ToList();
         var representedElements = elements
             .Select((element, index) => new
@@ -3678,7 +3899,7 @@ static class ImporterProgram
             !hasRemarksPlaceholder &&
             docs.Paragraphs.Count > 0)
         {
-            foreach (var paragraph in docs.Paragraphs)
+            foreach (var paragraph in WithKnownAndroidRemarksCorrections(owner.Id, docs).Paragraphs)
                 additions.Add(RenderDocumentationParagraph(paragraph, paraIndent));
         }
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
@@ -3849,6 +4070,8 @@ static class ImporterProgram
     {
         if (IsWithheldRawChannel(docs, "remarks"))
             return new(text, "source_channel_ambiguous", docs.UnsafeTargets!["remarks"]);
+        if (docs.UnsafeTargets?.TryGetValue("remarks", out var unsafeDetail) == true)
+            return new RemarksRefreshResult(text, "source_channel_ambiguous", unsafeDetail);
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
         if (!TryParseDocsBlock(blockText, out var document))
@@ -3897,6 +4120,9 @@ static class ImporterProgram
                 "source_remarks_missing",
                 "The exact source member did not provide usable remarks to refresh.");
         }
+
+        if (IsKnownAndroidRemarksRepairCorrected(owner.Id, remarks, docs))
+            return new RemarksRefreshResult(text, null, null);
 
         var existing = remarks.Elements().ToList();
         var sourceReferenceIndex = existing.FindIndex(element =>
@@ -3981,7 +4207,7 @@ static class ImporterProgram
         var remarksIndent = docsIndent + "  ";
         var paragraphIndent = remarksIndent + "  ";
         var replacement = RenderImporterOwnedRemarks(
-            sourceParagraphs,
+            UsableRemarks(WithKnownAndroidRemarksCorrections(owner.Id, docs).Paragraphs),
             docs,
             newline,
             remarksIndent,
@@ -4186,6 +4412,8 @@ static class ImporterProgram
         string remarksIndent,
         string paragraphIndent)
     {
+        if (docs.UnsafeTargets?.ContainsKey("remarks") == true && docs.Paragraphs.Count > 0)
+            throw new InvalidOperationException("An unsafe source remarks channel cannot be rendered.");
         var paragraphs = sourceParagraphs
             .Select(paragraph => RenderDocumentationParagraph(paragraph, paragraphIndent))
             .ToList();
@@ -5153,6 +5381,13 @@ static class ImporterProgram
                     "source_channel_ambiguous", docs.UnsafeTargets![candidate.Target]));
                 continue;
             }
+            if (candidate.Target == "remarks" &&
+                docs.UnsafeTargets?.TryGetValue("remarks", out var unsafeDetail) == true)
+            {
+                skips.Add(new CopiedDescriptionRepairSkip(
+                    candidate.Target, "source_channel_ambiguous", unsafeDetail));
+                continue;
+            }
             if (!TryGetElementSpan(blockText, candidate.Element, out var elementSpan))
             {
                 skips.Add(new CopiedDescriptionRepairSkip(
@@ -5411,6 +5646,8 @@ static class ImporterProgram
     {
         if (IsWithheldRawChannel(docs, "remarks"))
             return new(text, "source_channel_ambiguous", docs.UnsafeTargets!["remarks"]);
+        if (docs.UnsafeTargets?.TryGetValue("remarks", out var unsafeDetail) == true)
+            return new RemarksRefreshResult(text, "source_channel_ambiguous", unsafeDetail);
         var ownedRemarks = owner.Docs.Element("remarks");
         if (ownedRemarks is null || !HasPotentialImporterOwnedRemarksRefresh(file, owner))
         {
@@ -6113,6 +6350,8 @@ static class ImporterProgram
     {
         if (IsWithheldRawChannel(docs, "remarks"))
             return text;
+        if (docs.UnsafeTargets?.ContainsKey("remarks") == true)
+            return text;
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
         if (!HasIncompleteImporterJavaExample(blockText) ||
@@ -6131,7 +6370,7 @@ static class ImporterProgram
         var remarksIndent = docsIndent + "  ";
         var paragraphIndent = remarksIndent + "  ";
         var replacement = RenderImporterOwnedRemarks(
-            docs.Paragraphs,
+            WithKnownAndroidRemarksCorrections(owner.Id, docs).Paragraphs,
             docs,
             newline,
             remarksIndent,
@@ -7792,6 +8031,339 @@ static class ImporterProgram
         }
     }
 
+    static void TestProtoTokenRemark(string repositoryRoot, string fixtureRoot)
+    {
+        var fixtureText = File.ReadAllText(Path.Combine(fixtureRoot, "proto-token.xml"));
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "proto-token.html"));
+        var file = LoadedFile.Load(repositoryRoot, Path.Combine(fixtureRoot, "proto-token.xml"));
+        file.SelectOwners("MakeToken");
+        var owner = file.Owners.Single();
+        var request = owner.SourceRequest!;
+        var page = SourcePage.Parse(request, html);
+        var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+        {
+            [request.Url] = SourceLoadResult.Success(page),
+        };
+        var mapped = MapOwner(owner, pages);
+        var source = mapped.Docs!;
+        var remarks = new Placeholder(0, "remarks", "", "remarks");
+        Assert(owner.Id == ProtoTokenMemberId &&
+            owner.MemberRegistration is { Name: "makeToken", Descriptor: "(IZIII)J", IsField: false } &&
+            source.Paragraphs is [{ IsCode: false, Text: UnsafeProtoTokenParagraph }] &&
+            ReplacementFor(remarks, source) is { Text: null, Reason: "source_channel_ambiguous" } &&
+            ReplacementFor(new Placeholder(1, "summary", "", "summary"), source).Text == "Make a token.",
+            "registered ProtoOutputStream MakeToken rejects only the exact unsafe bit-range remarks");
+
+        var rawSource = source with { UnsafeTargets = null, WithheldRemarks = null };
+        foreach (var changed in new[]
+        {
+            rawSource with { SourceUrl = source.SourceUrl + ".Other" },
+            rawSource with { SourceKind = "java" },
+            rawSource with { Paragraphs = [new SourceParagraph(UnsafeProtoTokenParagraph + " Changed.", false)] },
+            rawSource with { Paragraphs = [new SourceParagraph(UnsafeProtoTokenParagraph, true)] },
+            rawSource with { Paragraphs = [new SourceParagraph(
+                UnsafeProtoTokenParagraph.Replace("max value 512", "max value 511", StringComparison.Ordinal)
+                    .Replace("max value 524,288", "max value 524,287", StringComparison.Ordinal), false)] },
+            rawSource with { Paragraphs = [new SourceParagraph("Make a token.", false)] },
+        })
+        {
+            Assert(WithoutKnownUnsafeProtoTokenRemark(owner, changed) == changed &&
+                ReplacementFor(remarks, changed).Text is not null,
+                "Proto token exclusion preserves different URLs, provenance, full source text and future corrected prose");
+        }
+        foreach (var changed in new[]
+        {
+            rawSource with { Summary = "Changed summary." },
+            rawSource with { Paragraphs = [new SourceParagraph("Additional source prose.", false), .. rawSource.Paragraphs] },
+            rawSource with { Paragraphs = [.. rawSource.Paragraphs, new SourceParagraph("Additional source prose.", false)] },
+        })
+        {
+            var guarded = WithoutKnownUnsafeProtoTokenRemark(owner, changed);
+            Assert(ReplacementFor(remarks, guarded) is { Text: null, Reason: "source_channel_ambiguous" } &&
+                guarded.Summary == changed.Summary &&
+                guarded.Paragraphs.SequenceEqual(changed.Paragraphs) &&
+                ReplacementFor(new Placeholder(1, "summary", "", "summary"), guarded).Text == changed.Summary,
+                "Proto token remarks stay excluded when only the summary or unrelated safe paragraphs change");
+        }
+        foreach (var changed in new[]
+        {
+            owner with { Id = owner.Id + ".Other" },
+            owner with { SourceRequest = SourceRequest.Create("android/util/proto/Other") },
+            owner with { MemberRegistration = new MemberRegistration("makeOtherToken", "(IZIII)J", false) },
+            owner with { MemberRegistration = new MemberRegistration("makeToken", "(IZIII)I", false) },
+            owner with { MemberRegistration = new MemberRegistration("makeToken", null, true) },
+            owner with { MemberRegistration = null },
+            owner with { Member = new XElement("Member",
+                new XElement("ReturnValue", new XElement("ReturnType", "System.Int32"))) },
+        })
+        {
+            Assert(WithoutKnownUnsafeProtoTokenRemark(changed, rawSource) == rawSource,
+                "Proto token exclusion requires exact managed identity, JNI owner/name/descriptor and return binding");
+        }
+        var wrongDescriptor = MapOwner(owner with
+        {
+            MemberRegistration = new MemberRegistration("makeToken", "(IIIII)J", false),
+        }, pages);
+        Assert(wrongDescriptor.Docs is null,
+            "Proto token mapping does not guess a mismatched registered overload");
+
+        var token = $"proto-token-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var tempDirectory = Path.Combine(repositoryRoot, "tools", token);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Util.Proto", token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var cachePath = Path.Combine(tempDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            File.WriteAllText(pipelinePath, fixtureText.Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+            var originalBytes = File.ReadAllBytes(pipelinePath);
+            JsonDocument RunPipeline(bool apply, int limit)
+            {
+                var reportPath = Path.Combine(tempDirectory, "report");
+                var args = new List<string>
+                {
+                    "--path", pipelinePath, "--namespace", "Android.Util.Proto",
+                    "--offline", "--cache", tempDirectory, "--member", "MakeToken",
+                    "--max-changes", limit.ToString(), "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Proto token registered production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Proto token production pipeline has no errors");
+                return report;
+            }
+            using (var dry = RunPipeline(false, 1))
+                Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                    dry.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("target").GetString() == "remarks" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(originalBytes),
+                    "Proto token first fill dry run rejects unsafe remarks without writes");
+            using (var applied = RunPipeline(true, 1))
+                Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "Proto token first fill applies only one safe summary");
+            var safeBytes = File.ReadAllBytes(pipelinePath);
+            var safeDocument = XDocument.Load(pipelinePath, LoadOptions.PreserveWhitespace);
+            var safeDocs = safeDocument.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+            Assert(safeDocs.Element("summary")!.Value == "Make a token." &&
+                safeDocs.Element("remarks")!.Value.StartsWith("To be added.", StringComparison.Ordinal),
+                "Proto token first fill preserves the unsafe remarks placeholder");
+            Assert(safeDocs.Element("remarks")!.Value == "To be added." &&
+                !safeDocs.Element("remarks")!.HasElements,
+                "Proto token first fill does not modify excluded remarks even for metadata");
+            Assert(safeBytes.Take(3).SequenceEqual(new byte[] { 0xef, 0xbb, 0xbf }) &&
+                !Regex.IsMatch(File.ReadAllText(pipelinePath), "(?<!\\r)\\n"),
+                "Proto token first fill preserves BOM and CRLF");
+            using (var repeated = RunPipeline(true, 1))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(safeBytes),
+                    "Proto token persisted repeat applies zero writes byte-for-byte");
+
+            foreach (var (changedHtml, expectedSummary) in new[]
+            {
+                (html.Replace("<p>Make a token.", "<p>Updated summary.</p><p>Make a token.", StringComparison.Ordinal),
+                    "Updated summary."),
+                (html.Replace("<p>Make a token.", "<p>Additional source prose.</p><p>Make a token.", StringComparison.Ordinal),
+                    "Additional source prose."),
+                (html.Replace("</main>", "<p>Additional source prose.</p></main>", StringComparison.Ordinal),
+                    "Make a token."),
+            })
+            {
+                File.WriteAllBytes(pipelinePath, originalBytes);
+                File.WriteAllText(cachePath, changedHtml, new UTF8Encoding(false));
+                var changedPage = SourcePage.Parse(request, changedHtml);
+                var changedMapping = MapOwner(owner,
+                    new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                    {
+                        [request.Url] = SourceLoadResult.Success(changedPage),
+                    });
+                Assert(changedMapping.Docs!.Summary == expectedSummary &&
+                    changedMapping.Docs.Paragraphs.Any(paragraph =>
+                        paragraph is { IsCode: false, Text: UnsafeProtoTokenParagraph }) &&
+                    ReplacementFor(remarks, changedMapping.Docs) is
+                        { Text: null, Reason: "source_channel_ambiguous" },
+                    "registered Proto token source parsing retains the exact unsafe paragraph amid unrelated edits");
+                using (var dry = RunPipeline(false, 1))
+                    Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(originalBytes),
+                        "Proto token edited-source first-fill dry run is bounded and write-free");
+                using (var applied = RunPipeline(true, 1))
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        applied.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("target").GetString() == "remarks" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                        "Proto token production first fill withholds unsafe remarks after summary or safe paragraph additions");
+                var changedBytes = File.ReadAllBytes(pipelinePath);
+                var changedDocs = XDocument.Load(pipelinePath).Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                Assert(changedDocs.Element("summary")!.Value == expectedSummary &&
+                    changedDocs.Element("remarks")!.Value == "To be added." &&
+                    !changedDocs.Element("remarks")!.HasElements,
+                    "Proto token edited-source first fill changes only the safe summary");
+                using (var repeated = RunPipeline(true, 1))
+                    Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(changedBytes),
+                        "Proto token edited-source persisted repeat applies zero writes byte-for-byte");
+            }
+            File.WriteAllBytes(pipelinePath, safeBytes);
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+
+            var reference = ImporterSourceReference(rawSource);
+            var attribution = XElement.Parse($"<para>{AndroidAttribution}</para>");
+            var excludedLayouts = new[]
+            {
+                new XElement("remarks", new XElement("para", "To be added.")),
+                new XElement("summary", new XElement("para", "To be added.")),
+                new XElement("remarks", reference, attribution),
+                new XElement("remarks", "To be added.", reference, attribution),
+                new XElement("remarks",
+                    new XElement("code", new XAttribute("lang", "text/java"),
+                        "public static long makeToken (int tagSize, boolean repeated, int depth, int objectId, int offset)"),
+                    reference, attribution),
+                new XElement("remarks", new XElement("para", "Make a token."), reference, attribution),
+            };
+            foreach (var layout in excludedLayouts)
+            {
+                var document = new XDocument(safeDocument);
+                document.Root!.Element("Members")!.Element("Member")!.Element("Docs")!
+                    .Element(layout.Name)!.ReplaceWith(layout);
+                if (layout.Name == "summary")
+                    document.Root!.Element("Members")!.Element("Member")!.Element("Docs")!
+                        .Element("remarks")!.Value = "Authored remarks.";
+                File.WriteAllText(pipelinePath, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var before = File.ReadAllBytes(pipelinePath);
+                var layoutFile = LoadedFile.Load(repositoryRoot, pipelinePath);
+                layoutFile.SelectOwners("MakeToken");
+                var layoutOwner = layoutFile.Owners.Single();
+                Assert(RequiresSourceLoad(layoutFile, layoutOwner),
+                    "Proto alternate layout enters registered source loading: " + layout);
+                var layoutMapping = MapOwner(layoutOwner, pages);
+                Assert(layoutMapping.Docs!.UnsafeTargets?.ContainsKey("remarks") == true &&
+                    layoutMapping.Docs.Paragraphs.Any(paragraph => paragraph.Text == UnsafeProtoTokenParagraph) &&
+                    AddSourceDocumentationIfSafe(layoutFile.Text, layoutFile, layoutOwner, layoutMapping.Docs) == layoutFile.Text &&
+                    ReplaceIncompleteCodeExampleRemarks(layoutFile.Text, layoutFile, layoutOwner, layoutMapping.Docs) == layoutFile.Text &&
+                    RefreshImporterOwnedRemarks(layoutFile.Text, layoutFile, layoutOwner, layoutMapping.Docs).Text == layoutFile.Text &&
+                    RefreshIncompleteImporterRemarks(layoutFile.Text, layoutFile, layoutOwner, layoutMapping.Docs).Text == layoutFile.Text,
+                    "Proto writer boundaries preserve registered layouts without filtering source paragraphs");
+                using (var dry = RunPipeline(false, 1))
+                    Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(before),
+                        "Proto unsafe logical remarks layout is withheld before any writer");
+                using (var applied = RunPipeline(true, 1))
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        applied.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("target").GetString() == "remarks" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(before),
+                        "Proto nested placeholder, enrichment, cleanup, signature and refresh preserve all bytes: " + layout);
+                using (var repeated = RunPipeline(true, 1))
+                    Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(before),
+                        "Proto alternate-layout persisted repeat writes zero bytes");
+                foreach (var eligibleHtml in new[]
+                {
+                    html.Replace("max value 512", "max value 511", StringComparison.Ordinal)
+                        .Replace("max value 524,288", "max value 524,287", StringComparison.Ordinal),
+                    Regex.Replace(html, @"<p>Make a token\..*?</p>", "<p>Make a token.</p>",
+                        RegexOptions.Singleline | RegexOptions.CultureInvariant),
+                })
+                {
+                    File.WriteAllBytes(pipelinePath, before);
+                    File.WriteAllText(cachePath, eligibleHtml, new UTF8Encoding(false));
+                    var eligiblePage = SourcePage.Parse(request, eligibleHtml);
+                    var eligible = MapOwner(layoutOwner,
+                        new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                        {
+                            [request.Url] = SourceLoadResult.Success(eligiblePage),
+                        });
+                    Assert(eligible.Docs!.UnsafeTargets?.ContainsKey("remarks") != true,
+                        "Corrected or removed source releases every logical remarks layout");
+                    using (var eligibleApply = RunPipeline(true, 1))
+                        Assert(eligibleApply.RootElement.GetProperty("appliedCount").GetInt32() ==
+                            (ReferenceEquals(layout, excludedLayouts[^1]) ? 0 : 1) &&
+                            !eligibleApply.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                                entry.TryGetProperty("reason", out var reason) &&
+                                reason.GetString() == "source_channel_ambiguous"),
+                            "Corrected and removed source layouts stay eligible under one-change budgets");
+                    var eligibleBytes = File.ReadAllBytes(pipelinePath);
+                    using (var eligibleRepeat = RunPipeline(true, 1))
+                        Assert(eligibleRepeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                            File.ReadAllBytes(pipelinePath).SequenceEqual(eligibleBytes),
+                            "Eligible alternate-layout persisted repeat preserves bytes");
+                }
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            }
+
+            var authoredRemarks = new[]
+            {
+                new XElement("remarks", "Authored remarks."),
+                new XElement("remarks", new XCData(UnsafeProtoTokenParagraph)),
+                new XElement("remarks", new XComment("Authored comment."), "Authored remarks."),
+                new XElement("remarks", new XProcessingInstruction("authored", "keep"), "Authored remarks."),
+                new XElement("remarks", new XElement("para", "Authored ", new XElement("c", "mixed"), " remarks.")),
+                new XElement("remarks",
+                    new XElement("para", UnsafeProtoTokenParagraph),
+                    ImporterSourceReference(rawSource),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")),
+            };
+            foreach (var authored in authoredRemarks)
+            {
+                var document = new XDocument(safeDocument);
+                document.Root!.Element("Members")!.Element("Member")!.Element("Docs")!
+                    .Element("remarks")!.ReplaceWith(authored);
+                File.WriteAllText(pipelinePath, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var before = File.ReadAllBytes(pipelinePath);
+                using var preserved = RunPipeline(true, 1);
+                Assert(preserved.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(before),
+                    "Proto token guard preserves authored, CDATA, comments, processing instructions and mixed remarks");
+            }
+
+            File.WriteAllBytes(pipelinePath, safeBytes);
+            File.WriteAllText(cachePath, html.Replace("max value 512", "max value 511", StringComparison.Ordinal)
+                .Replace("max value 524,288", "max value 524,287", StringComparison.Ordinal), new UTF8Encoding(false));
+            using (var corrected = RunPipeline(true, 1))
+                Assert(corrected.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "Proto token future corrected official remarks remain eligible in production");
+            var correctedBytes = File.ReadAllBytes(pipelinePath);
+            var correctedDocs = XDocument.Load(pipelinePath).Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+            Assert(correctedDocs.Element("remarks")!.Value.Contains("max value 511", StringComparison.Ordinal) &&
+                correctedDocs.Element("remarks")!.Value.Contains("max value 524,287", StringComparison.Ordinal) &&
+                HasExactImporterSourceReference(correctedDocs, source),
+                "Proto token corrected source retains full canonical provenance");
+            using (var repeated = RunPipeline(true, 1))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(correctedBytes),
+                    "Proto token corrected persisted repeat is byte-identical");
+
+            File.WriteAllBytes(pipelinePath, safeBytes);
+            File.WriteAllText(cachePath, Regex.Replace(html, @"<p>Make a token\..*?</p>",
+                "<p>Make a token.</p>", RegexOptions.Singleline | RegexOptions.CultureInvariant),
+                new UTF8Encoding(false));
+            using (var removed = RunPipeline(true, 1))
+                Assert(removed.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "Proto token source with the unsafe paragraph removed remains eligible in production");
+            var removedBytes = File.ReadAllBytes(pipelinePath);
+            var removedDocs = XDocument.Load(pipelinePath).Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+            Assert(removedDocs.Element("remarks")!.Element("para")!.Value == "Make a token." &&
+                HasExactImporterSourceReference(removedDocs, source),
+                "Proto token removed-unsafe source retains safe prose and canonical provenance");
+            using (var repeated = RunPipeline(true, 1))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(removedBytes),
+                    "Proto token removed-unsafe persisted repeat is byte-identical");
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
     static void TestGestureCloneIntroductions(string repositoryRoot)
     {
         foreach (var index in new[] { 0, 2, 4 })
@@ -8018,8 +8590,958 @@ static class ImporterProgram
         }
     }
 
+    static readonly KnownAndroidRemarksRepair[] KnownAndroidRemarksRepairs =
+    [
+        new(
+            AndroidReference + "android/app/admin/DevicePolicyResourcesManager#getString(java.lang.String,%20java.util.function.Supplier<java.lang.String>,%20java.lang.Object[])",
+            "M:Android.App.Admin.DevicePolicyResourcesManager.GetString(System.String,Java.Util.Functions.ISupplier,Java.Lang.Object[])",
+            "Calls to this API will not return null unless no updated drawable was found and the call to defaultStringLoader returned null.",
+            "Calls to this API will not return null unless no updated string was found and the call to defaultStringLoader returned null."),
+        new(
+            AndroidReference + "android/app/admin/DeviceAdminService#onBind(android.content.Intent)",
+            "M:Android.App.Admin.DeviceAdminService.OnBind(Android.Content.Intent)",
+            "Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.",
+            "Return the communication channel to the service. The returned IBinder is usually for a complex interface that has been described using aidl."),
+    ];
+
+    static readonly KnownAndroidSummaryRepair[] KnownAndroidSummaryRepairs =
+    [
+        new(
+            AndroidReference + "android/app/admin/DevicePolicyManager#RESET_PASSWORD_DO_NOT_ASK_CREDENTIALS_ON_BOOT",
+            "F:Android.App.Admin.ResetPasswordFlags.DoNotAskCredentialsOnBoot",
+            "resetPasswordWithToken(ComponentName, String, byte, int)",
+            "resetPasswordWithToken(ComponentName, String, byte[], int)"),
+        new(
+            AndroidReference + "android/app/admin/DevicePolicyManager#RESET_PASSWORD_REQUIRE_ENTRY",
+            "F:Android.App.Admin.ResetPasswordFlags.RequireEntry",
+            "resetPasswordWithToken(ComponentName, String, byte, int)",
+            "resetPasswordWithToken(ComponentName, String, byte[], int)"),
+    ];
+
+    const string KnownUnsafeUserRestrictionSourceUrl =
+        "https://developer.android.com/reference/android/app/admin/DevicePolicyIdentifiers#getIdentifierForUserRestriction(java.lang.String)";
+
+    static bool IsKnownUnsafeUserRestrictionParameter(string ownerId, SourceDocs docs) =>
+        ownerId.Equals(
+            "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.String)",
+            StringComparison.Ordinal) &&
+        docs.SourceUrl.Equals(KnownUnsafeUserRestrictionSourceUrl, StringComparison.Ordinal) &&
+        docs.Parameters.TryGetValue("restriction", out var restriction) &&
+        restriction.Contains("UserManager.KEY_RESTRICTIONS_PENDING", StringComparison.Ordinal);
+
+    static UnsafeParameterRepairResult RepairKnownUnsafeUserRestrictionParameter(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        if (!IsKnownUnsafeUserRestrictionParameter(owner.Id, sourceDocs))
+            return UnsafeParameterRepairResult.NoChange(text);
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            !HasSingleImporterSourceUrl(
+                actualDocs,
+                KnownUnsafeUserRestrictionSourceUrl) ||
+            actualDocs.Elements("param").SingleOrDefault(parameter =>
+                (string?)parameter.Attribute("name") == "restriction") is not XElement restriction ||
+            restriction.Attributes().Count() != 1 ||
+            !HasPlainTextContent(restriction, out var currentRestriction) ||
+            !sourceDocs.Parameters.TryGetValue("restriction", out var sourceRestriction) ||
+            ChannelValueOrSkip(
+                sourceRestriction,
+                "param",
+                "source_parameter_missing").Text is not string renderedRestriction ||
+            !currentRestriction.Equals(renderedRestriction, StringComparison.Ordinal) ||
+            !TryGetElementSpan(blockText, restriction, out var restrictionSpan))
+        {
+            return UnsafeParameterRepairResult.NoChange(text);
+        }
+
+        const string placeholder = "<param name=\"restriction\">To be added.</param>";
+        var updatedBlock = blockText[..restrictionSpan.Start] + placeholder +
+            blockText[restrictionSpan.End..];
+        return UnsafeParameterRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..], "restriction");
+    }
+
+    static JavaProseRepairResult RepairKnownAndroidSummary(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownAndroidSummaryRepair(owner.Id, actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Element("summary")?.Elements("para").FirstOrDefault() is not XElement paragraph ||
+            !HasPlainTextContent(paragraph, out var paragraphText) ||
+            !TryGetElementSpan(blockText, paragraph, out var paragraphSpan))
+        {
+            return JavaProseRepairResult.NoChange(text);
+        }
+
+        var replacement = $"<para>{XmlEscape(paragraphText.Replace(
+            repair.IncorrectText,
+            repair.CorrectText,
+            StringComparison.Ordinal))}</para>";
+        var updatedBlock = blockText[..paragraphSpan.Start] + replacement +
+            blockText[paragraphSpan.End..];
+        return JavaProseRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
+    static KnownAndroidSummaryRepair? FindKnownAndroidSummaryRepair(
+        string memberId,
+        XElement docs,
+        SourceDocs sourceDocs)
+    {
+        if (!HasExactImporterSourceReference(docs, sourceDocs))
+            return null;
+
+        var repair = KnownAndroidSummaryRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(memberId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(sourceDocs.SourceUrl, StringComparison.Ordinal));
+        var summary = docs.Element("summary");
+        if (repair is null ||
+            summary is null ||
+            summary.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText text => !string.IsNullOrWhiteSpace(text.Value),
+                _ => true,
+            }) ||
+            summary.Elements().ToList() is not [XElement paragraph, XElement sourceReference, XElement attribution] ||
+            paragraph.Name != "para" ||
+            paragraph.HasAttributes ||
+            !HasPlainTextContent(paragraph, out var paragraphText) ||
+            !ImporterMarkupEquals(sourceReference, ImporterSourceReference(sourceDocs)) ||
+            !IsImporterAttributionParagraph(attribution))
+        {
+            return null;
+        }
+
+        return sourceDocs.Paragraphs.Count(sourceParagraph =>
+            paragraphText.Equals(
+                sourceParagraph.Text.Replace(
+                    repair.CorrectText,
+                    repair.IncorrectText,
+                    StringComparison.Ordinal),
+                StringComparison.Ordinal)) == 1
+            ? repair
+            : null;
+    }
+
+    static AndroidRemarksRepairResult RepairKnownAndroidRemarks(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownAndroidRemarksRepair(owner.Id, actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Element("remarks")?.Elements("para").SingleOrDefault(paragraph =>
+                HasPlainTextContent(paragraph, out var paragraphText) &&
+                paragraphText.Equals(repair.IncorrectText, StringComparison.Ordinal)) is not XElement paragraph ||
+            !TryGetElementSpan(blockText, paragraph, out var paragraphSpan))
+        {
+            return AndroidRemarksRepairResult.NoChange(text);
+        }
+
+        var replacement = $"<para>{XmlEscape(repair.CorrectText)}</para>";
+        var updatedBlock = blockText[..paragraphSpan.Start] + replacement +
+            blockText[paragraphSpan.End..];
+        return AndroidRemarksRepairResult.RepairedText(
+            text[..block.Start] + updatedBlock + text[block.End..]);
+    }
+
+    static KnownAndroidRemarksRepair? FindKnownAndroidRemarksRepair(
+        string memberId,
+        XElement docs,
+        SourceDocs sourceDocs)
+    {
+        if (!HasExactImporterSourceReference(docs, sourceDocs))
+            return null;
+
+        var repair = KnownAndroidRemarksRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(memberId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(sourceDocs.SourceUrl, StringComparison.Ordinal));
+        var remarks = docs.Element("remarks");
+        if (repair is null ||
+            remarks is null ||
+            !IsPotentialImporterOwnedRemarks(remarks, sourceDocs.SourceKind))
+        {
+            return null;
+        }
+
+        var elements = remarks.Elements().ToList();
+        var sourceReferenceIndex = elements.FindIndex(element =>
+            TryGetImporterSourceReferenceUrl(element, out _));
+        var expectedSourceParagraphs = UsableRemarks(sourceDocs.Paragraphs)
+            .Select(DocumentationElement)
+            .ToList();
+        var actualSourceParagraphs = elements.Take(sourceReferenceIndex).ToList();
+        if (actualSourceParagraphs.Count != expectedSourceParagraphs.Count ||
+            actualSourceParagraphs.Zip(
+                    expectedSourceParagraphs,
+                    (actual, expected) => ImporterMarkupEquals(actual, expected))
+                .Any(equal => !equal) ||
+            actualSourceParagraphs.Count(paragraph =>
+                HasPlainTextContent(paragraph, out var paragraphText) &&
+                paragraphText.Equals(repair.IncorrectText, StringComparison.Ordinal)) != 1)
+        {
+            return null;
+        }
+
+        return repair;
+    }
+
+    static bool IsKnownAndroidRemarksRepairCorrected(
+        string memberId,
+        XElement remarks,
+        SourceDocs sourceDocs)
+    {
+        var repair = KnownAndroidRemarksRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(memberId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(sourceDocs.SourceUrl, StringComparison.Ordinal));
+        if (repair is null ||
+            !IsPotentialImporterOwnedRemarks(remarks, sourceDocs.SourceKind))
+        {
+            return false;
+        }
+
+        var elements = remarks.Elements().ToList();
+        var sourceReferenceIndex = elements.FindIndex(element =>
+            TryGetImporterSourceReferenceUrl(element, out _));
+        if (sourceReferenceIndex <= 0 ||
+            !ImporterMarkupEquals(
+                elements[sourceReferenceIndex],
+                ImporterSourceReference(sourceDocs)))
+        {
+            return false;
+        }
+
+        var actualSourceParagraphs = elements.Take(sourceReferenceIndex).ToList();
+        var expectedSourceParagraphs = UsableRemarks(sourceDocs.Paragraphs)
+            .Select(DocumentationElement)
+            .ToList();
+        if (actualSourceParagraphs.Count != expectedSourceParagraphs.Count)
+            return false;
+
+        var correctedParagraphs = 0;
+        foreach (var pair in actualSourceParagraphs.Zip(expectedSourceParagraphs))
+        {
+            if (ImporterMarkupEquals(pair.First, pair.Second))
+                continue;
+
+            if (!HasPlainTextContent(pair.First, out var actualText) ||
+                !HasPlainTextContent(pair.Second, out var expectedText) ||
+                !actualText.Equals(repair.CorrectText, StringComparison.Ordinal) ||
+                !expectedText.Equals(repair.IncorrectText, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            correctedParagraphs++;
+        }
+
+        return correctedParagraphs == 1;
+    }
+
+    static bool HasSingleImporterSourceUrl(XElement docs, string sourceUrl)
+    {
+        var sourceUrls = docs
+            .Descendants("a")
+            .Where(anchor =>
+                anchor.Name == "a" &&
+                HasExactAttributes(
+                    anchor,
+                    ("href", ""),
+                    ("title", "Reference documentation")))
+            .Select(anchor => WebUtility.HtmlDecode((string?)anchor.Attribute("href") ?? ""))
+            .Where(IsOfficialSourceReferenceUrl)
+            .ToList();
+        return sourceUrls.Count == 1 && UrlsEqual(sourceUrls[0], sourceUrl);
+    }
+
+    sealed record KnownAndroidRemarksRepair(
+        string SourceUrl,
+        string MemberId,
+        string IncorrectText,
+        string CorrectText);
+
+    sealed record KnownAndroidSummaryRepair(
+        string SourceUrl,
+        string MemberId,
+        string IncorrectText,
+        string CorrectText);
+
+    sealed record AndroidRemarksRepairResult(string Text, bool Repaired)
+    {
+        public static AndroidRemarksRepairResult NoChange(string text) =>
+            new(text, false);
+
+        public static AndroidRemarksRepairResult RepairedText(string text) =>
+            new(text, true);
+    }
+
+    static void TestAdminOnBindRawSource(string repositoryRoot)
+    {
+        var html = File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "admin-onbind-android-reference.html"));
+        var request = SourceRequest.Create("android/app/admin/DeviceAdminService")!;
+        var raw = SourcePage.Parse(request, html).Members.Single(member =>
+            member.Name == "onBind").Docs!;
+        Assert(raw.Paragraphs.Any(paragraph => !paragraph.IsCode &&
+            paragraph.Text.Contains(
+                "May return null if clients can not bind to the service.", StringComparison.Ordinal)),
+            "unfiltered official DeviceAdminService.onBind fixture retains the unsafe sentence before repair");
+        const string memberId = "M:Android.App.Admin.DeviceAdminService.OnBind(Android.Content.Intent)";
+        const string unsafeSentence = "May return null if clients can not bind to the service.";
+        var badParagraph = raw.Paragraphs.Single(paragraph => !paragraph.IsCode &&
+            paragraph.Text.Contains(unsafeSentence, StringComparison.Ordinal));
+        Assert(badParagraph.Text ==
+            "Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.",
+            "the actual parsed OnBind fixture has the complete known source paragraph");
+        var expectedParagraphs = raw.Paragraphs.Select(paragraph =>
+            paragraph == badParagraph
+                ? paragraph with { Text = paragraph.Text.Replace(" " + unsafeSentence, "", StringComparison.Ordinal) }
+                : paragraph).ToList();
+        Assert(expectedParagraphs.Any(paragraph => paragraph.Text.Contains(
+            "may not happen on the main thread", StringComparison.Ordinal)),
+            "the real source also supplies independent retained Binder-thread guidance");
+        var contextualSource = raw with
+        {
+            Summary = "Changed safe summary.",
+            Paragraphs = [new("Safe context before.", false), .. raw.Paragraphs,
+                new("Safe context after.", false)],
+        };
+        var contextualCorrection = WithKnownAndroidRemarksCorrections(memberId, contextualSource);
+        Assert(contextualCorrection.Summary == contextualSource.Summary &&
+            contextualCorrection.Parameters == contextualSource.Parameters &&
+            contextualCorrection.Returns == contextualSource.Returns &&
+            contextualCorrection.Exceptions == contextualSource.Exceptions &&
+            contextualCorrection.Paragraphs.SequenceEqual(
+                new[] { contextualSource.Paragraphs[0] }.Concat(expectedParagraphs)
+                    .Append(contextualSource.Paragraphs[^1])),
+            "safe source context never disables the exact remarks correction or changes other channels");
+        foreach (var (differentOwner, differentSource) in new[]
+        {
+            (memberId + ".Other", raw),
+            (memberId, raw with { SourceKind = "java" }),
+            (memberId, raw with { SourceUrl = raw.SourceUrl + ".Other" }),
+        })
+            Assert(WithKnownAndroidRemarksCorrections(differentOwner, differentSource) == differentSource,
+                "remarks write correction requires the exact owner, Android source kind and canonical URL");
+        foreach (var differentSource in new[]
+        {
+            raw with { Paragraphs = expectedParagraphs },
+            raw with { Paragraphs = raw.Paragraphs.Where(paragraph => paragraph != badParagraph).ToList() },
+            raw with { Paragraphs = raw.Paragraphs.Select(paragraph => paragraph == badParagraph
+                ? paragraph with { IsCode = true } : paragraph).ToList() },
+            raw with { Paragraphs = raw.Paragraphs.Select(paragraph => paragraph == badParagraph
+                ? paragraph with { Text = paragraph.Text + " Changed." } : paragraph).ToList() },
+        })
+            Assert(WithKnownAndroidRemarksCorrections(memberId, differentSource).Paragraphs
+                .SequenceEqual(differentSource.Paragraphs),
+                "corrected, removed, code-only and changed complete source paragraphs remain untouched");
+        var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
+        var original = XElement.Load(Path.Combine(docsRoot, "Android.App.Admin", "DeviceAdminService.xml"));
+        var member = original.Element("Members")!.Elements("Member").Single(element =>
+            (string?)element.Attribute("MemberName") == "OnBind");
+        original.Element("Members")!.ReplaceNodes(new XElement(member));
+        original.Element("Docs")!.ReplaceNodes(
+            new XElement("summary", "Authored type summary."),
+            new XElement("remarks", "Authored type remarks."));
+        member = original.Element("Members")!.Element("Member")!;
+        member.Element("Docs")!.ReplaceNodes(
+            new XElement("param", new XAttribute("name", "intent"), "Authored intent parameter."),
+            new XElement("summary", "Authored OnBind summary."),
+            new XElement("returns", "Authored return documentation."),
+            new XElement("remarks", "To be added."));
+        var path = Path.Combine(docsRoot, "Android.App.Admin",
+            $"DeviceAdminService.onbind-first-fill-self-test-{Environment.ProcessId}.xml");
+        var directory = Path.Combine(Path.GetTempPath(), $"admin-onbind-first-fill-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var cache = Path.Combine(directory, "cache");
+            Directory.CreateDirectory(cache);
+            File.WriteAllText(Path.Combine(cache,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                html, new UTF8Encoding(false));
+            var reportPath = Path.Combine(directory, "report");
+            JsonDocument Run(bool apply)
+            {
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.App.Admin", "--member", memberId,
+                    "--offline", "--cache", cache, "--max-changes", "1", "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "registered raw OnBind first-fill production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "registered raw OnBind first-fill reports no errors");
+                return report;
+            }
+            File.WriteAllText(path, original.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            var before = File.ReadAllBytes(path);
+            var newline = LoadedFile.SelectNewline(Encoding.UTF8.GetString(before));
+            var expectedRemarks = "<remarks>" +
+                string.Concat(expectedParagraphs.Select(paragraph =>
+                    DocumentationElement(paragraph).ToString(SaveOptions.DisableFormatting))) +
+                newline + "    " + ImporterSourceReference(raw).ToString(SaveOptions.DisableFormatting) +
+                newline + "    " + $"<para>{AndroidAttribution}</para>" +
+                newline + "  </remarks>";
+            var expected = Encoding.UTF8.GetString(before).Replace(
+                "<remarks>To be added.</remarks>",
+                expectedRemarks, StringComparison.Ordinal);
+            Assert(expected != Encoding.UTF8.GetString(before) &&
+                !expected.Contains(unsafeSentence, StringComparison.Ordinal),
+                "independent expected OnBind remarks remove only the false sentence and preserve all source paragraphs");
+            using (var dry = Run(false))
+                Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "raw OnBind first-fill dry-run reports one change without writing");
+            using (var first = Run(true))
+                Assert(first.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "raw OnBind first-fill applies exactly one remarks change within its budget");
+            var actualRemarks = XElement.Load(path).Element("Members")!.Element("Member")!
+                .Element("Docs")!.Element("remarks")!;
+            Assert(!actualRemarks.Value.Contains(unsafeSentence, StringComparison.Ordinal) &&
+                actualRemarks.Elements().Take(expectedParagraphs.Count)
+                    .Select(element => element.ToString(SaveOptions.DisableFormatting))
+                    .SequenceEqual(expectedParagraphs.Select(paragraph =>
+                        DocumentationElement(paragraph).ToString(SaveOptions.DisableFormatting))),
+                "actual first-fill removes the false sentence and retains the complete ordered source and thread paragraphs");
+            Assert(File.ReadAllBytes(path).SequenceEqual(Encoding.UTF8.GetBytes(expected)),
+                "actual first-fill preserves every other XML byte, API identity, authored channel, source reference and attribution");
+            var persisted = File.ReadAllBytes(path);
+            using (var repeat = Run(true))
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    persisted.SequenceEqual(File.ReadAllBytes(path)),
+                    "persisted raw OnBind first-fill repeats with zero writes and byte-identical XML");
+            XElement.Load(path);
+            var owned = new XElement(original);
+            var ownedDocs = owned.Element("Members")!.Element("Member")!.Element("Docs")!;
+            ownedDocs.Element("remarks")!.ReplaceNodes(raw.Paragraphs.Select(DocumentationElement),
+                ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            File.WriteAllText(path, owned.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            var ownedBefore = File.ReadAllBytes(path);
+            var expectedOwned = Encoding.UTF8.GetString(ownedBefore).Replace(
+                $"<para>{XmlEscape(badParagraph.Text)}</para>",
+                $"<para>{XmlEscape(badParagraph.Text.Replace(" " + unsafeSentence, "", StringComparison.Ordinal))}</para>",
+                StringComparison.Ordinal);
+            Assert(expectedOwned != Encoding.UTF8.GetString(ownedBefore) &&
+                !expectedOwned.Contains(unsafeSentence, StringComparison.Ordinal),
+                "previous-owned positive is built from actual unfiltered source, not a repair-registry seed");
+            using (var dry = Run(false))
+                Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                    ownedBefore.SequenceEqual(File.ReadAllBytes(path)),
+                    "real previous-owned OnBind dry-run finds one remarks repair without writing");
+            using (var repair = Run(true))
+                Assert(repair.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    repair.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("member").GetString() == memberId &&
+                        entry.GetProperty("target").GetString() == "remarks" &&
+                        entry.GetProperty("reason").GetString() == "importer_known_android_remarks_repair"),
+                    "real previous-owned OnBind repair uses the strict remarks path and one-change budget");
+            Assert(File.ReadAllBytes(path).SequenceEqual(Encoding.UTF8.GetBytes(expectedOwned)),
+                "previous-owned repair preserves every XML byte except the exact false sentence");
+            var repairedOwned = File.ReadAllBytes(path);
+            using (var repeat = Run(true))
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    repairedOwned.SequenceEqual(File.ReadAllBytes(path)),
+                    "persisted previous-owned OnBind repair cannot refresh the false sentence back");
+            var legacySignature = new XElement(original);
+            var legacyRemarks = legacySignature.Element("Members")!.Element("Member")!
+                .Element("Docs")!.Element("remarks")!;
+            legacyRemarks.ReplaceNodes(
+                new XElement("code", new XAttribute("lang", "text/java"),
+                    "public IBinder onBind(Intent intent)"),
+                ImporterSourceReference(raw),
+                XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            File.WriteAllText(path, legacySignature.ToString(SaveOptions.DisableFormatting),
+                new UTF8Encoding(false));
+            var legacyBefore = File.ReadAllBytes(path);
+            var legacyRemarksText = legacyRemarks.ToString(SaveOptions.DisableFormatting);
+            using (var dry = Run(false))
+                Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                    legacyBefore.SequenceEqual(File.ReadAllBytes(path)),
+                    "legacy OnBind signature dry-run reports one repair without writing");
+            using (var first = Run(true))
+                Assert(first.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "legacy OnBind signature repair fits a one-change budget");
+            var repairedLegacy = File.ReadAllBytes(path);
+            var legacyBeforeText = Encoding.UTF8.GetString(legacyBefore);
+            var repairedLegacyText = Encoding.UTF8.GetString(repairedLegacy);
+            var repairedLegacyRemarks = XElement.Load(path).Element("Members")!.Element("Member")!
+                .Element("Docs")!.Element("remarks")!;
+            Assert(
+                !repairedLegacyRemarks.Value.Contains(unsafeSentence, StringComparison.Ordinal) &&
+                repairedLegacyRemarks.Elements().Count() == expectedParagraphs.Count + 2 &&
+                repairedLegacyRemarks.Elements().Take(expectedParagraphs.Count)
+                    .Select(element => element.ToString(SaveOptions.DisableFormatting))
+                    .SequenceEqual(expectedParagraphs.Select(paragraph =>
+                        DocumentationElement(paragraph).ToString(SaveOptions.DisableFormatting))) &&
+                repairedLegacyRemarks.Elements().ElementAt(expectedParagraphs.Count)
+                    .ToString(SaveOptions.DisableFormatting) ==
+                    ImporterSourceReference(raw).ToString(SaveOptions.DisableFormatting) &&
+                repairedLegacyRemarks.Elements().Last().ToString(SaveOptions.DisableFormatting) ==
+                    $"<para>{AndroidAttribution}</para>",
+                "legacy OnBind signature repair emits the complete ordered safe source paragraphs and provenance");
+            var legacyStart = legacyBeforeText.LastIndexOf("<remarks>", StringComparison.Ordinal);
+            var legacyEnd = legacyBeforeText.LastIndexOf("</remarks>", StringComparison.Ordinal);
+            var repairedStart = repairedLegacyText.LastIndexOf("<remarks>", StringComparison.Ordinal);
+            var repairedEnd = repairedLegacyText.LastIndexOf("</remarks>", StringComparison.Ordinal);
+            Assert(
+                legacyStart >= 0 && legacyEnd > legacyStart &&
+                repairedStart >= 0 && repairedEnd > repairedStart &&
+                legacyBeforeText[..legacyStart] == repairedLegacyText[..repairedStart] &&
+                legacyBeforeText[(legacyEnd + "</remarks>".Length)..] ==
+                repairedLegacyText[(repairedEnd + "</remarks>".Length)..],
+                "legacy OnBind signature repair preserves every XML byte outside regenerated remarks");
+            using (var repeat = Run(true))
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    repairedLegacy.SequenceEqual(File.ReadAllBytes(path)),
+                    "persisted legacy OnBind signature repair repeats with zero writes and byte-identical XML");
+            foreach (var mutate in new Action<XElement>[]
+            {
+                remarks => remarks.Elements("para").First().SetAttributeValue("authored", "keep"),
+                remarks => remarks.Elements("para").First().ReplaceNodes(new XCData(badParagraph.Text)),
+                remarks => remarks.Elements("para").First().ReplaceNodes(new XElement("c", badParagraph.Text)),
+                remarks => remarks.Elements("para").First().ReplaceNodes(
+                    new XComment("Authored"), new XText(badParagraph.Text)),
+                remarks => remarks.Elements("para").First().ReplaceNodes(
+                    new XProcessingInstruction("authored", "keep"), new XText(badParagraph.Text)),
+                remarks => remarks.Elements("para").Last().Remove(),
+                remarks => remarks.Elements("para").Single(paragraph =>
+                    paragraph.Descendants("a").Any(anchor =>
+                        (string?)anchor.Attribute("href") == raw.SourceUrl)).Remove(),
+                remarks => remarks.Elements("para").Single(paragraph =>
+                    paragraph.Descendants("a").Any(anchor =>
+                        (string?)anchor.Attribute("href") == raw.SourceUrl)).Descendants("a").Single()
+                    .SetAttributeValue("href", raw.SourceUrl + ".Other"),
+            })
+            {
+                var negative = new XElement(owned);
+                mutate(negative.Element("Members")!.Element("Member")!.Element("Docs")!.Element("remarks")!);
+                File.WriteAllText(path, negative.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var negativeBytes = File.ReadAllBytes(path);
+                using (var report = Run(true))
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        negativeBytes.SequenceEqual(File.ReadAllBytes(path)),
+                        "actual scoped OnBind pipeline preserves one-condition authored or provenance lookalikes");
+            }
+            XElement.Load(path);
+            foreach (var (caseName, fillSummary, remarksSeed) in new[]
+            {
+                ("attribution-enrichment", true, new XElement("remarks",
+                    XElement.Parse($"<para>{AndroidAttribution}</para>"))),
+                ("overlap-placeholder", false, new XElement("remarks",
+                    new XElement("para", "To be added."),
+                    raw.Paragraphs.Where(paragraph => paragraph != badParagraph).Select(DocumentationElement),
+                    ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>"))),
+                ("incomplete-owned-refresh", false, new XElement("remarks",
+                    raw.Paragraphs.Where(paragraph => paragraph == badParagraph).Select(DocumentationElement),
+                    ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>"))),
+            })
+            {
+                var writer = new XElement(original);
+                var writerDocs = writer.Element("Members")!.Element("Member")!.Element("Docs")!;
+                writerDocs.Element("remarks")!.ReplaceWith(new XElement(remarksSeed));
+                if (fillSummary)
+                    writerDocs.Element("summary")!.Value = "To be added.";
+                File.WriteAllText(path, writer.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var writerBefore = File.ReadAllBytes(path);
+                using (var dry = Run(false))
+                    Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        writerBefore.SequenceEqual(File.ReadAllBytes(path)),
+                        $"actual {caseName} dry-run finds one scoped change without writing");
+                using (var first = Run(true))
+                    Assert(first.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        $"actual {caseName} respects its one-change budget");
+                var writerAfter = File.ReadAllBytes(path);
+                var writtenRemarks = XElement.Load(path).Element("Members")!.Element("Member")!
+                    .Element("Docs")!.Element("remarks")!;
+                var expectedWriterParagraphs = caseName == "overlap-placeholder"
+                    ? SplitSourceSentences(expectedParagraphs[0].Text)
+                        .Select(sentence => new SourceParagraph(sentence, IsCode: false))
+                        .Concat(expectedParagraphs.Skip(1)).ToList()
+                    : expectedParagraphs;
+                Assert(!writtenRemarks.Value.Contains(unsafeSentence, StringComparison.Ordinal),
+                    $"actual {caseName} must not emit the contradicted sentence: " +
+                    writtenRemarks.ToString(SaveOptions.DisableFormatting));
+                Assert(!writtenRemarks.Value.Contains(unsafeSentence, StringComparison.Ordinal) &&
+                    writtenRemarks.Elements().Count() == expectedWriterParagraphs.Count + 2 &&
+                    writtenRemarks.Elements().Take(expectedWriterParagraphs.Count)
+                        .Select(element => element.ToString(SaveOptions.DisableFormatting))
+                        .SequenceEqual(expectedWriterParagraphs.Select(paragraph =>
+                            DocumentationElement(paragraph).ToString(SaveOptions.DisableFormatting))) &&
+                    writtenRemarks.Elements().ElementAt(expectedWriterParagraphs.Count)
+                        .ToString(SaveOptions.DisableFormatting) ==
+                        ImporterSourceReference(raw).ToString(SaveOptions.DisableFormatting) &&
+                    writtenRemarks.Elements().Last().ToString(SaveOptions.DisableFormatting) ==
+                        $"<para>{AndroidAttribution}</para>",
+                    $"actual {caseName} never writes the false sentence and preserves source order, thread guidance and provenance");
+                static string OutsideMemberRemarks(string xml)
+                {
+                    var start = xml.LastIndexOf("<remarks>", StringComparison.Ordinal);
+                    var end = xml.LastIndexOf("</remarks>", StringComparison.Ordinal);
+                    Assert(start >= 0 && end > start, "one selected member remarks span is present");
+                    return xml[..start] + "<remarks>VERIFIED_SOURCE</remarks>" +
+                        xml[(end + "</remarks>".Length)..];
+                }
+                var expectedOutside = Encoding.UTF8.GetString(writerBefore);
+                if (fillSummary)
+                    expectedOutside = expectedOutside.Replace("<summary>To be added.</summary>",
+                        $"<summary>{XmlEscape(raw.Summary)}</summary>", StringComparison.Ordinal);
+                Assert(OutsideMemberRemarks(Encoding.UTF8.GetString(writerAfter)) ==
+                    OutsideMemberRemarks(expectedOutside),
+                    $"actual {caseName} preserves every byte outside its declared remarks and optional summary fill");
+                using (var repeat = Run(true))
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        writerAfter.SequenceEqual(File.ReadAllBytes(path)),
+                        $"persisted {caseName} repeats with zero writes and byte-identical XML");
+                XElement.Load(path);
+            }
+            var laterOnly = new XElement(original);
+            laterOnly.Element("Members")!.Element("Member")!.Element("Docs")!.Element("remarks")!
+                .ReplaceNodes(raw.Paragraphs.Where(paragraph => paragraph != badParagraph)
+                    .Select(DocumentationElement), ImporterSourceReference(raw),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            File.WriteAllText(path, laterOnly.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            var laterOnlyBytes = File.ReadAllBytes(path);
+            using (var report = Run(true))
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "existing_remarks_not_importer_owned") &&
+                    laterOnlyBytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "later-paragraph-only remarks remain ineligible under the unchanged first-paragraph ownership requirement");
+            var firstParagraphStart = html.IndexOf(
+                "  <p>Return the communication channel to the service.", StringComparison.Ordinal);
+            var threadParagraphStart = html.IndexOf(
+                "<p><em>Note that unlike other application components", StringComparison.Ordinal);
+            Assert(firstParagraphStart >= 0 && threadParagraphStart > firstParagraphStart,
+                "future-source variants locate the actual official body without changing its API declaration");
+            foreach (var (variant, sourceBody) in new[]
+            {
+                ("corrected", "<p>" + WebUtility.HtmlEncode(expectedParagraphs[0].Text) + "\n"),
+                ("removed", ""),
+                ("code-only", "<pre>" + WebUtility.HtmlEncode(badParagraph.Text) + "</pre>\n"),
+            })
+            {
+                var futureHtml = html[..firstParagraphStart] + sourceBody + html[threadParagraphStart..];
+                Assert(futureHtml != html, "future-source fixture mutation is nonvacuous");
+                var futureSource = SourcePage.Parse(request, futureHtml).Members.Single(candidate =>
+                    candidate.Name == "onBind").Docs!;
+                Assert(futureSource.Paragraphs.All(paragraph => paragraph.IsCode ||
+                    !paragraph.Text.Contains(unsafeSentence, StringComparison.Ordinal)) &&
+                    (variant != "code-only" || futureSource.Paragraphs.Any(paragraph =>
+                        paragraph.IsCode && paragraph.Text == badParagraph.Text)),
+                    $"parsed {variant} source no longer contains the complete bad non-code paragraph");
+                Assert(WithKnownAndroidRemarksCorrections(memberId, futureSource).Paragraphs
+                    .SequenceEqual(futureSource.Paragraphs),
+                    $"parsed {variant} source remains eligible without obsolete text correction");
+                File.WriteAllText(Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                    futureHtml, new UTF8Encoding(false));
+                File.WriteAllText(path, original.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var futureBefore = File.ReadAllBytes(path);
+                var futureNewline = LoadedFile.SelectNewline(Encoding.UTF8.GetString(futureBefore));
+                var expectedFutureRemarks = "<remarks>" +
+                    string.Concat(futureSource.Paragraphs.Select(paragraph =>
+                        DocumentationElement(paragraph).ToString(SaveOptions.DisableFormatting))) +
+                    futureNewline + "    " + ImporterSourceReference(futureSource)
+                        .ToString(SaveOptions.DisableFormatting) +
+                    futureNewline + "    " + $"<para>{AndroidAttribution}</para>" +
+                    futureNewline + "  </remarks>";
+                var expectedFuture = Encoding.UTF8.GetString(futureBefore).Replace(
+                    "<remarks>To be added.</remarks>", expectedFutureRemarks, StringComparison.Ordinal);
+                using (var dry = Run(false))
+                    Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        futureBefore.SequenceEqual(File.ReadAllBytes(path)),
+                        $"actual parsed {variant} source dry-run has one eligible remarks fill without writes");
+                using (var fill = Run(true))
+                    Assert(fill.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        File.ReadAllBytes(path).SequenceEqual(Encoding.UTF8.GetBytes(expectedFuture)),
+                        $"actual parsed {variant} source imports exact remarks and preserves every other XML byte");
+                var futureAfter = File.ReadAllBytes(path);
+                using (var repeat = Run(true))
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        futureAfter.SequenceEqual(File.ReadAllBytes(path)),
+                        $"persisted parsed {variant} source repeats with zero writes and byte-identical XML");
+                XElement.Load(path);
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    static void TestAdminRestrictionRenderedRepair(string repositoryRoot)
+    {
+        const string memberId =
+            "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.String)";
+        const string sourceParameter =
+            "String: Value is one of the following: UserManager.DISALLOW_ADD_USER; UserManager.KEY_RESTRICTIONS_PENDING. This value cannot be null.";
+        const string authoredWarning =
+            "Value is one of the following: UserManager.DISALLOW_ADD_USER. Do not use UserManager.KEY_RESTRICTIONS_PENDING: it is an application-restriction sentinel, not a user restriction. This value cannot be null.";
+        var html = $$"""
+            <html><body><main id="jd-content">
+            <h3 class="api-name" id="getIdentifierForUserRestriction(java.lang.String)">getIdentifierForUserRestriction</h3>
+            <pre class="api-signature">public static String getIdentifierForUserRestriction (String restriction)</pre>
+            <p>Returns the policy identifier for a user restriction.</p>
+            <table><tr><th colspan="2">Parameters</th></tr>
+            <tr><td>restriction</td><td>{{sourceParameter}}</td></tr></table>
+            <table><tr><th colspan="2">Returns</th></tr>
+            <tr><td>String</td><td>the policy identifier</td></tr></table>
+            </main></body></html>
+            """;
+        var request = SourceRequest.Create("android/app/admin/DevicePolicyIdentifiers")!;
+        var raw = SourcePage.Parse(request, html).Members.Single().Docs!;
+        Assert(raw.Parameters["restriction"] == sourceParameter &&
+            raw.UnsafeTargets is null &&
+            WithoutKnownUnsafeAndroidSourceChannels(memberId, raw)
+                .UnsafeTargets?.ContainsKey("param:restriction") == true,
+            "unfiltered raw restriction source positively retains its String prefix and unsafe sentinel");
+        var rendered = ChannelValueOrSkip(sourceParameter, "param", "source_parameter_missing").Text!;
+        Assert(rendered.StartsWith("Value is one of the following:", StringComparison.Ordinal) &&
+            rendered != sourceParameter,
+            "previous restriction XML and raw official parameter use distinct rendered and source representations");
+        var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
+        var original = XElement.Load(Path.Combine(docsRoot, "Android.App.Admin", "DevicePolicyIdentifiers.xml"));
+        var member = original.Element("Members")!.Elements("Member").Single(element =>
+            (string?)element.Attribute("MemberName") == "GetIdentifierForUserRestriction");
+        original.Element("Members")!.ReplaceNodes(new XElement(member));
+        original.Element("Docs")!.ReplaceNodes(
+            new XElement("summary", "Authored type summary."),
+            new XElement("remarks", "Authored type remarks."));
+        member = original.Element("Members")!.Element("Member")!;
+        member.Element("Docs")!.ReplaceNodes(
+            new XElement("param", new XAttribute("name", "restriction"), rendered),
+            new XElement("summary", raw.Summary),
+            new XElement("returns", raw.Returns),
+            new XElement("remarks", raw.Paragraphs.Select(DocumentationElement),
+                ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        var path = Path.Combine(docsRoot, "Android.App.Admin",
+            $"DevicePolicyIdentifiers.rendered-self-test-{Environment.ProcessId}.xml");
+        var directory = Path.Combine(Path.GetTempPath(), $"admin-rendered-self-test-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var cache = Path.Combine(directory, "cache");
+            Directory.CreateDirectory(cache);
+            File.WriteAllText(Path.Combine(cache,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                html, new UTF8Encoding(false));
+            var reportPath = Path.Combine(directory, "report");
+            JsonDocument Run(bool apply)
+            {
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.App.Admin",
+                    "--offline", "--cache", cache, "--max-changes", "1", "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "registered rendered-restriction production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "registered rendered-restriction pipeline reports no errors");
+                return report;
+            }
+            File.WriteAllText(path, original.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            var before = File.ReadAllBytes(path);
+            var expected = Encoding.UTF8.GetString(before).Replace(
+                $"<param name=\"restriction\">{XmlEscape(rendered)}</param>",
+                "<param name=\"restriction\">To be added.</param>", StringComparison.Ordinal);
+            Assert(expected != Encoding.UTF8.GetString(before),
+                "actual previous-owned rendered parameter is present in the production fixture");
+            using (var dry = Run(false))
+                Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "registered previous-owned rendered-restriction dry-run reports exactly one repair without writes");
+            using (var first = Run(true))
+                Assert(first.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    first.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("member").GetString() == memberId &&
+                        entry.GetProperty("reason").GetString() == "importer_known_unsafe_user_restriction_repair"),
+                    "registered previous-owned rendered-restriction repair fits a one-change budget");
+            Assert(File.ReadAllBytes(path).SequenceEqual(Encoding.UTF8.GetBytes(expected)),
+                "restriction repair preserves every other XML byte, API metadata, source reference and attribution");
+            var repaired = File.ReadAllBytes(path);
+            using (var repeat = Run(true))
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    repaired.SequenceEqual(File.ReadAllBytes(path)),
+                    "persisted restriction repair repeats with zero writes and byte-identical XML");
+            var authored = new XElement(original);
+            authored.Element("Members")!.Element("Member")!.Element("Docs")!
+                .Elements("param").Single().Value = authoredWarning;
+            File.WriteAllText(path, authored.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            var authoredBytes = File.ReadAllBytes(path);
+            using (var negative = Run(true))
+                Assert(negative.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    authoredBytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "registered one-condition authored restriction warning is never withdrawn");
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    static void TestAdminResetPasswordFields(string repositoryRoot)
+    {
+        var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
+        var resetPasswordFlagsPipelinePath = Path.Combine(docsRoot, "Android.App.Admin",
+            $"ResetPasswordFlags.importer-self-test-{Environment.ProcessId}.xml");
+        var tempDirectory = Path.Combine(Path.GetTempPath(), $"admin-reset-self-test-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            File.Copy(
+                Path.Combine(docsRoot, "Android.App.Admin", "ResetPasswordFlags.xml"),
+                resetPasswordFlagsPipelinePath);
+            var resetPasswordFlagsFixture = XDocument.Load(
+                resetPasswordFlagsPipelinePath,
+                LoadOptions.PreserveWhitespace);
+            var resetFieldIds = new[]
+            {
+                "F:Android.App.Admin.ResetPasswordFlags.DoNotAskCredentialsOnBoot",
+                "F:Android.App.Admin.ResetPasswordFlags.RequireEntry",
+            };
+            foreach (var member in resetPasswordFlagsFixture
+                .Root!.Element("Members")!.Elements("Member")
+                .Where(member => member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    resetFieldIds.Contains(
+                        (string?)signature.Attribute("Value"),
+                        StringComparer.Ordinal))))
+            {
+                member.Element("Docs")!.Element("summary")!.ReplaceWith(
+                    new XElement("summary", "To be added."));
+            }
+            resetPasswordFlagsFixture.Save(resetPasswordFlagsPipelinePath);
+
+            var resetPasswordFlagsFile = LoadedFile.Load(
+                repositoryRoot,
+                resetPasswordFlagsPipelinePath);
+            resetPasswordFlagsFile.SelectOwners(
+                null,
+                new InterfaceMemberResolver(docsRoot));
+            var resetOwners = resetPasswordFlagsFile.Owners
+                .Where(owner => resetFieldIds.Contains(owner.Id, StringComparer.Ordinal))
+                .ToList();
+            Assert(
+                resetOwners.Count == 2 &&
+                    resetOwners.All(owner => owner.MemberRegistration?.IsField == true),
+                "ResetPasswordFlags fixture retains both registered field owners");
+            var resetSourceUrl = resetOwners[0].SourceRequest!.Url;
+            Assert(
+                resetOwners.All(owner => owner.SourceRequest!.Url == resetSourceUrl),
+                "ResetPasswordFlags fixture shares one source page");
+            var resetCacheDirectory = Path.Combine(tempDirectory, "reset-password-flags-cache");
+            Directory.CreateDirectory(resetCacheDirectory);
+            var resetCacheKey = Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(resetSourceUrl))).ToLowerInvariant();
+            File.WriteAllText(
+                Path.Combine(resetCacheDirectory, resetCacheKey + ".html"),
+                """
+                <!doctype html><html><body><main id="jd-content">
+                <h3 class="api-name" id="RESET_PASSWORD_DO_NOT_ASK_CREDENTIALS_ON_BOOT">RESET_PASSWORD_DO_NOT_ASK_CREDENTIALS_ON_BOOT</h3>
+                <p>Flag for resetPasswordWithToken(ComponentName, String, byte, int).</p>
+                <h3 class="api-name" id="RESET_PASSWORD_REQUIRE_ENTRY">RESET_PASSWORD_REQUIRE_ENTRY</h3>
+                <p>Flag for resetPasswordWithToken(ComponentName, String, byte, int).</p>
+                </main></body></html>
+                """,
+                new UTF8Encoding(false));
+            var resetReportPath = Path.Combine(tempDirectory, "reset-password-flags-pipeline");
+            var resetExitCode = RunAsync(
+                [
+                    "--path", resetPasswordFlagsPipelinePath,
+                    "--namespace", "Android.App.Admin",
+                    "--offline",
+                    "--cache", resetCacheDirectory,
+                    "--max-changes", "2",
+                    "--apply",
+                    "--report", resetReportPath,
+                ]).GetAwaiter().GetResult();
+            var appliedResetText = File.ReadAllText(resetPasswordFlagsPipelinePath);
+            var appliedResetDocument = XDocument.Parse(
+                appliedResetText,
+                LoadOptions.PreserveWhitespace);
+            var resetSummaries = appliedResetDocument
+                .Root!.Element("Members")!.Elements("Member")
+                .Where(member => member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    resetFieldIds.Contains(
+                        (string?)signature.Attribute("Value"),
+                        StringComparer.Ordinal)))
+                .Select(member => member.Element("Docs")!.Element("summary")!.Value)
+                .ToList();
+            var resetSecondReportPath = Path.Combine(
+                tempDirectory,
+                "reset-password-flags-pipeline-second");
+            var resetSecondExitCode = RunAsync(
+                [
+                    "--path", resetPasswordFlagsPipelinePath,
+                    "--namespace", "Android.App.Admin",
+                    "--offline",
+                    "--cache", resetCacheDirectory,
+                    "--max-changes", "2",
+                    "--apply",
+                    "--report", resetSecondReportPath,
+                ]).GetAwaiter().GetResult();
+            using var resetSecondReport = JsonDocument.Parse(
+                File.ReadAllText(resetSecondReportPath + ".json"));
+            Assert(
+                resetExitCode == 0 &&
+                    resetSummaries.Count == 2 &&
+                    resetSummaries.All(summary =>
+                        summary.Contains(
+                            "resetPasswordWithToken(ComponentName, String, byte[], int)",
+                            StringComparison.Ordinal) &&
+                        !summary.Contains(
+                            "resetPasswordWithToken(ComponentName, String, byte, int)",
+                            StringComparison.Ordinal)) &&
+                    resetSecondExitCode == 0 &&
+                    resetSecondReport.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllText(resetPasswordFlagsPipelinePath).Equals(
+                        appliedResetText,
+                        StringComparison.Ordinal),
+                "ResetPasswordFlags registered-field first-fill uses byte[] for both fields and the second offline apply is byte-identical");
+
+        }
+        finally
+        {
+            if (File.Exists(resetPasswordFlagsPipelinePath))
+                File.Delete(resetPasswordFlagsPipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
+        TestAdminOnBindRawSource(repositoryRoot);
+        TestAdminRestrictionRenderedRepair(repositoryRoot);
+        TestAdminResetPasswordFields(repositoryRoot);
         TestKnownAndroidTextRepairs();
         TestQuickSettingsSources(repositoryRoot);
         TestKnownEapChannelCorrections(repositoryRoot);
@@ -8027,6 +9549,7 @@ static class ImporterProgram
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
+        TestProtoTokenRemark(repositoryRoot, fixtureRoot);
         TestRssiSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSupportedWriters(repositoryRoot, fixtureRoot);
@@ -10365,6 +11888,159 @@ static class ImporterProgram
                 knownAndroidProseMarkup,
                 knownAndroidProseDocs) is null,
             "corrected Android deletion mode prose remains idempotent");
+        var knownAndroidRemarksDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownAndroidRemarksRepairs[0].SourceUrl,
+            SourceLabel = "android.app.admin.DevicePolicyResourcesManager.getString",
+            SourceKind = "android",
+            Paragraphs =
+            [
+                new SourceParagraph("Returns a localized formatted string.", false),
+                new SourceParagraph(KnownAndroidRemarksRepairs[0].IncorrectText, false),
+            ],
+        };
+        var knownAndroidRemarksMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "remarks",
+                new XElement("para", knownAndroidRemarksDocs.Paragraphs[0].Text),
+                new XElement("para", KnownAndroidRemarksRepairs[0].IncorrectText),
+                ImporterSourceReference(knownAndroidRemarksDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        Assert(
+            FindKnownAndroidRemarksRepair(
+                KnownAndroidRemarksRepairs[0].MemberId,
+                knownAndroidRemarksMarkup,
+                knownAndroidRemarksDocs) == KnownAndroidRemarksRepairs[0],
+            "exact importer-owned Android remarks are eligible for correction");
+        var authoredAndroidRemarksMarkup = new XElement(knownAndroidRemarksMarkup);
+        authoredAndroidRemarksMarkup.Element("remarks")!.AddFirst(
+            new XElement("para", "Keep this authored prose."));
+        Assert(
+            FindKnownAndroidRemarksRepair(
+                KnownAndroidRemarksRepairs[0].MemberId,
+                authoredAndroidRemarksMarkup,
+                knownAndroidRemarksDocs) is null,
+            "Android remarks repairs preserve authored prose");
+        knownAndroidRemarksMarkup.Element("remarks")!
+            .Elements("para")
+            .ElementAt(1)
+            .Value = KnownAndroidRemarksRepairs[0].CorrectText;
+        Assert(
+            FindKnownAndroidRemarksRepair(
+                KnownAndroidRemarksRepairs[0].MemberId,
+                knownAndroidRemarksMarkup,
+                knownAndroidRemarksDocs) is null,
+            "corrected Android remarks remain idempotent");
+        Assert(
+            IsKnownAndroidRemarksRepairCorrected(
+                KnownAndroidRemarksRepairs[0].MemberId,
+                knownAndroidRemarksMarkup.Element("remarks")!,
+                knownAndroidRemarksDocs),
+            "corrected Android remarks remain importer-owned on refresh");
+        var wrongReferenceAndroidRemarksMarkup = new XElement(knownAndroidRemarksMarkup);
+        var wrongReferenceAndroidRemarks = wrongReferenceAndroidRemarksMarkup.Element("remarks")!;
+        var sourceReferenceIndex = wrongReferenceAndroidRemarks
+            .Elements("para")
+            .ToList()
+            .FindIndex(paragraph => TryGetImporterSourceReferenceUrl(paragraph, out _));
+        wrongReferenceAndroidRemarks.Elements("para").ElementAt(sourceReferenceIndex).ReplaceWith(
+            ImporterSourceReference(knownAndroidRemarksDocs with
+            {
+                SourceUrl = "https://developer.android.com/reference/android/app/admin/DevicePolicyResourcesManager#getDrawable(java.lang.String,java.lang.String,java.util.function.Supplier)",
+            }));
+        Assert(
+            !IsKnownAndroidRemarksRepairCorrected(
+                KnownAndroidRemarksRepairs[0].MemberId,
+                wrongReferenceAndroidRemarks,
+                knownAndroidRemarksDocs),
+            "corrected Android remarks require the exact importer source reference");
+        var unsafeUserRestrictionDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownUnsafeUserRestrictionSourceUrl,
+            Parameters = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["restriction"] =
+                    "Value is one of the following: UserManager.DISALLOW_ADD_USER; UserManager.KEY_RESTRICTIONS_PENDING. This value cannot be null.",
+            },
+        };
+        var filteredUserRestrictionDocs = WithoutKnownUnsafeAndroidSourceChannels(
+            "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.String)",
+            unsafeUserRestrictionDocs);
+        Assert(
+            filteredUserRestrictionDocs.UnsafeTargets?.ContainsKey("param:restriction") == true,
+            "application-restriction sentinels are not imported as user-policy keys");
+        Assert(
+            WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.Int32)",
+                unsafeUserRestrictionDocs).UnsafeTargets is null,
+            "user-restriction filtering requires the exact managed member");
+        Assert(
+            WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.String)",
+                unsafeUserRestrictionDocs with
+                {
+                    SourceUrl = "https://developer.android.com/reference/android/app/admin/DevicePolicyIdentifiers#getIdentifierForApplicationRestriction(java.lang.String)",
+                }).UnsafeTargets is null,
+            "user-restriction filtering requires the exact Android source URL");
+        Assert(
+            WithoutKnownUnsafeAndroidSourceChannels(
+                "M:Android.App.Admin.DevicePolicyIdentifiers.GetIdentifierForUserRestriction(System.String)",
+                unsafeUserRestrictionDocs with
+                {
+                    Parameters = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["restriction"] =
+                            "Value is one of the following: UserManager.DISALLOW_ADD_USER. This value cannot be null.",
+                    },
+                }).UnsafeTargets is null,
+            "user-restriction filtering requires the unsafe source token");
+        const string authoredRestrictionWarning =
+            "Value is one of the following: UserManager.DISALLOW_ADD_USER. Do not use " +
+            "UserManager.KEY_RESTRICTIONS_PENDING: it is an application-restriction sentinel, " +
+            "not a user restriction. This value cannot be null.";
+        Assert(
+            !authoredRestrictionWarning.Equals(
+                unsafeUserRestrictionDocs.Parameters["restriction"],
+                StringComparison.Ordinal),
+            "reviewer-authored user-restriction warning does not equal the complete rendered source parameter");
+        var knownAndroidSummaryDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownAndroidSummaryRepairs[0].SourceUrl,
+            SourceLabel = "android.app.admin.DevicePolicyManager.RESET_PASSWORD_DO_NOT_ASK_CREDENTIALS_ON_BOOT",
+            SourceKind = "android",
+            Paragraphs =
+            [
+                new SourceParagraph(
+                    "Flag for " + KnownAndroidSummaryRepairs[0].CorrectText + ".",
+                    false),
+            ],
+        };
+        var incorrectAndroidSummary = knownAndroidSummaryDocs.Paragraphs[0].Text.Replace(
+            KnownAndroidSummaryRepairs[0].CorrectText,
+            KnownAndroidSummaryRepairs[0].IncorrectText,
+            StringComparison.Ordinal);
+        var knownAndroidSummaryMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "summary",
+                new XElement("para", incorrectAndroidSummary),
+                ImporterSourceReference(knownAndroidSummaryDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        Assert(
+            FindKnownAndroidSummaryRepair(
+                KnownAndroidSummaryRepairs[0].MemberId,
+                knownAndroidSummaryMarkup,
+                knownAndroidSummaryDocs) == KnownAndroidSummaryRepairs[0],
+            "exact importer-owned Android summaries are eligible for signature correction");
+        knownAndroidSummaryMarkup.Element("summary")!.Element("para")!.Value =
+            knownAndroidSummaryDocs.Paragraphs[0].Text;
+        Assert(
+            FindKnownAndroidSummaryRepair(
+                KnownAndroidSummaryRepairs[0].MemberId,
+                knownAndroidSummaryMarkup,
+                knownAndroidSummaryDocs) is null,
+            "corrected Android summaries remain idempotent");
         var rawSignatureBlock = Regex.Replace(
             file.Text[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End],
             @"<remarks\b[^>]*>.*?</remarks>",
