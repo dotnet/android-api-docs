@@ -3305,7 +3305,11 @@ static class ImporterProgram
             restriction.Attributes().Count() != 1 ||
             !HasPlainTextContent(restriction, out var currentRestriction) ||
             !sourceDocs.Parameters.TryGetValue("restriction", out var sourceRestriction) ||
-            !currentRestriction.Equals(sourceRestriction, StringComparison.Ordinal) ||
+            ChannelValueOrSkip(
+                sourceRestriction,
+                "param",
+                "source_parameter_missing").Text is not string renderedRestriction ||
+            !currentRestriction.Equals(renderedRestriction, StringComparison.Ordinal) ||
             !TryGetElementSpan(blockText, restriction, out var restrictionSpan))
         {
             return UnsafeParameterRepairResult.NoChange(text);
