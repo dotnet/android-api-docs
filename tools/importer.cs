@@ -7658,7 +7658,7 @@ static class ImporterProgram
         var elements = remarks.Elements().ToList();
         var sourceReferenceIndex = elements.FindIndex(element =>
             TryGetImporterSourceReferenceUrl(element, out _));
-        var expectedSourceParagraphs = ExpandRemarksFragments(sourceDocs.Paragraphs)
+        var expectedSourceParagraphs = UsableRemarks(sourceDocs.Paragraphs)
             .Select(DocumentationElement)
             .ToList();
         var actualSourceParagraphs = elements.Take(sourceReferenceIndex).ToList();
@@ -7703,7 +7703,7 @@ static class ImporterProgram
         }
 
         var actualSourceParagraphs = elements.Take(sourceReferenceIndex).ToList();
-        var expectedSourceParagraphs = ExpandRemarksFragments(sourceDocs.Paragraphs)
+        var expectedSourceParagraphs = UsableRemarks(sourceDocs.Paragraphs)
             .Select(DocumentationElement)
             .ToList();
         if (actualSourceParagraphs.Count != expectedSourceParagraphs.Count)
