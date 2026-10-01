@@ -872,7 +872,7 @@ static class ImporterProgram
                                 "remarks",
                                 mapping.SourceUrl,
                                 "importer_known_android_remarks_repair",
-                                "Corrected an exact importer-owned Android string-resource paragraph."));
+                                "Corrected an exact importer-owned Android reference paragraph."));
                         }
                     }
 
