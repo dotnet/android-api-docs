@@ -834,7 +834,9 @@ static class ImporterProgram
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
-                                placeholder.Target,
+                                replacement.Reason == "source_channel_ambiguous" &&
+                                    (placeholder.Name == "para" || placeholder.IsImporterMetadataRepair)
+                                    ? "remarks" : placeholder.Target,
                                 replacement.Reason!,
                                 replacement.Detail,
                                 mapping.SourceUrl));
@@ -886,6 +888,14 @@ static class ImporterProgram
                             owner.Id,
                             placeholder.Target,
                             mapping.SourceUrl));
+                    }
+
+                    if (mapping.Docs!.UnsafeTargets?.TryGetValue("remarks", out var unsafeRemarksDetail) == true &&
+                        !owner.Placeholders.Any(item => item.Name is "remarks" or "para" || item.IsImporterMetadataRepair))
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id, "remarks", "source_channel_ambiguous",
+                            unsafeRemarksDetail, mapping.SourceUrl));
                     }
 
                     var enumSummaryRepair = IsEnumSummaryRepairCandidate(owner);
@@ -959,7 +969,8 @@ static class ImporterProgram
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
                             file.UpdateBlockOffsets(owner.Order, refreshed);
-                            var repairTarget = "summary";
+                            var repairTarget = codeExampleRepair || augmentedRemarksRepair || metadataOnlyRemarksRepair
+                                ? "remarks" : "summary";
                             if (remaining == 0)
                             {
                                 RestoreOffsetsAfterSkippedRepair(file, owner, text);
@@ -2068,7 +2079,9 @@ static class ImporterProgram
         SourceDocs docs,
         bool isEnumField = false)
     {
-        if (docs.UnsafeTargets?.TryGetValue(placeholder.Target, out var unsafeTargetDetail) == true)
+        var sourceTarget = placeholder.Name == "para" || placeholder.IsImporterMetadataRepair
+            ? "remarks" : placeholder.Target;
+        if (docs.UnsafeTargets?.TryGetValue(sourceTarget, out var unsafeTargetDetail) == true)
             return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
 
         if (docs.HasMalformedSourceMarkup &&
@@ -3025,6 +3038,8 @@ static class ImporterProgram
         bool addMetadataForChannelOnlyMember = false)
     {
         cleanupSkip = null;
+        if (docs.UnsafeTargets?.ContainsKey("remarks") == true && docs.Paragraphs.Count > 0)
+            return text;
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
 
@@ -3288,6 +3303,8 @@ static class ImporterProgram
         DocsOwner owner,
         SourceDocs docs)
     {
+        if (docs.UnsafeTargets?.TryGetValue("remarks", out var unsafeDetail) == true)
+            return new RemarksRefreshResult(text, "source_channel_ambiguous", unsafeDetail);
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
         if (!TryParseDocsBlock(blockText, out var document))
@@ -3625,6 +3642,8 @@ static class ImporterProgram
         string remarksIndent,
         string paragraphIndent)
     {
+        if (docs.UnsafeTargets?.ContainsKey("remarks") == true)
+            throw new InvalidOperationException("An unsafe source remarks channel cannot be rendered.");
         var paragraphs = sourceParagraphs
             .Select(paragraph => RenderDocumentationParagraph(paragraph, paragraphIndent))
             .ToList();
@@ -4546,6 +4565,13 @@ static class ImporterProgram
         var edits = new List<XmlSpanEdit>();
         foreach (var candidate in candidates)
         {
+            if (candidate.Target == "remarks" &&
+                docs.UnsafeTargets?.TryGetValue("remarks", out var unsafeDetail) == true)
+            {
+                skips.Add(new CopiedDescriptionRepairSkip(
+                    candidate.Target, "source_channel_ambiguous", unsafeDetail));
+                continue;
+            }
             if (!TryGetElementSpan(blockText, candidate.Element, out var elementSpan))
             {
                 skips.Add(new CopiedDescriptionRepairSkip(
@@ -4802,6 +4828,8 @@ static class ImporterProgram
         DocsOwner owner,
         SourceDocs docs)
     {
+        if (docs.UnsafeTargets?.TryGetValue("remarks", out var unsafeDetail) == true)
+            return new RemarksRefreshResult(text, "source_channel_ambiguous", unsafeDetail);
         var ownedRemarks = owner.Docs.Element("remarks");
         if (ownedRemarks is null || !HasPotentialImporterOwnedRemarksRefresh(file, owner))
         {
@@ -5502,6 +5530,8 @@ static class ImporterProgram
         DocsOwner owner,
         SourceDocs docs)
     {
+        if (docs.UnsafeTargets?.ContainsKey("remarks") == true)
+            return text;
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
         if (!HasIncompleteImporterJavaExample(blockText) ||
@@ -7357,6 +7387,91 @@ static class ImporterProgram
             }
             File.WriteAllBytes(pipelinePath, safeBytes);
             File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+
+            var reference = ImporterSourceReference(rawSource);
+            var attribution = XElement.Parse($"<para>{AndroidAttribution}</para>");
+            var excludedLayouts = new[]
+            {
+                new XElement("remarks", new XElement("para", "To be added.")),
+                new XElement("summary", new XElement("para", "To be added.")),
+                new XElement("remarks", reference, attribution),
+                new XElement("remarks", "To be added.", reference, attribution),
+                new XElement("remarks",
+                    new XElement("code", new XAttribute("lang", "text/java"),
+                        "public static long makeToken (int tagSize, boolean repeated, int depth, int objectId, int offset)"),
+                    reference, attribution),
+                new XElement("remarks", new XElement("para", "Make a token."), reference, attribution),
+            };
+            foreach (var layout in excludedLayouts)
+            {
+                var document = new XDocument(safeDocument);
+                document.Root!.Element("Members")!.Element("Member")!.Element("Docs")!
+                    .Element(layout.Name)!.ReplaceWith(layout);
+                if (layout.Name == "summary")
+                    document.Root!.Element("Members")!.Element("Member")!.Element("Docs")!
+                        .Element("remarks")!.Value = "Authored remarks.";
+                File.WriteAllText(pipelinePath, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var before = File.ReadAllBytes(pipelinePath);
+                var layoutFile = LoadedFile.Load(repositoryRoot, pipelinePath);
+                layoutFile.SelectOwners("MakeToken");
+                var layoutOwner = layoutFile.Owners.Single();
+                Assert(RequiresSourceLoad(layoutFile, layoutOwner),
+                    "Proto alternate layout enters registered source loading: " + layout);
+                var layoutMapping = MapOwner(layoutOwner, pages);
+                Assert(layoutMapping.Docs!.UnsafeTargets?.ContainsKey("remarks") == true &&
+                    layoutMapping.Docs.Paragraphs.Any(paragraph => paragraph.Text == UnsafeProtoTokenParagraph) &&
+                    AddSourceDocumentationIfSafe(layoutFile.Text, layoutFile, layoutOwner, layoutMapping.Docs) == layoutFile.Text &&
+                    ReplaceIncompleteCodeExampleRemarks(layoutFile.Text, layoutFile, layoutOwner, layoutMapping.Docs) == layoutFile.Text &&
+                    RefreshImporterOwnedRemarks(layoutFile.Text, layoutFile, layoutOwner, layoutMapping.Docs).Text == layoutFile.Text &&
+                    RefreshIncompleteImporterRemarks(layoutFile.Text, layoutFile, layoutOwner, layoutMapping.Docs).Text == layoutFile.Text,
+                    "Proto writer boundaries preserve registered layouts without filtering source paragraphs");
+                using (var dry = RunPipeline(false, 1))
+                    Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(before),
+                        "Proto unsafe logical remarks layout is withheld before any writer");
+                using (var applied = RunPipeline(true, 1))
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        applied.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("target").GetString() == "remarks" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(before),
+                        "Proto nested placeholder, enrichment, cleanup, signature and refresh preserve all bytes: " + layout);
+                using (var repeated = RunPipeline(true, 1))
+                    Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(before),
+                        "Proto alternate-layout persisted repeat writes zero bytes");
+                foreach (var eligibleHtml in new[]
+                {
+                    html.Replace("max value 512", "max value 511", StringComparison.Ordinal)
+                        .Replace("max value 524,288", "max value 524,287", StringComparison.Ordinal),
+                    Regex.Replace(html, @"<p>Make a token\..*?</p>", "<p>Make a token.</p>",
+                        RegexOptions.Singleline | RegexOptions.CultureInvariant),
+                })
+                {
+                    File.WriteAllBytes(pipelinePath, before);
+                    File.WriteAllText(cachePath, eligibleHtml, new UTF8Encoding(false));
+                    var eligiblePage = SourcePage.Parse(request, eligibleHtml);
+                    var eligible = MapOwner(layoutOwner,
+                        new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                        {
+                            [request.Url] = SourceLoadResult.Success(eligiblePage),
+                        });
+                    Assert(eligible.Docs!.UnsafeTargets?.ContainsKey("remarks") != true,
+                        "Corrected or removed source releases every logical remarks layout");
+                    using (var eligibleApply = RunPipeline(true, 1))
+                        Assert(eligibleApply.RootElement.GetProperty("appliedCount").GetInt32() <= 1 &&
+                            !eligibleApply.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                                entry.TryGetProperty("reason", out var reason) &&
+                                reason.GetString() == "source_channel_ambiguous"),
+                            "Corrected and removed source layouts stay eligible under one-change budgets");
+                    var eligibleBytes = File.ReadAllBytes(pipelinePath);
+                    using (var eligibleRepeat = RunPipeline(true, 1))
+                        Assert(eligibleRepeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                            File.ReadAllBytes(pipelinePath).SequenceEqual(eligibleBytes),
+                            "Eligible alternate-layout persisted repeat preserves bytes");
+                }
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            }
 
             var authoredRemarks = new[]
             {

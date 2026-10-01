@@ -209,6 +209,10 @@ do not make those stated maxima representable. The safe summary remains eligible
 correcting or removing the unsafe paragraph restores remarks eligibility.
 Other source text and existing authored documentation are preserved. No
 implementation-derived replacement prose is imported.
+The logical remarks exclusion also covers nested paragraph placeholders (including
+those in summaries), metadata-only enrichment, placeholder cleanup, Java-signature
+repair, and importer-owned refresh. These layouts retain their complete original
+bytes; excluded operations are reported against `remarks`, not `summary`.
 
 The `IkeProtocolErrorType.NoAdditionalSas` enum summary is skipped when its exact
 managed field, canonical `IkeProtocolException.ERROR_TYPE_NO_ADDITIONAL_SAS`
