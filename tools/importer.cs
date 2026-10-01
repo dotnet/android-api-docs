@@ -70,6 +70,23 @@ static class ImporterProgram
             "   // these two lines are equivalent, but the second approach is recommended\n" +
             "   temporal = thisUnit.addTo(temporal, amount);\n" +
             "   temporal = temporal.plus(amount, thisUnit);"),
+        new(
+            JavaReference + "java.base/java/time/zone/ZoneRules.html#getTransition(java.time.LocalDateTime)",
+            "  ZoneOffsetTransition trans = rules.getTransition(localDT);\n" +
+            "  if (trans != null) {\n" +
+            "    // Gap or Overlap: determine what to do from transition\n" +
+            "  } else {\n" +
+            "    // Normal case: only one valid offset\n" +
+            "    zoneOffset = rule.getOffset(localDT);\n" +
+            "  }",
+            "  ZoneOffsetTransition trans = rules.getTransition(localDT);\n" +
+            "  if (trans != null) {\n" +
+            "    // Gap or Overlap: determine what to do from transition\n" +
+            "  } else {\n" +
+            "    // Normal case: only one valid offset\n" +
+            "    zoneOffset = rules.getOffset(localDT);\n" +
+            "  }",
+            "M:Java.Time.Zone.ZoneRules.GetTransition(Java.Time.LocalDateTime)"),
     ];
     static readonly KnownJavaProseRepair[] KnownJavaProseRepairs =
     [
@@ -500,7 +517,7 @@ static class ImporterProgram
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
-                                "param:duration",
+                                $"param:{unsafeParameterRepair.ParameterName}",
                                 "max_changes_reached",
                                 $"The --max-changes limit of {options.MaxChanges} was reached.",
                                 mapping.SourceUrl));
@@ -516,10 +533,10 @@ static class ImporterProgram
                                 "would_apply",
                                 file.RelativePath,
                                 owner.Id,
-                                "param:duration",
+                                $"param:{unsafeParameterRepair.ParameterName}",
                                 mapping.SourceUrl,
                                 "importer_known_unsafe_parameter_repair",
-                                "Restored an importer-generated parameter to its placeholder because the exact Android source permits a value rejected by the referenced API."));
+                                "Restored an exact importer-generated parameter to its placeholder because its official source channel is unsafe."));
                         }
                     }
 
@@ -1202,6 +1219,7 @@ static class ImporterProgram
         }
         docs = WithKnownEapChannelCorrections(owner, docs);
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
+        docs = WithoutKnownUnsafeJavaSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
         docs = WithoutKnownUnsafeRemoteEntryGuidance(owner.Id, docs);
         docs = WithKnownAndroidTextCorrections(owner.Id, docs);
@@ -1464,6 +1482,40 @@ static class ImporterProgram
             };
     }
 
+    const string KnownUnsafeZoneTransitionMemberId =
+        "M:Java.Time.Zone.ZoneOffsetTransitionRule.Of(Java.Time.Month,System.Int32,Java.Time.DayOfWeek,Java.Time.LocalTime,System.Boolean,Java.Time.Zone.ZoneOffsetTransitionRule.TimeDefinition,Java.Time.ZoneOffset,Java.Time.ZoneOffset,Java.Time.ZoneOffset)";
+    const string KnownUnsafeZoneTransitionSourceUrl =
+        JavaReference + "java.base/java/time/zone/ZoneOffsetTransitionRule.html#of(java.time.Month,int,java.time.DayOfWeek,java.time.LocalTime,boolean,java.time.zone.ZoneOffsetTransitionRule.TimeDefinition,java.time.ZoneOffset,java.time.ZoneOffset,java.time.ZoneOffset)";
+    const string KnownUnsafeZoneTransitionTime =
+        "the cutover time in the 'before' offset, not null";
+
+    static bool IsKnownUnsafeZoneTransitionTime(string memberId, SourceDocs docs) =>
+        memberId == KnownUnsafeZoneTransitionMemberId &&
+        docs.SourceKind == "java" &&
+        docs.SourceUrl.Equals(KnownUnsafeZoneTransitionSourceUrl, StringComparison.Ordinal) &&
+        docs.Parameters.TryGetValue("time", out var time) &&
+        time.Equals(KnownUnsafeZoneTransitionTime, StringComparison.Ordinal);
+
+    static SourceDocs WithoutKnownUnsafeJavaSourceChannels(string memberId, SourceDocs docs)
+    {
+        if (!IsKnownUnsafeZoneTransitionTime(memberId, docs))
+            return docs;
+
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["param:time"] =
+            "The exact Java 21 source describes the cutover time as relative to the before offset, " +
+            "but that interpretation applies only to WALL; UTC and STANDARD use their respective time bases.";
+        return docs with { UnsafeTargets = targets };
+    }
+
+    static bool HasKnownUnsafeZoneTransitionTimeCandidate(DocsOwner owner) =>
+        owner.Id == KnownUnsafeZoneTransitionMemberId &&
+        owner.Docs.Elements("param").Any(parameter =>
+            (string?)parameter.Attribute("name") == "time" &&
+            parameter.Value.Equals(KnownUnsafeZoneTransitionTime, StringComparison.Ordinal));
+
     const string KnownUnsafeContinueStrokeSourceUrl =
         "https://developer.android.com/reference/android/accessibilityservice/GestureDescription.StrokeDescription#continueStroke(android.graphics.Path,%20long,%20long,%20boolean)";
 
@@ -1655,6 +1707,8 @@ static class ImporterProgram
             targets.Add("summary");
             targets.Add("remarks");
         }
+        if (HasKnownUnsafeZoneTransitionTimeCandidate(owner))
+            targets.Add("param:time");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
             HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
@@ -1691,7 +1745,8 @@ static class ImporterProgram
         HasKnownIncorrectBooleanReturnRepairCandidate(file, owner) ||
         KnownAndroidTextRepairCandidateTargets(owner).Count > 0 ||
         KnownEapChannelRepairCandidateTargets(owner).Count > 0 ||
-        HasKnownAndroidProseRepairCandidate(file, owner);
+        HasKnownAndroidProseRepairCandidate(file, owner) ||
+        HasKnownUnsafeZoneTransitionTimeCandidate(owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
         LoadedFile file,
@@ -3343,7 +3398,7 @@ static class ImporterProgram
         var blockText = text[block.Start..block.End];
         if (!TryParseDocsBlock(blockText, out var actualDocs) ||
             !XNode.DeepEquals(actualDocs, owner.Docs) ||
-            FindKnownJavaExampleRepair(actualDocs, sourceDocs) is not { } repair ||
+            FindKnownJavaExampleRepair(actualDocs, sourceDocs, owner.Id) is not { } repair ||
             actualDocs.Element("remarks")?.Elements("code").SingleOrDefault(code =>
                 IsKnownJavaExampleRepairCandidate(code, repair)) is not XElement code ||
             !TryGetElementSpan(blockText, code, out var codeSpan))
@@ -3360,7 +3415,8 @@ static class ImporterProgram
 
     static KnownJavaExampleRepair? FindKnownJavaExampleRepair(
         XElement docs,
-        SourceDocs sourceDocs)
+        SourceDocs sourceDocs,
+        string? memberId = null)
     {
         if (!HasExactImporterSourceReference(docs, sourceDocs))
             return null;
@@ -3368,6 +3424,17 @@ static class ImporterProgram
         var repair = KnownJavaExampleRepairs.SingleOrDefault(candidate =>
             UrlsEqual(candidate.SourceUrl, sourceDocs.SourceUrl));
         if (repair is null ||
+            (repair.MemberId is not null &&
+             (repair.MemberId != memberId ||
+              docs.Element("remarks") is not XElement remarks ||
+              !ImporterMarkupEquals(
+                  remarks,
+                  XElement.Parse(RenderImporterOwnedRemarks(
+                      UsableRemarks(sourceDocs.Paragraphs),
+                      sourceDocs,
+                      "\n",
+                      "",
+                      ""))))) ||
             docs.Element("remarks")?.Elements("code").Where(code =>
                 IsKnownJavaExampleRepairCandidate(code, repair)).Count() != 1)
         {
@@ -3423,29 +3490,55 @@ static class ImporterProgram
     {
         const string unsafeDuration =
             "The duration for the new stroke. Must not be negative.";
-        if (!IsKnownUnsafeContinueStrokeDuration(sourceDocs.SourceUrl))
+        var zoneTransition = IsKnownUnsafeZoneTransitionTime(owner.Id, sourceDocs);
+        if (!zoneTransition && !IsKnownUnsafeContinueStrokeDuration(sourceDocs.SourceUrl))
+        {
+            return UnsafeParameterRepairResult.NoChange(text);
+        }
+        if (zoneTransition &&
+            (owner.Member?.Element("Parameters")?.Elements("Parameter").ElementAtOrDefault(3) is not XElement boundTime ||
+             (string?)boundTime.Attribute("Name") != "time" ||
+             (string?)boundTime.Attribute("Type") != "Java.Time.LocalTime"))
         {
             return UnsafeParameterRepairResult.NoChange(text);
         }
 
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
+        var parameterName = zoneTransition ? "time" : "duration";
+        var unsafeText = zoneTransition ? KnownUnsafeZoneTransitionTime : unsafeDuration;
         if (!TryParseDocsBlock(blockText, out var actualDocs) ||
-            actualDocs.Elements("param").SingleOrDefault(parameter =>
-                (string?)parameter.Attribute("name") == "duration") is not XElement duration ||
-            duration.Attributes().Count() != 1 ||
-            !HasPlainTextContent(duration, out var currentDuration) ||
-            !currentDuration.Equals(unsafeDuration, StringComparison.Ordinal) ||
-            !TryGetElementSpan(blockText, duration, out var durationSpan))
+            (zoneTransition &&
+             (actualDocs.HasAttributes ||
+              !XNode.DeepEquals(actualDocs, owner.Docs) ||
+              !HasExactImporterSourceReference(actualDocs, sourceDocs) ||
+              actualDocs.Nodes().Any(node => node switch
+              {
+                  XElement => false,
+                  XText whitespace when node is not XCData => !string.IsNullOrWhiteSpace(whitespace.Value),
+                  _ => true,
+              }) ||
+              actualDocs.Element("remarks") is not XElement remarks ||
+              !ImporterMarkupEquals(
+                  remarks,
+                  XElement.Parse(RenderImporterOwnedRemarks(
+                      UsableRemarks(sourceDocs.Paragraphs), sourceDocs, "\n", "", ""))))) ||
+            actualDocs.Elements("param").Where(parameter =>
+                (string?)parameter.Attribute("name") == parameterName).ToList() is not [XElement parameter] ||
+            parameter.Attributes().Count() != 1 ||
+            !HasPlainTextContent(parameter, out var currentText) ||
+            !currentText.Equals(unsafeText, StringComparison.Ordinal) ||
+            !TryGetElementSpan(blockText, parameter, out var parameterSpan))
         {
             return UnsafeParameterRepairResult.NoChange(text);
         }
 
-        const string placeholder = "<param name=\"duration\">To be added.</param>";
-        var updatedBlock = blockText[..durationSpan.Start] + placeholder +
-            blockText[durationSpan.End..];
+        var placeholder = $"<param name=\"{parameterName}\">To be added.</param>";
+        var updatedBlock = blockText[..parameterSpan.Start] + placeholder +
+            blockText[parameterSpan.End..];
         return UnsafeParameterRepairResult.RepairedText(
-            text[..block.Start] + updatedBlock + text[block.End..]);
+            text[..block.Start] + updatedBlock + text[block.End..],
+            parameterName);
     }
 
     static KnownJavaProseRepair? FindKnownJavaProseRepair(
@@ -8051,6 +8144,86 @@ static class ImporterProgram
                 knownJavaExampleMarkup,
                 knownJavaExampleDocs) is null,
             "correct Java examples remain idempotent");
+        var zoneTransitionRepair = KnownJavaExampleRepairs.Single(repair =>
+            repair.MemberId == "M:Java.Time.Zone.ZoneRules.GetTransition(Java.Time.LocalDateTime)");
+        var zoneTransitionDocs = javaExampleDocs with
+        {
+            SourceUrl = zoneTransitionRepair.SourceUrl,
+            SourceLabel = "java.time.zone.ZoneRules.getTransition",
+            SourceKind = "java",
+            Paragraphs =
+            [
+                new SourceParagraph("One technique, using this method, would be:", IsCode: false),
+                new SourceParagraph(zoneTransitionRepair.IncompleteCode, IsCode: true),
+            ],
+        };
+        var zoneTransitionMarkup = new XElement(
+            "Docs",
+            XElement.Parse(RenderImporterOwnedRemarks(
+                UsableRemarks(zoneTransitionDocs.Paragraphs),
+                zoneTransitionDocs,
+                "\n",
+                "",
+                "")));
+        Assert(
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs,
+                zoneTransitionRepair.MemberId) == zoneTransitionRepair,
+            "the exact ZoneRules member, source, and complete importer-owned example allow the receiver typo repair");
+        Assert(
+            FindKnownJavaExampleRepair(zoneTransitionMarkup, zoneTransitionDocs) is null &&
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs,
+                zoneTransitionRepair.MemberId + ".Altered") is null &&
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs with { SourceUrl = zoneTransitionDocs.SourceUrl + ".Altered" },
+                zoneTransitionRepair.MemberId) is null &&
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs with
+                {
+                    Paragraphs = [new SourceParagraph("Different source prose.", IsCode: false)],
+                },
+                zoneTransitionRepair.MemberId) is null,
+            "the ZoneRules repair rejects missing or mismatched members, URLs, and source structure");
+        Action<XElement>[] authoredZoneTransitionChanges =
+        [
+            docs => docs.Element("remarks")!.AddFirst(new XElement("para", "Authored prose.")),
+            docs => docs.Element("remarks")!.AddFirst(new XComment("Authored comment.")),
+            docs => docs.Element("remarks")!.Element("code")!.Add(new XElement("c", "authored")),
+            docs => docs.Element("remarks")!.Element("code")!.ReplaceNodes(
+                new XCData(zoneTransitionRepair.IncompleteCode)),
+            docs => docs.Element("remarks")!.Element("code")!.SetAttributeValue("authored", "true"),
+            docs => docs.Element("remarks")!.Element("code")!.Value =
+                zoneTransitionRepair.IncompleteCode.Replace("rule.getOffset", "other.getOffset", StringComparison.Ordinal),
+            docs => docs.Element("remarks")!.Element("code")!.Value =
+                zoneTransitionRepair.IncompleteCode.Replace("\n", "\n  ", StringComparison.Ordinal),
+            docs => docs.Element("remarks")!.Add(ImporterSourceReference(zoneTransitionDocs)),
+        ];
+        Assert(
+            authoredZoneTransitionChanges.All(change =>
+            {
+                var authored = new XElement(zoneTransitionMarkup);
+                change(authored);
+                var before = new XElement(authored);
+                return FindKnownJavaExampleRepair(
+                    authored,
+                    zoneTransitionDocs,
+                    zoneTransitionRepair.MemberId) is null &&
+                    XNode.DeepEquals(authored, before);
+            }),
+            "the ZoneRules repair preserves authored prose, comments, markup, CDATA, code changes, whitespace, and duplicate references");
+        zoneTransitionMarkup.Element("remarks")!.Element("code")!.Value =
+            zoneTransitionRepair.CorrectCode;
+        Assert(
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs,
+                zoneTransitionRepair.MemberId) is null,
+            "the corrected ZoneRules example is idempotent");
         var knownJavaProseDocs = javaExampleDocs with
         {
             SourceUrl = KnownJavaProseRepairs[0].SourceUrl,
@@ -10704,9 +10877,287 @@ static class ImporterProgram
         var enumPipelinePath = Path.Combine(
             docsRoot,
             $"WidgetKind.compact-importer-self-test-{Environment.ProcessId}.xml");
+        var zoneTransitionPipelinePath = Path.Combine(
+            docsRoot,
+            "Java.Time.Zone",
+            $"ZoneOffsetTransitionRule.importer-self-test-{Environment.ProcessId}.xml");
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            var zoneTransitionSource = LoadedFile.Load(
+                repositoryRoot,
+                Path.Combine(docsRoot, "Java.Time.Zone", "ZoneOffsetTransitionRule.xml"));
+            zoneTransitionSource.SelectOwners(KnownUnsafeZoneTransitionMemberId);
+            var zoneTransitionOwner = zoneTransitionSource.Owners.Single();
+            var zoneTransitionHtml = File.ReadAllText(Path.Combine(
+                fixtureRoot, "zone-offset-transition-rule-java-reference.html"));
+            var zoneTransitionPage = SourcePage.Parse(
+                zoneTransitionOwner.SourceRequest!, zoneTransitionHtml);
+            var zoneTransitionMapping = MapOwner(
+                zoneTransitionOwner,
+                new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [zoneTransitionOwner.SourceRequest!.Url] =
+                        SourceLoadResult.Success(zoneTransitionPage),
+                });
+            var unsafeZoneTransitionDocs = zoneTransitionMapping.Docs!;
+            Assert(
+                zoneTransitionOwner.Id == KnownUnsafeZoneTransitionMemberId &&
+                zoneTransitionOwner.MemberRegistration?.Descriptor ==
+                    "(Ljava/time/Month;ILjava/time/DayOfWeek;Ljava/time/LocalTime;ZLjava/time/zone/ZoneOffsetTransitionRule$TimeDefinition;Ljava/time/ZoneOffset;Ljava/time/ZoneOffset;Ljava/time/ZoneOffset;)Ljava/time/zone/ZoneOffsetTransitionRule;" &&
+                unsafeZoneTransitionDocs.Parameters.Count == 9 &&
+                unsafeZoneTransitionDocs.Parameters["time"] == KnownUnsafeZoneTransitionTime &&
+                unsafeZoneTransitionDocs.UnsafeTargets?.ContainsKey("param:time") == true &&
+                ReplacementFor(
+                    new Placeholder(0, "param", "time", "param:time"),
+                    unsafeZoneTransitionDocs).Reason == "source_channel_ambiguous",
+                "the complete registered nine-parameter Java factory maps its exact source and excludes only the unsafe time channel");
+            var rawZoneTransitionDocs = unsafeZoneTransitionDocs with { UnsafeTargets = null };
+            var zoneTransitionSourceMismatches = new[]
+            {
+                rawZoneTransitionDocs with { SourceUrl = rawZoneTransitionDocs.SourceUrl + ".Altered" },
+                rawZoneTransitionDocs with { SourceKind = "android" },
+                rawZoneTransitionDocs with
+                {
+                    Parameters = new Dictionary<string, string>
+                    {
+                        ["time"] = KnownUnsafeZoneTransitionTime + " Additional source guidance.",
+                    },
+                },
+                rawZoneTransitionDocs with
+                {
+                    Parameters = new Dictionary<string, string>
+                    {
+                        ["cutoverTime"] = KnownUnsafeZoneTransitionTime,
+                    },
+                },
+            };
+            Assert(
+                zoneTransitionSourceMismatches.All(docs =>
+                    ReferenceEquals(
+                        WithoutKnownUnsafeJavaSourceChannels(KnownUnsafeZoneTransitionMemberId, docs),
+                        docs)) &&
+                ReferenceEquals(
+                    WithoutKnownUnsafeJavaSourceChannels(
+                        KnownUnsafeZoneTransitionMemberId + ".Altered", rawZoneTransitionDocs),
+                    rawZoneTransitionDocs),
+                "Java time exclusions require the exact source kind, canonical URL, managed member, parameter name, and complete source text");
+
+            var zoneTransitionDocument = new XDocument(zoneTransitionSource.Root.Document!);
+            zoneTransitionDocument.Root!.Element("Members")!.ReplaceNodes(
+                new XElement(zoneTransitionOwner.Member!));
+            var zoneFactoryDocs = zoneTransitionDocument.Root.Element("Members")!
+                .Element("Member")!.Element("Docs")!;
+            zoneFactoryDocs.ReplaceNodes(
+                zoneTransitionOwner.Member!.Element("Parameters")!.Elements("Parameter")
+                    .Select(parameter => new XElement(
+                        "param", new XAttribute("name", (string)parameter.Attribute("Name")!), "To be added.")),
+                new XElement("summary", "To be added."),
+                new XElement("returns", "To be added."),
+                new XElement("remarks", "To be added."));
+            File.WriteAllText(
+                zoneTransitionPipelinePath,
+                zoneTransitionDocument.ToString(SaveOptions.DisableFormatting),
+                new UTF8Encoding(false));
+            var zoneTransitionCache = Path.Combine(tempDirectory, "zone-transition-cache");
+            Directory.CreateDirectory(zoneTransitionCache);
+            var zoneTransitionCacheKey = Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(zoneTransitionOwner.SourceRequest!.Url))).ToLowerInvariant();
+            File.WriteAllText(
+                Path.Combine(zoneTransitionCache, zoneTransitionCacheKey + ".html"),
+                zoneTransitionHtml, new UTF8Encoding(false));
+
+            (int ExitCode, int Applied, bool TimeSkipped) RunZoneTransitionPipeline(string name)
+            {
+                var reportPath = Path.Combine(tempDirectory, name);
+                var exitCode = RunAsync(
+                    [
+                        "--path", zoneTransitionPipelinePath,
+                        "--namespace", "Java.Time.Zone",
+                        "--member", KnownUnsafeZoneTransitionMemberId,
+                        "--cache", zoneTransitionCache,
+                        "--offline",
+                        "--apply",
+                        "--max-changes", "10",
+                        "--report", reportPath,
+                    ]).GetAwaiter().GetResult();
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                return (
+                    exitCode,
+                    report.RootElement.GetProperty("appliedCount").GetInt32(),
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("status").GetString() == "skipped" &&
+                        entry.GetProperty("target").GetString() == "param:time" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"));
+            }
+
+            var zoneFirstFill = RunZoneTransitionPipeline("zone-first-fill");
+            var zoneRemainingFill = RunZoneTransitionPipeline("zone-remaining-fill");
+            var zoneFilledDocument = XDocument.Load(zoneTransitionPipelinePath);
+            var zoneFilledDocs = zoneFilledDocument.Root!.Element("Members")!
+                .Element("Member")!.Element("Docs")!;
+            Assert(
+                zoneFirstFill is (0, 10, true) &&
+                zoneRemainingFill is (0, 1, true) &&
+                zoneFilledDocs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").Value == "To be added." &&
+                zoneFilledDocs.Elements().Count(element =>
+                    element.Value.Contains("To be added.", StringComparison.Ordinal)) == 1 &&
+                zoneFilledDocs.Elements("param").Where(parameter =>
+                    (string?)parameter.Attribute("name") != "time").All(parameter =>
+                        parameter.Value == unsafeZoneTransitionDocs.Parameters[
+                            (string)parameter.Attribute("name")!]),
+                "production first-fill imports all eleven safe channels while leaving only the time placeholder");
+            var zoneFilledBytes = File.ReadAllBytes(zoneTransitionPipelinePath);
+            var zoneFirstFillRepeat = RunZoneTransitionPipeline("zone-first-fill-repeat");
+            Assert(
+                zoneFirstFillRepeat is (0, 0, true) &&
+                zoneFilledBytes.SequenceEqual(File.ReadAllBytes(zoneTransitionPipelinePath)),
+                "production unsafe-channel exclusion is byte-identical and applies zero changes on repeat");
+
+            zoneFilledDocs.Elements("param").Single(parameter =>
+                (string?)parameter.Attribute("name") == "time").Value = KnownUnsafeZoneTransitionTime;
+            zoneFilledDocs.Elements("param").Single(parameter =>
+                (string?)parameter.Attribute("name") == "month").Value = "Keep this authored month documentation.";
+            File.WriteAllText(
+                zoneTransitionPipelinePath,
+                zoneFilledDocument.ToString(SaveOptions.DisableFormatting),
+                new UTF8Encoding(false));
+            var previouslyOwnedZoneText = File.ReadAllText(zoneTransitionPipelinePath);
+            var expectedWithdrawnZoneText = previouslyOwnedZoneText.Replace(
+                $"<param name=\"time\">{KnownUnsafeZoneTransitionTime}</param>",
+                "<param name=\"time\">To be added.</param>",
+                StringComparison.Ordinal);
+            var zoneWithdrawal = RunZoneTransitionPipeline("zone-prior-owned-withdrawal");
+            Assert(
+                zoneWithdrawal.ExitCode == 0 &&
+                zoneWithdrawal.Applied == 1 &&
+                expectedWithdrawnZoneText != previouslyOwnedZoneText &&
+                File.ReadAllText(zoneTransitionPipelinePath) == expectedWithdrawnZoneText,
+                "production withdrawal changes only the exact previous importer-owned time parameter");
+            var zoneWithdrawnBytes = File.ReadAllBytes(zoneTransitionPipelinePath);
+            var zoneWithdrawalRepeat = RunZoneTransitionPipeline("zone-withdrawal-repeat");
+            Assert(
+                zoneWithdrawalRepeat is (0, 0, true) &&
+                zoneWithdrawnBytes.SequenceEqual(File.ReadAllBytes(zoneTransitionPipelinePath)),
+                "production withdrawal is byte-identical and applies zero changes on repeat");
+
+            Action<XElement>[] authoredZoneTimeChanges =
+            [
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").Value += " Authored guidance.",
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").ReplaceNodes(
+                        new XElement("c", KnownUnsafeZoneTransitionTime)),
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").ReplaceNodes(
+                        new XCData(KnownUnsafeZoneTransitionTime)),
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").Add(new XComment("Authored.")),
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").Add(new XProcessingInstruction("keep", "authored")),
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").SetAttributeValue("authored", "true"),
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").SetAttributeValue("name", "cutoverTime"),
+                docs => docs.Add(new XElement("param", new XAttribute("name", "time"), KnownUnsafeZoneTransitionTime)),
+                docs => docs.Element("remarks")!.AddFirst(new XElement("para", "Authored prose.")),
+                docs => docs.Element("remarks")!.Add(new XComment("Authored.")),
+                docs => docs.Element("remarks")!.Add(new XProcessingInstruction("keep", "authored")),
+                docs => docs.Element("remarks")!.Element("para")!.ReplaceNodes(
+                    new XCData(docs.Element("remarks")!.Element("para")!.Value)),
+                docs => docs.Element("remarks")!.Element("para")!.ReplaceNodes(
+                    new XElement("c", docs.Element("remarks")!.Element("para")!.Value)),
+                docs => docs.Element("remarks")!.SetAttributeValue("authored", "true"),
+                docs => docs.Element("remarks")!.Elements("para").Last().Descendants("a")
+                    .Single().SetAttributeValue("href", KnownUnsafeZoneTransitionSourceUrl + ".Altered"),
+                docs => docs.Element("remarks")!.Add(new XElement(docs.Element("remarks")!.Elements("para").Last())),
+                docs => docs.Element("remarks")!.Elements("para").Last().Remove(),
+                docs => docs.Add(new XComment("Authored.")),
+                docs => docs.Add(new XProcessingInstruction("keep", "authored")),
+                docs => docs.Add(new XText("Authored prose.")),
+                docs => docs.Add(new XCData("Authored prose.")),
+                docs => docs.SetAttributeValue("authored", "true"),
+            ];
+            var authoredZoneCase = 0;
+            foreach (var change in authoredZoneTimeChanges)
+            {
+                var authored = XDocument.Parse(previouslyOwnedZoneText);
+                change(authored.Root!.Element("Members")!.Element("Member")!.Element("Docs")!);
+                File.WriteAllText(
+                    zoneTransitionPipelinePath,
+                    authored.ToString(SaveOptions.DisableFormatting),
+                    new UTF8Encoding(false));
+                var authoredFile = LoadedFile.Load(repositoryRoot, zoneTransitionPipelinePath);
+                authoredFile.SelectOwners(KnownUnsafeZoneTransitionMemberId);
+                var authoredOwner = authoredFile.Owners.Single();
+                var preserved = RepairKnownUnsafeParameter(
+                    authoredFile.Text, authoredFile, authoredOwner, unsafeZoneTransitionDocs);
+                Assert(
+                    !preserved.Repaired && preserved.Text == authoredFile.Text,
+                    "Java time withdrawal preserves authored parameter/remarks content, CDATA, comments, processing instructions, and ownership mismatches");
+                var authoredBytes = File.ReadAllBytes(zoneTransitionPipelinePath);
+                var authoredRun = RunZoneTransitionPipeline($"zone-authored-{authoredZoneCase++}");
+                Assert(
+                    authoredRun.ExitCode == 0 &&
+                    authoredRun.Applied == 0 &&
+                    authoredBytes.SequenceEqual(File.ReadAllBytes(zoneTransitionPipelinePath)),
+                    "production withdrawal preserves authored content and ownership mismatches byte-for-byte");
+            }
+            File.WriteAllText(zoneTransitionPipelinePath, previouslyOwnedZoneText, new UTF8Encoding(false));
+            var ownedZoneFile = LoadedFile.Load(repositoryRoot, zoneTransitionPipelinePath);
+            ownedZoneFile.SelectOwners(KnownUnsafeZoneTransitionMemberId);
+            var ownedZoneOwner = ownedZoneFile.Owners.Single();
+            var withdrawalSourceMismatches = zoneTransitionSourceMismatches.Concat(
+                [
+                    rawZoneTransitionDocs with
+                    {
+                        Paragraphs = [new SourceParagraph("Different source prose.", IsCode: false)],
+                    },
+                ]);
+            Assert(
+                withdrawalSourceMismatches.All(docs =>
+                {
+                    var preserved = RepairKnownUnsafeParameter(
+                        ownedZoneFile.Text, ownedZoneFile, ownedZoneOwner, docs);
+                    return !preserved.Repaired && preserved.Text == ownedZoneFile.Text;
+                }) &&
+                !RepairKnownUnsafeParameter(
+                    ownedZoneFile.Text,
+                    ownedZoneFile,
+                    ownedZoneOwner with { Id = ownedZoneOwner.Id + ".Altered" },
+                    unsafeZoneTransitionDocs).Repaired,
+                "Java time withdrawal preserves mismatched source kinds, URLs, full text, parameter names, remarks, and managed members");
+            foreach (var attribute in new[] { "Name", "Type" })
+            {
+                var alteredMember = new XElement(ownedZoneOwner.Member!);
+                alteredMember.Element("Parameters")!.Elements("Parameter").ElementAt(3)
+                    .SetAttributeValue(attribute, "Altered");
+                var preserved = RepairKnownUnsafeParameter(
+                    ownedZoneFile.Text,
+                    ownedZoneFile,
+                    ownedZoneOwner with { Member = alteredMember },
+                    unsafeZoneTransitionDocs);
+                Assert(
+                    !preserved.Repaired && preserved.Text == ownedZoneFile.Text,
+                    "Java time withdrawal preserves mismatched managed parameter metadata");
+                var alteredDocument = XDocument.Parse(previouslyOwnedZoneText);
+                alteredDocument.Root!.Element("Members")!.Element("Member")!
+                    .Element("Parameters")!.Elements("Parameter").ElementAt(3)
+                    .SetAttributeValue(attribute, "Altered");
+                File.WriteAllText(
+                    zoneTransitionPipelinePath,
+                    alteredDocument.ToString(SaveOptions.DisableFormatting),
+                    new UTF8Encoding(false));
+                var alteredBytes = File.ReadAllBytes(zoneTransitionPipelinePath);
+                var alteredRun = RunZoneTransitionPipeline($"zone-altered-parameter-{attribute}");
+                Assert(
+                    alteredRun.ExitCode == 0 &&
+                    alteredRun.Applied == 0 &&
+                    alteredBytes.SequenceEqual(File.ReadAllBytes(zoneTransitionPipelinePath)),
+                    "production withdrawal preserves mismatched managed parameter metadata byte-for-byte");
+            }
+
             var forEachSourcePath = Path.Combine(
                 docsRoot,
                 "Java.Util.Concurrent",
@@ -12035,6 +12486,8 @@ static class ImporterProgram
                 File.Delete(compactForEachPipelinePath);
             if (File.Exists(enumPipelinePath))
                 File.Delete(enumPipelinePath);
+            if (File.Exists(zoneTransitionPipelinePath))
+                File.Delete(zoneTransitionPipelinePath);
             Directory.Delete(tempDirectory, true);
         }
 
@@ -12777,7 +13230,8 @@ static class ImporterProgram
     sealed record KnownJavaExampleRepair(
         string SourceUrl,
         string IncompleteCode,
-        string CorrectCode);
+        string CorrectCode,
+        string? MemberId = null);
     sealed record KnownJavaProseRepair(
         string SourceUrl,
         string IncorrectText,
@@ -12868,13 +13322,13 @@ static class ImporterProgram
         public static JavaProseRepairResult RepairedText(string text) =>
             new(text, true);
     }
-    sealed record UnsafeParameterRepairResult(string Text, bool Repaired)
+    sealed record UnsafeParameterRepairResult(string Text, bool Repaired, string ParameterName)
     {
         public static UnsafeParameterRepairResult NoChange(string text) =>
-            new(text, false);
+            new(text, false, string.Empty);
 
-        public static UnsafeParameterRepairResult RepairedText(string text) =>
-            new(text, true);
+        public static UnsafeParameterRepairResult RepairedText(string text, string parameterName) =>
+            new(text, true, parameterName);
     }
     sealed record SourceReferenceCleanupSkip(string Reason, string Detail)
     {
