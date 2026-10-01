@@ -7800,6 +7800,107 @@ static class ImporterProgram
             paragraph.Text.Contains(
                 "May return null if clients can not bind to the service.", StringComparison.Ordinal)),
             "unfiltered official DeviceAdminService.onBind fixture retains the unsafe sentence before repair");
+        const string memberId = "M:Android.App.Admin.DeviceAdminService.OnBind(Android.Content.Intent)";
+        const string unsafeSentence = "May return null if clients can not bind to the service.";
+        var badParagraph = raw.Paragraphs.Single(paragraph => !paragraph.IsCode &&
+            paragraph.Text.Contains(unsafeSentence, StringComparison.Ordinal));
+        Assert(badParagraph.Text ==
+            "Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.",
+            "the actual parsed OnBind fixture has the complete known source paragraph");
+        var expectedParagraphs = raw.Paragraphs.Select(paragraph =>
+            paragraph == badParagraph
+                ? paragraph with { Text = paragraph.Text.Replace(" " + unsafeSentence, "", StringComparison.Ordinal) }
+                : paragraph).ToList();
+        Assert(expectedParagraphs.Any(paragraph => paragraph.Text.Contains(
+            "may not happen on the main thread", StringComparison.Ordinal)),
+            "the real source also supplies independent retained Binder-thread guidance");
+        var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
+        var original = XElement.Load(Path.Combine(docsRoot, "Android.App.Admin", "DeviceAdminService.xml"));
+        var member = original.Element("Members")!.Elements("Member").Single(element =>
+            (string?)element.Attribute("MemberName") == "OnBind");
+        original.Element("Members")!.ReplaceNodes(new XElement(member));
+        original.Element("Docs")!.ReplaceNodes(
+            new XElement("summary", "Authored type summary."),
+            new XElement("remarks", "Authored type remarks."));
+        member = original.Element("Members")!.Element("Member")!;
+        member.Element("Docs")!.ReplaceNodes(
+            new XElement("param", new XAttribute("name", "intent"), "Authored intent parameter."),
+            new XElement("summary", "Authored OnBind summary."),
+            new XElement("returns", "Authored return documentation."),
+            new XElement("remarks", "To be added."));
+        var path = Path.Combine(docsRoot, "Android.App.Admin",
+            $"DeviceAdminService.onbind-first-fill-self-test-{Environment.ProcessId}.xml");
+        var directory = Path.Combine(Path.GetTempPath(), $"admin-onbind-first-fill-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var cache = Path.Combine(directory, "cache");
+            Directory.CreateDirectory(cache);
+            File.WriteAllText(Path.Combine(cache,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                html, new UTF8Encoding(false));
+            var reportPath = Path.Combine(directory, "report");
+            JsonDocument Run(bool apply)
+            {
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.App.Admin", "--member", memberId,
+                    "--offline", "--cache", cache, "--max-changes", "1", "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "registered raw OnBind first-fill production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "registered raw OnBind first-fill reports no errors");
+                return report;
+            }
+            File.WriteAllText(path, original.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            var before = File.ReadAllBytes(path);
+            var newline = LoadedFile.SelectNewline(Encoding.UTF8.GetString(before));
+            var expectedRemarks = "<remarks>" +
+                string.Concat(expectedParagraphs.Select(paragraph =>
+                    DocumentationElement(paragraph).ToString(SaveOptions.DisableFormatting))) +
+                newline + "    " + ImporterSourceReference(raw).ToString(SaveOptions.DisableFormatting) +
+                newline + "    " + $"<para>{AndroidAttribution}</para>" +
+                newline + "  </remarks>";
+            var expected = Encoding.UTF8.GetString(before).Replace(
+                "<remarks>To be added.</remarks>",
+                expectedRemarks, StringComparison.Ordinal);
+            Assert(expected != Encoding.UTF8.GetString(before) &&
+                !expected.Contains(unsafeSentence, StringComparison.Ordinal),
+                "independent expected OnBind remarks remove only the false sentence and preserve all source paragraphs");
+            using (var dry = Run(false))
+                Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "raw OnBind first-fill dry-run reports one change without writing");
+            using (var first = Run(true))
+                Assert(first.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "raw OnBind first-fill applies exactly one remarks change within its budget");
+            var actualRemarks = XElement.Load(path).Element("Members")!.Element("Member")!
+                .Element("Docs")!.Element("remarks")!;
+            Assert(!actualRemarks.Value.Contains(unsafeSentence, StringComparison.Ordinal) &&
+                actualRemarks.Elements().Take(expectedParagraphs.Count)
+                    .Select(element => element.ToString(SaveOptions.DisableFormatting))
+                    .SequenceEqual(expectedParagraphs.Select(paragraph =>
+                        DocumentationElement(paragraph).ToString(SaveOptions.DisableFormatting))),
+                "actual first-fill removes the false sentence and retains the complete ordered source and thread paragraphs");
+            Assert(File.ReadAllBytes(path).SequenceEqual(Encoding.UTF8.GetBytes(expected)),
+                "actual first-fill preserves every other XML byte, API identity, authored channel, source reference and attribution");
+            var persisted = File.ReadAllBytes(path);
+            using (var repeat = Run(true))
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    persisted.SequenceEqual(File.ReadAllBytes(path)),
+                    "persisted raw OnBind first-fill repeats with zero writes and byte-identical XML");
+            XElement.Load(path);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
     }
 
     static void TestAdminRestrictionRenderedRepair(string repositoryRoot)
