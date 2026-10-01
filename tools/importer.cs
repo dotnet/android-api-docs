@@ -1163,6 +1163,18 @@ static class ImporterProgram
                 .Concat(docs.Parameters.Values));
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
 
+        if (ownerId == "P:Android.Security.KeyStoreException.RetryPolicy" &&
+            docs.SourceUrl.Equals(
+                AndroidReference + "android/security/KeyStoreException#getRetryPolicy()",
+                StringComparison.Ordinal) &&
+            docs.Returns.Equals(
+                "Value is either 0 or a combination of the following: RETRY_NEVER; RETRY_WITH_EXPONENTIAL_BACKOFF; RETRY_WHEN_CONNECTIVITY_AVAILABLE; RETRY_AFTER_NEXT_REBOOT",
+                StringComparison.Ordinal))
+        {
+            targets["value"] =
+                "The exact Android return text describes mutually exclusive retry-policy codes as combinable flags.";
+        }
+
         if (ownerId == "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)" &&
             sourceText.Contains(
                 "solicited (aka active - publish packets are transmitted over-the-air)",
@@ -11485,6 +11497,100 @@ static class ImporterProgram
                 "atomic write preserved CRLF");
             _ = XDocument.Load(tempPath, LoadOptions.PreserveWhitespace);
             Assert(true, "atomic write produced valid XML");
+
+            var retryPolicyFile = LoadedFile.Load(
+                repositoryRoot,
+                Path.Combine(docsRoot, "Android.Security", "KeyStoreException.xml"));
+            retryPolicyFile.SelectOwners("RetryPolicy");
+            var retryPolicyOwner = retryPolicyFile.Owners.Single();
+            var retryPolicyPage = SourcePage.Parse(
+                retryPolicyOwner.SourceRequest!,
+                """
+                <html><body><main id="jd-content">
+                <h2 class="api-section">Public methods</h2>
+                <h3 class="api-name" id="getRetryPolicy()">getRetryPolicy</h3>
+                <p>Returns the re-try policy for transient failures.</p>
+                <table><tr><th colspan="2">Returns</th></tr>
+                <tr><td>int</td><td>Value is either <code>0</code> or a combination of the following:
+                <ul>
+                <li><code>RETRY_NEVER</code></li>
+                <li><code>RETRY_WITH_EXPONENTIAL_BACKOFF</code></li>
+                <li><code>RETRY_WHEN_CONNECTIVITY_AVAILABLE</code></li>
+                <li><code>RETRY_AFTER_NEXT_REBOOT</code></li>
+                </ul></td></tr></table>
+                </main></body></html>
+                """);
+            var retryPolicyMapping = MapOwner(
+                retryPolicyOwner,
+                new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [retryPolicyOwner.SourceRequest!.Url] =
+                        SourceLoadResult.Success(retryPolicyPage),
+                });
+            var unsafeRetryPolicyDocs = retryPolicyMapping.Docs!;
+            const string unsafeRetryPolicyText =
+                "Value is either 0 or a combination of the following: RETRY_NEVER; RETRY_WITH_EXPONENTIAL_BACKOFF; RETRY_WHEN_CONNECTIVITY_AVAILABLE; RETRY_AFTER_NEXT_REBOOT";
+            var retryPolicyValue = new Placeholder(0, "value", "", "value");
+            Assert(
+                retryPolicyOwner.Id == "P:Android.Security.KeyStoreException.RetryPolicy" &&
+                unsafeRetryPolicyDocs.Returns == unsafeRetryPolicyText &&
+                ReplacementFor(retryPolicyValue, unsafeRetryPolicyDocs) is
+                {
+                    Text: null,
+                    Reason: "source_channel_ambiguous",
+                } &&
+                ReplacementFor(
+                    new Placeholder(1, "summary", "", "summary"),
+                    unsafeRetryPolicyDocs).Text ==
+                    "Returns the re-try policy for transient failures." &&
+                ReplacementFor(
+                    new Placeholder(2, "remarks", "", "remarks"),
+                    unsafeRetryPolicyDocs).Remarks is { Count: 1 } &&
+                ReplacementFor(
+                    new Placeholder(3, "returns", "", "returns"),
+                    unsafeRetryPolicyDocs).Text == unsafeRetryPolicyText,
+                "exact RetryPolicy flag wording is rejected only for the value channel");
+            foreach (var (ownerId, sourceDocs) in new[]
+            {
+                ("P:Android.Security.KeyStoreException.OtherPolicy",
+                    unsafeRetryPolicyDocs with { UnsafeTargets = null }),
+                (retryPolicyOwner.Id, unsafeRetryPolicyDocs with
+                {
+                    SourceUrl = AndroidReference + "android/security/KeyStoreException#getOtherPolicy()",
+                    UnsafeTargets = null,
+                }),
+                (retryPolicyOwner.Id, unsafeRetryPolicyDocs with
+                {
+                    Returns = "One retry-policy code.",
+                    UnsafeTargets = null,
+                }),
+            })
+            {
+                Assert(
+                    ReplacementFor(
+                        retryPolicyValue,
+                        WithoutKnownUnsafeAndroidSourceChannels(ownerId, sourceDocs)).Text ==
+                        sourceDocs.Returns,
+                    "RetryPolicy exclusion requires the exact managed member, source URL and source text");
+            }
+            var authoredRetryPolicyDocument = XDocument.Parse(
+                retryPolicyFile.Text,
+                LoadOptions.PreserveWhitespace);
+            var authoredRetryPolicyMember = authoredRetryPolicyDocument.Root!
+                .Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "RetryPolicy");
+            authoredRetryPolicyMember.Element("Docs")!.Element("value")!.Value =
+                "An authored retry-policy description.";
+            var authoredRetryPolicyPath = Path.Combine(tempDirectory, "authored-retry-policy.xml");
+            var authoredRetryPolicyText = authoredRetryPolicyDocument.ToString(SaveOptions.DisableFormatting);
+            File.WriteAllText(authoredRetryPolicyPath, authoredRetryPolicyText, new UTF8Encoding(false));
+            var authoredRetryPolicyFile = LoadedFile.Load(repositoryRoot, authoredRetryPolicyPath);
+            authoredRetryPolicyFile.SelectOwners("RetryPolicy");
+            Assert(
+                authoredRetryPolicyFile.Owners.Single().Placeholders.All(
+                    placeholder => placeholder.Target != "value") &&
+                authoredRetryPolicyFile.Text == authoredRetryPolicyText,
+                "RetryPolicy source exclusion does not select or overwrite authored value documentation");
 
             var unsafePublishDocs = WithoutKnownUnsafeAndroidSourceChannels(
                 "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)",
