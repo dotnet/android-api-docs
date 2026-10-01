@@ -1891,7 +1891,9 @@ static class ImporterProgram
         SourceDocs docs,
         bool isEnumField = false)
     {
-        if (docs.UnsafeTargets?.TryGetValue(placeholder.Target, out var unsafeTargetDetail) == true)
+        var sourceTarget = docs.WithheldRemarks is not null && placeholder.Name == "para"
+            ? "remarks" : placeholder.Target;
+        if (docs.UnsafeTargets?.TryGetValue(sourceTarget, out var unsafeTargetDetail) == true)
             return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
 
         if (docs.HasMalformedSourceMarkup &&
@@ -3743,7 +3745,7 @@ static class ImporterProgram
             actualDocs.Elements("remarks").ToList() is not [XElement remarks])
             return new RemarksRefreshResult(text, "existing_remarks_not_importer_owned",
                 "The exact stale remarks channel could not be located unambiguously.");
-        if (owner.Placeholders.Any(placeholder => placeholder.Target == "remarks"))
+        if (owner.Placeholders.Any(placeholder => placeholder.Name is "remarks" or "para"))
             return new RemarksRefreshResult(text, null, null);
 
         var expected = new XElement("remarks",
@@ -13773,13 +13775,19 @@ static class ImporterProgram
                     return report;
                 }
 
-                void AssertIdempotence()
+                void AssertIdempotence(bool withheld = false)
                 {
                     var before = File.ReadAllBytes(fixturePath);
                     using var report = RunPipeline();
                     Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
                         before.SequenceEqual(File.ReadAllBytes(fixturePath)),
                         "Wi-Fi RTT registered first-fill, repair and authored preservation are byte-idempotent");
+                    if (withheld)
+                        Assert(report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                            !report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                                entry.GetProperty("reason").GetString() == "existing_remarks_not_importer_owned"),
+                            "Wi-Fi RTT withheld direct/paragraph placeholders report the exact unsafe contract, not missing or authored source");
                 }
 
                 WritePage(source.Paragraphs);
@@ -13797,7 +13805,18 @@ static class ImporterProgram
                             entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
                         "Actual registered first-fill withholds stale remarks, reports the gap, and fills safe nullable/builder channels");
                 }
-                AssertIdempotence();
+                AssertIdempotence(withheld: true);
+
+                WriteFixture(new XElement("remarks", new XElement("para", "To be added."),
+                    ImporterSourceReference(source), XElement.Parse($"<para>{AndroidAttribution}</para>")),
+                    firstFill: true);
+                using (var paragraphFirstFill = RunPipeline())
+                    Assert(ReadDocs().Element("remarks")!.Elements("para").First().Value == "To be added." &&
+                        paragraphFirstFill.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("target").GetString() == "para" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                        "Actual registered paragraph first-fill retains metadata and reports the same exact unsafe remarks guard");
+                AssertIdempotence(withheld: true);
 
                 WriteFixture(ownedRemarks);
                 var repairBefore = File.ReadAllBytes(fixturePath);
@@ -13819,7 +13838,7 @@ static class ImporterProgram
                     Assert(XNode.DeepEquals(beforeOtherChannels, after),
                         "Wi-Fi RTT repairs preserve all safe and existing non-placeholder channels");
                 }
-                AssertIdempotence();
+                AssertIdempotence(withheld: true);
 
                 WriteFixture(ownedRemarks);
                 var decoyDocument = XDocument.Load(fixturePath, LoadOptions.PreserveWhitespace);
