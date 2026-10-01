@@ -7471,6 +7471,11 @@ static class ImporterProgram
             "M:Android.App.Admin.DevicePolicyResourcesManager.GetString(System.String,Java.Util.Functions.ISupplier,Java.Lang.Object[])",
             "Calls to this API will not return null unless no updated drawable was found and the call to defaultStringLoader returned null.",
             "Calls to this API will not return null unless no updated string was found and the call to defaultStringLoader returned null."),
+        new(
+            AndroidReference + "android/app/admin/DeviceAdminService#onBind(android.content.Intent)",
+            "M:Android.App.Admin.DeviceAdminService.OnBind(Android.Content.Intent)",
+            "Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.",
+            "Return the communication channel to the service. The returned IBinder is usually for a complex interface that has been described using aidl."),
     ];
 
     static readonly KnownAndroidSummaryRepair[] KnownAndroidSummaryRepairs =
