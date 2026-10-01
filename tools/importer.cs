@@ -1163,6 +1163,26 @@ static class ImporterProgram
                 .Concat(docs.Parameters.Values));
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
 
+        if (ownerId ==
+                "M:Android.Service.Controls.Templates.RangeTemplate.#ctor(System.String,System.Single,System.Single,System.Single,System.Single,System.String)" &&
+            docs.SourceUrl.Equals(
+                AndroidReference + "android/service/controls/templates/RangeTemplate#RangeTemplate(java.lang.String,%20float,%20float,%20float,%20float,%20java.lang.CharSequence)",
+                StringComparison.Ordinal) &&
+            docs.Summary == "Construct a new RangeTemplate." &&
+            docs.Paragraphs.SequenceEqual(
+                [
+                    new SourceParagraph(
+                        "Construct a new RangeTemplate. The range must be valid, meaning: minValue < maxValue; minValue < currentValue; currentValue < maxValue; 0 < stepValue",
+                        false),
+                    new SourceParagraph(
+                        "The current value of the Control will be formatted accordingly.",
+                        false),
+                ]))
+        {
+            targets["remarks"] =
+                "The exact Android constructor remarks assert strict range endpoints; this channel is withheld rather than guessing an inclusive-endpoint correction.";
+        }
+
         if (ownerId == "P:Android.Security.KeyStoreException.RetryPolicy" &&
             docs.SourceUrl.Equals(
                 AndroidReference + "android/security/KeyStoreException#getRetryPolicy()",
@@ -5852,9 +5872,197 @@ static class ImporterProgram
         return Path.GetFullPath(resolved);
     }
 
+    static void TestControlsTemplatesRangeSource(string repositoryRoot)
+    {
+        const string memberId =
+            "M:Android.Service.Controls.Templates.RangeTemplate.#ctor(System.String,System.Single,System.Single,System.Single,System.Single,System.String)";
+        var original = File.ReadAllText(Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Service.Controls.Templates", "RangeTemplate.xml"));
+        var fixture = File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "controls-range-template-android-reference.html"));
+        var directory = Path.Combine(Path.GetTempPath(), "controls-range-importer-" + Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Service.Controls.Templates",
+            "RangeTemplate.importer-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var cache = Path.Combine(directory, "cache");
+            Directory.CreateDirectory(cache);
+            var document = XDocument.Parse(original, LoadOptions.PreserveWhitespace);
+            var member = document.Root!.Element("Members")!.Elements("Member").Single(element =>
+                element.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == memberId));
+            var docs = member.Element("Docs")!;
+            foreach (var element in docs.Elements())
+                element.Value = "To be added.";
+            var firstFill = document.ToString(SaveOptions.DisableFormatting);
+            File.WriteAllText(path, firstFill, new UTF8Encoding(false));
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners(memberId);
+            var owner = loaded.Owners.Single();
+            var request = owner.SourceRequest!;
+            var cachePath = Path.Combine(cache, Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+            var rawDocs = SourcePage.Parse(request, fixture).Members.Single().Docs!;
+            var guarded = WithoutKnownUnsafeAndroidSourceChannels(memberId, rawDocs);
+            Assert(
+                guarded.UnsafeTargets?.ContainsKey("remarks") == true &&
+                guarded.Summary == rawDocs.Summary &&
+                guarded.Parameters.SequenceEqual(rawDocs.Parameters),
+                "exact Controls RangeTemplate source remarks are excluded without changing safe channels: " +
+                    string.Join(" | ", rawDocs.Paragraphs.Select(paragraph => paragraph.Text)));
+
+            JsonElement RunPipeline(string label, string selectedMember = memberId)
+            {
+                var reportPath = Path.Combine(directory, label);
+                var exit = RunAsync(
+                    [
+                        "--path", path,
+                        "--namespace", "Android.Service.Controls.Templates",
+                        "--member", selectedMember,
+                        "--offline", "--cache", cache,
+                        "--max-changes", "10", "--apply",
+                        "--report", reportPath,
+                    ]).GetAwaiter().GetResult();
+                Assert(exit == 0, "Controls RangeTemplate complete offline pipeline succeeds");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Controls RangeTemplate complete pipeline reports no errors");
+                _ = XDocument.Load(path);
+                return report.RootElement.Clone();
+            }
+
+            var firstReport = RunPipeline("first-fill");
+            var applied = File.ReadAllText(path);
+            Assert(
+                firstReport.GetProperty("appliedCount").GetInt32() == 7 &&
+                firstReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("target").GetString() == "remarks" &&
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                !applied.Contains("minValue &lt; currentValue", StringComparison.Ordinal) &&
+                applied.Contains("minimum value for the input", StringComparison.Ordinal),
+                "registered first-fill imports safe RangeTemplate channels and reports the exact withheld remarks");
+            var secondReport = RunPipeline("repeat");
+            Assert(
+                secondReport.GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllText(path) == applied,
+                "Controls RangeTemplate repeated complete import is byte-identical");
+
+            foreach (var modified in new[]
+            {
+                rawDocs with { SourceUrl = rawDocs.SourceUrl + "other" },
+                rawDocs with { Summary = "A different constructor." },
+                rawDocs with { Paragraphs = [new SourceParagraph("Corrected range guidance.", false)] },
+                rawDocs with { Paragraphs = rawDocs.Paragraphs.Concat(
+                    [new SourceParagraph("Additional source guidance.", false)]).ToList() },
+            })
+            {
+                Assert(
+                    WithoutKnownUnsafeAndroidSourceChannels(memberId, modified).UnsafeTargets is null,
+                    "Controls RangeTemplate exclusion requires full original source and canonical URL");
+            }
+            Assert(
+                WithoutKnownUnsafeAndroidSourceChannels(memberId.Replace(
+                    "System.String)", "Java.Lang.ICharSequence)", StringComparison.Ordinal), rawDocs)
+                    .UnsafeTargets is null,
+                "Controls RangeTemplate exclusion requires the exact managed overload");
+
+            foreach (var changedSource in new[]
+            {
+                fixture.Replace("Construct a new", "Create a new", StringComparison.Ordinal),
+                fixture.Replace(
+                    "<code>minValue</code> < <code>currentValue</code>",
+                    "<code>minValue</code> &lt;= <code>currentValue</code>",
+                    StringComparison.Ordinal),
+                fixture.Replace(
+                    "<table><tr><th colspan=\"2\">Parameters",
+                    "<p>Additional source guidance.</p><table><tr><th colspan=\"2\">Parameters",
+                    StringComparison.Ordinal),
+            })
+            {
+                File.WriteAllText(path, firstFill, new UTF8Encoding(false));
+                File.WriteAllText(cachePath, changedSource, new UTF8Encoding(false));
+                var changedReport = RunPipeline("changed-source");
+                Assert(
+                    changedReport.GetProperty("appliedCount").GetInt32() == 8 &&
+                    !changedReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "complete registered import does not suppress changed full source channels");
+            }
+            File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+            const string otherMember =
+                "M:Android.Service.Controls.Templates.RangeTemplate.OtherConstructor(System.String,System.Single,System.Single,System.Single,System.Single,System.String)";
+            File.WriteAllText(path, firstFill.Replace(memberId, otherMember, StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            var otherMemberReport = RunPipeline("other-member", otherMember);
+            Assert(
+                otherMemberReport.GetProperty("appliedCount").GetInt32() == 8,
+                "complete registered import does not extend the exclusion to another managed member");
+
+            var otherUrlText = firstFill.Replace(
+                "android/service/controls/templates/RangeTemplate",
+                "android/service/controls/templates/OtherRangeTemplate",
+                StringComparison.Ordinal);
+            File.WriteAllText(path, otherUrlText, new UTF8Encoding(false));
+            var otherUrlFile = LoadedFile.Load(repositoryRoot, path);
+            otherUrlFile.SelectOwners(memberId);
+            var otherRequest = otherUrlFile.Owners.Single().SourceRequest!;
+            var otherCachePath = Path.Combine(cache, Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(otherRequest.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(otherCachePath, fixture
+                .Replace("id=\"RangeTemplate(", "id=\"OtherRangeTemplate(", StringComparison.Ordinal)
+                .Replace(">RangeTemplate</h3>", ">OtherRangeTemplate</h3>", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            var otherUrlReport = RunPipeline("other-url");
+            Assert(
+                otherUrlReport.GetProperty("appliedCount").GetInt32() == 8 &&
+                !otherUrlReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                "complete registered import requires the canonical source-member URL");
+
+            foreach (var authored in new[]
+            {
+                "<remarks>Authored range contract.</remarks>",
+                "<remarks><para>Authored <c>range</c> contract.</para></remarks>",
+                "<remarks><![CDATA[Authored </remarks> contract.]]></remarks>",
+                "<remarks><!-- retained --><para>Authored range contract.</para></remarks>",
+                "<remarks><?retained instruction?><para>Authored range contract.</para></remarks>",
+                "<remarks data-authored=\"true\">Authored range contract.</remarks>",
+                "<remarks><para><see cref=\"T:Android.Service.Controls.Templates.RangeTemplate\" /></para></remarks>",
+            })
+            {
+                var authoredDocument = XDocument.Parse(firstFill, LoadOptions.PreserveWhitespace);
+                var authoredMember = authoredDocument.Root!.Element("Members")!.Elements("Member").Single(element =>
+                    element.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Value") == memberId));
+                var authoredDocs = authoredMember.Element("Docs")!;
+                foreach (var element in authoredDocs.Elements())
+                    element.Value = "Authored channel.";
+                authoredDocs.Element("remarks")!.ReplaceWith(XElement.Parse(
+                    authored, LoadOptions.PreserveWhitespace));
+                var authoredText = authoredDocument.ToString(SaveOptions.DisableFormatting);
+                File.WriteAllText(path, authoredText, new UTF8Encoding(false));
+                var authoredReport = RunPipeline("authored");
+                Assert(
+                    authoredReport.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllText(path) == authoredText,
+                    "Controls RangeTemplate full pipeline preserves authored/mixed/CDATA/comments/PI/attributes/references and managed metadata");
+            }
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
         TestKnownAndroidTextRepairs();
+        TestControlsTemplatesRangeSource(repositoryRoot);
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
