@@ -239,6 +239,25 @@ static class ImporterProgram
             "returns",
             "Builder this, to faciliate chaining. This value cannot be null.",
             "Builder this, to facilitate chaining. This value cannot be null."),
+        new(
+            "P:Android.Net.Eap.EapSessionConfig.EapAkaConfig.EapAkaOption",
+            new("getEapAkaOption", "()Landroid/net/eap/EapSessionConfig$EapAkaOption;", false),
+            "Android.Net.Eap.EapSessionConfig+EapAkaOption",
+            "public virtual Android.Net.Eap.EapSessionConfig.EapAkaOption EapAkaOption { get; }",
+            [],
+            new(
+                "Retrieves EapAkaOption",
+                [new("Retrieves EapAkaOption", false)],
+                new(StringComparer.Ordinal),
+                "the EapAkaOption This value cannot be null.",
+                new(StringComparer.Ordinal),
+                AndroidReference + "android/net/eap/EapSessionConfig.EapAkaConfig#getEapAkaOption()",
+                "android.net.eap.EapSessionConfig.EapAkaConfig.getEapAkaOption",
+                "android"),
+            "value",
+            "the EapAkaOption This value cannot be null.",
+            null,
+            "Property"),
     ];
 
     static readonly KnownUnsafeIkeChannel[] KnownUnsafeIkeChannels =
@@ -863,10 +882,14 @@ static class ImporterProgram
                             remaining--;
                             report.Entries.Add(ReportEntry.Changed(
                                 "would_apply", file.RelativePath, owner.Id, target, mapping.SourceUrl,
-                                target == "param:reauthId"
-                                    ? "importer_eap_unsafe_parameter_withdrawal"
+                                target is "param:reauthId" or "value"
+                                    ? target == "value"
+                                        ? "importer_eap_unsafe_value_withdrawal"
+                                        : "importer_eap_unsafe_parameter_withdrawal"
                                     : "importer_eap_return_typo_repair",
-                                target == "param:reauthId"
+                                target == "value"
+                                    ? "Withdrew the exact importer-owned getter value because the supported no-options configuration can return null."
+                                    : target == "param:reauthId"
                                     ? "Withdrew the exact importer-owned parameter because the official source confuses a re-authentication ID with the client's EAP identity."
                                     : "Corrected the exact importer-owned EAP builder return typo."));
                         }
@@ -1508,13 +1531,13 @@ static class ImporterProgram
         owner.MemberRegistration == correction.Registration &&
         owner.SourceRequest?.Kind == "android" &&
         owner.SourceRequest.Url == correction.Source.SourceUrl.Split('#')[0] &&
-        owner.Member?.Element("MemberType")?.Value == "Method" &&
+        owner.Member?.Element("MemberType")?.Value == correction.MemberType &&
         owner.Member.Elements("MemberSignature").Where(signature =>
                 (string?)signature.Attribute("Language") == "C#")
             .Select(signature => (string?)signature.Attribute("Value"))
             .SequenceEqual([correction.ManagedSignature]) &&
         owner.Member.Element("ReturnValue")?.Element("ReturnType")?.Value == correction.ReturnType &&
-        owner.Member.Element("Parameters")?.Elements("Parameter")
+        (owner.Member.Element("Parameters")?.Elements("Parameter") ?? [])
             .Select(parameter => ((string?)parameter.Attribute("Name") ?? "",
                 (string?)parameter.Attribute("Type") ?? ""))
             .SequenceEqual(correction.ParameterTypes) == true;
@@ -1535,7 +1558,10 @@ static class ImporterProgram
     static SourceDocs WithKnownEapChannelCorrections(DocsOwner owner, SourceDocs docs)
     {
         var correction = KnownEapChannelCorrections.SingleOrDefault(candidate =>
-            MatchesKnownEapMember(owner, candidate) && MatchesKnownEapSource(docs, candidate.Source));
+            MatchesKnownEapMember(owner, candidate) &&
+            (candidate.Target == "value"
+                ? MatchesKnownEapGetterSource(docs, candidate.Source)
+                : MatchesKnownEapSource(docs, candidate.Source)));
         if (correction is null)
             return docs;
         return correction.CorrectText is null
@@ -1545,16 +1571,29 @@ static class ImporterProgram
                 UnsafeTargets = new Dictionary<string, string>(StringComparer.Ordinal)
                 {
                     [correction.Target] =
-                        "The exact official source misidentifies the re-authentication ID as the client's EAP identity; no safe same-channel prose was available.",
+                        correction.Target == "value"
+                            ? "The exact official getter return incorrectly guarantees non-null options although the supported no-options builder passes null; no replacement prose was inferred."
+                            : "The exact official source misidentifies the re-authentication ID as the client's EAP identity; no safe same-channel prose was available.",
                 },
             }
             : docs with { Returns = correction.CorrectText, EapCorrection = correction };
     }
 
+    static bool MatchesKnownEapGetterSource(SourceDocs actual, SourceDocs expected) =>
+        actual.SourceKind == expected.SourceKind &&
+        actual.SourceUrl == expected.SourceUrl &&
+        actual.SourceLabel == expected.SourceLabel &&
+        actual.Returns == expected.Returns &&
+        actual.Parameters.Count == 0 &&
+        actual.Exceptions.Count == 0 &&
+        actual.UnsafeTargets is null &&
+        !actual.HasMalformedSourceMarkup;
+
     static List<string> KnownEapChannelRepairCandidateTargets(DocsOwner owner) =>
         KnownEapChannelCorrections.Where(correction => correction.MemberId == owner.Id)
             .Where(correction => owner.Docs.Elements(correction.Target.Split(':')[0]).Any(channel =>
-                (correction.Target == "returns" || (string?)channel.Attribute("name") == "reauthId") &&
+                (!correction.Target.StartsWith("param:", StringComparison.Ordinal) ||
+                    (string?)channel.Attribute("name") == "reauthId") &&
                 channel.Value == correction.IncorrectText))
             .Select(correction => correction.Target).ToList();
 
@@ -1566,7 +1605,7 @@ static class ImporterProgram
                 new XAttribute("name", parameter.Name),
                 RemoveLeadingJavaType(source.Parameters[parameter.Name]))),
             new XElement("summary", source.Summary),
-            new XElement("returns", source.Returns),
+            new XElement(correction.MemberType == "Property" ? "value" : "returns", source.Returns),
             new XElement("remarks",
                 source.Paragraphs.Select(DocumentationElement),
                 ImporterSourceReference(source),
@@ -1577,7 +1616,9 @@ static class ImporterProgram
         string text, LoadedFile file, DocsOwner owner, SourceDocs source)
     {
         if (source.EapCorrection is not { } correction ||
-            !MatchesKnownEapMember(owner, correction))
+            !MatchesKnownEapMember(owner, correction) ||
+            (correction.Target == "value" &&
+                !MatchesKnownEapSource(source with { UnsafeTargets = null }, correction.Source)))
             return new(text, []);
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
@@ -1592,7 +1633,8 @@ static class ImporterProgram
             actual.Element("remarks")!.Elements("para").First().Value != correction.Source.Paragraphs[0].Text)
             return new(text, []);
         var target = actual.Elements(correction.Target.Split(':')[0]).Single(channel =>
-            correction.Target == "returns" || (string?)channel.Attribute("name") == "reauthId");
+            !correction.Target.StartsWith("param:", StringComparison.Ordinal) ||
+                (string?)channel.Attribute("name") == "reauthId");
         if (!TryGetElementSpan(blockText, target, out var span))
             return new(text, []);
         var replacement = new XElement(target.Name, target.Attributes(), correction.CorrectText ?? "To be added.")
@@ -7498,6 +7540,7 @@ static class ImporterProgram
     {
         TestKnownAndroidTextRepairs();
         TestKnownEapChannelCorrections(repositoryRoot);
+        TestKnownEapOptionalGetter(repositoryRoot);
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
@@ -14326,6 +14369,252 @@ static class ImporterProgram
         return 0;
     }
 
+    static void TestKnownEapOptionalGetter(string repositoryRoot)
+    {
+        var correction = KnownEapChannelCorrections.Single(item => item.Target == "value");
+        var fixtures = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
+        var html = File.ReadAllText(Path.Combine(fixtures, "eap-aka-config-android-reference.html"));
+        var audit = File.ReadAllText(Path.Combine(fixtures, "eap-aka-no-options-implementation.txt"));
+        foreach (var step in new[]
+        {
+            "c893964d0504d12cf17918961c4d5eab685a1d6c",
+            "public Builder setEapAkaConfig(int subId, @UiccAppType int apptype)",
+            "setEapAkaConfig(subId, apptype, null);",
+            "new EapAkaConfig(subId, apptype, options)",
+            "this(EAP_TYPE_AKA, subId, apptype, options);",
+            "mEapAkaOption = options;",
+            "public EapAkaOption getEapAkaOption()",
+            "return mEapAkaOption;",
+            "if (akaConfig.getEapAkaOption() != null",
+        })
+            Assert(audit.Contains(step, StringComparison.Ordinal),
+                "pinned no-options implementation audit fixture retains the supported null propagation chain");
+
+        var directory = Path.Combine(Path.GetTempPath(), $"eap-getter-self-test-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Net.Eap",
+            $"Eap.getter-self-test-{Environment.ProcessId}.xml");
+        var originalOutput = Console.Out;
+        using var output = new StringWriter();
+        try
+        {
+            Console.SetOut(output);
+            var original = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Android.Net.Eap",
+                "EapSessionConfig+EapAkaConfig.xml"));
+            var member = original.Element("Members")!.Elements("Member").Single(element =>
+                (string?)element.Attribute("MemberName") == "EapAkaOption");
+            original.Element("Members")!.ReplaceNodes(new XElement(member));
+            original.Element("Docs")!.ReplaceNodes(
+                new XElement("summary", "Authored type summary."),
+                new XElement("remarks", "Authored type remarks."));
+            member = original.Element("Members")!.Element("Member")!;
+            var request = SourceRequest.Create("android/net/eap/EapSessionConfig$EapAkaConfig")!;
+            var raw = SourcePage.Parse(request, html).Members.Single().Docs!;
+            Assert(MatchesKnownEapSource(raw, correction.Source) &&
+                raw.Returns == correction.IncorrectText,
+                "unfiltered parsed getter source positively matches the complete original contract");
+            member.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                new XElement("summary", raw.Summary),
+                new XElement("value", raw.Returns),
+                new XElement("remarks", raw.Paragraphs.Select(DocumentationElement),
+                    ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>"))));
+            Assert(ImporterMarkupEquals(member.Element("Docs")!, KnownEapPriorDocs(correction)),
+                "prior-owned getter seed comes from raw UNFILTERED parsed source, not guard-filtered output");
+            var cache = Path.Combine(directory, "cache");
+            Directory.CreateDirectory(cache);
+            string CachePath(string url) => Path.Combine(cache,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(url))).ToLowerInvariant() + ".html");
+            var reportPath = Path.Combine(directory, "report");
+
+            JsonDocument Run(int budget, bool apply = true)
+            {
+                var args = new List<string>
+                {
+                    "--path", pipelinePath, "--namespace", "Android.Net.Eap",
+                    "--offline", "--cache", cache, "--max-changes", budget.ToString(),
+                    "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                var result = RunAsync(args.ToArray()).GetAwaiter().GetResult();
+                Assert(result == 0,
+                    "registered optional getter production pipeline succeeds: " +
+                    (result == 0 ? "" : File.ReadAllText(reportPath + ".json")));
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "registered optional getter has no errors");
+                return report;
+            }
+            void Seed(XElement root, string sourceHtml)
+            {
+                File.WriteAllText(pipelinePath, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                File.WriteAllText(CachePath(request.Url), sourceHtml, new UTF8Encoding(false));
+            }
+            XElement Docs() => XElement.Load(pipelinePath).Element("Members")!.Element("Member")!.Element("Docs")!;
+            void AssertPersistedRepeat()
+            {
+                var bytes = File.ReadAllBytes(pipelinePath);
+                using var repeat = Run(1);
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    bytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                    "persisted optional getter repeat has zero writes and identical bytes");
+            }
+            void AssertNoEdit(XElement root, string sourceHtml)
+            {
+                Seed(root, sourceHtml);
+                var bytes = File.ReadAllBytes(pipelinePath);
+                using var report = Run(1);
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    bytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                    "one-condition getter negative preserves all persisted bytes: " +
+                    report.RootElement.GetRawText());
+            }
+
+            var firstFill = new XElement(original);
+            foreach (var channel in firstFill.Element("Members")!.Element("Member")!.Element("Docs")!.Elements())
+                channel.ReplaceNodes("To be added.");
+            foreach (var unsafeHtml in new[]
+            {
+                html,
+                html.Replace("Retrieves EapAkaOption", "Retrieves optional configuration", StringComparison.Ordinal),
+                html.Replace("<table>", "<p>Additional safe details.</p><table>", StringComparison.Ordinal),
+            })
+            {
+                Seed(firstFill, unsafeHtml);
+                using var fill = Run(10);
+                Assert(fill.RootElement.GetProperty("appliedCount").GetInt32() == 2 &&
+                    Docs().Element("value")!.Value == "To be added." &&
+                    fill.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("target").GetString() == "value" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "registered FIRST-FILL withholds only unsafe getter value despite unrelated safe source edits");
+                AssertPersistedRepeat();
+            }
+            Seed(original, html);
+            var before = File.ReadAllBytes(pipelinePath);
+            using (var dry = Run(1, apply: false))
+                Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                    before.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                    "one-channel withdrawal dry-run never writes");
+            using (var repair = Run(1))
+                Assert(repair.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    Docs().Element("value")!.Value == "To be added." &&
+                    repair.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "importer_eap_unsafe_value_withdrawal"),
+                    "registered strict prior-owned getter withdrawal fits max-changes ONE");
+            var expected = new XElement(original);
+            expected.Element("Members")!.Element("Member")!.Element("Docs")!.Element("value")!.Value = "To be added.";
+            Assert(XNode.DeepEquals(XElement.Load(pipelinePath), expected),
+                "actual withdrawal preserves every other Docs channel, provenance, and API metadata");
+            AssertPersistedRepeat();
+
+            foreach (var mutation in new Action<XElement>[]
+            {
+                docs => docs.Element("value")!.Value += " Authored.",
+                docs => docs.Element("value")!.ReplaceNodes(new XCData(raw.Returns)),
+                docs => docs.Element("value")!.Add(new XComment("keep")),
+                docs => docs.Element("value")!.Add(new XProcessingInstruction("keep", "authored")),
+                docs => docs.Element("value")!.ReplaceNodes(new XElement("c", raw.Returns)),
+                docs => docs.Element("value")!.SetAttributeValue("authored", "keep"),
+                docs => docs.Add(new XElement(docs.Element("value")!)),
+                docs => docs.SetAttributeValue("authored", "keep"),
+                docs => docs.Add(new XComment("keep")),
+                docs => docs.Add(new XProcessingInstruction("keep", "authored")),
+                docs => docs.Element("summary")!.Value += " Authored.",
+                docs => docs.Element("summary")!.ReplaceNodes(new XCData(raw.Summary)),
+                docs => docs.Element("remarks")!.Elements("para").First().Add(new XComment("keep")),
+                docs => docs.Element("remarks")!.Add(new XElement("para", "Authored.")),
+                docs => docs.Element("remarks")!.Descendants("a").First().SetAttributeValue("href", request.Url + "#other"),
+                docs => docs.Element("remarks")!.Descendants("code").First().Value += ".Other",
+                docs => docs.Element("remarks")!.Elements("para").Last().Add(new XComment("keep")),
+                docs => docs.Element("remarks")!.Descendants("a").Last().SetAttributeValue("href", "https://example.invalid"),
+            })
+            {
+                var altered = new XElement(original);
+                mutation(altered.Element("Members")!.Element("Member")!.Element("Docs")!);
+                AssertNoEdit(altered, html);
+            }
+            foreach (var mutation in new Action<XElement>[]
+            {
+                item => item.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object",
+                item => item.Element("MemberType")!.Value = "Method",
+                item => item.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public object Other { get; }"),
+                item => item.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", correction.MemberId + ".Other"),
+                item => item.Add(new XElement("Parameters", new XElement("Parameter",
+                    new XAttribute("Name", "other"), new XAttribute("Type", "System.Int32")))),
+                item => item.Element("Attributes")!.Descendants("AttributeName").First(attribute =>
+                    attribute.Value.Contains("Android.Runtime.Register", StringComparison.Ordinal)).Value =
+                    "[get: Android.Runtime.Register(\"other\", \"()Landroid/net/eap/EapSessionConfig$EapAkaOption;\", \"\")]",
+                item => item.Element("Attributes")!.Descendants("AttributeName").First(attribute =>
+                    attribute.Value.Contains("Android.Runtime.Register", StringComparison.Ordinal)).Value =
+                    "[get: Android.Runtime.Register(\"getEapAkaOption\", \"(I)Landroid/net/eap/EapSessionConfig$EapAkaOption;\", \"\")]",
+            })
+            {
+                var altered = new XElement(original);
+                mutation(altered.Element("Members")!.Element("Member")!);
+                AssertNoEdit(altered, html);
+            }
+            foreach (var changedHtml in new[]
+            {
+                html.Replace("Retrieves EapAkaOption", "Changed safe summary", StringComparison.Ordinal),
+                html.Replace("<table>", "<p>Additional safe details.</p><table>", StringComparison.Ordinal),
+                html.Replace(">getEapAkaOption</h3>", ">other</h3>", StringComparison.Ordinal),
+                html.Replace("This value cannot be", "This value may be", StringComparison.Ordinal),
+                html.Replace("This value cannot be <code>null</code>.", "", StringComparison.Ordinal),
+            })
+                AssertNoEdit(original, changedHtml);
+
+            var loaded = LoadedFile.Load(repositoryRoot, pipelinePath);
+            loaded.SelectOwners(correction.MemberId);
+            var owner = loaded.Owners.Single(item => item.Id == correction.MemberId);
+            Assert(WithKnownEapChannelCorrections(owner, raw).UnsafeTargets?.ContainsKey("value") == true,
+                "raw positive source enters the registered value guard");
+            foreach (var altered in new[]
+            {
+                raw with { SourceKind = "java" },
+                raw with { SourceUrl = raw.SourceUrl + "other" },
+                raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                raw with { Returns = raw.Returns + " Changed." },
+                raw with { Parameters = new Dictionary<string, string> { ["other"] = "Other parameter." } },
+                raw with { Exceptions = new Dictionary<string, string> { ["Exception"] = "Other exception." } },
+                raw with { HasMalformedSourceMarkup = true },
+            })
+                Assert(WithKnownEapChannelCorrections(owner, altered).EapCorrection is null,
+                    "fresh independent one-condition raw source negative cannot enter the guard");
+
+            var otherOwner = new XElement(original);
+            foreach (var attribute in otherOwner.Element("Attributes")!.Descendants("AttributeName"))
+                attribute.Value = attribute.Value.Replace("EapAkaConfig", "OtherConfig", StringComparison.Ordinal);
+            File.WriteAllText(CachePath(request.Url.Replace("EapAkaConfig", "OtherConfig", StringComparison.Ordinal)), html);
+            AssertNoEdit(otherOwner, html);
+
+            foreach (var correctedHtml in new[]
+            {
+                html.Replace("This value cannot be <code>null</code>.", "This value may be <code>null</code>.", StringComparison.Ordinal),
+                html.Replace("This value cannot be <code>null</code>.", "", StringComparison.Ordinal),
+            })
+            {
+                Seed(firstFill, correctedHtml);
+                using var fill = Run(10);
+                Assert(fill.RootElement.GetProperty("appliedCount").GetInt32() == 3 &&
+                    Docs().Element("value")!.Value != "To be added." &&
+                    !Docs().Element("value")!.Value.Contains("cannot be null", StringComparison.Ordinal),
+                    "future corrected or removed false guarantee remains eligible for registered FIRST-FILL");
+                AssertPersistedRepeat();
+            }
+        }
+        finally
+        {
+            Console.SetOut(originalOutput);
+            if (File.Exists(pipelinePath))
+                File.Delete(pipelinePath);
+            Directory.Delete(directory, recursive: true);
+        }
+        Console.WriteLine("SELF-TEST PASS: optional EAP getter registered FIRST-FILL, one-budget withdrawal, persisted byte repeats, corrected-source eligibility, independent negatives, and pinned no-options implementation audit (not Java runtime execution).");
+    }
+
     static void TestKnownEapChannelCorrections(string repositoryRoot)
     {
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
@@ -14338,7 +14627,7 @@ static class ImporterProgram
         try
         {
             Console.SetOut(output);
-            foreach (var correction in KnownEapChannelCorrections)
+            foreach (var correction in KnownEapChannelCorrections.Where(correction => correction.MemberType == "Method"))
             {
                 var isParameter = correction.Target.StartsWith("param:", StringComparison.Ordinal);
                 var fileName = isParameter ? "EapAkaInfo+Builder.xml" : "EapSessionConfig+Builder.xml";
@@ -15373,7 +15662,8 @@ static class ImporterProgram
         SourceDocs Source,
         string Target,
         string IncorrectText,
-        string? CorrectText);
+        string? CorrectText,
+        string MemberType = "Method");
     sealed record KnownUnsafeIkeChannel(
         string MemberId, string SourceUrl, string Target, string IncorrectText, string Detail);
     sealed record KnownAndroidProseRepair(
