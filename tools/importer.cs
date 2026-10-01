@@ -1756,6 +1756,7 @@ static class ImporterProgram
             : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
         targets["summary"] =
             "The exact Android anniversary field prose says 'and anniversary'; no replacement wording was guessed.";
+        targets["remarks"] = targets["summary"];
         return docs with { UnsafeTargets = targets };
     }
 
@@ -3396,7 +3397,8 @@ static class ImporterProgram
         bool addMetadataForChannelOnlyMember = false)
     {
         cleanupSkip = null;
-        if (docs.WithheldRemarks is not null)
+        if (docs.WithheldRemarks is not null ||
+            owner.IsEnumField && docs.UnsafeTargets?.ContainsKey("summary") == true)
             return text;
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
@@ -6731,7 +6733,8 @@ static class ImporterProgram
         SourceDocs docs,
         bool allowCreation)
     {
-        if (!TryParseDocsBlock(blockText, out var document) ||
+        if (docs.UnsafeTargets?.ContainsKey("summary") == true ||
+            !TryParseDocsBlock(blockText, out var document) ||
             document.Element("summary") is not XElement summaryElement ||
             !TryGetElementSpan(blockText, summaryElement, out var summarySpan) ||
             !TryGetDirectTextElementContentSpan(
@@ -15522,7 +15525,7 @@ static class ImporterProgram
                     raw.Summary == original &&
                     raw.Paragraphs is [{ IsCode: false, Text: original }] &&
                     WithoutKnownMalformedConversationAnniversary(owner, registration, raw)
-                        .UnsafeTargets?.ContainsKey("summary") == true,
+                        .UnsafeTargets?.Keys.SequenceEqual(["summary", "remarks"]) == true,
                 "raw complete anniversary source and actual enum/JniField metadata positively seed the exact exclusion");
             foreach (var source in new[]
             {
@@ -15568,6 +15571,85 @@ static class ImporterProgram
                 ]).GetAwaiter().GetResult();
             XElement Member(XDocument document, string name) => document.Root!.Element("Members")!
                 .Elements("Member").Single(member => (string?)member.Attribute("MemberName") == name);
+            foreach (var placeholderMarkup in new[] { "To be added.", "<para />" })
+            {
+                var variant = new XDocument(fixture);
+                Member(variant, "Anniversary").Element("Docs")!.Add(
+                    XElement.Parse(
+                        "<remarks>" + placeholderMarkup + ImporterSourceReference(raw) +
+                        $"<para>{AndroidAttribution}</para></remarks>",
+                        LoadOptions.PreserveWhitespace));
+                File.WriteAllText(path, variant.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var augmentedFile = LoadedFile.Load(repositoryRoot, path);
+                augmentedFile.SelectOwners(null);
+                var augmentedOwner = augmentedFile.Owners.Single(candidate => candidate.Id == memberId);
+                Assert(
+                    augmentedOwner.IsEnumField &&
+                        augmentedOwner.MemberRegistration == registration &&
+                        Registration.JniField(augmentedOwner.Member!) == Registration.JniField(owner.Member!) &&
+                        augmentedOwner.Placeholders.Any(placeholder =>
+                            placeholder.Name == "summary" && !placeholder.IsImporterMetadataRepair) &&
+                        augmentedOwner.Placeholders.Any(placeholder =>
+                            placeholder.Name == "remarks" && placeholder.IsImporterMetadataRepair) &&
+                        raw.Summary == original &&
+                        raw.Paragraphs is [{ IsCode: false, Text: original }],
+                    "unfiltered augmented anniversary variants retain actual enum/JNI metadata, raw defective source and both production placeholders");
+                var label = placeholderMarkup == "To be added."
+                    ? "people-anniversary-augmented-direct"
+                    : "people-anniversary-augmented-empty";
+                Assert(Apply(label) == 0, "augmented anniversary production first fill succeeds");
+                var savedBytes = File.ReadAllBytes(path);
+                var saved = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+                Assert(
+                    XNode.DeepEquals(Member(saved, "Anniversary"), Member(variant, "Anniversary")) &&
+                        Member(saved, "Audio").Element("Docs")!.Element("summary")!
+                            .Elements("para").First().Value == audio,
+                    "augmented anniversary stays unchanged and only safe Audio consumes the max-one budget");
+                using (var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(tempDirectory, label + ".json"))))
+                    Assert(
+                        report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                            report.RootElement.GetProperty("filesChanged").GetInt32() == 1 &&
+                            report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("entries").EnumerateArray().Count(entry =>
+                                entry.GetProperty("member").GetString() == memberId &&
+                                entry.GetProperty("reason").GetString() == "source_channel_ambiguous") == 2 &&
+                            report.RootElement.GetProperty("entries").EnumerateArray()
+                                .Where(entry => entry.GetProperty("status").GetString() == "applied")
+                                .All(entry => entry.GetProperty("member").GetString() ==
+                                    "F:Android.App.People.ConversationActivity.Audio"),
+                        "augmented anniversary reports both excluded channels and exactly one persisted safe sibling fill");
+                var restored = new XDocument(saved);
+                Member(restored, "Audio").Element("Docs")!.ReplaceWith(
+                    new XElement(Member(variant, "Audio").Element("Docs")!));
+                Assert(XNode.DeepEquals(restored, variant),
+                    "augmented first fill preserves the entire unfiltered fixture, reference, attribution and API metadata");
+                Assert(Apply(label + "-repeat") == 0 && File.ReadAllBytes(path).SequenceEqual(savedBytes),
+                    "augmented anniversary saved repeat is byte-identical and cannot enrich its placeholder summary");
+                using (var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(tempDirectory, label + "-repeat.json"))))
+                    Assert(
+                        report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "augmented anniversary repeat explicitly reports zero edits, files and errors");
+                File.WriteAllText(cachePath, html.Replace(original, corrected, StringComparison.Ordinal), new UTF8Encoding(false));
+                Assert(Apply(label + "-corrected") == 0 &&
+                    Member(XDocument.Load(path), "Anniversary").Element("Docs")!.Element("summary")!.Value == corrected,
+                    "corrected official source can fill the still-direct augmented anniversary summary with max one");
+                using (var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(tempDirectory, label + "-corrected.json"))))
+                    Assert(
+                        report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                            report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("entries").EnumerateArray()
+                                .Single(entry => entry.GetProperty("status").GetString() == "applied")
+                                .GetProperty("target").GetString() == "summary",
+                        "corrected augmented anniversary source consumes exactly one summary fill without guessing remarks");
+                File.WriteAllBytes(path, savedBytes);
+                File.WriteAllText(cachePath, html.Replace($"<p>{original}</p>", "", StringComparison.Ordinal), new UTF8Encoding(false));
+                Assert(Apply(label + "-removed") == 0 && File.ReadAllBytes(path).SequenceEqual(savedBytes),
+                    "removed official source preserves the augmented anniversary fixture without inferred prose");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            }
+            File.WriteAllText(path, fixture.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
             Assert(Apply("people-anniversary-first") == 0, "unfiltered registered anniversary first-fill pipeline succeeds");
             var appliedBytes = File.ReadAllBytes(path);
             var applied = XDocument.Load(path, LoadOptions.PreserveWhitespace);
@@ -15619,12 +15701,20 @@ static class ImporterProgram
                 $"<summary><para>{original}</para>{ImporterSourceReference(raw)}<para>{AndroidAttribution}</para></summary>",
             })
             {
-                Member(applied, "Anniversary").Element("Docs")!.ReplaceWith(
-                    XElement.Parse("<Docs>" + markup + "</Docs>", LoadOptions.PreserveWhitespace));
-                File.WriteAllText(path, applied.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
-                var before = File.ReadAllBytes(path);
-                Assert(Apply("people-anniversary-authored") == 0 && File.ReadAllBytes(path).SequenceEqual(before),
-                    "anniversary exclusion does not repair existing prose, authored/mixed/CDATA/comment/PI/duplicate/attribution markup");
+                foreach (var remarksMarkup in new[]
+                {
+                    "",
+                    "<remarks>To be added." + ImporterSourceReference(raw) + $"<para>{AndroidAttribution}</para></remarks>",
+                    "<remarks><para />" + ImporterSourceReference(raw) + $"<para>{AndroidAttribution}</para></remarks>",
+                })
+                {
+                    Member(applied, "Anniversary").Element("Docs")!.ReplaceWith(
+                        XElement.Parse("<Docs>" + markup + remarksMarkup + "</Docs>", LoadOptions.PreserveWhitespace));
+                    File.WriteAllText(path, applied.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                    var before = File.ReadAllBytes(path);
+                    Assert(Apply("people-anniversary-authored") == 0 && File.ReadAllBytes(path).SequenceEqual(before),
+                        "anniversary exclusion preserves existing prose, authored/mixed/CDATA/comment/PI/duplicate/attribution markup and augmented remarks");
+                }
             }
         }
         finally
