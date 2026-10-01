@@ -104,6 +104,16 @@ static class ImporterProgram
             "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MNC and MCC, and thus consists of 5 or 6 decimal digits. This value cannot be null.",
             "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MCC and MNC, and thus consists of 5 or 6 decimal digits. This value cannot be null."),
     ];
+    static readonly KnownAndroidProseRepair[] KnownAndroidProseRepairs =
+    [
+        new(
+            AndroidReference + "android/adservices/measurement/DeletionRequest.Builder#setDeletionMode(int)",
+            "M:Android.AdServices.Measurement.DeletionRequest.Builder.SetDeletionMode(Android.AdServices.Measurement.DeletionRequestDeletionMode)",
+            "Set the match behavior for the supplied params.",
+            "Set the deletion mode for the supplied params.",
+            "Set the match behavior for the supplied params. DeletionRequest.DELETION_MODE_ALL: All data associated with the selected records will be deleted. DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA: All data except the internal system data (e.g. rate limits) associated with the selected records will be deleted.",
+            "Set the deletion mode for the supplied params. DeletionRequest.DELETION_MODE_ALL: All data associated with the selected records will be deleted. DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA: All data except the internal system data (e.g. rate limits) associated with the selected records will be deleted."),
+    ];
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -476,6 +486,48 @@ static class ImporterProgram
                                 mapping.SourceUrl,
                                 "importer_known_android_parameter_repair",
                                 "Corrected an exact importer-generated Android parameter description using Android API documentation."));
+                        }
+                    }
+
+                    var androidProseRepair = RepairKnownAndroidProse(
+                        text,
+                        file,
+                        owner,
+                        mapping.Docs!);
+                    if (androidProseRepair.Repaired)
+                    {
+                        if (remaining < 2)
+                        {
+                            RestoreOffsetsAfterSkippedRepair(file, owner, text);
+                            foreach (var target in new[] { "summary", "remarks" })
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                        }
+                        else
+                        {
+                            text = androidProseRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining -= 2;
+                            foreach (var target in new[] { "summary", "remarks" })
+                            {
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    mapping.SourceUrl,
+                                    "importer_known_android_prose_repair",
+                                    "Corrected an exact importer-generated Android source typo that confuses deletion mode with match behavior."));
+                            }
                         }
                     }
 
@@ -1324,6 +1376,11 @@ static class ImporterProgram
             targets.Add("value");
         if (HasKnownIncorrectBooleanReturnRepairCandidate(file, owner))
             targets.Add("returns");
+        if (HasKnownAndroidProseRepairCandidate(file, owner))
+        {
+            targets.Add("summary");
+            targets.Add("remarks");
+        }
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
             HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
@@ -1357,7 +1414,8 @@ static class ImporterProgram
         HasIncompleteCodeExampleRemarks(file, owner) ||
         HasMetadataOnlyRemarks(file, owner) ||
         HasCopiedDescriptionRepairCandidate(file, owner) ||
-        HasKnownIncorrectBooleanReturnRepairCandidate(file, owner);
+        HasKnownIncorrectBooleanReturnRepairCandidate(file, owner) ||
+        HasKnownAndroidProseRepairCandidate(file, owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
         LoadedFile file,
@@ -1566,9 +1624,16 @@ static class ImporterProgram
                 : IsMeaningfulChannel(paragraph.Text, "remarks") ||
                   (index + 1 < cleaned.Count &&
                    cleaned[index + 1].IsCode &&
-                   IsExplanatoryJavaCodeLeadIn(paragraph.Text)))
+                   !string.IsNullOrWhiteSpace(cleaned[index + 1].Text) &&
+                   (IsExplanatoryJavaCodeLeadIn(paragraph.Text) ||
+                    IsCddlCodeLeadIn(paragraph.Text))))
             .ToList();
     }
+
+    static bool IsCddlCodeLeadIn(string text) =>
+        NormalizeText(text).EndsWith(
+            "CBOR with the following CDDL:",
+            StringComparison.Ordinal);
 
     static bool IsExplanatoryJavaCodeLeadIn(string text) =>
         Regex.IsMatch(
@@ -3194,6 +3259,99 @@ static class ImporterProgram
             parameter.Attributes().Count() != 1 ||
             !HasPlainTextContent(parameter, out var parameterText) ||
             !parameterText.Equals(repair.IncorrectText, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return repair;
+    }
+
+    static bool HasKnownAndroidProseRepairCandidate(LoadedFile file, DocsOwner owner)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        return TryParseDocsBlock(file.Text[block.Start..block.End], out var docs) &&
+            FindKnownAndroidProseRepair(owner.Id, docs, null) is not null;
+    }
+
+    static AndroidProseRepairResult RepairKnownAndroidProse(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs) ||
+            FindKnownAndroidProseRepair(owner.Id, actualDocs, sourceDocs) is not { } repair ||
+            actualDocs.Element("summary") is not XElement summary ||
+            actualDocs.Element("remarks")?.Elements("para").FirstOrDefault() is not XElement paragraph ||
+            !TryGetElementSpan(blockText, summary, out var summaryElementSpan) ||
+            !TryGetElementSpan(blockText, paragraph, out var paragraphElementSpan) ||
+            !TryGetDirectTextElementContentSpan(blockText, summaryElementSpan, out var summarySpan) ||
+            !TryGetDirectTextElementContentSpan(blockText, paragraphElementSpan, out var paragraphSpan))
+        {
+            return AndroidProseRepairResult.NoChange(text);
+        }
+
+        var edits = new[]
+        {
+            new XmlSpanEdit(summarySpan, XmlEscape(repair.CorrectSummary)),
+            new XmlSpanEdit(paragraphSpan, XmlEscape(repair.CorrectRemarks)),
+        };
+        foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
+        {
+            blockText = blockText[..edit.Span.Start] + edit.Replacement +
+                blockText[edit.Span.End..];
+        }
+        return AndroidProseRepairResult.RepairedText(
+            text[..block.Start] + blockText + text[block.End..]);
+    }
+
+    static KnownAndroidProseRepair? FindKnownAndroidProseRepair(
+        string memberId,
+        XElement docs,
+        SourceDocs? sourceDocs)
+    {
+        var sourceUrls = docs
+            .Descendants("para")
+            .Select(paragraph => TryGetImporterSourceReferenceUrl(paragraph, out var sourceUrl)
+                ? sourceUrl
+                : null)
+            .Where(sourceUrl => sourceUrl is not null)
+            .Cast<string>()
+            .ToList();
+        if (sourceUrls.Count != 1 ||
+            docs.Element("summary") is not XElement summary ||
+            summary.HasAttributes ||
+            !HasPlainTextContent(summary, out var summaryText) ||
+            docs.Element("remarks") is not XElement remarks ||
+            remarks.HasAttributes ||
+            remarks.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText text => !string.IsNullOrWhiteSpace(text.Value),
+                _ => true,
+            }) ||
+            remarks.Elements().ToList() is not [XElement paragraph, XElement sourceReference, XElement attribution] ||
+            paragraph.Name != "para" ||
+            paragraph.HasAttributes ||
+            !HasPlainTextContent(paragraph, out var paragraphText) ||
+            !IsCanonicalImporterSourceReferenceParagraph(sourceReference) ||
+            !IsImporterAttributionParagraph(attribution))
+        {
+            return null;
+        }
+
+        var repair = KnownAndroidProseRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(memberId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(sourceUrls[0], StringComparison.Ordinal));
+        if (repair is null ||
+            !summaryText.Equals(repair.IncorrectSummary, StringComparison.Ordinal) ||
+            !paragraphText.Equals(repair.IncorrectRemarks, StringComparison.Ordinal) ||
+            (sourceDocs is not null &&
+                (!sourceDocs.SourceUrl.Equals(repair.SourceUrl, StringComparison.Ordinal) ||
+                 !HasExactImporterSourceReference(docs, sourceDocs))))
         {
             return null;
         }
@@ -6658,6 +6816,76 @@ static class ImporterProgram
                 nestedExampleDocs.Paragraphs[1],
                 "  ") == "  <code lang=\"text/java\">widget.setTitle(title);</code>",
             "code examples render as ECMA code blocks");
+        const string cddlLeadIn =
+            "If the implementation is feature version 202101 or later, " +
+            "each X.509 certificate contains an X.509 extension at OID 1.3.6.1.4.1.11129.2.1.26 which " +
+            "contains a DER encoded OCTET STRING with the bytes of the CBOR with the following CDDL:";
+        var cddlParagraphs = SourcePage.ExtractParagraphs(
+            "<p>" + cddlLeadIn +
+            "<div></div><devsite-code><pre>ProofOfBinding = [\"ProofOfBinding\", bstr]</pre></devsite-code>" +
+            "<p>This CBOR binds the issuer data to the credential.</p>");
+        Assert(
+            cddlParagraphs.SequenceEqual(
+                [
+                    new SourceParagraph(cddlLeadIn, IsCode: false),
+                    new SourceParagraph("ProofOfBinding = [\"ProofOfBinding\", bstr]", IsCode: true),
+                    new SourceParagraph("This CBOR binds the issuer data to the credential.", IsCode: false),
+                ]) &&
+                UsableRemarks(cddlParagraphs).SequenceEqual(cddlParagraphs),
+            "Android CDDL code lead-ins retain their certificate metadata and trailing colon");
+        var siblingCddlParagraphs = SourcePage.ExtractParagraphs(
+            "<p>" + cddlLeadIn + "</p>" +
+            "<pre>ProofOfBinding = [\"ProofOfBinding\", bstr]</pre>" +
+            "<p>This CBOR binds the issuer data to the credential.</p>");
+        Assert(
+            siblingCddlParagraphs.SequenceEqual(cddlParagraphs) &&
+                UsableRemarks(siblingCddlParagraphs).SequenceEqual(cddlParagraphs),
+            "Android CDDL lead-ins precede sibling code blocks in source order");
+        Assert(
+            SourcePage.ExtractParagraphs("<p>" + cddlLeadIn + "</p>").Count == 0 &&
+                SourcePage.ExtractParagraphs(
+                    "<p>" + cddlLeadIn + "<pre> </pre></p>").Count == 0 &&
+                SourcePage.ExtractParagraphs(
+                    "<p>" + cddlLeadIn + "<p>Separate prose.</p><pre>schema = bstr</pre>")
+                    .All(paragraph => paragraph.Text != cddlLeadIn) &&
+                UsableRemarks([new SourceParagraph(cddlLeadIn, IsCode: false)]).Count == 0,
+            "Android CDDL lead-ins require an immediately following nonempty code block");
+        foreach (var separator in new[]
+        {
+            "<p>Separate prose.</p>",
+            "<p>Unrelated incomplete prose:</p>",
+            "<p></p>",
+            "<pre> </pre>",
+            "<devsite-code><pre> </pre></devsite-code>",
+        })
+        {
+            Assert(
+                SourcePage.ExtractParagraphs(
+                    "<p>" + cddlLeadIn + "</p>" + separator + "<pre>schema = bstr</pre>")
+                    .SequenceEqual(
+                        separator == "<p>Separate prose.</p>"
+                            ? [
+                                new SourceParagraph("Separate prose.", IsCode: false),
+                                new SourceParagraph("schema = bstr", IsCode: true),
+                            ]
+                            : [new SourceParagraph("schema = bstr", IsCode: true)]),
+                "Android CDDL lead-ins cannot cross intervening parsed blocks: " + separator);
+        }
+        Assert(
+            SourcePage.ExtractParagraphs("<p>" + cddlLeadIn + "</p><pre> </pre>").Count == 0 &&
+                SourcePage.ExtractParagraphs(
+                    "<p>" + cddlLeadIn + "</p><p><pre>schema = bstr</pre></p>")
+                    .SequenceEqual(
+                        [
+                            new SourceParagraph(cddlLeadIn, IsCode: false),
+                            new SourceParagraph("schema = bstr", IsCode: true),
+                        ]),
+            "Android CDDL sibling guards reject empty code but allow a code-only paragraph wrapper");
+        Assert(
+            SourcePage.ExtractParagraphs(
+                "<p>This ordinary incomplete prose ends with a colon:<pre>schema = bstr</pre></p>")
+                .SequenceEqual([new SourceParagraph("schema = bstr", IsCode: true)]),
+            "ordinary incomplete Android prose before code blocks remains excluded");
         var signaturePage = SourcePage.Parse(
             request,
             androidHtml.Replace(
@@ -6698,6 +6926,70 @@ static class ImporterProgram
             "closing delimiters do not extend non-abbreviation sentences");
 
         var setTitle = file.Owners.Single(owner => owner.Id.Contains("SetTitle", StringComparison.Ordinal));
+        var cddlRefreshDocs = nestedExampleDocs with
+        {
+            Paragraphs =
+            [
+                new SourceParagraph("Sets the widget title.", IsCode: false),
+                .. cddlParagraphs,
+            ],
+        };
+        RemarksRefreshResult RefreshCddlRemarks(XElement remarks)
+        {
+            var text = $"<Docs>{remarks.ToString(SaveOptions.DisableFormatting)}</Docs>";
+            var docs = XElement.Parse(text, LoadOptions.PreserveWhitespace);
+            var owner = setTitle with { Order = 0, Docs = docs, Placeholders = [] };
+            var refreshFile = new LoadedFile
+            {
+                Path = "Widget.Cddl.refresh.xml",
+                RelativePath = "Widget.Cddl.refresh.xml",
+                Text = text,
+                Newline = "\n",
+                HasUtf8Bom = false,
+                Root = docs,
+            };
+            refreshFile.UpdateBlockOffsets(0, text);
+            return RefreshImporterOwnedRemarks(text, refreshFile, owner, cddlRefreshDocs);
+        }
+        var partialCddlRemarks = new XElement(
+            "remarks",
+            cddlRefreshDocs.Paragraphs
+                .Where(paragraph => paragraph.Text != cddlLeadIn)
+                .Select(DocumentationElement),
+            ImporterSourceReference(cddlRefreshDocs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        var refreshedCddlRemarks = RefreshCddlRemarks(partialCddlRemarks);
+        var completeCddlRemarks = XElement.Parse(
+            refreshedCddlRemarks.Text,
+            LoadOptions.PreserveWhitespace).Element("remarks")!;
+        Assert(
+            refreshedCddlRemarks.Reason is null &&
+                completeCddlRemarks.Elements().Take(4).Select(element => element.Value)
+                    .SequenceEqual(cddlRefreshDocs.Paragraphs.Select(paragraph => paragraph.Text)),
+            "importer-owned CDDL remarks restore the exact lead-in before the source sample");
+        var repeatedCddlRefresh = RefreshCddlRemarks(completeCddlRemarks);
+        var completeCddlText = $"<Docs>{completeCddlRemarks.ToString(SaveOptions.DisableFormatting)}</Docs>";
+        Assert(
+            repeatedCddlRefresh.Reason == "source_remarks_current" &&
+                repeatedCddlRefresh.Text == completeCddlText,
+            "complete source-ordered CDDL remarks refresh is idempotent");
+        foreach (var authored in new XNode[]
+        {
+            new XText("Authored fixture guidance."),
+            new XElement("c", "Sets the widget title."),
+            new XCData("Sets the widget title."),
+            new XComment("Authored fixture annotation."),
+        })
+        {
+            var authoredRemarks = new XElement(partialCddlRemarks);
+            authoredRemarks.Elements("para").First().ReplaceNodes(authored);
+            var originalText = $"<Docs>{authoredRemarks.ToString(SaveOptions.DisableFormatting)}</Docs>";
+            var preserved = RefreshCddlRemarks(authoredRemarks);
+            Assert(
+                preserved.Reason == "existing_remarks_not_importer_owned" &&
+                    preserved.Text == originalText,
+                "CDDL refresh preserves authored or mixed-content paragraphs: " + authored.NodeType);
+        }
         var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
         {
             [request.Url] = SourceLoadResult.Success(androidPage),
@@ -7557,6 +7849,74 @@ static class ImporterProgram
                 knownAndroidParameterMarkup,
                 knownAndroidParameterDocs) is null,
             "corrected Android parameter prose remains idempotent");
+        var knownAndroidProseDocs = javaExampleDocs with
+        {
+            SourceUrl = KnownAndroidProseRepairs[0].SourceUrl,
+            SourceLabel = "android.adservices.measurement.DeletionRequest.Builder.setDeletionMode",
+            SourceKind = "android",
+        };
+        var knownAndroidProseMarkup = new XElement(
+            "Docs",
+            new XElement(
+                "param",
+                new XAttribute("name", "deletionMode"),
+                "Value is one of the following: DeletionRequest.DELETION_MODE_ALL; DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA"),
+            new XElement("summary", KnownAndroidProseRepairs[0].IncorrectSummary),
+            new XElement("returns", "To be added."),
+            new XElement(
+                "remarks",
+                new XElement("para", KnownAndroidProseRepairs[0].IncorrectRemarks),
+                ImporterSourceReference(knownAndroidProseDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId,
+                knownAndroidProseMarkup,
+                knownAndroidProseDocs) == KnownAndroidProseRepairs[0],
+            "exact known Android deletion mode prose is eligible for correction");
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId + ".Altered",
+                knownAndroidProseMarkup,
+                knownAndroidProseDocs) is null,
+            "Android deletion mode prose repair requires the exact managed member");
+        var attributedAndroidSummaryMarkup = new XElement(knownAndroidProseMarkup);
+        attributedAndroidSummaryMarkup.Element("summary")!.SetAttributeValue(
+            XNamespace.Xml + "lang",
+            "en");
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId,
+                attributedAndroidSummaryMarkup,
+                knownAndroidProseDocs) is null,
+            "Android deletion mode prose repair preserves attributed summaries");
+        var attributedAndroidRemarksMarkup = new XElement(knownAndroidProseMarkup);
+        attributedAndroidRemarksMarkup.Element("remarks")!.SetAttributeValue(
+            XNamespace.Xml + "space",
+            "preserve");
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId,
+                attributedAndroidRemarksMarkup,
+                knownAndroidProseDocs) is null,
+            "Android deletion mode prose repair preserves attributed remarks");
+        var alteredAndroidProseMarkup = new XElement(knownAndroidProseMarkup);
+        alteredAndroidProseMarkup.Element("summary")!.Value =
+            KnownAndroidProseRepairs[0].IncorrectSummary + " Authored.";
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId,
+                alteredAndroidProseMarkup,
+                knownAndroidProseDocs) is null,
+            "Android deletion mode prose repair preserves altered summaries");
+        knownAndroidProseMarkup.Element("summary")!.Value =
+            KnownAndroidProseRepairs[0].CorrectSummary;
+        Assert(
+            FindKnownAndroidProseRepair(
+                KnownAndroidProseRepairs[0].MemberId,
+                knownAndroidProseMarkup,
+                knownAndroidProseDocs) is null,
+            "corrected Android deletion mode prose remains idempotent");
         var rawSignatureBlock = Regex.Replace(
             file.Text[file.DocsBlocks[setTitle.Order].Start..file.DocsBlocks[setTitle.Order].End],
             @"<remarks\b[^>]*>.*?</remarks>",
@@ -11683,6 +12043,13 @@ static class ImporterProgram
         string ParameterName,
         string IncorrectText,
         string CorrectText);
+    sealed record KnownAndroidProseRepair(
+        string SourceUrl,
+        string MemberId,
+        string IncorrectSummary,
+        string CorrectSummary,
+        string IncorrectRemarks,
+        string CorrectRemarks);
     sealed record BooleanReturnRepairSkip(string Reason, string Detail);
     sealed record BooleanReturnRepairResult(
         string Text,
@@ -11721,6 +12088,14 @@ static class ImporterProgram
             string text,
             string parameterName) =>
             new(text, true, parameterName);
+    }
+    sealed record AndroidProseRepairResult(string Text, bool Repaired)
+    {
+        public static AndroidProseRepairResult NoChange(string text) =>
+            new(text, false);
+
+        public static AndroidProseRepairResult RepairedText(string text) =>
+            new(text, true);
     }
     sealed record JavaProseRepairResult(string Text, bool Repaired)
     {
@@ -12848,8 +13223,7 @@ static class ImporterProgram
                 if (isCode)
                 {
                     var value = HtmlCodeText(html[open.ContentStart..contentEnd]);
-                    if (value.Length > 0)
-                        codeRanges.Add((open.TagStart, elementEnd, new SourceParagraph(value, IsCode: true)));
+                    codeRanges.Add((open.TagStart, elementEnd, new SourceParagraph(value, IsCode: true)));
                     return;
                 }
 
@@ -12861,12 +13235,19 @@ static class ImporterProgram
                 {
                     if (code.Start < textStart)
                         continue;
-                    AddSourceTextParagraph(html[textStart..code.Start], textStart, paragraphs);
+                    AddSourceTextParagraph(
+                        html[textStart..code.Start],
+                        textStart,
+                        paragraphs);
                     paragraphs.Add((code.Start, code.Paragraph));
                     textStart = code.End;
                 }
                 if (textStart <= contentEnd)
-                    AddSourceTextParagraph(html[textStart..contentEnd], textStart, paragraphs);
+                    AddSourceTextParagraph(
+                        html[textStart..contentEnd],
+                        textStart,
+                        paragraphs,
+                        preserveEmpty: nestedCode.Count == 0);
             }
 
             foreach (Match tag in Regex.Matches(
@@ -12906,10 +13287,32 @@ static class ImporterProgram
             {
                 paragraphs.Add((code.Start, code.Paragraph));
             }
-            return paragraphs
+            var ordered = paragraphs
                 .OrderBy(paragraph => paragraph.Position)
                 .Select(paragraph => paragraph.Paragraph)
                 .ToList();
+            var usable = new List<SourceParagraph>();
+            for (var index = 0; index < ordered.Count; index++)
+            {
+                var paragraph = ordered[index];
+                if (paragraph.IsCode)
+                {
+                    if (!string.IsNullOrWhiteSpace(paragraph.Text))
+                        usable.Add(paragraph);
+                    continue;
+                }
+
+                var isCddlIntroduction = IsCddlCodeLeadIn(paragraph.Text) &&
+                    index + 1 < ordered.Count &&
+                    ordered[index + 1].IsCode &&
+                    !string.IsNullOrWhiteSpace(ordered[index + 1].Text);
+                var text = isCddlIntroduction
+                    ? paragraph.Text
+                    : CleanSourceParagraph(paragraph.Text);
+                if (isCddlIntroduction || IsMeaningfulChannel(text, "remarks"))
+                    usable.Add(paragraph with { Text = text });
+            }
+            return usable;
         }
 
         static string NormalizeNestedListParagraphs(string html) =>
@@ -12929,11 +13332,12 @@ static class ImporterProgram
         static void AddSourceTextParagraph(
             string html,
             int position,
-            List<(int Position, SourceParagraph Paragraph)> paragraphs)
+            List<(int Position, SourceParagraph Paragraph)> paragraphs,
+            bool preserveEmpty = false)
         {
-            var value = CleanSourceParagraph(HtmlText(html));
-            if (IsMeaningfulChannel(value, "remarks"))
-                paragraphs.Add((position, new SourceParagraph(value, IsCode: false)));
+            var sourceText = CleanSourceText(HtmlText(html));
+            if (preserveEmpty || sourceText.Length > 0)
+                paragraphs.Add((position, new SourceParagraph(sourceText, IsCode: false)));
         }
 
         internal static List<SourceParagraph> ExtractBlocks(string html) =>
