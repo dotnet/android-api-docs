@@ -116,6 +116,18 @@ other parcel implementations and authored documentation are unchanged.
 Registered production-path tests cover bounded first-fill, strict prior-owned
 repair, provenance and JNI mismatches, authored markup, future corrected source,
 and persisted zero-write repeats.
+The same exact-text allow-list corrects `Tile.writeToParcel`'s `in to` typo.
+For QuickSettings, the exact inherited `TileService.onBind` intent parameter is
+withheld because its claim that extras are invisible contradicts the framework
+binder extras. The nullable-binder prose and return channel remain eligible:
+the implementation can return null after a remote-service failure. Only the
+exact `Tile.STATE_ACTIVE` paragraph's incorrect default-state sentence is
+excluded, retaining its active-state description and all other source paragraphs.
+New tiles actually initialize to `STATE_INACTIVE`. These guards require the
+exact managed member, canonical Android source URL, and original channel or
+paragraph; unrelated summary edits and additional safe paragraphs cannot disable
+them. Corrected official source remains eligible, and existing authored content
+is not withdrawn.
 Exact EAP channel guards additionally require the complete official source
 contract, canonical URL and reference label, registered JNI descriptor, managed
 return and parameter types, and (for repairs) the complete original importer-owned
