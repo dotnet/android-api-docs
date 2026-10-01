@@ -129,3 +129,12 @@ Limitations:
 - Only existing placeholders are replaced. Exception text is filled only when
   an existing managed `cref` has one unambiguous source exception match.
 - Source-page layout changes cause conservative skips rather than guessed text.
+- The exact stale `ResponderConfig.Builder.set80211mcSupported(boolean)` summary
+  and remarks are reported and skipped because they incorrectly rule out the
+  separately configured IEEE 802.11az protocol when IEEE 802.11mc support is false.
+  This guard requires the complete original prose, canonical source URL, source
+  identity and managed member; valid parameter and return channels remain eligible.
+- The exact `ResponderConfig.Builder.setChannelWidth(int)` summary, remarks and
+  parameter text are likewise skipped when they describe encoded `ScanResult`
+  channel-width constants as numeric MHz values. The full original parameter
+  description must also match; the valid builder return channel remains eligible.

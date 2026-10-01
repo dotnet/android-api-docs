@@ -1074,6 +1074,35 @@ static class ImporterProgram
                 .Concat(docs.Parameters.Values));
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
 
+        if (ownerId == WifiRttMcSupportOwner &&
+            docs.SourceUrl.Equals(WifiRttMcSupportSourceUrl, StringComparison.Ordinal) &&
+            docs.SourceKind == "android" &&
+            docs.SourceLabel == "android.net.wifi.rtt.ResponderConfig.Builder.set80211mcSupported" &&
+            docs.Summary.Equals(WifiRttMcSupportSourceText, StringComparison.Ordinal) &&
+            docs.Paragraphs.SequenceEqual([new SourceParagraph(WifiRttMcSupportSourceText, false)]))
+        {
+            const string detail =
+                "The exact Android source incorrectly excludes separately configured IEEE 802.11az ranging when IEEE 802.11mc support is false.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
+        if (ownerId == WifiRttChannelWidthOwner &&
+            docs.SourceUrl.Equals(WifiRttChannelWidthSourceUrl, StringComparison.Ordinal) &&
+            docs.SourceKind == "android" &&
+            docs.SourceLabel == "android.net.wifi.rtt.ResponderConfig.Builder.setChannelWidth" &&
+            docs.Summary.Equals(WifiRttChannelWidthSourceText, StringComparison.Ordinal) &&
+            docs.Paragraphs.SequenceEqual([new SourceParagraph(WifiRttChannelWidthSourceText, false)]) &&
+            docs.Parameters.TryGetValue("channelWidth", out var channelWidth) &&
+            channelWidth.Equals(WifiRttChannelWidthParameterText, StringComparison.Ordinal))
+        {
+            const string detail =
+                "The exact Android source describes encoded ScanResult channel-width constants as numeric MHz values.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+            targets["param:channelWidth"] = detail;
+        }
+
         if (ownerId == "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)" &&
             sourceText.Contains(
                 "solicited (aka active - publish packets are transmitted over-the-air)",
@@ -1177,6 +1206,23 @@ static class ImporterProgram
 
     const string KnownUnsafeContinueStrokeSourceUrl =
         "https://developer.android.com/reference/android/accessibilityservice/GestureDescription.StrokeDescription#continueStroke(android.graphics.Path,%20long,%20long,%20boolean)";
+
+    const string WifiRttMcSupportOwner =
+        "M:Android.Net.Wifi.Rtt.ResponderConfig.Builder.Set80211mcSupported(System.Boolean)";
+    const string WifiRttMcSupportSourceUrl =
+        "https://developer.android.com/reference/android/net/wifi/rtt/ResponderConfig.Builder#set80211mcSupported(boolean)";
+    const string WifiRttMcSupportSourceText =
+        "Sets an indication the access point can to respond to the two-sided Wi-Fi RTT protocol, but, if false, indicates only one-sided Wi-Fi RTT is possible.";
+    const string WifiRttChannelWidthOwner =
+        "M:Android.Net.Wifi.Rtt.ResponderConfig.Builder.SetChannelWidth(System.Int32)";
+    const string WifiRttChannelWidthSourceUrl =
+        "https://developer.android.com/reference/android/net/wifi/rtt/ResponderConfig.Builder#setChannelWidth(int)";
+    const string WifiRttChannelWidthSourceText =
+        "Sets the channel bandwidth in MHz.";
+    const string WifiRttChannelWidthParameterText =
+        "int: the bandwidth of the channel in MHz. Value is one of the following: " +
+        "ScanResult.CHANNEL_WIDTH_20MHZ; ScanResult.CHANNEL_WIDTH_40MHZ; ScanResult.CHANNEL_WIDTH_80MHZ; " +
+        "ScanResult.CHANNEL_WIDTH_160MHZ; ScanResult.CHANNEL_WIDTH_80MHZ_PLUS_MHZ; ScanResult.CHANNEL_WIDTH_320MHZ";
 
     static bool IsKnownUnsafeContinueStrokeDuration(string sourceUrl) =>
         UrlsEqual(sourceUrl, KnownUnsafeContinueStrokeSourceUrl) ||
@@ -11545,8 +11591,172 @@ static class ImporterProgram
             Directory.Delete(tempDirectory, true);
         }
 
-        Console.WriteLine("SELF-TEST PASS: Android/Java exact matching, ICU text and Health Connect importer regressions, ordered paragraph/code preservation, strict importer-owned remarks refreshes, metadata-only and placeholder repairs, source-channel validation, XML parsing, and atomic writes.");
+        TestWifiRttSourceGuards(repositoryRoot);
+        Console.WriteLine("SELF-TEST PASS: Android/Java exact matching, ICU text and Health Connect importer regressions, ordered paragraph/code preservation, strict importer-owned remarks refreshes, metadata-only and placeholder repairs, source-channel validation, Wi-Fi RTT first-fill safety, XML parsing, and atomic writes.");
         return 0;
+    }
+
+    static void TestWifiRttSourceGuards(string repositoryRoot)
+    {
+        var original = new SourceDocs(
+            WifiRttMcSupportSourceText,
+            [new SourceParagraph(WifiRttMcSupportSourceText, false)],
+            new Dictionary<string, string> { ["supports80211mc"] = "the ability to support the Wi-Fi RTT protocol" },
+            "the builder to facilitate chaining builder.setXXX(..).setXXX(..).",
+            new Dictionary<string, string>(),
+            WifiRttMcSupportSourceUrl,
+            "android.net.wifi.rtt.ResponderConfig.Builder.set80211mcSupported",
+            "android");
+        TestWifiRttSourceGuard(repositoryRoot, WifiRttMcSupportOwner, original, blockParameter: false);
+        TestWifiRttSourceGuard(
+            repositoryRoot,
+            WifiRttChannelWidthOwner,
+            original with
+            {
+                Summary = WifiRttChannelWidthSourceText,
+                Paragraphs = [new SourceParagraph(WifiRttChannelWidthSourceText, false)],
+                Parameters = new Dictionary<string, string> { ["channelWidth"] = WifiRttChannelWidthParameterText },
+                SourceUrl = WifiRttChannelWidthSourceUrl,
+                SourceLabel = "android.net.wifi.rtt.ResponderConfig.Builder.setChannelWidth",
+            },
+            blockParameter: true);
+    }
+
+    static void TestWifiRttSourceGuard(
+        string repositoryRoot,
+        string ownerId,
+        SourceDocs original,
+        bool blockParameter)
+    {
+        var parameter = original.Parameters.Single();
+        var method = original.SourceLabel.Split('.').Last();
+        var anchor = original.SourceUrl.Split('#')[1];
+        var guarded = WithoutKnownUnsafeAndroidSourceChannels(ownerId, original);
+        Assert(
+            ReplacementFor(new Placeholder(0, "summary", "", "summary"), guarded).Reason ==
+                "source_channel_ambiguous" &&
+            ReplacementFor(new Placeholder(1, "remarks", "", "remarks"), guarded).Reason ==
+                "source_channel_ambiguous" &&
+            (ReplacementFor(new Placeholder(2, "param", parameter.Key, $"param:{parameter.Key}"), guarded).Reason ==
+                (blockParameter ? "source_channel_ambiguous" : null)) &&
+            ReplacementFor(new Placeholder(3, "returns", "", "returns"), guarded).Reason is null,
+            "Wi-Fi RTT source guard skips only the exact unsafe source channels");
+        foreach (var other in new[]
+        {
+            original with { SourceUrl = original.SourceUrl + "-other" },
+            original with { SourceKind = "java" },
+            original with { SourceLabel = original.SourceLabel + "-other" },
+            original with { Summary = "Different source summary." },
+            original with { Paragraphs = [new SourceParagraph(original.Summary + " Additional source prose.", false)] },
+            original with { Paragraphs = [new SourceParagraph(original.Summary, true)] },
+        })
+        {
+            Assert(
+                WithoutKnownUnsafeAndroidSourceChannels(ownerId, other).UnsafeTargets is null,
+                "Wi-Fi RTT guard requires the complete exact original source and provenance");
+        }
+        Assert(
+            WithoutKnownUnsafeAndroidSourceChannels(ownerId + "-other", original).UnsafeTargets is null,
+            "Wi-Fi RTT guard requires the exact managed member");
+        if (blockParameter)
+        {
+            Assert(
+                WithoutKnownUnsafeAndroidSourceChannels(
+                    ownerId,
+                    original with { Parameters = new Dictionary<string, string> { [parameter.Key] = "Different source parameter." } })
+                    .UnsafeTargets is null,
+                "Wi-Fi RTT channel-width guard requires the complete original parameter text");
+        }
+
+        var sourcePath = Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Net.Wifi.Rtt", "ResponderConfig+Builder.xml");
+        var pipelinePath = Path.Combine(
+            Path.GetDirectoryName(sourcePath)!, $"ResponderConfig+Builder.importer-self-test-{Environment.ProcessId}.xml");
+        var tempDirectory = Path.Combine(
+            Path.GetTempPath(), $"wifi-rtt-importer-self-test-{Environment.ProcessId}");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var document = XDocument.Load(sourcePath, LoadOptions.PreserveWhitespace);
+            var root = document.Root!;
+            var member = root.Element("Members")!.Elements("Member").Single(element =>
+                element.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == ownerId));
+            root.Element("Members")!.ReplaceNodes(new XElement(member));
+            member = root.Element("Members")!.Element("Member")!;
+            var cacheKey = Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(original.SourceUrl.Split('#')[0]))).ToLowerInvariant();
+            File.WriteAllText(
+                Path.Combine(tempDirectory, cacheKey + ".html"),
+                $"""
+                <h3 class="api-name" id="{anchor}">{method}</h3>
+                <pre class="api-signature">public ResponderConfig.Builder {method} ({(blockParameter ? "int" : "boolean")} {parameter.Key})</pre>
+                <p>{original.Summary}</p>
+                <table><tr><th colspan="2">Parameters</th></tr>
+                <tr><td>{parameter.Key}</td><td>{(blockParameter ? "" : "<code>boolean</code>: ")}{parameter.Value}</td></tr></table>
+                <table><tr><th colspan="2">Returns</th></tr>
+                <tr><td>ResponderConfig.Builder</td><td>the builder to facilitate chaining builder.setXXX(..).setXXX(..).</td></tr></table>
+                """,
+                new UTF8Encoding(false));
+            foreach (var channelMarkup in new[]
+            {
+                "To be added.",
+                "Authored documentation.",
+                "Authored <c>mixed content</c>.",
+                "<![CDATA[Authored </remarks> text.]]>",
+                "<!-- Authored comment -->Authored documentation.",
+                "<?authored keep?>Authored documentation.",
+                "Authored documentation." + ImporterSourceReference(original) + $"<para>{AndroidAttribution}</para>",
+                "Authored documentation." + ImporterSourceReference(original with { SourceUrl = original.SourceUrl + "-other" }) +
+                    $"<para>{AndroidAttribution}</para>",
+            })
+            {
+                var docs = XElement.Parse(
+                    $"<Docs><param name=\"{parameter.Key}\">To be added.</param><summary>{channelMarkup}</summary>" +
+                    $"<returns>To be added.</returns><remarks>{channelMarkup}</remarks></Docs>",
+                    LoadOptions.PreserveWhitespace);
+                member.Element("Docs")!.ReplaceWith(docs);
+                var summaryBefore = docs.Element("summary")!.ToString(SaveOptions.DisableFormatting);
+                var remarksBefore = docs.Element("remarks")!.ToString(SaveOptions.DisableFormatting);
+                File.WriteAllText(pipelinePath, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var reportPath = Path.Combine(tempDirectory, "pipeline-report");
+                string[] args =
+                [
+                    "--path", pipelinePath, "--namespace", "Android.Net.Wifi.Rtt",
+                    "--member", ownerId, "--offline", "--cache", tempDirectory,
+                    "--max-changes", "2", "--apply", "--report", reportPath,
+                ];
+                Assert(RunAsync(args).GetAwaiter().GetResult() == 0, "Wi-Fi RTT full first-fill import succeeds");
+                var after = XDocument.Load(pipelinePath, LoadOptions.PreserveWhitespace)
+                    .Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                Assert(
+                    after.Element("summary")!.ToString(SaveOptions.DisableFormatting) == summaryBefore &&
+                    after.Element("remarks")!.ToString(SaveOptions.DisableFormatting) == remarksBefore &&
+                    after.Element("param")!.Value == (blockParameter ? "To be added." : parameter.Value) &&
+                    after.Element("returns")!.Value == original.Returns,
+                    "Wi-Fi RTT first-fill preserves unsafe, authored, mixed, CDATA, comment, PI and provenance channels");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                if (channelMarkup == "To be added.")
+                {
+                    Assert(
+                        report.RootElement.GetProperty("entries").EnumerateArray().Count(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") == (blockParameter ? 3 : 2),
+                        "Wi-Fi RTT unsafe first-fill channels are explicitly reported");
+                }
+                var bytes = File.ReadAllBytes(pipelinePath);
+                Assert(
+                    RunAsync(args).GetAwaiter().GetResult() == 0 &&
+                    bytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                    $"Wi-Fi RTT full first-fill import is idempotent: {channelMarkup}");
+            }
+        }
+        finally
+        {
+            if (File.Exists(pipelinePath))
+                File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, true);
+        }
     }
 
     static void Assert(bool condition, string description)
