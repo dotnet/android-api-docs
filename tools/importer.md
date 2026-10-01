@@ -94,9 +94,12 @@ Implementation verification is not an AOSP prose fallback.
 The final `HostApduService.onBind` and `HostNfcFService.onBind` overrides have
 the same inherited nullable-binder defect. NFC-specific guards require the
 exact managed sealed signature, JNI descriptor, parameter/return metadata,
-canonical Android URL/label, and complete source paragraphs and table channels.
-They remove only `May return null if clients can not bind to the service.`;
-the separate Binder-thread guidance remains verbatim. Known prior-owned remarks
+canonical Android URL/label, and the complete exact unsafe non-code paragraph.
+First-fill recognition is independent of unrelated summaries, surrounding prose,
+Binder-thread guidance, and source parameter, return, or exception channels.
+Only that paragraph is replaced, removing only
+`May return null if clients can not bind to the service.`; every other paragraph
+and channel remains unchanged and in source order. Known prior-owned remarks
 are repaired only with the full original plain-text paragraphs, exact summary
 and return, canonical reference, and recognized unchanged attribution. Authored
 parameters are not changed, including their existing links and markup.
@@ -105,6 +108,9 @@ describes a `POLLING_LOOP_TYPE` key in a Bundle passed to
 `HostApduService.processPollingFrames(List)`. That callback receives polling
 frames, not the internal Bundle. The exclusion requires the exact managed enum
 field/value, canonical source URL/label, and complete original prose. Only the
+presence of that exact non-code paragraph enables first-fill exclusion, even
+with safe introductory or concluding context; corrected, removed, changed,
+code-only, or malformed source does not enable it. Only the
 exact prior importer-generated summary with its canonical reference and
 attribution can be withdrawn to `To be added.`; no substitute description is
 invented. Changed source, metadata, authored or mixed XML, CDATA, comments,
