@@ -7821,6 +7821,41 @@ static class ImporterProgram
         Assert(expectedParagraphs.Any(paragraph => paragraph.Text.Contains(
             "may not happen on the main thread", StringComparison.Ordinal)),
             "the real source also supplies independent retained Binder-thread guidance");
+        var contextualSource = raw with
+        {
+            Summary = "Changed safe summary.",
+            Paragraphs = [new("Safe context before.", false), .. raw.Paragraphs,
+                new("Safe context after.", false)],
+        };
+        var contextualCorrection = WithKnownAndroidRemarksCorrections(memberId, contextualSource);
+        Assert(contextualCorrection.Summary == contextualSource.Summary &&
+            contextualCorrection.Parameters == contextualSource.Parameters &&
+            contextualCorrection.Returns == contextualSource.Returns &&
+            contextualCorrection.Exceptions == contextualSource.Exceptions &&
+            contextualCorrection.Paragraphs.SequenceEqual(
+                new[] { contextualSource.Paragraphs[0] }.Concat(expectedParagraphs)
+                    .Append(contextualSource.Paragraphs[^1])),
+            "safe source context never disables the exact remarks correction or changes other channels");
+        foreach (var (differentOwner, differentSource) in new[]
+        {
+            (memberId + ".Other", raw),
+            (memberId, raw with { SourceKind = "java" }),
+            (memberId, raw with { SourceUrl = raw.SourceUrl + ".Other" }),
+        })
+            Assert(WithKnownAndroidRemarksCorrections(differentOwner, differentSource) == differentSource,
+                "remarks write correction requires the exact owner, Android source kind and canonical URL");
+        foreach (var differentSource in new[]
+        {
+            raw with { Paragraphs = expectedParagraphs },
+            raw with { Paragraphs = raw.Paragraphs.Where(paragraph => paragraph != badParagraph).ToList() },
+            raw with { Paragraphs = raw.Paragraphs.Select(paragraph => paragraph == badParagraph
+                ? paragraph with { IsCode = true } : paragraph).ToList() },
+            raw with { Paragraphs = raw.Paragraphs.Select(paragraph => paragraph == badParagraph
+                ? paragraph with { Text = paragraph.Text + " Changed." } : paragraph).ToList() },
+        })
+            Assert(WithKnownAndroidRemarksCorrections(memberId, differentSource).Paragraphs
+                .SequenceEqual(differentSource.Paragraphs),
+                "corrected, removed, code-only and changed complete source paragraphs remain untouched");
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var original = XElement.Load(Path.Combine(docsRoot, "Android.App.Admin", "DeviceAdminService.xml"));
         var member = original.Element("Members")!.Elements("Member").Single(element =>
@@ -8045,6 +8080,61 @@ static class ImporterProgram
                         entry.GetProperty("reason").GetString() == "existing_remarks_not_importer_owned") &&
                     laterOnlyBytes.SequenceEqual(File.ReadAllBytes(path)),
                     "later-paragraph-only remarks remain ineligible under the unchanged first-paragraph ownership requirement");
+            var firstParagraphStart = html.IndexOf(
+                "  <p>Return the communication channel to the service.", StringComparison.Ordinal);
+            var threadParagraphStart = html.IndexOf(
+                "<p><em>Note that unlike other application components", StringComparison.Ordinal);
+            Assert(firstParagraphStart >= 0 && threadParagraphStart > firstParagraphStart,
+                "future-source variants locate the actual official body without changing its API declaration");
+            foreach (var (variant, sourceBody) in new[]
+            {
+                ("corrected", "<p>" + WebUtility.HtmlEncode(expectedParagraphs[0].Text) + "\n"),
+                ("removed", ""),
+                ("code-only", "<pre>" + WebUtility.HtmlEncode(badParagraph.Text) + "</pre>\n"),
+            })
+            {
+                var futureHtml = html[..firstParagraphStart] + sourceBody + html[threadParagraphStart..];
+                Assert(futureHtml != html, "future-source fixture mutation is nonvacuous");
+                var futureSource = SourcePage.Parse(request, futureHtml).Members.Single(candidate =>
+                    candidate.Name == "onBind").Docs!;
+                Assert(futureSource.Paragraphs.All(paragraph => paragraph.IsCode ||
+                    !paragraph.Text.Contains(unsafeSentence, StringComparison.Ordinal)) &&
+                    (variant != "code-only" || futureSource.Paragraphs.Any(paragraph =>
+                        paragraph.IsCode && paragraph.Text == badParagraph.Text)),
+                    $"parsed {variant} source no longer contains the complete bad non-code paragraph");
+                Assert(WithKnownAndroidRemarksCorrections(memberId, futureSource).Paragraphs
+                    .SequenceEqual(futureSource.Paragraphs),
+                    $"parsed {variant} source remains eligible without obsolete text correction");
+                File.WriteAllText(Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                    futureHtml, new UTF8Encoding(false));
+                File.WriteAllText(path, original.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var futureBefore = File.ReadAllBytes(path);
+                var futureNewline = LoadedFile.SelectNewline(Encoding.UTF8.GetString(futureBefore));
+                var expectedFutureRemarks = "<remarks>" +
+                    string.Concat(futureSource.Paragraphs.Select(paragraph =>
+                        DocumentationElement(paragraph).ToString(SaveOptions.DisableFormatting))) +
+                    futureNewline + "    " + ImporterSourceReference(futureSource)
+                        .ToString(SaveOptions.DisableFormatting) +
+                    futureNewline + "    " + $"<para>{AndroidAttribution}</para>" +
+                    futureNewline + "  </remarks>";
+                var expectedFuture = Encoding.UTF8.GetString(futureBefore).Replace(
+                    "<remarks>To be added.</remarks>", expectedFutureRemarks, StringComparison.Ordinal);
+                using (var dry = Run(false))
+                    Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        futureBefore.SequenceEqual(File.ReadAllBytes(path)),
+                        $"actual parsed {variant} source dry-run has one eligible remarks fill without writes");
+                using (var fill = Run(true))
+                    Assert(fill.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        File.ReadAllBytes(path).SequenceEqual(Encoding.UTF8.GetBytes(expectedFuture)),
+                        $"actual parsed {variant} source imports exact remarks and preserves every other XML byte");
+                var futureAfter = File.ReadAllBytes(path);
+                using (var repeat = Run(true))
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        futureAfter.SequenceEqual(File.ReadAllBytes(path)),
+                        $"persisted parsed {variant} source repeats with zero writes and byte-identical XML");
+                XElement.Load(path);
+            }
         }
         finally
         {
