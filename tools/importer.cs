@@ -7894,6 +7894,66 @@ static class ImporterProgram
                     persisted.SequenceEqual(File.ReadAllBytes(path)),
                     "persisted raw OnBind first-fill repeats with zero writes and byte-identical XML");
             XElement.Load(path);
+            var owned = new XElement(original);
+            var ownedDocs = owned.Element("Members")!.Element("Member")!.Element("Docs")!;
+            ownedDocs.Element("remarks")!.ReplaceNodes(raw.Paragraphs.Select(DocumentationElement),
+                ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            File.WriteAllText(path, owned.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            var ownedBefore = File.ReadAllBytes(path);
+            var expectedOwned = Encoding.UTF8.GetString(ownedBefore).Replace(
+                $"<para>{XmlEscape(badParagraph.Text)}</para>",
+                $"<para>{XmlEscape(badParagraph.Text.Replace(" " + unsafeSentence, "", StringComparison.Ordinal))}</para>",
+                StringComparison.Ordinal);
+            Assert(expectedOwned != Encoding.UTF8.GetString(ownedBefore) &&
+                !expectedOwned.Contains(unsafeSentence, StringComparison.Ordinal),
+                "previous-owned positive is built from actual unfiltered source, not a repair-registry seed");
+            using (var dry = Run(false))
+                Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                    ownedBefore.SequenceEqual(File.ReadAllBytes(path)),
+                    "real previous-owned OnBind dry-run finds one remarks repair without writing");
+            using (var repair = Run(true))
+                Assert(repair.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    repair.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("member").GetString() == memberId &&
+                        entry.GetProperty("target").GetString() == "remarks" &&
+                        entry.GetProperty("reason").GetString() == "importer_known_android_remarks_repair"),
+                    "real previous-owned OnBind repair uses the strict remarks path and one-change budget");
+            Assert(File.ReadAllBytes(path).SequenceEqual(Encoding.UTF8.GetBytes(expectedOwned)),
+                "previous-owned repair preserves every XML byte except the exact false sentence");
+            var repairedOwned = File.ReadAllBytes(path);
+            using (var repeat = Run(true))
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    repairedOwned.SequenceEqual(File.ReadAllBytes(path)),
+                    "persisted previous-owned OnBind repair cannot refresh the false sentence back");
+            foreach (var mutate in new Action<XElement>[]
+            {
+                remarks => remarks.Elements("para").First().SetAttributeValue("authored", "keep"),
+                remarks => remarks.Elements("para").First().ReplaceNodes(new XCData(badParagraph.Text)),
+                remarks => remarks.Elements("para").First().ReplaceNodes(new XElement("c", badParagraph.Text)),
+                remarks => remarks.Elements("para").First().ReplaceNodes(
+                    new XComment("Authored"), new XText(badParagraph.Text)),
+                remarks => remarks.Elements("para").First().ReplaceNodes(
+                    new XProcessingInstruction("authored", "keep"), new XText(badParagraph.Text)),
+                remarks => remarks.Elements("para").Last().Remove(),
+                remarks => remarks.Elements("para").Single(paragraph =>
+                    paragraph.Descendants("a").Any(anchor =>
+                        (string?)anchor.Attribute("href") == raw.SourceUrl)).Remove(),
+                remarks => remarks.Elements("para").Single(paragraph =>
+                    paragraph.Descendants("a").Any(anchor =>
+                        (string?)anchor.Attribute("href") == raw.SourceUrl)).Descendants("a").Single()
+                    .SetAttributeValue("href", raw.SourceUrl + ".Other"),
+            })
+            {
+                var negative = new XElement(owned);
+                mutate(negative.Element("Members")!.Element("Member")!.Element("Docs")!.Element("remarks")!);
+                File.WriteAllText(path, negative.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var negativeBytes = File.ReadAllBytes(path);
+                using (var report = Run(true))
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        negativeBytes.SequenceEqual(File.ReadAllBytes(path)),
+                        "actual scoped OnBind pipeline preserves one-condition authored or provenance lookalikes");
+            }
+            XElement.Load(path);
         }
         finally
         {
