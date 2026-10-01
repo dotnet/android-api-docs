@@ -95,6 +95,15 @@ The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
 documentation is preserved.
+Android.App.Admin repairs normalize the exact two ResetPasswordFlags
+`resetPasswordWithToken` field descriptions from the source's scalar `byte`
+notation to the registered `byte[]` signature before field rendering. The
+restriction repair requires the exact managed member, source URL, rendered
+parameter channel, and prior importer-owned output before restoring an unsafe
+application-restriction sentinel to its placeholder. Exact member/URL/source
+typo repairs apply only to proven importer-owned markup; authored and mixed
+documentation remains unchanged, while a corrected importer-owned block stays
+eligible for future refreshes.
 The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
 source label is corrected only on its exact official member URL when the source
 hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported
