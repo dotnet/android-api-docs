@@ -35,7 +35,22 @@ registrations, unknown type descriptors, overload mismatches, ambiguous matches,
 inherited-only detail, missing documentation channels, or source text that contains
 only a Java type, nullability marker, cross-reference heading, or standalone
 deprecation boilerplate. Android page license/trademark footers and update timestamps
-are filtered, and literal Unicode escapes are decoded before XML escaping. HTML tags
+are filtered, and literal Unicode escapes are decoded before XML escaping. Source
+prose is not imported for the exact `SaProposal.PSEUDORANDOM_FUNCTION_SHA2_512` field
+when its complete Android description incorrectly names HMAC-SHA2-384. That channel
+is reported as ambiguous instead of inventing replacement prose; existing authored
+or imported documentation is preserved.
+Three further exact IKE channels are withheld rather than importing contradicted
+contracts: the IPv6 requested-prefix getter's `-1` sentinel, the IKE-SA DH list
+advertising `DH_GROUP_NONE`, and the Child-SA encryption list advertising 3DES.
+The exact MOBIKE paragraph that confuses target SDK with device OS is excluded
+while retaining its other official paragraphs. These member/source/full-text
+guards do not affect valid sibling SA choices or shared constant descriptions.
+Prior importer-owned copies can be withdrawn only when the complete original
+source-reference/attribution structure and plain original channel match;
+authored or mixed content, comments, CDATA, processing instructions, duplicate
+channels, mismatched binding metadata, and changed source text are preserved.
+Future corrected official source remains eligible. HTML tags
 are removed with quoted attributes intact, and empty table description cells remain
 empty rather than shifting Java types into prose. Java `deprecation-block` containers
 are excluded before selecting exact `block` documentation. Android return tables are
@@ -57,14 +72,60 @@ eligibility is evaluated against the untouched summary and requires exactly
 three importer-owned
 paragraphs: plain deprecation prose, the exact field source reference, and exact
 Android attribution. Additional nodes or markup preserve the summary verbatim.
+Repair of the known `Control.StatefulBuilder.setControlTemplate` paragraph boundary
+is restricted to its exact Android member URL and verified lead-in/description,
+preserving the source's blank line as two paragraphs without inventing punctuation.
+The corresponding summary and remarks are regenerated together only when the
+managed member ID, full old plain-text summary/remarks, exact source reference,
+and Android attribution all match the prior importer output. Authored additions,
+mixed content, source changes, and unsafe XML locations are reported and preserved.
+The two-channel repair requires at least two remaining changes in the batch.
+The final `ControlsProviderService.onBind` and `onUnbind` overrides expose inherited
+`Service` Javadoc that contradicts their implementations. Exact member-ID/source-URL
+guards remove only the verified nullable-binder and default-false remarks sentences,
+retaining the other verbatim reference sentences. The inherited `onUnbind` caller-choice
+return is reported as `source_channel_ambiguous`, not replaced with implementation-derived
+prose. Known prior importer output can be regenerated only with its complete original
+remarks, plain summary/return channels, canonical source reference, and attribution
+intact; its unsafe return is restored to `To be added.`. Authored or mixed content,
+duplicate channels, altered metadata, and changed sources are preserved and reported.
+Repairs for one member are atomic and require room for every affected channel.
+Implementation verification is not an AOSP prose fallback.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
 documentation is preserved.
+The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
+source label is corrected only on its exact official member URL when the source
+hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported
+paragraph is repaired only for the exact managed callback, complete old plain-text
+paragraph, matching source reference, and unchanged recognized attribution.
+Other prose, mixed content, and metadata are preserved.
+Four channel-specific corrections cover the known `Android.Ranging.Ble.CS`
+source typos in the security-level-one enum summary, builder Bluetooth-address
+parameter, and parcel-write summary and remarks. They require the exact managed
+member, canonical source URL, full original plain text, and complete source-proven
+importer paragraph/reference/attribution structure. Authored or mixed markup,
+changed source text, and duplicate channels are preserved. The same narrow
+allow-list corrects newly imported source channels so later refreshes cannot
+reintroduce these defects; no general grammar or punctuation normalization occurs.
 Java-signature remarks repairs likewise require only an unmodified Java signature,
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
 CDATA containing literal closing-tag text.
+The Java 21 `ZoneRules.getTransition(LocalDateTime)` example's `rule`/`rules`
+receiver typo can be repaired only for the exact managed member, source URL,
+original code block, and complete importer-owned source remarks. Authored
+content, changed code or whitespace, and mismatched source structure are
+preserved.
+The exact Java 21 `ZoneOffsetTransitionRule.of(...)` `time` parameter channel
+is skipped when its complete source text unconditionally uses the before-offset
+time base: `UTC` and `STANDARD` instead use the selected `TimeDefinition`.
+An earlier importer-owned copy of that exact parameter can be withdrawn to its
+placeholder only with the exact managed member, canonical URL, full source text,
+plain original parameter markup, and complete importer-owned source remarks.
+Authored or mixed content, CDATA, comments, processing instructions, mismatched
+source/parameter metadata, and all other parameter channels are preserved.
 Repair-only mapping or source failures are reported against the `summary` target.
 Existing self-closing `<remarks />` elements are expanded in place rather than
 duplicated. Importer-owned remarks refreshes and copied-description repairs use
@@ -74,7 +135,14 @@ importer-owned source-reference element and only replace direct-text summaries
 or remarks paragraphs; mixed-content paragraphs are reported and preserved.
 Java explanatory lead-ins immediately preceding a code block are retained with
 their trailing colon only when they use a source-proven code-introduction form;
-ordinary incomplete prose remains excluded. Source-proven Java remarks with an
+ordinary incomplete prose remains excluded.
+Android CDDL introductions ending in `CBOR with the following CDDL:` are likewise
+retained only immediately before a non-empty code block, preserving certificate
+extension metadata that introduces the schema. This is checked in parsed block
+order for both nested and sibling paragraph/code elements. Empty code or
+intervening paragraphs cannot make a later code block eligible. A standalone
+introduction or unrelated incomplete Android prose remains excluded.
+Source-proven Java remarks with an
 exact Android attribution can receive missing ordered source fragments without
 altering that attribution. A plain source paragraph may own one exact
 whitespace-normalized source fragment or one exact consecutive sequence of
@@ -91,6 +159,12 @@ and element spans: stale references are replaced and duplicates removed only
 when their XML elements are safely located. Literal markup in comments, CDATA,
 or processing instructions, and authored references or attribution, are never
 modified; unsafe source-reference locations are reported as skips.
+
+The `KeyStoreException.RetryPolicy` value channel is skipped when its exact
+managed member ID, official `getRetryPolicy()` URL, and complete source return
+text match the known incorrect flag-combination wording. Retry policies are
+mutually exclusive codes, not flags. The guard does not affect other channels,
+members, URLs, corrected source text, or existing authored documentation.
 
 Existing non-placeholder remarks are retained unless their full structure proves
 they were generated by this importer: non-empty plain `<para>` or Java `<code>`
