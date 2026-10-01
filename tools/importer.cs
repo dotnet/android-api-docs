@@ -22,6 +22,14 @@ static class ImporterProgram
         "This hook is called whenever the window focus changes. See View.onWindowFocusChanged(boolean) for more information.";
     const string StaleDreamFocusSourceLink =
         "<a href=\"/reference/android/view/View#onWindowFocusChanged(boolean)\">View.onWindowFocusChangedNotLocked(boolean)</a>";
+    const string RssiUpdateRateMemberId =
+        "M:Android.Ranging.Ble.Rssi.BleRssiRangingParams.Builder.SetRangingUpdateRate(System.Int32)";
+    const string RssiUpdateRateSourceUrl =
+        AndroidReference + "android/ranging/ble/rssi/BleRssiRangingParams.Builder#setRangingUpdateRate(int)";
+    const string RssiUpdateRateLead =
+        "Sets the update rate for the BLE rssi ranging session.";
+    const string RssiMalformedDefault =
+        "Defaults to ERROR(RangingUpdateRate.UPDATE_RATE_NORMAL/android.ranging.raw.RawRangingDevice.RangingUpdateRate#UPDATE_RATE_NORMAL RangingUpdateRate.UPDATE_RATE_NORMAL)";
     const string JavaReference = "https://docs.oracle.com/en/java/javase/21/docs/api/";
     const string UserAgent = "dotnet-android-api-docs-importer/1.0 (+https://github.com/dotnet/android-api-docs)";
     const int MaximumDownloadBytes = 12 * 1024 * 1024;
@@ -180,6 +188,24 @@ static class ImporterProgram
         new(
             AndroidReference + "android/ranging/ble/cs/BleCsRangingParams#writeToParcel(android.os.Parcel,%20int)",
             "M:Android.Ranging.Ble.CS.BleCsRangingParams.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
+            "remarks",
+            "Flatten this object in to a Parcel.",
+            "Flatten this object into a Parcel."),
+        new(
+            AndroidReference + "android/ranging/ble/rssi/BleRssiRangingParams.Builder#Builder(java.lang.String)",
+            "M:Android.Ranging.Ble.Rssi.BleRssiRangingParams.Builder.#ctor(System.String)",
+            "param:peerBluetoothAddress",
+            "The address of the peer device must be non-null Bluetooth address.",
+            "The address of the peer device must be a non-null Bluetooth address."),
+        new(
+            AndroidReference + "android/ranging/ble/rssi/BleRssiRangingParams#writeToParcel(android.os.Parcel,%20int)",
+            "M:Android.Ranging.Ble.Rssi.BleRssiRangingParams.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
+            "summary",
+            "Flatten this object in to a Parcel.",
+            "Flatten this object into a Parcel."),
+        new(
+            AndroidReference + "android/ranging/ble/rssi/BleRssiRangingParams#writeToParcel(android.os.Parcel,%20int)",
+            "M:Android.Ranging.Ble.Rssi.BleRssiRangingParams.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
             "remarks",
             "Flatten this object in to a Parcel.",
             "Flatten this object into a Parcel."),
@@ -1448,6 +1474,7 @@ static class ImporterProgram
         docs = WithoutKnownUnsafeJavaSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
         docs = WithoutKnownUnsafeRemoteEntryGuidance(owner.Id, docs);
+        docs = WithoutKnownMalformedRssiDefault(owner, registration, docs);
         docs = WithKnownAndroidTextCorrections(owner.Id, docs);
         docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
@@ -1643,6 +1670,30 @@ static class ImporterProgram
             text[..block.Start] + blockText[..span.Start] + replacement +
             blockText[span.End..] + text[block.End..],
             [correction.Target]);
+    }
+
+    static SourceDocs WithoutKnownMalformedRssiDefault(
+        DocsOwner owner, MemberRegistration registration, SourceDocs docs)
+    {
+        if (owner.Id != RssiUpdateRateMemberId ||
+            owner.SourceRequest?.JavaPath != "android/ranging/ble/rssi/BleRssiRangingParams$Builder" ||
+            registration != new MemberRegistration(
+                "setRangingUpdateRate", "(I)Landroid/ranging/ble/rssi/BleRssiRangingParams$Builder;", false) ||
+            docs.SourceKind != "android" || docs.SourceUrl != RssiUpdateRateSourceUrl ||
+            !docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text == RssiMalformedDefault))
+            return docs;
+
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["summary:paragraph"] =
+            "The exact Android RSSI default paragraph contains an unresolved ERROR label; only that paragraph is excluded.";
+        return docs with
+        {
+            Paragraphs = docs.Paragraphs.Where(paragraph =>
+                paragraph.IsCode || paragraph.Text != RssiMalformedDefault).ToList(),
+            UnsafeTargets = targets,
+        };
     }
 
     static SourceDocs WithoutKnownUnsafeAndroidSourceChannels(string ownerId, SourceDocs docs)
@@ -7558,6 +7609,7 @@ static class ImporterProgram
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
+        TestRssiSourceGuards(repositoryRoot, fixtureRoot);
         TestGestureCloneIntroductions(repositoryRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
@@ -15318,6 +15370,243 @@ static class ImporterProgram
         }
     }
 
+    static void TestRssiSourceGuards(string repositoryRoot, string fixtureRoot)
+    {
+        var temp = Path.Combine(Path.GetTempPath(), $"rssi-importer-self-test-{Guid.NewGuid():N}");
+        var cache = Path.Combine(temp, "cache");
+        var docsRoot = Path.Combine(repositoryRoot, "docs", "xml", "Android.Ranging.Ble.Rssi");
+        var pipelinePath = Path.Combine(docsRoot, $"rssi-importer-self-test-{Environment.ProcessId}.xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            var cases = new[]
+            {
+                (File: "BleRssiRangingParams+Builder.xml", Member: ".ctor", Expected: 3,
+                    JavaPath: "android/ranging/ble/rssi/BleRssiRangingParams$Builder",
+                    Fixture: "android-rssi-builder.html"),
+                (File: "BleRssiRangingParams+Builder.xml", Member: "SetRangingUpdateRate", Expected: 4,
+                    JavaPath: "android/ranging/ble/rssi/BleRssiRangingParams$Builder",
+                    Fixture: "android-rssi-builder.html"),
+                (File: "BleRssiRangingParams.xml", Member: "WriteToParcel", Expected: 3,
+                    JavaPath: "android/ranging/ble/rssi/BleRssiRangingParams",
+                    Fixture: "android-rssi-params.html"),
+            };
+            foreach (var test in cases)
+            {
+                var request = SourceRequest.Create(test.JavaPath)!;
+                var html = File.ReadAllText(Path.Combine(fixtureRoot, test.Fixture));
+                File.WriteAllText(Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url)))
+                        .ToLowerInvariant() + ".html"), html, new UTF8Encoding(false));
+                var type = XElement.Load(Path.Combine(docsRoot, test.File));
+                var member = new XElement(type.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == test.Member));
+                var memberId = member.Elements("MemberSignature")
+                    .Single(signature => (string?)signature.Attribute("Language") == "DocId")
+                    .Attribute("Value")!.Value;
+                member.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                    member.Element("Parameters")?.Elements("Parameter").Select(parameter =>
+                        new XElement("param", new XAttribute("name", parameter.Attribute("Name")!.Value),
+                            "To be added.")),
+                    new XElement("summary", "To be added."),
+                    test.Member == "SetRangingUpdateRate" ? new XElement("returns", "To be added.") : null,
+                    new XElement("remarks", "To be added.")));
+                type.Element("Members")!.ReplaceNodes(member);
+                type.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                    new XElement("summary", "Retain this authored type summary."),
+                    new XElement("remarks", "Retain this authored type remarks.")));
+                var original = type.ToString(SaveOptions.DisableFormatting);
+                File.WriteAllText(pipelinePath, original, new UTF8Encoding(true));
+                int Run(string stage, out int writes, int limit = 1)
+                {
+                    var reportPath = Path.Combine(temp, test.Member.Replace(".", "ctor") + "-" + stage);
+                    var exit = RunAsync([
+                        "--path", pipelinePath, "--namespace", "Android.Ranging.Ble.Rssi",
+                        "--member", memberId, "--offline", "--cache", cache,
+                        "--max-changes", limit.ToString(), "--apply", "--report", reportPath,
+                    ]).GetAwaiter().GetResult();
+                    using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                    Assert(exit == 0 && report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "registered RSSI production pipeline succeeds");
+                    writes = report.RootElement.GetProperty("filesChanged").GetInt32();
+                    return report.RootElement.GetProperty("appliedCount").GetInt32();
+                }
+                var total = 0;
+                for (var batch = 0; batch < test.Expected + 2; batch++)
+                {
+                    var applied = Run($"first-fill-{batch}", out _);
+                    Assert(applied <= 1, "registered RSSI first fill respects max-changes=1");
+                    total += applied;
+                    if (applied == 0)
+                        break;
+                }
+                Assert(total == test.Expected, "registered RSSI first fill imports only safe channels");
+                var filled = File.ReadAllText(pipelinePath);
+                Assert(!filled.Contains("ERROR(", StringComparison.Ordinal) &&
+                    !filled.Contains("in to a Parcel", StringComparison.Ordinal) &&
+                    !filled.Contains("must be non-null Bluetooth", StringComparison.Ordinal) &&
+                    filled.Contains("Retain this authored type summary.", StringComparison.Ordinal) &&
+                    filled.Contains("Retain this authored type remarks.", StringComparison.Ordinal),
+                    "registered RSSI first fill excludes exact defects and retains authored channels");
+                if (test.Member == "WriteToParcel")
+                {
+                    Assert(XElement.Parse(filled).Element("Members")!.Element("Member")!.Element("Docs")!
+                        .Elements("param").Single(parameter => (string?)parameter.Attribute("name") == "dest")
+                        .Value == "To be added.", "RSSI nullability-only destination remains unfilled");
+                }
+                var bytes = File.ReadAllBytes(pipelinePath);
+                Assert(bytes.Take(3).SequenceEqual(new byte[] { 0xef, 0xbb, 0xbf }) &&
+                    Run("repeat", out var writes) == 0 && writes == 0 &&
+                    bytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                    "registered RSSI repeat has zero persisted writes and preserves BOM and exact bytes");
+
+                if (test.Member != "SetRangingUpdateRate")
+                {
+                    var repair = KnownAndroidTextRepairs.First(repair => repair.MemberId == memberId);
+                    var oldOwned = filled.Replace(repair.CorrectText, repair.IncorrectText, StringComparison.Ordinal);
+                    File.WriteAllText(pipelinePath, oldOwned, new UTF8Encoding(true));
+                    if (test.Member == "WriteToParcel")
+                    {
+                        var oldBytes = File.ReadAllBytes(pipelinePath);
+                        Assert(Run("old-owned-budget", out writes) == 0 && writes == 0 &&
+                            oldBytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                            "registered RSSI two-channel repair is atomic at max-changes=1");
+                    }
+                    var repairCount = test.Member == ".ctor" ? 1 : 2;
+                    Assert(Run("old-owned-repair", out _, repairCount) == repairCount &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(bytes),
+                        "registered RSSI exact prior-owned repairs reproduce first-fill bytes");
+                    foreach (var (stage, altered) in new[]
+                    {
+                        ("mixed", oldOwned.Replace(repair.IncorrectText,
+                            "<c>" + repair.IncorrectText + "</c>", StringComparison.Ordinal)),
+                        ("cdata", oldOwned.Replace(repair.IncorrectText,
+                            "<![CDATA[" + repair.IncorrectText + "]]>", StringComparison.Ordinal)),
+                        ("comment", oldOwned.Replace(repair.IncorrectText,
+                            "<!--authored-->" + repair.IncorrectText, StringComparison.Ordinal)),
+                        ("pi", oldOwned.Replace(repair.IncorrectText,
+                            "<?authored keep?>" + repair.IncorrectText, StringComparison.Ordinal)),
+                        ("authored", oldOwned.Replace(repair.IncorrectText,
+                            repair.IncorrectText + " Authored guidance.", StringComparison.Ordinal)),
+                        ("url", oldOwned.Replace(repair.SourceUrl, repair.SourceUrl + ".Other", StringComparison.Ordinal)),
+                        ("binding", oldOwned.Replace(test.JavaPath,
+                            "android/example/Widget", StringComparison.Ordinal)),
+                    })
+                    {
+                        File.WriteAllText(pipelinePath, altered, new UTF8Encoding(true));
+                        var alteredBytes = File.ReadAllBytes(pipelinePath);
+                        Assert(Run("old-owned-negative-" + stage, out writes, repairCount) == 0 && writes == 0 &&
+                            alteredBytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                            "registered RSSI repairs preserve mixed, authored and mismatched provenance");
+                    }
+                    continue;
+                }
+                var file = LoadedFile.Load(repositoryRoot, pipelinePath);
+                file.SelectOwners(memberId);
+                var owner = file.Owners.Single(owner => owner.Id == memberId);
+                var raw = SourcePage.Parse(request, html).Members
+                    .Single(member => member.Name == "setRangingUpdateRate").Docs!;
+                var registration = Registration.Member(owner.Member!)!;
+                var safe = WithoutKnownMalformedRssiDefault(owner, registration, raw);
+                Assert(safe.Paragraphs is [{ Text: RssiUpdateRateLead }] &&
+                    safe.UnsafeTargets?.ContainsKey("summary:paragraph") == true &&
+                    safe.Parameters.SequenceEqual(raw.Parameters) && safe.Returns == raw.Returns,
+                    $"RSSI exclusion retains lead, parameter and returns and reports the unsafe paragraph: {owner.Id}; {owner.SourceRequest?.JavaPath}; {registration}; {raw.SourceUrl}; {string.Join(" | ", raw.Paragraphs.Select(p => p.Text))}");
+                foreach (var changed in new[]
+                {
+                    raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                    raw with { SourceKind = "java" },
+                    raw with { Paragraphs = [raw.Paragraphs[0],
+                        new SourceParagraph("Defaults to UPDATE_RATE_NORMAL.", false)] },
+                    raw with { Paragraphs = [raw.Paragraphs[0],
+                        new SourceParagraph(RssiMalformedDefault + " Changed.", false)] },
+                    raw with { Paragraphs = [raw.Paragraphs[0],
+                        new SourceParagraph(RssiMalformedDefault, true)] },
+                })
+                    Assert(ReferenceEquals(WithoutKnownMalformedRssiDefault(owner, registration, changed), changed),
+                        "RSSI exclusion preserves future corrected and different full source");
+                Assert(ReferenceEquals(WithoutKnownMalformedRssiDefault(
+                        owner with { Id = owner.Id + ".Other" }, registration, raw), raw) &&
+                    ReferenceEquals(WithoutKnownMalformedRssiDefault(
+                        owner with { SourceRequest = SourceRequest.Create("android/example/Widget$Builder") },
+                        registration, raw), raw) &&
+                    ReferenceEquals(WithoutKnownMalformedRssiDefault(owner,
+                        registration with { Descriptor = "(J)Landroid/ranging/ble/rssi/BleRssiRangingParams$Builder;" },
+                        raw), raw),
+                    "RSSI exclusion requires exact member, declaring owner and complete JNI descriptor");
+                foreach (var (stage, changedHtml, retained) in new[]
+                {
+                    ("summary-change", html.Replace(RssiUpdateRateLead,
+                        "Sets the reporting frequency for this session.", StringComparison.Ordinal),
+                        "Sets the reporting frequency for this session."),
+                    ("safe-before", html.Replace("<p>" + RssiUpdateRateLead,
+                        "<p>Additional official guidance before the lead.</p><p>" + RssiUpdateRateLead,
+                        StringComparison.Ordinal), "Additional official guidance before the lead."),
+                    ("safe-after", html.Replace(
+                        "</code></p></p>", "</code></p></p><p>Additional official guidance after the default.</p>",
+                        StringComparison.Ordinal), "Additional official guidance after the default."),
+                    ("changed-href", html.Replace("href=\"/\"",
+                        "href=\"/reference/android/ranging/raw/RawRangingDevice#UPDATE_RATE_NORMAL\"",
+                        StringComparison.Ordinal), RssiUpdateRateLead),
+                    ("corrected-default", html.Replace(RssiMalformedDefault["Defaults to ".Length..],
+                        "UPDATE_RATE_NORMAL.", StringComparison.Ordinal),
+                        "Defaults to UPDATE_RATE_NORMAL."),
+                    ("removed-default", html.Replace(
+                        "<p>Defaults to <code><a href=\"/\">" +
+                        RssiMalformedDefault["Defaults to ".Length..] + "</a></code></p>",
+                        "", StringComparison.Ordinal), RssiUpdateRateLead),
+                })
+                {
+                    if (stage is "corrected-default" or "removed-default")
+                    {
+                        var future = SourcePage.Parse(request, changedHtml).Members
+                            .Single(member => member.Name == "setRangingUpdateRate").Docs!;
+                        Assert(ReferenceEquals(WithoutKnownMalformedRssiDefault(owner, registration, future), future) &&
+                            !future.Paragraphs.Any(paragraph => paragraph.Text == RssiMalformedDefault),
+                            "corrected or removed RSSI defaults do not trigger the old-source exclusion");
+                    }
+                    File.WriteAllText(Path.Combine(cache,
+                        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url)))
+                            .ToLowerInvariant() + ".html"), changedHtml, new UTF8Encoding(false));
+                    File.WriteAllText(pipelinePath, original, new UTF8Encoding(true));
+                    total = 0;
+                    for (var batch = 0; batch < test.Expected + 2; batch++)
+                    {
+                        var applied = Run(stage + batch, out _);
+                        Assert(applied <= 1, "RSSI changed-source first fill respects max-changes=1");
+                        total += applied;
+                        if (applied == 0)
+                            break;
+                    }
+                    var changedFill = File.ReadAllText(pipelinePath);
+                    Assert(total == test.Expected && !changedFill.Contains("ERROR(", StringComparison.Ordinal) &&
+                        changedFill.Contains(retained, StringComparison.Ordinal),
+                        $"RSSI exclusion survives unrelated source edits and retains future corrected defaults: {stage}, applied={total}, retained={changedFill.Contains(retained, StringComparison.Ordinal)}");
+                    bytes = File.ReadAllBytes(pipelinePath);
+                    Assert(Run(stage + "-repeat", out writes) == 0 && writes == 0 &&
+                        bytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                        "RSSI changed-source persisted repeat is byte-identical");
+                }
+                File.WriteAllText(Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url)))
+                        .ToLowerInvariant() + ".html"), html, new UTF8Encoding(false));
+                var authored = filled.Replace(RssiUpdateRateLead,
+                    RssiUpdateRateLead + " Authored guidance.", StringComparison.Ordinal);
+                File.WriteAllText(pipelinePath, authored, new UTF8Encoding(true));
+                bytes = File.ReadAllBytes(pipelinePath);
+                Assert(Run("authored-repeat", out writes) == 0 && writes == 0 &&
+                    bytes.SequenceEqual(File.ReadAllBytes(pipelinePath)),
+                    "RSSI source exclusion does not rewrite authored existing prose");
+            }
+        }
+        finally
+        {
+            if (File.Exists(pipelinePath))
+                File.Delete(pipelinePath);
+            Directory.Delete(temp, recursive: true);
+        }
+    }
+
     static void TestKnownAndroidTextRepairs()
     {
         foreach (var group in KnownAndroidTextRepairs.GroupBy(repair => repair.MemberId))
@@ -16782,7 +17071,7 @@ static class ImporterProgram
                         StringComparison.Ordinal),
                     StringComparison.Ordinal);
             }
-            var paragraphs = ExtractParagraphs(prose, IsGestureCloneSourceUrl(url));
+            var paragraphs = ExtractParagraphs(prose, IsGestureCloneSourceUrl(url), url);
             if (paragraphs.Count == 0 &&
                 parameters.Count == 0 &&
                 returns.Length == 0 &&
@@ -17047,7 +17336,8 @@ static class ImporterProgram
 
         internal static List<SourceParagraph> ExtractParagraphs(
             string html,
-            bool preserveGestureCloneIntroductions = false)
+            bool preserveGestureCloneIntroductions = false,
+            string? sourceUrl = null)
         {
             html = NormalizeHtmlLists(html);
             html = NormalizeNestedListParagraphs(html);
@@ -17173,7 +17463,9 @@ static class ImporterProgram
                 var text = isCddlIntroduction || isGestureCloneIntroduction
                     ? paragraph.Text
                     : CleanSourceParagraph(paragraph.Text);
-                if (isCddlIntroduction || isGestureCloneIntroduction || IsMeaningfulChannel(text, "remarks"))
+                // Retain this rejected fragment for member-verified ambiguity reporting, not rendering.
+                if (isCddlIntroduction || isGestureCloneIntroduction || IsMeaningfulChannel(text, "remarks") ||
+                    (sourceUrl == RssiUpdateRateSourceUrl && text == RssiMalformedDefault))
                     usable.Add(paragraph with { Text = text });
             }
             return usable;
