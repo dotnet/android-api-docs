@@ -69,6 +69,17 @@ importer paragraph/reference/attribution structure. Authored or mixed markup,
 changed source text, and duplicate channels are preserved. The same narrow
 allow-list corrects newly imported source channels so later refreshes cannot
 reintroduce these defects; no general grammar or punctuation normalization occurs.
+Two exact EAP channel guards additionally require the complete official source
+contract, canonical URL and reference label, registered JNI descriptor, managed
+return and parameter types, and (for repairs) the complete original importer-owned
+Docs. `EapAkaInfo.Builder.SetReauthId` skips the source parameter that wrongly
+describes a re-authentication ID as the client's EAP identity; an exact prior
+import is withdrawn to its placeholder rather than replaced with inferred prose.
+`EapSessionConfig.Builder.SetEapMsChapV2Config` corrects only the full known
+`faciliate` return text. Both guards operate on first-fill imports as well as
+strict prior-owned repairs. Changed source contracts, authored or mixed markup,
+CDATA, comments, processing instructions, attributes, references, attribution,
+and managed metadata prevent repairs and are preserved with a reported skip.
 Java-signature remarks repairs likewise require only an unmodified Java signature,
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
