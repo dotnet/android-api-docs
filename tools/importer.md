@@ -76,6 +76,27 @@ intact; its unsafe return is restored to `To be added.`. Authored or mixed conte
 duplicate channels, altered metadata, and changed sources are preserved and reported.
 Repairs for one member are atomic and require room for every affected channel.
 Implementation verification is not an AOSP prose fallback.
+The final `HostApduService.onBind` and `HostNfcFService.onBind` overrides have
+the same inherited nullable-binder defect. NFC-specific guards require the
+exact managed sealed signature, JNI descriptor, parameter/return metadata,
+canonical Android URL/label, and complete source paragraphs and table channels.
+They remove only `May return null if clients can not bind to the service.`;
+the separate Binder-thread guidance remains verbatim. Known prior-owned remarks
+are repaired only with the full original plain-text paragraphs, exact summary
+and return, canonical reference, and recognized unchanged attribution. Authored
+parameters are not changed, including their existing links and markup.
+The six `PollingLoopType` summaries are held back when their full official text
+describes a `POLLING_LOOP_TYPE` key in a Bundle passed to
+`HostApduService.processPollingFrames(List)`. That callback receives polling
+frames, not the internal Bundle. The exclusion requires the exact managed enum
+field/value, canonical source URL/label, and complete original prose. Only the
+exact prior importer-generated summary with its canonical reference and
+attribution can be withdrawn to `To be added.`; no substitute description is
+invented. Changed source, metadata, authored or mixed XML, CDATA, comments,
+processing instructions, attributes, duplicate channels, and altered references
+or attribution are preserved and reported. Registered first-fill, prior-owned
+repair, negative-case, and byte-identical repeat tests exercise the complete
+importer pipeline for all eight NFC members.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
