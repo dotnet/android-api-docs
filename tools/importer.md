@@ -77,6 +77,19 @@ Java-signature remarks repairs likewise require only an unmodified Java signatur
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
 CDATA containing literal closing-tag text.
+The Java 21 `ZoneRules.getTransition(LocalDateTime)` example's `rule`/`rules`
+receiver typo can be repaired only for the exact managed member, source URL,
+original code block, and complete importer-owned source remarks. Authored
+content, changed code or whitespace, and mismatched source structure are
+preserved.
+The exact Java 21 `ZoneOffsetTransitionRule.of(...)` `time` parameter channel
+is skipped when its complete source text unconditionally uses the before-offset
+time base: `UTC` and `STANDARD` instead use the selected `TimeDefinition`.
+An earlier importer-owned copy of that exact parameter can be withdrawn to its
+placeholder only with the exact managed member, canonical URL, full source text,
+plain original parameter markup, and complete importer-owned source remarks.
+Authored or mixed content, CDATA, comments, processing instructions, mismatched
+source/parameter metadata, and all other parameter channels are preserved.
 Repair-only mapping or source failures are reported against the `summary` target.
 Existing self-closing `<remarks />` elements are expanded in place rather than
 duplicated. Importer-owned remarks refreshes and copied-description repairs use
