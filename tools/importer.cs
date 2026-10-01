@@ -486,6 +486,38 @@ static class ImporterProgram
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
 
+                    if (mapping.Docs!.SliceProviderContract is not null)
+                    {
+                        var sliceRepair = RepairKnownSliceProviderChannel(text, file, owner, mapping.Docs);
+                        if (sliceRepair.Targets.Count > 0 && remaining > 0)
+                        {
+                            text = sliceRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply", file.RelativePath, owner.Id, sliceRepair.Targets[0],
+                                mapping.SourceUrl, "importer_unsafe_slice_provider_withdrawal",
+                                "Withdrew one exact importer-owned inherited ContentProvider channel contradicted by the final SliceProvider implementation; no replacement prose was inferred."));
+                        }
+                        else if (sliceRepair.Targets.Count > 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath, owner.Id, sliceRepair.Targets[0], "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.", mapping.SourceUrl));
+                        }
+                        else if (owner.Docs.Elements().Any(channel =>
+                            !IsPlaceholder(channel) && channel.Name != "remarks") ||
+                            owner.Docs.Elements("remarks").Any(channel => !IsPlaceholder(channel)))
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath, owner.Id, "summary", "importer_slice_provider_channel_preserved",
+                                "The complete original importer-owned Docs could not be verified, or no unsafe prose remains; existing documentation was preserved.",
+                                mapping.SourceUrl));
+                        }
+                    }
+
                     var eapCorrection = RepairKnownEapChannel(text, file, owner, mapping.Docs!);
                     var eapCandidates = KnownEapChannelRepairCandidateTargets(owner);
                     if (eapCandidates.Count > 0 && eapCorrection.Targets.Count == 0)
@@ -1654,6 +1686,7 @@ static class ImporterProgram
         docs = WithKnownEapChannelCorrections(owner, docs);
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeProtoTokenRemark(owner, docs);
+        docs = WithoutKnownUnsafeSliceProviderChannels(owner, docs);
         docs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeJavaSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
@@ -1663,6 +1696,168 @@ static class ImporterProgram
         docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    sealed record SliceProviderContract(string MemberId, string BindingHash, string SourceHash);
+
+    static readonly SliceProviderContract[] KnownSliceProviderContracts =
+    [
+        new("M:Android.App.Slices.SliceProvider.Delete(Android.Net.Uri,System.String,System.String[])",
+            "e065841fd0c86b26d7db0db5036493a324f8961c0a0c2ce368f211fbd3e5e611",
+            "638ddc656fa81385eb7d19215c2270dd31d99eefb129144f52cdc6c7d09c8174"),
+        new("M:Android.App.Slices.SliceProvider.GetType(Android.Net.Uri)",
+            "9d37f39e698aa675999a04fe021c4b090b6aca0db321169ca5cd9a32a8a84dfd",
+            "643b8ed685027ef20c6f357910f1aeb56a969d71c237dc845d0f7849b24d73fa"),
+        new("M:Android.App.Slices.SliceProvider.Insert(Android.Net.Uri,Android.Content.ContentValues)",
+            "cfe1e84059cdf6b3924025c35f4761776959fa354bea41aa866ff9348e507cf3",
+            "ddad26deb6315897e725fd2fbaafbd3b9685a38754087829b3820ef8d0a7c7d8"),
+        new("M:Android.App.Slices.SliceProvider.Query(Android.Net.Uri,System.String[],Android.OS.Bundle,Android.OS.CancellationSignal)",
+            "00c2a53898cfb8ab558d9e1b8efbb1daa29578cbdf3693bb3482267ae5fefeb9",
+            "0aeb28b1acbc84b4142d71c2ede6769d97dd71bdaa1eaa5b7ce46cd3275ad547"),
+        new("M:Android.App.Slices.SliceProvider.Query(Android.Net.Uri,System.String[],System.String,System.String[],System.String)",
+            "e8059a0fb79903aec04f9e9480419b6ccdcb470d79a4ca20ffa0a729f9aa2f85",
+            "da6c2f69442e52f4ea977a48907714c25485d8c6c46e6b9c4a614eda79bdb4e3"),
+        new("M:Android.App.Slices.SliceProvider.Query(Android.Net.Uri,System.String[],System.String,System.String[],System.String,Android.OS.CancellationSignal)",
+            "8f68cd75e5318fc582b19800fd2b30678fbbcd0993fda86e11926a0b6beaaedc",
+            "1a90ccde76e6e8c03bf42586c18242f005086b62467c6129008b67bdf1ecc925"),
+        new("M:Android.App.Slices.SliceProvider.Update(Android.Net.Uri,Android.Content.ContentValues,System.String,System.String[])",
+            "c3b0ebe33893eb0a568d1b37c8c7c0ef907eaaf24495d3cbd81277ba28eadb7d",
+            "bc5824ad290476926618ac1b02b7b14951035b9a36a4f4ac8c9c6df16ea82d37"),
+    ];
+
+    static string SliceProviderBindingHash(DocsOwner owner) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new
+        {
+            JavaPath = owner.SourceRequest?.JavaPath,
+            owner.MemberRegistration,
+            MemberType = owner.Member?.Element("MemberType")?.Value,
+            Signature = owner.Member?.Elements("MemberSignature")
+                .Where(signature => (string?)signature.Attribute("Language") == "C#")
+                .Select(signature => (string?)signature.Attribute("Value")).ToArray(),
+            ReturnType = owner.Member?.Element("ReturnValue")?.Element("ReturnType")?.Value,
+            Parameters = owner.Member?.Element("Parameters")?.Elements("Parameter")
+                .Select(parameter => new
+                {
+                    Name = (string?)parameter.Attribute("Name"),
+                    Type = (string?)parameter.Attribute("Type"),
+                }).ToArray(),
+        })))).ToLowerInvariant();
+
+    static string SliceProviderSourceHash(SourceDocs docs) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new
+        {
+            docs.SourceKind,
+            docs.SourceUrl,
+            docs.SourceLabel,
+            docs.Summary,
+            docs.Paragraphs,
+            docs.Returns,
+            Parameters = docs.Parameters.OrderBy(pair => pair.Key, StringComparer.Ordinal).ToArray(),
+            Exceptions = docs.Exceptions.OrderBy(pair => pair.Key, StringComparer.Ordinal).ToArray(),
+            docs.HasMalformedSourceMarkup,
+        })))).ToLowerInvariant();
+
+    static SourceDocs WithoutKnownUnsafeSliceProviderChannels(DocsOwner owner, SourceDocs docs)
+    {
+        var contract = KnownSliceProviderContracts.SingleOrDefault(candidate =>
+            candidate.MemberId == owner.Id &&
+            candidate.BindingHash == SliceProviderBindingHash(owner) &&
+            candidate.SourceHash == SliceProviderSourceHash(docs));
+        if (contract is null || docs.UnsafeTargets is not null)
+            return docs;
+        const string detail =
+            "The exact declared Android page copies ContentProvider implementation and data-operation contracts, but this SliceProvider override is final and ignores the operation arguments; no replacement prose was inferred.";
+        var targets = docs.Parameters.Keys.ToDictionary(key => "param:" + key, _ => detail, StringComparer.Ordinal);
+        targets["summary"] = detail;
+        targets["remarks"] = detail;
+        targets["returns"] = detail;
+        return docs with
+        {
+            UnsafeTargets = targets,
+            WithheldRemarks = docs.Paragraphs,
+            SliceProviderContract = contract,
+        };
+    }
+
+    static bool IsPlaceholder(XElement channel) =>
+        HasPlainTextContent(channel, out var value) &&
+        value is "To be added." or "To be added";
+
+    static XElement SliceProviderPriorDocs(DocsOwner owner, SourceDocs raw)
+    {
+        var expected = new XElement("Docs");
+        foreach (var parameter in owner.Member!.Element("Parameters")!.Elements("Parameter"))
+        {
+            var name = (string)parameter.Attribute("Name")!;
+            var replacement = ReplacementFor(new Placeholder(0, "param", name, "param:" + name), raw);
+            expected.Add(new XElement("param", new XAttribute("name", name), replacement.Text ?? "To be added."));
+        }
+        foreach (var name in new[] { "summary", "returns" })
+        {
+            var replacement = ReplacementFor(new Placeholder(0, name, "", name), raw);
+            expected.Add(new XElement(name, replacement.Text ?? "To be added."));
+        }
+        expected.Add(new XElement("remarks", UsableRemarks(raw.Paragraphs).Select(DocumentationElement),
+            ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        return expected;
+    }
+
+    static AndroidTextRepairResult RepairKnownSliceProviderChannel(
+        string text, LoadedFile file, DocsOwner owner, SourceDocs source)
+    {
+        if (source.SliceProviderContract is not { } contract ||
+            contract.MemberId != owner.Id || contract.BindingHash != SliceProviderBindingHash(owner) ||
+            contract.SourceHash != SliceProviderSourceHash(source))
+            return new(text, []);
+        var raw = source with { UnsafeTargets = null, WithheldRemarks = null, SliceProviderContract = null };
+        var expected = SliceProviderPriorDocs(owner, raw);
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actual) ||
+            !XNode.DeepEquals(actual, owner.Docs) ||
+            actual.Attributes().Any() || actual.Nodes().Any(node =>
+                node is not XElement && (node is not XText content || !string.IsNullOrWhiteSpace(content.Value))) ||
+            actual.Elements().Count() != expected.Elements().Count())
+            return new(text, []);
+        XElement? target = null;
+        foreach (var (channel, original) in actual.Elements().Zip(expected.Elements()))
+        {
+            if (channel.Name != original.Name ||
+                !channel.Attributes().Select(attribute => (attribute.Name, attribute.Value))
+                    .SequenceEqual(original.Attributes().Select(attribute => (attribute.Name, attribute.Value))))
+                return new(text, []);
+            if (IsPlaceholder(channel))
+                continue;
+            if (channel.Name == "remarks" && ImporterMarkupEquals(channel,
+                new XElement("remarks", "To be added.", ImporterSourceReference(raw),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>"))))
+                continue;
+            if (!ImporterMarkupEquals(channel, original))
+                return new(text, []);
+            if (channel.Name != "remarks" && !HasPlainTextContent(channel, out _))
+                return new(text, []);
+            if (channel.Name == "remarks" && channel.Elements().Any(element =>
+                element.Name == "code" ? element.Nodes().Any(node => node is not XText) :
+                element.Name == "para" && element.Element("format") is null && !HasPlainTextContent(element, out _)))
+                return new(text, []);
+            target ??= channel;
+        }
+        if (target is null || !TryGetElementSpan(blockText, target, out var span))
+            return new(text, []);
+        var replacementText = new XElement(target.Name, target.Attributes(), "To be added.")
+            .ToString(SaveOptions.DisableFormatting);
+        if (target.Name == "remarks")
+        {
+            var retained = target.Elements().TakeLast(2).ToArray();
+            if (!TryGetElementSpan(blockText, retained[0], out var referenceSpan) ||
+                !TryGetElementSpan(blockText, retained[1], out var attributionSpan))
+                return new(text, []);
+            replacementText = "<remarks>To be added." +
+                blockText[referenceSpan.Start..attributionSpan.End] + "</remarks>";
+        }
+        var targetName = target.Name == "param" ? "param:" + (string?)target.Attribute("name") : target.Name.LocalName;
+        return new(text[..block.Start] + blockText[..span.Start] + replacementText +
+            blockText[span.End..] + text[block.End..], [targetName]);
     }
 
     static SourceDocs WithoutKnownUnsafeQuickSettingsChannels(string memberId, SourceDocs docs)
@@ -2574,6 +2769,8 @@ static class ImporterProgram
         var targets = owner.Placeholders
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
+        if (KnownSliceProviderContracts.Any(contract => contract.MemberId == owner.Id))
+            targets.Add("summary");
         targets.UnionWith(KnownAndroidTextRepairCandidateTargets(owner));
         targets.UnionWith(KnownEapChannelRepairCandidateTargets(owner));
         if (HasKnownUnsafeWifiRttRemarksCandidate(owner))
@@ -2636,6 +2833,7 @@ static class ImporterProgram
         HasKnownIncorrectBooleanReturnRepairCandidate(file, owner) ||
         KnownAndroidTextRepairCandidateTargets(owner).Count > 0 ||
         KnownEapChannelRepairCandidateTargets(owner).Count > 0 ||
+        KnownSliceProviderContracts.Any(contract => contract.MemberId == owner.Id) ||
         HasKnownUnsafeWifiRttRemarksCandidate(owner) ||
         KnownUnsafeIkeRepairCandidateTargets(owner).Count > 0 ||
         HasKnownAndroidProseRepairCandidate(file, owner) ||
@@ -9365,6 +9563,244 @@ static class ImporterProgram
         }
     }
 
+    static void TestSliceProviderContracts(string repositoryRoot, string fixtureRoot)
+    {
+        var fixturePath = Path.Combine(fixtureRoot, "slices-provider-source.xml");
+        var fixtureText = File.ReadAllText(fixturePath);
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "slices-provider-android-reference.html"));
+        var file = LoadedFile.Load(repositoryRoot, fixturePath);
+        file.SelectOwners(null);
+        var owners = file.Owners.Where(owner => KnownSliceProviderContracts.Any(contract =>
+            contract.MemberId == owner.Id)).ToArray();
+        var request = owners[0].SourceRequest!;
+        var page = SourcePage.Parse(request, html);
+        var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+        {
+            [request.Url] = SourceLoadResult.Success(page),
+        };
+        var sources = owners.Select(owner => MapOwner(owner, pages).Docs!).ToArray();
+        var implementation = File.ReadAllText(Path.Combine(fixtureRoot, "slices-provider-implementation.txt"));
+        Assert(Regex.IsMatch(implementation, @"public final int delete\([^)]*\)\s*\{[^}]*return 0;", RegexOptions.Singleline) &&
+            Regex.IsMatch(implementation, @"public final int update\([^)]*\)\s*\{[^}]*return 0;", RegexOptions.Singleline) &&
+            Regex.Matches(implementation, @"public final Cursor query\([^)]*\)\s*\{[^}]*return null;", RegexOptions.Singleline).Count == 3 &&
+            Regex.IsMatch(implementation, @"public final Uri insert\([^)]*\)\s*\{[^}]*return null;", RegexOptions.Singleline) &&
+            Regex.IsMatch(implementation, @"public final String getType\([^)]*\)\s*\{[^}]*return SLICE_TYPE;", RegexOptions.Singleline),
+            "pinned Android implementation confirms all seven final SliceProvider operations ignore the inherited data-operation contracts; verification is not replacement documentation");
+        for (var index = 0; index < owners.Length; index++)
+        {
+            Console.WriteLine($"SLICE CONTRACT: {owners[index].Id} " +
+                $"{SliceProviderBindingHash(owners[index])} {SliceProviderSourceHash(sources[index])}");
+        }
+        Assert(owners.Length == 7 && sources.All(source => source.SliceProviderContract is not null),
+            "seven exact registered SliceProvider inherited contracts match immutable binding and complete source fingerprints");
+        for (var index = 0; index < owners.Length; index++)
+        {
+            var owner = owners[index];
+            var source = sources[index];
+            var raw = source with { UnsafeTargets = null, WithheldRemarks = null, SliceProviderContract = null };
+            Assert(owner.Placeholders.All(placeholder =>
+                ReplacementFor(placeholder, source).Reason == "source_channel_ambiguous"),
+                "SliceProvider first fill withholds every copied data-operation contract without invented replacement prose");
+            foreach (var changed in new[]
+            {
+                raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                raw with { SourceKind = "java" },
+                raw with { Summary = "Corrected source summary." },
+                raw with { Paragraphs = [new SourceParagraph("Corrected source guidance.", false)] },
+                raw with { Paragraphs = [] },
+                raw with { Returns = "Corrected source return." },
+                raw with { Parameters = new Dictionary<string, string>(StringComparer.Ordinal) },
+                raw with { Exceptions = new Dictionary<string, string> { ["Exception"] = "Changed contract." } },
+                raw with { HasMalformedSourceMarkup = true },
+            })
+            {
+                Assert(WithoutKnownUnsafeSliceProviderChannels(owner, changed) == changed,
+                    "SliceProvider guard preserves different URLs, labels, source kinds, changed contracts, and corrected or removed guidance");
+            }
+            var alteredMember = new XElement(owner.Member!);
+            alteredMember.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object";
+            var alteredParameter = new XElement(owner.Member!);
+            alteredParameter.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Type", "System.Object");
+            var alteredSignature = new XElement(owner.Member!);
+            alteredSignature.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "Changed managed signature.");
+            foreach (var changed in new[]
+            {
+                owner with { Id = owner.Id + ".Other" },
+                owner with { SourceRequest = SourceRequest.Create("android/app/slice/OtherProvider") },
+                owner with { MemberRegistration = null },
+                owner with { MemberRegistration = owner.MemberRegistration! with { Name = "other" } },
+                owner with { MemberRegistration = owner.MemberRegistration! with { Descriptor = "()V" } },
+                owner with { MemberRegistration = owner.MemberRegistration! with { IsField = true } },
+                owner with { Member = alteredMember },
+                owner with { Member = alteredParameter },
+                owner with { Member = alteredSignature },
+            })
+            {
+                Assert(WithoutKnownUnsafeSliceProviderChannels(changed, raw) == raw,
+                    "SliceProvider guard requires the exact managed identity, JNI owner/name/descriptor, signature and return/parameter binding");
+            }
+        }
+        var token = $"slices-contract-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var tempDirectory = Path.Combine(repositoryRoot, "tools", token);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Slices", token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var cachePath = Path.Combine(tempDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            void WriteDocument(XElement document) => File.WriteAllText(pipelinePath,
+                document.ToString(SaveOptions.DisableFormatting).Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+            JsonDocument RunPipeline()
+            {
+                var reportPath = Path.Combine(tempDirectory, "report");
+                var result = RunAsync([
+                    "--path", pipelinePath, "--namespace", "Android.App.Slices",
+                    "--offline", "--cache", tempDirectory, "--max-changes", "1",
+                    "--apply", "--report", reportPath,
+                ]).GetAwaiter().GetResult();
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(result == 0 && report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "SliceProvider registered max-one offline production pipeline succeeds without errors");
+                return report;
+            }
+            WriteDocument(XElement.Parse(fixtureText));
+            var initial = File.ReadAllBytes(pipelinePath);
+            for (var repeat = 0; repeat < 2; repeat++)
+            {
+                using var report = RunPipeline();
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(initial),
+                    "SliceProvider registered first-fill and persisted repeat retain every placeholder byte with zero writes");
+            }
+            for (var index = 0; index < owners.Length; index++)
+            {
+                var raw = sources[index] with
+                {
+                    UnsafeTargets = null, WithheldRemarks = null, SliceProviderContract = null,
+                };
+                var document = XElement.Parse(fixtureText);
+                var member = document.Element("Members")!.Elements("Member").Single(candidate =>
+                    candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == owners[index].Id));
+                member.Element("Docs")!.ReplaceWith(SliceProviderPriorDocs(owners[index], raw));
+                WriteDocument(document);
+                var original = File.ReadAllText(pipelinePath);
+                var loaded = LoadedFile.Load(repositoryRoot, pipelinePath);
+                loaded.SelectOwners(null);
+                var prior = loaded.Owners.Single(candidate => candidate.Id == owners[index].Id);
+                Assert(RepairKnownSliceProviderChannel(original, loaded, prior, sources[index]).Targets.Count == 1,
+                    "complete original importer-owned SliceProvider Docs enables exactly one channel withdrawal");
+                foreach (var mutation in new Action<XElement>[]
+                {
+                    docs => docs.Add(new XElement("para", "Authored addition.")),
+                    docs => docs.Element("summary")!.Add(new XComment("authored")),
+                    docs => docs.Element("summary")!.ReplaceNodes(new XCData(docs.Element("summary")!.Value)),
+                    docs => docs.Element("summary")!.Add(new XProcessingInstruction("authored", "value")),
+                    docs => docs.Element("summary")!.SetAttributeValue("authored", "true"),
+                    docs => docs.Element("summary")!.Add(new XElement("c", "authored")),
+                    docs => docs.Element("remarks")!.Elements().Last().Remove(),
+                    docs => docs.Element("remarks")!.Descendants("a").First().SetAttributeValue("href", "https://example.invalid/"),
+                    docs => docs.Add(new XElement(docs.Element("summary")!)),
+                })
+                {
+                    var changed = XElement.Parse(original, LoadOptions.PreserveWhitespace);
+                    var changedDocs = changed.Element("Members")!.Elements("Member").Single(candidate =>
+                        candidate.Elements("MemberSignature").Any(signature =>
+                            (string?)signature.Attribute("Language") == "DocId" &&
+                            (string?)signature.Attribute("Value") == prior.Id)).Element("Docs")!;
+                    mutation(changedDocs);
+                    WriteDocument(changed);
+                    var bytes = File.ReadAllBytes(pipelinePath);
+                    using var report = RunPipeline();
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(bytes),
+                        "SliceProvider production repair preserves authored nodes, mixed markup, CDATA, comments, processing instructions, attributes, references, attribution and duplicate channels");
+                }
+                WriteDocument(document);
+                var historicalOperations = 0;
+                while (true)
+                {
+                    using var report = RunPipeline();
+                    var count = report.RootElement.GetProperty("appliedCount").GetInt32();
+                    Assert(count is 0 or 1,
+                        "SliceProvider prior-owned production withdrawal respects max-one operations");
+                    if (count == 0)
+                        break;
+                    historicalOperations += count;
+                    Assert(historicalOperations <= prior.Docs.Elements().Count(),
+                        "SliceProvider prior-owned withdrawal terminates within the original channel count");
+                    XDocument.Load(pipelinePath);
+                }
+                Assert(historicalOperations > 0,
+                    "SliceProvider exact prior-owned channels were withdrawn rather than silently retained");
+                var persisted = File.ReadAllBytes(pipelinePath);
+                using var repeated = RunPipeline();
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(persisted) &&
+                    persisted.Take(3).SequenceEqual(new byte[] { 0xef, 0xbb, 0xbf }) &&
+                    !Regex.IsMatch(File.ReadAllText(pipelinePath), "(?<!\\r)\\n"),
+                    "SliceProvider completed withdrawals persist as zero-write repeats with BOM and CRLF preserved");
+                var resultDocs = XDocument.Load(pipelinePath).Descendants("Member").Single(candidate =>
+                    candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == prior.Id)).Element("Docs")!;
+                Assert(resultDocs.Element("remarks")!.Elements().Count() == 2 &&
+                    ImporterMarkupEquals(resultDocs.Element("remarks")!.Elements().First(), ImporterSourceReference(raw)) &&
+                    ImporterMarkupEquals(resultDocs.Element("remarks")!.Elements().Last(),
+                        XElement.Parse($"<para>{AndroidAttribution}</para>")),
+                    "SliceProvider remarks withdrawal retains the exact source reference and Android attribution");
+
+                var anchor = sourceAnchor(raw.SourceUrl);
+                var heading = Regex.Match(html, @"<h3\b[^>]*\bid=""" + Regex.Escape(anchor) + @"""[^>]*>[\s\S]*?</h3>");
+                Assert(heading.Success, "SliceProvider corrected-source controls retain the exact declared heading");
+                var signature = Regex.Match(html[heading.Index..], @"<pre\b[^>]*class=""api-signature[^""]*""[^>]*>[\s\S]*?</pre>");
+                Assert(signature.Success, "SliceProvider corrected-source controls retain the exact Java signature");
+                foreach (var lead in new[] { "Corrected source-only test contract.", "Safe source-only test lead." })
+                {
+                    var correctedHtml = "<html><body><main>" + heading.Value + signature.Value +
+                        "<p>" + lead + "</p></main></body></html>";
+                    File.WriteAllText(cachePath, correctedHtml, new UTF8Encoding(false));
+                    var changedPage = SourcePage.Parse(request, correctedHtml);
+                    var changedMapping = MapOwner(owners[index], new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(changedPage),
+                    });
+                    Assert(changedMapping.Docs is { SliceProviderContract: null, UnsafeTargets: null } &&
+                        changedMapping.Docs.Summary == lead &&
+                        changedMapping.Docs.Paragraphs.All(paragraph => !paragraph.Text.Contains("Implement this", StringComparison.Ordinal)),
+                        "registered parsing makes corrected source and removal of inherited unsafe guidance eligible without implementation-derived prose");
+                    WriteDocument(XElement.Parse(fixtureText));
+                    using var corrected = RunPipeline();
+                    Assert(corrected.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "SliceProvider corrected or removed source imports one eligible channel in the actual max-one production pipeline");
+                    using var completed = RunPipeline();
+                    Assert(completed.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "SliceProvider corrected-source remarks import remains separately max-one bounded");
+                    var correctedBytes = File.ReadAllBytes(pipelinePath);
+                    using var correctedRepeat = RunPipeline();
+                    Assert(correctedRepeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(correctedBytes),
+                        "SliceProvider future corrected and removed-source controls persist with byte-identical zero-write repeats");
+                }
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            }
+            static string sourceAnchor(string url) =>
+                WebUtility.HtmlEncode(Uri.UnescapeDataString(url.Split('#')[1]))
+                    .Replace(" ", "%20", StringComparison.Ordinal);
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
         TestAdminOnBindRawSource(repositoryRoot);
@@ -9378,6 +9814,7 @@ static class ImporterProgram
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
         TestProtoTokenRemark(repositoryRoot, fixtureRoot);
+        TestSliceProviderContracts(repositoryRoot, fixtureRoot);
         TestRssiSourceGuards(repositoryRoot, fixtureRoot);
         TestGestureCloneIntroductions(repositoryRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
@@ -20527,7 +20964,8 @@ static class ImporterProgram
         IReadOnlyDictionary<string, string>? UnsafeTargets = null,
         bool HasMalformedSourceMarkup = false,
         KnownEapChannelCorrection? EapCorrection = null,
-        List<SourceParagraph>? WithheldRemarks = null);
+        List<SourceParagraph>? WithheldRemarks = null,
+        SliceProviderContract? SliceProviderContract = null);
 
     static class Descriptor
     {

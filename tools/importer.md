@@ -91,6 +91,21 @@ intact; its unsafe return is restored to `To be added.`. Authored or mixed conte
 duplicate channels, altered metadata, and changed sources are preserved and reported.
 Repairs for one member are atomic and require room for every affected channel.
 Implementation verification is not an AOSP prose fallback.
+The seven final `SliceProvider` data-operation overrides also expose copied
+`ContentProvider` contracts despite ignoring their operation arguments:
+`delete`, `getType`, `insert`, the three `query` overloads, and `update`.
+Their exact source channels are reported as `source_channel_ambiguous`.
+Immutable SHA-256 fingerprints cover the registered JNI owner/name/descriptor,
+managed signature and parameter/return bindings, canonical source URL and label,
+and complete ordered parsed source contract, including code and parameter text.
+The raw declared-source fixture makes these fingerprints reproducible.
+No implementation-derived replacement prose is imported. Corrected or removed
+official guidance remains eligible. A prior copy is withdrawn one channel at
+a time only when the entire Docs block matches the original plain importer
+output or its already-withdrawn placeholders. Source reference and attribution
+bytes are retained when remarks are withdrawn. Authored or mixed XML, comments,
+CDATA, processing instructions, duplicate channels, altered metadata, changed
+source, references or attribution preserve the existing documentation.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
