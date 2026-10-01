@@ -1457,7 +1457,7 @@ static class ImporterProgram
             ? new Dictionary<string, string>(StringComparer.Ordinal)
             : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
         targets["summary:paragraph"] =
-            "The exact Android RSSI default paragraph contains an unresolved ERROR label linked to the site root; only that paragraph is excluded.";
+            "The exact Android RSSI default paragraph contains an unresolved ERROR label; only that paragraph is excluded.";
         return docs with
         {
             Paragraphs = docs.Paragraphs.Where(paragraph =>
@@ -14300,6 +14300,9 @@ static class ImporterProgram
                     ("safe-after", html.Replace(
                         "</code></p></p>", "</code></p></p><p>Additional official guidance after the default.</p>",
                         StringComparison.Ordinal), "Additional official guidance after the default."),
+                    ("changed-href", html.Replace("href=\"/\"",
+                        "href=\"/reference/android/ranging/raw/RawRangingDevice#UPDATE_RATE_NORMAL\"",
+                        StringComparison.Ordinal), RssiUpdateRateLead),
                     ("corrected-default", html.Replace(RssiMalformedDefault["Defaults to ".Length..],
                         "UPDATE_RATE_NORMAL.", StringComparison.Ordinal),
                         "Defaults to UPDATE_RATE_NORMAL."),

@@ -119,6 +119,10 @@ excluded paragraph is reported as `source_channel_ambiguous`. Changed or correct
 official source is preserved; no default-value prose is inferred from implementation.
 Unrelated summary edits or added safe paragraphs do not re-enable the malformed
 paragraph; all other source paragraphs retain their original order.
+The site-root link describes the observed source, not a required exclusion
+predicate: the exact unresolved label remains unsafe even if its hyperlink
+changes. Canonical member-page/JNI provenance is checked independently of that
+inner hyperlink; no source-label correction is inferred from either link.
 Java-signature remarks repairs likewise require only an unmodified Java signature,
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
