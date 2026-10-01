@@ -14278,6 +14278,12 @@ static class ImporterProgram
                             SourceRequest = SourceRequest.Create("android/service/quicksettings/OtherOwner"),
                         }, pages).Docs is null,
                             "wrong actual JNI owner cannot import guarded source");
+                        if (!owner.MemberRegistration!.IsField)
+                            Assert(MapOwner(owner with
+                            {
+                                MemberRegistration = owner.MemberRegistration with { Descriptor = "(I)Landroid/os/IBinder;" },
+                            }, pages).Docs is null,
+                                "same JNI method name with a different descriptor cannot import guarded source");
                     }
                 }
                 string[] arguments =
@@ -14330,6 +14336,33 @@ static class ImporterProgram
                     Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
                         report.RootElement.GetProperty("filesChanged").GetInt32() == 0,
                         "persisted QuickSettings repeat reports zero writes");
+                if (typeName is "TileService" or "TileState")
+                {
+                    var paragraph = typeName == "TileService"
+                        ? page.Members.Single().Docs!.Paragraphs.First().Text
+                        : QuickSettingsIncorrectActiveDescription;
+                    var contextualHtml = html.Replace("<p>" + paragraph + "</p>",
+                        "<p>Safe context before.</p><p>" + paragraph + "</p><p>Safe context after.</p>",
+                        StringComparison.Ordinal);
+                    Assert(contextualHtml != html, "registered safe-context fixture mutation is nonvacuous");
+                    File.WriteAllText(cachePath, contextualHtml, new UTF8Encoding(false));
+                    File.WriteAllText(path, seed, new UTF8Encoding(true));
+                    Assert(RunAsync(arguments).GetAwaiter().GetResult() == 0,
+                        "registered first fill with an edited summary and safe surrounding source succeeds");
+                    var contextualDocs = XDocument.Load(path).Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                    var published = contextualDocs.Element(typeName == "TileState" ? "summary" : "remarks")!;
+                    Assert(published.Elements("para").Any(node => node.Value == "Safe context before.") &&
+                        published.Elements("para").Any(node => node.Value == "Safe context after.") &&
+                        (typeName == "TileService"
+                            ? contextualDocs.Element("param")!.Value == "To be added."
+                            : !published.Value.Contains("default state", StringComparison.Ordinal) &&
+                                published.Elements("para").Any(node => node.Value == QuickSettingsActiveDescription)),
+                        "production first fill still withholds the unsafe channel or sentence after independent source context changes");
+                    var contextualBytes = File.ReadAllBytes(path);
+                    Assert(RunAsync(arguments).GetAwaiter().GetResult() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(contextualBytes),
+                        "registered contextual first fill remains byte-idempotent on persisted repeat");
+                }
                 var correctedHtml = typeName == "TileService"
                     ? html.Replace(QuickSettingsBindIntent, "The Intent that was used to bind to this service.", StringComparison.Ordinal)
                     : html.Replace(QuickSettingsIncorrectActiveDescription, QuickSettingsActiveDescription, StringComparison.Ordinal);
