@@ -9567,11 +9567,22 @@ static class ImporterProgram
     {
         var fixturePath = Path.Combine(fixtureRoot, "slices-provider-source.xml");
         var fixtureText = File.ReadAllText(fixturePath);
+        using var legacyFixture = JsonDocument.Parse(
+            File.ReadAllText(Path.Combine(fixtureRoot, "slices-provider-legacy-output.json")));
+        var legacyBytes = Convert.FromBase64String(legacyFixture.RootElement.GetProperty("rawXmlBase64").GetString()!);
+        Assert(Convert.ToHexString(SHA256.HashData(legacyBytes)).ToLowerInvariant() ==
+            legacyFixture.RootElement.GetProperty("fixtureRawSha256").GetString(),
+            "independently generated legacy output retains its exact original bytes");
+        var legacyOutput = XElement.Parse(Encoding.UTF8.GetString(legacyBytes));
         var html = File.ReadAllText(Path.Combine(fixtureRoot, "slices-provider-android-reference.html"));
         var file = LoadedFile.Load(repositoryRoot, fixturePath);
         file.SelectOwners(null);
         var owners = file.Owners.Where(owner => KnownSliceProviderContracts.Any(contract =>
             contract.MemberId == owner.Id)).ToArray();
+        var legacyDocs = owners.Select(owner => legacyOutput.Element("Members")!.Elements("Member")
+            .Single(candidate => candidate.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "DocId" &&
+                (string?)signature.Attribute("Value") == owner.Id)).Element("Docs")!).ToArray();
         var request = owners[0].SourceRequest!;
         var page = SourcePage.Parse(request, html);
         var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
@@ -9598,6 +9609,13 @@ static class ImporterProgram
             var owner = owners[index];
             var source = sources[index];
             var raw = source with { UnsafeTargets = null, WithheldRemarks = null, SliceProviderContract = null };
+            var expected = SliceProviderPriorDocs(owner, raw);
+            Console.WriteLine($"SLICE LEGACY ACTUAL: {owner.Id} " +
+                legacyDocs[index].ToString(SaveOptions.DisableFormatting));
+            Console.WriteLine($"SLICE LEGACY EXPECTED: {owner.Id} " +
+                expected.ToString(SaveOptions.DisableFormatting));
+            Assert(ImporterMarkupEquals(legacyDocs[index], expected),
+                "fresh unchanged pre-guard production output matches the complete SliceProvider repair expectation");
             Assert(owner.Placeholders.All(placeholder =>
                 ReplacementFor(placeholder, source).Reason == "source_channel_ambiguous"),
                 "SliceProvider first fill withholds every copied data-operation contract without invented replacement prose");
@@ -9688,14 +9706,14 @@ static class ImporterProgram
                     candidate.Elements("MemberSignature").Any(signature =>
                         (string?)signature.Attribute("Language") == "DocId" &&
                         (string?)signature.Attribute("Value") == owners[index].Id));
-                member.Element("Docs")!.ReplaceWith(SliceProviderPriorDocs(owners[index], raw));
+                member.Element("Docs")!.ReplaceWith(new XElement(legacyDocs[index]));
                 WriteDocument(document);
                 var original = File.ReadAllText(pipelinePath);
                 var loaded = LoadedFile.Load(repositoryRoot, pipelinePath);
                 loaded.SelectOwners(null);
                 var prior = loaded.Owners.Single(candidate => candidate.Id == owners[index].Id);
                 Assert(RepairKnownSliceProviderChannel(original, loaded, prior, sources[index]).Targets.Count == 1,
-                    "complete original importer-owned SliceProvider Docs enables exactly one channel withdrawal");
+                    "complete independently produced legacy SliceProvider Docs enables exactly one channel withdrawal");
                 foreach (var mutation in new Action<XElement>[]
                 {
                     docs => docs.Add(new XElement("para", "Authored addition.")),

@@ -106,6 +106,15 @@ output or its already-withdrawn placeholders. Source reference and attribution
 bytes are retained when remarks are withdrawn. Authored or mixed XML, comments,
 CDATA, processing instructions, duplicate channels, altered metadata, changed
 source, references or attribution preserve the existing documentation.
+The registered prior-copy tests load `slices-provider-legacy-output.json`, produced
+by a fresh offline run of the unchanged importer from commit
+`f4ce3c93a25be92426e1caa8f65294508c78bd4a` against isolated original binding
+inputs. It retains the exact emitted XML bytes as base64, including attribution
+whitespace, and records the producer, cache, output hashes and bounded commands.
+These are fresh legacy-producer compatibility samples, not historical
+production copies. Each complete emitted Docs block is independently compared
+with the repair expectation before exercising the existing withdrawal and
+preservation controls; the expectation helper does not seed the samples.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
