@@ -12,6 +12,16 @@ return await ImporterProgram.RunAsync(args);
 static class ImporterProgram
 {
     const string AndroidReference = "https://developer.android.com/reference/";
+    const string DreamFocusSourceUrl =
+        AndroidReference + "android/service/dreams/DreamService#onWindowFocusChanged(boolean)";
+    const string DreamFocusMemberId =
+        "M:Android.Service.Dreams.DreamService.OnWindowFocusChanged(System.Boolean)";
+    const string IncorrectDreamFocusRemark =
+        "This hook is called whenever the window focus changes. See View.onWindowFocusChangedNotLocked(boolean) for more information.";
+    const string CorrectDreamFocusRemark =
+        "This hook is called whenever the window focus changes. See View.onWindowFocusChanged(boolean) for more information.";
+    const string StaleDreamFocusSourceLink =
+        "<a href=\"/reference/android/view/View#onWindowFocusChanged(boolean)\">View.onWindowFocusChangedNotLocked(boolean)</a>";
     const string JavaReference = "https://docs.oracle.com/en/java/javase/21/docs/api/";
     const string UserAgent = "dotnet-android-api-docs-importer/1.0 (+https://github.com/dotnet/android-api-docs)";
     const int MaximumDownloadBytes = 12 * 1024 * 1024;
@@ -29,6 +39,49 @@ static class ImporterProgram
         "Android Open Source Project</a></format> and used according to terms described in the " +
         "<format type=\"text/html\"><a href=\"https://creativecommons.org/licenses/by/2.5/\">" +
         "Creative Commons 2.5 Attribution License.</a></format>";
+    const string ControlTemplateMemberId =
+        "M:Android.Service.Controls.Control.StatefulBuilder.SetControlTemplate(Android.Service.Controls.Templates.ControlTemplate)";
+    const string ControlTemplateSourceUrl =
+        AndroidReference + "android/service/controls/Control.StatefulBuilder#setControlTemplate(android.service.controls.templates.ControlTemplate)";
+    const string ControlTemplateLead =
+        "Set the ControlTemplate to define the primary user interaction";
+    const string ControlTemplateDescription =
+        "Devices may support a variety of user interactions, and all interactions cannot be represented " +
+        "with a single ControlTemplate. Therefore, the selected template should be most closely aligned " +
+        "with what the expected primary device action will be. Any secondary interactions can be done " +
+        "via the setAppIntent(PendingIntent).";
+    const string LegacyControlTemplateParagraph =
+        ControlTemplateLead + " " + ControlTemplateDescription;
+    const string LegacyControlTemplateSummary =
+        ControlTemplateLead + " Devices may support a variety of user interactions, and all interactions " +
+        "cannot be represented with a single ControlTemplate.";
+    static readonly KnownControlsLifecycleRepair[] KnownControlsLifecycleRepairs =
+    [
+        new(
+            "M:Android.Service.Controls.ControlsProviderService.OnBind(Android.Content.Intent)",
+            AndroidReference + "android/service/controls/ControlsProviderService#onBind(android.content.Intent)",
+            "Return the communication channel to the service.",
+            [
+                "Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.",
+                "Note that unlike other application components, calls on to the IBinder interface returned here may not happen on the main thread of the process. More information about the main thread can be found in Processes and Threads.",
+            ],
+            [
+                "Return the communication channel to the service.",
+                "The returned IBinder is usually for a complex interface that has been described using aidl.",
+            ],
+            null),
+        new(
+            "M:Android.Service.Controls.ControlsProviderService.OnUnbind(Android.Content.Intent)",
+            AndroidReference + "android/service/controls/ControlsProviderService#onUnbind(android.content.Intent)",
+            "Called when all clients have disconnected from a particular interface published by the service.",
+            [
+                "Called when all clients have disconnected from a particular interface published by the service. The default implementation does nothing and returns false.",
+            ],
+            [
+                "Called when all clients have disconnected from a particular interface published by the service.",
+            ],
+            "Return true if you would like to have the service's onRebind(Intent) method later called when new clients bind to it."),
+    ];
     static readonly KnownBooleanReturnRepair[] KnownBooleanReturnRepairs =
     [
         new(
@@ -70,6 +123,23 @@ static class ImporterProgram
             "   // these two lines are equivalent, but the second approach is recommended\n" +
             "   temporal = thisUnit.addTo(temporal, amount);\n" +
             "   temporal = temporal.plus(amount, thisUnit);"),
+        new(
+            JavaReference + "java.base/java/time/zone/ZoneRules.html#getTransition(java.time.LocalDateTime)",
+            "  ZoneOffsetTransition trans = rules.getTransition(localDT);\n" +
+            "  if (trans != null) {\n" +
+            "    // Gap or Overlap: determine what to do from transition\n" +
+            "  } else {\n" +
+            "    // Normal case: only one valid offset\n" +
+            "    zoneOffset = rule.getOffset(localDT);\n" +
+            "  }",
+            "  ZoneOffsetTransition trans = rules.getTransition(localDT);\n" +
+            "  if (trans != null) {\n" +
+            "    // Gap or Overlap: determine what to do from transition\n" +
+            "  } else {\n" +
+            "    // Normal case: only one valid offset\n" +
+            "    zoneOffset = rules.getOffset(localDT);\n" +
+            "  }",
+            "M:Java.Time.Zone.ZoneRules.GetTransition(Java.Time.LocalDateTime)"),
     ];
     static readonly KnownJavaProseRepair[] KnownJavaProseRepairs =
     [
@@ -263,6 +333,83 @@ static class ImporterProgram
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
 
+                    var lifecycleTargets = KnownControlsLifecycleRepairTargets(owner);
+                    if (lifecycleTargets.Count > 0)
+                    {
+                        var lifecycleRepair = RepairKnownControlsLifecycle(
+                            text, file, owner, mapping.Docs!);
+                        if (lifecycleRepair.Reason is not null || remaining < lifecycleTargets.Count)
+                        {
+                            foreach (var target in lifecycleTargets)
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath, owner.Id, target,
+                                    lifecycleRepair.Reason ?? "max_changes_reached",
+                                    lifecycleRepair.Detail ??
+                                        $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                        }
+                        else
+                        {
+                            text = lifecycleRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining -= lifecycleTargets.Count;
+                            foreach (var target in lifecycleTargets)
+                            {
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply", file.RelativePath, owner.Id, target,
+                                    mapping.SourceUrl,
+                                    "importer_known_unsafe_controls_lifecycle_repair",
+                                    "Withdrew exact inherited Service contracts contradicted by the final ControlsProviderService implementations; retained only verified reference prose."));
+                            }
+                        }
+                    }
+
+                    if (HasKnownAndroidParagraphBoundaryRepairCandidate(owner))
+                    {
+                        var boundaryRepair = RepairKnownAndroidParagraphBoundary(
+                            text,
+                            file,
+                            owner,
+                            mapping.Docs!);
+                        if (boundaryRepair.Reason is not null || remaining < 2)
+                        {
+                            foreach (var target in new[] { "summary", "remarks" })
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    boundaryRepair.Reason ?? "max_changes_reached",
+                                    boundaryRepair.Detail ??
+                                        $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                            }
+                        }
+                        else if (!boundaryRepair.Text.Equals(text, StringComparison.Ordinal))
+                        {
+                            text = boundaryRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining -= 2;
+                            foreach (var target in new[] { "summary", "remarks" })
+                            {
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply",
+                                    file.RelativePath,
+                                    owner.Id,
+                                    target,
+                                    mapping.SourceUrl,
+                                    "importer_known_android_paragraph_boundary_repair",
+                                    "Restored the exact official source paragraph boundary in an importer-owned summary and remarks."));
+                            }
+                        }
+                    }
+
                     var copiedDescriptionRepair = RepairCopiedDescriptionLabels(
                         text,
                         file,
@@ -440,7 +587,7 @@ static class ImporterProgram
                             report.Entries.Add(ReportEntry.Skipped(
                                 file.RelativePath,
                                 owner.Id,
-                                "param:duration",
+                                $"param:{unsafeParameterRepair.ParameterName}",
                                 "max_changes_reached",
                                 $"The --max-changes limit of {options.MaxChanges} was reached.",
                                 mapping.SourceUrl));
@@ -456,10 +603,10 @@ static class ImporterProgram
                                 "would_apply",
                                 file.RelativePath,
                                 owner.Id,
-                                "param:duration",
+                                $"param:{unsafeParameterRepair.ParameterName}",
                                 mapping.SourceUrl,
                                 "importer_known_unsafe_parameter_repair",
-                                "Restored an importer-generated parameter to its placeholder because the exact Android source permits a value rejected by the referenced API."));
+                                "Restored an exact importer-generated parameter to its placeholder because its official source channel is unsafe."));
                         }
                     }
 
@@ -1114,10 +1261,51 @@ static class ImporterProgram
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
+        docs = WithoutKnownUnsafeJavaSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
         docs = WithoutKnownUnsafeRemoteEntryGuidance(owner.Id, docs);
         docs = WithKnownAndroidTextCorrections(owner.Id, docs);
+        docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    sealed record KnownControlsLifecycleRepair(
+        string MemberId,
+        string SourceUrl,
+        string Summary,
+        string[] OriginalParagraphs,
+        string[] FirstParagraphReplacement,
+        string? IncorrectReturn)
+    {
+        public IEnumerable<string> SafeParagraphs =>
+            FirstParagraphReplacement.Concat(OriginalParagraphs.Skip(1));
+    }
+
+    static SourceDocs WithoutKnownUnsafeControlsLifecycleChannels(string ownerId, SourceDocs docs)
+    {
+        var repair = KnownControlsLifecycleRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId == ownerId &&
+            candidate.SourceUrl == docs.SourceUrl &&
+            docs.SourceKind == "android");
+        if (repair is null)
+            return docs;
+
+        var paragraphs = docs.Paragraphs.SelectMany(paragraph =>
+            !paragraph.IsCode && paragraph.Text == repair.OriginalParagraphs[0]
+                ? repair.FirstParagraphReplacement
+                    .Select(text => new SourceParagraph(text, false))
+                : [paragraph]).ToList();
+        if (repair.IncorrectReturn is not null &&
+            RemoveLeadingJavaType(docs.Returns) == repair.IncorrectReturn)
+        {
+            var targets = docs.UnsafeTargets is null
+                ? new Dictionary<string, string>(StringComparer.Ordinal)
+                : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+            targets["returns"] =
+                "The inherited Service return describes a caller choice, but ControlsProviderService.onUnbind is final and always returns true.";
+            return docs with { Paragraphs = paragraphs, UnsafeTargets = targets };
+        }
+        return docs with { Paragraphs = paragraphs };
     }
 
     static SourceDocs WithKnownAndroidTextCorrections(string memberId, SourceDocs docs)
@@ -1275,6 +1463,40 @@ static class ImporterProgram
                 UnsafeTargets = targets,
             };
     }
+
+    const string KnownUnsafeZoneTransitionMemberId =
+        "M:Java.Time.Zone.ZoneOffsetTransitionRule.Of(Java.Time.Month,System.Int32,Java.Time.DayOfWeek,Java.Time.LocalTime,System.Boolean,Java.Time.Zone.ZoneOffsetTransitionRule.TimeDefinition,Java.Time.ZoneOffset,Java.Time.ZoneOffset,Java.Time.ZoneOffset)";
+    const string KnownUnsafeZoneTransitionSourceUrl =
+        JavaReference + "java.base/java/time/zone/ZoneOffsetTransitionRule.html#of(java.time.Month,int,java.time.DayOfWeek,java.time.LocalTime,boolean,java.time.zone.ZoneOffsetTransitionRule.TimeDefinition,java.time.ZoneOffset,java.time.ZoneOffset,java.time.ZoneOffset)";
+    const string KnownUnsafeZoneTransitionTime =
+        "the cutover time in the 'before' offset, not null";
+
+    static bool IsKnownUnsafeZoneTransitionTime(string memberId, SourceDocs docs) =>
+        memberId == KnownUnsafeZoneTransitionMemberId &&
+        docs.SourceKind == "java" &&
+        docs.SourceUrl.Equals(KnownUnsafeZoneTransitionSourceUrl, StringComparison.Ordinal) &&
+        docs.Parameters.TryGetValue("time", out var time) &&
+        time.Equals(KnownUnsafeZoneTransitionTime, StringComparison.Ordinal);
+
+    static SourceDocs WithoutKnownUnsafeJavaSourceChannels(string memberId, SourceDocs docs)
+    {
+        if (!IsKnownUnsafeZoneTransitionTime(memberId, docs))
+            return docs;
+
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["param:time"] =
+            "The exact Java 21 source describes the cutover time as relative to the before offset, " +
+            "but that interpretation applies only to WALL; UTC and STANDARD use their respective time bases.";
+        return docs with { UnsafeTargets = targets };
+    }
+
+    static bool HasKnownUnsafeZoneTransitionTimeCandidate(DocsOwner owner) =>
+        owner.Id == KnownUnsafeZoneTransitionMemberId &&
+        owner.Docs.Elements("param").Any(parameter =>
+            (string?)parameter.Attribute("name") == "time" &&
+            parameter.Value.Equals(KnownUnsafeZoneTransitionTime, StringComparison.Ordinal));
 
     const string KnownUnsafeContinueStrokeSourceUrl =
         "https://developer.android.com/reference/android/accessibilityservice/GestureDescription.StrokeDescription#continueStroke(android.graphics.Path,%20long,%20long,%20boolean)";
@@ -1452,8 +1674,11 @@ static class ImporterProgram
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
         targets.UnionWith(KnownAndroidTextRepairCandidateTargets(owner));
+        targets.UnionWith(KnownControlsLifecycleRepairTargets(owner));
         if (IsEnumSummaryRepairCandidate(owner) ||
             HasTruncatedImporterSummary(file, owner) ||
+            KnownControlsLifecycleRepairTargets(owner).Count > 0 ||
+            HasKnownAndroidParagraphBoundaryRepairCandidate(owner) ||
             HasCopiedDescriptionSummaryRepairCandidate(file, owner) ||
             HasPotentialEnumListRepair(file, owner))
             targets.Add("summary");
@@ -1466,7 +1691,10 @@ static class ImporterProgram
             targets.Add("summary");
             targets.Add("remarks");
         }
+        if (HasKnownUnsafeZoneTransitionTimeCandidate(owner))
+            targets.Add("param:time");
         if (HasAugmentedRemarksPlaceholder(file, owner) ||
+            HasKnownAndroidParagraphBoundaryRepairCandidate(owner) ||
             HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
             HasIncompleteCodeExampleRemarks(file, owner) ||
             HasMetadataOnlyRemarks(file, owner) ||
@@ -1496,12 +1724,14 @@ static class ImporterProgram
         HasAugmentedRemarksPlaceholder(file, owner) ||
         HasPotentialImporterOwnedRemarksRefresh(file, owner) ||
         HasTruncatedImporterSummary(file, owner) ||
+        HasKnownAndroidParagraphBoundaryRepairCandidate(owner) ||
         HasIncompleteCodeExampleRemarks(file, owner) ||
         HasMetadataOnlyRemarks(file, owner) ||
         HasCopiedDescriptionRepairCandidate(file, owner) ||
         HasKnownIncorrectBooleanReturnRepairCandidate(file, owner) ||
         KnownAndroidTextRepairCandidateTargets(owner).Count > 0 ||
-        HasKnownAndroidProseRepairCandidate(file, owner);
+        HasKnownAndroidProseRepairCandidate(file, owner) ||
+        HasKnownUnsafeZoneTransitionTimeCandidate(owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
         LoadedFile file,
@@ -2615,7 +2845,46 @@ static class ImporterProgram
         var remarks = owner.Docs.Element("remarks");
         return remarks is not null &&
             (IsPotentialImporterOwnedRemarks(remarks, owner.SourceRequest.Kind) ||
-             IsPotentialHybridImporterOwnedRemarks(remarks, owner.SourceRequest.Kind));
+             IsPotentialHybridImporterOwnedRemarks(remarks, owner.SourceRequest.Kind) ||
+             FindDreamFocusRepairParagraph(owner.Id, owner.Docs, null) is not null);
+    }
+
+    static XElement? FindDreamFocusRepairParagraph(
+        string memberId,
+        XElement document,
+        SourceDocs? source)
+    {
+        if (memberId != DreamFocusMemberId ||
+            document.Element("remarks") is not XElement remarks ||
+            remarks.HasAttributes ||
+            SignificantNodes(remarks) is not
+                [XElement paragraph, XElement sourceReference, XElement attribution] ||
+            paragraph.Name != "para" ||
+            paragraph.HasAttributes ||
+            !HasPlainTextContent(paragraph, out var value) ||
+            value != IncorrectDreamFocusRemark ||
+            !IsImporterAttributionParagraph(attribution))
+        {
+            return null;
+        }
+        var expectedSource = new SourceDocs(
+            "", [], new(), "", new(), DreamFocusSourceUrl,
+            "android.service.dreams.DreamService.onWindowFocusChanged", "android");
+        var legacyReference = XElement.Parse(
+            $"<para><format type=\"text/html\"><a href=\"{DreamFocusSourceUrl}\" " +
+            "title=\"Reference documentation\">Java documentation for " +
+            "<code>android.service.dreams.DreamService.onWindowFocusChanged(boolean)</code>." +
+            "</a></format></para>");
+        if ((!ImporterMarkupEquals(sourceReference, ImporterSourceReference(expectedSource)) &&
+             !ImporterMarkupEquals(sourceReference, legacyReference)) ||
+            (source is not null &&
+                (source.SourceKind != "android" ||
+                 source.SourceUrl != DreamFocusSourceUrl ||
+                 source.Paragraphs is not [{ Text: CorrectDreamFocusRemark, IsCode: false }])))
+        {
+            return null;
+        }
+        return paragraph;
     }
 
     static RemarksRefreshResult RefreshImporterOwnedRemarks(
@@ -2632,6 +2901,23 @@ static class ImporterProgram
                 text,
                 "existing_remarks_not_importer_owned",
                 "The current <Docs> block could not be parsed before rebuilding importer-owned remarks.");
+        }
+        if (FindDreamFocusRepairParagraph(owner.Id, document, docs) is XElement focusParagraph)
+        {
+            if (!TryGetElementSpan(blockText, focusParagraph, out var focusSpan))
+            {
+                return new RemarksRefreshResult(
+                    text,
+                    "existing_remarks_not_importer_owned",
+                    "The exact importer-owned focus paragraph could not be located safely.");
+            }
+            var correctedBlock = blockText[..focusSpan.Start] +
+                $"<para>{XmlEscape(CorrectDreamFocusRemark)}</para>" +
+                blockText[focusSpan.End..];
+            return new RemarksRefreshResult(
+                text[..block.Start] + correctedBlock + text[block.End..],
+                null,
+                null);
         }
         var remarks = document.Element("remarks");
         if (remarks is not null &&
@@ -3153,7 +3439,7 @@ static class ImporterProgram
         var blockText = text[block.Start..block.End];
         if (!TryParseDocsBlock(blockText, out var actualDocs) ||
             !XNode.DeepEquals(actualDocs, owner.Docs) ||
-            FindKnownJavaExampleRepair(actualDocs, sourceDocs) is not { } repair ||
+            FindKnownJavaExampleRepair(actualDocs, sourceDocs, owner.Id) is not { } repair ||
             actualDocs.Element("remarks")?.Elements("code").SingleOrDefault(code =>
                 IsKnownJavaExampleRepairCandidate(code, repair)) is not XElement code ||
             !TryGetElementSpan(blockText, code, out var codeSpan))
@@ -3170,7 +3456,8 @@ static class ImporterProgram
 
     static KnownJavaExampleRepair? FindKnownJavaExampleRepair(
         XElement docs,
-        SourceDocs sourceDocs)
+        SourceDocs sourceDocs,
+        string? memberId = null)
     {
         if (!HasExactImporterSourceReference(docs, sourceDocs))
             return null;
@@ -3178,6 +3465,17 @@ static class ImporterProgram
         var repair = KnownJavaExampleRepairs.SingleOrDefault(candidate =>
             UrlsEqual(candidate.SourceUrl, sourceDocs.SourceUrl));
         if (repair is null ||
+            (repair.MemberId is not null &&
+             (repair.MemberId != memberId ||
+              docs.Element("remarks") is not XElement remarks ||
+              !ImporterMarkupEquals(
+                  remarks,
+                  XElement.Parse(RenderImporterOwnedRemarks(
+                      UsableRemarks(sourceDocs.Paragraphs),
+                      sourceDocs,
+                      "\n",
+                      "",
+                      ""))))) ||
             docs.Element("remarks")?.Elements("code").Where(code =>
                 IsKnownJavaExampleRepairCandidate(code, repair)).Count() != 1)
         {
@@ -3233,29 +3531,55 @@ static class ImporterProgram
     {
         const string unsafeDuration =
             "The duration for the new stroke. Must not be negative.";
-        if (!IsKnownUnsafeContinueStrokeDuration(sourceDocs.SourceUrl))
+        var zoneTransition = IsKnownUnsafeZoneTransitionTime(owner.Id, sourceDocs);
+        if (!zoneTransition && !IsKnownUnsafeContinueStrokeDuration(sourceDocs.SourceUrl))
+        {
+            return UnsafeParameterRepairResult.NoChange(text);
+        }
+        if (zoneTransition &&
+            (owner.Member?.Element("Parameters")?.Elements("Parameter").ElementAtOrDefault(3) is not XElement boundTime ||
+             (string?)boundTime.Attribute("Name") != "time" ||
+             (string?)boundTime.Attribute("Type") != "Java.Time.LocalTime"))
         {
             return UnsafeParameterRepairResult.NoChange(text);
         }
 
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
+        var parameterName = zoneTransition ? "time" : "duration";
+        var unsafeText = zoneTransition ? KnownUnsafeZoneTransitionTime : unsafeDuration;
         if (!TryParseDocsBlock(blockText, out var actualDocs) ||
-            actualDocs.Elements("param").SingleOrDefault(parameter =>
-                (string?)parameter.Attribute("name") == "duration") is not XElement duration ||
-            duration.Attributes().Count() != 1 ||
-            !HasPlainTextContent(duration, out var currentDuration) ||
-            !currentDuration.Equals(unsafeDuration, StringComparison.Ordinal) ||
-            !TryGetElementSpan(blockText, duration, out var durationSpan))
+            (zoneTransition &&
+             (actualDocs.HasAttributes ||
+              !XNode.DeepEquals(actualDocs, owner.Docs) ||
+              !HasExactImporterSourceReference(actualDocs, sourceDocs) ||
+              actualDocs.Nodes().Any(node => node switch
+              {
+                  XElement => false,
+                  XText whitespace when node is not XCData => !string.IsNullOrWhiteSpace(whitespace.Value),
+                  _ => true,
+              }) ||
+              actualDocs.Element("remarks") is not XElement remarks ||
+              !ImporterMarkupEquals(
+                  remarks,
+                  XElement.Parse(RenderImporterOwnedRemarks(
+                      UsableRemarks(sourceDocs.Paragraphs), sourceDocs, "\n", "", ""))))) ||
+            actualDocs.Elements("param").Where(parameter =>
+                (string?)parameter.Attribute("name") == parameterName).ToList() is not [XElement parameter] ||
+            parameter.Attributes().Count() != 1 ||
+            !HasPlainTextContent(parameter, out var currentText) ||
+            !currentText.Equals(unsafeText, StringComparison.Ordinal) ||
+            !TryGetElementSpan(blockText, parameter, out var parameterSpan))
         {
             return UnsafeParameterRepairResult.NoChange(text);
         }
 
-        const string placeholder = "<param name=\"duration\">To be added.</param>";
-        var updatedBlock = blockText[..durationSpan.Start] + placeholder +
-            blockText[durationSpan.End..];
+        var placeholder = $"<param name=\"{parameterName}\">To be added.</param>";
+        var updatedBlock = blockText[..parameterSpan.Start] + placeholder +
+            blockText[parameterSpan.End..];
         return UnsafeParameterRepairResult.RepairedText(
-            text[..block.Start] + updatedBlock + text[block.End..]);
+            text[..block.Start] + updatedBlock + text[block.End..],
+            parameterName);
     }
 
     static KnownJavaProseRepair? FindKnownJavaProseRepair(
@@ -3443,6 +3767,179 @@ static class ImporterProgram
             ImporterMarkupEquals(
                 sourceReferences[0],
                 ImporterSourceReference(sourceDocs));
+    }
+
+    static bool HasKnownAndroidParagraphBoundaryRepairCandidate(DocsOwner owner) =>
+        owner.Id.Equals(ControlTemplateMemberId, StringComparison.Ordinal) &&
+        owner.Docs.Elements("summary").ToList() is [XElement summary] &&
+        !summary.HasAttributes &&
+        HasPlainTextContent(summary, out var summaryText) &&
+        summaryText.Equals(LegacyControlTemplateSummary, StringComparison.Ordinal);
+
+    static List<string> KnownControlsLifecycleRepairTargets(DocsOwner owner)
+    {
+        var repair = KnownControlsLifecycleRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId == owner.Id);
+        if (repair is null)
+            return [];
+
+        var targets = new List<string>();
+        if (owner.Docs.Elements("remarks").Any(remarks =>
+                NormalizeText(remarks.Value).Contains(repair.OriginalParagraphs[0], StringComparison.Ordinal)))
+            targets.Add("remarks");
+        if (repair.IncorrectReturn is not null &&
+            owner.Docs.Elements("returns").Any(returns =>
+                NormalizeText(returns.Value) == repair.IncorrectReturn))
+            targets.Add("returns");
+        return targets;
+    }
+
+    sealed record ControlsLifecycleRepairResult(string Text, string? Reason, string? Detail);
+
+    static ControlsLifecycleRepairResult RepairKnownControlsLifecycle(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var targets = KnownControlsLifecycleRepairTargets(owner);
+        if (targets.Count == 0)
+            return new(text, null, null);
+        var repair = KnownControlsLifecycleRepairs.Single(candidate => candidate.MemberId == owner.Id);
+        if (sourceDocs.SourceKind != "android" ||
+            sourceDocs.SourceUrl != repair.SourceUrl ||
+            sourceDocs.Summary != repair.Summary ||
+            !sourceDocs.Paragraphs.SequenceEqual(
+                repair.SafeParagraphs.Select(paragraph => new SourceParagraph(paragraph, false))) ||
+            (targets.Contains("returns") &&
+                (sourceDocs.UnsafeTargets?.ContainsKey("returns") != true ||
+                 RemoveLeadingJavaType(sourceDocs.Returns) != repair.IncorrectReturn)))
+        {
+            return new(text, "source_controls_lifecycle_mismatch",
+                "The exact lifecycle source did not match the verified unsafe inherited contracts and retained reference fragments.");
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs))
+            return new(text, "controls_lifecycle_target_not_located",
+                "The parser-selected Docs block did not match the untouched owner.");
+
+        var expectedRemarks = new XElement("remarks",
+            repair.OriginalParagraphs.Select(paragraph => new XElement("para", paragraph)),
+            ImporterSourceReference(sourceDocs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        var correctedRemarks = XElement.Parse(RenderImporterOwnedRemarks(
+            sourceDocs.Paragraphs, sourceDocs, file.Newline, "", ""));
+        if (actualDocs.Elements("summary").ToList() is not [XElement summary] ||
+            summary.HasAttributes ||
+            !HasPlainTextContent(summary, out var summaryText) ||
+            summaryText != repair.Summary ||
+            actualDocs.Elements("remarks").ToList() is not [XElement remarks] ||
+            !ImporterMarkupEquals(remarks, targets.Contains("remarks") ? expectedRemarks : correctedRemarks) ||
+            actualDocs.Elements("returns").ToList() is not [XElement returns] ||
+            (targets.Contains("returns") &&
+                (returns.HasAttributes ||
+                 !HasPlainTextContent(returns, out var returnText) ||
+                 returnText != repair.IncorrectReturn)))
+        {
+            return new(text, "existing_controls_lifecycle_not_importer_owned",
+                "The complete lifecycle channels, exact source reference, and attribution did not match the known importer output.");
+        }
+
+        var edits = new List<XmlSpanEdit>();
+        foreach (var target in targets)
+        {
+            var element = target == "remarks" ? remarks : returns;
+            if (!TryGetElementSpan(blockText, element, out var span))
+                return new(text, "controls_lifecycle_target_not_located",
+                    "The verified lifecycle channel could not be located without scanning authored XML.");
+            var indent = file.IndentAt(block.Start) + "  ";
+            edits.Add(new(span, target == "remarks"
+                ? RenderImporterOwnedRemarks(sourceDocs.Paragraphs, sourceDocs, file.Newline, indent, indent + "  ")
+                : "<returns>To be added.</returns>"));
+        }
+        foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
+            blockText = blockText[..edit.Span.Start] + edit.Replacement + blockText[edit.Span.End..];
+        return new(text[..block.Start] + blockText + text[block.End..], null, null);
+    }
+
+    sealed record ParagraphBoundaryRepairResult(string Text, string? Reason, string? Detail);
+
+    static ParagraphBoundaryRepairResult RepairKnownAndroidParagraphBoundary(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        if (!HasKnownAndroidParagraphBoundaryRepairCandidate(owner))
+            return new(text, null, null);
+
+        if (sourceDocs.SourceKind != "android" ||
+            !sourceDocs.SourceUrl.Equals(ControlTemplateSourceUrl, StringComparison.Ordinal) ||
+            sourceDocs.Summary != ControlTemplateLead ||
+            sourceDocs.Paragraphs.Any(paragraph => paragraph.IsCode) ||
+            !sourceDocs.Paragraphs.Select(paragraph => paragraph.Text)
+                .SequenceEqual([ControlTemplateLead, ControlTemplateDescription]))
+        {
+            return new(
+                text,
+                "source_paragraph_boundary_mismatch",
+                "The exact known member did not provide the verified source paragraph boundary.");
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs))
+        {
+            return new(
+                text,
+                "paragraph_boundary_target_not_located",
+                "The parser-selected Docs block did not match the untouched owner.");
+        }
+
+        var expectedRemarks = new XElement(
+            "remarks",
+            new XElement("para", LegacyControlTemplateParagraph),
+            ImporterSourceReference(sourceDocs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        if (actualDocs.Elements("remarks").ToList() is not [XElement remarks] ||
+            !ImporterMarkupEquals(remarks, expectedRemarks))
+        {
+            return new(
+                text,
+                "existing_paragraph_boundary_not_importer_owned",
+                "The complete old remarks, exact source reference, and attribution did not match the known importer output.");
+        }
+
+        var summary = actualDocs.Element("summary")!;
+        if (!TryGetElementSpan(blockText, summary, out var summarySpan) ||
+            !TryGetElementSpan(blockText, remarks, out var remarksSpan))
+        {
+            return new(
+                text,
+                "paragraph_boundary_target_not_located",
+                "The verified summary and remarks could not be located without scanning authored XML.");
+        }
+
+        var remarksIndent = file.IndentAt(block.Start) + "  ";
+        var edits = new[]
+        {
+            new XmlSpanEdit(summarySpan, $"<summary>{XmlEscape(sourceDocs.Summary)}</summary>"),
+            new XmlSpanEdit(
+                remarksSpan,
+                RenderImporterOwnedRemarks(
+                    sourceDocs.Paragraphs,
+                    sourceDocs,
+                    file.Newline,
+                    remarksIndent,
+                    remarksIndent + "  ")),
+        };
+        foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
+            blockText = blockText[..edit.Span.Start] + edit.Replacement + blockText[edit.Span.End..];
+        return new(text[..block.Start] + blockText + text[block.End..], null, null);
     }
 
     static List<string> KnownAndroidTextRepairCandidateTargets(DocsOwner owner) =>
@@ -5852,10 +6349,405 @@ static class ImporterProgram
         return Path.GetFullPath(resolved);
     }
 
+    static void TestControlTemplateParagraphBoundary(string repositoryRoot, string fixtureRoot)
+    {
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "controls-template-android-reference.html"))
+            .Replace("\r\n", "\n", StringComparison.Ordinal);
+        var request = SourceRequest.Create("android/service/controls/Control$StatefulBuilder")!;
+        var sourceDocs = SourcePage.Parse(request, html).Members.Single().Docs!;
+        Assert(
+            sourceDocs.Summary == ControlTemplateLead &&
+            sourceDocs.Paragraphs.Select(paragraph => paragraph.Text)
+                .SequenceEqual([ControlTemplateLead, ControlTemplateDescription]) &&
+            sourceDocs.Paragraphs.All(paragraph => !paragraph.IsCode),
+            "ControlTemplate official blank line separates the unpunctuated lead-in without inventing punctuation");
+        var crlfDocs = SourcePage.Parse(request, html.Replace("\n", "\r\n", StringComparison.Ordinal))
+            .Members.Single().Docs!;
+        Assert(
+            crlfDocs.Paragraphs.SequenceEqual(sourceDocs.Paragraphs),
+            "ControlTemplate source paragraph boundary handles CRLF");
+        foreach (var (candidate, url) in new[]
+        {
+            (html, ControlTemplateSourceUrl + ".Altered"),
+            (html.Replace("primary user interaction", "authored user interaction", StringComparison.Ordinal),
+                ControlTemplateSourceUrl),
+            (html.Replace("Devices may support", "Devices can support", StringComparison.Ordinal),
+                ControlTemplateSourceUrl),
+            (html.Replace("interaction\n\nDevices", "interaction\nDevices", StringComparison.Ordinal),
+                ControlTemplateSourceUrl),
+            (html.Replace("interaction\n\nDevices", "interaction.\n\nDevices", StringComparison.Ordinal),
+                ControlTemplateSourceUrl),
+            ("<p>Ordinary text\n\nMore ordinary text.</p>", ControlTemplateSourceUrl),
+            ("<pre>" + LegacyControlTemplateParagraph + "</pre>", ControlTemplateSourceUrl),
+        })
+        {
+            Assert(
+                SourcePage.NormalizeKnownAndroidParagraphBoundary(candidate, url) == candidate,
+                "known paragraph boundary does not reinterpret other sources, line wrapping, completed sentences, or code");
+        }
+
+        var file = LoadedFile.Load(
+            repositoryRoot,
+            Path.Combine(fixtureRoot, "controls-template-source.xml"));
+        file.SelectOwners("SetControlTemplate");
+        var owner = file.Owners.Single();
+        var blockStart = file.DocsBlocks[owner.Order].Start;
+        var blockEnd = file.DocsBlocks[owner.Order].End;
+        var fixtureText = file.Text;
+        var originalDocs = new XElement(owner.Docs);
+        var mapped = MapOwner(
+            owner,
+            new Dictionary<string, SourceLoadResult>
+            {
+                [request.Url] = SourceLoadResult.Success(SourcePage.Parse(request, html)),
+            });
+        Assert(
+            mapped.ErrorReason is null && mapped.Docs?.Summary == ControlTemplateLead,
+            "ControlTemplate fixture maps the exact JNI overload");
+
+        (string Before, ParagraphBoundaryRepairResult Repair) RepairCase(
+            XElement docs,
+            SourceDocs? source = null,
+            string? memberId = null)
+        {
+            var docsText = docs.ToString(SaveOptions.DisableFormatting);
+            var text = fixtureText[..blockStart] + docsText + fixtureText[blockEnd..];
+            file.UpdateBlockOffsets(owner.Order, text);
+            var candidate = owner with
+            {
+                Id = memberId ?? owner.Id,
+                Docs = XElement.Parse(docsText, LoadOptions.PreserveWhitespace),
+            };
+            return (text, RepairKnownAndroidParagraphBoundary(text, file, candidate, source ?? sourceDocs));
+        }
+
+        var repaired = RepairCase(new XElement(originalDocs));
+        var repairedDocs = XElement.Parse(repaired.Repair.Text)
+            .Element("Members")!.Element("Member")!.Element("Docs")!;
+        Assert(
+            repaired.Repair.Reason is null &&
+            repaired.Repair.Text != repaired.Before &&
+            repairedDocs.Element("summary")!.Value == ControlTemplateLead &&
+            repairedDocs.Element("remarks")!.Elements("para").Take(2)
+                .Select(paragraph => paragraph.Value)
+                .SequenceEqual([ControlTemplateLead, ControlTemplateDescription]) &&
+            HasExactImporterSourceReference(repairedDocs, sourceDocs) &&
+            ImporterMarkupEquals(
+                repairedDocs.Element("remarks")!.Elements("para").Last(),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")) &&
+            XNode.DeepEquals(repairedDocs.Element("param"), originalDocs.Element("param")) &&
+            XNode.DeepEquals(repairedDocs.Element("returns"), originalDocs.Element("returns")),
+            "guarded ControlTemplate regeneration repairs both channels and preserves authored parameters, returns, reference, and attribution");
+        var repeated = RepairCase(repairedDocs);
+        Assert(
+            repeated.Repair.Text == repeated.Before && repeated.Repair.Reason is null,
+            "ControlTemplate paragraph repair is idempotent");
+        var wrongMember = RepairCase(originalDocs, memberId: ControlTemplateMemberId + ".Altered");
+        Assert(
+            wrongMember.Repair.Text == wrongMember.Before,
+            "ControlTemplate paragraph repair requires exact managed identity");
+        foreach (var source in new[]
+        {
+            sourceDocs with { SourceUrl = ControlTemplateSourceUrl + ".Altered" },
+            sourceDocs with { SourceKind = "java" },
+            sourceDocs with { Summary = ControlTemplateLead + "." },
+            sourceDocs with { Paragraphs = [new SourceParagraph(ControlTemplateLead, true)] },
+            sourceDocs with { Paragraphs = [new SourceParagraph(LegacyControlTemplateParagraph, false)] },
+        })
+        {
+            var preserved = RepairCase(originalDocs, source);
+            Assert(
+                preserved.Repair.Text == preserved.Before &&
+                preserved.Repair.Reason == "source_paragraph_boundary_mismatch",
+                "ControlTemplate paragraph repair reports and preserves changed source contracts");
+        }
+
+        var authoredVariants = new List<XElement>();
+        void AuthoredVariant(Action<XElement> alter)
+        {
+            var docs = new XElement(originalDocs);
+            alter(docs);
+            authoredVariants.Add(docs);
+        }
+        AuthoredVariant(docs => docs.Element("summary")!.Add(new XElement("c", "Authored content.")));
+        AuthoredVariant(docs => docs.Element("summary")!.ReplaceWith(
+            new XElement("summary", new XCData(LegacyControlTemplateSummary))));
+        AuthoredVariant(docs => docs.Add(new XElement(docs.Element("summary")!)));
+        AuthoredVariant(docs => docs.Element("remarks")!.AddFirst(new XElement("para", "Authored content.")));
+        AuthoredVariant(docs => docs.Element("remarks")!.Element("para")!.Add(new XElement("c", "")));
+        AuthoredVariant(docs => docs.Element("remarks")!.AddFirst(new XComment("Authored content.")));
+        AuthoredVariant(docs => docs.Element("remarks")!.AddFirst(new XProcessingInstruction("authored", "keep")));
+        AuthoredVariant(docs => docs.Element("remarks")!.Element("para")!.ReplaceWith(
+            new XElement("para", new XCData(LegacyControlTemplateParagraph))));
+        AuthoredVariant(docs => docs.Element("remarks")!.Elements("para").ElementAt(1)
+            .Descendants("a").Single().SetAttributeValue("href", ControlTemplateSourceUrl + ".Altered"));
+        AuthoredVariant(docs => docs.Element("remarks")!.Elements("para").ElementAt(1)
+            .Descendants("a").Single().Add(new XElement("c", "")));
+        AuthoredVariant(docs => docs.Element("remarks")!.Elements("para").Last().Add(" Authored content."));
+        AuthoredVariant(docs => docs.Element("remarks")!.Elements("para").Last().Remove());
+        AuthoredVariant(docs => docs.Add(new XElement(docs.Element("remarks")!)));
+        foreach (var docs in authoredVariants)
+        {
+            var preserved = RepairCase(docs);
+            Assert(
+                preserved.Repair.Text == preserved.Before,
+                "ControlTemplate paragraph repair preserves authored, mixed, duplicate, CDATA, comment, and processing-instruction nodes");
+        }
+
+        file.UpdateBlockOffsets(owner.Order, repaired.Before);
+        var mismatchedDocs = new XElement(originalDocs);
+        mismatchedDocs.Element("param")!.Value = "Changed owner snapshot.";
+        var mismatch = RepairKnownAndroidParagraphBoundary(
+            repaired.Before,
+            file,
+            owner with { Docs = mismatchedDocs },
+            sourceDocs);
+        Assert(
+            mismatch.Text == repaired.Before &&
+            mismatch.Reason == "paragraph_boundary_target_not_located",
+            "ControlTemplate paragraph repair preserves parser-correspondence mismatches");
+    }
+
+    static void TestControlsLifecycle(string repositoryRoot, string fixtureRoot)
+    {
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "controls-lifecycle-android-reference.html"));
+        var request = SourceRequest.Create("android/service/controls/ControlsProviderService")!;
+        var page = SourcePage.Parse(request, html);
+        var file = LoadedFile.Load(repositoryRoot, Path.Combine(fixtureRoot, "controls-lifecycle-source.xml"));
+        file.SelectOwners(null);
+        var fixtureText = file.Text;
+        var pages = new Dictionary<string, SourceLoadResult>
+        {
+            [request.Url] = SourceLoadResult.Success(page),
+        };
+        foreach (var owner in file.Owners.Where(owner => owner.Member is not null))
+        {
+            file.UpdateBlockOffsets(owner.Order, fixtureText);
+            var start = file.DocsBlocks[owner.Order].Start;
+            var end = file.DocsBlocks[owner.Order].End;
+            var originalDocs = new XElement(owner.Docs);
+            var rule = KnownControlsLifecycleRepairs.Single(repair => repair.MemberId == owner.Id);
+            var mapping = MapOwner(owner, pages);
+            var source = mapping.Docs!;
+            var rawSource = page.Members.Single(member => member.Name == owner.MemberRegistration!.Name).Docs!;
+            Assert(mapping.ErrorReason is null &&
+                rawSource.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(rule.OriginalParagraphs) &&
+                source.Summary == rule.Summary &&
+                source.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(rule.SafeParagraphs),
+                "registered Controls lifecycle mapping retains only exact safe reference sentences");
+            Assert(rule.IncorrectReturn is null ||
+                ReplacementFor(new Placeholder(0, "returns", "", "returns"), source).Reason == "source_channel_ambiguous",
+                "Controls OnUnbind caller-choice return is suppressed before first fill");
+            foreach (var (memberId, mismatched) in new[]
+            {
+                (owner.Id + ".Other", rawSource),
+                (owner.Id, rawSource with { SourceUrl = rawSource.SourceUrl + ".Other" }),
+                (owner.Id, rawSource with { SourceKind = "java" }),
+            })
+            {
+                Assert(ReferenceEquals(
+                    WithoutKnownUnsafeControlsLifecycleChannels(memberId, mismatched), mismatched),
+                    "Controls lifecycle filtering requires the exact member, URL, and Android provenance");
+            }
+            var changedProse = rawSource with
+            {
+                Paragraphs = [new SourceParagraph(rule.OriginalParagraphs[0] + " Changed source.", false)],
+            };
+            Assert(WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, changedProse)
+                .Paragraphs.SequenceEqual(changedProse.Paragraphs),
+                "Controls lifecycle filtering does not truncate changed source prose");
+
+            (string Before, ControlsLifecycleRepairResult Result) RepairCase(
+                XElement docs, SourceDocs? candidateSource = null, string? memberId = null)
+            {
+                var docsText = docs.ToString(SaveOptions.DisableFormatting);
+                var text = fixtureText[..start] + docsText + fixtureText[end..];
+                file.UpdateBlockOffsets(owner.Order, text);
+                var candidate = owner with
+                {
+                    Id = memberId ?? owner.Id,
+                    Docs = XElement.Parse(docsText, LoadOptions.PreserveWhitespace),
+                };
+                return (text, RepairKnownControlsLifecycle(text, file, candidate, candidateSource ?? source));
+            }
+
+            var repaired = RepairCase(originalDocs);
+            var repairedDocs = XElement.Parse(repaired.Result.Text).Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == owner.Member!.Attribute("MemberName")!.Value)
+                .Element("Docs")!;
+            Assert(repaired.Result.Reason is null && repaired.Result.Text != repaired.Before &&
+                XNode.DeepEquals(repairedDocs.Element("summary"), originalDocs.Element("summary")) &&
+                XNode.DeepEquals(repairedDocs.Element("param"), originalDocs.Element("param")) &&
+                repairedDocs.Element("remarks")!.Elements("para").Take(rule.SafeParagraphs.Count())
+                    .Select(paragraph => paragraph.Value).SequenceEqual(rule.SafeParagraphs) &&
+                HasExactImporterSourceReference(repairedDocs, source) &&
+                ImporterMarkupEquals(repairedDocs.Element("remarks")!.Elements("para").Last(),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")) &&
+                repairedDocs.Element("returns")!.Value == "To be added.",
+                "Controls lifecycle old-import repair preserves correct summary, authored parameter, source reference, and attribution");
+            var repeated = RepairCase(repairedDocs);
+            Assert(repeated.Result.Text == repeated.Before && repeated.Result.Reason is null,
+                "Controls lifecycle repair is idempotent");
+            var wrongMember = RepairCase(originalDocs, memberId: owner.Id + ".Other");
+            Assert(wrongMember.Result.Text == wrongMember.Before,
+                "Controls lifecycle repair requires the exact managed identity");
+            var mismatchSources = new List<SourceDocs>
+            {
+                source with { SourceUrl = source.SourceUrl + ".Other" },
+                source with { SourceKind = "java" },
+                source with { Summary = source.Summary + " Changed." },
+                source with { Paragraphs = [new SourceParagraph(rule.Summary, true)] },
+                source with { Paragraphs = rawSource.Paragraphs },
+            };
+            if (rule.IncorrectReturn is not null)
+                mismatchSources.AddRange([
+                    source with { Returns = source.Returns + " Changed." },
+                    source with { UnsafeTargets = null },
+                ]);
+            foreach (var mismatched in mismatchSources)
+            {
+                var preserved = RepairCase(originalDocs, mismatched);
+                Assert(preserved.Result.Text == preserved.Before &&
+                    preserved.Result.Reason == "source_controls_lifecycle_mismatch",
+                    "Controls lifecycle repair reports changed source text and provenance without edits");
+            }
+
+            var authoredVariants = new List<XElement>();
+            void Variant(Action<XElement> alter)
+            {
+                var docs = new XElement(originalDocs);
+                alter(docs);
+                authoredVariants.Add(docs);
+            }
+            Variant(docs => docs.Element("summary")!.Add(" Authored addition."));
+            Variant(docs => docs.Element("summary")!.ReplaceNodes(new XCData(rule.Summary)));
+            Variant(docs => docs.Add(new XElement(docs.Element("summary")!)));
+            Variant(docs => docs.Element("remarks")!.Element("para")!.Add(" Authored addition."));
+            Variant(docs => docs.Element("remarks")!.Element("para")!.Add(new XElement("c", "")));
+            Variant(docs => docs.Element("remarks")!.Element("para")!.ReplaceNodes(
+                new XCData(rule.OriginalParagraphs[0])));
+            Variant(docs => docs.Element("remarks")!.AddFirst(new XComment("Authored comment.")));
+            Variant(docs => docs.Element("remarks")!.AddFirst(new XProcessingInstruction("authored", "keep")));
+            Variant(docs => docs.Element("remarks")!.Add(new XElement("para", "Authored paragraph.")));
+            Variant(docs => docs.Add(new XElement(docs.Element("remarks")!)));
+            Variant(docs => docs.Element("remarks")!.Elements("para").Single(paragraph =>
+                TryGetImporterSourceReferenceUrl(paragraph, out _))
+                .Descendants("a").Single().SetAttributeValue("href", rule.SourceUrl + ".Other"));
+            Variant(docs => docs.Element("remarks")!.Elements("para").Single(paragraph =>
+                TryGetImporterSourceReferenceUrl(paragraph, out _))
+                .Descendants("a").Single().Add(new XElement("c", "")));
+            Variant(docs => docs.Element("remarks")!.Elements("para").Last().Add(" Authored attribution."));
+            Variant(docs => docs.Element("remarks")!.Elements("para").Last().Remove());
+            Variant(docs => docs.Add(new XElement(docs.Element("returns")!)));
+            if (rule.IncorrectReturn is not null)
+            {
+                Variant(docs => docs.Element("returns")!.Add(new XElement("c", "")));
+                Variant(docs => docs.Element("returns")!.ReplaceNodes(new XCData(rule.IncorrectReturn)));
+                Variant(docs => docs.Element("returns")!.Add(new XComment("Authored return.")));
+                Variant(docs => docs.Element("returns")!.Add(new XProcessingInstruction("authored", "keep")));
+            }
+            foreach (var docs in authoredVariants)
+            {
+                var preserved = RepairCase(docs);
+                Assert(preserved.Result.Text == preserved.Before &&
+                    preserved.Result.Reason == "existing_controls_lifecycle_not_importer_owned",
+                    "Controls lifecycle repair preserves and reports authored/full-text, mixed, CDATA, comment, PI, duplicate, and metadata mismatches");
+            }
+            file.UpdateBlockOffsets(owner.Order, repaired.Before);
+            var mismatchedDocs = new XElement(originalDocs);
+            mismatchedDocs.Element("param")!.Value = "Changed owner snapshot.";
+            var mismatch = RepairKnownControlsLifecycle(repaired.Before, file,
+                owner with { Docs = mismatchedDocs }, source);
+            Assert(mismatch.Text == repaired.Before && mismatch.Reason == "controls_lifecycle_target_not_located",
+                "Controls lifecycle repair preserves parser-correspondence mismatches");
+        }
+
+        var token = $"controls-lifecycle-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var tempDirectory = Path.Combine(repositoryRoot, "tools", token);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Service.Controls", token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var cachePath = Path.Combine(tempDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            File.WriteAllText(pipelinePath, fixtureText.Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(false));
+            var originalBytes = File.ReadAllBytes(pipelinePath);
+            JsonDocument RunPipeline(bool apply, int limit, string? member = null)
+            {
+                var reportPath = Path.Combine(tempDirectory, "report");
+                var args = new List<string>
+                {
+                    "--path", pipelinePath, "--namespace", "Android.Service.Controls",
+                    "--offline", "--cache", tempDirectory,
+                    "--max-changes", limit.ToString(), "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                if (member is not null)
+                    args.AddRange(["--member", member]);
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Controls lifecycle registered pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Controls lifecycle pipeline reports zero errors");
+                return report;
+            }
+            using (var limited = RunPipeline(true, 1, "OnUnbind"))
+            {
+                Assert(limited.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(originalBytes),
+                    "Controls OnUnbind two-channel repair cannot partially apply with max-one");
+            }
+            using (var measured = RunPipeline(false, 3))
+                Assert(measured.RootElement.GetProperty("wouldApplyCount").GetInt32() == 3,
+                    "Controls lifecycle dry run measures all three old-import channels");
+            using (var applied = RunPipeline(true, 3))
+                Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 3,
+                    "Controls lifecycle pipeline repairs exactly three channels");
+            var repairedBytes = File.ReadAllBytes(pipelinePath);
+            using (var repeated = RunPipeline(true, 10))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(repairedBytes),
+                    "Controls lifecycle old-import rerun has zero operations and is byte-identical");
+
+            var firstFill = XElement.Parse(fixtureText, LoadOptions.PreserveWhitespace);
+            foreach (var docs in firstFill.Element("Members")!.Elements("Member").Select(member => member.Element("Docs")!))
+                foreach (var target in new[] { "summary", "returns", "remarks" })
+                    docs.Element(target)!.ReplaceNodes("To be added.");
+            File.WriteAllText(pipelinePath, firstFill.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            using (var filled = RunPipeline(true, 10))
+                Assert(filled.RootElement.GetProperty("appliedCount").GetInt32() == 4,
+                    "registered Controls first-fill imports safe summaries and remarks, not the unsafe return");
+            var filledText = File.ReadAllText(pipelinePath);
+            var filledXml = XElement.Parse(filledText);
+            Assert(!filledText.Contains("May return null", StringComparison.Ordinal) &&
+                !filledText.Contains("The default implementation does nothing", StringComparison.Ordinal) &&
+                !filledText.Contains("Return true if you would like", StringComparison.Ordinal) &&
+                filledXml.Element("Members")!.Elements("Member").All(member =>
+                    member.Element("Docs")!.Element("returns")!.Value == "To be added." &&
+                    member.Element("Docs")!.Element("param")!.Value == "Existing parameter documentation."),
+                "actual registered first-fill never emits unsafe inherited prose or overwrites authored parameters");
+            var filledBytes = File.ReadAllBytes(pipelinePath);
+            using (var repeated = RunPipeline(true, 10))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(filledBytes),
+                    "Controls lifecycle first-fill rerun has zero operations and is byte-identical");
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
         TestKnownAndroidTextRepairs();
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
+        TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
+        TestControlsLifecycle(repositoryRoot, fixtureRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
         Assert(
@@ -7860,6 +8752,86 @@ static class ImporterProgram
                 knownJavaExampleMarkup,
                 knownJavaExampleDocs) is null,
             "correct Java examples remain idempotent");
+        var zoneTransitionRepair = KnownJavaExampleRepairs.Single(repair =>
+            repair.MemberId == "M:Java.Time.Zone.ZoneRules.GetTransition(Java.Time.LocalDateTime)");
+        var zoneTransitionDocs = javaExampleDocs with
+        {
+            SourceUrl = zoneTransitionRepair.SourceUrl,
+            SourceLabel = "java.time.zone.ZoneRules.getTransition",
+            SourceKind = "java",
+            Paragraphs =
+            [
+                new SourceParagraph("One technique, using this method, would be:", IsCode: false),
+                new SourceParagraph(zoneTransitionRepair.IncompleteCode, IsCode: true),
+            ],
+        };
+        var zoneTransitionMarkup = new XElement(
+            "Docs",
+            XElement.Parse(RenderImporterOwnedRemarks(
+                UsableRemarks(zoneTransitionDocs.Paragraphs),
+                zoneTransitionDocs,
+                "\n",
+                "",
+                "")));
+        Assert(
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs,
+                zoneTransitionRepair.MemberId) == zoneTransitionRepair,
+            "the exact ZoneRules member, source, and complete importer-owned example allow the receiver typo repair");
+        Assert(
+            FindKnownJavaExampleRepair(zoneTransitionMarkup, zoneTransitionDocs) is null &&
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs,
+                zoneTransitionRepair.MemberId + ".Altered") is null &&
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs with { SourceUrl = zoneTransitionDocs.SourceUrl + ".Altered" },
+                zoneTransitionRepair.MemberId) is null &&
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs with
+                {
+                    Paragraphs = [new SourceParagraph("Different source prose.", IsCode: false)],
+                },
+                zoneTransitionRepair.MemberId) is null,
+            "the ZoneRules repair rejects missing or mismatched members, URLs, and source structure");
+        Action<XElement>[] authoredZoneTransitionChanges =
+        [
+            docs => docs.Element("remarks")!.AddFirst(new XElement("para", "Authored prose.")),
+            docs => docs.Element("remarks")!.AddFirst(new XComment("Authored comment.")),
+            docs => docs.Element("remarks")!.Element("code")!.Add(new XElement("c", "authored")),
+            docs => docs.Element("remarks")!.Element("code")!.ReplaceNodes(
+                new XCData(zoneTransitionRepair.IncompleteCode)),
+            docs => docs.Element("remarks")!.Element("code")!.SetAttributeValue("authored", "true"),
+            docs => docs.Element("remarks")!.Element("code")!.Value =
+                zoneTransitionRepair.IncompleteCode.Replace("rule.getOffset", "other.getOffset", StringComparison.Ordinal),
+            docs => docs.Element("remarks")!.Element("code")!.Value =
+                zoneTransitionRepair.IncompleteCode.Replace("\n", "\n  ", StringComparison.Ordinal),
+            docs => docs.Element("remarks")!.Add(ImporterSourceReference(zoneTransitionDocs)),
+        ];
+        Assert(
+            authoredZoneTransitionChanges.All(change =>
+            {
+                var authored = new XElement(zoneTransitionMarkup);
+                change(authored);
+                var before = new XElement(authored);
+                return FindKnownJavaExampleRepair(
+                    authored,
+                    zoneTransitionDocs,
+                    zoneTransitionRepair.MemberId) is null &&
+                    XNode.DeepEquals(authored, before);
+            }),
+            "the ZoneRules repair preserves authored prose, comments, markup, CDATA, code changes, whitespace, and duplicate references");
+        zoneTransitionMarkup.Element("remarks")!.Element("code")!.Value =
+            zoneTransitionRepair.CorrectCode;
+        Assert(
+            FindKnownJavaExampleRepair(
+                zoneTransitionMarkup,
+                zoneTransitionDocs,
+                zoneTransitionRepair.MemberId) is null,
+            "the corrected ZoneRules example is idempotent");
         var knownJavaProseDocs = javaExampleDocs with
         {
             SourceUrl = KnownJavaProseRepairs[0].SourceUrl,
@@ -7912,6 +8884,100 @@ static class ImporterProgram
                 knownJavaProseMarkup,
                 knownJavaProseDocs) is null,
             "corrected Java prose remains idempotent");
+        var dreamFocusRequest = SourceRequest.Create("android/service/dreams/DreamService")!;
+        var dreamFocusHtml =
+            "<h3 class=\"api-name\" id=\"onWindowFocusChanged(boolean)\">onWindowFocusChanged</h3>" +
+            "<p>This hook is called whenever the window focus changes. See " +
+            $"<code>{StaleDreamFocusSourceLink}</code> for more information.</p>";
+        var dreamFocusDocs = SourcePage.Parse(dreamFocusRequest, dreamFocusHtml)
+            .Members.Single().Docs!;
+        Assert(
+            dreamFocusDocs.Paragraphs is [{ Text: CorrectDreamFocusRemark }] &&
+            ReplacementFor(new Placeholder(0, "remarks", "", "remarks"), dreamFocusDocs)
+                .Remarks is [{ Text: CorrectDreamFocusRemark }],
+            "DreamService focus imports the exact official link target instead of its stale label");
+        Assert(
+            SourcePage.Parse(
+                SourceRequest.Create("android/example/Widget")!,
+                dreamFocusHtml).Members.Single().Docs!.Paragraphs[0].Text ==
+                IncorrectDreamFocusRemark &&
+            SourcePage.Parse(
+                dreamFocusRequest,
+                dreamFocusHtml.Replace(
+                    "#onWindowFocusChanged(boolean)\">",
+                    "#other(boolean)\">",
+                    StringComparison.Ordinal)).Members.Single().Docs!.Paragraphs[0].Text ==
+                IncorrectDreamFocusRemark,
+            "focus source-label correction requires the exact declaring source and hyperlink target");
+        var dreamFocusMarkup = new XElement(
+            "Docs",
+            new XElement("summary", "Retain this authored summary."),
+            new XElement(
+                "remarks",
+                new XElement("para", IncorrectDreamFocusRemark),
+                ImporterSourceReference(dreamFocusDocs),
+                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
+        var dreamFocusBlock = file.DocsBlocks[setTitle.Order];
+        var dreamFocusText =
+            fixtureText[..dreamFocusBlock.Start] +
+            dreamFocusMarkup.ToString(SaveOptions.DisableFormatting) +
+            fixtureText[dreamFocusBlock.End..];
+        var dreamFocusOwner = setTitle with { Id = DreamFocusMemberId };
+        file.UpdateBlockOffsets(setTitle.Order, dreamFocusText);
+        var correctedDreamFocus = RefreshImporterOwnedRemarks(
+            dreamFocusText, file, dreamFocusOwner, dreamFocusDocs);
+        Assert(
+            correctedDreamFocus.Reason is null &&
+            correctedDreamFocus.Text == dreamFocusText.Replace(
+                IncorrectDreamFocusRemark, CorrectDreamFocusRemark, StringComparison.Ordinal),
+            $"focus repair changes only the exact paragraph and retains authored summary and metadata bytes ({correctedDreamFocus.Reason}: {correctedDreamFocus.Detail})");
+        file.UpdateBlockOffsets(setTitle.Order, correctedDreamFocus.Text);
+        Assert(
+            RefreshImporterOwnedRemarks(
+                correctedDreamFocus.Text, file, dreamFocusOwner, dreamFocusDocs).Reason ==
+                "source_remarks_current",
+            "focus reference repair is idempotent");
+        foreach (var authoredFocusParagraph in new[]
+        {
+            $"<para>{IncorrectDreamFocusRemark} Additional authored guidance.</para>",
+            $"<para><c>{IncorrectDreamFocusRemark}</c></para>",
+            $"<para><![CDATA[{IncorrectDreamFocusRemark}]]></para>",
+            $"<para><!--Keep-->{IncorrectDreamFocusRemark}</para>",
+            $"<para><?keep guidance?>{IncorrectDreamFocusRemark}</para>",
+            $"<para>{IncorrectDreamFocusRemark}</para><para>Additional authored guidance.</para>",
+        })
+        {
+            var authoredFocusText = dreamFocusText.Replace(
+                $"<para>{IncorrectDreamFocusRemark}</para>",
+                authoredFocusParagraph,
+                StringComparison.Ordinal);
+            file.UpdateBlockOffsets(setTitle.Order, authoredFocusText);
+            var authoredFocusResult = RefreshImporterOwnedRemarks(
+                authoredFocusText, file, dreamFocusOwner, dreamFocusDocs);
+            Assert(
+                authoredFocusResult.Text == authoredFocusText &&
+                authoredFocusResult.Reason == "existing_remarks_not_importer_owned",
+                "focus repair preserves authored prose, mixed content, CDATA, comments, and processing instructions");
+        }
+        file.UpdateBlockOffsets(setTitle.Order, dreamFocusText);
+        Assert(
+            RefreshImporterOwnedRemarks(
+                dreamFocusText, file, setTitle, dreamFocusDocs).Text == dreamFocusText &&
+            RefreshImporterOwnedRemarks(
+                dreamFocusText, file, dreamFocusOwner,
+                dreamFocusDocs with { SourceUrl = DreamFocusSourceUrl + ".Altered" }).Text ==
+                dreamFocusText,
+            "focus repair requires the exact managed owner and mapped source reference");
+        var authoredFocusAttribution = dreamFocusText.Replace(
+            "Portions of this page", "Authored portions of this page", StringComparison.Ordinal);
+        file.UpdateBlockOffsets(setTitle.Order, authoredFocusAttribution);
+        Assert(
+            RefreshImporterOwnedRemarks(
+                authoredFocusAttribution, file, dreamFocusOwner, dreamFocusDocs).Text ==
+                authoredFocusAttribution,
+            "focus repair preserves authored attribution");
+        file.UpdateBlockOffsets(setTitle.Order, fixtureText);
         var knownAndroidParameterDocs = javaExampleDocs with
         {
             SourceUrl = KnownAndroidParameterRepairs[0].SourceUrl,
@@ -10513,9 +11579,415 @@ static class ImporterProgram
         var enumPipelinePath = Path.Combine(
             docsRoot,
             $"WidgetKind.compact-importer-self-test-{Environment.ProcessId}.xml");
+        var dreamFocusPipelinePath = Path.Combine(
+            docsRoot,
+            "Android.Service.Dreams",
+            $"DreamService.importer-self-test-{Environment.ProcessId}.xml");
+        var zoneTransitionPipelinePath = Path.Combine(
+            docsRoot,
+            "Java.Time.Zone",
+            $"ZoneOffsetTransitionRule.importer-self-test-{Environment.ProcessId}.xml");
         Directory.CreateDirectory(tempDirectory);
         try
         {
+            var dreamFocusCache = Path.Combine(tempDirectory, "dream-focus-cache");
+            Directory.CreateDirectory(dreamFocusCache);
+            var dreamFocusCachePath = Path.Combine(
+                dreamFocusCache,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(dreamFocusRequest.Url)))
+                    .ToLowerInvariant() + ".html");
+            File.WriteAllText(dreamFocusCachePath, dreamFocusHtml, new UTF8Encoding(false));
+            var dreamFocusFirstFill = $"""
+                <Type Name="DreamService" FullName="Android.Service.Dreams.DreamService">
+                  <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("android/service/dreams/DreamService", DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
+                  <Docs><summary>Retain this type summary.</summary><remarks /></Docs>
+                  <Members>
+                    <Member MemberName="OnWindowFocusChanged">
+                      <MemberSignature Language="DocId" Value="{DreamFocusMemberId}" />
+                      <MemberType>Method</MemberType>
+                      <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("onWindowFocusChanged", "(Z)V", "")]</AttributeName></Attribute></Attributes>
+                      <Parameters><Parameter Name="hasFocus" Type="System.Boolean" /></Parameters>
+                      <ReturnValue><ReturnType>System.Void</ReturnType></ReturnValue>
+                      <Docs><param name="hasFocus">Retain this parameter.</param><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+                    </Member>
+                  </Members>
+                </Type>
+                """;
+            File.WriteAllText(dreamFocusPipelinePath, dreamFocusFirstFill, new UTF8Encoding(false));
+            int RunDreamFocusPipeline(string stage, int expectedChanges)
+            {
+                var reportPath = Path.Combine(tempDirectory, "dream-focus-" + stage);
+                var exitCode = RunAsync(
+                    [
+                        "--path", dreamFocusPipelinePath,
+                        "--namespace", "Android.Service.Dreams",
+                        "--member", "OnWindowFocusChanged",
+                        "--offline", "--cache", dreamFocusCache,
+                        "--max-changes", "2", "--apply", "--report", reportPath,
+                    ]).GetAwaiter().GetResult();
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(
+                    exitCode == 0 &&
+                    report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("appliedCount").GetInt32() == expectedChanges,
+                    $"registered DreamService focus complete importer pipeline {stage}");
+                return report.RootElement.GetProperty("filesChanged").GetInt32();
+            }
+            RunDreamFocusPipeline("first-fill", 2);
+            var firstFilledDreamFocus = File.ReadAllText(dreamFocusPipelinePath);
+            Assert(
+                firstFilledDreamFocus.Contains(CorrectDreamFocusRemark, StringComparison.Ordinal) &&
+                !firstFilledDreamFocus.Contains("onWindowFocusChangedNotLocked", StringComparison.Ordinal) &&
+                firstFilledDreamFocus.Contains("Retain this parameter.", StringComparison.Ordinal),
+                "actual registered callback first-fill preserves the official target identity and existing channels");
+            var firstFilledDreamFocusBytes = File.ReadAllBytes(dreamFocusPipelinePath);
+            Assert(
+                RunDreamFocusPipeline("first-fill-repeat", 0) == 0 &&
+                firstFilledDreamFocusBytes.SequenceEqual(File.ReadAllBytes(dreamFocusPipelinePath)),
+                "registered callback first-fill follow-up is byte-identical");
+            foreach (var legacy in new[] { false, true })
+            {
+                var staleFocusOutput = firstFilledDreamFocus.Replace(
+                    CorrectDreamFocusRemark, IncorrectDreamFocusRemark, StringComparison.Ordinal);
+                if (legacy)
+                {
+                    staleFocusOutput = staleFocusOutput.Replace(
+                        "Android reference for <code>android.service.dreams.DreamService.onWindowFocusChanged</code>",
+                        "Java documentation for <code>android.service.dreams.DreamService.onWindowFocusChanged(boolean)</code>",
+                        StringComparison.Ordinal);
+                }
+                File.WriteAllText(dreamFocusPipelinePath, staleFocusOutput, new UTF8Encoding(false));
+                RunDreamFocusPipeline("repair-" + legacy, 1);
+                Assert(
+                    File.ReadAllText(dreamFocusPipelinePath) == staleFocusOutput.Replace(
+                        IncorrectDreamFocusRemark, CorrectDreamFocusRemark, StringComparison.Ordinal),
+                    "complete pipeline repairs only the exact old paragraph with canonical or retained legacy reference");
+                var repairedDreamFocusBytes = File.ReadAllBytes(dreamFocusPipelinePath);
+                Assert(
+                    RunDreamFocusPipeline("repair-repeat-" + legacy, 0) == 0 &&
+                    repairedDreamFocusBytes.SequenceEqual(File.ReadAllBytes(dreamFocusPipelinePath)),
+                    "complete pipeline repair follow-up has zero edits and identical bytes");
+            }
+            var unsupportedFocusOutput = firstFilledDreamFocus.Replace(
+                CorrectDreamFocusRemark, IncorrectDreamFocusRemark, StringComparison.Ordinal);
+            File.WriteAllText(dreamFocusPipelinePath, unsupportedFocusOutput, new UTF8Encoding(false));
+            File.WriteAllText(
+                dreamFocusCachePath,
+                dreamFocusHtml.Replace(
+                    "#onWindowFocusChanged(boolean)\">", "#other(boolean)\">", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            var unsupportedFocusBytes = File.ReadAllBytes(dreamFocusPipelinePath);
+            Assert(
+                RunDreamFocusPipeline("unproven-target", 0) == 0 &&
+                unsupportedFocusBytes.SequenceEqual(File.ReadAllBytes(dreamFocusPipelinePath)),
+                "complete pipeline preserves old output when the source target does not prove the correction");
+            File.WriteAllText(dreamFocusCachePath, dreamFocusHtml, new UTF8Encoding(false));
+            var focusPipelineMismatches = new Dictionary<string, string>
+            {
+                ["member-mismatch"] = unsupportedFocusOutput.Replace(
+                    DreamFocusMemberId, DreamFocusMemberId + ".Altered", StringComparison.Ordinal),
+                ["registration-mismatch"] = unsupportedFocusOutput.Replace(
+                    "\"(Z)V\"", "\"(I)V\"", StringComparison.Ordinal),
+                ["source-reference-mismatch"] = unsupportedFocusOutput.Replace(
+                    DreamFocusSourceUrl, DreamFocusSourceUrl + ".Altered", StringComparison.Ordinal),
+                ["authored-provenance"] = unsupportedFocusOutput.Replace(
+                    "Portions of this page", "Authored portions of this page", StringComparison.Ordinal),
+                ["authored-paragraph"] = unsupportedFocusOutput.Replace(
+                    IncorrectDreamFocusRemark,
+                    IncorrectDreamFocusRemark + " Additional authored guidance.",
+                    StringComparison.Ordinal),
+                ["mixed-content"] = unsupportedFocusOutput.Replace(
+                    IncorrectDreamFocusRemark, $"<c>{IncorrectDreamFocusRemark}</c>", StringComparison.Ordinal),
+                ["cdata"] = unsupportedFocusOutput.Replace(
+                    IncorrectDreamFocusRemark, $"<![CDATA[{IncorrectDreamFocusRemark}]]>", StringComparison.Ordinal),
+                ["comment"] = unsupportedFocusOutput.Replace(
+                    IncorrectDreamFocusRemark, $"<!--Keep-->{IncorrectDreamFocusRemark}", StringComparison.Ordinal),
+                ["processing-instruction"] = unsupportedFocusOutput.Replace(
+                    IncorrectDreamFocusRemark, $"<?keep guidance?>{IncorrectDreamFocusRemark}", StringComparison.Ordinal),
+            };
+            foreach (var (stage, mismatchText) in focusPipelineMismatches)
+            {
+                File.WriteAllText(dreamFocusPipelinePath, mismatchText, new UTF8Encoding(false));
+                var mismatchBytes = File.ReadAllBytes(dreamFocusPipelinePath);
+                Assert(
+                    RunDreamFocusPipeline(stage, 0) == 0 &&
+                    mismatchBytes.SequenceEqual(File.ReadAllBytes(dreamFocusPipelinePath)),
+                    $"complete focus pipeline preserves byte-identical output for {stage}");
+            }
+            var zoneTransitionSource = LoadedFile.Load(
+                repositoryRoot,
+                Path.Combine(docsRoot, "Java.Time.Zone", "ZoneOffsetTransitionRule.xml"));
+            zoneTransitionSource.SelectOwners(KnownUnsafeZoneTransitionMemberId);
+            var zoneTransitionOwner = zoneTransitionSource.Owners.Single();
+            var zoneTransitionHtml = File.ReadAllText(Path.Combine(
+                fixtureRoot, "zone-offset-transition-rule-java-reference.html"));
+            var zoneTransitionPage = SourcePage.Parse(
+                zoneTransitionOwner.SourceRequest!, zoneTransitionHtml);
+            var zoneTransitionMapping = MapOwner(
+                zoneTransitionOwner,
+                new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [zoneTransitionOwner.SourceRequest!.Url] =
+                        SourceLoadResult.Success(zoneTransitionPage),
+                });
+            var unsafeZoneTransitionDocs = zoneTransitionMapping.Docs!;
+            Assert(
+                zoneTransitionOwner.Id == KnownUnsafeZoneTransitionMemberId &&
+                zoneTransitionOwner.MemberRegistration?.Descriptor ==
+                    "(Ljava/time/Month;ILjava/time/DayOfWeek;Ljava/time/LocalTime;ZLjava/time/zone/ZoneOffsetTransitionRule$TimeDefinition;Ljava/time/ZoneOffset;Ljava/time/ZoneOffset;Ljava/time/ZoneOffset;)Ljava/time/zone/ZoneOffsetTransitionRule;" &&
+                unsafeZoneTransitionDocs.Parameters.Count == 9 &&
+                unsafeZoneTransitionDocs.Parameters["time"] == KnownUnsafeZoneTransitionTime &&
+                unsafeZoneTransitionDocs.UnsafeTargets?.ContainsKey("param:time") == true &&
+                ReplacementFor(
+                    new Placeholder(0, "param", "time", "param:time"),
+                    unsafeZoneTransitionDocs).Reason == "source_channel_ambiguous",
+                "the complete registered nine-parameter Java factory maps its exact source and excludes only the unsafe time channel");
+            var rawZoneTransitionDocs = unsafeZoneTransitionDocs with { UnsafeTargets = null };
+            var zoneTransitionSourceMismatches = new[]
+            {
+                rawZoneTransitionDocs with { SourceUrl = rawZoneTransitionDocs.SourceUrl + ".Altered" },
+                rawZoneTransitionDocs with { SourceKind = "android" },
+                rawZoneTransitionDocs with
+                {
+                    Parameters = new Dictionary<string, string>
+                    {
+                        ["time"] = KnownUnsafeZoneTransitionTime + " Additional source guidance.",
+                    },
+                },
+                rawZoneTransitionDocs with
+                {
+                    Parameters = new Dictionary<string, string>
+                    {
+                        ["cutoverTime"] = KnownUnsafeZoneTransitionTime,
+                    },
+                },
+            };
+            Assert(
+                zoneTransitionSourceMismatches.All(docs =>
+                    ReferenceEquals(
+                        WithoutKnownUnsafeJavaSourceChannels(KnownUnsafeZoneTransitionMemberId, docs),
+                        docs)) &&
+                ReferenceEquals(
+                    WithoutKnownUnsafeJavaSourceChannels(
+                        KnownUnsafeZoneTransitionMemberId + ".Altered", rawZoneTransitionDocs),
+                    rawZoneTransitionDocs),
+                "Java time exclusions require the exact source kind, canonical URL, managed member, parameter name, and complete source text");
+
+            var zoneTransitionDocument = new XDocument(zoneTransitionSource.Root.Document!);
+            zoneTransitionDocument.Root!.Element("Members")!.ReplaceNodes(
+                new XElement(zoneTransitionOwner.Member!));
+            var zoneFactoryDocs = zoneTransitionDocument.Root.Element("Members")!
+                .Element("Member")!.Element("Docs")!;
+            zoneFactoryDocs.ReplaceNodes(
+                zoneTransitionOwner.Member!.Element("Parameters")!.Elements("Parameter")
+                    .Select(parameter => new XElement(
+                        "param", new XAttribute("name", (string)parameter.Attribute("Name")!), "To be added.")),
+                new XElement("summary", "To be added."),
+                new XElement("returns", "To be added."),
+                new XElement("remarks", "To be added."));
+            File.WriteAllText(
+                zoneTransitionPipelinePath,
+                zoneTransitionDocument.ToString(SaveOptions.DisableFormatting),
+                new UTF8Encoding(false));
+            var zoneTransitionCache = Path.Combine(tempDirectory, "zone-transition-cache");
+            Directory.CreateDirectory(zoneTransitionCache);
+            var zoneTransitionCacheKey = Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(zoneTransitionOwner.SourceRequest!.Url))).ToLowerInvariant();
+            File.WriteAllText(
+                Path.Combine(zoneTransitionCache, zoneTransitionCacheKey + ".html"),
+                zoneTransitionHtml, new UTF8Encoding(false));
+
+            (int ExitCode, int Applied, bool TimeSkipped) RunZoneTransitionPipeline(string name)
+            {
+                var reportPath = Path.Combine(tempDirectory, name);
+                var exitCode = RunAsync(
+                    [
+                        "--path", zoneTransitionPipelinePath,
+                        "--namespace", "Java.Time.Zone",
+                        "--member", KnownUnsafeZoneTransitionMemberId,
+                        "--cache", zoneTransitionCache,
+                        "--offline",
+                        "--apply",
+                        "--max-changes", "10",
+                        "--report", reportPath,
+                    ]).GetAwaiter().GetResult();
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                return (
+                    exitCode,
+                    report.RootElement.GetProperty("appliedCount").GetInt32(),
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("status").GetString() == "skipped" &&
+                        entry.GetProperty("target").GetString() == "param:time" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"));
+            }
+
+            var zoneFirstFill = RunZoneTransitionPipeline("zone-first-fill");
+            var zoneRemainingFill = RunZoneTransitionPipeline("zone-remaining-fill");
+            var zoneFilledDocument = XDocument.Load(zoneTransitionPipelinePath);
+            var zoneFilledDocs = zoneFilledDocument.Root!.Element("Members")!
+                .Element("Member")!.Element("Docs")!;
+            Assert(
+                zoneFirstFill is (0, 10, true) &&
+                zoneRemainingFill is (0, 1, true) &&
+                zoneFilledDocs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").Value == "To be added." &&
+                zoneFilledDocs.Elements().Count(element =>
+                    element.Value.Contains("To be added.", StringComparison.Ordinal)) == 1 &&
+                zoneFilledDocs.Elements("param").Where(parameter =>
+                    (string?)parameter.Attribute("name") != "time").All(parameter =>
+                        parameter.Value == unsafeZoneTransitionDocs.Parameters[
+                            (string)parameter.Attribute("name")!]),
+                "production first-fill imports all eleven safe channels while leaving only the time placeholder");
+            var zoneFilledBytes = File.ReadAllBytes(zoneTransitionPipelinePath);
+            var zoneFirstFillRepeat = RunZoneTransitionPipeline("zone-first-fill-repeat");
+            Assert(
+                zoneFirstFillRepeat is (0, 0, true) &&
+                zoneFilledBytes.SequenceEqual(File.ReadAllBytes(zoneTransitionPipelinePath)),
+                "production unsafe-channel exclusion is byte-identical and applies zero changes on repeat");
+
+            zoneFilledDocs.Elements("param").Single(parameter =>
+                (string?)parameter.Attribute("name") == "time").Value = KnownUnsafeZoneTransitionTime;
+            zoneFilledDocs.Elements("param").Single(parameter =>
+                (string?)parameter.Attribute("name") == "month").Value = "Keep this authored month documentation.";
+            File.WriteAllText(
+                zoneTransitionPipelinePath,
+                zoneFilledDocument.ToString(SaveOptions.DisableFormatting),
+                new UTF8Encoding(false));
+            var previouslyOwnedZoneText = File.ReadAllText(zoneTransitionPipelinePath);
+            var expectedWithdrawnZoneText = previouslyOwnedZoneText.Replace(
+                $"<param name=\"time\">{KnownUnsafeZoneTransitionTime}</param>",
+                "<param name=\"time\">To be added.</param>",
+                StringComparison.Ordinal);
+            var zoneWithdrawal = RunZoneTransitionPipeline("zone-prior-owned-withdrawal");
+            Assert(
+                zoneWithdrawal.ExitCode == 0 &&
+                zoneWithdrawal.Applied == 1 &&
+                expectedWithdrawnZoneText != previouslyOwnedZoneText &&
+                File.ReadAllText(zoneTransitionPipelinePath) == expectedWithdrawnZoneText,
+                "production withdrawal changes only the exact previous importer-owned time parameter");
+            var zoneWithdrawnBytes = File.ReadAllBytes(zoneTransitionPipelinePath);
+            var zoneWithdrawalRepeat = RunZoneTransitionPipeline("zone-withdrawal-repeat");
+            Assert(
+                zoneWithdrawalRepeat is (0, 0, true) &&
+                zoneWithdrawnBytes.SequenceEqual(File.ReadAllBytes(zoneTransitionPipelinePath)),
+                "production withdrawal is byte-identical and applies zero changes on repeat");
+
+            Action<XElement>[] authoredZoneTimeChanges =
+            [
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").Value += " Authored guidance.",
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").ReplaceNodes(
+                        new XElement("c", KnownUnsafeZoneTransitionTime)),
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").ReplaceNodes(
+                        new XCData(KnownUnsafeZoneTransitionTime)),
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").Add(new XComment("Authored.")),
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").Add(new XProcessingInstruction("keep", "authored")),
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").SetAttributeValue("authored", "true"),
+                docs => docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "time").SetAttributeValue("name", "cutoverTime"),
+                docs => docs.Add(new XElement("param", new XAttribute("name", "time"), KnownUnsafeZoneTransitionTime)),
+                docs => docs.Element("remarks")!.AddFirst(new XElement("para", "Authored prose.")),
+                docs => docs.Element("remarks")!.Add(new XComment("Authored.")),
+                docs => docs.Element("remarks")!.Add(new XProcessingInstruction("keep", "authored")),
+                docs => docs.Element("remarks")!.Element("para")!.ReplaceNodes(
+                    new XCData(docs.Element("remarks")!.Element("para")!.Value)),
+                docs => docs.Element("remarks")!.Element("para")!.ReplaceNodes(
+                    new XElement("c", docs.Element("remarks")!.Element("para")!.Value)),
+                docs => docs.Element("remarks")!.SetAttributeValue("authored", "true"),
+                docs => docs.Element("remarks")!.Elements("para").Last().Descendants("a")
+                    .Single().SetAttributeValue("href", KnownUnsafeZoneTransitionSourceUrl + ".Altered"),
+                docs => docs.Element("remarks")!.Add(new XElement(docs.Element("remarks")!.Elements("para").Last())),
+                docs => docs.Element("remarks")!.Elements("para").Last().Remove(),
+                docs => docs.Add(new XComment("Authored.")),
+                docs => docs.Add(new XProcessingInstruction("keep", "authored")),
+                docs => docs.Add(new XText("Authored prose.")),
+                docs => docs.Add(new XCData("Authored prose.")),
+                docs => docs.SetAttributeValue("authored", "true"),
+            ];
+            var authoredZoneCase = 0;
+            foreach (var change in authoredZoneTimeChanges)
+            {
+                var authored = XDocument.Parse(previouslyOwnedZoneText);
+                change(authored.Root!.Element("Members")!.Element("Member")!.Element("Docs")!);
+                File.WriteAllText(
+                    zoneTransitionPipelinePath,
+                    authored.ToString(SaveOptions.DisableFormatting),
+                    new UTF8Encoding(false));
+                var authoredFile = LoadedFile.Load(repositoryRoot, zoneTransitionPipelinePath);
+                authoredFile.SelectOwners(KnownUnsafeZoneTransitionMemberId);
+                var authoredOwner = authoredFile.Owners.Single();
+                var preserved = RepairKnownUnsafeParameter(
+                    authoredFile.Text, authoredFile, authoredOwner, unsafeZoneTransitionDocs);
+                Assert(
+                    !preserved.Repaired && preserved.Text == authoredFile.Text,
+                    "Java time withdrawal preserves authored parameter/remarks content, CDATA, comments, processing instructions, and ownership mismatches");
+                var authoredBytes = File.ReadAllBytes(zoneTransitionPipelinePath);
+                var authoredRun = RunZoneTransitionPipeline($"zone-authored-{authoredZoneCase++}");
+                Assert(
+                    authoredRun.ExitCode == 0 &&
+                    authoredRun.Applied == 0 &&
+                    authoredBytes.SequenceEqual(File.ReadAllBytes(zoneTransitionPipelinePath)),
+                    "production withdrawal preserves authored content and ownership mismatches byte-for-byte");
+            }
+            File.WriteAllText(zoneTransitionPipelinePath, previouslyOwnedZoneText, new UTF8Encoding(false));
+            var ownedZoneFile = LoadedFile.Load(repositoryRoot, zoneTransitionPipelinePath);
+            ownedZoneFile.SelectOwners(KnownUnsafeZoneTransitionMemberId);
+            var ownedZoneOwner = ownedZoneFile.Owners.Single();
+            var withdrawalSourceMismatches = zoneTransitionSourceMismatches.Concat(
+                [
+                    rawZoneTransitionDocs with
+                    {
+                        Paragraphs = [new SourceParagraph("Different source prose.", IsCode: false)],
+                    },
+                ]);
+            Assert(
+                withdrawalSourceMismatches.All(docs =>
+                {
+                    var preserved = RepairKnownUnsafeParameter(
+                        ownedZoneFile.Text, ownedZoneFile, ownedZoneOwner, docs);
+                    return !preserved.Repaired && preserved.Text == ownedZoneFile.Text;
+                }) &&
+                !RepairKnownUnsafeParameter(
+                    ownedZoneFile.Text,
+                    ownedZoneFile,
+                    ownedZoneOwner with { Id = ownedZoneOwner.Id + ".Altered" },
+                    unsafeZoneTransitionDocs).Repaired,
+                "Java time withdrawal preserves mismatched source kinds, URLs, full text, parameter names, remarks, and managed members");
+            foreach (var attribute in new[] { "Name", "Type" })
+            {
+                var alteredMember = new XElement(ownedZoneOwner.Member!);
+                alteredMember.Element("Parameters")!.Elements("Parameter").ElementAt(3)
+                    .SetAttributeValue(attribute, "Altered");
+                var preserved = RepairKnownUnsafeParameter(
+                    ownedZoneFile.Text,
+                    ownedZoneFile,
+                    ownedZoneOwner with { Member = alteredMember },
+                    unsafeZoneTransitionDocs);
+                Assert(
+                    !preserved.Repaired && preserved.Text == ownedZoneFile.Text,
+                    "Java time withdrawal preserves mismatched managed parameter metadata");
+                var alteredDocument = XDocument.Parse(previouslyOwnedZoneText);
+                alteredDocument.Root!.Element("Members")!.Element("Member")!
+                    .Element("Parameters")!.Elements("Parameter").ElementAt(3)
+                    .SetAttributeValue(attribute, "Altered");
+                File.WriteAllText(
+                    zoneTransitionPipelinePath,
+                    alteredDocument.ToString(SaveOptions.DisableFormatting),
+                    new UTF8Encoding(false));
+                var alteredBytes = File.ReadAllBytes(zoneTransitionPipelinePath);
+                var alteredRun = RunZoneTransitionPipeline($"zone-altered-parameter-{attribute}");
+                Assert(
+                    alteredRun.ExitCode == 0 &&
+                    alteredRun.Applied == 0 &&
+                    alteredBytes.SequenceEqual(File.ReadAllBytes(zoneTransitionPipelinePath)),
+                    "production withdrawal preserves mismatched managed parameter metadata byte-for-byte");
+            }
+
             var forEachSourcePath = Path.Combine(
                 docsRoot,
                 "Java.Util.Concurrent",
@@ -11838,12 +13310,16 @@ static class ImporterProgram
         }
         finally
         {
+            if (File.Exists(dreamFocusPipelinePath))
+                File.Delete(dreamFocusPipelinePath);
             if (File.Exists(forEachPipelinePath))
                 File.Delete(forEachPipelinePath);
             if (File.Exists(compactForEachPipelinePath))
                 File.Delete(compactForEachPipelinePath);
             if (File.Exists(enumPipelinePath))
                 File.Delete(enumPipelinePath);
+            if (File.Exists(zoneTransitionPipelinePath))
+                File.Delete(zoneTransitionPipelinePath);
             Directory.Delete(tempDirectory, true);
         }
 
@@ -12374,7 +13850,8 @@ static class ImporterProgram
     sealed record KnownJavaExampleRepair(
         string SourceUrl,
         string IncompleteCode,
-        string CorrectCode);
+        string CorrectCode,
+        string? MemberId = null);
     sealed record KnownJavaProseRepair(
         string SourceUrl,
         string IncorrectText,
@@ -12455,13 +13932,13 @@ static class ImporterProgram
         public static JavaProseRepairResult RepairedText(string text) =>
             new(text, true);
     }
-    sealed record UnsafeParameterRepairResult(string Text, bool Repaired)
+    sealed record UnsafeParameterRepairResult(string Text, bool Repaired, string ParameterName)
     {
         public static UnsafeParameterRepairResult NoChange(string text) =>
-            new(text, false);
+            new(text, false, string.Empty);
 
-        public static UnsafeParameterRepairResult RepairedText(string text) =>
-            new(text, true);
+        public static UnsafeParameterRepairResult RepairedText(string text, string parameterName) =>
+            new(text, true, parameterName);
     }
     sealed record SourceReferenceCleanupSkip(string Reason, string Detail)
     {
@@ -13262,6 +14739,7 @@ static class ImporterProgram
             string title,
             string url)
         {
+            fragment = NormalizeKnownAndroidParagraphBoundary(fragment, url);
             var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (Match row in Regex.Matches(
                 fragment,
@@ -13290,6 +14768,16 @@ static class ImporterProgram
                 @"<pre\b(?=[^>]*\bclass=[""'][^""']*\bapi-signature\b[^""']*[""'])[^>]*>.*?</pre>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            if (url == DreamFocusSourceUrl)
+            {
+                prose = prose.Replace(
+                    StaleDreamFocusSourceLink,
+                    StaleDreamFocusSourceLink.Replace(
+                        "View.onWindowFocusChangedNotLocked(boolean)",
+                        "View.onWindowFocusChanged(boolean)",
+                        StringComparison.Ordinal),
+                    StringComparison.Ordinal);
+            }
             var paragraphs = ExtractParagraphs(prose);
             if (paragraphs.Count == 0 &&
                 parameters.Count == 0 &&
@@ -13306,6 +14794,23 @@ static class ImporterProgram
                 $"{request.JavaPath.Replace('/', '.').Replace('$', '.')}.{title}",
                 request.Kind,
                 HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal));
+        }
+
+        internal static string NormalizeKnownAndroidParagraphBoundary(string html, string sourceUrl)
+        {
+            if (!sourceUrl.Equals(ControlTemplateSourceUrl, StringComparison.Ordinal))
+                return html;
+
+            return Regex.Replace(
+                html,
+                @"(?<open><p\b[^>]*>)(?<lead>.*?)\r?\n[ \t]*\r?\n[ \t]*(?<description>.*?)</p>",
+                match =>
+                    HtmlText(match.Groups["lead"].Value) == ControlTemplateLead &&
+                    HtmlText(match.Groups["description"].Value) == ControlTemplateDescription
+                        ? match.Groups["open"].Value + match.Groups["lead"].Value +
+                            "</p><p>" + match.Groups["description"].Value + "</p>"
+                        : match.Value,
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         }
 
         static string ExtractAndroidTableValue(string fragment, string heading)

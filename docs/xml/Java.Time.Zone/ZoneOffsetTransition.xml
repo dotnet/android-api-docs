@@ -140,9 +140,12 @@
         <ReturnType>Java.Time.LocalDateTime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the local transition date-time, as would be expressed with the 'after' offset.</summary>
+        <value>the transition date-time expressed with the after offset, not null</value>
+        <remarks>
+          <para>Gets the local transition date-time, as would be expressed with the 'after' offset. This is the first date-time after the discontinuity, when the new offset applies. The combination of the 'before' date-time and offset represents the same instant as the 'after' date-time and offset.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransition.html#getDateTimeAfter()" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransition.getDateTimeAfter</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DateTimeBefore">
@@ -169,9 +172,12 @@
         <ReturnType>Java.Time.LocalDateTime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the local transition date-time, as would be expressed with the 'before' offset.</summary>
+        <value>the transition date-time expressed with the before offset, not null</value>
+        <remarks>
+          <para>Gets the local transition date-time, as would be expressed with the 'before' offset. This is the date-time where the discontinuity begins expressed with the 'before' offset. At this instant, the 'after' offset is actually used, therefore the combination of this date-time and the 'before' offset will never occur. The combination of the 'before' date-time and offset represents the same instant as the 'after' date-time and offset.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransition.html#getDateTimeBefore()" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransition.getDateTimeBefore</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Duration">
@@ -198,9 +204,12 @@
         <ReturnType>Java.Time.Duration</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the duration of the transition.</summary>
+        <value>the duration of the transition, positive for gaps, negative for overlaps</value>
+        <remarks>
+          <para>Gets the duration of the transition. In most cases, the transition duration is one hour, however this is not always the case. The duration will be positive for a gap and negative for an overlap. Time-zones are second-based, so the nanosecond part of the duration will be zero.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransition.html#getDuration()" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransition.getDuration</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Instant">
@@ -227,9 +236,12 @@
         <ReturnType>Java.Time.Instant</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the transition instant.</summary>
+        <value>the transition instant, not null</value>
+        <remarks>
+          <para>Gets the transition instant. This is the instant of the discontinuity, which is defined as the first instant that the 'after' offset applies. The methods getInstant(), getDateTimeBefore() and getDateTimeAfter() all represent the same instant.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransition.html#getInstant()" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransition.getInstant</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsGap">
@@ -347,10 +359,13 @@
         <Parameter Name="offset" Type="Java.Time.ZoneOffset" />
       </Parameters>
       <Docs>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="offset">the offset to check, null returns false</param>
+        <summary>Checks if the specified offset is valid during this transition.</summary>
+        <returns>true if the offset is valid during the transition</returns>
+        <remarks>
+          <para>Checks if the specified offset is valid during this transition. This checks to see if the given offset will be valid at some point in the transition. A gap will always return false. An overlap will return true if the offset is either the before or after offset.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransition.html#isValidOffset(java.time.ZoneOffset)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransition.isValidOffset</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -401,10 +416,12 @@
         <Parameter Name="o" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="o">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="o">the object to be compared.</param>
+        <summary>Compares this object with the specified object for order.</summary>
+        <returns>a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.</returns>
         <remarks>
+          <para>Compares this object with the specified object for order. Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object. The implementor must ensure signum(x.compareTo(y)) == -signum(y.compareTo(x)) for all x and y. (This implies that x.compareTo(y) must throw an exception if and only if y.compareTo(x) throws an exception.) The implementor must also ensure that the relation is transitive: (x.compareTo(y) &gt; 0 &amp;&amp; y.compareTo(z) &gt; 0) implies x.compareTo(z) &gt; 0. Finally, the implementor must ensure that x.compareTo(y)==0 implies that signum(x.compareTo(z)) == signum(y.compareTo(z)), for all z.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Comparable.html#compareTo(T)" title="Reference documentation">Java reference for <code>java.lang.Comparable.compareTo</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -480,12 +497,15 @@
         <Parameter Name="offsetAfter" Type="Java.Time.ZoneOffset" />
       </Parameters>
       <Docs>
-        <param name="transition">To be added.</param>
-        <param name="offsetBefore">To be added.</param>
-        <param name="offsetAfter">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="transition">the transition date-time at the transition, which never actually occurs, expressed local to the before offset, not null</param>
+        <param name="offsetBefore">the offset before the transition, not null</param>
+        <param name="offsetAfter">the offset at and after the transition, not null</param>
+        <summary>Obtains an instance defining a transition between two offsets.</summary>
+        <returns>the transition, not null</returns>
+        <remarks>
+          <para>Obtains an instance defining a transition between two offsets. Applications should normally obtain an instance from ZoneRules. This factory is only intended for use when creating ZoneRules.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransition.html#of(java.time.LocalDateTime,java.time.ZoneOffset,java.time.ZoneOffset)" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransition.of</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OffsetAfter">
@@ -512,9 +532,12 @@
         <ReturnType>Java.Time.ZoneOffset</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the offset after the transition.</summary>
+        <value>the offset after the transition, not null</value>
+        <remarks>
+          <para>Gets the offset after the transition. This is the offset in use on and after the instant of the transition.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransition.html#getOffsetAfter()" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransition.getOffsetAfter</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OffsetBefore">
@@ -541,9 +564,12 @@
         <ReturnType>Java.Time.ZoneOffset</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the offset before the transition.</summary>
+        <value>the offset before the transition, not null</value>
+        <remarks>
+          <para>Gets the offset before the transition. This is the offset in use before the instant of the transition.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/zone/ZoneOffsetTransition.html#getOffsetBefore()" title="Reference documentation">Java reference for <code>java.time.zone.ZoneOffsetTransition.getOffsetBefore</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
