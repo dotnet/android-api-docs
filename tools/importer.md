@@ -152,3 +152,14 @@ Limitations:
   parameter text are likewise skipped when they describe encoded `ScanResult`
   channel-width constants as numeric MHz values. The full original parameter
   description must also match; the valid builder return channel remains eligible.
+- Exact stale remarks for `ResponderConfig.Builder.setMacAddress(MacAddress)`
+  exclude valid USD-only identification, while `PasnConfig.Builder.setWifiSsid`
+  and `PasnConfig.getWifiSsid` overlook PMK-authenticated PASN without a password
+  or SSID. Only these three remarks channels are withheld when the managed
+  member, canonical URL, source identity, complete summary and ordered original
+  paragraphs match. Safe summaries, parameters and returns remain eligible,
+  as does changed official prose. A bounded repair replaces the complete stale
+  importer-owned prose with a placeholder only when the entire remarks structure,
+  reference and attribution match; the reference and attribution are retained.
+  Authored or mixed XML, CDATA, comments, processing instructions, duplicate
+  channels and mismatched provenance are reported and preserved.
