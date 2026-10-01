@@ -76,6 +76,17 @@ intact; its unsafe return is restored to `To be added.`. Authored or mixed conte
 duplicate channels, altered metadata, and changed sources are preserved and reported.
 Repairs for one member are atomic and require room for every affected channel.
 Implementation verification is not an AOSP prose fallback.
+The options-taking `MediaBrowser.subscribe` and callback-taking `unsubscribe`
+overloads omit options matching and callback identity in two reference
+paragraphs. Only those exact paragraphs are excluded, with an explicit
+`source_channel_ambiguous` report; the remaining reference prose is retained.
+Filtering requires the registered managed member, canonical Android URL, and
+complete unchanged source summary and paragraph sequence. A prior imported copy
+can lose only its unsafe paragraph when its complete plain summary, ordered
+remarks, source reference, and attribution match known importer output.
+Authored or mixed nodes, duplicate channels, altered sources, and mismatched
+metadata are preserved. Removal leaves every retained metadata byte unchanged;
+corrected future source prose remains eligible.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
