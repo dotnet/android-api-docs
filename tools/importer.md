@@ -110,6 +110,28 @@ The same write-time correction covers attribution-only enrichment, overlapping
 remarks placeholders, and incomplete importer-owned refreshes. Strict recognition
 of prior importer-owned XML still uses the unmodified official source; API
 metadata, other documentation channels, and Binder-thread guidance are preserved.
+`Android.Media.TV.Ads.TvAdService.OnBind` has a separate complete-contract guard:
+the [pinned Android 16 implementation](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/ad/TvAdService.java)
+always returns its newly created binder,
+so only the exact contradicted nullable-binder sentence is removed. Nullable
+managed annotations and the independent Binder-thread paragraph remain unchanged.
+`TvAdServiceInfo.WriteToParcel` separately corrects the exact `in to` source typo
+in summary and remarks. Both require the complete original official declaration,
+canonical URL and label, declaring Java owner, JNI descriptor, managed signature,
+return type, and ordered parameter names/types; neither infers replacement prose
+from implementation code. Corrections cover first fills, attribution-only
+enrichment, overlapping placeholders, legacy Java-signature repair, and incomplete
+importer-owned refreshes.
+Prior-owned repair additionally requires complete matching original Docs and
+changes only the exact text spans, preserving reference/attribution and raw
+encoding/newlines. The two-channel parcel repair is atomic within its budget.
+The unfiltered suite uses exact official declaration fixtures and actual registered
+production paths, including persisted zero-write repeats, authored/provenance
+negatives, and future corrected or removed source controls. There is no broad
+nullable-binder or grammar normalization.
+The two TV AD HTML fixtures are base64-encoded to retain the original source
+bytes, including trailing whitespace, without introducing whitespace-check
+exceptions; the suite decodes them before parsing the unchanged declarations.
 The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
 source label is corrected only on its exact official member URL when the source
 hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported
