@@ -1875,7 +1875,7 @@
                           <c>#APP_FUNCTIONS_DISABLED_CROSS_PROFILE</c></param>
         <summary>Returns the current <c>android.app.appfunctions.AppFunctionManager</c> policy. -or- Sets the <c>android.app.appfunctions.AppFunctionManager</c> policy which controls app
             functions operations on the device.</summary>
-        <value>To be added.</value>
+        <value>Value is one of the following: APP_FUNCTIONS_NOT_CONTROLLED_BY_POLICY; APP_FUNCTIONS_DISABLED; APP_FUNCTIONS_DISABLED_CROSS_PROFILE</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the current <c>android.app.appfunctions.AppFunctionManager</c> policy.</para>
@@ -2470,9 +2470,13 @@
         <param name="conn">To be added.</param>
         <param name="flags">To be added.</param>
         <param name="targetUser">To be added.</param>
-        <summary>To be added.</summary>
+        <summary>See bindDeviceAdminServiceAsUser(ComponentName,Intent,ServiceConnection,int,UserHandle).</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>See bindDeviceAdminServiceAsUser(ComponentName,Intent,ServiceConnection,int,UserHandle). Call Context.BindServiceFlags.of(long) to obtain a BindServiceFlags object.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#bindDeviceAdminServiceAsUser(android.content.ComponentName,%20android.content.Intent,%20android.content.ServiceConnection,%20android.content.Context.BindServiceFlags,%20android.os.UserHandle)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.bindDeviceAdminServiceAsUser</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanAdminGrantSensorsPermissions">
@@ -7262,7 +7266,15 @@
         <param name="scope">The scope of the key pair: <c>KeyChainManager#KEYPAIR_SCOPE_USER</c> or <c>KeyChainManager#KEYPAIR_SCOPE_DEVICE</c>.</param>
         <summary>Generates a new private/public key pair with a specified scope.</summary>
         <returns>A non-null <c>AttestedKeyPair</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Generates a new private/public key pair with a specified scope.</para>
+          <para>This method extends generateKeyPair(ComponentName,String,KeyGenParameterSpec,int), adding the scope parameter to determine if the key pair is user-specific or device-wide.</para>
+          <para>Please refer to the documentation of generateKeyPair(ComponentName,String,KeyGenParameterSpec,int) for complete details on general functionality, permissions, caller types, attestation, secure hardware usage, and exceptions.</para>
+          <para>Key differences in this overload: The scope parameter MUST be provided to define the key's visibility; Using KeyChainManager.KEYPAIR_SCOPE_DEVICE: The key pair will be accessible across all affiliated users on the device. See isAffiliatedUser(). The caller MUST be running in an affiliated user to use this scope. Credential management apps are not permitted to use this scope; Using KeyChainManager.KEYPAIR_SCOPE_USER: The key pair is private to the calling user. This mirrors the behavior of the base generateKeyPair method.</para>
+          <para>Note: Like the base method, this may take several seconds and should not be called on the main thread. It is not thread-safe.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#generateKeyPair(java.lang.String,%20android.security.keystore.KeyGenParameterSpec,%20int,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.generateKeyPair</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetAccountTypesWithManagementDisabled">
@@ -7957,7 +7969,7 @@
         <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with. Null if the
                          caller is not a device admin.</param>
         <summary>Returns the current content protection policy.</summary>
-        <returns>To be added.</returns>
+        <returns>Value is one of the following: CONTENT_PROTECTION_NOT_CONTROLLED_BY_POLICY; CONTENT_PROTECTION_DISABLED; CONTENT_PROTECTION_ENABLED</returns>
         <remarks>
           <para>Returns the current content protection policy.</para>
           <para>The returned policy will be the current resolved policy rather than the policy set by the
@@ -8917,7 +8929,11 @@
             which apps have access to a given KeyChain key in the specified scope.</summary>
         <returns>apps that have access to a given key, arranged in a map from UID to sets of package
                 names.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called by a device or profile owner, delegated certificate chooser (an app that has been delegated the DELEGATION_CERT_SELECTION privilege), or permission caller, to query which apps have access to a given KeyChain key in the specified scope.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#getKeyPairGrants(java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.getKeyPairGrants</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetLockTaskFeatures">
@@ -10867,7 +10883,12 @@
         <summary>Gets the value of the given policy, as it was set by the caller.</summary>
         <returns>The value of the policy, or null if the caller didn't set the policy for the given
                 scope.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Gets the value of the given policy, as it was set by the caller.</para>
+          <para>Use getResolvedDeviceWidePolicy(PolicyIdentifier) and getResolvedPerUserPolicy(PolicyIdentifier) to get the resolved policy value used on the device. Instead, this returns the value set by the caller.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#getPolicy(android.app.admin.PolicyIdentifier&lt;T&gt;,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.getPolicy</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetRequiredStrongAuthTimeout">
@@ -10969,7 +10990,14 @@
         <param name="id">Which policy to retrieve.</param>
         <summary>Returns the resolved value of the given device-wide policy.</summary>
         <returns>The resolved value of the policy.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the resolved value of the given device-wide policy. The resolved value is the value that is currently being enforced on the device after conflict resolution has been performed between all the policies set by all admins at all active scopes. The value can change when the current user changes or when users log in or out.</para>
+          <para>Use getPolicy(PolicyIdentifier, int) to get the value set by the caller, which may differ.</para>
+          <para>Can only be applied on a RESOURCE_DEVICE_WIDE policy. Use getResolvedPerUserPolicy(PolicyIdentifier) for per-user policies.</para>
+          <para>Returns null when the policy is not set.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#getResolvedDeviceWidePolicy(android.app.admin.PolicyIdentifier&lt;T&gt;)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.getResolvedDeviceWidePolicy</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetResolvedPerUserPolicy">
@@ -11013,7 +11041,14 @@
         <param name="id">Which policy to retrieve.</param>
         <summary>Returns the resolved value of the given per-user policy.</summary>
         <returns>The resolved value of the policy.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the resolved value of the given per-user policy. The resolved value is the value that is currently being enforced on the device for the context user after conflict resolution has been performed between all the policies set by all admins at all active scopes.</para>
+          <para>Use getPolicy(PolicyIdentifier, int) to get the value set by the caller, which may differ.</para>
+          <para>Can only be applied on a RESOURCE_PER_USER policy. Use getResolvedDeviceWidePolicy(PolicyIdentifier) for device-wide policies.</para>
+          <para>Returns null when the policy is not set.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#getResolvedPerUserPolicy(android.app.admin.PolicyIdentifier&lt;T&gt;)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.getResolvedPerUserPolicy</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetScreenCaptureDisabled">
@@ -11777,7 +11812,11 @@
             scope.</summary>
         <returns>
           <c>true</c> if the grant was set successfully, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called by a device or profile owner, delegated certificate chooser (an app that has been delegated the DELEGATION_CERT_SELECTION privilege), or permission caller, to grant an application access to an already-installed (or generated) KeyChain key in the specified scope. This is useful (in combination with installKeyPair(ComponentName, PrivateKey, Certificate, String) or generateKeyPair(ComponentName, String, KeyGenParameterSpec, int)) to let an application call KeyChain.getPrivateKey(Context, String) without having to call KeyChain.choosePrivateKeyAlias(Activity, KeyChainAliasCallback, String, Principal, Uri, String) first.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#grantKeyPairToApp(java.lang.String,%20java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.grantKeyPairToApp</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GrantKeyPairToWifiAuth">
@@ -11884,7 +11923,11 @@
             using a KeyChain key pair of the specified scope for authentication to Wifi networks.</summary>
         <returns>
           <c>true</c> if the operation was set successfully, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called by a device or profile owner, delegated certificate chooser (an app that has been delegated the DELEGATION_CERT_SELECTION privilege), or permission caller, to allow using a KeyChain key pair of the specified scope for authentication to Wifi networks. The key can then be used in configurations passed to WifiManager.addNetwork(WifiConfiguration).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#grantKeyPairToWifiAuth(java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.grantKeyPairToWifiAuth</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="HasCaCertInstalled">
@@ -12116,7 +12159,12 @@
             &lt;/ul&gt;</summary>
         <returns>
           <c>true</c> if a key pair with this alias exists, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>This API can be called by the following to query whether a certificate and private key are installed under a given alias for the specified scope: Device owner; Profile owner; Delegated certificate installer; Credential management app (user-specific keychain only); An app that holds the Manifest.permission.MANAGE_DEVICE_POLICY_CERTIFICATES permission</para>
+          <para>Key differences in this overload:; Using KeyChainManager.KEYPAIR_SCOPE_DEVICE: The key pair will be searched in the device-wide keychain. The caller MUST be running in an affiliated user to manage device keys. See isAffiliatedUser(). Credential management apps are not permitted to use this scope; Using KeyChainManager.KEYPAIR_SCOPE_USER: The key pair is searched in the calling user's own keychain. This mirrors the behavior of the base hasKeyPair method.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#hasKeyPair(java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.hasKeyPair</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="HasLockdownAdminConfiguredNetworks">
@@ -13837,7 +13885,11 @@
             networks.</summary>
         <returns>
           <c>true</c> if the key pair can be used, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called by a device or profile owner, delegated certificate chooser (an app that has been delegated the DELEGATION_CERT_SELECTION privilege), or permission caller, to query whether a KeyChain key pair of the specified scope can be used for authentication to Wifi networks.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#isKeyPairGrantedToWifiAuth(java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.isKeyPairGrantedToWifiAuth</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsLockTaskPermitted">
@@ -14205,7 +14257,12 @@
           <c>true</c> if the eSIM transfer is allowed, or if the subscription is not managed
                     or is a pSIM. Returns <c>false</c> if the subscription is a managed eSIM and the
                     transfer is disallowed by policy.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns whether an outgoing eSIM transfer is allowed for a specific subscription.</para>
+          <para>An eSIM transfer is disallowed if the subscription is a managed subscription and the transfer is disallowed by policy. For non-managed subscriptions or physical SIMs (pSIMs), this method will always return true.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#isOutgoingEsimTransferAllowed(int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.isOutgoingEsimTransferAllowed</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsOverrideApnEnabled">
@@ -16471,7 +16528,7 @@
         <param name="level">minimum security level</param>
         <summary>Returns the current Wi-Fi minimum security level. -or- Called by device owner or profile owner of an organization-owned managed profile to
             specify the minimum security level required for Wi-Fi networks.</summary>
-        <value>To be added.</value>
+        <value>Value is one of the following: WIFI_SECURITY_OPEN; WIFI_SECURITY_PERSONAL; WIFI_SECURITY_PERSONAL_WPA; WIFI_SECURITY_ENTERPRISE_EAP; WIFI_SECURITY_ENTERPRISE_192</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the current Wi-Fi minimum security level.</para>
@@ -16755,7 +16812,7 @@
       <Docs>
         <param name="policy">One of the <c>NearbyStreamingPolicy</c> constants.</param>
         <summary>Returns the current runtime nearby app streaming policy set by the device or profile owner. -or- Called by a device/profile owner to set nearby app streaming policy.</summary>
-        <value>To be added.</value>
+        <value>Value is one of the following: NEARBY_STREAMING_NOT_CONTROLLED_BY_POLICY; NEARBY_STREAMING_DISABLED; NEARBY_STREAMING_ENABLED; NEARBY_STREAMING_SAME_MANAGED_ACCOUNT_ONLY</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the current runtime nearby app streaming policy set by the device or profile owner.</para>
@@ -16823,7 +16880,7 @@
         <param name="policy">One of the <c>NearbyStreamingPolicy</c> constants.</param>
         <summary>Returns the current runtime nearby notification streaming policy set by the device or profile
             owner. -or- Called by a device/profile owner to set nearby notification streaming policy.</summary>
-        <value>To be added.</value>
+        <value>Value is one of the following: NEARBY_STREAMING_NOT_CONTROLLED_BY_POLICY; NEARBY_STREAMING_DISABLED; NEARBY_STREAMING_ENABLED; NEARBY_STREAMING_SAME_MANAGED_ACCOUNT_ONLY</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the current runtime nearby notification streaming policy set by the device or profile
@@ -17108,7 +17165,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns how complex the current user's screen lock is.</summary>
-        <value>To be added.</value>
+        <value>Value is one of the following: PASSWORD_COMPLEXITY_NONE; PASSWORD_COMPLEXITY_LOW; PASSWORD_COMPLEXITY_MEDIUM; PASSWORD_COMPLEXITY_HIGH</value>
         <remarks>
           <para>Returns how complex the current user's screen lock is.</para>
           <para>Note that when called from a profile which uses an unified challenge with its parent, the
@@ -17617,7 +17674,11 @@
       <MemberValue>2</MemberValue>
       <Docs>
         <summary>Flag used by <c>#setPolicy</c> to apply the policy to the entire device.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Flag used by setPolicy(PolicyIdentifier, int, T) to apply the policy to the entire device.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#POLICY_SCOPE_DEVICE" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.POLICY_SCOPE_DEVICE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PolicyScopeParentUser">
@@ -17650,7 +17711,11 @@
       <MemberValue>3</MemberValue>
       <Docs>
         <summary>Flag used by <c>#setPolicy</c> to apply the policy to the parent user of the current user.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Flag used by setPolicy(PolicyIdentifier, int, T) to apply the policy to the parent user of the current user.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#POLICY_SCOPE_PARENT_USER" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.POLICY_SCOPE_PARENT_USER</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PolicyScopeUser">
@@ -17683,7 +17748,11 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>Flag used by <c>#setPolicy</c> to apply the policy to the same user as the current user.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Flag used by setPolicy(PolicyIdentifier, int, T) to apply the policy to the same user as the current user.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#POLICY_SCOPE_USER" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.POLICY_SCOPE_USER</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PreferentialNetworkServiceConfigs">
@@ -18570,7 +18639,13 @@
             &lt;/ul&gt;</summary>
         <returns>
           <c>true</c> if the private key alias no longer exists, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>This API can be called by the following to remove a certificate and private key pair installed under a given alias, specifying whether it resides in user-specific or device-wide keychain: Device owner; Profile owner; Delegated certificate installer; Credential management app (user-specific keychain only)</para>
+          <para>This method extends removeKeyPair(ComponentName,String), adding the scope parameter to determine if the key pair should be removed from user-specific or device-wide keychain. The calling application must hold the same permission requirements as the base method.</para>
+          <para>Key differences in this overload:; Using KeyChainManager.KEYPAIR_SCOPE_DEVICE: The key pair will be removed from the device-wide keychain. The caller MUST be running in an affiliated user to manage device keys. See isAffiliatedUser(). Credential management apps are not permitted to use this scope; Using KeyChainManager.KEYPAIR_SCOPE_USER: The key pair is removed from the calling user's own keychain. This mirrors the behavior of the base removeKeyPair method.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#removeKeyPair(java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.removeKeyPair</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveOverrideApn">
@@ -18766,7 +18841,7 @@
       <Docs>
         <summary>Gets the password complexity requirement set by <c>#setRequiredPasswordComplexity(int)</c>,
             for the current user. -or- Sets a minimum password complexity requirement for the user's screen lock.</summary>
-        <value>To be added.</value>
+        <value>Value is one of the following: PASSWORD_COMPLEXITY_NONE; PASSWORD_COMPLEXITY_LOW; PASSWORD_COMPLEXITY_MEDIUM; PASSWORD_COMPLEXITY_HIGH</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Gets the password complexity requirement set by <c>#setRequiredPasswordComplexity(int)</c>,
@@ -19494,7 +19569,11 @@
             an application's grant to a KeyChain key pair for the specified scope.</summary>
         <returns>
           <c>true</c> if the grant was revoked successfully, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called by a device or profile owner, delegated certificate chooser (an app that has been delegated the DELEGATION_CERT_SELECTION privilege), or permission caller, to revoke an application's grant to a KeyChain key pair for the specified scope.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#revokeKeyPairFromApp(java.lang.String,%20java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.revokeKeyPairFromApp</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RevokeKeyPairFromWifiAuth">
@@ -19601,7 +19680,11 @@
             using a KeyChain key pair of the specified scope for authentication to Wifi networks.</summary>
         <returns>
           <c>true</c> if the operation was set successfully, <c>false</c> otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called by a device or profile owner, delegated certificate chooser (an app that has been delegated the DELEGATION_CERT_SELECTION privilege), or permission caller, to deny using a KeyChain key pair of the specified scope for authentication to Wifi networks. Configured networks using this key won't be able to authenticate.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#revokeKeyPairFromWifiAuth(java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.revokeKeyPairFromWifiAuth</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetAccountManagementDisabled">
@@ -22144,7 +22227,13 @@
         <returns>
           <c>true</c> if the certificates were associated successfully, <c>false</c>
                     otherwise.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Associates certificate chain with a specific scoped key.</para>
+          <para>This method extends setKeyPairCertificate(ComponentName,String,List,boolean), adding the scope parameter to determine if the certificates should be associated with a key pair in user-specific or device-wide keychain.</para>
+          <para>Key differences in this overload: Using KeyChainManager.KEYPAIR_SCOPE_DEVICE: The certificates will be associated with a key pair in the device-wide keychain. The caller MUST be running in an affiliated user to manage device keys. See isAffiliatedUser(). Credential management apps are not permitted to use this scope; Using KeyChainManager.KEYPAIR_SCOPE_USER: The certificates will be associated with a key pair in the calling user's own keychain.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#setKeyPairCertificate(java.lang.String,%20java.util.List&lt;java.security.cert.Certificate&gt;,%20boolean,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.setKeyPairCertificate</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLocationEnabled">
@@ -24503,7 +24592,13 @@
         <param name="value">The value of the policy. If value is set to null, the policy is cleared.
             Check the documentation of individual identifiers for more details.</param>
         <summary>Sets the given policy.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the given policy.</para>
+          <para>Use getPolicy(PolicyIdentifier, int) to read back the value.</para>
+          <para>Use getResolvedDeviceWidePolicy(PolicyIdentifier) or getResolvedPerUserPolicy(PolicyIdentifier) to get the resolved policy value used on the device. The returned value can differ from the value set by the caller. The resolved value is the value that is currently being enforced on the device after conflict resolution has been performed between all the policies set by all admins at all active scopes.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#setPolicy(android.app.admin.PolicyIdentifier&lt;T&gt;,%20int,%20T)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.setPolicy</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetProfileEnabled">
@@ -27123,7 +27218,12 @@
       <Docs>
         <summary>Constant for <c>#getMinimumRequiredWifiSecurityLevel()</c> and
             <c>#setMinimumRequiredWifiSecurityLevel(int)</c>: personal network without WEP.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Constant for getMinimumRequiredWifiSecurityLevel() and setMinimumRequiredWifiSecurityLevel(int): personal network without WEP. This level covers WIFI_SECURITY_PERSONAL but not WEP.</para>
+          <para>When returned from getMinimumRequiredWifiSecurityLevel(), the constant represents the current minimum security level required. When passed to setMinimumRequiredWifiSecurityLevel(int), it sets the minimum security level a Wi-Fi network must meet.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#WIFI_SECURITY_PERSONAL_WPA" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.WIFI_SECURITY_PERSONAL_WPA</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WifiSsidPolicy">
