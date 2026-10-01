@@ -65,6 +65,17 @@ managed member ID, full old plain-text summary/remarks, exact source reference,
 and Android attribution all match the prior importer output. Authored additions,
 mixed content, source changes, and unsafe XML locations are reported and preserved.
 The two-channel repair requires at least two remaining changes in the batch.
+The final `ControlsProviderService.onBind` and `onUnbind` overrides expose inherited
+`Service` Javadoc that contradicts their implementations. Exact member-ID/source-URL
+guards remove only the verified nullable-binder and default-false remarks sentences,
+retaining the other verbatim reference sentences. The inherited `onUnbind` caller-choice
+return is reported as `source_channel_ambiguous`, not replaced with implementation-derived
+prose. Known prior importer output can be regenerated only with its complete original
+remarks, plain summary/return channels, canonical source reference, and attribution
+intact; its unsafe return is restored to `To be added.`. Authored or mixed content,
+duplicate channels, altered metadata, and changed sources are preserved and reported.
+Repairs for one member are atomic and require room for every affected channel.
+Implementation verification is not an AOSP prose fallback.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
