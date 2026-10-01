@@ -911,7 +911,8 @@ static class ImporterProgram
                             placeholder,
                             mapping.Docs!,
                             replacement,
-                            owner.Docs.Element("remarks"));
+                            owner.Docs.Element("remarks"),
+                            owner.Id);
                         if (replacement.Text is null)
                         {
                             report.Entries.Add(ReportEntry.Skipped(
@@ -2122,6 +2123,25 @@ static class ImporterProgram
                 member.Name.Equals("<init>", StringComparison.Ordinal))
             : !member.IsConstructor && member.Name.Equals(name, StringComparison.Ordinal);
 
+    static SourceDocs WithKnownAndroidRemarksCorrections(string? ownerId, SourceDocs docs)
+    {
+        if (docs.SourceKind != "android" || ownerId is null)
+            return docs;
+        var repair = KnownAndroidRemarksRepairs.SingleOrDefault(candidate =>
+            candidate.MemberId.Equals(ownerId, StringComparison.Ordinal) &&
+            candidate.SourceUrl.Equals(docs.SourceUrl, StringComparison.Ordinal));
+        if (repair is null)
+            return docs;
+        return docs with
+        {
+            Paragraphs = docs.Paragraphs.Select(paragraph =>
+                !paragraph.IsCode &&
+                paragraph.Text.Equals(repair.IncorrectText, StringComparison.Ordinal)
+                    ? paragraph with { Text = repair.CorrectText }
+                    : paragraph).ToList(),
+        };
+    }
+
     static Replacement ReplacementFor(
         Placeholder placeholder,
         SourceDocs docs,
@@ -2131,25 +2151,10 @@ static class ImporterProgram
         if (docs.UnsafeTargets?.TryGetValue(placeholder.Target, out var unsafeTargetDetail) == true)
             return Replacement.Skip("source_channel_ambiguous", unsafeTargetDetail);
 
-        if (docs.SourceKind == "android" &&
-            ownerId is not null &&
-            (placeholder.Name is "remarks" or "para" ||
-             placeholder.IsImporterMetadataRepair))
+        if (placeholder.Name is "remarks" or "para" ||
+            placeholder.IsImporterMetadataRepair)
         {
-            var repair = KnownAndroidRemarksRepairs.SingleOrDefault(candidate =>
-                candidate.MemberId.Equals(ownerId, StringComparison.Ordinal) &&
-                candidate.SourceUrl.Equals(docs.SourceUrl, StringComparison.Ordinal));
-            if (repair is not null)
-            {
-                docs = docs with
-                {
-                    Paragraphs = docs.Paragraphs.Select(paragraph =>
-                        !paragraph.IsCode &&
-                        paragraph.Text.Equals(repair.IncorrectText, StringComparison.Ordinal)
-                            ? paragraph with { Text = repair.CorrectText }
-                            : paragraph).ToList(),
-                };
-            }
+            docs = WithKnownAndroidRemarksCorrections(ownerId, docs);
         }
 
         if (docs.HasMalformedSourceMarkup &&
@@ -2197,7 +2202,8 @@ static class ImporterProgram
         Placeholder placeholder,
         SourceDocs docs,
         Replacement replacement,
-        XElement? existingRemarks)
+        XElement? existingRemarks,
+        string? ownerId = null)
     {
         if (placeholder.Name != "para" ||
             replacement.Remarks is null ||
@@ -2206,7 +2212,8 @@ static class ImporterProgram
             return replacement;
         }
 
-        var sourceFragments = ExpandRemarksFragments(docs.Paragraphs);
+        var sourceFragments = ExpandRemarksFragments(
+            WithKnownAndroidRemarksCorrections(ownerId, docs).Paragraphs);
         var elements = existingRemarks.Elements().ToList();
         var representedElements = elements
             .Select((element, index) => new
@@ -3200,7 +3207,7 @@ static class ImporterProgram
             !hasRemarksPlaceholder &&
             docs.Paragraphs.Count > 0)
         {
-            foreach (var paragraph in docs.Paragraphs)
+            foreach (var paragraph in WithKnownAndroidRemarksCorrections(owner.Id, docs).Paragraphs)
                 additions.Add(RenderDocumentationParagraph(paragraph, paraIndent));
         }
         var sourceLabel = docs.SourceKind == "android" ? "Android" : "Java";
@@ -3504,7 +3511,7 @@ static class ImporterProgram
         var remarksIndent = docsIndent + "  ";
         var paragraphIndent = remarksIndent + "  ";
         var replacement = RenderImporterOwnedRemarks(
-            sourceParagraphs,
+            UsableRemarks(WithKnownAndroidRemarksCorrections(owner.Id, docs).Paragraphs),
             docs,
             newline,
             remarksIndent,
@@ -7954,6 +7961,90 @@ static class ImporterProgram
                         "actual scoped OnBind pipeline preserves one-condition authored or provenance lookalikes");
             }
             XElement.Load(path);
+            foreach (var (caseName, fillSummary, remarksSeed) in new[]
+            {
+                ("attribution-enrichment", true, new XElement("remarks",
+                    XElement.Parse($"<para>{AndroidAttribution}</para>"))),
+                ("overlap-placeholder", false, new XElement("remarks",
+                    new XElement("para", "To be added."),
+                    raw.Paragraphs.Where(paragraph => paragraph != badParagraph).Select(DocumentationElement),
+                    ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>"))),
+                ("incomplete-owned-refresh", false, new XElement("remarks",
+                    raw.Paragraphs.Where(paragraph => paragraph == badParagraph).Select(DocumentationElement),
+                    ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>"))),
+            })
+            {
+                var writer = new XElement(original);
+                var writerDocs = writer.Element("Members")!.Element("Member")!.Element("Docs")!;
+                writerDocs.Element("remarks")!.ReplaceWith(new XElement(remarksSeed));
+                if (fillSummary)
+                    writerDocs.Element("summary")!.Value = "To be added.";
+                File.WriteAllText(path, writer.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var writerBefore = File.ReadAllBytes(path);
+                using (var dry = Run(false))
+                    Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        writerBefore.SequenceEqual(File.ReadAllBytes(path)),
+                        $"actual {caseName} dry-run finds one scoped change without writing");
+                using (var first = Run(true))
+                    Assert(first.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        $"actual {caseName} respects its one-change budget");
+                var writerAfter = File.ReadAllBytes(path);
+                var writtenRemarks = XElement.Load(path).Element("Members")!.Element("Member")!
+                    .Element("Docs")!.Element("remarks")!;
+                var expectedWriterParagraphs = caseName == "overlap-placeholder"
+                    ? SplitSourceSentences(expectedParagraphs[0].Text)
+                        .Select(sentence => new SourceParagraph(sentence, IsCode: false))
+                        .Concat(expectedParagraphs.Skip(1)).ToList()
+                    : expectedParagraphs;
+                Assert(!writtenRemarks.Value.Contains(unsafeSentence, StringComparison.Ordinal),
+                    $"actual {caseName} must not emit the contradicted sentence: " +
+                    writtenRemarks.ToString(SaveOptions.DisableFormatting));
+                Assert(!writtenRemarks.Value.Contains(unsafeSentence, StringComparison.Ordinal) &&
+                    writtenRemarks.Elements().Count() == expectedWriterParagraphs.Count + 2 &&
+                    writtenRemarks.Elements().Take(expectedWriterParagraphs.Count)
+                        .Select(element => element.ToString(SaveOptions.DisableFormatting))
+                        .SequenceEqual(expectedWriterParagraphs.Select(paragraph =>
+                            DocumentationElement(paragraph).ToString(SaveOptions.DisableFormatting))) &&
+                    writtenRemarks.Elements().ElementAt(expectedWriterParagraphs.Count)
+                        .ToString(SaveOptions.DisableFormatting) ==
+                        ImporterSourceReference(raw).ToString(SaveOptions.DisableFormatting) &&
+                    writtenRemarks.Elements().Last().ToString(SaveOptions.DisableFormatting) ==
+                        $"<para>{AndroidAttribution}</para>",
+                    $"actual {caseName} never writes the false sentence and preserves source order, thread guidance and provenance");
+                static string OutsideMemberRemarks(string xml)
+                {
+                    var start = xml.LastIndexOf("<remarks>", StringComparison.Ordinal);
+                    var end = xml.LastIndexOf("</remarks>", StringComparison.Ordinal);
+                    Assert(start >= 0 && end > start, "one selected member remarks span is present");
+                    return xml[..start] + "<remarks>VERIFIED_SOURCE</remarks>" +
+                        xml[(end + "</remarks>".Length)..];
+                }
+                var expectedOutside = Encoding.UTF8.GetString(writerBefore);
+                if (fillSummary)
+                    expectedOutside = expectedOutside.Replace("<summary>To be added.</summary>",
+                        $"<summary>{XmlEscape(raw.Summary)}</summary>", StringComparison.Ordinal);
+                Assert(OutsideMemberRemarks(Encoding.UTF8.GetString(writerAfter)) ==
+                    OutsideMemberRemarks(expectedOutside),
+                    $"actual {caseName} preserves every byte outside its declared remarks and optional summary fill");
+                using (var repeat = Run(true))
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        writerAfter.SequenceEqual(File.ReadAllBytes(path)),
+                        $"persisted {caseName} repeats with zero writes and byte-identical XML");
+                XElement.Load(path);
+            }
+            var laterOnly = new XElement(original);
+            laterOnly.Element("Members")!.Element("Member")!.Element("Docs")!.Element("remarks")!
+                .ReplaceNodes(raw.Paragraphs.Where(paragraph => paragraph != badParagraph)
+                    .Select(DocumentationElement), ImporterSourceReference(raw),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            File.WriteAllText(path, laterOnly.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            var laterOnlyBytes = File.ReadAllBytes(path);
+            using (var report = Run(true))
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "existing_remarks_not_importer_owned") &&
+                    laterOnlyBytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "later-paragraph-only remarks remain ineligible under the unchanged first-paragraph ownership requirement");
         }
         finally
         {

@@ -104,6 +104,12 @@ application-restriction sentinel to its placeholder. Exact member/URL/source
 typo repairs apply only to proven importer-owned markup; authored and mixed
 documentation remains unchanged, while a corrected importer-owned block stays
 eligible for future refreshes.
+For `DeviceAdminService.onBind`, the exact canonical source/member/plain-paragraph
+allow-list removes only the contradicted nullable-binder sentence from new remarks.
+The same write-time correction covers attribution-only enrichment, overlapping
+remarks placeholders, and incomplete importer-owned refreshes. Strict recognition
+of prior importer-owned XML still uses the unmodified official source; API
+metadata, other documentation channels, and Binder-thread guidance are preserved.
 The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
 source label is corrected only on its exact official member URL when the source
 hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported
