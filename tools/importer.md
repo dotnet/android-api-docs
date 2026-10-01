@@ -246,6 +246,15 @@ text match the known incorrect flag-combination wording. Retry policies are
 mutually exclusive codes, not flags. The guard does not affect other channels,
 members, URLs, corrected source text, or existing authored documentation.
 
+The OOB `OobInitiatorRangingConfigSecurityLevel.Secure` enum source is withheld
+when its complete official description calls the provisioned-STS/security-level-four
+mode "Basic security level". The exclusion requires its canonical Android URL
+and source label, the exact managed enum field/type/value, and registered
+`SECURITY_LEVEL_SECURE` JNI field. Its summary and logical remarks remain
+unchanged and are reported as ambiguous; no replacement security contract is
+inferred. The sibling Basic field, future corrected or removed defective source
+prose, and all existing authored documentation remain unaffected.
+
 The `ProtoOutputStream.makeToken(int, boolean, int, int, int)` remarks channel
 is skipped only for its exact managed identity, registered JNI owner/signature,
 managed return type, canonical Android URL, and complete original source paragraph
