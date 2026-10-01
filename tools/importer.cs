@@ -130,6 +130,33 @@ static class ImporterProgram
             "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MNC and MCC, and thus consists of 5 or 6 decimal digits. This value cannot be null.",
             "the matching operator PLMN IDs in String. Network with one of the matching PLMN IDs can match this template. If the set is empty, any PLMN ID will match. The default is an empty set. A valid PLMN is a concatenation of MCC and MNC, and thus consists of 5 or 6 decimal digits. This value cannot be null."),
     ];
+    static readonly KnownAndroidTextRepair[] KnownAndroidTextRepairs =
+    [
+        new(
+            AndroidReference + "android/ranging/ble/cs/BleCsRangingCapabilities#CS_SECURITY_LEVEL_ONE",
+            "F:Android.Ranging.Ble.CS.BleCsRangingCapabilitiesCsSecurityLevel.One",
+            "summary",
+            "Security Level 1: Either CS tone or CS RTT..",
+            "Security Level 1: Either CS tone or CS RTT."),
+        new(
+            AndroidReference + "android/ranging/ble/cs/BleCsRangingParams.Builder#Builder(java.lang.String)",
+            "M:Android.Ranging.Ble.CS.BleCsRangingParams.Builder.#ctor(System.String)",
+            "param:peerBluetoothAddress",
+            "The address of the peer device must be non-null Bluetooth address.",
+            "The address of the peer device must be a non-null Bluetooth address."),
+        new(
+            AndroidReference + "android/ranging/ble/cs/BleCsRangingParams#writeToParcel(android.os.Parcel,%20int)",
+            "M:Android.Ranging.Ble.CS.BleCsRangingParams.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
+            "summary",
+            "Flatten this object in to a Parcel.",
+            "Flatten this object into a Parcel."),
+        new(
+            AndroidReference + "android/ranging/ble/cs/BleCsRangingParams#writeToParcel(android.os.Parcel,%20int)",
+            "M:Android.Ranging.Ble.CS.BleCsRangingParams.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
+            "remarks",
+            "Flatten this object in to a Parcel.",
+            "Flatten this object into a Parcel."),
+    ];
     static readonly KnownAndroidProseRepair[] KnownAndroidProseRepairs =
     [
         new(
@@ -589,6 +616,32 @@ static class ImporterProgram
                                 mapping.SourceUrl,
                                 "importer_known_android_parameter_repair",
                                 "Corrected an exact importer-generated Android parameter description using Android API documentation."));
+                        }
+                    }
+
+                    var androidTextRepair = RepairKnownAndroidText(text, file, owner, mapping.Docs!);
+                    if (androidTextRepair.Targets.Count > 0)
+                    {
+                        var exceedsLimit = remaining < androidTextRepair.Targets.Count;
+                        if (!exceedsLimit)
+                        {
+                            text = androidTextRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining -= androidTextRepair.Targets.Count;
+                        }
+                        foreach (var target in androidTextRepair.Targets)
+                        {
+                            report.Entries.Add(exceedsLimit
+                                ? ReportEntry.Skipped(
+                                    file.RelativePath, owner.Id, target, "max_changes_reached",
+                                    $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl)
+                                : ReportEntry.Changed(
+                                    "would_apply", file.RelativePath, owner.Id, target, mapping.SourceUrl,
+                                    "importer_known_android_text_repair",
+                                    "Corrected an allow-listed official-source typo in exact importer-owned text."));
                         }
                     }
 
@@ -1127,7 +1180,8 @@ static class ImporterProgram
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
                     fields[0].Url);
-            return MappingResult.Success(WithSemanticSummaryIfNecessary(fieldDocs));
+            return MappingResult.Success(WithSemanticSummaryIfNecessary(
+                WithKnownAndroidTextCorrections(owner.Id, fieldDocs)));
         }
 
         var expectedArguments = Descriptor.ParseArguments(registration.Descriptor!);
@@ -1182,6 +1236,7 @@ static class ImporterProgram
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
         docs = WithoutKnownUnsafeRemoteEntryGuidance(owner.Id, docs);
+        docs = WithKnownAndroidTextCorrections(owner.Id, docs);
         docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
@@ -1225,6 +1280,40 @@ static class ImporterProgram
         return docs with { Paragraphs = paragraphs };
     }
 
+    static SourceDocs WithKnownAndroidTextCorrections(string memberId, SourceDocs docs)
+    {
+        foreach (var repair in KnownAndroidTextRepairs.Where(repair =>
+            repair.MemberId == memberId && repair.SourceUrl == docs.SourceUrl &&
+            docs.SourceKind == "android"))
+        {
+            if (repair.Target.StartsWith("param:", StringComparison.Ordinal))
+            {
+                var name = repair.Target["param:".Length..];
+                if (docs.Parameters.TryGetValue(name, out var parameter) &&
+                    RemoveLeadingJavaType(parameter) == repair.IncorrectText)
+                {
+                    var parameters = new Dictionary<string, string>(docs.Parameters, StringComparer.Ordinal)
+                    {
+                        [name] = repair.CorrectText,
+                    };
+                    docs = docs with { Parameters = parameters };
+                }
+            }
+            else
+            {
+                docs = docs with
+                {
+                    Summary = docs.Summary == repair.IncorrectText ? repair.CorrectText : docs.Summary,
+                    Paragraphs = docs.Paragraphs.Select(paragraph =>
+                        !paragraph.IsCode && paragraph.Text == repair.IncorrectText
+                            ? paragraph with { Text = repair.CorrectText }
+                            : paragraph).ToList(),
+                };
+            }
+        }
+        return docs;
+    }
+
     static SourceDocs WithoutKnownUnsafeAndroidSourceChannels(string ownerId, SourceDocs docs)
     {
         var sourceText = string.Join(
@@ -1233,6 +1322,18 @@ static class ImporterProgram
                 .Concat(docs.Paragraphs.Select(paragraph => paragraph.Text))
                 .Concat(docs.Parameters.Values));
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (ownerId == "P:Android.Security.KeyStoreException.RetryPolicy" &&
+            docs.SourceUrl.Equals(
+                AndroidReference + "android/security/KeyStoreException#getRetryPolicy()",
+                StringComparison.Ordinal) &&
+            docs.Returns.Equals(
+                "Value is either 0 or a combination of the following: RETRY_NEVER; RETRY_WITH_EXPONENTIAL_BACKOFF; RETRY_WHEN_CONNECTIVITY_AVAILABLE; RETRY_AFTER_NEXT_REBOOT",
+                StringComparison.Ordinal))
+        {
+            targets["value"] =
+                "The exact Android return text describes mutually exclusive retry-policy codes as combinable flags.";
+        }
 
         if (ownerId == "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)" &&
             sourceText.Contains(
@@ -1510,6 +1611,7 @@ static class ImporterProgram
         var targets = owner.Placeholders
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
+        targets.UnionWith(KnownAndroidTextRepairCandidateTargets(owner));
         targets.UnionWith(KnownControlsLifecycleRepairTargets(owner));
         if (IsEnumSummaryRepairCandidate(owner) ||
             HasTruncatedImporterSummary(file, owner) ||
@@ -1563,6 +1665,7 @@ static class ImporterProgram
         HasMetadataOnlyRemarks(file, owner) ||
         HasCopiedDescriptionRepairCandidate(file, owner) ||
         HasKnownIncorrectBooleanReturnRepairCandidate(file, owner) ||
+        KnownAndroidTextRepairCandidateTargets(owner).Count > 0 ||
         HasKnownAndroidProseRepairCandidate(file, owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
@@ -3678,6 +3781,110 @@ static class ImporterProgram
         foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
             blockText = blockText[..edit.Span.Start] + edit.Replacement + blockText[edit.Span.End..];
         return new(text[..block.Start] + blockText + text[block.End..], null, null);
+    }
+
+    static List<string> KnownAndroidTextRepairCandidateTargets(DocsOwner owner) =>
+        KnownAndroidTextRepairs
+            .Where(repair => repair.MemberId == owner.Id)
+            .Where(repair => owner.Docs.Elements(repair.Target.Split(':')[0]).Any(channel =>
+                (!repair.Target.StartsWith("param:", StringComparison.Ordinal) ||
+                 (string?)channel.Attribute("name") == repair.Target["param:".Length..]) &&
+                (channel.Value == repair.IncorrectText ||
+                 channel.Elements("para").Any(paragraph => paragraph.Value == repair.IncorrectText))))
+            .Select(repair => repair.Target).ToList();
+
+    static AndroidTextRepairResult RepairKnownAndroidText(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs sourceDocs)
+    {
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actualDocs) ||
+            !XNode.DeepEquals(actualDocs, owner.Docs))
+            return new AndroidTextRepairResult(text, []);
+
+        var targets = FindKnownAndroidTextRepairTargets(owner.Id, actualDocs, sourceDocs);
+        var replacements = new List<(XmlSpan Span, string Text)>();
+        foreach (var target in targets)
+        {
+            if (!TryGetElementSpan(blockText, target.Element, out var span))
+                return new AndroidTextRepairResult(text, []);
+            var replacement = new XElement(
+                target.Element.Name, target.Element.Attributes(), target.Repair.CorrectText);
+            replacements.Add((span, replacement.ToString(SaveOptions.DisableFormatting)));
+        }
+        foreach (var replacement in replacements.OrderByDescending(item => item.Span.Start))
+            blockText = blockText[..replacement.Span.Start] + replacement.Text + blockText[replacement.Span.End..];
+        return new AndroidTextRepairResult(
+            text[..block.Start] + blockText + text[block.End..],
+            targets.Select(target => target.Repair.Target).ToList());
+    }
+
+    static List<AndroidTextRepairTarget> FindKnownAndroidTextRepairTargets(
+        string memberId,
+        XElement docs,
+        SourceDocs sourceDocs)
+    {
+        var targets = new List<AndroidTextRepairTarget>();
+        if (sourceDocs.SourceKind != "android" || !HasExactImporterSourceReference(docs, sourceDocs))
+            return targets;
+
+        var repairs = KnownAndroidTextRepairs.Where(repair =>
+            repair.MemberId == memberId && repair.SourceUrl == sourceDocs.SourceUrl).ToList();
+        foreach (var repair in repairs)
+        {
+            var parts = repair.Target.Split(':');
+            if (docs.Elements(parts[0]).Where(channel =>
+                    parts.Length == 1 || (string?)channel.Attribute("name") == parts[1])
+                    .ToList() is not [XElement channel])
+                continue;
+
+            var isEnumSummary = repair.Target == "summary" &&
+                memberId.StartsWith("F:", StringComparison.Ordinal);
+            var containers = isEnumSummary ? [channel] : docs.Elements("remarks").ToList();
+            if (containers is not [XElement originalContainer])
+                continue;
+            var container = isEnumSummary ? new XElement(originalContainer) : originalContainer;
+            if (isEnumSummary)
+                container.Name = "remarks";
+            if (!IsPotentialImporterOwnedRemarks(container, "android"))
+                continue;
+            var elements = container.Elements().ToList();
+            if (!ImporterMarkupEquals(elements[^2], ImporterSourceReference(sourceDocs)))
+                continue;
+
+            var expected = UsableRemarks(sourceDocs.Paragraphs).Select(DocumentationElement).ToList();
+            var existing = elements.SkipLast(2).ToList();
+            if (existing.Count != expected.Count ||
+                !existing.Zip(expected, (actual, mapped) =>
+                {
+                    var correction = repairs.FirstOrDefault(candidate =>
+                        !candidate.Target.StartsWith("param:", StringComparison.Ordinal) &&
+                        actual.Name == "para" && actual.Value == candidate.IncorrectText);
+                    return ImporterMarkupEquals(
+                        correction is null ? actual : new XElement("para", correction.CorrectText),
+                        mapped);
+                }).All(equal => equal))
+                continue;
+
+            var element = repair.Target == "remarks" || isEnumSummary
+                ? channel.Elements("para").FirstOrDefault() : channel;
+            if (element is null ||
+                (parts.Length == 2 ? element.Attributes().Count() != 1 : element.HasAttributes) ||
+                !HasPlainTextContent(element, out var original) || original != repair.IncorrectText)
+                continue;
+
+            var mappedText = parts.Length == 2
+                ? sourceDocs.Parameters.TryGetValue(parts[1], out var parameter) ? RemoveLeadingJavaType(parameter) : ""
+                : repair.Target == "summary" && !isEnumSummary
+                    ? sourceDocs.Summary
+                    : sourceDocs.Paragraphs.FirstOrDefault()?.Text;
+            if (mappedText == repair.CorrectText)
+                targets.Add(new AndroidTextRepairTarget(repair, element));
+        }
+        return targets;
     }
 
     static bool HasExactKnownBooleanReturnMarkup(
@@ -6378,6 +6585,7 @@ static class ImporterProgram
 
     static int RunSelfTest(string repositoryRoot)
     {
+        TestKnownAndroidTextRepairs();
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
@@ -12023,6 +12231,100 @@ static class ImporterProgram
             _ = XDocument.Load(tempPath, LoadOptions.PreserveWhitespace);
             Assert(true, "atomic write produced valid XML");
 
+            var retryPolicyFile = LoadedFile.Load(
+                repositoryRoot,
+                Path.Combine(docsRoot, "Android.Security", "KeyStoreException.xml"));
+            retryPolicyFile.SelectOwners("RetryPolicy");
+            var retryPolicyOwner = retryPolicyFile.Owners.Single();
+            var retryPolicyPage = SourcePage.Parse(
+                retryPolicyOwner.SourceRequest!,
+                """
+                <html><body><main id="jd-content">
+                <h2 class="api-section">Public methods</h2>
+                <h3 class="api-name" id="getRetryPolicy()">getRetryPolicy</h3>
+                <p>Returns the re-try policy for transient failures.</p>
+                <table><tr><th colspan="2">Returns</th></tr>
+                <tr><td>int</td><td>Value is either <code>0</code> or a combination of the following:
+                <ul>
+                <li><code>RETRY_NEVER</code></li>
+                <li><code>RETRY_WITH_EXPONENTIAL_BACKOFF</code></li>
+                <li><code>RETRY_WHEN_CONNECTIVITY_AVAILABLE</code></li>
+                <li><code>RETRY_AFTER_NEXT_REBOOT</code></li>
+                </ul></td></tr></table>
+                </main></body></html>
+                """);
+            var retryPolicyMapping = MapOwner(
+                retryPolicyOwner,
+                new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [retryPolicyOwner.SourceRequest!.Url] =
+                        SourceLoadResult.Success(retryPolicyPage),
+                });
+            var unsafeRetryPolicyDocs = retryPolicyMapping.Docs!;
+            const string unsafeRetryPolicyText =
+                "Value is either 0 or a combination of the following: RETRY_NEVER; RETRY_WITH_EXPONENTIAL_BACKOFF; RETRY_WHEN_CONNECTIVITY_AVAILABLE; RETRY_AFTER_NEXT_REBOOT";
+            var retryPolicyValue = new Placeholder(0, "value", "", "value");
+            Assert(
+                retryPolicyOwner.Id == "P:Android.Security.KeyStoreException.RetryPolicy" &&
+                unsafeRetryPolicyDocs.Returns == unsafeRetryPolicyText &&
+                ReplacementFor(retryPolicyValue, unsafeRetryPolicyDocs) is
+                {
+                    Text: null,
+                    Reason: "source_channel_ambiguous",
+                } &&
+                ReplacementFor(
+                    new Placeholder(1, "summary", "", "summary"),
+                    unsafeRetryPolicyDocs).Text ==
+                    "Returns the re-try policy for transient failures." &&
+                ReplacementFor(
+                    new Placeholder(2, "remarks", "", "remarks"),
+                    unsafeRetryPolicyDocs).Remarks is { Count: 1 } &&
+                ReplacementFor(
+                    new Placeholder(3, "returns", "", "returns"),
+                    unsafeRetryPolicyDocs).Text == unsafeRetryPolicyText,
+                "exact RetryPolicy flag wording is rejected only for the value channel");
+            foreach (var (ownerId, sourceDocs) in new[]
+            {
+                ("P:Android.Security.KeyStoreException.OtherPolicy",
+                    unsafeRetryPolicyDocs with { UnsafeTargets = null }),
+                (retryPolicyOwner.Id, unsafeRetryPolicyDocs with
+                {
+                    SourceUrl = AndroidReference + "android/security/KeyStoreException#getOtherPolicy()",
+                    UnsafeTargets = null,
+                }),
+                (retryPolicyOwner.Id, unsafeRetryPolicyDocs with
+                {
+                    Returns = "One retry-policy code.",
+                    UnsafeTargets = null,
+                }),
+            })
+            {
+                Assert(
+                    ReplacementFor(
+                        retryPolicyValue,
+                        WithoutKnownUnsafeAndroidSourceChannels(ownerId, sourceDocs)).Text ==
+                        sourceDocs.Returns,
+                    "RetryPolicy exclusion requires the exact managed member, source URL and source text");
+            }
+            var authoredRetryPolicyDocument = XDocument.Parse(
+                retryPolicyFile.Text,
+                LoadOptions.PreserveWhitespace);
+            var authoredRetryPolicyMember = authoredRetryPolicyDocument.Root!
+                .Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "RetryPolicy");
+            authoredRetryPolicyMember.Element("Docs")!.Element("value")!.Value =
+                "An authored retry-policy description.";
+            var authoredRetryPolicyPath = Path.Combine(tempDirectory, "authored-retry-policy.xml");
+            var authoredRetryPolicyText = authoredRetryPolicyDocument.ToString(SaveOptions.DisableFormatting);
+            File.WriteAllText(authoredRetryPolicyPath, authoredRetryPolicyText, new UTF8Encoding(false));
+            var authoredRetryPolicyFile = LoadedFile.Load(repositoryRoot, authoredRetryPolicyPath);
+            authoredRetryPolicyFile.SelectOwners("RetryPolicy");
+            Assert(
+                authoredRetryPolicyFile.Owners.Single().Placeholders.All(
+                    placeholder => placeholder.Target != "value") &&
+                authoredRetryPolicyFile.Text == authoredRetryPolicyText,
+                "RetryPolicy source exclusion does not select or overwrite authored value documentation");
+
             var unsafePublishDocs = WithoutKnownUnsafeAndroidSourceChannels(
                 "M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetPublishType(Android.Net.Wifi.Aware.PublishType)",
                 new SourceDocs(
@@ -12280,6 +12582,156 @@ static class ImporterProgram
 
         Console.WriteLine("SELF-TEST PASS: Android/Java exact matching, ICU text and Health Connect importer regressions, ordered paragraph/code preservation, strict importer-owned remarks refreshes, metadata-only and placeholder repairs, source-channel validation, XML parsing, and atomic writes.");
         return 0;
+    }
+
+    static void TestKnownAndroidTextRepairs()
+    {
+        foreach (var group in KnownAndroidTextRepairs.GroupBy(repair => repair.MemberId))
+        {
+            var repair = group.First();
+            var parameterName = repair.Target.StartsWith("param:", StringComparison.Ordinal)
+                ? repair.Target["param:".Length..] : null;
+            var isEnum = repair.MemberId.StartsWith("F:", StringComparison.Ordinal);
+            var summary = parameterName is null
+                ? repair.IncorrectText
+                : "Constructs a new Builder for creating a channel sounding ranging session.";
+            var rawSource = new SourceDocs(
+                summary,
+                [new SourceParagraph(summary, false)],
+                parameterName is null ? new Dictionary<string, string>() :
+                    new Dictionary<string, string> { [parameterName] = "String: " + repair.IncorrectText },
+                "",
+                new Dictionary<string, string>(),
+                repair.SourceUrl,
+                "android.ranging.ble.cs.exactTestMember",
+                "android");
+            var source = WithKnownAndroidTextCorrections(repair.MemberId, rawSource);
+            Assert(WithKnownAndroidTextCorrections(repair.MemberId + ".Other", rawSource) == rawSource,
+                "Android text corrections require the exact member");
+            var wrongUrlSource = rawSource with { SourceUrl = rawSource.SourceUrl + ".Other" };
+            Assert(WithKnownAndroidTextCorrections(repair.MemberId, wrongUrlSource) == wrongUrlSource,
+                "Android text corrections require the exact source URL");
+            var modifiedSource = rawSource with
+            {
+                Summary = summary + " Changed.",
+                Paragraphs = [new SourceParagraph(summary + " Changed.", false)],
+                Parameters = parameterName is null ? rawSource.Parameters :
+                    new Dictionary<string, string> { [parameterName] = repair.IncorrectText + " Changed." },
+            };
+            var untouchedSource = WithKnownAndroidTextCorrections(repair.MemberId, modifiedSource);
+            Assert(untouchedSource.Summary == modifiedSource.Summary &&
+                untouchedSource.Paragraphs.SequenceEqual(modifiedSource.Paragraphs) &&
+                untouchedSource.Parameters.SequenceEqual(modifiedSource.Parameters),
+                "Android text corrections preserve changed official source prose");
+
+            var container = new XElement(isEnum ? "summary" : "remarks",
+                new XElement("para", summary),
+                ImporterSourceReference(rawSource),
+                XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            var docs = new XElement("Docs");
+            if (!isEnum)
+                docs.Add(new XElement("summary", summary));
+            if (parameterName is not null)
+                docs.Add(new XElement("param", new XAttribute("name", parameterName), repair.IncorrectText));
+            docs.Add(container);
+            var eligible = FindKnownAndroidTextRepairTargets(repair.MemberId, docs, source);
+            Assert(eligible.Count == group.Count(), "Android text repairs select every exact owned channel");
+            Assert(FindKnownAndroidTextRepairTargets(repair.MemberId + ".Other", docs, source).Count == 0,
+                "Android text repairs preserve different members");
+            Assert(FindKnownAndroidTextRepairTargets(repair.MemberId, docs,
+                source with { SourceUrl = source.SourceUrl + ".Other" }).Count == 0,
+                "Android text repairs preserve mismatched source URLs");
+            Assert(FindKnownAndroidTextRepairTargets(repair.MemberId, docs, modifiedSource).Count == 0,
+                "Android text repairs preserve mismatched mapped source prose");
+            var uncorrected = FindKnownAndroidTextRepairTargets(repair.MemberId, docs, rawSource);
+            Assert(uncorrected.Count == 0, "Android text repairs require verified corrected source channels");
+            if (!isEnum)
+            {
+                var duplicateProvenance = new XElement(docs);
+                duplicateProvenance.Add(new XElement("remarks", "Authored notes."));
+                Assert(FindKnownAndroidTextRepairTargets(repair.MemberId, duplicateProvenance, source).Count == 0,
+                    "Android text repairs preserve duplicate provenance containers");
+            }
+
+            foreach (var target in eligible)
+            {
+                foreach (var mutation in new Action<XElement>[]
+                {
+                    element => element.ReplaceNodes(new XElement("c", element.Value)),
+                    element => element.ReplaceNodes(new XCData(element.Value)),
+                    element => element.Add(new XComment("Authored")),
+                    element => element.Add(new XProcessingInstruction("authored", "keep")),
+                    element => element.SetAttributeValue("authored", "keep"),
+                    element => element.Value += " Authored.",
+                    element => element.Value = " " + element.Value,
+                })
+                {
+                    var authored = new XElement(docs);
+                    var authoredTarget = FindKnownAndroidTextRepairTargets(repair.MemberId, authored, source)
+                        .Single(candidate => candidate.Repair.Target == target.Repair.Target);
+                    mutation(authoredTarget.Element);
+                    Assert(!FindKnownAndroidTextRepairTargets(repair.MemberId, authored, source)
+                        .Any(candidate => candidate.Repair.Target == target.Repair.Target),
+                        "Android text repairs preserve authored nodes, markup, attributes and text");
+                }
+                var duplicate = new XElement(docs);
+                var duplicateChannel = duplicate.Elements(target.Repair.Target.Split(':')[0]).First();
+                duplicateChannel.AddAfterSelf(new XElement(duplicateChannel));
+                Assert(!FindKnownAndroidTextRepairTargets(repair.MemberId, duplicate, source)
+                    .Any(candidate => candidate.Repair.Target == target.Repair.Target),
+                    "Android text repairs preserve duplicated channels");
+            }
+            foreach (var mutation in new Action<XElement>[]
+            {
+                element => element.AddFirst(new XText("Authored content.")),
+                element => element.AddFirst(new XComment("Authored")),
+                element => element.AddFirst(new XElement("para", "Authored paragraph.")),
+                element => element.Elements().Last().Add(new XComment("Authored attribution")),
+                element => element.Descendants("a").First().SetAttributeValue("href", repair.SourceUrl + ".Other"),
+            })
+            {
+                var authored = new XElement(docs);
+                mutation(authored.Element(isEnum ? "summary" : "remarks")!);
+                Assert(FindKnownAndroidTextRepairTargets(repair.MemberId, authored, source).Count == 0,
+                    "Android text repairs require complete exact source structure and attribution");
+            }
+
+            var decoy = $"<!-- <summary>{repair.IncorrectText}</summary> -->";
+            var text = $"<Type>{decoy}{docs.ToString(SaveOptions.DisableFormatting)}</Type>";
+            var file = new LoadedFile
+            {
+                Path = "", RelativePath = "known-android-text-self-test.xml", Text = text,
+                Newline = "\n", HasUtf8Bom = false, Root = XElement.Parse(text, LoadOptions.PreserveWhitespace),
+            };
+            file.UpdateBlockOffsets(0, text);
+            var owner = new DocsOwner(0, repair.MemberId, file.Root.Element("Docs")!, null, null, null, [], isEnum);
+            Assert(RequiresSourceLoad(file, owner), "Android text repair-only owners load official sources");
+            var repaired = RepairKnownAndroidText(text, file, owner, source);
+            Assert(repaired.Targets.Count == group.Count() && repaired.Text.Contains(decoy, StringComparison.Ordinal),
+                "Android text repairs locate exact elements without editing comment decoys");
+            var correctedDocs = XElement.Parse(repaired.Text, LoadOptions.PreserveWhitespace).Element("Docs")!;
+            foreach (var target in eligible)
+            {
+                var parts = target.Repair.Target.Split(':');
+                var correctedChannel = correctedDocs.Elements(parts[0]).Single(channel =>
+                    parts.Length == 1 || (string?)channel.Attribute("name") == parts[1]);
+                var correctedElement = target.Repair.Target == "remarks" || isEnum
+                    ? correctedChannel.Elements("para").First() : correctedChannel;
+                Assert(correctedElement.Value == target.Repair.CorrectText,
+                    "Android text repairs emit the exact allow-listed correction");
+            }
+            Assert(FindKnownAndroidTextRepairTargets(repair.MemberId, correctedDocs, source).Count == 0,
+                "Android text corrections are idempotent");
+            file.UpdateBlockOffsets(0, repaired.Text);
+            var correctedOwner = owner with { Docs = correctedDocs };
+            Assert(RepairKnownAndroidText(repaired.Text, file, correctedOwner, source).Text == repaired.Text,
+                "Android text repairs do not rewrite corrected XML");
+            if (!isEnum)
+            {
+                Assert(RefreshImporterOwnedRemarks(repaired.Text, file, correctedOwner, source).Text == repaired.Text,
+                    "source refresh does not reintroduce corrected Android typos");
+            }
+        }
     }
 
     static void Assert(bool condition, string description)
@@ -12666,6 +13118,14 @@ static class ImporterProgram
         string ParameterName,
         string IncorrectText,
         string CorrectText);
+    sealed record KnownAndroidTextRepair(
+        string SourceUrl,
+        string MemberId,
+        string Target,
+        string IncorrectText,
+        string CorrectText);
+    sealed record AndroidTextRepairTarget(KnownAndroidTextRepair Repair, XElement Element);
+    sealed record AndroidTextRepairResult(string Text, IReadOnlyList<string> Targets);
     sealed record KnownAndroidProseRepair(
         string SourceUrl,
         string MemberId,
