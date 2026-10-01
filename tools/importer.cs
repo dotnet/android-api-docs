@@ -1475,6 +1475,44 @@ static class ImporterProgram
                 .Concat(docs.Parameters.Values));
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
 
+        if (docs.SourceKind == "android" &&
+            ownerId == "F:Android.Ranging.Raw.RangingDeviceUpdateRate.Infrequent" &&
+            docs.SourceUrl == AndroidReference + "android/ranging/raw/RawRangingDevice#UPDATE_RATE_INFREQUENT" &&
+            docs.Summary == "Infrequent ranging interval." &&
+            docs.Paragraphs is [{ IsCode: false, Text:
+                "Infrequent ranging interval. UWB - 600 milliseconds; BLE RSSI - 3 seconds; BLE CS - 5 seconds; WiFi Rtt - 8192 milliseconds otherwise; WiFi PD - 512 milliseconds." }])
+        {
+            const string detail =
+                "The exact Android WiFi RTT interval says 'otherwise' without its condition; no missing interval qualification was guessed.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
+        if (docs.SourceKind == "android" &&
+            ownerId == "M:Android.Ranging.Raw.RawRangingDevice.Builder.SetBleRssiRangingParams(Android.Ranging.Ble.Rssi.BleRssiRangingParams)" &&
+            docs.SourceUrl == AndroidReference + "android/ranging/raw/RawRangingDevice.Builder#setBleRssiRangingParams(android.ranging.ble.rssi.BleRssiRangingParams)" &&
+            docs.Parameters.TryGetValue("params", out var rawRssiParameter) &&
+            RemoveLeadingJavaType(rawRssiParameter) ==
+                "the BleCsRangingParams to be set. This value cannot be null.")
+        {
+            targets["param:params"] =
+                "The exact Android BLE RSSI parameter description names the different BLE channel-sounding parameter class.";
+        }
+
+        if (docs.SourceKind == "android" &&
+            docs.Summary == "Flatten this object in to a Parcel." &&
+            docs.Paragraphs is [{ IsCode: false, Text: "Flatten this object in to a Parcel." }] &&
+            new[] { "RawInitiatorRangingConfig", "RawRangingDevice", "RawResponderRangingConfig" }
+                .Any(type =>
+                    ownerId == $"M:Android.Ranging.Raw.{type}.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" &&
+                    docs.SourceUrl == AndroidReference + $"android/ranging/raw/{type}#writeToParcel(android.os.Parcel,%20int)"))
+        {
+            const string detail =
+                "The exact Android parcel description contains 'in to'; no generic grammar correction was applied.";
+            targets["summary"] = detail;
+            targets["remarks"] = detail;
+        }
+
         if (ownerId == "F:Android.Net.IpSec.Ike.Exceptions.IkeProtocolErrorType.NoAdditionalSas" &&
             docs.SourceKind == "android" &&
             docs.SourceUrl.Equals(
@@ -7376,6 +7414,7 @@ static class ImporterProgram
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
         TestRssiSourceGuards(repositoryRoot, fixtureRoot);
+        TestRawSourceGuards(repositoryRoot, fixtureRoot);
         TestGestureCloneIntroductions(repositoryRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
@@ -14675,6 +14714,236 @@ static class ImporterProgram
                 if (File.Exists(pipelinePath))
                     File.Delete(pipelinePath);
             }
+        }
+    }
+
+    static void TestRawSourceGuards(string repositoryRoot, string fixtureRoot)
+    {
+        var temp = Path.Combine(Path.GetTempPath(), $"raw-importer-self-test-{Guid.NewGuid():N}");
+        var cache = Path.Combine(temp, "cache");
+        var docsRoot = Path.Combine(repositoryRoot, "docs", "xml", "Android.Ranging.Raw");
+        var path = Path.Combine(docsRoot, $"raw-importer-self-test-{Environment.ProcessId}.xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            var cases = new[]
+            {
+                (File: "RangingDeviceUpdateRate.xml", Member: "Infrequent",
+                    Siblings: new[] { "Frequent", "Normal" }, Expected: 2,
+                    JavaPath: "android/ranging/raw/RawRangingDevice",
+                    Fixture: "android-raw-rawrangingdevice.html"),
+                (File: "RawRangingDevice+Builder.xml", Member: "SetBleRssiRangingParams",
+                    Siblings: new[] { "SetCsRangingParams" }, Expected: 7,
+                    JavaPath: "android/ranging/raw/RawRangingDevice$Builder",
+                    Fixture: "android-raw-rawrangingdevice-builder.html"),
+                (File: "RawInitiatorRangingConfig.xml", Member: "WriteToParcel",
+                    Siblings: new[] { "DescribeContents" }, Expected: 4,
+                    JavaPath: "android/ranging/raw/RawInitiatorRangingConfig",
+                    Fixture: "android-raw-rawinitiatorrangingconfig.html"),
+                (File: "RawRangingDevice.xml", Member: "WriteToParcel",
+                    Siblings: new[] { "DescribeContents" }, Expected: 4,
+                    JavaPath: "android/ranging/raw/RawRangingDevice",
+                    Fixture: "android-raw-rawrangingdevice.html"),
+                (File: "RawResponderRangingConfig.xml", Member: "WriteToParcel",
+                    Siblings: new[] { "DescribeContents" }, Expected: 4,
+                    JavaPath: "android/ranging/raw/RawResponderRangingConfig",
+                    Fixture: "android-raw-rawresponderrangingconfig.html"),
+            };
+            foreach (var test in cases)
+            {
+                var request = SourceRequest.Create(test.JavaPath)!;
+                var html = File.ReadAllText(Path.Combine(fixtureRoot, test.Fixture));
+                var cachePath = Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url)))
+                        .ToLowerInvariant() + ".html");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                var type = XElement.Load(Path.Combine(docsRoot, test.File));
+                type.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                    new XElement("summary", "Retain authored Raw overview."),
+                    new XElement("remarks", "Retain authored Raw remarks.")));
+                foreach (var member in type.Element("Members")!.Elements("Member").ToList())
+                {
+                    var name = (string?)member.Attribute("MemberName");
+                    if (name != test.Member && !test.Siblings.Contains(name))
+                    {
+                        member.Remove();
+                        continue;
+                    }
+                    member.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                        member.Element("Parameters")?.Elements("Parameter").Select(parameter =>
+                            new XElement("param", new XAttribute("name", parameter.Attribute("Name")!.Value),
+                                "To be added.")),
+                        new XElement("summary", "To be added."),
+                        name is "SetBleRssiRangingParams" or "SetCsRangingParams" or "DescribeContents"
+                            ? new XElement("returns", "To be added.") : null,
+                        test.Member == "Infrequent" ? null : new XElement("remarks", "To be added.")));
+                }
+                var original = type.ToString(SaveOptions.DisableFormatting);
+                File.WriteAllText(path, original, new UTF8Encoding(true));
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(test.Member);
+                var owner = file.Owners.Single();
+                var page = SourcePage.Parse(request, html);
+                var registration = owner.MemberRegistration!;
+                var raw = page.Members.Single(member => member.Name == registration.Name).Docs!;
+                var target = test.Member == "SetBleRssiRangingParams" ? "param:params" : "summary";
+                var originalChannel = target == "param:params"
+                    ? RemoveLeadingJavaType(raw.Parameters["params"]) : raw.Summary;
+                Assert(raw.UnsafeTargets is null &&
+                    WithoutKnownUnsafeAndroidSourceChannels(owner.Id, raw).UnsafeTargets?.ContainsKey(target) == true,
+                    $"Raw unfiltered official fixture is a positive exclusion seed: {owner.Id}; summary={raw.Summary}; paragraphs={string.Join(" | ", raw.Paragraphs.Select(paragraph => paragraph.Text))}; parameter={originalChannel}");
+                var mapped = MapOwner(owner, new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                }).Docs!;
+                Assert(ReplacementFor(owner.Placeholders.Single(placeholder => placeholder.Target == target),
+                    mapped, owner.IsEnumField).Reason == "source_channel_ambiguous",
+                    "real Raw declaration and JNI mapping report the exact excluded channel");
+                foreach (var (id, changed) in new[]
+                {
+                    (owner.Id + ".Other", raw),
+                    (owner.Id, raw with { SourceUrl = raw.SourceUrl + ".Other" }),
+                    (owner.Id, raw with { SourceKind = "java" }),
+                    (owner.Id, target == "param:params" ? raw with
+                    {
+                        Parameters = new Dictionary<string, string>(raw.Parameters, StringComparer.Ordinal)
+                        {
+                            ["params"] = originalChannel + " Changed.",
+                        },
+                    } : raw with { Summary = raw.Summary + " Changed." }),
+                })
+                    Assert(WithoutKnownUnsafeAndroidSourceChannels(id, changed).UnsafeTargets is null,
+                        "Raw exclusions require exact member, URL, source kind and complete channel text");
+                if (target == "summary")
+                {
+                    foreach (var paragraphs in new[]
+                    {
+                        new List<SourceParagraph> { new(raw.Paragraphs[0].Text + " Changed.", false) },
+                        new List<SourceParagraph> { new(raw.Paragraphs[0].Text, true) },
+                        new List<SourceParagraph> { raw.Paragraphs[0], new("Additional source context.", false) },
+                    })
+                        Assert(WithoutKnownUnsafeAndroidSourceChannels(owner.Id,
+                            raw with { Paragraphs = paragraphs }).UnsafeTargets is null,
+                            "Raw enum and parcel exclusions require the complete original plain paragraph");
+                }
+                Assert(MapOwner(owner with
+                {
+                    MemberRegistration = registration with { Name = registration.Name + "Other" },
+                }, new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                }).Docs is null, "Raw production mapping does not guess altered JNI names");
+
+                int Run(string stage, out int writes)
+                {
+                    var reportPath = Path.Combine(temp, test.File + "-" + stage);
+                    var exit = RunAsync([
+                        "--path", path, "--namespace", "Android.Ranging.Raw",
+                        "--offline", "--cache", cache, "--max-changes", "1",
+                        "--apply", "--report", reportPath,
+                    ]).GetAwaiter().GetResult();
+                    using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                    Assert(exit == 0 && report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "registered Raw production pipeline succeeds");
+                    writes = report.RootElement.GetProperty("filesChanged").GetInt32();
+                    Assert(report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("member").GetString() == owner.Id &&
+                        entry.GetProperty("target").GetString() == target &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                        "registered Raw report retains the explicit unsafe-channel skip");
+                    return report.RootElement.GetProperty("appliedCount").GetInt32();
+                }
+                var total = 0;
+                for (var batch = 0; batch <= test.Expected; batch++)
+                {
+                    var applied = Run("first-fill-" + batch, out _);
+                    Assert(applied <= 1, "Raw first fill respects max-changes=1");
+                    total += applied;
+                    if (applied == 0)
+                        break;
+                }
+                Assert(total == test.Expected, "Raw first fill imports only the expected safe channels");
+                var filled = XElement.Load(path);
+                var docs = filled.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == test.Member)
+                    .Element("Docs")!;
+                Assert((target == "param:params" ? docs.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "params") : docs.Element("summary"))!.Value ==
+                        "To be added.", "Raw excluded channel remains a placeholder");
+                if (test.Member == "Infrequent")
+                {
+                    var frequent = filled.Element("Members")!.Elements("Member").Single(member =>
+                        (string?)member.Attribute("MemberName") == "Frequent").Element("Docs")!;
+                    Assert(frequent.Element("remarks") is null &&
+                        ContainsSourceUrl(frequent.Element("summary")!, request.Url + "#UPDATE_RATE_FREQUENT") &&
+                        frequent.Element("summary")!.Elements("para").Any(IsImporterAttributionParagraph) &&
+                        frequent.Value.Contains("96 milliseconds", StringComparison.Ordinal) &&
+                        frequent.Value.Contains("otherwise", StringComparison.Ordinal) &&
+                        frequent.Value.Contains("getSupportedRangingUpdateRates()", StringComparison.Ordinal),
+                        "Raw enum source qualifiers, reference and attribution publish in summary");
+                }
+                if (test.Member == "WriteToParcel")
+                    Assert(docs.Elements("param").Single(parameter =>
+                        (string?)parameter.Attribute("name") == "dest").Value == "To be added." &&
+                        docs.Elements("param").Single(parameter =>
+                            (string?)parameter.Attribute("name") == "flags").Value.Contains(
+                                "May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE.", StringComparison.Ordinal),
+                        "Raw parcel flags retain their qualification and nullability-only dest stays unfilled");
+                var bytes = File.ReadAllBytes(path);
+                Assert(bytes.Take(3).SequenceEqual(new byte[] { 0xef, 0xbb, 0xbf }) &&
+                    Run("repeat", out var writes) == 0 && writes == 0 &&
+                    bytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "Raw persisted repeat has zero writes and byte-identical BOM preservation");
+                var reset = new XElement(filled);
+                reset.Element("Members")!.ReplaceWith(new XElement(type.Element("Members")!));
+                Assert(XNode.DeepEquals(reset, type), "Raw production fill preserves type metadata and authored overview");
+
+                var prior = new XElement(filled);
+                var priorDocs = prior.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == test.Member)
+                    .Element("Docs")!;
+                if (target == "param:params")
+                    priorDocs.Elements("param").Single(parameter =>
+                        (string?)parameter.Attribute("name") == "params").Value = originalChannel;
+                else
+                {
+                    priorDocs.Element("summary")!.Value = raw.Summary;
+                    if (priorDocs.Element("remarks") is { } remarks)
+                        remarks.ReplaceNodes(
+                            new XElement("para", raw.Paragraphs[0].Text),
+                            ImporterSourceReference(raw),
+                            XElement.Parse("<para>" + AndroidAttribution + "</para>"));
+                }
+                File.WriteAllText(path, prior.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                bytes = File.ReadAllBytes(path);
+                var priorReport = Path.Combine(temp, test.File + "-prior");
+                Assert(RunAsync([
+                    "--path", path, "--namespace", "Android.Ranging.Raw",
+                    "--offline", "--cache", cache, "--max-changes", "1",
+                    "--apply", "--report", priorReport,
+                ]).GetAwaiter().GetResult() == 0 &&
+                    bytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "Raw exclusion preserves existing prior-imported documentation without an owned repair");
+                foreach (var changedHtml in new[]
+                {
+                    html.Replace("milliseconds otherwise.", "milliseconds.", StringComparison.Ordinal)
+                        .Replace("the <code translate=\"no\" dir=\"ltr\"><a href=\"/reference/android/ranging/ble/cs/BleCsRangingParams\">BleCsRangingParams</a></code> to be set.",
+                            "the BleRssiRangingParams to be set.", StringComparison.Ordinal)
+                        .Replace("in to a Parcel.", "into a Parcel.", StringComparison.Ordinal),
+                })
+                {
+                    var corrected = SourcePage.Parse(request, changedHtml).Members
+                        .Single(member => member.Name == registration.Name).Docs!;
+                    Assert(WithoutKnownUnsafeAndroidSourceChannels(owner.Id, corrected).UnsafeTargets is null,
+                        "future corrected official Raw source is eligible");
+                }
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temp, recursive: true);
         }
     }
 

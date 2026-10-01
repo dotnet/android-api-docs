@@ -117,6 +117,16 @@ canonical Android member URL, and complete original paragraph text.
 Its safe lead, parameter, and return documentation remain eligible, and the
 excluded paragraph is reported as `source_channel_ambiguous`. Changed or corrected
 official source is preserved; no default-value prose is inferred from implementation.
+Eight exact `Android.Ranging.Raw` channels are withheld: the infrequent-rate
+enum description's missing WiFi RTT condition, the BLE RSSI setter parameter
+description naming the different BLE CS class, and the summary/remarks of three
+parcel writers containing `in to`. These exclusions require the exact managed
+member, canonical Android URL, and complete original channel text; the enum and
+parcel exclusions also require the complete original plain source paragraph.
+Safe sibling constants, setter summary/returns, and parcel flags remain eligible.
+No replacement prose is invented, no generic grammar correction occurs, and
+existing authored or imported channels remain unchanged. Corrected official
+channels become eligible without changing the exclusion.
 Unrelated summary edits or added safe paragraphs do not re-enable the malformed
 paragraph; all other source paragraphs retain their original order.
 The site-root link describes the observed source, not a required exclusion
