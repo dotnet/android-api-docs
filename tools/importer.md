@@ -95,6 +95,58 @@ The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
 documentation is preserved.
+Android.App.Admin repairs normalize the exact two ResetPasswordFlags
+`resetPasswordWithToken` field descriptions from the source's scalar `byte`
+notation to the registered `byte[]` signature before field rendering. The
+restriction repair requires the exact managed member, source URL, rendered
+parameter channel, and prior importer-owned output before restoring an unsafe
+application-restriction sentinel to its placeholder. Exact member/URL/source
+typo repairs apply only to proven importer-owned markup; authored and mixed
+documentation remains unchanged, while a corrected importer-owned block stays
+eligible for future refreshes.
+For `DeviceAdminService.onBind`, the exact canonical source/member/plain-paragraph
+allow-list removes only the contradicted nullable-binder sentence from new remarks.
+The same write-time correction covers attribution-only enrichment, overlapping
+remarks placeholders, and incomplete importer-owned refreshes. Strict recognition
+of prior importer-owned XML still uses the unmodified official source; API
+metadata, other documentation channels, and Binder-thread guidance are preserved.
+`Android.Media.TV.Ads.TvAdService.OnBind` has a separate complete-contract guard:
+the [pinned Android 16 implementation](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/ad/TvAdService.java)
+always returns its newly created binder,
+so only the exact contradicted nullable-binder sentence is removed. Nullable
+managed annotations and the independent Binder-thread paragraph remain unchanged.
+`TvAdServiceInfo.WriteToParcel` separately corrects the exact `in to` source typo
+in summary and remarks. Both require the complete original official declaration,
+canonical URL and label, declaring Java owner, JNI descriptor, managed signature,
+return type, and ordered parameter names/types; neither infers replacement prose
+from implementation code. Corrections cover first fills, attribution-only
+enrichment, overlapping placeholders, legacy Java-signature repair, and incomplete
+importer-owned refreshes.
+Prior-owned repair additionally requires complete matching original Docs and
+changes only the exact text spans, preserving reference/attribution and raw
+encoding/newlines. The two-channel parcel repair is atomic within its budget.
+The unfiltered suite uses exact official declaration fixtures and actual registered
+production paths, including persisted zero-write repeats, authored/provenance
+negatives, and future corrected or removed source controls. There is no broad
+nullable-binder or grammar normalization.
+The two TV AD HTML fixtures are base64-encoded to retain the original source
+bytes, including trailing whitespace, without introducing whitespace-check
+exceptions; the suite decodes them before parsing the unchanged declarations.
+Historical pre-TV-guard production APPLY outputs were not retained. Separate
+JSON fixtures therefore identify **fresh**, timestamped production outputs of
+the unchanged importer at immutable commit
+`855613e7c309d2a1f829f70f5a32e2bcd6da1d4b`, not reconstructed history.
+Both registered members were isolated from retained original XML without
+changing their Docs, type/member/JNI metadata or DocIds, then imported offline
+from the original official cache with bounded path, namespace and exact-member
+scopes. The old producer applied two OnBind channels and four parcel channels;
+both actual persisted repeats applied zero changes. The fixtures retain complete
+raw input/output XML and prior Docs as base64, SHA-256, BOM/newline state, source
+cache bindings, immutable producer blob/hash and original native execution
+receipts. Regression repair seeds load those independently emitted complete
+Docs, check agreement with the strict predicate, then verify exact repaired
+complete blocks and every unchanged output byte. They do not use the predicate's
+expected-Docs helper to manufacture legacy samples.
 The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
 source label is corrected only on its exact official member URL when the source
 hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported
@@ -109,6 +161,53 @@ importer paragraph/reference/attribution structure. Authored or mixed markup,
 changed source text, and duplicate channels are preserved. The same narrow
 allow-list corrects newly imported source channels so later refreshes cannot
 reintroduce these defects; no general grammar or punctuation normalization occurs.
+The same exact-text allow-list corrects `Tile.writeToParcel`'s `in to` typo.
+For QuickSettings, the exact inherited `TileService.onBind` intent parameter is
+withheld because its claim that extras are invisible contradicts the framework
+binder extras. The nullable-binder prose and return channel remain eligible:
+the implementation can return null after a remote-service failure. Only the
+exact `Tile.STATE_ACTIVE` paragraph's incorrect default-state sentence is
+excluded, retaining its active-state description and all other source paragraphs.
+New tiles actually initialize to `STATE_INACTIVE`. These guards require the
+exact managed member, canonical Android source URL, and original channel or
+paragraph; unrelated summary edits and additional safe paragraphs cannot disable
+them. Corrected official source remains eligible, and existing authored content
+is not withdrawn.
+Exact EAP channel guards additionally require the complete official source
+contract, canonical URL and reference label, registered JNI descriptor, managed
+return and parameter types, and (for repairs) the complete original importer-owned
+Docs. `EapAkaInfo.Builder.SetReauthId` skips the source parameter that wrongly
+describes a re-authentication ID as the client's EAP identity; an exact prior
+import is withdrawn to its placeholder rather than replaced with inferred prose.
+`EapSessionConfig.Builder.SetEapMsChapV2Config` corrects only the full known
+`faciliate` return text. Both guards operate on first-fill imports as well as
+strict prior-owned repairs. Changed source contracts, authored or mixed markup,
+CDATA, comments, processing instructions, attributes, references, attribution,
+and managed metadata prevent repairs and are preserved with a reported skip.
+The registered `EapSessionConfig.EapAkaConfig.EapAkaOption` getter's exact
+non-null return guarantee is withheld only from its published value channel.
+The supported two-argument builder passes null options through the constructor
+to the getter; pinned implementation excerpts verify this path without serving
+as replacement prose or a Java runtime test. First-fill suppression depends on
+the full defective return contract, registered getter descriptor, canonical
+Android URL, and source kind, not unrelated summary or safe paragraph wording.
+Withdrawal requires the complete original plain importer-owned Docs, reference,
+and attribution and consumes one change. Future corrected source, including
+removal of the false guarantee, remains eligible; no API metadata is changed.
+The same exact allow-list covers the RSSI builder's Bluetooth-address parameter
+and RSSI parcel-write summary and remarks. The RSSI update-rate setter's malformed
+default paragraph (an unresolved `ERROR(...)` label linked to the site root) is
+excluded only for its exact managed member, declaring type, full JNI registration,
+canonical Android member URL, and complete original paragraph text.
+Its safe lead, parameter, and return documentation remain eligible, and the
+excluded paragraph is reported as `source_channel_ambiguous`. Changed or corrected
+official source is preserved; no default-value prose is inferred from implementation.
+Unrelated summary edits or added safe paragraphs do not re-enable the malformed
+paragraph; all other source paragraphs retain their original order.
+The site-root link describes the observed source, not a required exclusion
+predicate: the exact unresolved label remains unsafe even if its hyperlink
+changes. Canonical member-page/JNI provenance is checked independently of that
+inner hyperlink; no source-label correction is inferred from either link.
 Java-signature remarks repairs likewise require only an unmodified Java signature,
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
@@ -136,6 +235,24 @@ or remarks paragraphs; mixed-content paragraphs are reported and preserved.
 Java explanatory lead-ins immediately preceding a code block are retained with
 their trailing colon only when they use a source-proven code-introduction form;
 ordinary incomplete prose remains excluded.
+The declared `Gesture`, `GesturePoint`, and `GestureStroke` `clone()` remarks
+retain three exact official colon-ended introductions only before their exact,
+adjacent nonempty clone expressions. This preserves the source's general-intent,
+non-absolute-requirement, and typical-equality qualifications in source order.
+Other URLs, changed introductions or expressions, empty code, and intervening
+blocks cannot enable these introductions. An earlier importer-owned copy that
+omitted them can be refreshed only with the exact managed/JNI identity, mapped
+canonical member URL, complete original source paragraphs and code, and complete
+original plain remarks/reference/attribution structure. Authored additions,
+mixed markup, CDATA, comments, processing instructions, duplicate remarks, and
+changed source or binding provenance are preserved. The repair retains the
+original reference and attribution element bytes. The exact prior complete
+clone remarks with normalized attribution can restore the known original
+nonbreaking spaces only when the entire source, mapped identity, plain importer
+reference/attribution, original mixed-code summary, and plain return also match;
+only that attribution element changes. Registered first-fill and
+prior-copy regression tests exercise one-operation limits and byte-identical
+zero-write repeats.
 Android CDDL introductions ending in `CBOR with the following CDDL:` are likewise
 retained only immediately before a non-empty code block, preserving certificate
 extension metadata that introduces the schema. This is checked in parsed block
@@ -165,6 +282,29 @@ managed member ID, official `getRetryPolicy()` URL, and complete source return
 text match the known incorrect flag-combination wording. Retry policies are
 mutually exclusive codes, not flags. The guard does not affect other channels,
 members, URLs, corrected source text, or existing authored documentation.
+
+The `ProtoOutputStream.makeToken(int, boolean, int, int, int)` remarks channel
+is skipped only for its exact managed identity, registered JNI owner/signature,
+managed return type, canonical Android URL, and complete original source paragraph
+anywhere in the source remarks. Unrelated summary edits or added safe paragraphs
+before or after that paragraph cannot re-enable its import.
+That paragraph mixes capacities of 512 and 524,288 with the maximum encoded
+values of 9-bit and 19-bit fields. Wrapped depth checks and negative object IDs
+do not make those stated maxima representable. The safe summary remains eligible;
+correcting or removing the unsafe paragraph restores remarks eligibility.
+Other source text and existing authored documentation are preserved. No
+implementation-derived replacement prose is imported.
+The logical remarks exclusion also covers nested paragraph placeholders (including
+those in summaries), metadata-only enrichment, placeholder cleanup, Java-signature
+repair, and importer-owned refresh. These layouts retain their complete original
+bytes; excluded operations are reported against `remarks`, not `summary`.
+
+The `IkeProtocolErrorType.NoAdditionalSas` enum summary is skipped when its exact
+managed field, canonical `IkeProtocolException.ERROR_TYPE_NO_ADDITIONAL_SAS`
+Android URL, and complete source prose match `No additional SAa are acceptable`.
+The undefined `SAa` term is not guessed or silently corrected. This exclusion
+is checked in the production `JniField` mapping before its early return;
+other constants, changed source prose, and authored documentation are preserved.
 
 Existing non-placeholder remarks are retained unless their full structure proves
 they were generated by this importer: non-empty plain `<para>` or Java `<code>`
@@ -196,3 +336,23 @@ Limitations:
 - Only existing placeholders are replaced. Exception text is filled only when
   an existing managed `cref` has one unambiguous source exception match.
 - Source-page layout changes cause conservative skips rather than guessed text.
+- The exact stale `ResponderConfig.Builder.set80211mcSupported(boolean)` summary
+  and remarks are reported and skipped because they incorrectly rule out the
+  separately configured IEEE 802.11az protocol when IEEE 802.11mc support is false.
+  This guard requires the complete original prose, canonical source URL, source
+  identity and managed member; valid parameter and return channels remain eligible.
+- The exact `ResponderConfig.Builder.setChannelWidth(int)` summary, remarks and
+  parameter text are likewise skipped when they describe encoded `ScanResult`
+  channel-width constants as numeric MHz values. The full original parameter
+  description must also match; the valid builder return channel remains eligible.
+- Exact stale remarks for `ResponderConfig.Builder.setMacAddress(MacAddress)`
+  exclude valid USD-only identification, while `PasnConfig.Builder.setWifiSsid`
+  and `PasnConfig.getWifiSsid` overlook PMK-authenticated PASN without a password
+  or SSID. Only these three remarks channels are withheld when the managed
+  member, canonical URL, source identity, complete summary and ordered original
+  paragraphs match. Safe summaries, parameters and returns remain eligible,
+  as does changed official prose. A bounded repair replaces the complete stale
+  importer-owned prose with a placeholder only when the entire remarks structure,
+  reference and attribution match; the reference and attribution are retained.
+  Authored or mixed XML, CDATA, comments, processing instructions, duplicate
+  channels and mismatched provenance are reported and preserved.
