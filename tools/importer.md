@@ -283,6 +283,24 @@ text match the known incorrect flag-combination wording. Retry policies are
 mutually exclusive codes, not flags. The guard does not affect other channels,
 members, URLs, corrected source text, or existing authored documentation.
 
+`Android.Media.Quality` has source-bound first-fill exclusions for eight
+`WriteToParcel(Parcel, int)` summary/remarks pairs containing the exact
+`Flatten this object in to a Parcel.` typo, the two `GetAvailable*Profiles`
+returns describing a single nullable profile despite a collection declaration,
+and `ParameterCapability.ParameterType` value prose advertising combinations
+of mutually exclusive type codes. Each exclusion requires the original full
+official declaration (including return type), canonical URL/source label,
+managed DocId/C# signature/return/ordered parameters, JNI registration, and
+complete affected source channel. Safe direct placeholder channels remain
+eligible. These guarded owners take a first-fill-only path: nested placeholders,
+existing documentation, metadata-only enrichment, repairs and refreshes are
+preserved, not normalized. Corrected official channels remain eligible.
+The registered ordinary suite uses complete native contiguous source fragments
+with byte lengths/SHA-256 and original managed-owner fixtures, exercises real
+bounded offline production applies and zero-write repeats, and checks changed
+provenance/declarations/signatures and authored/nested preservation. These are
+fresh fixtures, not historical producer-output claims.
+
 The `ProtoOutputStream.makeToken(int, boolean, int, int, int)` remarks channel
 is skipped only for its exact managed identity, registered JNI owner/signature,
 managed return type, canonical Android URL, and complete original source paragraph
