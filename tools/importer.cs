@@ -1239,10 +1239,22 @@ static class ImporterProgram
                         HasImporterOwnedSummarySourceTextRefresh(owner, mapping.Docs);
                     var enumDiscardedMetadataRepair = mapping.Docs is not null &&
                         HasEnumDiscardedMetadataCandidate(file, owner);
-                    var augmentedRemarksRepair = HasAugmentedRemarksPlaceholder(file, owner);
+                    var remarksWithheld = mapping.Docs!.WithheldRemarks is not null;
+                    var augmentedRemarksCandidate = HasAugmentedRemarksPlaceholder(file, owner);
+                    var codeExampleCandidate = HasIncompleteCodeExampleRemarks(file, owner);
+                    if (remarksWithheld && (augmentedRemarksCandidate || codeExampleCandidate) &&
+                        !report.Entries.Any(entry =>
+                            entry.Member == owner.Id && entry.Target == "remarks" &&
+                            entry.Reason == "source_channel_ambiguous"))
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id, "remarks", "source_channel_ambiguous",
+                            mapping.Docs.UnsafeTargets!["remarks"], mapping.SourceUrl));
+                    }
+                    var augmentedRemarksRepair = !remarksWithheld && augmentedRemarksCandidate;
                     var truncatedSummaryRepair = HasTruncatedImporterSummary(file, owner);
-                    var codeExampleRepair = HasIncompleteCodeExampleRemarks(file, owner);
-                    var metadataOnlyRemarksRepair = HasMetadataOnlyRemarks(file, owner);
+                    var codeExampleRepair = !remarksWithheld && codeExampleCandidate;
+                    var metadataOnlyRemarksRepair = !remarksWithheld && HasMetadataOnlyRemarks(file, owner);
                     var channelOnlyMetadataRepair =
                         mapping.Docs!.UnsafeTargets?.ContainsKey("remarks") != true &&
                         HasChannelOnlySourceMetadata(
@@ -1715,6 +1727,7 @@ static class ImporterProgram
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
         docs = WithoutKnownUnsafeRemoteEntryGuidance(owner.Id, docs);
         docs = WithoutKnownMalformedRssiDefault(owner, registration, docs);
+        docs = WithoutKnownUnsafeRangeTemplateRemarks(owner, registration, docs);
         docs = WithKnownAndroidTextCorrections(owner.Id, docs);
         docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, docs);
@@ -2200,6 +2213,34 @@ static class ImporterProgram
 
     static bool IsWithheldRawChannel(SourceDocs docs, string target) =>
         docs.HasRawExclusions && docs.UnsafeTargets?.ContainsKey(target) == true;
+
+    const string RangeTemplateMemberId =
+        "M:Android.Service.Controls.Templates.RangeTemplate.#ctor(System.String,System.Single,System.Single,System.Single,System.Single,System.String)";
+    const string RangeTemplateSourceUrl =
+        AndroidReference + "android/service/controls/templates/RangeTemplate#RangeTemplate(java.lang.String,%20float,%20float,%20float,%20float,%20java.lang.CharSequence)";
+    const string RangeTemplateUnsafeParagraph =
+        "Construct a new RangeTemplate. The range must be valid, meaning: minValue < maxValue; minValue < currentValue; currentValue < maxValue; 0 < stepValue";
+
+    static SourceDocs WithoutKnownUnsafeRangeTemplateRemarks(
+        DocsOwner owner, MemberRegistration registration, SourceDocs docs)
+    {
+        if (owner.Id != RangeTemplateMemberId ||
+            owner.SourceRequest?.JavaPath != "android/service/controls/templates/RangeTemplate" ||
+            registration != new MemberRegistration(
+                ".ctor", "(Ljava/lang/String;FFFFLjava/lang/CharSequence;)V", false) ||
+            docs.SourceKind != "android" ||
+            docs.SourceUrl != RangeTemplateSourceUrl ||
+            !docs.Paragraphs.Any(paragraph =>
+                !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph))
+            return docs;
+
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["remarks"] =
+            "The exact Android constructor remarks assert strict range endpoints; this channel is withheld rather than guessing an inclusive-endpoint correction.";
+        return docs with { Paragraphs = [], UnsafeTargets = targets, WithheldRemarks = docs.Paragraphs };
+    }
 
     static SourceDocs WithoutKnownUnsafeAndroidSourceChannels(string ownerId, SourceDocs docs)
     {
@@ -6520,7 +6561,7 @@ static class ImporterProgram
     {
         if (IsWithheldRawChannel(docs, "remarks"))
             return text;
-        if (docs.UnsafeTargets?.ContainsKey("remarks") == true)
+        if (docs.WithheldRemarks is not null || docs.UnsafeTargets?.ContainsKey("remarks") == true)
             return text;
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
@@ -7806,6 +7847,412 @@ static class ImporterProgram
         if (!Path.GetExtension(resolved).Equals(".json", StringComparison.OrdinalIgnoreCase))
             resolved += ".json";
         return Path.GetFullPath(resolved);
+    }
+
+    static void TestControlsTemplatesRangeSource(string repositoryRoot)
+    {
+        const string memberId =
+            "M:Android.Service.Controls.Templates.RangeTemplate.#ctor(System.String,System.Single,System.Single,System.Single,System.Single,System.String)";
+        var original = File.ReadAllText(Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Service.Controls.Templates", "RangeTemplate.xml"));
+        var fixture = File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "controls-range-template-android-reference.html"))
+            .Replace("\r\n", "\n", StringComparison.Ordinal);
+        var directory = Path.Combine(Path.GetTempPath(), "controls-range-importer-" + Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Service.Controls.Templates",
+            "RangeTemplate.importer-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var cache = Path.Combine(directory, "cache");
+            Directory.CreateDirectory(cache);
+            var document = XDocument.Parse(original, LoadOptions.PreserveWhitespace);
+            var member = document.Root!.Element("Members")!.Elements("Member").Single(element =>
+                element.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == memberId));
+            var docs = member.Element("Docs")!;
+            foreach (var element in docs.Elements())
+                element.Value = "To be added.";
+            var firstFill = document.ToString(SaveOptions.DisableFormatting);
+            File.WriteAllText(path, firstFill, new UTF8Encoding(false));
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners(memberId);
+            var owner = loaded.Owners.Single();
+            var request = owner.SourceRequest!;
+            var cachePath = Path.Combine(cache, Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+            var rawDocs = SourcePage.Parse(request, fixture).Members.Single().Docs!;
+            Assert(
+                rawDocs.Paragraphs.SequenceEqual(
+                    [
+                        new SourceParagraph(RangeTemplateUnsafeParagraph, false),
+                        new SourceParagraph("The current value of the Control will be formatted accordingly.", false),
+                    ]),
+                "unfiltered official RangeTemplate fixture retains the full bad paragraph before production filtering");
+            var guarded = WithoutKnownUnsafeRangeTemplateRemarks(owner, owner.MemberRegistration!, rawDocs);
+            Assert(
+                guarded.UnsafeTargets?.ContainsKey("remarks") == true &&
+                guarded.Summary == rawDocs.Summary &&
+                guarded.Parameters.SequenceEqual(rawDocs.Parameters),
+                "exact Controls RangeTemplate source remarks are excluded without changing safe channels: " +
+                    string.Join(" | ", rawDocs.Paragraphs.Select(paragraph => paragraph.Text)));
+
+            JsonElement RunPipeline(string label, string selectedMember = memberId, int maxChanges = 10)
+            {
+                var reportPath = Path.Combine(directory, label);
+                var exit = RunAsync(
+                    [
+                        "--path", path,
+                        "--namespace", "Android.Service.Controls.Templates",
+                        "--member", selectedMember,
+                        "--offline", "--cache", cache,
+                        "--max-changes", maxChanges.ToString(), "--apply",
+                        "--report", reportPath,
+                    ]).GetAwaiter().GetResult();
+                Assert(exit == 0, "Controls RangeTemplate complete offline pipeline succeeds");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Controls RangeTemplate complete pipeline reports no errors");
+                _ = XDocument.Load(path);
+                return report.RootElement.Clone();
+            }
+
+            var firstReport = RunPipeline("first-fill");
+            var applied = File.ReadAllText(path);
+            Assert(
+                firstReport.GetProperty("appliedCount").GetInt32() == 7 &&
+                firstReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("target").GetString() == "remarks" &&
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                !applied.Contains("minValue &lt; currentValue", StringComparison.Ordinal) &&
+                applied.Contains("minimum value for the input", StringComparison.Ordinal),
+                "registered first-fill imports safe RangeTemplate channels and reports the exact withheld remarks");
+            var secondReport = RunPipeline("repeat");
+            Assert(
+                secondReport.GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllText(path) == applied,
+                "Controls RangeTemplate repeated complete import is byte-identical");
+
+            foreach (var modified in new[]
+            {
+                rawDocs with { SourceUrl = rawDocs.SourceUrl + "other" },
+                rawDocs with { SourceKind = "java" },
+                rawDocs with { Paragraphs = [new SourceParagraph("Corrected range guidance.", false)] },
+                rawDocs with { Paragraphs = [new SourceParagraph(RangeTemplateUnsafeParagraph, true)] },
+            })
+            {
+                Assert(
+                    WithoutKnownUnsafeRangeTemplateRemarks(owner, owner.MemberRegistration!, modified)
+                        .UnsafeTargets is null,
+                    "Controls RangeTemplate exclusion requires full original non-code source, Android kind and canonical URL");
+            }
+            Assert(
+                WithoutKnownUnsafeRangeTemplateRemarks(owner,
+                    new MemberRegistration(".ctor", "(Ljava/lang/String;FFFFLjava/lang/String;)V", false), rawDocs)
+                    .UnsafeTargets is null,
+                "Controls RangeTemplate exclusion requires the exact registered descriptor");
+
+            const string descriptionStart = "<p>Construct a new";
+            const string tableStart = "<table><tr><th colspan=\"2\">Parameters";
+            var contextSources = new[]
+            {
+                fixture.Replace(descriptionStart,
+                    "<p>Safe leading context.</p>" + descriptionStart, StringComparison.Ordinal),
+                fixture.Replace(tableStart,
+                    "<p>Safe trailing context.</p>" + tableStart, StringComparison.Ordinal),
+                fixture.Replace(descriptionStart,
+                    "<p>Safe leading context.</p>" + descriptionStart, StringComparison.Ordinal)
+                    .Replace(tableStart, "<p>Safe trailing context.</p>" + tableStart, StringComparison.Ordinal),
+                fixture.Replace(descriptionStart,
+                    "<p>A different valid constructor summary.</p>" + descriptionStart, StringComparison.Ordinal),
+                fixture.Replace("The current value of the Control will be formatted accordingly.",
+                    "Independent formatting guidance has changed.", StringComparison.Ordinal),
+            };
+            foreach (var contextSource in contextSources)
+            {
+                var parsed = SourcePage.Parse(request, contextSource).Members.Single().Docs!;
+                Assert(
+                    parsed.Paragraphs.Any(paragraph =>
+                        !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph) &&
+                    parsed.Parameters.SequenceEqual(rawDocs.Parameters),
+                    "parsed harmless context retains exact bad paragraph and all original parameter contracts");
+                File.WriteAllText(path, firstFill, new UTF8Encoding(false));
+                File.WriteAllText(cachePath, contextSource, new UTF8Encoding(false));
+                var contextReport = RunPipeline("context-first-fill");
+                var contextBytes = File.ReadAllBytes(path);
+                var contextDoc = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+                var contextMember = contextDoc.Root!.Element("Members")!.Elements("Member").Single(element =>
+                    element.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Value") == memberId));
+                var contextDocs = contextMember.Element("Docs")!;
+                Assert(
+                    contextReport.GetProperty("appliedCount").GetInt32() == 7 &&
+                    contextReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("target").GetString() == "remarks" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                    contextDocs.Element("remarks")!.Value == "To be added." &&
+                    contextDocs.Element("summary")!.Value == parsed.Summary &&
+                    contextDocs.Elements("param").All(parameter =>
+                        parameter.Value == RemoveLeadingJavaType(
+                            rawDocs.Parameters[(string)parameter.Attribute("name")!])) &&
+                    contextDocs.Elements().Select(element => element.Name.ToString()).SequenceEqual(
+                        docs.Elements().Select(element => element.Name.ToString())),
+                    "registered first-fill with harmless context excludes only remarks and imports seven safe channels in original order");
+                var contextRepeat = RunPipeline("context-repeat");
+                Assert(contextRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(contextBytes),
+                    "context first-fill persisted repeat has zero edits and identical bytes");
+
+                var budgetDocument = XDocument.Parse(firstFill, LoadOptions.PreserveWhitespace);
+                var budgetMember = budgetDocument.Root!.Element("Members")!.Elements("Member").Single(element =>
+                    element.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Value") == memberId));
+                foreach (var channel in budgetMember.Element("Docs")!.Elements().Where(element =>
+                    element.Name != "remarks" &&
+                    !(element.Name == "param" && (string?)element.Attribute("name") == "templateId")))
+                    channel.Value = "Retained authored channel.";
+                File.WriteAllText(path, budgetDocument.ToString(SaveOptions.DisableFormatting)
+                    .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+                var budgetReport = RunPipeline("context-max-one", maxChanges: 1);
+                var budgetBytes = File.ReadAllBytes(path);
+                Assert(budgetReport.GetProperty("appliedCount").GetInt32() == 1 &&
+                    budgetReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("target").GetString() == "remarks" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                    budgetBytes.Take(3).SequenceEqual(new byte[] { 0xef, 0xbb, 0xbf }),
+                    "max-one production import preserves BOM and still reports unsafe remarks with safe context");
+                var budgetRepeat = RunPipeline("context-max-one-repeat", maxChanges: 1);
+                Assert(budgetRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(budgetBytes),
+                    "max-one persisted second import is zero-write and BOM/newline byte-identical");
+            }
+
+            var badStart = fixture.IndexOf(descriptionStart, StringComparison.Ordinal);
+            var badEnd = fixture.IndexOf("<p>\nThe current value", badStart, StringComparison.Ordinal);
+            Assert(badStart >= 0 && badEnd > badStart,
+                "official fixture contains the complete original bad prose span");
+            var removedBadSource = fixture[..badStart] +
+                "<p>Construct a new RangeTemplate.</p>" + fixture[badEnd..];
+            var codeOnlySource = fixture[..badStart] +
+                "<p>Construct a new RangeTemplate.</p><pre>" +
+                WebUtility.HtmlEncode(RangeTemplateUnsafeParagraph) + "</pre>" + fixture[badEnd..];
+            var codeOnlyDocs = SourcePage.Parse(request, codeOnlySource).Members.Single().Docs!;
+            Assert(codeOnlyDocs.Paragraphs.Any(paragraph =>
+                paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph) &&
+                !codeOnlyDocs.Paragraphs.Any(paragraph =>
+                    !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph),
+                "official code-only lookalike contains no bad non-code paragraph");
+            foreach (var changedSource in new[]
+            {
+                fixture.Replace("Construct a new", "Create a new", StringComparison.Ordinal),
+                fixture.Replace(
+                    "<code>minValue</code> < <code>currentValue</code>",
+                    "<code>minValue</code> &lt;= <code>currentValue</code>",
+                    StringComparison.Ordinal),
+                removedBadSource,
+                codeOnlySource,
+            })
+            {
+                File.WriteAllText(path, firstFill, new UTF8Encoding(false));
+                File.WriteAllText(cachePath, changedSource, new UTF8Encoding(false));
+                var changedReport = RunPipeline("changed-source");
+                Assert(
+                    changedReport.GetProperty("appliedCount").GetInt32() == 8 &&
+                    !changedReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "complete registered import permits corrected, removed or code-only full bad source paragraph");
+            }
+            File.WriteAllText(path, firstFill.Replace(
+                "(Ljava/lang/String;FFFFLjava/lang/CharSequence;)V",
+                "(Ljava/lang/String;FFFFLjava/lang/String;)V", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+            var wrongDescriptorBytes = File.ReadAllBytes(path);
+            var wrongDescriptorReport = RunPipeline("wrong-descriptor");
+            Assert(wrongDescriptorReport.GetProperty("appliedCount").GetInt32() == 0 &&
+                wrongDescriptorReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("reason").GetString() == "overload_signature_mismatch") &&
+                File.ReadAllBytes(path).SequenceEqual(wrongDescriptorBytes),
+                "same named constructor with different JNI descriptor is not guessed or edited");
+            File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+            const string otherMember =
+                "M:Android.Service.Controls.Templates.RangeTemplate.OtherConstructor(System.String,System.Single,System.Single,System.Single,System.Single,System.String)";
+            File.WriteAllText(path, firstFill.Replace(memberId, otherMember, StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            var otherMemberReport = RunPipeline("other-member", otherMember);
+            Assert(
+                otherMemberReport.GetProperty("appliedCount").GetInt32() == 8,
+                "complete registered import does not extend the exclusion to another managed member");
+
+            var otherUrlText = firstFill.Replace(
+                "android/service/controls/templates/RangeTemplate",
+                "android/service/controls/templates/OtherRangeTemplate",
+                StringComparison.Ordinal);
+            File.WriteAllText(path, otherUrlText, new UTF8Encoding(false));
+            var otherUrlFile = LoadedFile.Load(repositoryRoot, path);
+            otherUrlFile.SelectOwners(memberId);
+            var otherRequest = otherUrlFile.Owners.Single().SourceRequest!;
+            var otherCachePath = Path.Combine(cache, Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(otherRequest.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(otherCachePath, fixture
+                .Replace("id=\"RangeTemplate(", "id=\"OtherRangeTemplate(", StringComparison.Ordinal)
+                .Replace(">RangeTemplate</h3>", ">OtherRangeTemplate</h3>", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            var otherUrlReport = RunPipeline("other-url");
+            Assert(
+                otherUrlReport.GetProperty("appliedCount").GetInt32() == 8 &&
+                !otherUrlReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                "complete registered import requires the canonical source-member URL");
+
+            var legacyReference = ImporterSourceReference(rawDocs).ToString(SaveOptions.DisableFormatting);
+            var legacyAttribution = $"<para>{AndroidAttribution}</para>";
+            var legacyRemarks = new[]
+            {
+                "<remarks><code lang=\"text/java\">public RangeTemplate (String templateId, float minValue, " +
+                    "float maxValue, float currentValue, float stepValue, CharSequence formatString)</code>\r\n" +
+                    legacyReference + "\r\n" + legacyAttribution + "</remarks>",
+                "<remarks>To be added.<para/><para/>\r\n" +
+                    legacyReference + "\r\n" + legacyAttribution + "</remarks>",
+            };
+            string LegacyDocument(string remarks)
+            {
+                var legacy = XDocument.Parse(firstFill, LoadOptions.PreserveWhitespace);
+                var legacyMember = legacy.Root!.Element("Members")!.Elements("Member").Single(element =>
+                    element.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Value") == memberId));
+                foreach (var channel in legacyMember.Element("Docs")!.Elements())
+                    channel.Value = "Retained safe channel.";
+                legacyMember.Element("Docs")!.Element("remarks")!.ReplaceWith(
+                    XElement.Parse(remarks, LoadOptions.PreserveWhitespace));
+                return legacy.ToString(SaveOptions.DisableFormatting).Replace(
+                    "\r\n", "\n", StringComparison.Ordinal).Replace("\n", "\r\n", StringComparison.Ordinal);
+            }
+            for (var legacyIndex = 0; legacyIndex < legacyRemarks.Length; legacyIndex++)
+            {
+                var legacyText = LegacyDocument(legacyRemarks[legacyIndex]);
+                File.WriteAllText(path, legacyText, new UTF8Encoding(true));
+                File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+                var legacyFile = LoadedFile.Load(repositoryRoot, path);
+                legacyFile.SelectOwners(memberId);
+                var legacyOwner = legacyFile.Owners.Single();
+                Assert(legacyIndex == 0
+                        ? HasIncompleteCodeExampleRemarks(legacyFile, legacyOwner)
+                        : HasAugmentedRemarksPlaceholder(legacyFile, legacyOwner),
+                    "both registered legacy Range forms reach the real repair-only candidate paths");
+                var legacySource = SourcePage.Parse(legacyOwner.SourceRequest!, fixture).Members.Single().Docs!;
+                Assert(legacySource.Paragraphs.Any(paragraph =>
+                        !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph),
+                    "legacy repair regressions parse the complete unfiltered bad source paragraph");
+                var withheld = WithoutKnownUnsafeRangeTemplateRemarks(
+                    legacyOwner, legacyOwner.MemberRegistration!, legacySource);
+                var legacyBytes = File.ReadAllBytes(path);
+                for (var repeat = 0; repeat < 2; repeat++)
+                {
+                    var legacyReport = RunPipeline($"legacy-{legacyIndex}-{repeat}", maxChanges: 1);
+                    Assert(
+                        legacyReport.GetProperty("appliedCount").GetInt32() == 0 &&
+                        legacyReport.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                        legacyReport.GetProperty("filesChanged").GetInt32() == 0 &&
+                        legacyReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("target").GetString() == "remarks" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                        File.ReadAllBytes(path).SequenceEqual(legacyBytes),
+                        "registered max-one legacy first pass and saved repeat preserve ALL bytes, BOM, CRLF, signature, reference and attribution");
+                }
+                Assert(
+                    ReplaceIncompleteCodeExampleRemarks(legacyText, legacyFile, legacyOwner, withheld) == legacyText &&
+                    AddSourceDocumentationIfSafe(legacyText, legacyFile, legacyOwner, withheld) == legacyText,
+                    "both repair-only execution paths independently preserve withheld Range remarks");
+
+                var correctedSource = fixture.Replace(
+                    "<code>minValue</code> < <code>currentValue</code>",
+                    "<code>minValue</code> &lt;= <code>currentValue</code>", StringComparison.Ordinal);
+                File.WriteAllText(cachePath, correctedSource, new UTF8Encoding(false));
+                var corrected = SourcePage.Parse(request, correctedSource).Members.Single().Docs!;
+                Assert(WithoutKnownUnsafeRangeTemplateRemarks(
+                    legacyOwner, legacyOwner.MemberRegistration!, corrected).UnsafeTargets is null,
+                    "corrected complete source is eligible for independent legacy repairs");
+                var repairControl = RunPipeline($"legacy-positive-{legacyIndex}", maxChanges: 1);
+                var repairedBytes = File.ReadAllBytes(path);
+                Assert(repairControl.GetProperty("appliedCount").GetInt32() == 1 &&
+                    !repairedBytes.SequenceEqual(legacyBytes) &&
+                    File.ReadAllText(path).Contains("minValue &lt;= currentValue", StringComparison.Ordinal),
+                    "registered positive control proves each earlier repair writer actually executes for corrected source");
+                var repairControlRepeat = RunPipeline($"legacy-positive-repeat-{legacyIndex}", maxChanges: 1);
+                Assert(repairControlRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(repairedBytes),
+                    "eligible legacy repair has a persisted zero-write repeat");
+
+                foreach (var variant in new[]
+                {
+                    legacyText.Replace("(Ljava/lang/String;FFFFLjava/lang/CharSequence;)V",
+                        "(Ljava/lang/String;FFFFLjava/lang/String;)V", StringComparison.Ordinal),
+                    legacyText.Replace(legacyReference, legacyReference.Replace(
+                        "Reference documentation", "Authored reference", StringComparison.Ordinal), StringComparison.Ordinal),
+                    legacyText.Replace(legacyAttribution, "<para>Retained authored attribution.</para>", StringComparison.Ordinal),
+                    legacyText.Replace("<remarks>", "<remarks data-authored=\"true\"><!-- retained --><?retained instruction?>" +
+                        "<![CDATA[Retained </remarks> text.]]><para><see cref=\"T:Android.Service.Controls.Templates.RangeTemplate\"/>" +
+                        "Retained NBSP\u00a0text.</para>", StringComparison.Ordinal),
+                })
+                {
+                    File.WriteAllText(path, variant, new UTF8Encoding(true));
+                    File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+                    var variantBytes = File.ReadAllBytes(path);
+                    var variantReport = RunPipeline($"legacy-negative-{legacyIndex}", maxChanges: 1);
+                    Assert(variantReport.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(variantBytes),
+                        "both legacy forms preserve strict JNI/XML/authored/CDATA/comment/PI/attributes/reference/attribution negatives");
+                    var variantRepeat = RunPipeline($"legacy-negative-repeat-{legacyIndex}", maxChanges: 1);
+                    Assert(variantRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(variantBytes),
+                        "legacy negative persisted repeat is byte-identical");
+                }
+            }
+            File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+
+            foreach (var authored in new[]
+            {
+                "<remarks>Authored range contract.</remarks>",
+                "<remarks><para>Authored <c>range</c> contract.</para></remarks>",
+                "<remarks><![CDATA[Authored </remarks> contract.]]></remarks>",
+                "<remarks><!-- retained --><para>Authored range contract.</para></remarks>",
+                "<remarks><?retained instruction?><para>Authored range contract.</para></remarks>",
+                "<remarks data-authored=\"true\">Authored range contract.</remarks>",
+                "<remarks><para><see cref=\"T:Android.Service.Controls.Templates.RangeTemplate\" /></para></remarks>",
+                RenderImporterOwnedRemarks(rawDocs.Paragraphs, rawDocs, "\r\n", "        ", "          "),
+                "<remarks><para>Retained NBSP\u00a0contract.</para>" +
+                    ImporterSourceReference(rawDocs).ToString(SaveOptions.DisableFormatting) +
+                    $"<para>{AndroidAttribution}</para></remarks>",
+            })
+            {
+                var authoredDocument = XDocument.Parse(firstFill, LoadOptions.PreserveWhitespace);
+                var authoredMember = authoredDocument.Root!.Element("Members")!.Elements("Member").Single(element =>
+                    element.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Value") == memberId));
+                var authoredDocs = authoredMember.Element("Docs")!;
+                foreach (var element in authoredDocs.Elements())
+                    element.Value = "Authored channel.";
+                authoredDocs.Element("remarks")!.ReplaceWith(XElement.Parse(
+                    authored, LoadOptions.PreserveWhitespace));
+                var authoredText = authoredDocument.ToString(SaveOptions.DisableFormatting);
+                File.WriteAllText(path, authoredText, new UTF8Encoding(true));
+                var authoredBytes = File.ReadAllBytes(path);
+                var authoredReport = RunPipeline("authored");
+                Assert(
+                    authoredReport.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(authoredBytes),
+                    "Controls RangeTemplate full pipeline preserves prior-owned/authored/mixed/CDATA/comments/PI/attributes/references/attribution/NBSP/BOM/newlines and managed metadata");
+            }
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
     }
 
     static void TestControlTemplateParagraphBoundary(string repositoryRoot, string fixtureRoot)
@@ -10084,6 +10531,7 @@ static class ImporterProgram
         TestAdminRestrictionRenderedRepair(repositoryRoot);
         TestAdminResetPasswordFields(repositoryRoot);
         TestKnownAndroidTextRepairs();
+        TestControlsTemplatesRangeSource(repositoryRoot);
         TestQuickSettingsSources(repositoryRoot);
         TestKnownEapChannelCorrections(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
