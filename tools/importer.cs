@@ -516,6 +516,38 @@ static class ImporterProgram
                         continue;
                     }
 
+                    if (mapping.Docs!.UnsafeTargets?.TryGetValue(
+                        "remarks:browse_subscription", out var browseDetail) == true)
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id, "remarks",
+                            "source_channel_ambiguous", browseDetail, mapping.SourceUrl));
+                    }
+                    if (HasUnsafeBrowseSubscriptionRemarks(owner))
+                    {
+                        var repair = RepairBrowseSubscriptionRemarks(text, file, owner, mapping.Docs!);
+                        if (repair.Reason is not null || remaining == 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath, owner.Id, "remarks",
+                                repair.Reason ?? "max_changes_reached",
+                                repair.Detail ?? $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else if (repair.Text != text)
+                        {
+                            text = repair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply", file.RelativePath, owner.Id, "remarks", mapping.SourceUrl,
+                                "importer_known_unsafe_browse_subscription_repair",
+                                "Withdrew only the exact unsafe callback paragraph from complete prior importer-owned remarks."));
+                        }
+                    }
+
                     var eapCorrection = RepairKnownEapChannel(text, file, owner, mapping.Docs!);
                     var eapCandidates = KnownEapChannelRepairCandidateTargets(owner);
                     if (eapCandidates.Count > 0 && eapCorrection.Targets.Count == 0)
@@ -1315,8 +1347,9 @@ static class ImporterProgram
                         if (!refreshed.Equals(text, StringComparison.Ordinal))
                         {
                             file.UpdateBlockOffsets(owner.Order, refreshed);
-                            var repairTarget = owner.Id == ProtoTokenMemberId &&
-                                (codeExampleRepair || augmentedRemarksRepair || metadataOnlyRemarksRepair)
+                            var repairTarget = metadataOnlyRemarksRepair ||
+                                (owner.Id == ProtoTokenMemberId &&
+                                 (codeExampleRepair || augmentedRemarksRepair))
                                 ? "remarks" : "summary";
                             if (remaining == 0)
                             {
@@ -1731,7 +1764,104 @@ static class ImporterProgram
         docs = WithKnownAndroidTextCorrections(owner.Id, docs);
         docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, docs);
+        docs = WithoutUnsafeBrowseSubscriptionRemarks(owner, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    sealed record BrowseSubscriptionRule(
+        string MemberId, string SourceUrl, string[] Paragraphs, string Detail)
+    {
+        public IEnumerable<SourceParagraph> SafeParagraphs =>
+            Paragraphs.SkipLast(1).Select(text => new SourceParagraph(text, false));
+        public MemberRegistration Registration => MemberId.Contains(".Unsubscribe(", StringComparison.Ordinal)
+            ? new("unsubscribe", "(Ljava/lang/String;Landroid/media/browse/MediaBrowser$SubscriptionCallback;)V", false)
+            : new("subscribe", "(Ljava/lang/String;Landroid/os/Bundle;Landroid/media/browse/MediaBrowser$SubscriptionCallback;)V", false);
+    }
+
+    static readonly BrowseSubscriptionRule[] BrowseSubscriptionRules =
+    [
+        new(
+            "M:Android.Media.Browse.MediaBrowser.Subscribe(System.String,Android.OS.Bundle,Android.Media.Browse.MediaBrowser.SubscriptionCallback)",
+            AndroidReference + "android/media/browse/MediaBrowser#subscribe(java.lang.String,%20android.os.Bundle,%20android.media.browse.MediaBrowser.SubscriptionCallback)",
+            [
+                "Queries with service-specific arguments for information about the media items that are contained within the specified id and subscribes to receive updates when they change.",
+                "The list of subscriptions is maintained even when not connected and is restored after the reconnection. It is ok to subscribe while not connected but the results will not be returned until the connection completes.",
+                "If the id is already subscribed with a different callback then the new callback will replace the previous one and the child data will be reloaded.",
+            ],
+            "The exact source replacement paragraph omits the options match: callbacks for different pagination options can coexist under the same parent ID."),
+        new(
+            "M:Android.Media.Browse.MediaBrowser.Unsubscribe(System.String,Android.Media.Browse.MediaBrowser.SubscriptionCallback)",
+            AndroidReference + "android/media/browse/MediaBrowser#unsubscribe(java.lang.String,%20android.media.browse.MediaBrowser.SubscriptionCallback)",
+            [
+                "Unsubscribes for changes to the children of the specified media id through a callback.",
+                "The query callback will no longer be invoked for results associated with this id once this method returns.",
+            ],
+            "The exact source cancellation paragraph is unqualified by callback identity: other callbacks for the same parent ID can remain subscribed."),
+    ];
+
+    static BrowseSubscriptionRule? FindBrowseSubscriptionRule(string memberId, SourceDocs docs) =>
+        BrowseSubscriptionRules.SingleOrDefault(rule =>
+            rule.MemberId == memberId && rule.SourceUrl == docs.SourceUrl &&
+            docs.SourceKind == "android" && docs.Summary == rule.Paragraphs[0] &&
+            (docs.OriginalBrowseSubscriptionParagraphs ?? docs.Paragraphs).SequenceEqual(
+                rule.Paragraphs.Select(text => new SourceParagraph(text, false))));
+
+    static SourceDocs WithoutUnsafeBrowseSubscriptionRemarks(DocsOwner owner, SourceDocs docs)
+    {
+        var rule = BrowseSubscriptionRules.SingleOrDefault(rule =>
+            rule.MemberId == owner.Id && owner.MemberRegistration == rule.Registration &&
+            owner.SourceRequest?.JavaPath == "android/media/browse/MediaBrowser" &&
+            docs.SourceKind == "android" && docs.SourceUrl == rule.SourceUrl &&
+            docs.SourceLabel == "android.media.browse.MediaBrowser." + rule.Registration.Name &&
+            docs.Paragraphs.Contains(new SourceParagraph(rule.Paragraphs[^1], false)));
+        if (rule is null)
+            return docs;
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["remarks:browse_subscription"] = rule.Detail;
+        return docs with
+        {
+            Paragraphs = docs.Paragraphs.Where(paragraph =>
+                paragraph.IsCode || paragraph.Text != rule.Paragraphs[^1]).ToList(),
+            UnsafeTargets = targets,
+            OriginalBrowseSubscriptionParagraphs = docs.OriginalBrowseSubscriptionParagraphs ??
+                docs.Paragraphs.ToArray(),
+        };
+    }
+
+    static bool HasUnsafeBrowseSubscriptionRemarks(DocsOwner owner) =>
+        BrowseSubscriptionRules.Any(rule => rule.MemberId == owner.Id &&
+            owner.Docs.Elements("remarks").Any(remarks =>
+                remarks.Elements("para").Any(paragraph => paragraph.Value == rule.Paragraphs[^1])));
+
+    static RemarksRefreshResult RepairBrowseSubscriptionRemarks(
+        string text, LoadedFile file, DocsOwner owner, SourceDocs docs)
+    {
+        var rule = FindBrowseSubscriptionRule(owner.Id, docs);
+        if (rule is null || !docs.Paragraphs.SequenceEqual(rule.SafeParagraphs) ||
+            owner.MemberRegistration != rule.Registration ||
+            owner.SourceRequest?.JavaPath != "android/media/browse/MediaBrowser")
+            return new(text, "source_browse_subscription_mismatch",
+                "The exact source member no longer matches the verified full subscription contract.");
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var expected = new XElement("remarks",
+            rule.Paragraphs.Select(paragraph => new XElement("para", paragraph)),
+            ImporterSourceReference(docs), XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        if (!TryParseDocsBlock(blockText, out var actual) ||
+            !XNode.DeepEquals(actual, owner.Docs) ||
+            actual.Elements("summary").ToList() is not [XElement summary] ||
+            summary.HasAttributes || !HasPlainTextContent(summary, out var summaryText) ||
+            summaryText != rule.Paragraphs[0] ||
+            actual.Elements("remarks").ToList() is not [XElement remarks] ||
+            !ImporterMarkupEquals(remarks, expected) ||
+            !TryGetElementSpan(blockText, remarks.Elements("para").ElementAt(rule.Paragraphs.Length - 1),
+                out var unsafeSpan))
+            return new(text, "existing_browse_subscription_not_importer_owned",
+                "The full plain source prose, summary, exact source reference, and attribution did not match prior importer output.");
+        var updated = blockText[..unsafeSpan.Start] + blockText[unsafeSpan.End..];
+        return new(text[..block.Start] + updated + text[block.End..], null, null);
     }
 
     static SourceDocs WithoutKnownUnsafeQuickSettingsChannels(string memberId, SourceDocs docs)
@@ -2939,6 +3069,8 @@ static class ImporterProgram
             targets.Add("remarks");
         targets.UnionWith(KnownUnsafeIkeRepairCandidateTargets(owner));
         targets.UnionWith(KnownControlsLifecycleRepairTargets(owner));
+        if (HasUnsafeBrowseSubscriptionRemarks(owner))
+            targets.Add("remarks");
         if (IsEnumSummaryRepairCandidate(owner) ||
             HasTruncatedImporterSummary(file, owner) ||
             KnownControlsLifecycleRepairTargets(owner).Count > 0 ||
@@ -2999,6 +3131,7 @@ static class ImporterProgram
         HasKnownUnsafeWifiRttRemarksCandidate(owner) ||
         KnownUnsafeIkeRepairCandidateTargets(owner).Count > 0 ||
         HasKnownAndroidProseRepairCandidate(file, owner) ||
+        HasUnsafeBrowseSubscriptionRemarks(owner) ||
         HasKnownUnsafeZoneTransitionTimeCandidate(owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
@@ -8648,6 +8781,520 @@ static class ImporterProgram
         }
     }
 
+    static void TestBrowseSubscriptionContracts(string repositoryRoot, string fixtureRoot)
+    {
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "browse-subscription-android-reference.html"));
+        var request = SourceRequest.Create("android/media/browse/MediaBrowser")!;
+        var page = SourcePage.Parse(request, html);
+        var fixturePath = Path.Combine(fixtureRoot, "browse-subscription-source.xml");
+        var file = LoadedFile.Load(repositoryRoot, fixturePath);
+        file.SelectOwners(null);
+        var fixtureText = file.Text;
+        var pages = new Dictionary<string, SourceLoadResult> { [request.Url] = SourceLoadResult.Success(page) };
+        foreach (var owner in file.Owners.Where(owner => owner.Member is not null))
+        {
+            var rule = BrowseSubscriptionRules.Single(rule => rule.MemberId == owner.Id);
+            var raw = page.Members.Single(member => member.Name == rule.Registration.Name).Docs!;
+            var mapped = MapOwner(owner, pages).Docs!;
+            Assert(raw.Paragraphs.SequenceEqual(rule.Paragraphs.Select(text => new SourceParagraph(text, false))) &&
+                mapped.Paragraphs.SequenceEqual(rule.SafeParagraphs) &&
+                mapped.UnsafeTargets?.ContainsKey("remarks:browse_subscription") == true,
+                "registered Browse mapping excludes only the exact unsafe paragraph before first fill");
+            foreach (var changed in new[]
+            {
+                raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                raw with { SourceKind = "java" },
+                raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                raw with { Paragraphs = raw.Paragraphs.Select((paragraph, index) =>
+                    index == raw.Paragraphs.Count - 1 ? paragraph with { Text = paragraph.Text + " Corrected." } : paragraph).ToList() },
+            })
+                Assert(ReferenceEquals(WithoutUnsafeBrowseSubscriptionRemarks(owner, changed), changed),
+                    "Browse filtering preserves changed sources and corrected future prose");
+            Assert(ReferenceEquals(WithoutUnsafeBrowseSubscriptionRemarks(owner with { Id = owner.Id + ".Other" }, raw), raw),
+                "Browse filtering requires the exact managed member");
+
+            var owned = new XElement(owner.Docs);
+            owned.Element("summary")!.Value = rule.Paragraphs[0];
+            owned.Element("remarks")!.ReplaceNodes(
+                rule.Paragraphs.Select(text => new XElement("para", text)),
+                ImporterSourceReference(mapped), XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            var block = file.DocsBlocks[owner.Order];
+            var start = block.Start;
+            var end = block.End;
+            (string Before, RemarksRefreshResult Result) RepairCase(
+                XElement docs, SourceDocs? source = null, DocsOwner? identity = null)
+            {
+                var docsText = docs.ToString(SaveOptions.DisableFormatting);
+                var text = fixtureText[..start] + docsText + fixtureText[end..];
+                file.UpdateBlockOffsets(owner.Order, text);
+                return (text, RepairBrowseSubscriptionRemarks(text, file,
+                    (identity ?? owner) with { Docs = XElement.Parse(docsText, LoadOptions.PreserveWhitespace) },
+                    source ?? mapped));
+            }
+            var repaired = RepairCase(owned);
+            var unsafeMarkup = new XElement("para", rule.Paragraphs[^1]).ToString(SaveOptions.DisableFormatting);
+            Assert(repaired.Result.Reason is null &&
+                repaired.Result.Text == repaired.Before.Replace(unsafeMarkup, "", StringComparison.Ordinal),
+                "Browse old-owned repair removes exactly one full plain paragraph without touching retained bytes");
+            var legacySpacing = new XElement(owned);
+            var attribution = legacySpacing.Element("remarks")!.Elements("para").Last();
+            attribution.ReplaceWith(XElement.Parse(attribution.ToString(SaveOptions.DisableFormatting)
+                .Replace("created and shared", "created and\u00a0shared", StringComparison.Ordinal)));
+            var legacyRepaired = RepairCase(legacySpacing);
+            Assert(legacyRepaired.Result.Reason is null &&
+                legacyRepaired.Result.Text == legacyRepaired.Before.Replace(unsafeMarkup, "", StringComparison.Ordinal),
+                "Browse withdrawal retains legacy NBSP attribution bytes exactly");
+
+            var mutations = new List<XElement>();
+            void Mutate(Action<XElement> change)
+            {
+                var docs = new XElement(owned);
+                change(docs);
+                mutations.Add(docs);
+            }
+            Mutate(docs => docs.Element("summary")!.Add(" Authored."));
+            Mutate(docs => docs.Element("summary")!.ReplaceNodes(new XCData(rule.Paragraphs[0])));
+            Mutate(docs => docs.Element("summary")!.SetAttributeValue("authored", "keep"));
+            Mutate(docs => docs.Element("remarks")!.SetAttributeValue("authored", "keep"));
+            Mutate(docs => docs.Element("remarks")!.Elements("para").Last().SetAttributeValue("authored", "keep"));
+            Mutate(docs => docs.Add(new XElement(docs.Element("summary")!)));
+            Mutate(docs => docs.Add(new XElement(docs.Element("remarks")!)));
+            Mutate(docs => docs.Element("remarks")!.AddFirst(new XElement("para", "Authored.")));
+            Mutate(docs => docs.Element("remarks")!.Elements("para").First().Add(new XElement("c", "Authored")));
+            Mutate(docs => docs.Element("remarks")!.Elements("para").First().ReplaceNodes(new XCData(rule.Paragraphs[0])));
+            Mutate(docs => docs.Element("remarks")!.AddFirst(new XComment("Authored")));
+            Mutate(docs => docs.Element("remarks")!.AddFirst(new XProcessingInstruction("authored", "keep")));
+            Mutate(docs => docs.Element("remarks")!.Elements("para").Last().Add(" Authored."));
+            Mutate(docs => docs.Element("remarks")!.Descendants("a").First().SetAttributeValue("href", rule.SourceUrl + ".Other"));
+            Mutate(docs => docs.Element("remarks")!.Elements("para").Last().AddBeforeSelf(
+                new XElement(ImporterSourceReference(mapped))));
+            foreach (var docs in mutations)
+            {
+                var preserved = RepairCase(docs);
+                Assert(preserved.Result.Reason == "existing_browse_subscription_not_importer_owned" &&
+                    preserved.Result.Text == preserved.Before,
+                    "Browse repair preserves authored, mixed, CDATA, comments, PI, duplicate channels and metadata");
+            }
+            foreach (var identity in new[]
+            {
+                owner with { Id = owner.Id + ".Other" },
+                owner with { MemberRegistration = rule.Registration with { Descriptor = "()V" } },
+                owner with { SourceRequest = SourceRequest.Create("android/media/browse/MediaBrowser$SubscriptionCallback") },
+            })
+            {
+                var preserved = RepairCase(owned, identity: identity);
+                Assert(preserved.Result.Text == preserved.Before && preserved.Result.Reason == "source_browse_subscription_mismatch",
+                    "Browse repair requires exact registered JNI, managed member and class binding");
+            }
+            foreach (var source in new[]
+            {
+                mapped with { SourceUrl = mapped.SourceUrl + ".Other" },
+                mapped with { SourceKind = "java" },
+                mapped with { Summary = mapped.Summary + " Changed." },
+                mapped with { Paragraphs = [new SourceParagraph("Changed source.", false)] },
+            })
+            {
+                var changedSource = RepairCase(owned, source);
+                Assert(changedSource.Result.Text == changedSource.Before &&
+                    changedSource.Result.Reason == "source_browse_subscription_mismatch",
+                    "Browse repair requires unchanged full source prose and canonical provenance");
+            }
+            var mismatchedOwner = owner with { Docs = new XElement(owned) };
+            mismatchedOwner.Docs.Element("param")!.Value = "Changed owner snapshot.";
+            var mismatchText = fixtureText[..start] + owned.ToString(SaveOptions.DisableFormatting) + fixtureText[end..];
+            file.UpdateBlockOffsets(owner.Order, mismatchText);
+            Assert(RepairBrowseSubscriptionRemarks(mismatchText, file, mismatchedOwner, mapped).Text == mismatchText,
+                "Browse repair preserves a mismatched owner snapshot");
+            file.UpdateBlockOffsets(owner.Order, fixtureText);
+        }
+
+        TestBrowseSubscriptionSourceContext(repositoryRoot, html, fixtureText, page, file.Owners);
+        TestBrowseSubscriptionOriginalSource(repositoryRoot, html, fixtureText, page, file.Owners);
+
+        var token = $"browse-contract-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var tempDirectory = Path.Combine(Path.GetTempPath(), token);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Media.Browse", token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            File.WriteAllText(Path.Combine(tempDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                html, new UTF8Encoding(false));
+            var reportPath = Path.Combine(tempDirectory, "report");
+            JsonDocument RunPipeline(bool apply, int limit)
+            {
+                var args = new List<string>
+                {
+                    "--path", pipelinePath, "--namespace", "Android.Media.Browse", "--offline",
+                    "--cache", tempDirectory, "--max-changes", limit.ToString(), "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Browse registered pipeline succeeds with zero errors");
+                return JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            }
+            File.WriteAllText(pipelinePath, fixtureText.Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+            using (var limited = RunPipeline(true, 1))
+                Assert(limited.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "Browse first-fill obeys max-one");
+            using (var filled = RunPipeline(true, 10))
+                Assert(filled.RootElement.GetProperty("appliedCount").GetInt32() == 3,
+                    "Browse actual registered first-fill completes the remaining three safe channels");
+            var filledText = File.ReadAllText(pipelinePath);
+            var filledXml = XElement.Parse(filledText);
+            foreach (var rule in BrowseSubscriptionRules)
+            {
+                var member = filledXml.Element("Members")!.Elements("Member").Single(member =>
+                    member.Elements("MemberSignature").Any(signature => (string?)signature.Attribute("Value") == rule.MemberId));
+                var docs = member.Element("Docs")!;
+                Assert(docs.Element("summary")!.Value == rule.Paragraphs[0] &&
+                    docs.Element("remarks")!.Elements("para").Take(rule.Paragraphs.Length - 1)
+                        .Select(paragraph => paragraph.Value).SequenceEqual(rule.Paragraphs.SkipLast(1)) &&
+                    !docs.Element("remarks")!.Value.Contains(rule.Paragraphs[^1], StringComparison.Ordinal) &&
+                    docs.Elements("param").All(parameter => parameter.Value.StartsWith("Existing ", StringComparison.Ordinal)) &&
+                    HasExactImporterSourceReference(docs, MapOwner(file.Owners.Single(owner => owner.Id == rule.MemberId), pages).Docs!),
+                    "Browse first-fill preserves authored parameters and imports only source-proven safe prose and provenance");
+            }
+            var firstFillBytes = File.ReadAllBytes(pipelinePath);
+            using (var repeated = RunPipeline(true, 10))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(firstFillBytes),
+                    "Browse first-fill repeated apply has zero operations and byte-identical BOM and CRLF");
+
+            foreach (var member in filledXml.Element("Members")!.Elements("Member"))
+            {
+                var rule = BrowseSubscriptionRules.Single(rule =>
+                    member.Elements("MemberSignature").Any(signature => (string?)signature.Attribute("Value") == rule.MemberId));
+                member.Element("Docs")!.Element("remarks")!.Elements("para").ElementAt(rule.Paragraphs.Length - 2)
+                    .AddAfterSelf(new XElement("para", rule.Paragraphs[^1]));
+            }
+            var oldText = filledXml.ToString(SaveOptions.DisableFormatting);
+            File.WriteAllText(pipelinePath, oldText, new UTF8Encoding(true));
+            using (var limited = RunPipeline(true, 1))
+                Assert(limited.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "Browse old-owned single-paragraph withdrawal obeys max-one");
+            using (var repaired = RunPipeline(true, 1))
+                Assert(repaired.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "Browse old-owned pipeline withdraws the second exact unsafe paragraph");
+            var repairedText = File.ReadAllText(pipelinePath);
+            var expectedText = BrowseSubscriptionRules.Aggregate(oldText, (text, rule) =>
+                text.Replace(new XElement("para", rule.Paragraphs[^1]).ToString(SaveOptions.DisableFormatting), "", StringComparison.Ordinal));
+            Assert(repairedText == expectedText, "Browse withdrawals preserve every other byte");
+            var repairedBytes = File.ReadAllBytes(pipelinePath);
+            using (var repeated = RunPipeline(true, 10))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(repairedBytes),
+                    "Browse withdrawal repeated persisted apply is byte-identical with zero writes");
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
+    static void TestBrowseSubscriptionSourceContext(
+        string repositoryRoot, string html, string fixtureText, SourcePage originalPage,
+        IReadOnlyList<DocsOwner> owners)
+    {
+        var request = SourceRequest.Create("android/media/browse/MediaBrowser")!;
+        var headers = Regex.Matches(html, @"<h3\b[\s\S]*?</pre>")
+            .Select(match => match.Value).ToArray();
+        Assert(headers.Length == 2, "Browse context tests use both raw official overload signatures");
+        var token = $"browse-context-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var cache = Path.Combine(Path.GetTempPath(), token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Media.Browse", token + ".xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            foreach (var context in new[] { "summary", "leading", "trailing", "both", "middle", "removed", "corrected", "code" })
+            {
+                var withheld = context is not ("removed" or "corrected" or "code");
+                var expected = new Dictionary<string, SourceDocs>(StringComparer.Ordinal);
+                var sourceHtml = new StringBuilder();
+                for (var index = 0; index < BrowseSubscriptionRules.Length; index++)
+                {
+                    var rule = BrowseSubscriptionRules[index];
+                    var raw = originalPage.Members.Single(member => member.Url == rule.SourceUrl).Docs!;
+                    Assert(raw.Paragraphs.Last() == new SourceParagraph(rule.Paragraphs[^1], false),
+                        "Browse context fixture contains the full known unsafe plain paragraph before filtering");
+                    var paragraphs = raw.Paragraphs.ToList();
+                    if (context == "summary")
+                        paragraphs[0] = new SourceParagraph("Updated safe introductory source context.", false);
+                    if (context is "leading" or "both")
+                        paragraphs.Insert(0, new SourceParagraph("Additional safe leading source context.", false));
+                    if (context is "trailing" or "both")
+                        paragraphs.Add(new SourceParagraph("Additional safe trailing source context.", false));
+                    if (context == "middle")
+                        paragraphs.Insert(1, new SourceParagraph("Additional safe middle source context.", false));
+                    if (context == "removed")
+                        paragraphs.RemoveAt(paragraphs.Count - 1);
+                    if (context == "corrected")
+                        paragraphs[^1] = paragraphs[^1] with { Text = paragraphs[^1].Text + " Corrected source context." };
+                    if (context == "code")
+                        paragraphs[^1] = paragraphs[^1] with { IsCode = true };
+                    sourceHtml.Append(headers[index]);
+                    foreach (var paragraph in paragraphs)
+                        sourceHtml.Append(paragraph.IsCode ? "<pre>" : "<p>")
+                            .Append(XmlEscape(paragraph.Text)).Append(paragraph.IsCode ? "</pre>" : "</p>");
+                    expected[rule.MemberId] = raw with
+                    {
+                        Summary = paragraphs[0].Text,
+                        Paragraphs = paragraphs.Where(paragraph =>
+                            !withheld || paragraph.Text != rule.Paragraphs[^1]).ToList(),
+                    };
+                }
+                var page = SourcePage.Parse(request, sourceHtml.ToString());
+                var pages = new Dictionary<string, SourceLoadResult> { [request.Url] = SourceLoadResult.Success(page) };
+                foreach (var owner in owners.Where(owner => owner.Member is not null))
+                {
+                    var rule = BrowseSubscriptionRules.Single(rule => rule.MemberId == owner.Id);
+                    var raw = page.Members.Single(member => member.Url == rule.SourceUrl).Docs!;
+                    Assert(raw.Paragraphs.Contains(new SourceParagraph(rule.Paragraphs[^1], false)) == withheld,
+                        "Parsed Browse context proves full unsafe plain paragraph presence or corrected/removed/code-only absence before actual mapping");
+                    var mapped = MapOwner(owner, pages).Docs!;
+                    Assert(mapped.Summary == raw.Summary &&
+                        mapped.Paragraphs.SequenceEqual(expected[owner.Id].Paragraphs) &&
+                        mapped.Parameters == raw.Parameters && mapped.Returns == raw.Returns &&
+                        mapped.Exceptions == raw.Exceptions && mapped.SourceUrl == raw.SourceUrl &&
+                        mapped.SourceKind == raw.SourceKind && mapped.SourceLabel == raw.SourceLabel &&
+                        (mapped.UnsafeTargets?.ContainsKey("remarks:browse_subscription") == true) == withheld,
+                        "Browse registered context filtering removes only the unsafe paragraph and preserves all other channels and provenance");
+                    var otherChannels = raw with
+                    {
+                        Parameters = new Dictionary<string, string> { ["parentId"] = "Safe parameter source context." },
+                        Returns = "Safe return source context.",
+                    };
+                    var filteredChannels = WithoutUnsafeBrowseSubscriptionRemarks(owner, otherChannels);
+                    Assert(filteredChannels.Parameters == otherChannels.Parameters &&
+                        filteredChannels.Returns == otherChannels.Returns,
+                        "Browse context filtering preserves unrelated safe parameter and return channels");
+                    Assert(FindBrowseSubscriptionRule(owner.Id, mapped) is null,
+                        "Browse context-independent first fill does not loosen strict prior-owned source recognition");
+                }
+                File.WriteAllText(Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                    sourceHtml.ToString(), new UTF8Encoding(false));
+                File.WriteAllText(path, fixtureText.Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+                JsonDocument Run()
+                {
+                    var reportPath = Path.Combine(cache, "report");
+                    Assert(RunAsync([
+                        "--path", path, "--namespace", "Android.Media.Browse", "--offline", "--cache", cache,
+                        "--max-changes", "1", "--apply", "--report", reportPath,
+                    ]).GetAwaiter().GetResult() == 0, "Browse context actual offline pipeline succeeds");
+                    return JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                }
+                for (var batch = 0; batch < 4; batch++)
+                {
+                    using var report = Run();
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("entries").EnumerateArray().Count(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") == (withheld ? 2 : 0),
+                        "Browse context first fills both methods at max-one and explicitly reports both withheld paragraphs");
+                }
+                var filled = XElement.Load(path);
+                foreach (var member in filled.Element("Members")!.Elements("Member"))
+                {
+                    var id = member.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId").Attribute("Value")!.Value;
+                    var docs = member.Element("Docs")!;
+                    var source = expected[id];
+                    var rule = BrowseSubscriptionRules.Single(rule => rule.MemberId == id);
+                    Assert(docs.Element("summary")!.Value == source.Summary &&
+                        docs.Element("remarks")!.Elements().Take(source.Paragraphs.Count)
+                            .Select(element => new SourceParagraph(element.Value, element.Name.LocalName == "code"))
+                            .SequenceEqual(source.Paragraphs) &&
+                        (!withheld || !docs.Element("remarks")!.Value.Contains(rule.Paragraphs[^1], StringComparison.Ordinal)) &&
+                        docs.Elements("param").All(parameter => parameter.Value.StartsWith("Existing ", StringComparison.Ordinal)),
+                        "Browse persisted context first fill retains every safe paragraph in order and authored parameters");
+                }
+                var bytes = File.ReadAllBytes(path);
+                using var repeat = Run();
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    repeat.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(bytes) &&
+                    bytes.Take(3).SequenceEqual(new byte[] { 0xef, 0xbb, 0xbf }) &&
+                    File.ReadAllText(path).Contains("\r\n", StringComparison.Ordinal),
+                    "Browse context bounded persisted repeat has zero writes and exact BOM/newline bytes");
+            }
+            foreach (var owner in owners.Where(owner => owner.Member is not null))
+            {
+                var rule = BrowseSubscriptionRules.Single(rule => rule.MemberId == owner.Id);
+                var raw = originalPage.Members.Single(member => member.Url == rule.SourceUrl).Docs!;
+                foreach (var identity in new[]
+                {
+                    owner with { Id = owner.Id + ".Other" },
+                    owner with { MemberRegistration = rule.Registration with { Descriptor = "()V" } },
+                    owner with { MemberRegistration = rule.Registration with { Descriptor = rule.Registration.Descriptor!.Replace(")V", ")I", StringComparison.Ordinal) } },
+                    owner with { MemberRegistration = rule.Registration with { Name = rule.Registration.Name + "Other" } },
+                    owner with { SourceRequest = SourceRequest.Create("android/media/browse/MediaBrowser$SubscriptionCallback") },
+                })
+                    Assert(ReferenceEquals(WithoutUnsafeBrowseSubscriptionRemarks(identity, raw), raw),
+                        "Browse context filter requires full JNI descriptor, name, registered owner and managed identity");
+                foreach (var source in new[]
+                {
+                    raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                    raw with { SourceKind = "java" },
+                    raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                    raw with { Paragraphs = rule.SafeParagraphs.ToList() },
+                    raw with { Paragraphs = raw.Paragraphs.Select(paragraph => paragraph.Text == rule.Paragraphs[^1]
+                        ? paragraph with { Text = paragraph.Text + " Corrected." } : paragraph).ToList() },
+                    raw with { Paragraphs = raw.Paragraphs.Select(paragraph => paragraph.Text == rule.Paragraphs[^1]
+                        ? paragraph with { IsCode = true } : paragraph).ToList() },
+                })
+                    Assert(ReferenceEquals(WithoutUnsafeBrowseSubscriptionRemarks(owner, source), source),
+                        "Browse removed, corrected, code-only and mismatched-provenance sources remain eligible unchanged");
+                foreach (var descriptor in new[] { "()V", "(malformed", rule.Registration.Descriptor!.Replace(")V", ")I", StringComparison.Ordinal) })
+                {
+                    File.WriteAllText(path, fixtureText.Replace(rule.Registration.Descriptor!, descriptor, StringComparison.Ordinal));
+                    var wrongFile = LoadedFile.Load(repositoryRoot, path);
+                    wrongFile.SelectOwners(null);
+                    var wrongOwner = wrongFile.Owners.Single(candidate => candidate.Id == owner.Id);
+                    var pages = new Dictionary<string, SourceLoadResult> { [request.Url] = SourceLoadResult.Success(originalPage) };
+                    var mapping = MapOwner(wrongOwner, pages);
+                    Assert(mapping.Docs is null || mapping.Docs.UnsafeTargets?.ContainsKey("remarks:browse_subscription") != true,
+                        "Browse actual registered same-name wrong or malformed JNI cannot enable the guard");
+                }
+            }
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(cache, recursive: true);
+        }
+    }
+
+    static void TestBrowseSubscriptionOriginalSource(
+        string repositoryRoot, string html, string fixtureText, SourcePage originalPage,
+        IReadOnlyList<DocsOwner> owners)
+    {
+        var request = SourceRequest.Create("android/media/browse/MediaBrowser")!;
+        var headers = Regex.Matches(html, @"<h3\b[\s\S]*?</pre>")
+            .Select(match => match.Value).ToArray();
+        Assert(headers.Length == BrowseSubscriptionRules.Length,
+            "Browse withdrawal tests use both raw official registered overloads");
+        var token = $"browse-original-source-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var cache = Path.Combine(Path.GetTempPath(), token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Media.Browse", token + ".xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            foreach (var owner in owners.Where(owner => owner.Member is not null))
+            {
+                var rule = BrowseSubscriptionRules.Single(rule => rule.MemberId == owner.Id);
+                var raw = originalPage.Members.Single(member => member.Url == rule.SourceUrl).Docs!;
+                Assert(raw.Paragraphs.SequenceEqual(
+                    rule.Paragraphs.Select(text => new SourceParagraph(text, false))),
+                    "Browse strict withdrawal fixture proves the complete unfiltered original sequence");
+                var owned = XElement.Parse(fixtureText);
+                foreach (var member in owned.Element("Members")!.Elements("Member").ToList())
+                {
+                    if (!member.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Value") == rule.MemberId))
+                    {
+                        member.Remove();
+                        continue;
+                    }
+                    var docs = member.Element("Docs")!;
+                    docs.Element("summary")!.Value = raw.Summary;
+                    docs.Element("remarks")!.ReplaceNodes(
+                        raw.Paragraphs.Select(paragraph => new XElement("para", paragraph.Text)),
+                        ImporterSourceReference(raw), XElement.Parse(
+                            $"<para>{AndroidAttribution.Replace("created and shared", "created and\u00a0shared", StringComparison.Ordinal)}</para>"));
+                }
+                var ownedText = owned.ToString().Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\n", "\r\n", StringComparison.Ordinal);
+                foreach (var variant in new[] { "reordered", "duplicated", "original" })
+                {
+                    var paragraphs = raw.Paragraphs.ToList();
+                    if (variant == "reordered")
+                    {
+                        var unsafeParagraph = paragraphs[^1];
+                        paragraphs.RemoveAt(paragraphs.Count - 1);
+                        paragraphs.Insert(paragraphs.Count - 1, unsafeParagraph);
+                    }
+                    if (variant == "duplicated")
+                        paragraphs.Add(paragraphs[^1]);
+                    var sourceHtml = headers[Array.IndexOf(BrowseSubscriptionRules, rule)] +
+                        string.Concat(paragraphs.Select(paragraph => "<p>" + XmlEscape(paragraph.Text) + "</p>"));
+                    var page = SourcePage.Parse(request, sourceHtml);
+                    var parsed = page.Members.Single(member => member.Url == rule.SourceUrl).Docs!;
+                    Assert(parsed.Paragraphs.SequenceEqual(paragraphs) &&
+                        parsed.Paragraphs.Count(paragraph =>
+                            paragraph == new SourceParagraph(rule.Paragraphs[^1], false)) ==
+                            (variant == "duplicated" ? 2 : 1),
+                        "Browse parsed withdrawal source retains reordered or duplicate unsafe fragments before filtering");
+                    var pages = new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(page),
+                    };
+                    var mapped = MapOwner(owner, pages).Docs!;
+                    Assert(mapped.Paragraphs.SequenceEqual(rule.SafeParagraphs) &&
+                        mapped.UnsafeTargets?.ContainsKey("remarks:browse_subscription") == true,
+                        "Browse first-fill filtering remains context-independent for reordered and duplicate source fragments");
+                    File.WriteAllText(Path.Combine(cache,
+                        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                        sourceHtml, new UTF8Encoding(false));
+                    File.WriteAllText(path, ownedText, new UTF8Encoding(true));
+                    var before = File.ReadAllBytes(path);
+                    JsonDocument Run(bool apply)
+                    {
+                        var reportPath = Path.Combine(cache, "report");
+                        var args = new List<string>
+                        {
+                            "--path", path, "--namespace", "Android.Media.Browse", "--offline",
+                            "--cache", cache, "--max-changes", "1", "--report", reportPath,
+                        };
+                        if (apply)
+                            args.Add("--apply");
+                        Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                            "Browse original-source registered max-one pipeline succeeds");
+                        return JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                    }
+                    using (var dry = Run(false))
+                    {
+                        Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() ==
+                            (variant == "original" ? 1 : 0) && File.ReadAllBytes(path).SequenceEqual(before),
+                            "Browse strict withdrawal dry-run requires independent complete original-source proof");
+                    }
+                    using (var applied = Run(true))
+                    {
+                        Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() ==
+                            (variant == "original" ? 1 : 0),
+                            "Browse exact original permits withdrawal but reordered and duplicate source forbid writes");
+                        if (variant != "original")
+                            Assert(applied.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                                applied.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                                    entry.GetProperty("member").GetString() == rule.MemberId &&
+                                    entry.GetProperty("reason").GetString() == "source_browse_subscription_mismatch") &&
+                                File.ReadAllBytes(path).SequenceEqual(before),
+                                "Browse source-mismatch preserves all prior-owned XML, API, NBSP attribution, BOM and CRLF bytes");
+                        else
+                            Assert(File.ReadAllText(path) == ownedText.Replace(
+                                new XElement("para", rule.Paragraphs[^1]).ToString(), "", StringComparison.Ordinal),
+                                "Browse original positive withdrawal removes only the exact unsafe paragraph");
+                    }
+                    var after = File.ReadAllBytes(path);
+                    using var repeat = Run(true);
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        repeat.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(after),
+                        "Browse both original and source-mismatch max-one persisted repeats are byte-identical zero writes");
+                }
+            }
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(cache, recursive: true);
+        }
+    }
+
     static void TestProtoTokenRemark(string repositoryRoot, string fixtureRoot)
     {
         var fixtureText = File.ReadAllText(Path.Combine(fixtureRoot, "proto-token.xml"));
@@ -10538,6 +11185,7 @@ static class ImporterProgram
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
+        TestBrowseSubscriptionContracts(repositoryRoot, fixtureRoot);
         TestProtoTokenRemark(repositoryRoot, fixtureRoot);
         TestRssiSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSourceGuards(repositoryRoot, fixtureRoot);
@@ -22424,7 +23072,8 @@ static class ImporterProgram
         KnownEapChannelCorrection? EapCorrection = null,
         bool HasRawExclusions = false,
         List<SourceParagraph>? WithheldRemarks = null,
-        KnownTvAdCorrection? TvAdCorrection = null);
+        KnownTvAdCorrection? TvAdCorrection = null,
+        IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null);
 
     static class Descriptor
     {
