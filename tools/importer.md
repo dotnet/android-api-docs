@@ -91,6 +91,50 @@ intact; its unsafe return is restored to `To be added.`. Authored or mixed conte
 duplicate channels, altered metadata, and changed sources are preserved and reported.
 Repairs for one member are atomic and require room for every affected channel.
 Implementation verification is not an AOSP prose fallback.
+The final `HostApduService.onBind` and `HostNfcFService.onBind` overrides have
+the same inherited nullable-binder defect. NFC-specific guards require the
+exact managed sealed signature, JNI descriptor, parameter/return metadata,
+canonical Android URL/label, and the complete exact unsafe non-code paragraph.
+First-fill recognition is independent of unrelated summaries, surrounding prose,
+Binder-thread guidance, and source parameter, return, or exception channels.
+Only that paragraph is replaced, removing only
+`May return null if clients can not bind to the service.`; every other paragraph
+and channel remains unchanged and in source order. Known prior-owned remarks
+are repaired only with the full original plain-text paragraphs, exact summary
+and return, canonical reference, and recognized unchanged attribution. Authored
+parameters are not changed, including their existing links and markup.
+The six `PollingLoopType` summaries are held back when their full official text
+describes a `POLLING_LOOP_TYPE` key in a Bundle passed to
+`HostApduService.processPollingFrames(List)`. That callback receives polling
+frames, not the internal Bundle. The exclusion requires the exact managed enum
+field/value, canonical source URL/label, and complete original prose. Only the
+presence of that exact non-code paragraph enables first-fill exclusion, even
+with safe introductory or concluding context; corrected, removed, changed,
+code-only, or malformed source does not enable it. Only the
+exact prior importer-generated summary with its canonical reference and
+attribution can be withdrawn to `To be added.`; no substitute description is
+invented. Changed source, metadata, authored or mixed XML, CDATA, comments,
+processing instructions, attributes, duplicate channels, and altered references
+or attribution are preserved and reported. Registered first-fill, prior-owned
+repair, negative-case, and byte-identical repeat tests exercise the complete
+importer pipeline for all eight NFC members.
+The same unsafe-summary marker is honored by generic enum-summary refreshes,
+including list-gap completion, source-text refresh, truncated-summary rebuilding,
+and reference/attribution reconciliation. A safe prior importer-owned summary
+is retained byte-for-byte when contextual source still contains the complete
+unsafe polling paragraph; the excluded summary is reported as
+`source_channel_ambiguous` without consuming the change budget. Registered
+regressions first produce safe summaries through the actual importer, then
+exercise all six contextual polling refreshes and persisted zero-write repeats.
+This downstream gate does not broaden NFC first-fill recognition or the strict
+original-output repair predicate. Corrected, removed, changed, or code-only source
+remains eligible under those unchanged rules.
+Copied-description label repairs likewise check the unsafe marker for each
+candidate's own target before any summary replacement or remarks removal.
+Excluded legacy summaries are reported as `source_channel_ambiguous` without
+consuming the budget or changing their source references, attribution or bytes.
+Registered regressions exercise all six polling fields with explicitly
+synthesized legacy-label inputs, not claimed historical importer output.
 The options-taking `MediaBrowser.subscribe` and callback-taking `unsubscribe`
 overloads omit options matching and callback identity in two reference
 paragraphs. Only those exact paragraphs are excluded, with an explicit

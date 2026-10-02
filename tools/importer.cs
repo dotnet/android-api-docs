@@ -247,6 +247,53 @@ static class ImporterProgram
             "Set the match behavior for the supplied params. DeletionRequest.DELETION_MODE_ALL: All data associated with the selected records will be deleted. DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA: All data except the internal system data (e.g. rate limits) associated with the selected records will be deleted.",
             "Set the deletion mode for the supplied params. DeletionRequest.DELETION_MODE_ALL: All data associated with the selected records will be deleted. DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA: All data except the internal system data (e.g. rate limits) associated with the selected records will be deleted."),
     ];
+    const string NfcBindingSummary = "Return the communication channel to the service.";
+    const string NfcBindingOriginal =
+        "Return the communication channel to the service. May return null if clients can not bind to the service. " +
+        "The returned IBinder is usually for a complex interface that has been described using aidl.";
+    const string NfcBindingRetained =
+        "Return the communication channel to the service. " +
+        "The returned IBinder is usually for a complex interface that has been described using aidl.";
+    const string NfcBindingThreadGuidance =
+        "Note that unlike other application components, calls on to the IBinder interface returned here may not happen on the main thread of the process. " +
+        "More information about the main thread can be found in Processes and Threads.";
+    const string NfcBindingIntent =
+        "The Intent that was used to bind to this service, as given to Context.bindService. " +
+        "Note that any extras that were included with the Intent at that point will not be seen here.";
+    const string NfcBindingReturn = "Return an IBinder through which clients can call on to the service.";
+    sealed record KnownNfcContract(string MemberId, string SourceUrl, string Original, string? EnumValue = null)
+    {
+        public string Target => EnumValue is null ? "remarks" : "summary";
+        public string SourceLabel => SourceUrl[AndroidReference.Length..].Split('#')[0].Replace('/', '.') +
+            "." + SourceUrl.Split('#')[1].Split('(')[0];
+    }
+    static readonly KnownNfcContract[] KnownNfcContracts =
+    [
+        new("M:Android.Nfc.CardEmulators.HostApduService.OnBind(Android.Content.Intent)",
+            AndroidReference + "android/nfc/cardemulation/HostApduService#onBind(android.content.Intent)",
+            NfcBindingOriginal),
+        new("M:Android.Nfc.CardEmulators.HostNfcFService.OnBind(Android.Content.Intent)",
+            AndroidReference + "android/nfc/cardemulation/HostNfcFService#onBind(android.content.Intent)",
+            NfcBindingOriginal),
+        new("F:Android.Nfc.CardEmulators.PollingLoopType.A",
+            AndroidReference + "android/nfc/cardemulation/PollingFrame#POLLING_LOOP_TYPE_A",
+            "POLLING_LOOP_TYPE_A is the value associated with the key POLLING_LOOP_TYPE in the Bundle passed to HostApduService.processPollingFrames(List) when the polling loop is for NFC-A.", "65"),
+        new("F:Android.Nfc.CardEmulators.PollingLoopType.B",
+            AndroidReference + "android/nfc/cardemulation/PollingFrame#POLLING_LOOP_TYPE_B",
+            "POLLING_LOOP_TYPE_B is the value associated with the key POLLING_LOOP_TYPE in the Bundle passed to HostApduService.processPollingFrames(List) when the polling loop is for NFC-B.", "66"),
+        new("F:Android.Nfc.CardEmulators.PollingLoopType.F",
+            AndroidReference + "android/nfc/cardemulation/PollingFrame#POLLING_LOOP_TYPE_F",
+            "POLLING_LOOP_TYPE_F is the value associated with the key POLLING_LOOP_TYPE in the Bundle passed to HostApduService.processPollingFrames(List) when the polling loop is for NFC-F.", "70"),
+        new("F:Android.Nfc.CardEmulators.PollingLoopType.Off",
+            AndroidReference + "android/nfc/cardemulation/PollingFrame#POLLING_LOOP_TYPE_OFF",
+            "POLLING_LOOP_TYPE_OFF is the value associated with the key POLLING_LOOP_TYPE in the Bundle passed to HostApduService.processPollingFrames(List) when the polling loop turns off.", "88"),
+        new("F:Android.Nfc.CardEmulators.PollingLoopType.On",
+            AndroidReference + "android/nfc/cardemulation/PollingFrame#POLLING_LOOP_TYPE_ON",
+            "POLLING_LOOP_TYPE_ON is the value associated with the key POLLING_LOOP_TYPE in the Bundle passed to HostApduService.processPollingFrames(List) when the polling loop turns on.", "79"),
+        new("F:Android.Nfc.CardEmulators.PollingLoopType.Unknown",
+            AndroidReference + "android/nfc/cardemulation/PollingFrame#POLLING_LOOP_TYPE_UNKNOWN",
+            "POLLING_LOOP_TYPE_UNKNOWN is the value associated with the key POLLING_LOOP_TYPE in the Bundle passed to HostApduService.processPollingFrames(List) when the polling loop frame isn't recognized.", "85"),
+    ];
     static readonly KnownEapChannelCorrection[] KnownEapChannelCorrections =
     [
         new(
@@ -531,6 +578,36 @@ static class ImporterProgram
                             if (!owner.Placeholders.Any(placeholder => placeholder.Target == target.Key))
                                 report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id,
                                     target.Key, "source_channel_ambiguous", target.Value, mapping.SourceUrl));
+                        }
+                        continue;
+                    }
+
+                    if (NfcRepairTarget(owner) is { } nfcTarget)
+                    {
+                        var repair = RepairKnownNfcContract(text, file, owner, mapping.Docs!);
+                        if (repair.Reason is not null || remaining == 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath, owner.Id, nfcTarget,
+                                repair.Reason ?? "max_changes_reached",
+                                repair.Detail ?? $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                            // Unsafe or authored candidates must not reach generic remarks refreshes.
+                            continue;
+                        }
+                        if (repair.Text != text)
+                        {
+                            text = repair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply", file.RelativePath, owner.Id, nfcTarget, mapping.SourceUrl,
+                                "importer_known_nfc_contract_repair",
+                                nfcTarget == "summary"
+                                    ? "Withdrew the exact importer-owned nonexistent Bundle/key callback contract to its placeholder."
+                                    : "Removed only the false inherited nullable-binder sentence, retaining the separate Binder-thread guidance."));
                         }
                         continue;
                     }
@@ -1313,6 +1390,20 @@ static class ImporterProgram
                             owner,
                             mapping.Docs);
                     if (!ownerChanged &&
+                        mapping.Docs.UnsafeTargets?.TryGetValue("summary", out var unsafeSummaryDetail) == true &&
+                        (enumSummaryRepair || enumListRepair || summarySourceTextRepair ||
+                         enumDiscardedMetadataRepair || truncatedSummaryRepair))
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id, "summary", "source_channel_ambiguous",
+                            unsafeSummaryDetail, mapping.SourceUrl));
+                        enumSummaryRepair = false;
+                        enumListRepair = false;
+                        summarySourceTextRepair = false;
+                        enumDiscardedMetadataRepair = false;
+                        truncatedSummaryRepair = false;
+                    }
+                    if (!ownerChanged &&
                         mapping.Docs is not null &&
                         (enumSummaryRepair ||
                          enumListRepair ||
@@ -1665,6 +1756,11 @@ static class ImporterProgram
         if (owner.SourceRequest is null)
             return MappingResult.Skip("missing_type_registration",
                 "No supported Android or Java type registration was found.");
+        if (KnownNfcContracts.SingleOrDefault(rule => rule.MemberId == owner.Id) is { } nfcRule &&
+            !MatchesNfcManagedContract(owner, nfcRule))
+            return MappingResult.Skip("nfc_managed_contract_mismatch",
+                "The known NFC contract did not match the exact sealed binding or enum field metadata.",
+                owner.SourceRequest.Url);
         if (!pages.TryGetValue(owner.SourceRequest.Url, out var loaded))
             return MappingResult.Skip(
                 "source_not_loaded",
@@ -1718,7 +1814,7 @@ static class ImporterProgram
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
-                WithKnownAndroidTextCorrections(owner.Id, fieldDocs)));
+                WithKnownNfcContractSafety(owner, WithKnownAndroidTextCorrections(owner.Id, fieldDocs))));
         }
 
         var expectedArguments = Descriptor.ParseArguments(registration.Descriptor!);
@@ -1784,8 +1880,143 @@ static class ImporterProgram
         docs = WithKnownAndroidTextCorrections(owner.Id, docs);
         docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, docs);
+        docs = WithKnownNfcContractSafety(owner, docs);
         docs = WithoutUnsafeBrowseSubscriptionRemarks(owner, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    static bool MatchesNfcManagedContract(DocsOwner owner, KnownNfcContract rule)
+    {
+        if (owner.Id != rule.MemberId || owner.Member is not { } member)
+            return false;
+        if (rule.EnumValue is not null)
+            return owner.IsEnumField && member.Element("MemberType")?.Value == "Field" &&
+                member.Element("MemberValue")?.Value == rule.EnumValue &&
+                member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Android.Nfc.CardEmulators.PollingLoopType" &&
+                member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "C#" &&
+                    (string?)signature.Attribute("Value") == rule.MemberId[(rule.MemberId.LastIndexOf('.') + 1)..]);
+        return owner.MemberRegistration is { Name: "onBind", Descriptor: "(Landroid/content/Intent;)Landroid/os/IBinder;", IsField: false } &&
+            member.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "C#" &&
+                (string?)signature.Attribute("Value") ==
+                    "public override sealed Android.OS.IBinder? OnBind (Android.Content.Intent? intent);") &&
+            member.Element("MemberType")?.Value == "Method" &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Android.OS.IBinder" &&
+            member.Element("Parameters")?.Elements("Parameter").ToList() is [XElement parameter] &&
+            (string?)parameter.Attribute("Name") == "intent" &&
+            (string?)parameter.Attribute("Type") == "Android.Content.Intent";
+    }
+
+    static SourceDocs WithKnownNfcContractSafety(DocsOwner owner, SourceDocs docs)
+    {
+        var rule = KnownNfcContracts.SingleOrDefault(rule =>
+            MatchesNfcManagedContract(owner, rule) &&
+            docs.SourceKind == "android" && docs.SourceUrl == rule.SourceUrl &&
+            docs.SourceLabel == rule.SourceLabel);
+        if (rule is null || docs.HasMalformedSourceMarkup)
+            return docs;
+        if (!docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text == rule.Original))
+            return docs;
+        if (rule.EnumValue is null)
+            return docs with
+            {
+                Paragraphs = docs.Paragraphs.Select(paragraph =>
+                    !paragraph.IsCode && paragraph.Text == rule.Original
+                        ? new SourceParagraph(NfcBindingRetained, false) : paragraph).ToList(),
+                NfcContract = rule,
+            };
+        var unsafeTargets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        unsafeTargets["summary"] =
+            "The exact polling-type source describes a nonexistent Bundle/key contract for the List<PollingFrame> callback.";
+        return docs with { UnsafeTargets = unsafeTargets, NfcContract = rule };
+    }
+
+    static bool MatchesNfcBindingSourceChannels(SourceDocs docs) =>
+        RemoveLeadingJavaType(docs.Returns) == NfcBindingReturn &&
+        docs.Parameters.Count == 2 &&
+        docs.Parameters.TryGetValue("intent", out var intent) &&
+        RemoveLeadingJavaType(intent) == NfcBindingIntent &&
+        docs.Parameters.TryGetValue("IBinder", out var binder) &&
+        RemoveLeadingJavaType(binder) == NfcBindingReturn;
+
+    static string? NfcRepairTarget(DocsOwner owner)
+    {
+        var rule = KnownNfcContracts.SingleOrDefault(rule => rule.MemberId == owner.Id);
+        return rule is not null && owner.Docs.Elements(rule.Target).Any(channel =>
+            channel.Value.Contains(rule.Original, StringComparison.Ordinal)) ? rule.Target : null;
+    }
+
+    sealed record NfcContractRepairResult(string Text, string? Reason = null, string? Detail = null);
+
+    static NfcContractRepairResult RepairKnownNfcContract(
+        string text, LoadedFile file, DocsOwner owner, SourceDocs source)
+    {
+        var rule = KnownNfcContracts.SingleOrDefault(rule => rule.MemberId == owner.Id);
+        if (rule is null || NfcRepairTarget(owner) is null)
+            return new(text);
+        var expectedSource = rule.EnumValue is null
+            ? new[] { NfcBindingRetained, NfcBindingThreadGuidance } : [rule.Original];
+        if (!MatchesNfcManagedContract(owner, rule) || source.NfcContract != rule ||
+            source.SourceKind != "android" || source.SourceUrl != rule.SourceUrl ||
+            source.SourceLabel != rule.SourceLabel || source.HasMalformedSourceMarkup ||
+            source.Exceptions.Count != 0 ||
+            source.Summary != (rule.EnumValue is null ? NfcBindingSummary : rule.Original) ||
+            !source.Paragraphs.SequenceEqual(expectedSource.Select(value => new SourceParagraph(value, false))) ||
+            (rule.EnumValue is null
+                ? !MatchesNfcBindingSourceChannels(source)
+                : source.UnsafeTargets?.ContainsKey("summary") != true))
+            return new(text, "source_nfc_contract_mismatch",
+                "The exact managed metadata, full official source and provenance did not match the verified NFC contract.");
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actual) || !XNode.DeepEquals(actual, owner.Docs) ||
+            actual.Elements(rule.Target).ToList() is not [XElement channel])
+            return new(text, "nfc_contract_target_not_located",
+                "The parser-selected NFC channel did not match the untouched owner.");
+        var paragraphs = channel.Elements().ToList();
+        var sourceParagraphs = rule.EnumValue is null
+            ? new[] { rule.Original, NfcBindingThreadGuidance } : [rule.Original];
+        if (actual.HasAttributes || actual.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText whitespace when whitespace is not XCData => !string.IsNullOrWhiteSpace(whitespace.Value),
+                _ => true,
+            }) ||
+            !HasExactImporterSourceReference(actual, source) ||
+            channel.HasAttributes || channel.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText whitespace when whitespace is not XCData => !string.IsNullOrWhiteSpace(whitespace.Value),
+                _ => true,
+            }) ||
+            paragraphs.Count != sourceParagraphs.Length + 2 ||
+            !paragraphs.Take(sourceParagraphs.Length).Zip(sourceParagraphs,
+                (paragraph, expected) => paragraph.Name == "para" && !paragraph.HasAttributes &&
+                    HasPlainTextContent(paragraph, out var value) && value == expected).All(equal => equal) ||
+            !ImporterMarkupEquals(paragraphs[^2], ImporterSourceReference(source)) ||
+            !IsImporterAttributionParagraph(paragraphs[^1]) ||
+            (rule.EnumValue is null &&
+                (actual.Elements("summary").ToList() is not [XElement summary] ||
+                 summary.HasAttributes || !HasPlainTextContent(summary, out var summaryText) ||
+                 summaryText != NfcBindingSummary ||
+                 actual.Elements("returns").ToList() is not [XElement returns] ||
+                 returns.HasAttributes || !HasPlainTextContent(returns, out var returnText) ||
+                 returnText != NfcBindingReturn)))
+            return new(text, "existing_nfc_contract_not_importer_owned",
+                "The full original channel, canonical reference and recognized attribution were not exact prior importer output.");
+        var element = rule.EnumValue is null ? paragraphs[0] : channel;
+        if (!TryGetElementSpan(blockText, element, out var span))
+            return new(text, "nfc_contract_target_not_located",
+                "The verified NFC channel could not be located safely.");
+        var replacement = rule.EnumValue is null
+            ? new XElement("para", NfcBindingRetained).ToString(SaveOptions.DisableFormatting)
+            : "<summary>To be added.</summary>";
+        return new(text[..block.Start] + blockText[..span.Start] + replacement +
+            blockText[span.End..] + text[block.End..]);
     }
 
     sealed record BrowseSubscriptionRule(
@@ -3060,6 +3291,8 @@ static class ImporterProgram
             targets.Add("remarks");
         targets.UnionWith(KnownUnsafeIkeRepairCandidateTargets(owner));
         targets.UnionWith(KnownControlsLifecycleRepairTargets(owner));
+        if (NfcRepairTarget(owner) is { } nfcTarget)
+            targets.Add(nfcTarget);
         if (HasUnsafeBrowseSubscriptionRemarks(owner))
             targets.Add("remarks");
         if (IsEnumSummaryRepairCandidate(owner) ||
@@ -3121,6 +3354,7 @@ static class ImporterProgram
         HasKnownUnsafeWifiRttRemarksCandidate(owner) ||
         KnownUnsafeIkeRepairCandidateTargets(owner).Count > 0 ||
         HasKnownAndroidProseRepairCandidate(file, owner) ||
+        NfcRepairTarget(owner) is not null ||
         HasUnsafeBrowseSubscriptionRemarks(owner) ||
         HasKnownUnsafeZoneTransitionTimeCandidate(owner);
 
@@ -4137,7 +4371,8 @@ static class ImporterProgram
         bool addMetadataForChannelOnlyMember = false)
     {
         cleanupSkip = null;
-        if (docs.WithheldRemarks is not null)
+        if (docs.WithheldRemarks is not null ||
+            owner.IsEnumField && docs.UnsafeTargets?.ContainsKey("summary") == true)
             return text;
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
@@ -5707,8 +5942,7 @@ static class ImporterProgram
         var edits = new List<XmlSpanEdit>();
         foreach (var candidate in candidates)
         {
-            if (candidate.Target == "remarks" &&
-                docs.UnsafeTargets?.TryGetValue("remarks", out var unsafeDetail) == true)
+            if (docs.UnsafeTargets?.TryGetValue(candidate.Target, out var unsafeDetail) == true)
             {
                 skips.Add(new CopiedDescriptionRepairSkip(
                     candidate.Target, "source_channel_ambiguous", unsafeDetail));
@@ -6781,7 +7015,7 @@ static class ImporterProgram
         SourceDocs docs,
         bool hasImporterProvenance = false)
     {
-        if (!hasImporterProvenance)
+        if (!hasImporterProvenance || docs.UnsafeTargets?.ContainsKey("summary") == true)
             return text;
 
         var block = file.DocsBlocks[owner.Order];
@@ -7490,6 +7724,8 @@ static class ImporterProgram
         SourceDocs docs,
         bool allowCreation)
     {
+        if (docs.UnsafeTargets?.ContainsKey("summary") == true)
+            return blockText;
         if (!TryParseDocsBlock(blockText, out var document) ||
             document.Element("summary") is not XElement summaryElement ||
             !TryGetElementSpan(blockText, summaryElement, out var summarySpan) ||
@@ -8752,6 +8988,795 @@ static class ImporterProgram
         {
             File.Delete(pipelinePath);
             Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
+    static void TestNfcContracts(string repositoryRoot, string fixtureRoot)
+    {
+        var token = $"nfc-contract-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var cache = Path.Combine(repositoryRoot, "tools", token);
+        Directory.CreateDirectory(cache);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Nfc.CardEmulators", token + ".xml");
+        try
+        {
+            foreach (var rule in KnownNfcContracts)
+            {
+                var typeName = rule.EnumValue is null
+                    ? rule.MemberId.Contains(".HostApduService.", StringComparison.Ordinal) ? "HostApduService" : "HostNfcFService"
+                    : "PollingLoopType";
+                var template = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml",
+                    "Android.Nfc.CardEmulators", typeName + ".xml"), LoadOptions.PreserveWhitespace);
+                var member = new XElement(template.Element("Members")!.Elements("Member").Single(candidate =>
+                    candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == rule.MemberId)));
+                member.Element("Docs")!.ReplaceWith(rule.EnumValue is null
+                    ? new XElement("Docs",
+                        new XElement("param", new XAttribute("name", "intent"),
+                            new XElement("c", "Existing authored parameter.")),
+                        new XElement("summary", "To be added."),
+                        new XElement("returns", "To be added."),
+                        new XElement("remarks", "To be added."))
+                    : new XElement("Docs", new XElement("summary", "To be added.")));
+                template.Element("Members")!.ReplaceNodes(member);
+                template.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                    new XElement("summary", "Existing authored type documentation.")));
+                File.WriteAllText(pipelinePath, template.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                var file = LoadedFile.Load(repositoryRoot, pipelinePath);
+                file.SelectOwners(null);
+                var owner = file.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                var request = owner.SourceRequest!;
+                var html = File.ReadAllText(Path.Combine(fixtureRoot, rule.EnumValue is null
+                    ? "nfc-binding-android-reference.html" : "nfc-polling-android-reference.html"));
+                var cachePath = Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                var page = SourcePage.Parse(request, html);
+                var raw = page.Members.Single(candidate => candidate.Url == rule.SourceUrl).Docs!;
+                var source = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                }).Docs!;
+                Assert(source.NfcContract == rule, "actual registered NFC mapping verifies the full official fixture");
+                foreach (var mismatched in new[]
+                {
+                    raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                    raw with { SourceKind = "java" },
+                    raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                    raw with { Paragraphs = [new SourceParagraph(rule.Original + " Changed.", false)] },
+                    raw with { Paragraphs = [new SourceParagraph(rule.Original, true)] },
+                    raw with { HasMalformedSourceMarkup = true },
+                })
+                    Assert(ReferenceEquals(WithKnownNfcContractSafety(owner, mismatched), mismatched),
+                        "NFC source filtering requires the exact unsafe non-code paragraph, URL, label and provenance");
+                Assert(ReferenceEquals(WithKnownNfcContractSafety(owner with { Id = owner.Id + ".Other" }, raw), raw),
+                    "NFC source filtering does not guess other members");
+
+                JsonDocument RunPipeline(bool apply, int maxChanges = 10)
+                {
+                    var args = new List<string>
+                    {
+                        "--path", pipelinePath, "--namespace", "Android.Nfc.CardEmulators",
+                        "--offline", "--cache", cache, "--max-changes", maxChanges.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        "--report", Path.Combine(cache, "report"),
+                    };
+                    if (apply)
+                        args.Add("--apply");
+                    var output = Console.Out;
+                    using var captured = new StringWriter();
+                    try
+                    {
+                        Console.SetOut(captured);
+                        Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                            "registered NFC pipeline completes: " + captured);
+                    }
+                    finally
+                    {
+                        Console.SetOut(output);
+                    }
+                    var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(cache, "report.json")));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "registered NFC pipeline has zero errors");
+                    return report;
+                }
+                var firstFillBytes = File.ReadAllBytes(pipelinePath);
+                using (var measured = RunPipeline(false))
+                    Assert(measured.RootElement.GetProperty("wouldApplyCount").GetInt32() ==
+                        (rule.EnumValue is null ? 3 : 0) &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(firstFillBytes),
+                        "actual registered NFC first-fill dry run is read-only and excludes unsafe enum summaries");
+                using (var applied = RunPipeline(true))
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() ==
+                        (rule.EnumValue is null ? 3 : 0),
+                        "actual registered NFC first-fill imports every safe channel before early returns");
+                var filled = XElement.Load(pipelinePath);
+                var filledDocs = filled.Element("Members")!.Element("Member")!.Element("Docs")!;
+                if (rule.EnumValue is null)
+                    Assert(!filledDocs.Value.Contains("May return null", StringComparison.Ordinal) &&
+                        filledDocs.Element("remarks")!.Elements("para").Take(2).Select(paragraph => paragraph.Value)
+                            .SequenceEqual(new[] { NfcBindingRetained, NfcBindingThreadGuidance }) &&
+                        XNode.DeepEquals(filledDocs.Element("param"), member.Element("Docs")!.Element("param")) &&
+                        filledDocs.Element("summary")!.Value == NfcBindingSummary &&
+                        filledDocs.Element("returns")!.Value == NfcBindingReturn,
+                        "actual NFC first-fill never emits null refusal and preserves Binder-thread guidance and authored parameters");
+                else
+                    Assert(filledDocs.Element("summary")!.Value == "To be added." &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(firstFillBytes),
+                        "all six registered polling-type first-fills hold back the nonexistent Bundle/key contract");
+                var filledBytes = File.ReadAllBytes(pipelinePath);
+                using (var repeated = RunPipeline(true))
+                    Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(filledBytes),
+                        "NFC first-fill repeats are zero-edit and byte-identical");
+
+                var sectionStart = html.IndexOf("<h3", StringComparison.Ordinal);
+                if (rule.EnumValue is not null)
+                    sectionStart = html.LastIndexOf("<h3", html.IndexOf(
+                        "id=\"" + rule.SourceUrl.Split('#')[1] + "\"", StringComparison.Ordinal),
+                        StringComparison.Ordinal);
+                var sectionEnd = html.IndexOf("<h3", sectionStart + 1, StringComparison.Ordinal);
+                var section = html[sectionStart..(sectionEnd < 0 ? html.Length : sectionEnd)];
+                var sourceHeader = section[..section.IndexOf("<p>", StringComparison.Ordinal)];
+                string Paragraph(string value) => "<p>" + WebUtility.HtmlEncode(value) + "</p>";
+                var safeBefore = "Independent introductory documentation.";
+                var safeAfter = "Independent concluding documentation.";
+                var changedThread = NfcBindingThreadGuidance + " Independent threading clarification.";
+                var safeTables = "<table><tr><th colspan=\"2\">Parameters</th></tr>" +
+                        "<tr><td>intent</td><td>Intent: Independent binding intent documentation.</td></tr></table>" +
+                        "<table><tr><th colspan=\"2\">Returns</th></tr>" +
+                        "<tr><td>IBinder</td><td>Independent binder return documentation.</td></tr></table>" +
+                        "<table><tr><th colspan=\"2\">Throws</th></tr>" +
+                        "<tr><td>IllegalStateException</td><td>Independent exception documentation.</td></tr></table>";
+                foreach (var context in new[]
+                {
+                    new[] { rule.Original },
+                    new[] { safeBefore, rule.Original },
+                    new[] { rule.Original, safeAfter },
+                    new[] { safeBefore, rule.Original, safeAfter },
+                    new[] { safeBefore, rule.Original, changedThread, safeAfter },
+                })
+                {
+                    var contextualHtml = sourceHeader + string.Concat(context.Select(Paragraph)) + safeTables;
+                    var contextualPage = SourcePage.Parse(request, contextualHtml);
+                    var unfiltered = contextualPage.Members.Single(candidate => candidate.Url == rule.SourceUrl).Docs!;
+                    Assert(unfiltered.Paragraphs.Any(paragraph =>
+                        !paragraph.IsCode && paragraph.Text == rule.Original),
+                        "all eight parsed context fixtures retain the full raw unsafe non-code paragraph before filtering");
+                    Assert(RemoveLeadingJavaType(unfiltered.Parameters["intent"]) ==
+                                "Independent binding intent documentation." &&
+                            RemoveLeadingJavaType(unfiltered.Returns) == "Independent binder return documentation." &&
+                            unfiltered.Exceptions.Count == 1,
+                            "all eight context fixtures nonvacuously change independent parameter, return and exception channels");
+                    var contextualSource = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(contextualPage),
+                    }).Docs!;
+                    Assert(contextualSource.NfcContract == rule &&
+                        contextualSource.Summary == unfiltered.Summary &&
+                        contextualSource.Returns == unfiltered.Returns &&
+                        contextualSource.Parameters.SequenceEqual(unfiltered.Parameters) &&
+                        contextualSource.Exceptions.SequenceEqual(unfiltered.Exceptions),
+                        "NFC safety is independent of summary, parameter, return and exception context");
+                    Assert(contextualSource.Paragraphs.SequenceEqual(unfiltered.Paragraphs.Select(paragraph =>
+                        rule.EnumValue is null && !paragraph.IsCode && paragraph.Text == rule.Original
+                            ? new SourceParagraph(NfcBindingRetained, false) : paragraph)),
+                        "NFC filtering replaces only the exact bad binding paragraph and retains every other paragraph in order");
+                    File.WriteAllText(cachePath, contextualHtml, new UTF8Encoding(false));
+                    var contextualTemplate = new XElement(template);
+                    if (rule.EnumValue is null && context.Length == 4)
+                        contextualTemplate.Element("Members")!.Element("Member")!.Element("Docs")!
+                            .Element("param")!.Value = "To be added.";
+                    File.WriteAllText(pipelinePath,
+                        contextualTemplate.ToString(SaveOptions.DisableFormatting).Replace("\n", "\r\n", StringComparison.Ordinal),
+                        new UTF8Encoding(true));
+                    var contextBefore = File.ReadAllBytes(pipelinePath);
+                    using (var dry = RunPipeline(false, 1))
+                        Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() ==
+                            (rule.EnumValue is null ? 1 : 0) &&
+                            File.ReadAllBytes(pipelinePath).SequenceEqual(contextBefore),
+                            "registered contextual NFC first-fill honors the one-operation read-only budget");
+                    for (var channel = 0; channel < (rule.EnumValue is null ? context.Length == 4 ? 4 : 3 : 1); channel++)
+                    {
+                        using var apply = RunPipeline(true, 1);
+                        Assert(apply.RootElement.GetProperty("appliedCount").GetInt32() ==
+                            (rule.EnumValue is null ? 1 : 0),
+                            "registered contextual NFC first-fill persists only one safe channel per operation");
+                        if (rule.EnumValue is not null)
+                            Assert(apply.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                                entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                                "each contextual polling summary is explicitly reported ambiguous");
+                    }
+                    var contextDocs = XElement.Load(pipelinePath).Element("Members")!.Element("Member")!.Element("Docs")!;
+                    if (rule.EnumValue is null)
+                        Assert(contextDocs.Element("remarks")!.Elements("para")
+                                .Take(context.Length).Select(paragraph => paragraph.Value)
+                                .SequenceEqual(context.Select(value => value == rule.Original ? NfcBindingRetained : value)) &&
+                            !contextDocs.Value.Contains("May return null", StringComparison.Ordinal) &&
+                            contextDocs.Element("summary")!.Value == unfiltered.Summary &&
+                            contextDocs.Element("returns")!.Value == "Independent binder return documentation." &&
+                            (context.Length == 4
+                                ? contextDocs.Element("param")!.Value == "Independent binding intent documentation."
+                                : XNode.DeepEquals(contextDocs.Element("param"), member.Element("Docs")!.Element("param"))),
+                            "real contextual NFC output preserves summary, safe return, imported or authored parameter and all independent prose");
+                    else
+                        Assert(contextDocs.Element("summary")!.Value == "To be added." &&
+                            File.ReadAllBytes(pipelinePath).SequenceEqual(contextBefore),
+                            "safe context cannot fold the full bad Bundle paragraph into any enum summary");
+                    var contextAfter = File.ReadAllBytes(pipelinePath);
+                    using var repeat = RunPipeline(true, 1);
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(contextAfter),
+                        "contextual max-one first-fill repeats preserve persisted BOM, newline and every output byte");
+                }
+                foreach (var replacement in new[]
+                {
+                    Paragraph(safeBefore),
+                    Paragraph(rule.EnumValue is null ? NfcBindingRetained : safeAfter),
+                    Paragraph(rule.Original + " Changed full source text."),
+                    "<pre>" + WebUtility.HtmlEncode(rule.Original) + "</pre>",
+                })
+                {
+                    var eligibleHtml = sourceHeader + replacement + Paragraph(safeAfter) + safeTables;
+                    var eligiblePage = SourcePage.Parse(request, eligibleHtml);
+                    var eligible = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(eligiblePage),
+                    }).Docs!;
+                    Assert(eligible.NfcContract is null &&
+                        eligible.UnsafeTargets?.ContainsKey("summary") != true,
+                        "removed, corrected, changed or code-only bad text does not enable the NFC exclusion");
+                    File.WriteAllText(cachePath, eligibleHtml, new UTF8Encoding(false));
+                    File.WriteAllText(pipelinePath, template.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                    using var eligibleReport = RunPipeline(true, 1);
+                    Assert(eligibleReport.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "registered first-fill remains eligible for corrected, removed, changed and code-only source cases");
+                }
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+
+                var prior = new XElement(template);
+                var priorMember = prior.Element("Members")!.Element("Member")!;
+                var priorDocs = priorMember.Element("Docs")!;
+                var originals = rule.EnumValue is null
+                    ? new[] { rule.Original, NfcBindingThreadGuidance } : [rule.Original];
+                var priorChannel = new XElement(rule.Target,
+                    originals.Select(value => new XElement("para", value)),
+                    ImporterSourceReference(source),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>"));
+                priorDocs.Element(rule.Target)!.ReplaceWith(priorChannel);
+                if (rule.EnumValue is null)
+                {
+                    priorDocs.Element("summary")!.Value = NfcBindingSummary;
+                    priorDocs.Element("returns")!.Value = NfcBindingReturn;
+                }
+                void WriteCase(XElement root) => File.WriteAllText(pipelinePath,
+                    root.ToString(SaveOptions.DisableFormatting).Replace("\r\n", "\n", StringComparison.Ordinal)
+                        .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+                void NoEditCase(XElement root, string description)
+                {
+                    WriteCase(root);
+                    var bytes = File.ReadAllBytes(pipelinePath);
+                    using var report = RunPipeline(true);
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(bytes), description);
+                }
+                foreach (var contextHtml in new[]
+                {
+                    sourceHeader + Paragraph(safeBefore) + Paragraph(rule.Original) + safeTables,
+                    sourceHeader + Paragraph(rule.Original) + Paragraph(changedThread) + safeTables,
+                    sourceHeader + Paragraph(rule.Original) + Paragraph("Malformed source ()}.") + safeTables,
+                })
+                {
+                    File.WriteAllText(cachePath, contextHtml, new UTF8Encoding(false));
+                    var parsed = SourcePage.Parse(request, contextHtml).Members.Single(candidate =>
+                        candidate.Url == rule.SourceUrl).Docs!;
+                    Assert(parsed.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text == rule.Original),
+                        "prior-owned context negatives retain the raw unsafe paragraph");
+                    if (contextHtml.Contains("()}", StringComparison.Ordinal))
+                        Assert(parsed.HasMalformedSourceMarkup &&
+                            WithKnownNfcContractSafety(owner, parsed).NfcContract is null,
+                            "actual malformed parsed source does not enable NFC contract recognition");
+                    NoEditCase(prior, "strict prior-owned NFC repairs remain unchanged for independent or malformed source-context edits");
+                }
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                WriteCase(prior);
+                using (var repaired = RunPipeline(true))
+                    Assert(repaired.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "actual registered NFC prior-owned output repairs exactly one channel");
+                var repairedRoot = XElement.Load(pipelinePath);
+                var repairedDocs = repairedRoot.Element("Members")!.Element("Member")!.Element("Docs")!;
+                if (rule.EnumValue is null)
+                    Assert(repairedDocs.Element("remarks")!.Elements().Skip(1)
+                            .Zip(priorChannel.Elements().Skip(1), (actual, original) => XNode.DeepEquals(actual, original))
+                            .All(equal => equal) &&
+                        repairedDocs.Element("remarks")!.Element("para")!.Value == NfcBindingRetained &&
+                        XNode.DeepEquals(repairedDocs.Element("param"), priorDocs.Element("param")),
+                        "NFC repair removes only the null sentence and preserves thread guidance, reference, attribution and authored parameter");
+                else
+                    Assert(repairedDocs.Element("summary")!.Value == "To be added.",
+                        "all six prior-owned unsafe enum summaries are restored to their placeholders");
+                foreach (var doc in repairedRoot.Descendants("Docs").ToList())
+                    doc.Remove();
+                var metadata = XElement.Parse(prior.ToString(SaveOptions.DisableFormatting));
+                foreach (var doc in metadata.Descendants("Docs").ToList())
+                    doc.Remove();
+                Assert(XNode.DeepEquals(repairedRoot, metadata), "NFC repairs preserve all managed API metadata");
+                var repairedBytes = File.ReadAllBytes(pipelinePath);
+                using (var repeated = RunPipeline(true))
+                    Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(repairedBytes),
+                        "NFC prior-owned repair repeats are zero-edit and byte-identical");
+
+                var variants = new List<Action<XElement>>
+                {
+                    docs => docs.SetAttributeValue("authored", "keep"),
+                    docs => docs.AddFirst(new XComment("Keep Docs comment.")),
+                    docs => docs.AddFirst(new XProcessingInstruction("keep", "Docs")),
+                    docs => docs.Element(rule.Target)!.Element("para")!.Add(" Authored."),
+                    docs => docs.Element(rule.Target)!.Element("para")!.Add(new XElement("c", "")),
+                    docs => docs.Element(rule.Target)!.Element("para")!.ReplaceNodes(new XCData(rule.Original)),
+                    docs => docs.Element(rule.Target)!.AddFirst(new XComment("Keep.")),
+                    docs => docs.Element(rule.Target)!.AddFirst(new XProcessingInstruction("keep", "authored")),
+                    docs => docs.Element(rule.Target)!.SetAttributeValue("authored", "keep"),
+                    docs => docs.Element(rule.Target)!.Element("para")!.SetAttributeValue("authored", "keep"),
+                    docs => docs.Add(new XElement(docs.Element(rule.Target)!)),
+                    docs => docs.Element(rule.Target)!.Add(new XElement("para", "Authored paragraph.")),
+                    docs => docs.Element(rule.Target)!.Elements("para").Last().Add(" Authored attribution."),
+                    docs => docs.Element(rule.Target)!.Elements("para").Last().Add(new XComment("Keep.")),
+                    docs => docs.Element(rule.Target)!.Elements("para").Last().Add(new XProcessingInstruction("keep", "authored")),
+                    docs => docs.Element(rule.Target)!.Elements("para").Last().Remove(),
+                    docs => docs.Element(rule.Target)!.Elements("para").ElementAt(originals.Length)
+                        .Descendants("a").Single().SetAttributeValue("href", rule.SourceUrl + ".Other"),
+                    docs => docs.Element(rule.Target)!.Elements("para").ElementAt(originals.Length)
+                        .Descendants("code").Single().Add(" Authored label."),
+                    docs => docs.Add(new XElement("remarks", ImporterSourceReference(source))),
+                };
+                if (rule.EnumValue is null)
+                    variants.AddRange([
+                        docs => docs.Element("summary")!.Add(" Authored."),
+                        docs => docs.Element("summary")!.ReplaceNodes(new XCData(NfcBindingSummary)),
+                        docs => docs.Add(new XElement(docs.Element("summary")!)),
+                        docs => docs.Element("returns")!.Add(" Authored."),
+                        docs => docs.Element("returns")!.Add(new XComment("Keep.")),
+                        docs => docs.Element("returns")!.ReplaceNodes(new XCData(NfcBindingReturn)),
+                    ]);
+                foreach (var variant in variants)
+                {
+                    var root = new XElement(prior);
+                    variant(root.Element("Members")!.Element("Member")!.Element("Docs")!);
+                    NoEditCase(root, "actual registered NFC pipeline preserves authored/mixed/CDATA/comment/PI/attribute/ref/provenance mismatches");
+                }
+                foreach (var attribute in new[] { "DocId", "C#" })
+                {
+                    var root = new XElement(prior);
+                    root.Element("Members")!.Element("Member")!.Elements("MemberSignature")
+                        .Single(signature => (string?)signature.Attribute("Language") == attribute)
+                        .SetAttributeValue("Value", attribute == "DocId" ? rule.MemberId + ".Other" : "Changed managed signature.");
+                    NoEditCase(root, "actual registered NFC pipeline preserves changed managed identity/signature/value");
+                    if (attribute == "C#")
+                    {
+                        root = new XElement(template);
+                        root.Element("Members")!.Element("Member")!.Elements("MemberSignature")
+                            .Single(signature => (string?)signature.Attribute("Language") == "C#")
+                            .SetAttributeValue("Value", "Changed managed signature.");
+                        NoEditCase(root, "actual registered NFC first-fill rejects changed managed signatures before channel insertion");
+                    }
+                }
+                if (rule.EnumValue is not null)
+                {
+                    var root = new XElement(prior);
+                    root.Element("Members")!.Element("Member")!.Element("MemberValue")!.Value = "999";
+                    NoEditCase(root, "actual registered NFC pipeline preserves changed enum values");
+                    root = new XElement(prior);
+                    root.Element("Members")!.Element("Member")!.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32";
+                    NoEditCase(root, "actual registered NFC pipeline preserves changed managed enum types");
+                    root = new XElement(template);
+                    root.Element("Members")!.Element("Member")!.Element("MemberValue")!.Value = "999";
+                    NoEditCase(root, "actual registered NFC first-fill rejects changed enum values");
+                    root = new XElement(template);
+                    root.Element("Members")!.Element("Member")!.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32";
+                    NoEditCase(root, "actual registered NFC first-fill rejects changed enum types");
+                }
+                if (rule.EnumValue is null)
+                {
+                    var root = new XElement(prior);
+                    root.Element("Members")!.Element("Member")!.Element("Parameters")!.Element("Parameter")!
+                        .SetAttributeValue("Type", "System.String");
+                    NoEditCase(root, "actual registered NFC pipeline preserves changed managed parameter metadata");
+                    root = new XElement(prior);
+                    root.Element("Members")!.Element("Member")!.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.String";
+                    NoEditCase(root, "actual registered NFC pipeline preserves changed managed return metadata");
+                    root = new XElement(template);
+                    root.Element("Members")!.Element("Member")!.Element("Parameters")!.Element("Parameter")!
+                        .SetAttributeValue("Type", "System.String");
+                    NoEditCase(root, "actual registered NFC first-fill rejects changed managed parameter metadata");
+                    root = new XElement(prior);
+                    var attribution = root.Element("Members")!.Element("Member")!.Element("Docs")!
+                        .Element("remarks")!.Elements("para").Last();
+                    attribution.ReplaceWith(XElement.Parse($"<para>{AndroidAttribution.Replace(
+                        "created and shared", "created and\u00a0shared", StringComparison.Ordinal)}</para>"));
+                    WriteCase(root);
+                    using var legacy = RunPipeline(true);
+                    var updated = XElement.Load(pipelinePath).Element("Members")!.Element("Member")!
+                        .Element("Docs")!.Element("remarks")!;
+                    Assert(legacy.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        XNode.DeepEquals(updated.Elements("para").Last(),
+                            root.Element("Members")!.Element("Member")!.Element("Docs")!
+                                .Element("remarks")!.Elements("para").Last()),
+                        "NFC repair recognizes known legacy attribution and preserves its exact markup");
+                }
+                var registrationMismatch = new XElement(prior);
+                var registration = registrationMismatch.Element("Members")!.Element("Member")!
+                    .Element("Attributes")!.Elements("Attribute").SelectMany(attribute =>
+                        attribute.Elements("AttributeName")).First(attribute =>
+                        (string?)attribute.Attribute("Language") == "C#" &&
+                        attribute.Value.Contains(rule.EnumValue is null ? "Register(" : "IntDefinition(", StringComparison.Ordinal));
+                registration.Value = rule.EnumValue is null
+                    ? registration.Value.Replace("\"onBind\"", "\"onBindOther\"", StringComparison.Ordinal)
+                    : registration.Value.Replace(rule.SourceUrl.Split('#')[1],
+                        rule.SourceUrl.Split('#')[1] + "_OTHER", StringComparison.Ordinal);
+                NoEditCase(registrationMismatch, "actual registered NFC pipeline requires exact JNI member/field registration");
+                if (rule.EnumValue is null)
+                {
+                    var descriptorMismatch = new XElement(template);
+                    var descriptor = descriptorMismatch.Element("Members")!.Element("Member")!
+                        .Element("Attributes")!.Elements("Attribute").SelectMany(attribute =>
+                            attribute.Elements("AttributeName")).First(attribute =>
+                            (string?)attribute.Attribute("Language") == "C#" &&
+                            attribute.Value.Contains("Register(", StringComparison.Ordinal));
+                    descriptor.Value = descriptor.Value.Replace(
+                        "(Landroid/content/Intent;)Landroid/os/IBinder;",
+                        "(Landroid/content/Intent;)Ljava/lang/Object;", StringComparison.Ordinal);
+                    NoEditCase(descriptorMismatch, "actual registered NFC first-fill requires the full JNI return descriptor");
+                }
+                File.WriteAllText(cachePath, html.Replace(rule.EnumValue is null
+                    ? "using aidl." : "key POLLING_LOOP_TYPE", "Changed source.", StringComparison.Ordinal));
+                NoEditCase(prior, "actual registered NFC prior-owned repairs preserve changed official source");
+                File.WriteAllText(cachePath, html);
+            }
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(cache, recursive: true);
+        }
+    }
+
+    static void TestNfcSafeEnumRefresh(string repositoryRoot, string fixtureRoot)
+    {
+        var token = $"nfc-safe-enum-refresh-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var cache = Path.Combine(repositoryRoot, "tools", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Nfc.CardEmulators", token + ".xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            const string lead = "Independent introductory documentation.";
+            const string list = "Supported types include NFC-A; NFC-B.";
+            var fixture = File.ReadAllText(Path.Combine(fixtureRoot, "nfc-polling-android-reference.html"));
+            foreach (var rule in KnownNfcContracts.Where(rule => rule.EnumValue is not null))
+            {
+                var template = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml",
+                    "Android.Nfc.CardEmulators", "PollingLoopType.xml"), LoadOptions.PreserveWhitespace);
+                var member = new XElement(template.Element("Members")!.Elements("Member").Single(candidate =>
+                    candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == rule.MemberId)));
+                member.Element("Docs")!.ReplaceWith(new XElement("Docs", new XElement("summary", "To be added.")));
+                template.Element("Members")!.ReplaceNodes(member);
+                template.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                    new XElement("summary", "Existing authored type documentation.\u00a0"),
+                    new XComment("Retain authored type comment."),
+                    new XProcessingInstruction("authored", "keep")));
+                void Write(XElement document) => File.WriteAllText(path,
+                    document.ToString(SaveOptions.DisableFormatting).Replace("\r\n", "\n", StringComparison.Ordinal)
+                        .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+                Write(template);
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                var owner = file.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                Assert(owner.IsEnumField && NfcRepairTarget(owner) is null,
+                    "safe enum refresh regression uses the actual registered enum, not a prior unsafe repair");
+                var request = owner.SourceRequest!;
+                var start = fixture.LastIndexOf("<h3", fixture.IndexOf(
+                    "id=\"" + rule.SourceUrl.Split('#')[1] + "\"", StringComparison.Ordinal),
+                    StringComparison.Ordinal);
+                var end = fixture.IndexOf("<h3", start + 1, StringComparison.Ordinal);
+                var section = fixture[start..(end < 0 ? fixture.Length : end)];
+                var header = section[..section.IndexOf("<p>", StringComparison.Ordinal)];
+                string Paragraph(string text) => "<p>" + WebUtility.HtmlEncode(text) + "</p>";
+                var cachePath = Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                void Source(string body) => File.WriteAllText(cachePath, header + body, new UTF8Encoding(false));
+                JsonDocument Run(bool apply)
+                {
+                    var args = new List<string>
+                    {
+                        "--path", path, "--namespace", "Android.Nfc.CardEmulators",
+                        "--cache", cache, "--offline", "--max-changes", "1",
+                        "--report", Path.Combine(cache, "report"),
+                    };
+                    if (apply)
+                        args.Add("--apply");
+                    Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                        "safe enum refresh actual offline max-one pipeline succeeds");
+                    var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(cache, "report.json")));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "safe enum refresh pipeline reports zero errors");
+                    return report;
+                }
+                Source(Paragraph(lead));
+                using (var fill = Run(true))
+                    Assert(fill.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "safe prior-owned enum seed comes from a genuine persisted production first fill");
+                var safeBytes = File.ReadAllBytes(path);
+                var safeDocument = XElement.Load(path, LoadOptions.PreserveWhitespace);
+                var summary = safeDocument.Element("Members")!.Element("Member")!.Element("Docs")!.Element("summary")!;
+                Assert(summary.Elements("para").Count() == 3 && summary.Element("para")!.Value == lead,
+                    "safe seed contains only its safe introduction, canonical reference and exact attribution");
+                foreach (var paragraphs in new[]
+                {
+                    new[] { lead, rule.Original, list },
+                    new[] { lead, "Independent preceding context.", rule.Original, list, "Independent following context." },
+                })
+                {
+                    Source(string.Concat(paragraphs.Select(Paragraph)));
+                    File.WriteAllBytes(path, safeBytes);
+                    var current = LoadedFile.Load(repositoryRoot, path);
+                    current.SelectOwners(null);
+                    var currentOwner = current.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                    var page = SourcePage.Parse(request, File.ReadAllText(cachePath));
+                    var raw = page.Members.Single(candidate => candidate.Url == rule.SourceUrl).Docs!;
+                    Assert(raw.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text == rule.Original),
+                        "safe prior-owned regression retains the entire raw bad non-code paragraph before mapping");
+                    var mapped = MapOwner(currentOwner, new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(page),
+                    }).Docs!;
+                    Assert(mapped.UnsafeTargets?.ContainsKey("summary") == true &&
+                        HasImporterOwnedEnumListGap(currentOwner, mapped) && NfcRepairTarget(currentOwner) is null,
+                        "the real safe owner still nonvacuously selects the generic list-gap path and unsafe summary, not strict repair");
+                    var block = current.DocsBlocks[currentOwner.Order];
+                    var blockText = current.Text[block.Start..block.End];
+                    Assert(AddEnumSummaryMetadata(blockText, current, currentOwner, mapped, true) == blockText &&
+                        RefreshImporterOwnedSummarySourceText(current.Text, current, currentOwner, mapped) == current.Text &&
+                        AddSourceDocumentationIfSafe(current.Text, current, currentOwner, mapped) == current.Text &&
+                        ReplaceTruncatedSummary(current.Text, current, currentOwner, mapped, true) == current.Text,
+                        "all shared enum rebuild, refresh, metadata cleanup and truncated-summary writers honor the unsafe summary marker");
+                    foreach (var apply in new[] { false, true, true })
+                    {
+                        using var report = Run(apply);
+                        Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("entries").EnumerateArray().Count(entry =>
+                                entry.GetProperty("target").GetString() == "summary" &&
+                                entry.GetProperty("reason").GetString() == "source_channel_ambiguous") == 1 &&
+                            !report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                                entry.GetProperty("reason").GetString() == "max_changes_reached") &&
+                            File.ReadAllBytes(path).SequenceEqual(safeBytes),
+                            "all six real safe prior-owned summaries are reported excluded without budget consumption or any raw byte change on dry/apply/repeat");
+                    }
+                }
+                foreach (var alter in new Action<XElement>[]
+                {
+                    value => value.Add(new XElement("para", "Existing authored addition.")),
+                    value => value.Element("para")!.ReplaceNodes(new XCData(lead)),
+                    value => value.Element("para")!.Add(new XElement("c", "")),
+                    value => value.AddFirst(new XComment("Retain summary comment.")),
+                    value => value.AddFirst(new XProcessingInstruction("authored", "keep")),
+                    value => value.SetAttributeValue("authored", "keep"),
+                    value => value.Elements("para").ElementAt(1).Descendants("a").Single()
+                        .SetAttributeValue("href", rule.SourceUrl + ".Other"),
+                    value => value.Elements("para").Last().Add(" Existing authored attribution."),
+                })
+                {
+                    var authored = new XElement(safeDocument);
+                    alter(authored.Element("Members")!.Element("Member")!.Element("Docs")!.Element("summary")!);
+                    Write(authored);
+                    var authoredBytes = File.ReadAllBytes(path);
+                    using var preserved = Run(true);
+                    Assert(preserved.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(authoredBytes),
+                        "unsafe enum refresh preserves authored, CDATA, mixed, comment, PI, attribute, reference and attribution variants");
+                }
+                foreach (var replacement in new[]
+                {
+                    "",
+                    Paragraph("Corrected independent polling documentation."),
+                    Paragraph(rule.Original + " Changed full source text."),
+                    "<pre>" + WebUtility.HtmlEncode(rule.Original) + "</pre>",
+                })
+                {
+                    Source(Paragraph(lead) + replacement + Paragraph(list));
+                    File.WriteAllBytes(path, safeBytes);
+                    var page = SourcePage.Parse(request, File.ReadAllText(cachePath));
+                    var eligible = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(page),
+                    }).Docs!;
+                    Assert(eligible.UnsafeTargets?.ContainsKey("summary") != true,
+                        "removed, corrected, changed and code-only source controls do not activate the accepted paragraph exclusion");
+                    using (var refreshed = Run(true))
+                        Assert(refreshed.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                            "safe prior-owned enum generic refresh remains eligible with its full one-operation budget");
+                    var refreshedBytes = File.ReadAllBytes(path);
+                    var refreshedSummary = XElement.Load(path).Element("Members")!.Element("Member")!
+                        .Element("Docs")!.Element("summary")!;
+                    Assert(refreshedSummary.Elements("para").Any(paragraph => paragraph.Value == list),
+                        "eligible generic refresh actually imports the list gap");
+                    using var repeat = Run(true);
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(refreshedBytes),
+                        "eligible generic refresh persists and repeats with zero edits");
+                }
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(cache, recursive: true);
+        }
+    }
+
+    static void TestNfcCopiedDescriptionExclusion(string repositoryRoot, string fixtureRoot)
+    {
+        var token = $"nfc-copied-description-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var cache = Path.Combine(repositoryRoot, "tools", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Nfc.CardEmulators", token + ".xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            const string label = "Description copied from class: PollingFrame";
+            var html = File.ReadAllText(Path.Combine(fixtureRoot, "nfc-polling-android-reference.html"));
+            foreach (var rule in KnownNfcContracts.Where(rule => rule.EnumValue is not null))
+            {
+                var template = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml",
+                    "Android.Nfc.CardEmulators", "PollingLoopType.xml"), LoadOptions.PreserveWhitespace);
+                var member = new XElement(template.Element("Members")!.Elements("Member").Single(candidate =>
+                    candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == rule.MemberId)));
+                template.Element("Members")!.ReplaceNodes(member);
+                template.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                    new XElement("summary", "Existing authored type documentation.\u00a0"),
+                    new XComment("Keep type comment."), new XProcessingInstruction("authored", "keep")));
+                member.Element("Docs")!.ReplaceWith(new XElement("Docs", new XElement("summary", label)));
+                void Write(XElement document) => File.WriteAllText(path,
+                    document.ToString(SaveOptions.DisableFormatting).Replace("\r\n", "\n", StringComparison.Ordinal)
+                        .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+                Write(template);
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                var owner = file.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                var request = owner.SourceRequest!;
+                var page = SourcePage.Parse(request, html);
+                var raw = page.Members.Single(candidate => candidate.Url == rule.SourceUrl).Docs!;
+                Assert(owner.IsEnumField && raw.Paragraphs.Any(paragraph =>
+                    !paragraph.IsCode && paragraph.Text == rule.Original),
+                    "all six copied-label regressions use exact registered enum identities and full raw unsafe source");
+                var source = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                }).Docs!;
+                member.Element("Docs")!.Add(new XElement("remarks",
+                    ImporterSourceReference(source), XElement.Parse($"<para>{AndroidAttribution}</para>")));
+                var cachePath = Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                JsonDocument Run(bool apply)
+                {
+                    var args = new List<string>
+                    {
+                        "--path", path, "--namespace", "Android.Nfc.CardEmulators", "--offline",
+                        "--cache", cache, "--max-changes", "1", "--report", Path.Combine(cache, "report"),
+                    };
+                    if (apply)
+                        args.Add("--apply");
+                    Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                        "registered copied-label max-one pipeline completes");
+                    var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(cache, "report.json")));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "copied-label pipeline reports zero errors");
+                    return report;
+                }
+                Write(template);
+                file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                owner = file.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                Assert(HasCopiedDescriptionSummaryRepairCandidate(owner.Docs) && NfcRepairTarget(owner) is null,
+                    "the actual legacy-label predicates select a real early summary repair, not strict NFC repair");
+                var excluded = RepairCopiedDescriptionLabels(file.Text, file, owner, source);
+                Assert(excluded.Text == file.Text && excluded.Targets.Count == 0 &&
+                    excluded.Skips is [var skip] && skip.Target == "summary" && skip.Reason == "source_channel_ambiguous",
+                    "copied-description writer excludes unsafe summary before editing or consuming budget");
+                var remarksOnly = source with
+                {
+                    UnsafeTargets = new Dictionary<string, string> { ["remarks"] = "Unsafe remarks." },
+                };
+                var validSummary = RepairCopiedDescriptionLabels(file.Text, file, owner, remarksOnly);
+                Assert(validSummary.Targets.SequenceEqual(["summary"]) && validSummary.Text != file.Text,
+                    "target-aware exclusion does not suppress a valid summary merely because remarks are unsafe");
+                var remarksTemplate = new XElement(template);
+                var remarksDocs = remarksTemplate.Element("Members")!.Element("Member")!.Element("Docs")!;
+                remarksDocs.Element("summary")!.Value = "Existing authored summary.";
+                remarksDocs.Element("remarks")!.AddFirst(new XElement("para", label));
+                Write(remarksTemplate);
+                var remarksFile = LoadedFile.Load(repositoryRoot, path);
+                remarksFile.SelectOwners(null);
+                var remarksOwner = remarksFile.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                var remarksExcluded = RepairCopiedDescriptionLabels(remarksFile.Text, remarksFile, remarksOwner, remarksOnly);
+                Assert(remarksExcluded.Text == remarksFile.Text && remarksExcluded.Targets.Count == 0 &&
+                    remarksExcluded.Skips is [var remarksSkip] && remarksSkip.Target == "remarks",
+                    "the existing unsafe-remarks copied-label exclusion remains intact");
+                Write(template);
+                var before = File.ReadAllBytes(path);
+                foreach (var apply in new[] { false, true, true })
+                {
+                    using var report = Run(apply);
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("entries").EnumerateArray().Count(entry =>
+                            entry.GetProperty("target").GetString() == "summary" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") == 1 &&
+                        !report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "max_changes_reached") &&
+                        File.ReadAllBytes(path).SequenceEqual(before),
+                        "all six actual legacy labels are reported excluded with max-one dry/apply/persisted repeat and zero raw-byte or budget changes");
+                }
+                foreach (var alter in new Action<XElement>[]
+                {
+                    value => value.Element("Docs")!.Element("summary")!.Add(" Authored addition."),
+                    value => value.Element("Docs")!.Element("summary")!.ReplaceNodes(new XCData(label)),
+                    value => value.Element("Docs")!.Element("summary")!.Add(new XElement("c", "")),
+                    value => value.Element("Docs")!.Element("summary")!.Add(new XComment("Keep.")),
+                    value => value.Element("Docs")!.Element("summary")!.Add(new XProcessingInstruction("authored", "keep")),
+                    value => value.Element("Docs")!.Element("summary")!.SetAttributeValue("authored", "keep"),
+                    value => value.Element("Docs")!.Element("remarks")!.Elements("para").First()
+                        .Descendants("a").Single().SetAttributeValue("href", rule.SourceUrl + ".Other"),
+                    value => value.Element("Docs")!.Element("remarks")!.Elements("para").Last().Add(" Authored attribution."),
+                    value => value.Element("MemberValue")!.Value = "999",
+                    value => value.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32",
+                    value => value.Element("Attributes")!.Descendants("AttributeName").First().Value =
+                        "[Android.Runtime.IntDefinition(\"Other\", JniField=\"android/nfc/cardemulation/PollingFrame.OTHER\")]",
+                })
+                {
+                    var variant = new XElement(template);
+                    alter(variant.Element("Members")!.Element("Member")!);
+                    Write(variant);
+                    var bytes = File.ReadAllBytes(path);
+                    using var preserved = Run(true);
+                    Assert(preserved.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(bytes),
+                        "copied-label exclusions preserve authored/provenance/managed/JNI variants without guessing another contract");
+                }
+                var sectionStart = html.LastIndexOf("<h3", html.IndexOf(
+                    "id=\"" + rule.SourceUrl.Split('#')[1] + "\"", StringComparison.Ordinal), StringComparison.Ordinal);
+                var sectionEnd = html.IndexOf("<h3", sectionStart + 1, StringComparison.Ordinal);
+                var section = html[sectionStart..(sectionEnd < 0 ? html.Length : sectionEnd)];
+                var header = section[..section.IndexOf("<p>", StringComparison.Ordinal)];
+                foreach (var body in new[]
+                {
+                    "<p>Corrected independent polling documentation.</p>",
+                    "<p>" + WebUtility.HtmlEncode(rule.Original + " Changed full source text.") + "</p>",
+                })
+                {
+                    File.WriteAllText(cachePath, header + body, new UTF8Encoding(false));
+                    Write(template);
+                    using (var corrected = Run(true))
+                        Assert(corrected.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                            "corrected or removed original paragraph restores the valid copied-label summary repair");
+                    var updated = File.ReadAllBytes(path);
+                    using var repeat = Run(true);
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(updated),
+                        "eligible copied-label repairs persist with zero-write repeats");
+                }
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(cache, recursive: true);
         }
     }
 
@@ -11309,6 +12334,9 @@ static class ImporterProgram
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
+        TestNfcContracts(repositoryRoot, fixtureRoot);
+        TestNfcSafeEnumRefresh(repositoryRoot, fixtureRoot);
+        TestNfcCopiedDescriptionExclusion(repositoryRoot, fixtureRoot);
         TestBrowseSubscriptionContracts(repositoryRoot, fixtureRoot);
         TestProtoTokenRemark(repositoryRoot, fixtureRoot);
         TestRssiSourceGuards(repositoryRoot, fixtureRoot);
@@ -22465,6 +23493,7 @@ static class ImporterProgram
         bool HasMalformedSourceMarkup = false,
         KnownEapChannelCorrection? EapCorrection = null,
         List<SourceParagraph>? WithheldRemarks = null,
+        KnownNfcContract? NfcContract = null,
         KnownTvAdCorrection? TvAdCorrection = null,
         IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null,
         bool QualityFirstFillOnly = false);
