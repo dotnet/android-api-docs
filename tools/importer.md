@@ -224,6 +224,13 @@ importer paragraph/reference/attribution structure. Authored or mixed markup,
 changed source text, and duplicate channels are preserved. The same narrow
 allow-list corrects newly imported source channels so later refreshes cannot
 reintroduce these defects; no general grammar or punctuation normalization occurs.
+Two additional allow-list channels correct the same `in to` spelling in the
+exact `Android.App.Blob.BlobHandle.WriteToParcel` summary and remarks. They use
+the same full-text, member, source URL, and importer-ownership requirements;
+other parcel implementations and authored documentation are unchanged.
+Registered production-path tests cover bounded first-fill, strict prior-owned
+repair, provenance and JNI mismatches, authored markup, future corrected source,
+and persisted zero-write repeats.
 The same exact-text allow-list corrects `Tile.writeToParcel`'s `in to` typo.
 For QuickSettings, the exact inherited `TileService.onBind` intent parameter is
 withheld because its claim that extras are invisible contradicts the framework
