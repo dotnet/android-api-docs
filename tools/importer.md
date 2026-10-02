@@ -129,6 +129,12 @@ exercise all six contextual polling refreshes and persisted zero-write repeats.
 This downstream gate does not broaden NFC first-fill recognition or the strict
 original-output repair predicate. Corrected, removed, changed, or code-only source
 remains eligible under those unchanged rules.
+Copied-description label repairs likewise check the unsafe marker for each
+candidate's own target before any summary replacement or remarks removal.
+Excluded legacy summaries are reported as `source_channel_ambiguous` without
+consuming the budget or changing their source references, attribution or bytes.
+Registered regressions exercise all six polling fields with explicitly
+synthesized legacy-label inputs, not claimed historical importer output.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter

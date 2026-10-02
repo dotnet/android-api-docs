@@ -5622,8 +5622,7 @@ static class ImporterProgram
         var edits = new List<XmlSpanEdit>();
         foreach (var candidate in candidates)
         {
-            if (candidate.Target == "remarks" &&
-                docs.UnsafeTargets?.TryGetValue("remarks", out var unsafeDetail) == true)
+            if (docs.UnsafeTargets?.TryGetValue(candidate.Target, out var unsafeDetail) == true)
             {
                 skips.Add(new CopiedDescriptionRepairSkip(
                     candidate.Target, "source_channel_ambiguous", unsafeDetail));
@@ -8892,6 +8891,169 @@ static class ImporterProgram
         }
     }
 
+    static void TestNfcCopiedDescriptionExclusion(string repositoryRoot, string fixtureRoot)
+    {
+        var token = $"nfc-copied-description-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var cache = Path.Combine(repositoryRoot, "tools", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Nfc.CardEmulators", token + ".xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            const string label = "Description copied from class: PollingFrame";
+            var html = File.ReadAllText(Path.Combine(fixtureRoot, "nfc-polling-android-reference.html"));
+            foreach (var rule in KnownNfcContracts.Where(rule => rule.EnumValue is not null))
+            {
+                var template = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml",
+                    "Android.Nfc.CardEmulators", "PollingLoopType.xml"), LoadOptions.PreserveWhitespace);
+                var member = new XElement(template.Element("Members")!.Elements("Member").Single(candidate =>
+                    candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == rule.MemberId)));
+                template.Element("Members")!.ReplaceNodes(member);
+                template.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                    new XElement("summary", "Existing authored type documentation.\u00a0"),
+                    new XComment("Keep type comment."), new XProcessingInstruction("authored", "keep")));
+                member.Element("Docs")!.ReplaceWith(new XElement("Docs", new XElement("summary", label)));
+                void Write(XElement document) => File.WriteAllText(path,
+                    document.ToString(SaveOptions.DisableFormatting).Replace("\r\n", "\n", StringComparison.Ordinal)
+                        .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+                Write(template);
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                var owner = file.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                var request = owner.SourceRequest!;
+                var page = SourcePage.Parse(request, html);
+                var raw = page.Members.Single(candidate => candidate.Url == rule.SourceUrl).Docs!;
+                Assert(owner.IsEnumField && raw.Paragraphs.Any(paragraph =>
+                    !paragraph.IsCode && paragraph.Text == rule.Original),
+                    "all six copied-label regressions use exact registered enum identities and full raw unsafe source");
+                var source = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                }).Docs!;
+                member.Element("Docs")!.Add(new XElement("remarks",
+                    ImporterSourceReference(source), XElement.Parse($"<para>{AndroidAttribution}</para>")));
+                var cachePath = Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                JsonDocument Run(bool apply)
+                {
+                    var args = new List<string>
+                    {
+                        "--path", path, "--namespace", "Android.Nfc.CardEmulators", "--offline",
+                        "--cache", cache, "--max-changes", "1", "--report", Path.Combine(cache, "report"),
+                    };
+                    if (apply)
+                        args.Add("--apply");
+                    Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                        "registered copied-label max-one pipeline completes");
+                    var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(cache, "report.json")));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "copied-label pipeline reports zero errors");
+                    return report;
+                }
+                Write(template);
+                file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                owner = file.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                Assert(HasCopiedDescriptionSummaryRepairCandidate(owner.Docs) && NfcRepairTarget(owner) is null,
+                    "the actual legacy-label predicates select a real early summary repair, not strict NFC repair");
+                var excluded = RepairCopiedDescriptionLabels(file.Text, file, owner, source);
+                Assert(excluded.Text == file.Text && excluded.Targets.Count == 0 &&
+                    excluded.Skips is [var skip] && skip.Target == "summary" && skip.Reason == "source_channel_ambiguous",
+                    "copied-description writer excludes unsafe summary before editing or consuming budget");
+                var remarksOnly = source with
+                {
+                    UnsafeTargets = new Dictionary<string, string> { ["remarks"] = "Unsafe remarks." },
+                };
+                var validSummary = RepairCopiedDescriptionLabels(file.Text, file, owner, remarksOnly);
+                Assert(validSummary.Targets.SequenceEqual(["summary"]) && validSummary.Text != file.Text,
+                    "target-aware exclusion does not suppress a valid summary merely because remarks are unsafe");
+                var remarksTemplate = new XElement(template);
+                var remarksDocs = remarksTemplate.Element("Members")!.Element("Member")!.Element("Docs")!;
+                remarksDocs.Element("summary")!.Value = "Existing authored summary.";
+                remarksDocs.Element("remarks")!.AddFirst(new XElement("para", label));
+                Write(remarksTemplate);
+                var remarksFile = LoadedFile.Load(repositoryRoot, path);
+                remarksFile.SelectOwners(null);
+                var remarksOwner = remarksFile.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                var remarksExcluded = RepairCopiedDescriptionLabels(remarksFile.Text, remarksFile, remarksOwner, remarksOnly);
+                Assert(remarksExcluded.Text == remarksFile.Text && remarksExcluded.Targets.Count == 0 &&
+                    remarksExcluded.Skips is [var remarksSkip] && remarksSkip.Target == "remarks",
+                    "the existing unsafe-remarks copied-label exclusion remains intact");
+                Write(template);
+                var before = File.ReadAllBytes(path);
+                foreach (var apply in new[] { false, true, true })
+                {
+                    using var report = Run(apply);
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("entries").EnumerateArray().Count(entry =>
+                            entry.GetProperty("target").GetString() == "summary" &&
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") == 1 &&
+                        !report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "max_changes_reached") &&
+                        File.ReadAllBytes(path).SequenceEqual(before),
+                        "all six actual legacy labels are reported excluded with max-one dry/apply/persisted repeat and zero raw-byte or budget changes");
+                }
+                foreach (var alter in new Action<XElement>[]
+                {
+                    value => value.Element("Docs")!.Element("summary")!.Add(" Authored addition."),
+                    value => value.Element("Docs")!.Element("summary")!.ReplaceNodes(new XCData(label)),
+                    value => value.Element("Docs")!.Element("summary")!.Add(new XElement("c", "")),
+                    value => value.Element("Docs")!.Element("summary")!.Add(new XComment("Keep.")),
+                    value => value.Element("Docs")!.Element("summary")!.Add(new XProcessingInstruction("authored", "keep")),
+                    value => value.Element("Docs")!.Element("summary")!.SetAttributeValue("authored", "keep"),
+                    value => value.Element("Docs")!.Element("remarks")!.Elements("para").First()
+                        .Descendants("a").Single().SetAttributeValue("href", rule.SourceUrl + ".Other"),
+                    value => value.Element("Docs")!.Element("remarks")!.Elements("para").Last().Add(" Authored attribution."),
+                    value => value.Element("MemberValue")!.Value = "999",
+                    value => value.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32",
+                    value => value.Element("Attributes")!.Descendants("AttributeName").First().Value =
+                        "[Android.Runtime.IntDefinition(\"Other\", JniField=\"android/nfc/cardemulation/PollingFrame.OTHER\")]",
+                })
+                {
+                    var variant = new XElement(template);
+                    alter(variant.Element("Members")!.Element("Member")!);
+                    Write(variant);
+                    var bytes = File.ReadAllBytes(path);
+                    using var preserved = Run(true);
+                    Assert(preserved.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(bytes),
+                        "copied-label exclusions preserve authored/provenance/managed/JNI variants without guessing another contract");
+                }
+                var sectionStart = html.LastIndexOf("<h3", html.IndexOf(
+                    "id=\"" + rule.SourceUrl.Split('#')[1] + "\"", StringComparison.Ordinal), StringComparison.Ordinal);
+                var sectionEnd = html.IndexOf("<h3", sectionStart + 1, StringComparison.Ordinal);
+                var section = html[sectionStart..(sectionEnd < 0 ? html.Length : sectionEnd)];
+                var header = section[..section.IndexOf("<p>", StringComparison.Ordinal)];
+                foreach (var body in new[]
+                {
+                    "<p>Corrected independent polling documentation.</p>",
+                    "<p>" + WebUtility.HtmlEncode(rule.Original + " Changed full source text.") + "</p>",
+                })
+                {
+                    File.WriteAllText(cachePath, header + body, new UTF8Encoding(false));
+                    Write(template);
+                    using (var corrected = Run(true))
+                        Assert(corrected.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                            "corrected or removed original paragraph restores the valid copied-label summary repair");
+                    var updated = File.ReadAllBytes(path);
+                    using var repeat = Run(true);
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(updated),
+                        "eligible copied-label repairs persist with zero-write repeats");
+                }
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(cache, recursive: true);
+        }
+    }
+
     static void TestProtoTokenRemark(string repositoryRoot, string fixtureRoot)
     {
         var fixtureText = File.ReadAllText(Path.Combine(fixtureRoot, "proto-token.xml"));
@@ -10783,6 +10945,7 @@ static class ImporterProgram
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
         TestNfcContracts(repositoryRoot, fixtureRoot);
         TestNfcSafeEnumRefresh(repositoryRoot, fixtureRoot);
+        TestNfcCopiedDescriptionExclusion(repositoryRoot, fixtureRoot);
         TestProtoTokenRemark(repositoryRoot, fixtureRoot);
         TestRssiSourceGuards(repositoryRoot, fixtureRoot);
         TestGestureCloneIntroductions(repositoryRoot);
