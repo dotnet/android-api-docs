@@ -91,6 +91,25 @@ intact; its unsafe return is restored to `To be added.`. Authored or mixed conte
 duplicate channels, altered metadata, and changed sources are preserved and reported.
 Repairs for one member are atomic and require room for every affected channel.
 Implementation verification is not an AOSP prose fallback.
+The options-taking `MediaBrowser.subscribe` and callback-taking `unsubscribe`
+overloads omit options matching and callback identity in two reference
+paragraphs. Only those exact paragraphs are excluded, with an explicit
+`source_channel_ambiguous` report; the remaining reference prose is retained.
+First-fill filtering requires the exact registered managed/JNI owner, name and
+full descriptor, canonical Android URL and source label, and the complete known
+unsafe plain paragraph. It is independent of summary and surrounding safe
+context changes, retaining every other source paragraph in order and every other
+channel unchanged. Corrected, removed, and code-only versions remain eligible.
+Strict prior-owned repair recognition still requires the complete unchanged
+source summary and paragraph sequence. The full unfiltered paragraph sequence
+is retained independently of the first-fill exclusion marker; reordered or
+duplicated unsafe paragraphs cannot authorize withdrawal merely because they
+filter to the expected safe sequence. A prior imported copy
+can lose only its unsafe paragraph when its complete plain summary, ordered
+remarks, source reference, and attribution match known importer output.
+Authored or mixed nodes, duplicate channels, altered sources, and mismatched
+metadata are preserved. Removal leaves every retained metadata byte unchanged;
+corrected future source prose remains eligible.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
