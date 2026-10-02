@@ -1297,6 +1297,20 @@ static class ImporterProgram
                             owner,
                             mapping.Docs);
                     if (!ownerChanged &&
+                        mapping.Docs.UnsafeTargets?.TryGetValue("summary", out var unsafeSummaryDetail) == true &&
+                        (enumSummaryRepair || enumListRepair || summarySourceTextRepair ||
+                         enumDiscardedMetadataRepair || truncatedSummaryRepair))
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id, "summary", "source_channel_ambiguous",
+                            unsafeSummaryDetail, mapping.SourceUrl));
+                        enumSummaryRepair = false;
+                        enumListRepair = false;
+                        summarySourceTextRepair = false;
+                        enumDiscardedMetadataRepair = false;
+                        truncatedSummaryRepair = false;
+                    }
+                    if (!ownerChanged &&
                         mapping.Docs is not null &&
                         (enumSummaryRepair ||
                          enumListRepair ||
@@ -4037,7 +4051,8 @@ static class ImporterProgram
         bool addMetadataForChannelOnlyMember = false)
     {
         cleanupSkip = null;
-        if (docs.WithheldRemarks is not null)
+        if (docs.WithheldRemarks is not null ||
+            owner.IsEnumField && docs.UnsafeTargets?.ContainsKey("summary") == true)
             return text;
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
@@ -6681,7 +6696,7 @@ static class ImporterProgram
         SourceDocs docs,
         bool hasImporterProvenance = false)
     {
-        if (!hasImporterProvenance)
+        if (!hasImporterProvenance || docs.UnsafeTargets?.ContainsKey("summary") == true)
             return text;
 
         var block = file.DocsBlocks[owner.Order];
@@ -7390,6 +7405,8 @@ static class ImporterProgram
         SourceDocs docs,
         bool allowCreation)
     {
+        if (docs.UnsafeTargets?.ContainsKey("summary") == true)
+            return blockText;
         if (!TryParseDocsBlock(blockText, out var document) ||
             document.Element("summary") is not XElement summaryElement ||
             !TryGetElementSpan(blockText, summaryElement, out var summarySpan) ||
@@ -8695,6 +8712,182 @@ static class ImporterProgram
         finally
         {
             File.Delete(pipelinePath);
+            Directory.Delete(cache, recursive: true);
+        }
+    }
+
+    static void TestNfcSafeEnumRefresh(string repositoryRoot, string fixtureRoot)
+    {
+        var token = $"nfc-safe-enum-refresh-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var cache = Path.Combine(repositoryRoot, "tools", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Nfc.CardEmulators", token + ".xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            const string lead = "Independent introductory documentation.";
+            const string list = "Supported types include NFC-A; NFC-B.";
+            var fixture = File.ReadAllText(Path.Combine(fixtureRoot, "nfc-polling-android-reference.html"));
+            foreach (var rule in KnownNfcContracts.Where(rule => rule.EnumValue is not null))
+            {
+                var template = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml",
+                    "Android.Nfc.CardEmulators", "PollingLoopType.xml"), LoadOptions.PreserveWhitespace);
+                var member = new XElement(template.Element("Members")!.Elements("Member").Single(candidate =>
+                    candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == rule.MemberId)));
+                member.Element("Docs")!.ReplaceWith(new XElement("Docs", new XElement("summary", "To be added.")));
+                template.Element("Members")!.ReplaceNodes(member);
+                template.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                    new XElement("summary", "Existing authored type documentation.\u00a0"),
+                    new XComment("Retain authored type comment."),
+                    new XProcessingInstruction("authored", "keep")));
+                void Write(XElement document) => File.WriteAllText(path,
+                    document.ToString(SaveOptions.DisableFormatting).Replace("\r\n", "\n", StringComparison.Ordinal)
+                        .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+                Write(template);
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                var owner = file.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                Assert(owner.IsEnumField && NfcRepairTarget(owner) is null,
+                    "safe enum refresh regression uses the actual registered enum, not a prior unsafe repair");
+                var request = owner.SourceRequest!;
+                var start = fixture.LastIndexOf("<h3", fixture.IndexOf(
+                    "id=\"" + rule.SourceUrl.Split('#')[1] + "\"", StringComparison.Ordinal),
+                    StringComparison.Ordinal);
+                var end = fixture.IndexOf("<h3", start + 1, StringComparison.Ordinal);
+                var section = fixture[start..(end < 0 ? fixture.Length : end)];
+                var header = section[..section.IndexOf("<p>", StringComparison.Ordinal)];
+                string Paragraph(string text) => "<p>" + WebUtility.HtmlEncode(text) + "</p>";
+                var cachePath = Path.Combine(cache,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                void Source(string body) => File.WriteAllText(cachePath, header + body, new UTF8Encoding(false));
+                JsonDocument Run(bool apply)
+                {
+                    var args = new List<string>
+                    {
+                        "--path", path, "--namespace", "Android.Nfc.CardEmulators",
+                        "--cache", cache, "--offline", "--max-changes", "1",
+                        "--report", Path.Combine(cache, "report"),
+                    };
+                    if (apply)
+                        args.Add("--apply");
+                    Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                        "safe enum refresh actual offline max-one pipeline succeeds");
+                    var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(cache, "report.json")));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "safe enum refresh pipeline reports zero errors");
+                    return report;
+                }
+                Source(Paragraph(lead));
+                using (var fill = Run(true))
+                    Assert(fill.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "safe prior-owned enum seed comes from a genuine persisted production first fill");
+                var safeBytes = File.ReadAllBytes(path);
+                var safeDocument = XElement.Load(path, LoadOptions.PreserveWhitespace);
+                var summary = safeDocument.Element("Members")!.Element("Member")!.Element("Docs")!.Element("summary")!;
+                Assert(summary.Elements("para").Count() == 3 && summary.Element("para")!.Value == lead,
+                    "safe seed contains only its safe introduction, canonical reference and exact attribution");
+                foreach (var paragraphs in new[]
+                {
+                    new[] { lead, rule.Original, list },
+                    new[] { lead, "Independent preceding context.", rule.Original, list, "Independent following context." },
+                })
+                {
+                    Source(string.Concat(paragraphs.Select(Paragraph)));
+                    File.WriteAllBytes(path, safeBytes);
+                    var current = LoadedFile.Load(repositoryRoot, path);
+                    current.SelectOwners(null);
+                    var currentOwner = current.Owners.Single(candidate => candidate.Id == rule.MemberId);
+                    var page = SourcePage.Parse(request, File.ReadAllText(cachePath));
+                    var raw = page.Members.Single(candidate => candidate.Url == rule.SourceUrl).Docs!;
+                    Assert(raw.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text == rule.Original),
+                        "safe prior-owned regression retains the entire raw bad non-code paragraph before mapping");
+                    var mapped = MapOwner(currentOwner, new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(page),
+                    }).Docs!;
+                    Assert(mapped.UnsafeTargets?.ContainsKey("summary") == true &&
+                        HasImporterOwnedEnumListGap(currentOwner, mapped) && NfcRepairTarget(currentOwner) is null,
+                        "the real safe owner still nonvacuously selects the generic list-gap path and unsafe summary, not strict repair");
+                    var block = current.DocsBlocks[currentOwner.Order];
+                    var blockText = current.Text[block.Start..block.End];
+                    Assert(AddEnumSummaryMetadata(blockText, current, currentOwner, mapped, true) == blockText &&
+                        RefreshImporterOwnedSummarySourceText(current.Text, current, currentOwner, mapped) == current.Text &&
+                        AddSourceDocumentationIfSafe(current.Text, current, currentOwner, mapped) == current.Text &&
+                        ReplaceTruncatedSummary(current.Text, current, currentOwner, mapped, true) == current.Text,
+                        "all shared enum rebuild, refresh, metadata cleanup and truncated-summary writers honor the unsafe summary marker");
+                    foreach (var apply in new[] { false, true, true })
+                    {
+                        using var report = Run(apply);
+                        Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("entries").EnumerateArray().Count(entry =>
+                                entry.GetProperty("target").GetString() == "summary" &&
+                                entry.GetProperty("reason").GetString() == "source_channel_ambiguous") == 1 &&
+                            !report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                                entry.GetProperty("reason").GetString() == "max_changes_reached") &&
+                            File.ReadAllBytes(path).SequenceEqual(safeBytes),
+                            "all six real safe prior-owned summaries are reported excluded without budget consumption or any raw byte change on dry/apply/repeat");
+                    }
+                }
+                foreach (var alter in new Action<XElement>[]
+                {
+                    value => value.Add(new XElement("para", "Existing authored addition.")),
+                    value => value.Element("para")!.ReplaceNodes(new XCData(lead)),
+                    value => value.Element("para")!.Add(new XElement("c", "")),
+                    value => value.AddFirst(new XComment("Retain summary comment.")),
+                    value => value.AddFirst(new XProcessingInstruction("authored", "keep")),
+                    value => value.SetAttributeValue("authored", "keep"),
+                    value => value.Elements("para").ElementAt(1).Descendants("a").Single()
+                        .SetAttributeValue("href", rule.SourceUrl + ".Other"),
+                    value => value.Elements("para").Last().Add(" Existing authored attribution."),
+                })
+                {
+                    var authored = new XElement(safeDocument);
+                    alter(authored.Element("Members")!.Element("Member")!.Element("Docs")!.Element("summary")!);
+                    Write(authored);
+                    var authoredBytes = File.ReadAllBytes(path);
+                    using var preserved = Run(true);
+                    Assert(preserved.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(authoredBytes),
+                        "unsafe enum refresh preserves authored, CDATA, mixed, comment, PI, attribute, reference and attribution variants");
+                }
+                foreach (var replacement in new[]
+                {
+                    "",
+                    Paragraph("Corrected independent polling documentation."),
+                    Paragraph(rule.Original + " Changed full source text."),
+                    "<pre>" + WebUtility.HtmlEncode(rule.Original) + "</pre>",
+                })
+                {
+                    Source(Paragraph(lead) + replacement + Paragraph(list));
+                    File.WriteAllBytes(path, safeBytes);
+                    var page = SourcePage.Parse(request, File.ReadAllText(cachePath));
+                    var eligible = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(page),
+                    }).Docs!;
+                    Assert(eligible.UnsafeTargets?.ContainsKey("summary") != true,
+                        "removed, corrected, changed and code-only source controls do not activate the accepted paragraph exclusion");
+                    using (var refreshed = Run(true))
+                        Assert(refreshed.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                            "safe prior-owned enum generic refresh remains eligible with its full one-operation budget");
+                    var refreshedBytes = File.ReadAllBytes(path);
+                    var refreshedSummary = XElement.Load(path).Element("Members")!.Element("Member")!
+                        .Element("Docs")!.Element("summary")!;
+                    Assert(refreshedSummary.Elements("para").Any(paragraph => paragraph.Value == list),
+                        "eligible generic refresh actually imports the list gap");
+                    using var repeat = Run(true);
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(refreshedBytes),
+                        "eligible generic refresh persists and repeats with zero edits");
+                }
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
             Directory.Delete(cache, recursive: true);
         }
     }
@@ -10589,6 +10782,7 @@ static class ImporterProgram
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
         TestNfcContracts(repositoryRoot, fixtureRoot);
+        TestNfcSafeEnumRefresh(repositoryRoot, fixtureRoot);
         TestProtoTokenRemark(repositoryRoot, fixtureRoot);
         TestRssiSourceGuards(repositoryRoot, fixtureRoot);
         TestGestureCloneIntroductions(repositoryRoot);

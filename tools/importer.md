@@ -118,6 +118,17 @@ processing instructions, attributes, duplicate channels, and altered references
 or attribution are preserved and reported. Registered first-fill, prior-owned
 repair, negative-case, and byte-identical repeat tests exercise the complete
 importer pipeline for all eight NFC members.
+The same unsafe-summary marker is honored by generic enum-summary refreshes,
+including list-gap completion, source-text refresh, truncated-summary rebuilding,
+and reference/attribution reconciliation. A safe prior importer-owned summary
+is retained byte-for-byte when contextual source still contains the complete
+unsafe polling paragraph; the excluded summary is reported as
+`source_channel_ambiguous` without consuming the change budget. Registered
+regressions first produce safe summaries through the actual importer, then
+exercise all six contextual polling refreshes and persisted zero-write repeats.
+This downstream gate does not broaden NFC first-fill recognition or the strict
+original-output repair predicate. Corrected, removed, changed, or code-only source
+remains eligible under those unchanged rules.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
