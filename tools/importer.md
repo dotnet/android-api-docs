@@ -132,6 +132,21 @@ nullable-binder or grammar normalization.
 The two TV AD HTML fixtures are base64-encoded to retain the original source
 bytes, including trailing whitespace, without introducing whitespace-check
 exceptions; the suite decodes them before parsing the unchanged declarations.
+Historical pre-TV-guard production APPLY outputs were not retained. Separate
+JSON fixtures therefore identify **fresh**, timestamped production outputs of
+the unchanged importer at immutable commit
+`855613e7c309d2a1f829f70f5a32e2bcd6da1d4b`, not reconstructed history.
+Both registered members were isolated from retained original XML without
+changing their Docs, type/member/JNI metadata or DocIds, then imported offline
+from the original official cache with bounded path, namespace and exact-member
+scopes. The old producer applied two OnBind channels and four parcel channels;
+both actual persisted repeats applied zero changes. The fixtures retain complete
+raw input/output XML and prior Docs as base64, SHA-256, BOM/newline state, source
+cache bindings, immutable producer blob/hash and original native execution
+receipts. Regression repair seeds load those independently emitted complete
+Docs, check agreement with the strict predicate, then verify exact repaired
+complete blocks and every unchanged output byte. They do not use the predicate's
+expected-Docs helper to manufacture legacy samples.
 The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
 source label is corrected only on its exact official member URL when the source
 hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported

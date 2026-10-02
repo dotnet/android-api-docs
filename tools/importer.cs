@@ -9565,17 +9565,47 @@ static class ImporterProgram
                     $"{raw.SourceUrl} | {raw.SourceLabel} | {raw.Summary} | " +
                     $"{string.Join(" | ", raw.Paragraphs.Select(paragraph => paragraph.Text))} | " +
                     $"{string.Join(" | ", raw.Parameters.Select(parameter => parameter.Key + "=" + parameter.Value))} | {raw.Returns}");
-                var original = XElement.Load(Path.Combine(docsRoot, "Android.Media.TV.Ads",
-                    correction.CorrectSummary ? "TvAdServiceInfo.xml" : "TvAdService.xml"));
+                using var legacyFixture = JsonDocument.Parse(File.ReadAllText(Path.Combine(
+                    repositoryRoot, "tools", "importer-fixtures", fixtureName + "-fresh-legacy-output.json")));
+                var legacyRecord = legacyFixture.RootElement;
+                var legacyBytes = Convert.FromBase64String(legacyRecord.GetProperty("outputXmlBase64").GetString()!);
+                var legacyInput = Convert.FromBase64String(legacyRecord.GetProperty("inputXmlBase64").GetString()!);
+                var legacyDocsBytes = Convert.FromBase64String(legacyRecord.GetProperty("completeDocsBase64").GetString()!);
+                static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
+                Assert(legacyRecord.GetProperty("schema").GetString() == "tv-ad-fresh-legacy-producer/v1" &&
+                    !legacyRecord.GetProperty("historicalPreGuardOutputsRetained").GetBoolean() &&
+                    legacyRecord.GetProperty("producerCommit").GetString() == "855613e7c309d2a1f829f70f5a32e2bcd6da1d4b" &&
+                    legacyRecord.GetProperty("producerGitBlob").GetString() == "1fdd32a69198a594f05ae5971f8d32d0f996e8d1" &&
+                    legacyRecord.GetProperty("producerRawSha256").GetString() ==
+                        "6837531f6e3322fa38b683f92e30ab779b32e2a10fbeab1d88faa5f4c383cb79" &&
+                    legacyRecord.GetProperty("memberId").GetString() == correction.MemberId &&
+                    legacyRecord.GetProperty("nativeReceipt").GetProperty("nativeExitCode").GetInt32() == 0 &&
+                    legacyRecord.GetProperty("appliedCount").GetInt32() == (correction.CorrectSummary ? 4 : 2) &&
+                    legacyRecord.GetProperty("repeatAppliedCount").GetInt32() == 0,
+                    "TV AD legacy fixture identifies a fresh actual immutable unguarded production APPLY, not historical output");
+                Assert(Hash(legacyInput) == legacyRecord.GetProperty("inputXmlSha256").GetString() &&
+                    Hash(legacyBytes) == legacyRecord.GetProperty("outputXmlSha256").GetString() &&
+                    Hash(legacyDocsBytes) == legacyRecord.GetProperty("docsRawSha256").GetString() &&
+                    Hash(legacyDocsBytes) == (correction.CorrectSummary
+                        ? "7a73962e0e9e46a673d2aebc923c56114acc1e7ee6e68dd9322b27bdf1a93c11"
+                        : "64d0ad60f566db1eecbe5f8a17e57599e5f32fdc0d3f768bf716e8128a469de2"),
+                    "TV AD independent legacy input/output and complete raw Docs bytes have exact recorded SHA-256");
+                var legacyText = Encoding.UTF8.GetString(legacyBytes);
+                var legacyDocsText = Encoding.UTF8.GetString(legacyDocsBytes);
+                Assert(legacyText.Contains(legacyDocsText, StringComparison.Ordinal) &&
+                    legacyRecord.GetProperty("utf8Bom").GetBoolean() == legacyBytes.AsSpan().StartsWith(
+                        new byte[] { 239, 187, 191 }) &&
+                    legacyRecord.GetProperty("newline").GetString() == "CRLF" &&
+                    !legacyText.Replace("\r\n", "", StringComparison.Ordinal).Contains('\n'),
+                    "TV AD fixture retains the actual complete Docs substring and original BOM/newline state");
+                var original = XElement.Parse(legacyText);
                 var member = original.Element("Members")!.Elements("Member").Single(candidate =>
                     candidate.Elements("MemberSignature").Any(signature =>
                         (string?)signature.Attribute("Language") == "DocId" &&
                         (string?)signature.Attribute("Value") == correction.MemberId));
-                original.Element("Members")!.ReplaceNodes(new XElement(member));
-                original.Element("Docs")!.ReplaceNodes(
-                    new XElement("summary", "Authored overview."), new XElement("remarks", "Authored overview remarks."));
-                member = original.Element("Members")!.Element("Member")!;
-                member.Element("Docs")!.ReplaceWith(KnownTvAdPriorDocs(correction));
+                Assert(XNode.DeepEquals(member.Element("Docs"), XElement.Parse(legacyDocsText)) &&
+                    ImporterMarkupEquals(member.Element("Docs")!, KnownTvAdPriorDocs(correction)),
+                    "TV AD independently emitted entire legacy Docs agrees with the strict repair predicate");
                 var cache = Path.Combine(directory, fixtureName);
                 Directory.CreateDirectory(cache);
                 var cachePath = Path.Combine(cache,
@@ -9616,6 +9646,49 @@ static class ImporterProgram
                 var mapped = WithKnownTvAdSourceCorrections(owner, raw);
                 Assert(mapped.TvAdCorrection == correction,
                     "actual TV AD managed/JNI registration enables only the complete bound official source");
+                var legacyMember = new XElement(member);
+                var registeredMember = new XElement(owner.Member!);
+                legacyMember.Element("Docs")!.Remove();
+                registeredMember.Element("Docs")!.Remove();
+                Assert(ImporterMarkupEquals(legacyMember, registeredMember) &&
+                    MatchesKnownTvAdMember(owner with { Member = member }, correction),
+                    "TV AD legacy fixture uses the actual complete registered managed/JNI metadata, without a DocId bypass");
+                File.WriteAllBytes(path, legacyBytes);
+                var legacyExpected = legacyText.Replace(
+                    $"<para>{XmlEscape(correction.IncorrectText)}</para>",
+                    $"<para>{XmlEscape(correction.CorrectText)}</para>", StringComparison.Ordinal);
+                var legacyDocsExpected = legacyDocsText.Replace(
+                    $"<para>{XmlEscape(correction.IncorrectText)}</para>",
+                    $"<para>{XmlEscape(correction.CorrectText)}</para>", StringComparison.Ordinal);
+                if (correction.CorrectSummary)
+                {
+                    legacyExpected = legacyExpected.Replace(
+                        $"<summary>{XmlEscape(correction.IncorrectText)}</summary>",
+                        $"<summary>{XmlEscape(correction.CorrectText)}</summary>", StringComparison.Ordinal);
+                    legacyDocsExpected = legacyDocsExpected.Replace(
+                        $"<summary>{XmlEscape(correction.IncorrectText)}</summary>",
+                        $"<summary>{XmlEscape(correction.CorrectText)}</summary>", StringComparison.Ordinal);
+                }
+                Assert(legacyExpected != legacyText && legacyDocsExpected != legacyDocsText,
+                    "TV AD independent legacy expected correction is nonvacuous and changes only exact text spans");
+                using (var legacyDry = Run(false, correction.CorrectSummary ? 2 : 1))
+                    Assert(legacyDry.RootElement.GetProperty("wouldApplyCount").GetInt32() ==
+                        (correction.CorrectSummary ? 2 : 1) &&
+                        legacyBytes.SequenceEqual(File.ReadAllBytes(path)),
+                        "TV AD actual legacy-output repair dry-run reports the exact budget without changing bytes");
+                using (var legacyRepair = Run(true, correction.CorrectSummary ? 2 : 1))
+                    Assert(legacyRepair.RootElement.GetProperty("appliedCount").GetInt32() ==
+                        (correction.CorrectSummary ? 2 : 1),
+                        "TV AD actual independently emitted legacy-output repair fits its bounded budget");
+                var repairedLegacyBytes = File.ReadAllBytes(path);
+                Assert(repairedLegacyBytes.SequenceEqual(Encoding.UTF8.GetBytes(legacyExpected)) &&
+                    XNode.DeepEquals(XElement.Load(path).Element("Members")!.Element("Member")!.Element("Docs"),
+                        XElement.Parse(legacyDocsExpected)),
+                    "TV AD both independently emitted complete prior Docs repair exactly, preserving every other raw output byte");
+                using (var legacyRepeat = Run(true, 10))
+                    Assert(legacyRepeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        repairedLegacyBytes.SequenceEqual(File.ReadAllBytes(path)),
+                        "TV AD actual independent legacy-output persisted repeat has zero changes and identical bytes");
                 foreach (var changed in new[]
                 {
                     raw with { SourceKind = "java" }, raw with { SourceUrl = raw.SourceUrl + ".Other" },
