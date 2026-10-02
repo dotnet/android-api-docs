@@ -91,6 +91,25 @@ intact; its unsafe return is restored to `To be added.`. Authored or mixed conte
 duplicate channels, altered metadata, and changed sources are preserved and reported.
 Repairs for one member are atomic and require room for every affected channel.
 Implementation verification is not an AOSP prose fallback.
+The options-taking `MediaBrowser.subscribe` and callback-taking `unsubscribe`
+overloads omit options matching and callback identity in two reference
+paragraphs. Only those exact paragraphs are excluded, with an explicit
+`source_channel_ambiguous` report; the remaining reference prose is retained.
+First-fill filtering requires the exact registered managed/JNI owner, name and
+full descriptor, canonical Android URL and source label, and the complete known
+unsafe plain paragraph. It is independent of summary and surrounding safe
+context changes, retaining every other source paragraph in order and every other
+channel unchanged. Corrected, removed, and code-only versions remain eligible.
+Strict prior-owned repair recognition still requires the complete unchanged
+source summary and paragraph sequence. The full unfiltered paragraph sequence
+is retained independently of the first-fill exclusion marker; reordered or
+duplicated unsafe paragraphs cannot authorize withdrawal merely because they
+filter to the expected safe sequence. A prior imported copy
+can lose only its unsafe paragraph when its complete plain summary, ordered
+remarks, source reference, and attribution match known importer output.
+Authored or mixed nodes, duplicate channels, altered sources, and mismatched
+metadata are preserved. Removal leaves every retained metadata byte unchanged;
+corrected future source prose remains eligible.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
@@ -110,6 +129,43 @@ The same write-time correction covers attribution-only enrichment, overlapping
 remarks placeholders, and incomplete importer-owned refreshes. Strict recognition
 of prior importer-owned XML still uses the unmodified official source; API
 metadata, other documentation channels, and Binder-thread guidance are preserved.
+`Android.Media.TV.Ads.TvAdService.OnBind` has a separate complete-contract guard:
+the [pinned Android 16 implementation](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/ad/TvAdService.java)
+always returns its newly created binder,
+so only the exact contradicted nullable-binder sentence is removed. Nullable
+managed annotations and the independent Binder-thread paragraph remain unchanged.
+`TvAdServiceInfo.WriteToParcel` separately corrects the exact `in to` source typo
+in summary and remarks. Both require the complete original official declaration,
+canonical URL and label, declaring Java owner, JNI descriptor, managed signature,
+return type, and ordered parameter names/types; neither infers replacement prose
+from implementation code. Corrections cover first fills, attribution-only
+enrichment, overlapping placeholders, legacy Java-signature repair, and incomplete
+importer-owned refreshes.
+Prior-owned repair additionally requires complete matching original Docs and
+changes only the exact text spans, preserving reference/attribution and raw
+encoding/newlines. The two-channel parcel repair is atomic within its budget.
+The unfiltered suite uses exact official declaration fixtures and actual registered
+production paths, including persisted zero-write repeats, authored/provenance
+negatives, and future corrected or removed source controls. There is no broad
+nullable-binder or grammar normalization.
+The two TV AD HTML fixtures are base64-encoded to retain the original source
+bytes, including trailing whitespace, without introducing whitespace-check
+exceptions; the suite decodes them before parsing the unchanged declarations.
+Historical pre-TV-guard production APPLY outputs were not retained. Separate
+JSON fixtures therefore identify **fresh**, timestamped production outputs of
+the unchanged importer at immutable commit
+`855613e7c309d2a1f829f70f5a32e2bcd6da1d4b`, not reconstructed history.
+Both registered members were isolated from retained original XML without
+changing their Docs, type/member/JNI metadata or DocIds, then imported offline
+from the original official cache with bounded path, namespace and exact-member
+scopes. The old producer applied two OnBind channels and four parcel channels;
+both actual persisted repeats applied zero changes. The fixtures retain complete
+raw input/output XML and prior Docs as base64, SHA-256, BOM/newline state, source
+cache bindings, immutable producer blob/hash and original native execution
+receipts. Regression repair seeds load those independently emitted complete
+Docs, check agreement with the strict predicate, then verify exact repaired
+complete blocks and every unchanged output byte. They do not use the predicate's
+expected-Docs helper to manufacture legacy samples.
 The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
 source label is corrected only on its exact official member URL when the source
 hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported
@@ -277,6 +333,23 @@ Android URL, and complete source prose match `No additional SAa are acceptable`.
 The undefined `SAa` term is not guessed or silently corrected. This exclusion
 is checked in the production `JniField` mapping before its early return;
 other constants, changed source prose, and authored documentation are preserved.
+
+The string overload of the Controls `RangeTemplate` constructor withholds the
+exact official remarks containing strict endpoint inequalities rather than
+guessing an inclusive-endpoint correction. This exclusion requires the exact
+managed overload, registered JNI owner and descriptor, Android source kind,
+canonical source-member URL, and the complete known-bad non-code paragraph.
+Harmless summary changes, safe paragraphs before or after it, and independent
+formatting guidance cannot bypass the exclusion while that paragraph persists.
+Corrected or removed bad prose and code-only lookalikes do not trigger it.
+Only the remarks channel is withheld; safe parameters and summaries remain
+eligible, and existing authored or prior importer-owned documentation is preserved.
+The whole-remarks exclusion also gates selection and execution of the earlier
+signature-only and augmented-placeholder metadata repair writers. An empty
+filtered paragraph list is not evidence of missing source for these writers:
+deliberately withheld remarks retain their signature, reference and attribution
+byte-for-byte, including on persisted one-operation repeats. Corrected official
+source remains eligible for the existing independently validated repairs.
 
 Existing non-placeholder remarks are retained unless their full structure proves
 they were generated by this importer: non-empty plain `<para>` or Java `<code>`
