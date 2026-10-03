@@ -4330,12 +4330,8 @@ static class ImporterProgram
             return false;
         }
 
-        var actualNodes = actual.Nodes()
-            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
-            .ToList();
-        var expectedNodes = expected.Nodes()
-            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
-            .ToList();
+        var actualNodes = SignificantNodes(actual);
+        var expectedNodes = SignificantNodes(expected);
         if (actualNodes.Any(node => node is XCData) ||
             expectedNodes.Any(node => node is XCData) ||
             actualNodes.Count != expectedNodes.Count)
@@ -16862,6 +16858,7 @@ static class ImporterProgram
                 input.ToString(SaveOptions.DisableFormatting).Replace("\n", "\r\n"));
             using var report = Apply(input, sourceHtml);
             Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
                 expected.SequenceEqual(File.ReadAllBytes(path)), description);
         }
         void Repeat(string description)
@@ -16914,6 +16911,25 @@ static class ImporterProgram
             Assert(ImporterMarkupEquals(Docs(withdrawn), expectedDocs),
                 "ChangeLog withdrawal preserves all other channels and full reference/attribution");
             Repeat("ChangeLog persisted withdrawal repeat remains zero-write and byte-identical");
+
+            foreach (var location in new[] { "Docs root", "remarks", "source-reference paragraph" })
+            {
+                var authored = new XElement(prior);
+                var docs = Docs(authored);
+                var container = location switch
+                {
+                    "Docs root" => docs,
+                    "remarks" => docs.Element("remarks")!,
+                    _ => docs.Element("remarks")!.Elements("para").First(),
+                };
+                container.Add(new XCData(" "));
+                Assert(!ImporterMarkupEquals(docs, Docs(prior)) &&
+                    !ImporterMarkupEquals(Docs(prior), docs),
+                    $"ChangeLog ownership comparison rejects whitespace-only CDATA at {location} on either side");
+                NoEdit(authored, html,
+                    $"ChangeLog max-one withdrawal preserves whitespace-only CDATA at {location}");
+                Repeat($"ChangeLog whitespace-only CDATA at {location} persisted repeat is zero-write and byte-identical");
+            }
 
             foreach (var mutation in new Action<XElement>[]
             {

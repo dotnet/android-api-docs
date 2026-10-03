@@ -165,8 +165,9 @@ the exact registered-channel safeguards: managed identity/signature/types, JNI,
 canonical source URL/label, and the complete original source must all match.
 An exact prior importer-owned parameter can be withdrawn only with its complete
 summary/return placeholders and metadata-only remarks, source reference, and
-attribution intact. Authored or mixed
-content and changed source contracts are preserved. Corrected or removed source
+attribution intact. Authored or mixed content, including whitespace-only CDATA
+at the Docs root, remarks container, or source-reference paragraph, and changed
+source contracts are preserved. Corrected or removed source
 prose remains eligible under the ordinary channel rules.
 
 The same exact allow-list covers the RSSI builder's Bluetooth-address parameter
