@@ -1837,6 +1837,7 @@ static class ImporterProgram
                     fields[0].Url);
             fieldDocs = WithoutKnownMalformedConversationAnniversary(owner, registration, fieldDocs);
             fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
+            fieldDocs = WithoutKnownUnsafeOobSecuritySource(owner, fieldDocs);
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
@@ -1883,6 +1884,11 @@ static class ImporterProgram
                 "source_documentation_empty",
                 "The exact source member had no usable prose.",
                 exact[0].Url);
+        if (HasKnownStaleChooserListenerDescription(owner, registration, docs))
+            return MappingResult.Skip(
+                "source_channel_ambiguous",
+                "The exact official removeStateListener description names UpdateListener, but its declared and registered parameter is ChooserSession.StateListener; no replacement prose was inferred.",
+                docs.SourceUrl);
         var sourceVerifiedMapping = SourceVerifiedMemberMappings.Resolve(owner.Id);
         if (sourceVerifiedMapping is { UseFirstMeaningfulSummary: true })
         {
@@ -2079,6 +2085,41 @@ static class ImporterProgram
         return new(text[..block.Start] + blockText[..span.Start] + replacementText +
             blockText[span.End..] + text[block.End..], [targetName]);
     }
+
+    const string ChooserRemoveListenerMemberId =
+        "M:Android.Service.Chooser.ChooserSession.RemoveStateListener(Android.Service.Chooser.ChooserSession.IStateListener)";
+    const string ChooserRemoveListenerSourceUrl =
+        AndroidReference + "android/service/chooser/ChooserSession#removeStateListener(android.service.chooser.ChooserSession.StateListener)";
+    const string StaleChooserListenerDescription =
+        "Removes a previously added UpdateListener callback.";
+
+    static bool HasKnownStaleChooserListenerDescription(
+        DocsOwner owner, MemberRegistration registration, SourceDocs docs) =>
+        owner.Id == ChooserRemoveListenerMemberId &&
+        owner.SourceRequest is { Kind: "android", JavaPath: "android/service/chooser/ChooserSession" } &&
+        owner.SourceRequest.Url == AndroidReference + "android/service/chooser/ChooserSession" &&
+        registration == new MemberRegistration(
+            "removeStateListener", "(Landroid/service/chooser/ChooserSession$StateListener;)V", false) &&
+        owner.Member?.Element("MemberType")?.Value == "Method" &&
+        owner.Member.Element("ReturnValue")?.Element("ReturnType")?.Value == "System.Void" &&
+        owner.Member.Elements("MemberSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "C#")
+            .Select(signature => (string?)signature.Attribute("Value"))
+            .SequenceEqual(["public void RemoveStateListener (Android.Service.Chooser.ChooserSession.IStateListener listener);"]) &&
+        (owner.Member.Element("Parameters")?.Elements("Parameter") ?? [])
+            .Select(parameter => ((string?)parameter.Attribute("Name"), (string?)parameter.Attribute("Type")))
+            .SequenceEqual([("listener", "Android.Service.Chooser.ChooserSession+IStateListener")]) &&
+        docs.SourceKind == "android" &&
+        docs.SourceUrl == ChooserRemoveListenerSourceUrl &&
+        docs.SourceLabel == "android.service.chooser.ChooserSession.removeStateListener" &&
+        string.IsNullOrEmpty(docs.Returns) &&
+        docs.Parameters.Count == 1 &&
+        docs.Parameters.TryGetValue("listener", out var listener) &&
+        RemoveLeadingJavaType(listener) == "This value cannot be null." &&
+        docs.Exceptions.Count == 0 &&
+        (docs.Summary == StaleChooserListenerDescription ||
+            docs.Paragraphs.Any(paragraph =>
+                paragraph is { IsCode: false, Text: StaleChooserListenerDescription }));
 
     static bool MatchesNfcManagedContract(DocsOwner owner, KnownNfcContract rule)
     {
@@ -2726,6 +2767,36 @@ static class ImporterProgram
                 paragraph.IsCode || paragraph.Text != RssiMalformedDefault).ToList(),
             UnsafeTargets = targets,
         };
+    }
+
+    static SourceDocs WithoutKnownUnsafeOobSecuritySource(DocsOwner owner, SourceDocs docs)
+    {
+        if (owner.Id != "F:Android.Ranging.Oob.OobInitiatorRangingConfigSecurityLevel.Secure" ||
+            !owner.IsEnumField ||
+            (string?)owner.Member?.Element("ReturnValue")?.Element("ReturnType") !=
+                "Android.Ranging.Oob.OobInitiatorRangingConfigSecurityLevel" ||
+            (string?)owner.Member?.Element("MemberValue") != "1" ||
+            Registration.JniField(owner.Member!) is not
+                { Owner: "android/ranging/oob/OobInitiatorRangingConfig", Name: "SECURITY_LEVEL_SECURE" } ||
+            docs.SourceKind != "android" ||
+            docs.SourceUrl != AndroidReference +
+                "android/ranging/oob/OobInitiatorRangingConfig#SECURITY_LEVEL_SECURE" ||
+            docs.SourceLabel != "android.ranging.oob.OobInitiatorRangingConfig.SECURITY_LEVEL_SECURE" ||
+            docs.Summary != "Basic security level for the ranging session." ||
+            !docs.Paragraphs.SequenceEqual([
+                new SourceParagraph("Basic security level for the ranging session.", false),
+                new SourceParagraph("Example usage: UWB: Provisioned-STS BLE-CS: Security level four", false),
+            ]))
+            return docs;
+
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        const string detail =
+            "The exact Android SECURITY_LEVEL_SECURE description incorrectly labels the distinct provisioned-STS/security-level-four mode as basic; no replacement prose was inferred.";
+        targets["summary"] = detail;
+        targets["remarks"] = detail;
+        return docs with { UnsafeTargets = targets };
     }
 
     static readonly (string Name, string Field, string Text)[] KnownUnsafeRawRates =
@@ -9266,6 +9337,213 @@ static class ImporterProgram
         }
     }
 
+    static void TestChooserListenerDescription(string repositoryRoot, string fixtureRoot)
+    {
+        var fixture = File.ReadAllText(Path.Combine(fixtureRoot, "chooser-listener.xml"));
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "chooser-listener.html"));
+        var originalFile = LoadedFile.Load(repositoryRoot, Path.Combine(fixtureRoot, "chooser-listener.xml"));
+        originalFile.SelectOwners("RemoveStateListener");
+        var owner = originalFile.Owners.Single();
+        var request = owner.SourceRequest!;
+        var registration = owner.MemberRegistration!;
+        var page = SourcePage.Parse(request, html);
+        var source = page.Members.Single().Docs!;
+        var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+        {
+            [request.Url] = SourceLoadResult.Success(page),
+        };
+        Assert(source.Summary == StaleChooserListenerDescription &&
+            source.Paragraphs is [{ IsCode: false, Text: StaleChooserListenerDescription }] &&
+            source.Parameters.Count == 1 &&
+            RemoveLeadingJavaType(source.Parameters["listener"]) == "This value cannot be null." &&
+            HasKnownStaleChooserListenerDescription(owner, registration, source) &&
+            MapOwner(owner, pages).ErrorReason == "source_channel_ambiguous",
+            "Chooser removeStateListener rejects the exact contradicted listener label before mapping");
+
+        const string correctedDescription = "Removes a previously added StateListener callback.";
+        foreach (var changed in new[]
+        {
+            source with { SourceUrl = source.SourceUrl + ".Other" },
+            source with { SourceKind = "java" },
+            source with { SourceLabel = source.SourceLabel + ".Other" },
+            source with { Returns = "A different return contract." },
+            source with { Parameters = new Dictionary<string, string> { ["other"] = source.Parameters["listener"] } },
+            source with { Parameters = new Dictionary<string, string> { ["listener"] = "This value may be null." } },
+            source with { Summary = correctedDescription, Paragraphs = [new(correctedDescription, false)] },
+            source with { Summary = "Removes the callback.", Paragraphs = [new("Removes the callback.", false)] },
+        })
+        {
+            Assert(!HasKnownStaleChooserListenerDescription(owner, registration, changed),
+                "Chooser exclusion requires exact source provenance and parameter contract; corrected or removed stale prose stays eligible");
+        }
+        foreach (var changed in new[]
+        {
+            source with { Summary = "Additional safe summary." },
+            source with { Paragraphs = [new("Additional safe paragraph.", false), .. source.Paragraphs] },
+            source with { Paragraphs = [.. source.Paragraphs, new("Additional safe paragraph.", false)] },
+        })
+        {
+            Assert(HasKnownStaleChooserListenerDescription(owner, registration, changed),
+                "Unrelated summary and paragraph changes do not re-enable the stale Chooser listener description");
+        }
+        foreach (var changed in new[]
+        {
+            owner with { Id = owner.Id + ".Other" },
+            owner with { SourceRequest = SourceRequest.Create("android/service/chooser/OtherSession") },
+            owner with { SourceRequest = request with { Url = request.Url + ".Other" } },
+            owner with { SourceRequest = request with { Kind = "java" } },
+            owner with { SourceRequest = null },
+        })
+            Assert(!HasKnownStaleChooserListenerDescription(changed, registration, source),
+                "Chooser exclusion requires the exact managed member and declaring source type");
+        foreach (var changed in new[]
+        {
+            registration with { Name = "removeOtherListener" },
+            registration with { Descriptor = "(Landroid/service/chooser/ChooserSession$StateListener;)I" },
+            registration with { Descriptor = "(Ljava/lang/Object;)V" },
+            registration with { IsField = true },
+        })
+            Assert(!HasKnownStaleChooserListenerDescription(owner, changed, source),
+                "Chooser exclusion requires the complete registered JNI name, descriptor and method kind");
+        foreach (var mutate in new Action<XElement>[]
+        {
+            member => member.Element("MemberType")!.Value = "Property",
+            member => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32",
+            member => member.Elements("MemberSignature").First().SetAttributeValue("Value", "public virtual void RemoveStateListener (Android.Service.Chooser.ChooserSession.IStateListener listener);"),
+            member => member.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Name", "other"),
+            member => member.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Type", "Java.Lang.Object"),
+            member => member.Element("Parameters")!.Add(new XElement("Parameter",
+                new XAttribute("Name", "other"), new XAttribute("Type", "System.Int32"))),
+        })
+        {
+            var member = new XElement(owner.Member!);
+            mutate(member);
+            Assert(!HasKnownStaleChooserListenerDescription(owner with { Member = member }, registration, source),
+                "Chooser exclusion preserves other managed signatures, return and parameter bindings");
+        }
+
+        var token = ".chooser-listener-self-test-" + Guid.NewGuid().ToString("N");
+        var tempDirectory = Path.Combine(repositoryRoot, "tools", token);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Service.Chooser", token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var cachePath = Path.Combine(tempDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            void WriteFixture(string text) => File.WriteAllText(pipelinePath,
+                text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", "\r\n", StringComparison.Ordinal),
+                new UTF8Encoding(true));
+            JsonDocument RunPipeline(bool apply, int limit)
+            {
+                var args = new List<string>
+                {
+                    "--path", pipelinePath, "--namespace", "Android.Service.Chooser",
+                    "--member", "RemoveStateListener", "--cache", tempDirectory, "--offline",
+                    "--max-changes", limit.ToString(), "--report", Path.Combine(tempDirectory, "report"),
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Chooser listener production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(tempDirectory, "report.json")));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Chooser listener pipeline reports no errors");
+                return report;
+            }
+            void AssertZero(bool apply, int limit, byte[] expected)
+            {
+                using var report = RunPipeline(apply, limit);
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(expected),
+                    "Chooser listener exclusion reports its cause and performs zero operations and writes byte-for-byte");
+            }
+            WriteFixture(fixture);
+            var originalBytes = File.ReadAllBytes(pipelinePath);
+            AssertZero(false, 1, originalBytes);
+            AssertZero(true, 1, originalBytes);
+            AssertZero(true, 10, originalBytes);
+
+            foreach (var corrected in new[] { correctedDescription, "Removes the callback." })
+            {
+                WriteFixture(fixture);
+                File.WriteAllText(cachePath, html.Replace(StaleChooserListenerDescription, corrected, StringComparison.Ordinal));
+                using (var first = RunPipeline(true, 1))
+                    Assert(first.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "Future corrected and removed Chooser descriptions support real one-operation first fills");
+                using (var remaining = RunPipeline(true, 10))
+                    Assert(remaining.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "Future corrected Chooser source fills its remaining channel without a forced combined budget");
+                var completed = File.ReadAllBytes(pipelinePath);
+                using var repeated = RunPipeline(true, 10);
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    repeated.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(completed),
+                    "Future Chooser source has a persisted numeric zero-write repeat");
+            }
+
+            File.WriteAllText(cachePath, html);
+            const string managedSignature =
+                "public void RemoveStateListener (Android.Service.Chooser.ChooserSession.IStateListener listener);";
+            const string otherSignature =
+                "public virtual void RemoveStateListener (Android.Service.Chooser.ChooserSession.IStateListener listener);";
+            WriteFixture(fixture.Replace(managedSignature, otherSignature, StringComparison.Ordinal));
+            using (var generated = RunPipeline(true, 10))
+                Assert(generated.RootElement.GetProperty("appliedCount").GetInt32() == 2,
+                    "Exact binding negative generates actual prior importer-owned stale prose through the production pipeline");
+            var priorOwned = File.ReadAllText(pipelinePath).Replace(otherSignature, managedSignature, StringComparison.Ordinal);
+            WriteFixture(priorOwned);
+            var priorBytes = File.ReadAllBytes(pipelinePath);
+            AssertZero(true, 1, priorBytes);
+            AssertZero(true, 10, priorBytes);
+
+            var priorDocument = XDocument.Parse(priorOwned, LoadOptions.PreserveWhitespace);
+            var priorDocs = priorDocument.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+            var reference = priorDocs.Element("remarks")!.Elements("para").ElementAt(1).ToString(SaveOptions.DisableFormatting);
+            var attribution = priorDocs.Element("remarks")!.Elements("para").Last().ToString(SaveOptions.DisableFormatting);
+            var variants = new[]
+            {
+                "<param name=\"listener\">Authored guidance.</param><summary>To be added.</summary><remarks>Authored remarks.</remarks>",
+                $"<summary>To be added.</summary><remarks>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks>{StaleChooserListenerDescription}{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><para>To be added.</para>{reference}{attribution}</remarks>",
+                $"<summary>To be added.<para>To be added.</para></summary><remarks>To be added.</remarks>",
+                $"<summary>To be added.</summary><remarks><para><c>{StaleChooserListenerDescription}</c></para>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><![CDATA[{StaleChooserListenerDescription}]]>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><!-- {StaleChooserListenerDescription} -->{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><?authored value?>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks data-authored=\"true\"><para>{StaleChooserListenerDescription}</para>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><para>{StaleChooserListenerDescription}</para>{reference}{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks>To be added.</remarks><remarks>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><para>{StaleChooserListenerDescription}</para>{reference.Replace("removeStateListener", "otherListener", StringComparison.Ordinal)}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><para>{StaleChooserListenerDescription}</para>{reference}{attribution.Replace("shared", "shared with authored guidance", StringComparison.Ordinal)}</remarks>",
+            };
+            foreach (var variant in variants)
+            {
+                var document = XDocument.Parse(fixture, LoadOptions.PreserveWhitespace);
+                document.Root!.Element("Members")!.Element("Member")!.Element("Docs")!.ReplaceWith(
+                    XElement.Parse("<Docs>" + variant + "</Docs>", LoadOptions.PreserveWhitespace));
+                WriteFixture(document.ToString(SaveOptions.DisableFormatting));
+                var layout = LoadedFile.Load(repositoryRoot, pipelinePath);
+                layout.SelectOwners("RemoveStateListener");
+                Assert(layout.Owners.Single().Placeholders.Count > 0 &&
+                    MapOwner(layout.Owners.Single(), pages).ErrorReason == "source_channel_ambiguous",
+                    "Chooser raw layout negatives have real selection and exact guarded mapping preconditions");
+                AssertZero(true, 10, File.ReadAllBytes(pipelinePath));
+            }
+        }
+        finally
+        {
+            if (File.Exists(pipelinePath))
+                File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, true);
+        }
+    }
+
     static void TestNfcContracts(string repositoryRoot, string fixtureRoot)
     {
         var token = $"nfc-contract-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
@@ -12752,6 +13030,7 @@ static class ImporterProgram
         TestBrowseSubscriptionContracts(repositoryRoot, fixtureRoot);
         TestProtoTokenRemark(repositoryRoot, fixtureRoot);
         TestSliceProviderContracts(repositoryRoot, fixtureRoot);
+        TestChooserListenerDescription(repositoryRoot, fixtureRoot);
         TestRssiSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSupportedWriters(repositoryRoot, fixtureRoot);
@@ -17755,6 +18034,7 @@ static class ImporterProgram
         try
         {
             TestIkeEnumSourceExclusion(repositoryRoot, docsRoot, tempDirectory);
+            TestOobSecuritySourceExclusion(repositoryRoot, docsRoot, tempDirectory);
             TestConversationAnniversarySourceExclusion(repositoryRoot, docsRoot, tempDirectory);
 
             TestKnownUnsafeIkeDocumentation(repositoryRoot, fixtureRoot, tempDirectory);
@@ -20542,6 +20822,188 @@ static class ImporterProgram
                 Assert(
                     Apply("ike-enum-authored") == 0 && File.ReadAllBytes(path).SequenceEqual(authoredBytes),
                     "IKE source exclusion preserves authored, mixed, CDATA, comment, PI, attribute, reference, attribution and metadata channels");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    static void TestOobSecuritySourceExclusion(
+        string repositoryRoot,
+        string docsRoot,
+        string tempDirectory)
+    {
+        const string memberId =
+            "F:Android.Ranging.Oob.OobInitiatorRangingConfigSecurityLevel.Secure";
+        var sourceUrl = AndroidReference + "android/ranging/oob/OobInitiatorRangingConfig";
+        var html = File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "oob-security-android-reference.html"))
+            .ReplaceLineEndings("\n");
+        var fixture = XDocument.Load(Path.Combine(
+            docsRoot, "Android.Ranging.Oob", "OobInitiatorRangingConfigSecurityLevel.xml"),
+            LoadOptions.PreserveWhitespace);
+        fixture.Root!.Element("Docs")!.ReplaceWith(
+            new XElement("Docs", new XElement("summary", "Authored enum overview.")));
+        foreach (var member in fixture.Root.Element("Members")!.Elements("Member"))
+            member.Element("Docs")!.ReplaceWith(
+                new XElement("Docs", new XElement("summary", "To be added.")));
+        var path = Path.Combine(docsRoot,
+            $"OobSecurity.importer-self-test-{Environment.ProcessId}.xml");
+        var cache = Path.Combine(tempDirectory, "oob-security-cache");
+        Directory.CreateDirectory(cache);
+        var cachePath = Path.Combine(cache,
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceUrl)))
+                .ToLowerInvariant() + ".html");
+        var reportPath = Path.Combine(tempDirectory, "oob-security-report");
+        void Write(XDocument document, string source)
+        {
+            File.WriteAllText(path, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            File.WriteAllText(cachePath, source, new UTF8Encoding(false));
+        }
+        DocsOwner LoadOwner()
+        {
+            var file = LoadedFile.Load(repositoryRoot, path);
+            file.SelectOwners("Secure");
+            return file.Owners.Single();
+        }
+        int Apply() => RunAsync([
+            "--path", path, "--namespace", "Android.Ranging.Oob",
+            "--offline", "--cache", cache, "--max-changes", "1",
+            "--apply", "--report", reportPath,
+        ]).GetAwaiter().GetResult();
+        void AssertNoEdit(XDocument document, string source, string message)
+        {
+            Write(document, source);
+            var before = File.ReadAllBytes(path);
+            Assert(Apply() == 0 && before.SequenceEqual(File.ReadAllBytes(path)), message);
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                "OOB no-edit report records zero writes, files and errors");
+        }
+        try
+        {
+            Write(fixture, html);
+            var owner = LoadOwner();
+            var page = SourcePage.Parse(owner.SourceRequest!, html);
+            var raw = page.Members.Single(member => member.Name == "SECURITY_LEVEL_SECURE").Docs!;
+            var filtered = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+            {
+                [sourceUrl] = SourceLoadResult.Success(page),
+            }).Docs!;
+            Assert(owner.Id == memberId && owner.IsEnumField &&
+                owner.MemberRegistration is { IsField: true, Name: "SECURITY_LEVEL_SECURE" } &&
+                raw.UnsafeTargets is null && filtered.UnsafeTargets?.Count == 2 &&
+                ReplacementFor(owner.Placeholders.Single(), filtered, true).Reason ==
+                    "source_channel_ambiguous",
+                "actual OOB enum/JniField mapping withholds the complete defective secure contract before field rendering");
+            foreach (var source in new[]
+            {
+                raw with { SourceUrl = sourceUrl + "#SECURITY_LEVEL_BASIC" },
+                raw with { SourceKind = "java" },
+                raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                raw with { Summary = "Secure security level for the ranging session." },
+                raw with { Paragraphs = [new SourceParagraph("Changed source contract.", false)] },
+                raw with { Paragraphs = raw.Paragraphs.Select(p => p with { IsCode = true }).ToList() },
+                raw with { Paragraphs = [.. raw.Paragraphs, new SourceParagraph("New source context.", false)] },
+            })
+                Assert(WithoutKnownUnsafeOobSecuritySource(owner, source).UnsafeTargets is null,
+                    "OOB exclusion requires the canonical Android identity and complete original contract");
+            foreach (var change in new Action<XElement>[]
+            {
+                member => member.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId")
+                    .SetAttributeValue("Value", memberId + ".Other"),
+                member => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32",
+                member => member.Element("MemberValue")!.Value = "0",
+                member => {
+                    foreach (var attribute in member.Descendants("AttributeName"))
+                        attribute.Value = attribute.Value.Replace("SECURITY_LEVEL_SECURE", "SECURITY_LEVEL_BASIC",
+                            StringComparison.Ordinal);
+                },
+            })
+            {
+                var changed = new XDocument(fixture);
+                change(changed.Root!.Element("Members")!.Elements("Member").Single(member =>
+                    (string?)member.Attribute("MemberName") == "Secure"));
+                Write(changed, html);
+                Assert(WithoutKnownUnsafeOobSecuritySource(LoadOwner(), raw).UnsafeTargets is null,
+                    "OOB exclusion requires the exact managed identity, enum type/value and registered field");
+            }
+            Write(fixture, html);
+            Assert(Apply() == 0, "OOB max-one first fill succeeds");
+            var appliedBytes = File.ReadAllBytes(path);
+            var applied = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+            var members = applied.Root!.Element("Members")!.Elements("Member").ToList();
+            var basic = members.Single(member => (string?)member.Attribute("MemberName") == "Basic");
+            var secure = members.Single(member => (string?)member.Attribute("MemberName") == "Secure");
+            var basicSummary = basic.Element("Docs")!.Element("summary")!;
+            Assert(basicSummary.Elements("para").First().Value == raw.Summary &&
+                ContainsSourceUrl(basicSummary, sourceUrl + "#SECURITY_LEVEL_BASIC") &&
+                basicSummary.Elements("para").Any(IsImporterAttributionParagraph) &&
+                secure.Element("Docs")!.Element("summary")!.Value == "To be added.",
+                "safe Basic enum prose/reference/attribution is published while Secure stays a placeholder");
+            using (var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json")))
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("member").GetString() == memberId &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "OOB first-fill report records one safe fill and the exact source exclusion");
+            var reset = new XDocument(applied);
+            reset.Root!.Element("Members")!.Elements("Member").Single(member =>
+                (string?)member.Attribute("MemberName") == "Basic").Element("Docs")!.ReplaceWith(
+                    new XElement("Docs", new XElement("summary", "To be added.")));
+            Assert(XNode.DeepEquals(reset, fixture), "OOB first fill preserves API metadata and unrelated XML");
+            AssertNoEdit(applied, html, "actual generated Basic enum is byte-identical on repeat");
+            Assert(File.ReadAllBytes(path).SequenceEqual(appliedBytes), "OOB repeat preserves original generated bytes");
+            foreach (var markup in new[]
+            {
+                "<summary>Authored security description.</summary>",
+                "<summary>Authored <c>security</c> description.</summary>",
+                "<summary><![CDATA[Authored security description.]]></summary>",
+                "<summary><!-- Authored -->Authored security description.</summary>",
+                "<summary><?authored preserve?>Authored security description.</summary>",
+                "<summary audience=\"authored\">Authored security description.</summary>",
+                "<summary>Authored security description.</summary><summary>Second authored channel.</summary>",
+                "<summary>Authored <para>To be added.</para> security description.</summary>",
+                "<summary>To be added.</summary><remarks><para>To be added.</para></remarks>",
+                "<summary>To be added.</summary><remarks>To be added.</remarks>",
+                "<summary>Authored description.</summary><remarks><para>Added in API level 36.</para></remarks>",
+            })
+            {
+                secure.Element("Docs")!.ReplaceWith(XElement.Parse("<Docs>" + markup + "</Docs>",
+                    LoadOptions.PreserveWhitespace));
+                AssertNoEdit(applied, html,
+                    "OOB exclusion preserves authored/mixed/CDATA/comment/PI/attributes/duplicate/nested/overlapping and metadata channels");
+            }
+            foreach (var corrected in new[]
+            {
+                html.Replace("Basic security level for the ranging session.</p>\n<p>Example usage:\nUWB: Provisioned-STS",
+                    "Secure security level for the ranging session.</p>\n<p>Example usage:\nUWB: Provisioned-STS",
+                    StringComparison.Ordinal),
+                html.Replace("<p>Basic security level for the ranging session.</p>\n<p>Example usage:\nUWB: Provisioned-STS",
+                    "<p>Example usage:\nUWB: Provisioned-STS", StringComparison.Ordinal),
+            })
+            {
+                Assert(corrected != html, "corrected and removed unsafe source controls actually differ");
+                secure.Element("Docs")!.ReplaceWith(
+                    new XElement("Docs", new XElement("summary", "To be added.")));
+                Write(applied, corrected);
+                Assert(Apply() == 0 && XDocument.Load(path).Root!.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == "Secure")
+                    .Element("Docs")!.Element("summary")!.Elements("para").Any(),
+                    "corrected and removed defective source contracts remain eligible for real max-one enum import");
+                var correctedBytes = File.ReadAllBytes(path);
+                Assert(Apply() == 0 && File.ReadAllBytes(path).SequenceEqual(correctedBytes),
+                    "corrected source production repeat is byte-identical");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("filesChanged").GetInt32() == 0,
+                    "corrected source persisted repeat report records zero writes and files");
             }
         }
         finally

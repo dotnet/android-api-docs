@@ -1,0 +1,46 @@
+Implementation verification only; not replacement documentation or a Java runtime test.
+
+Pinned revision: 25caf0858e7e2ac5cb3e8e99b8376f11f30bcbad
+https://android.googlesource.com/platform/packages/modules/Uwb/+/25caf0858e7e2ac5cb3e8e99b8376f11f30bcbad/ranging/framework/java/android/ranging/oob/OobInitiatorRangingConfig.java
+
+    public static final int SECURITY_LEVEL_BASIC = 0;
+    public static final int SECURITY_LEVEL_SECURE = 1;
+
+    private OobInitiatorRangingConfig(Builder builder) {
+        setRangingSessionType(RangingConfig.RANGING_SESSION_OOB);
+        mDeviceHandles = new ArrayList<>(builder.mDeviceHandles);
+        mSecurityLevel = builder.mSecurityLevel;
+        mRangingMode = builder.mRangingMode;
+        mRangingIntervalRange = new Range<>(builder.mFastestRangingInterval,
+                builder.mSlowestRangingInterval);
+    }
+
+    @SecurityLevel
+    public int getSecurityLevel() {
+        return mSecurityLevel;
+    }
+
+        @NonNull
+        public Builder setSecurityLevel(@SecurityLevel int securityLevel) {
+            this.mSecurityLevel = securityLevel;
+            return this;
+        }
+
+https://android.googlesource.com/platform/packages/modules/Uwb/+/25caf0858e7e2ac5cb3e8e99b8376f11f30bcbad/ranging/service/java/com/android/server/ranging/uwb/UwbConfigSelector.java
+
+    private @UwbRangingParams.ConfigId int selectConfigId() throws ConfigSelectionException {
+        if (mOobConfig.getSecurityLevel() == SECURITY_LEVEL_BASIC) {
+            if (mConfigIds.contains(CONFIG_UNICAST_DS_TWR)) {
+                return CONFIG_UNICAST_DS_TWR;
+            }
+        } else if (mOobConfig.getSecurityLevel() == SECURITY_LEVEL_SECURE) {
+            if (mConfigIds.contains(CONFIG_PROVISIONED_UNICAST_DS_TWR_VERY_FAST)) {
+                return CONFIG_PROVISIONED_UNICAST_DS_TWR_VERY_FAST;
+            } else if (mConfigIds.contains(CONFIG_PROVISIONED_UNICAST_DS_TWR)) {
+                return CONFIG_PROVISIONED_UNICAST_DS_TWR;
+            }
+        }
+
+        throw new ConfigSelectionException("Failed to find agreeable config id",
+                InternalReason.PEER_CAPABILITIES_MISMATCH);
+    }

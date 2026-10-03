@@ -416,6 +416,15 @@ text match the known incorrect flag-combination wording. Retry policies are
 mutually exclusive codes, not flags. The guard does not affect other channels,
 members, URLs, corrected source text, or existing authored documentation.
 
+The OOB `OobInitiatorRangingConfigSecurityLevel.Secure` enum source is withheld
+when its complete official description calls the provisioned-STS/security-level-four
+mode "Basic security level". The exclusion requires its canonical Android URL
+and source label, the exact managed enum field/type/value, and registered
+`SECURITY_LEVEL_SECURE` JNI field. Its summary and logical remarks remain
+unchanged and are reported as ambiguous; no replacement security contract is
+inferred. The sibling Basic field, future corrected or removed defective source
+prose, and all existing authored documentation remain unaffected.
+
 The `ProtoOutputStream.makeToken(int, boolean, int, int, int)` remarks channel
 is skipped only for its exact managed identity, registered JNI owner/signature,
 managed return type, canonical Android URL, and complete original source paragraph
@@ -431,6 +440,15 @@ The logical remarks exclusion also covers nested paragraph placeholders (includi
 those in summaries), metadata-only enrichment, placeholder cleanup, Java-signature
 repair, and importer-owned refresh. These layouts retain their complete original
 bytes; excluded operations are reported against `remarks`, not `summary`.
+
+The exact `ChooserSession.removeStateListener(StateListener)` detail is withheld
+while its complete description names an `UpdateListener` callback. The guard
+requires the canonical Android member URL and label, declaring type, full JNI
+descriptor, managed signature and parameter types, and the original non-null
+parameter contract. It rejects the entire ambiguous mapping before any first-fill,
+enrichment, or repair can write, preserving existing authored and prior imported
+Docs unchanged. No replacement listener prose is inferred. Corrected or removed
+stale descriptions remain eligible, and unrelated Chooser members are unaffected.
 
 The `IkeProtocolErrorType.NoAdditionalSas` enum summary is skipped when its exact
 managed field, canonical `IkeProtocolException.ERROR_TYPE_NO_ADDITIONAL_SAS`
