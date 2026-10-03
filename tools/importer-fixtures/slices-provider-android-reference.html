@@ -1,0 +1,662 @@
+<!doctype html>
+<html><body><main>
+<h3 class="api-name" id="delete(android.net.Uri,%20java.lang.String,%20java.lang.String[])" data-text="delete" tabindex="-1">delete</h3>
+    <div class="api-level">
+      <div>
+    Added in <a href="/guide/topics/manifest/uses-sdk-element#ApiLevels">API level 28</a>
+  </div>
+
+
+
+    </div>
+<div></div><devsite-code><pre class="api-signature no-pretty-print" translate="no" dir="ltr" is-upgraded>
+public final int delete (<a href="/reference/android/net/Uri">Uri</a> uri,
+                <a href="/reference/java/lang/String">String</a> selection,
+                <a href="/reference/java/lang/String">String[]</a> selectionArgs)</pre></devsite-code>
+
+
+
+
+  <p>Implement this to handle requests to delete one or more rows. The
+implementation should apply the selection clause when performing
+deletion, allowing the operation to affect multiple rows in a directory.
+As a courtesy, call
+<code translate="no" dir="ltr"><a href="/reference/android/content/ContentResolver#notifyChange(android.net.Uri,%20android.database.ContentObserver)">notifyChange()</a></code> after deleting. This method can be called from multiple
+threads, as described in <a href="/guide/topics/fundamentals/processes-and-threads#Threads">Processes
+and Threads</a>.
+<p>
+The implementation is responsible for parsing out a row ID at the end of
+the URI, if a specific row is being deleted. That is, the client would
+pass in <code translate="no" dir="ltr">content://contacts/people/22</code> and the implementation
+is responsible for parsing the record number (22) when creating a SQL
+statement.</p></p>
+    <table class="responsive">
+    <tr><th colspan=2>Parameters</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr">uri</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">Uri</code>: The full URI to query, including a row ID (if a specific
+           record is requested).
+<br>
+This value cannot be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">selection</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: An optional restriction to apply to rows when deleting.
+<br>
+This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">selectionArgs</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+    </table>
+    <table class="responsive">
+      <tr><th colspan=2>Returns</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr">int</code></td>
+        <td width="100%">The number of rows affected.</p></td>
+      </tr>
+    </table>
+
+</div>
+
+<div data-version-added="28">
+
+<h3 class="api-name" id="getType(android.net.Uri)" data-text="getType" tabindex="-1">getType</h3>
+    <div class="api-level">
+      <div>
+    Added in <a href="/guide/topics/manifest/uses-sdk-element#ApiLevels">API level 28</a>
+  </div>
+
+
+
+    </div>
+<div></div><devsite-code><pre class="api-signature no-pretty-print" translate="no" dir="ltr" is-upgraded>
+public final <a href="/reference/java/lang/String">String</a> getType (<a href="/reference/android/net/Uri">Uri</a> uri)</pre></devsite-code>
+
+
+
+
+  <p>Implement this to handle requests for the MIME type of the data at the
+given URI.  The returned MIME type should start with
+<code translate="no" dir="ltr">vnd.android.cursor.item</code> for a single record,
+or <code translate="no" dir="ltr">vnd.android.cursor.dir/</code> for multiple items.
+This method can be called from multiple threads, as described in
+<a href="/guide/topics/fundamentals/processes-and-threads#Threads">Processes
+and Threads</a>.
+
+<p>Note that by default there are no permissions needed for an application to
+access this information; if your content provider requires read and/or
+write permissions, or is not exported, all applications can still call
+this method regardless of their access permissions. </p>
+
+<p>If your mime type reveals details that should be protected,
+then you should protect this method by implementing <code translate="no" dir="ltr"><a href="/reference/android/content/ContentProvider#getTypeAnonymous(android.net.Uri)">getTypeAnonymous(Uri)</a></code>.
+Implementing <code translate="no" dir="ltr"><a href="/reference/android/content/ContentProvider#getTypeAnonymous(android.net.Uri)">getTypeAnonymous(Uri)</a></code> ensures your <code translate="no" dir="ltr"><a href="/reference/android/content/ContentProvider#getType(android.net.Uri)">getType(Uri)</a></code> can be
+only accessed by caller's having associated readPermission for the URI. </p></p></p>
+    <table class="responsive">
+    <tr><th colspan=2>Parameters</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr">uri</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">Uri</code>: the URI to query.
+<br>
+This value cannot be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+    </table>
+    <table class="responsive">
+      <tr><th colspan=2>Returns</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr"><a href="/reference/java/lang/String">String</a></code></td>
+        <td width="100%">a MIME type string, or <code translate="no" dir="ltr">null</code> if there is no type.</p></td>
+      </tr>
+    </table>
+
+</div>
+
+<div data-version-added="28">
+
+<h3 class="api-name" id="insert(android.net.Uri,%20android.content.ContentValues)" data-text="insert" tabindex="-1">insert</h3>
+    <div class="api-level">
+      <div>
+    Added in <a href="/guide/topics/manifest/uses-sdk-element#ApiLevels">API level 28</a>
+  </div>
+
+
+
+    </div>
+<div></div><devsite-code><pre class="api-signature no-pretty-print" translate="no" dir="ltr" is-upgraded>
+public final <a href="/reference/android/net/Uri">Uri</a> insert (<a href="/reference/android/net/Uri">Uri</a> uri,
+                <a href="/reference/android/content/ContentValues">ContentValues</a> values)</pre></devsite-code>
+
+
+
+
+  <p>Implement this to handle requests to insert a new row. As a courtesy,
+call
+<code translate="no" dir="ltr"><a href="/reference/android/content/ContentResolver#notifyChange(android.net.Uri,%20android.database.ContentObserver)">notifyChange()</a></code> after inserting. This method can be called from multiple
+threads, as described in <a href="/guide/topics/fundamentals/processes-and-threads#Threads">Processes
+and Threads</a>.</p></p>
+    <table class="responsive">
+    <tr><th colspan=2>Parameters</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr">uri</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">Uri</code>: The content:// URI of the insertion request.
+<br>
+This value cannot be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">values</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">ContentValues</code>: A set of column_name/value pairs to add to the database.
+<br>
+This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+    </table>
+    <table class="responsive">
+      <tr><th colspan=2>Returns</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr"><a href="/reference/android/net/Uri">Uri</a></code></td>
+        <td width="100%">The URI for the newly inserted item.
+<br>
+This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+    </table>
+
+</div>
+
+<div data-version-added="28">
+
+<h3 class="api-name" id="query(android.net.Uri,%20java.lang.String[],%20android.os.Bundle,%20android.os.CancellationSignal)" data-text="query" tabindex="-1">query</h3>
+    <div class="api-level">
+      <div>
+    Added in <a href="/guide/topics/manifest/uses-sdk-element#ApiLevels">API level 28</a>
+  </div>
+
+
+
+    </div>
+<div></div><devsite-code><pre class="api-signature no-pretty-print" translate="no" dir="ltr" is-upgraded>
+public final <a href="/reference/android/database/Cursor">Cursor</a> query (<a href="/reference/android/net/Uri">Uri</a> uri,
+                <a href="/reference/java/lang/String">String[]</a> projection,
+                <a href="/reference/android/os/Bundle">Bundle</a> queryArgs,
+                <a href="/reference/android/os/CancellationSignal">CancellationSignal</a> cancellationSignal)</pre></devsite-code>
+
+
+
+
+  <p>Implement this to handle query requests where the arguments are packed into a <code translate="no" dir="ltr"><a href="/reference/android/os/Bundle">Bundle</a></code>.
+Arguments may include traditional SQL style query arguments. When present these
+should be handled  according to the contract established in
+<code translate="no" dir="ltr"><a href="/reference/android/content/ContentProvider#query(android.net.Uri,%20java.lang.String[],%20java.lang.String,%20java.lang.String[],%20java.lang.String,%20android.os.CancellationSignal)">query(Uri,String[],String,String[],String,CancellationSignal)</a></code>.
+
+<p>Traditional SQL arguments can be found in the bundle using the following keys:
+<li><code translate="no" dir="ltr"><a href="/reference/android/content/ContentResolver#QUERY_ARG_SQL_SELECTION">ContentResolver.QUERY_ARG_SQL_SELECTION</a></code>
+<li><code translate="no" dir="ltr"><a href="/reference/android/content/ContentResolver#QUERY_ARG_SQL_SELECTION_ARGS">ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS</a></code>
+<li><code translate="no" dir="ltr"><a href="/reference/android/content/ContentResolver#QUERY_ARG_SQL_SORT_ORDER">ContentResolver.QUERY_ARG_SQL_SORT_ORDER</a></code>
+
+<p>This method can be called from multiple threads, as described in
+<a href="/guide/topics/fundamentals/processes-and-threads#Threads">Processes
+and Threads</a>.
+
+<p>
+Example client call:<p>
+<div></div><devsite-code><pre translate="no" dir="ltr" is-upgraded>// Request 20 records starting at row index 30.
+      Bundle queryArgs = new Bundle();
+      queryArgs.putInt(ContentResolver.QUERY_ARG_OFFSET, 30);
+      queryArgs.putInt(ContentResolver.QUERY_ARG_LIMIT, 20);
+
+      Cursor cursor = getContentResolver().query(
+               contentUri,    // Content Uri is specific to individual content providers.
+               projection,    // String[] describing which columns to return.
+               queryArgs,     // Query arguments.
+               null);         // Cancellation signal.</pre></devsite-code>
+
+Example implementation:<p>
+<div></div><devsite-code><pre translate="no" dir="ltr" is-upgraded>
+
+       int recordsetSize = 0x1000;  // Actual value is implementation specific.
+       queryArgs = queryArgs != null ? queryArgs : Bundle.EMPTY;  // ensure queryArgs is non-null
+
+       int offset = queryArgs.getInt(ContentResolver.QUERY_ARG_OFFSET, 0);
+       int limit = queryArgs.getInt(ContentResolver.QUERY_ARG_LIMIT, Integer.MIN_VALUE);
+
+       MatrixCursor c = new MatrixCursor(PROJECTION, limit);
+
+       // Calculate the number of items to include in the cursor.
+       int numItems = MathUtils.constrain(recordsetSize - offset, 0, limit);
+
+       // Build the paged result set....
+       for (int i = offset; i < offset + numItems; i++) {
+           // populate row from your data.
+       }
+
+       Bundle extras = new Bundle();
+       c.setExtras(extras);
+
+       // Any QUERY_ARG_* key may be included if honored.
+       // In an actual implementation, include only keys that are both present in queryArgs
+       // and reflected in the Cursor output. For example, if QUERY_ARG_OFFSET were included
+       // in queryArgs, but was ignored because it contained an invalid value (like \u2013273),
+       // then QUERY_ARG_OFFSET should be omitted.
+       extras.putStringArray(ContentResolver.EXTRA_HONORED_ARGS, new String[] {
+           ContentResolver.QUERY_ARG_OFFSET,
+           ContentResolver.QUERY_ARG_LIMIT
+       });
+
+       extras.putInt(ContentResolver.EXTRA_TOTAL_COUNT, recordsetSize);
+
+       cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
+       return cursor;</pre></devsite-code>
+<p>
+See <code translate="no" dir="ltr"><a href="/reference/android/content/ContentProvider#query(android.net.Uri,%20java.lang.String[],%20java.lang.String,%20java.lang.String[],%20java.lang.String,%20android.os.CancellationSignal)">query(Uri,String[],String,String[],String,CancellationSignal)</a></code>
+for implementation details.</p></p>
+    <table class="responsive">
+    <tr><th colspan=2>Parameters</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr">uri</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">Uri</code>: The URI to query. This will be the full URI sent by the client.
+<br>
+This value cannot be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">projection</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: The list of columns to put into the cursor.
+           If <code translate="no" dir="ltr">null</code> provide a default set of columns.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">queryArgs</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">Bundle</code>: A Bundle containing additional information necessary for
+           the operation. Arguments may include SQL style arguments, such
+           as <code translate="no" dir="ltr"><a href="/reference/android/content/ContentResolver#QUERY_ARG_SQL_LIMIT">ContentResolver.QUERY_ARG_SQL_LIMIT</a></code>, but note that
+           the documentation for each individual provider will indicate
+           which arguments they support.
+<br>
+This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">cancellationSignal</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">CancellationSignal</code>: A signal to cancel the operation in progress,
+           or <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+    </table>
+    <table class="responsive">
+      <tr><th colspan=2>Returns</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr"><a href="/reference/android/database/Cursor">Cursor</a></code></td>
+        <td width="100%">a Cursor or <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+    </table>
+
+</div>
+
+<div data-version-added="28">
+
+<h3 class="api-name" id="query(android.net.Uri,%20java.lang.String[],%20java.lang.String,%20java.lang.String[],%20java.lang.String)" data-text="query" tabindex="-1">query</h3>
+    <div class="api-level">
+      <div>
+    Added in <a href="/guide/topics/manifest/uses-sdk-element#ApiLevels">API level 28</a>
+  </div>
+
+
+
+    </div>
+<div></div><devsite-code><pre class="api-signature no-pretty-print" translate="no" dir="ltr" is-upgraded>
+public final <a href="/reference/android/database/Cursor">Cursor</a> query (<a href="/reference/android/net/Uri">Uri</a> uri,
+                <a href="/reference/java/lang/String">String[]</a> projection,
+                <a href="/reference/java/lang/String">String</a> selection,
+                <a href="/reference/java/lang/String">String[]</a> selectionArgs,
+                <a href="/reference/java/lang/String">String</a> sortOrder)</pre></devsite-code>
+
+
+
+
+  <p>Implement this to handle query requests from clients.
+
+<p>Apps targeting <code translate="no" dir="ltr"><a href="/reference/android/os/Build.VERSION_CODES#O">Build.VERSION_CODES.O</a></code> or higher should override
+<code translate="no" dir="ltr"><a href="/reference/android/content/ContentProvider#query(android.net.Uri,%20java.lang.String[],%20android.os.Bundle,%20android.os.CancellationSignal)">query(Uri,String[],Bundle,CancellationSignal)</a></code> and provide a stub
+implementation of this method.
+
+<p>This method can be called from multiple threads, as described in
+<a href="/guide/topics/fundamentals/processes-and-threads#Threads">Processes
+and Threads</a>.
+<p>
+Example client call:<p>
+<div></div><devsite-code><pre translate="no" dir="ltr" is-upgraded>// Request a specific record.
+Cursor managedCursor = managedQuery(
+               ContentUris.withAppendedId(Contacts.People.CONTENT_URI, 2),
+               projection,    // Which columns to return.
+               null,          // WHERE clause.
+               null,          // WHERE clause value substitution
+               People.NAME + " ASC");   // Sort order.</pre></devsite-code>
+Example implementation:<p>
+<div></div><devsite-code><pre translate="no" dir="ltr" is-upgraded>// SQLiteQueryBuilder is a helper class that creates the
+       // proper SQL syntax for us.
+       SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
+
+       // Guard against SQL injection attacks
+       qBuilder.setStrict(true);
+       qBuilder.setProjectionMap(MAP_OF_QUERYABLE_COLUMNS);
+       qBuilder.setStrictColumns(true);
+       qBuilder.setStrictGrammar(true);
+
+       // Set the table we're querying.
+       qBuilder.setTables(DATABASE_TABLE_NAME);
+
+       // If the query ends in a specific record number, we're
+       // being asked for a specific record, so set the
+       // WHERE clause in our query.
+       if((URI_MATCHER.match(uri)) == SPECIFIC_MESSAGE){
+           qBuilder.appendWhere("_id=" + uri.getPathLeafId());
+       }
+
+       // Make the query.
+       Cursor c = qBuilder.query(mDb,
+               projection,
+               selection,
+               selectionArgs,
+               groupBy,
+               having,
+               sortOrder);
+       c.setNotificationUri(getContext().getContentResolver(), uri);
+       return c;</pre></devsite-code></p></p>
+    <table class="responsive">
+    <tr><th colspan=2>Parameters</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr">uri</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">Uri</code>: The URI to query. This will be the full URI sent by the client;
+     if the client is requesting a specific record, the URI will end in a record number
+     that the implementation should parse and add to a WHERE or HAVING clause, specifying
+     that _id value.
+<br>
+This value cannot be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">projection</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: The list of columns to put into the cursor. If
+     <code translate="no" dir="ltr">null</code> all columns are included.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">selection</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: A selection criteria to apply when filtering rows.
+     If <code translate="no" dir="ltr">null</code> then all rows are included.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">selectionArgs</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: You may include ?s in selection, which will be replaced by
+     the values from selectionArgs, in order that they appear in the selection.
+     The values will be bound as Strings.
+<br>
+This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">sortOrder</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: How the rows in the cursor should be sorted.
+     If <code translate="no" dir="ltr">null</code> then the provider is free to define the sort order.</p></td>
+      </tr>
+    </table>
+    <table class="responsive">
+      <tr><th colspan=2>Returns</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr"><a href="/reference/android/database/Cursor">Cursor</a></code></td>
+        <td width="100%">a Cursor or <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+    </table>
+
+</div>
+
+<div data-version-added="28">
+
+<h3 class="api-name" id="query(android.net.Uri,%20java.lang.String[],%20java.lang.String,%20java.lang.String[],%20java.lang.String,%20android.os.CancellationSignal)" data-text="query" tabindex="-1">query</h3>
+    <div class="api-level">
+      <div>
+    Added in <a href="/guide/topics/manifest/uses-sdk-element#ApiLevels">API level 28</a>
+  </div>
+
+
+
+    </div>
+<div></div><devsite-code><pre class="api-signature no-pretty-print" translate="no" dir="ltr" is-upgraded>
+public final <a href="/reference/android/database/Cursor">Cursor</a> query (<a href="/reference/android/net/Uri">Uri</a> uri,
+                <a href="/reference/java/lang/String">String[]</a> projection,
+                <a href="/reference/java/lang/String">String</a> selection,
+                <a href="/reference/java/lang/String">String[]</a> selectionArgs,
+                <a href="/reference/java/lang/String">String</a> sortOrder,
+                <a href="/reference/android/os/CancellationSignal">CancellationSignal</a> cancellationSignal)</pre></devsite-code>
+
+
+
+
+  <p>Implement this to handle query requests from clients with support for cancellation.
+
+<p>Apps targeting <code translate="no" dir="ltr"><a href="/reference/android/os/Build.VERSION_CODES#O">Build.VERSION_CODES.O</a></code> or higher should override
+<code translate="no" dir="ltr"><a href="/reference/android/content/ContentProvider#query(android.net.Uri,%20java.lang.String[],%20android.os.Bundle,%20android.os.CancellationSignal)">query(Uri,String[],Bundle,CancellationSignal)</a></code> instead of this method.
+
+<p>This method can be called from multiple threads, as described in
+<a href="/guide/topics/fundamentals/processes-and-threads#Threads">Processes
+and Threads</a>.
+<p>
+Example client call:<p>
+<div></div><devsite-code><pre translate="no" dir="ltr" is-upgraded>// Request a specific record.
+Cursor managedCursor = managedQuery(
+               ContentUris.withAppendedId(Contacts.People.CONTENT_URI, 2),
+               projection,    // Which columns to return.
+               null,          // WHERE clause.
+               null,          // WHERE clause value substitution
+               People.NAME + " ASC");   // Sort order.</pre></devsite-code>
+Example implementation:<p>
+<div></div><devsite-code><pre translate="no" dir="ltr" is-upgraded>// SQLiteQueryBuilder is a helper class that creates the
+       // proper SQL syntax for us.
+       SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
+
+       // Guard against SQL injection attacks
+       qBuilder.setStrict(true);
+       qBuilder.setProjectionMap(MAP_OF_QUERYABLE_COLUMNS);
+       qBuilder.setStrictColumns(true);
+       qBuilder.setStrictGrammar(true);
+
+       // Set the table we're querying.
+       qBuilder.setTables(DATABASE_TABLE_NAME);
+
+       // If the query ends in a specific record number, we're
+       // being asked for a specific record, so set the
+       // WHERE clause in our query.
+       if((URI_MATCHER.match(uri)) == SPECIFIC_MESSAGE){
+           qBuilder.appendWhere("_id=" + uri.getPathLeafId());
+       }
+
+       // Make the query.
+       Cursor c = qBuilder.query(mDb,
+               projection,
+               selection,
+               selectionArgs,
+               groupBy,
+               having,
+               sortOrder);
+       c.setNotificationUri(getContext().getContentResolver(), uri);
+       return c;</pre></devsite-code>
+<p>
+If you implement this method then you must also implement the version of
+<code translate="no" dir="ltr"><a href="/reference/android/content/ContentProvider#query(android.net.Uri,%20java.lang.String[],%20java.lang.String,%20java.lang.String[],%20java.lang.String)">query(Uri,String[],String,String[],String)</a></code> that does not take a cancellation
+signal to ensure correct operation on older versions of the Android Framework in
+which the cancellation signal overload was not available.</p></p>
+    <table class="responsive">
+    <tr><th colspan=2>Parameters</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr">uri</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">Uri</code>: The URI to query. This will be the full URI sent by the client;
+     if the client is requesting a specific record, the URI will end in a record number
+     that the implementation should parse and add to a WHERE or HAVING clause, specifying
+     that _id value.
+<br>
+This value cannot be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">projection</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: The list of columns to put into the cursor. If
+     <code translate="no" dir="ltr">null</code> all columns are included.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">selection</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: A selection criteria to apply when filtering rows.
+     If <code translate="no" dir="ltr">null</code> then all rows are included.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">selectionArgs</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: You may include ?s in selection, which will be replaced by
+     the values from selectionArgs, in order that they appear in the selection.
+     The values will be bound as Strings.
+<br>
+This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">sortOrder</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: How the rows in the cursor should be sorted.
+     If <code translate="no" dir="ltr">null</code> then the provider is free to define the sort order.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">cancellationSignal</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">CancellationSignal</code>: A signal to cancel the operation in progress, or <code translate="no" dir="ltr">null</code> if none.
+If the operation is canceled, then <code translate="no" dir="ltr"><a href="/reference/android/os/OperationCanceledException">OperationCanceledException</a></code> will be thrown
+when the query is executed.</p></td>
+      </tr>
+    </table>
+    <table class="responsive">
+      <tr><th colspan=2>Returns</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr"><a href="/reference/android/database/Cursor">Cursor</a></code></td>
+        <td width="100%">a Cursor or <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+    </table>
+
+</div>
+
+<div data-version-added="28">
+
+<h3 class="api-name" id="update(android.net.Uri,%20android.content.ContentValues,%20java.lang.String,%20java.lang.String[])" data-text="update" tabindex="-1">update</h3>
+    <div class="api-level">
+      <div>
+    Added in <a href="/guide/topics/manifest/uses-sdk-element#ApiLevels">API level 28</a>
+  </div>
+
+
+
+    </div>
+<div></div><devsite-code><pre class="api-signature no-pretty-print" translate="no" dir="ltr" is-upgraded>
+public final int update (<a href="/reference/android/net/Uri">Uri</a> uri,
+                <a href="/reference/android/content/ContentValues">ContentValues</a> values,
+                <a href="/reference/java/lang/String">String</a> selection,
+                <a href="/reference/java/lang/String">String[]</a> selectionArgs)</pre></devsite-code>
+
+
+
+
+  <p>Implement this to handle requests to update one or more rows. The
+implementation should update all rows matching the selection to set the
+columns according to the provided values map. As a courtesy, call
+<code translate="no" dir="ltr"><a href="/reference/android/content/ContentResolver#notifyChange(android.net.Uri,%20android.database.ContentObserver)">notifyChange()</a></code> after updating. This method can be called from multiple
+threads, as described in <a href="/guide/topics/fundamentals/processes-and-threads#Threads">Processes
+and Threads</a>.</p></p>
+    <table class="responsive">
+    <tr><th colspan=2>Parameters</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr">uri</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">Uri</code>: The URI to query. This can potentially have a record ID if
+           this is an update request for a specific record.
+<br>
+This value cannot be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">values</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">ContentValues</code>: A set of column_name/value pairs to update in the database.
+<br>
+This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">selection</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: An optional filter to match rows to update.
+<br>
+This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+      <tr>
+        <td><code translate="no" dir="ltr">selectionArgs</code></td>
+        <td width="100%">
+          <code translate="no" dir="ltr">String</code>: This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+      </tr>
+    </table>
+    <table class="responsive">
+      <tr><th colspan=2>Returns</th></tr>
+      <tr>
+        <td><code translate="no" dir="ltr">int</code></td>
+        <td width="100%">the number of rows affected.</p></td>
+      </tr>
+    </table>
+
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+
+</div><!-- end jd-content -->
+
+
+</div><!-- end devsite ReferenceObject -->
+
+
+
+
+    <devsite-hats-survey class="nocontent" data-nosnippet
+      hats-id="VxqvKSur40kxBYCLVTd0SSGykbno"
+      listnr-id="5207477"></devsite-hats-survey>
+
+</div>
+
+
+
+      <devsite-recommendations display="in-page" hidden yield>
+      </devsite-recommendations>
+
+
+
+    <devsite-thumb-rating position="footer">
+    </devsite-thumb-rating>
+
+
+
+
+      <devsite-recommendations id="recommendations-link" yield></devsite-recommendations>
+
+
+
+  <div class="devsite-floating-action-buttons"></div>
+</main></body></html>
