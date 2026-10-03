@@ -545,6 +545,55 @@ static class ImporterProgram
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
 
+                    if (mapping.Docs!.QualityFirstFillOnly)
+                    {
+                        foreach (var placeholder in owner.Placeholders)
+                        {
+                            var replacement = placeholder.Name == "para" || placeholder.IsImporterMetadataRepair
+                                ? Replacement.Skip("source_channel_ambiguous",
+                                    "This source-bound first-fill guard preserves nested placeholders and existing documentation.")
+                                : ReplacementFor(placeholder, mapping.Docs);
+                            if (replacement.Text is null || remaining == 0)
+                            {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath, owner.Id, placeholder.Target,
+                                    replacement.Text is null ? replacement.Reason! : "max_changes_reached",
+                                    replacement.Text is null ? replacement.Detail :
+                                        $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                                continue;
+                            }
+                            if (!TryReplacePlaceholder(text, file.DocsBlocks[owner.Order], placeholder,
+                                    replacement, out var updated, out var error))
+                            {
+                                report.Entries.Add(ReportEntry.Error(file.RelativePath, owner.Id,
+                                    placeholder.Target, "source_xml_layout_mismatch", error, mapping.SourceUrl));
+                                continue;
+                            }
+                            text = updated;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            remaining--;
+                            fileChanged = true;
+                            report.Entries.Add(ReportEntry.Changed("would_apply", file.RelativePath,
+                                owner.Id, placeholder.Target, mapping.SourceUrl));
+                            if (placeholder.Name == "remarks")
+                            {
+                                text = AddSourceDocumentationIfSafe(text, file, owner, mapping.Docs,
+                                    out var cleanupSkip, allowEnumCreation: false);
+                                file.UpdateBlockOffsets(owner.Order, text);
+                                if (cleanupSkip is not null)
+                                    ReportSourceReferenceCleanupSkip(report, file, owner, mapping.SourceUrl, cleanupSkip);
+                            }
+                        }
+                        foreach (var target in mapping.Docs.UnsafeTargets!)
+                        {
+                            if (!owner.Placeholders.Any(placeholder => placeholder.Target == target.Key))
+                                report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id,
+                                    target.Key, "source_channel_ambiguous", target.Value, mapping.SourceUrl));
+                        }
+                        continue;
+                    }
+
                     var rawWithdrawal = WithdrawKnownUnsafeRawEnumSummary(text, file, owner, mapping.Docs!);
                     if (rawWithdrawal.Targets.Count > 0)
                     {
@@ -1863,6 +1912,7 @@ static class ImporterProgram
         }
         docs = WithKnownEapChannelCorrections(owner, docs);
         docs = WithKnownTvAdSourceCorrections(owner, docs);
+        docs = WithoutKnownUnsafeQualityChannels(owner, exact[0], docs);
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeProtoTokenRemark(owner, docs);
         docs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, docs);
@@ -2245,6 +2295,102 @@ static class ImporterProgram
         targets["remarks"] =
             "The exact Android token paragraph calls capacities 512 and 524,288 maximum field values, but packed values are masked to 511 and 524,287; wrapped depths and negative object IDs do not make the stated maxima representable.";
         return docs with { UnsafeTargets = targets, WithheldRemarks = docs.Paragraphs };
+    }
+
+    static SourceDocs WithoutKnownUnsafeQualityChannels(DocsOwner owner, SourceMember member, SourceDocs docs)
+    {
+        const string prefix = "android/media/quality/";
+        var javaPath = owner.SourceRequest?.JavaPath;
+        if (owner.SourceRequest?.Kind != "android" || javaPath is null ||
+            !javaPath.StartsWith(prefix, StringComparison.Ordinal) ||
+            owner.SourceRequest.Url != AndroidReference + javaPath.Replace('$', '.') ||
+            docs.SourceKind != "android" || owner.Member is null ||
+            docs.SourceLabel != javaPath.Replace('/', '.').Replace('$', '.') + "." + member.Name)
+            return docs;
+
+        string? target = null;
+        string? detail = null;
+        string? managedSignature = null;
+        string? returnType = null;
+        MemberRegistration? registration = null;
+        (string Name, string Type)[] parameters = [];
+        var parcelOwners = new[]
+        {
+            "ActiveProcessingPicture", "AmbientBacklightEvent", "AmbientBacklightMetadata",
+            "AmbientBacklightSettings", "MediaQualityManager$ProfileQueryParams",
+            "ParameterCapability", "PictureProfile", "SoundProfile",
+        };
+        if (parcelOwners.Contains(javaPath[prefix.Length..], StringComparer.Ordinal) &&
+            javaPath.StartsWith(prefix, StringComparison.Ordinal) &&
+            member.Declaration == "public void writeToParcel (Parcel dest, int flags)" &&
+            docs.SourceUrl == AndroidReference + javaPath.Replace('$', '.') +
+                "#writeToParcel(android.os.Parcel,%20int)" &&
+            docs.Summary == "Flatten this object in to a Parcel." &&
+            docs.Paragraphs.SequenceEqual([new SourceParagraph("Flatten this object in to a Parcel.", false)]))
+        {
+            target = "summary";
+            detail = "The exact official parcel summary and remarks contain the known 'in to' typo; no replacement prose is inferred.";
+            managedSignature = "public void WriteToParcel (Android.OS.Parcel dest, Android.OS.ParcelableWriteFlags flags);";
+            returnType = "System.Void";
+            registration = new("writeToParcel", "(Landroid/os/Parcel;I)V", false);
+            parameters = [("dest", "Android.OS.Parcel"), ("flags", "Android.OS.ParcelableWriteFlags")];
+        }
+        else if (javaPath == prefix + "MediaQualityManager" &&
+            member.Name is "getAvailablePictureProfiles" or "getAvailableSoundProfiles")
+        {
+            var picture = member.Name == "getAvailablePictureProfiles";
+            var profile = picture ? "PictureProfile" : "SoundProfile";
+            var expectedReturn = picture
+                ? "the corresponding picture profile if available; null if the name doesn't exist."
+                : "the corresponding sound profile if available; null if the none available.";
+            if (member.Declaration == $"public List<{profile}> {member.Name} (MediaQualityManager.ProfileQueryParams options)" &&
+                docs.SourceUrl == AndroidReference + javaPath + "#" + member.Name +
+                    "(android.media.quality.MediaQualityManager.ProfileQueryParams)" &&
+                docs.Returns == expectedReturn)
+            {
+                target = "returns";
+                detail = "The exact official return describes a single nullable profile, but the declared and managed return is a profile collection.";
+                managedSignature = $"public System.Collections.Generic.IList<Android.Media.Quality.{profile}> GetAvailable{(picture ? "Picture" : "Sound")}Profiles (Android.Media.Quality.MediaQualityManager.ProfileQueryParams? options);";
+                returnType = $"System.Collections.Generic.IList<Android.Media.Quality.{profile}>";
+                registration = new(member.Name, "(Landroid/media/quality/MediaQualityManager$ProfileQueryParams;)Ljava/util/List;", false);
+                parameters = [("options", "Android.Media.Quality.MediaQualityManager+ProfileQueryParams")];
+            }
+        }
+        else if (javaPath == prefix + "ParameterCapability" &&
+            member.Declaration == "public int getParameterType ()" &&
+            docs.SourceUrl == AndroidReference + javaPath + "#getParameterType()" &&
+            docs.Returns == "Value is either 0 or a combination of the following: TYPE_NONE; TYPE_INT; TYPE_LONG; TYPE_DOUBLE; TYPE_STRING")
+        {
+            target = "value";
+            detail = "The exact official return advertises flag combinations for mutually exclusive parameter-type codes.";
+            managedSignature = "public Android.Media.Quality.ParameterCapabilityType ParameterType { get; }";
+            returnType = "Android.Media.Quality.ParameterCapabilityType";
+            registration = new("getParameterType", "()I", false);
+        }
+        if (target is null || owner.MemberRegistration != registration ||
+            owner.Id != (target == "value" ? "P:" : "M:") +
+                "Android.Media.Quality." + javaPath[prefix.Length..].Replace('$', '.') +
+                (target == "value" ? ".ParameterType" : target == "summary"
+                    ? ".WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)"
+                    : $".GetAvailable{(member.Name == "getAvailablePictureProfiles" ? "Picture" : "Sound")}Profiles(Android.Media.Quality.MediaQualityManager.ProfileQueryParams)") ||
+            owner.Member.Elements("MemberSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "C#").Select(signature =>
+                (string?)signature.Attribute("Value")).SequenceEqual([managedSignature]) != true ||
+            owner.Member.Element("ReturnValue")?.Element("ReturnType")?.Value != returnType ||
+            (owner.Member.Element("Parameters")?.Elements("Parameter") ?? []).Select(parameter =>
+                ((string?)parameter.Attribute("Name") ?? "", (string?)parameter.Attribute("Type") ?? ""))
+                .SequenceEqual(parameters) != true)
+            return docs;
+
+        var targets = new Dictionary<string, string>(StringComparer.Ordinal) { [target] = detail! };
+        if (target == "summary")
+            targets["remarks"] = detail!;
+        return docs with
+        {
+            UnsafeTargets = targets,
+            WithheldRemarks = target == "summary" ? docs.Paragraphs : null,
+            QualityFirstFillOnly = true,
+        };
     }
 
     sealed record KnownTvAdCorrection(
@@ -12271,8 +12417,158 @@ static class ImporterProgram
         }
     }
 
+    static void TestQualityFirstFillGuards(string repositoryRoot)
+    {
+        using var fixtures = JsonDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot,
+            "tools", "importer-fixtures", "quality-firstfill-native.json")));
+        var directory = Path.Combine(repositoryRoot, "docs", "xml",
+            $"QualityFirstFill.importer-self-test-{Environment.ProcessId}");
+        var temporary = Path.Combine(Path.GetTempPath(), $"quality-firstfill-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        Directory.CreateDirectory(temporary);
+        var path = Path.Combine(directory, "member.xml");
+        var overview = Path.Combine(directory, "overview.xml");
+        File.WriteAllText(overview, "<Namespace Name=\"Android.Media.Quality\"><Docs><summary>To be added.</summary><remarks>To be added.</remarks></Docs></Namespace>");
+        try
+        {
+            foreach (var fixture in fixtures.RootElement.EnumerateArray())
+            {
+                var bytes = Convert.FromBase64String(fixture.GetProperty("fragmentBase64").GetString()!);
+                Assert(bytes.Length == fixture.GetProperty("fragmentLength").GetInt32() &&
+                    Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant() ==
+                        fixture.GetProperty("fragmentSha256").GetString(),
+                    "Quality first-fill fixture retains the whole original contiguous native declaration fragment");
+                var html = Encoding.UTF8.GetString(bytes);
+                var input = fixture.GetProperty("xml").GetString()!;
+                File.WriteAllText(path, input);
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                var id = fixture.GetProperty("member").GetString()!;
+                var owner = file.Owners.Single(item => item.Id == id);
+                var request = owner.SourceRequest!;
+                var page = SourcePage.Parse(request, html);
+                var sourceMember = page.Members.Single();
+                var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                };
+                var mapped = MapOwner(owner, pages).Docs!;
+                var targets = fixture.GetProperty("targets").EnumerateArray().Select(item => item.GetString()!).ToArray();
+                Assert(mapped.QualityFirstFillOnly &&
+                    mapped.UnsafeTargets!.Keys.Order().SequenceEqual(targets.Order()),
+                    $"Quality source-bound guard matches {id}: {sourceMember.Declaration} | {sourceMember.Docs!.Returns} | " +
+                    $"{request.JavaPath} | {request.Url} | {sourceMember.Docs.SourceUrl} | {sourceMember.Docs.SourceLabel} | " +
+                    $"{owner.MemberRegistration} | {owner.Member!.Element("ReturnValue")} | {owner.Member.Element("Parameters")}");
+                foreach (var target in targets)
+                    Assert(ReplacementFor(new Placeholder(0, target, "", target), mapped).Text is null,
+                        "Quality unsafe channel is withheld, never normalized: " + id + " " + target);
+                foreach (var changed in new[]
+                {
+                    sourceMember.Docs! with { SourceKind = "java" },
+                    sourceMember.Docs! with { SourceUrl = sourceMember.Docs!.SourceUrl + ".Other" },
+                    sourceMember.Docs! with { SourceLabel = sourceMember.Docs!.SourceLabel + ".Other" },
+                })
+                    Assert(!WithoutKnownUnsafeQualityChannels(owner, sourceMember, changed).QualityFirstFillOnly,
+                        "Quality guard rejects changed provenance: " + id);
+                Assert(!WithoutKnownUnsafeQualityChannels(owner,
+                        sourceMember with { Declaration = sourceMember.Declaration + " changed" },
+                        sourceMember.Docs!).QualityFirstFillOnly,
+                    "Quality guard requires the complete original declaration including return type: " + id);
+                foreach (var changedOwner in new[]
+                {
+                    owner with { Id = owner.Id + ".Other" },
+                    owner with { MemberRegistration = owner.MemberRegistration! with { Descriptor = "()V" } },
+                    owner with { SourceRequest = SourceRequest.Create("android/media/quality/Other") },
+                })
+                    Assert(!WithoutKnownUnsafeQualityChannels(changedOwner, sourceMember, sourceMember.Docs!).QualityFirstFillOnly,
+                        "Quality guard rejects changed DocId, JNI descriptor or registered owner: " + id);
+                var corrected = targets.Contains("summary")
+                    ? sourceMember.Docs! with
+                    {
+                        Summary = "Flatten this object into a Parcel.",
+                        Paragraphs = [new SourceParagraph("Flatten this object into a Parcel.", false)],
+                    }
+                    : sourceMember.Docs! with { Returns = "Future corrected official return description." };
+                Assert(!WithoutKnownUnsafeQualityChannels(owner, sourceMember, corrected).QualityFirstFillOnly,
+                    "Quality future-corrected source remains eligible: " + id);
+                var signature = owner.Member!.Elements("MemberSignature").Single(item =>
+                    (string?)item.Attribute("Language") == "C#");
+                var originalSignature = (string?)signature.Attribute("Value");
+                signature.SetAttributeValue("Value", originalSignature + " changed");
+                Assert(!WithoutKnownUnsafeQualityChannels(owner, sourceMember, sourceMember.Docs!).QualityFirstFillOnly,
+                    "Quality guard requires the complete original managed signature: " + id);
+                signature.SetAttributeValue("Value", originalSignature);
+                var returnElement = owner.Member.Element("ReturnValue")!.Element("ReturnType")!;
+                var originalReturn = returnElement.Value;
+                returnElement.Value = "System.Object";
+                Assert(!WithoutKnownUnsafeQualityChannels(owner, sourceMember, sourceMember.Docs!).QualityFirstFillOnly,
+                    "Quality guard rejects a different managed return type: " + id);
+                returnElement.Value = originalReturn;
+                foreach (var parameter in owner.Member.Element("Parameters")?.Elements("Parameter") ?? [])
+                {
+                    foreach (var attribute in new[] { "Name", "Type" })
+                    {
+                        var original = (string?)parameter.Attribute(attribute);
+                        parameter.SetAttributeValue(attribute, original + " changed");
+                        Assert(!WithoutKnownUnsafeQualityChannels(owner, sourceMember, sourceMember.Docs!).QualityFirstFillOnly,
+                            "Quality guard rejects a different ordered managed parameter " + attribute + ": " + id);
+                        parameter.SetAttributeValue(attribute, original);
+                    }
+                }
+
+                var cachePath = Path.Combine(temporary,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                File.WriteAllText(cachePath, html);
+                var reportPath = Path.Combine(temporary, "report");
+                int Apply() => RunAsync([
+                    "--path", directory, "--path", overview, "--namespace", "Android.Media.Quality",
+                    "--member", id, "--cache", temporary, "--offline", "--max-changes", "10",
+                    "--apply", "--report", reportPath,
+                ]).GetAwaiter().GetResult();
+                Assert(Apply() == 0, "Quality guarded production apply succeeds: " + id);
+                using (var firstReport = JsonDocument.Parse(File.ReadAllText(reportPath + ".json")))
+                {
+                    var count = firstReport.RootElement.GetProperty("appliedCount").GetInt32();
+                    Assert(targets.Contains("value") ? count == 0 : count > 0 && count <= 10,
+                        "Quality exact safe sibling channels remain usable with a bounded count: " + id);
+                }
+                var applied = File.ReadAllText(path);
+                var appliedDocs = XDocument.Parse(applied, LoadOptions.PreserveWhitespace)
+                    .Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                foreach (var target in targets)
+                    Assert(appliedDocs.Element(target)!.Value == "To be added.",
+                        "Quality unsafe direct placeholder remains unchanged in production: " + id + " " + target);
+                foreach (var element in owner.Docs.Elements().Where(element =>
+                    element.Value != "To be added."))
+                    Assert(XNode.DeepEquals(element, appliedDocs.Elements(element.Name).Single()),
+                        "Quality production preserves pre-existing authored channel: " + id + " " + element.Name);
+                Assert(Apply() == 0 && File.ReadAllText(path) == applied,
+                    "Quality repeated production apply is byte-identical: " + id);
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0,
+                    "Quality repeat report records zero operations: " + id);
+
+                var authored = XDocument.Parse(input, LoadOptions.PreserveWhitespace);
+                var authoredDocs = authored.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                foreach (var element in authoredDocs.Elements())
+                    element.ReplaceNodes(new XText("Preserved authored " + element.Name + "."));
+                authoredDocs.Element("remarks")!.ReplaceNodes(new XElement("para", "To be added."));
+                File.WriteAllText(path, authored.ToString(SaveOptions.DisableFormatting));
+                var before = File.ReadAllBytes(path);
+                Assert(Apply() == 0 && File.ReadAllBytes(path).SequenceEqual(before),
+                    "Quality all writers preserve authored and nested Docs without metadata enrichment: " + id);
+            }
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+            Directory.Delete(temporary, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
+        TestQualityFirstFillGuards(repositoryRoot);
         TestTvAdSourceCorrections(repositoryRoot);
         TestAdminOnBindRawSource(repositoryRoot);
         TestAdminRestrictionRenderedRepair(repositoryRoot);
@@ -23868,7 +24164,10 @@ static class ImporterProgram
                     isField,
                     arguments,
                     ExtractAndroidDocs(fragment, request, heading.Title, url),
-                    url));
+                    url,
+                    HtmlText(Regex.Match(fragment,
+                        @"<pre\b[^>]*class=""[^""]*\bapi-signature\b[^""]*""[^>]*>(?<declaration>.*?)</pre>",
+                        RegexOptions.Singleline | RegexOptions.CultureInvariant).Groups["declaration"].Value)));
             }
 
             return new SourcePage
@@ -24763,7 +25062,8 @@ static class ImporterProgram
         bool IsField,
         List<string>? ArgumentDescriptors,
         SourceDocs? Docs,
-        string Url);
+        string Url,
+        string? Declaration = null);
 
     sealed record SourceParagraph(string Text, bool IsCode);
 
@@ -24783,7 +25083,8 @@ static class ImporterProgram
         List<SourceParagraph>? WithheldRemarks = null,
         KnownNfcContract? NfcContract = null,
         KnownTvAdCorrection? TvAdCorrection = null,
-        IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null);
+        IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null,
+        bool QualityFirstFillOnly = false);
 
     static class Descriptor
     {
