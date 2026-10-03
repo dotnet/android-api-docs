@@ -2045,6 +2045,13 @@ static class ImporterProgram
                 new XElement("remarks", "To be added.", ImporterSourceReference(raw),
                     XElement.Parse($"<para>{AndroidAttribution}</para>"))))
                 continue;
+            if (channel.Name == "remarks" && !channel.Elements("code")
+                .Select(element => element.Value.Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\r", "\n", StringComparison.Ordinal))
+                .SequenceEqual(original.Elements("code")
+                    .Select(element => element.Value.Replace("\r\n", "\n", StringComparison.Ordinal)
+                        .Replace("\r", "\n", StringComparison.Ordinal)), StringComparer.Ordinal))
+                return new(text, []);
             if (!ImporterMarkupEquals(channel, original))
                 return new(text, []);
             if (channel.Name != "remarks" && !HasPlainTextContent(channel, out _))
@@ -12096,6 +12103,9 @@ static class ImporterProgram
             .Single(candidate => candidate.Elements("MemberSignature").Any(signature =>
                 (string?)signature.Attribute("Language") == "DocId" &&
                 (string?)signature.Attribute("Value") == owner.Id)).Element("Docs")!).ToArray();
+        Assert(legacyDocs.Count(docs => docs.Element("remarks")!.Elements("code").Any(code =>
+            code.Value.Contains("// Guard against SQL injection attacks\n", StringComparison.Ordinal))) == 2,
+            "both independently produced Query samples retain the original Java line-comment boundary");
         var request = owners[0].SourceRequest!;
         var page = SourcePage.Parse(request, html);
         var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
@@ -12252,6 +12262,33 @@ static class ImporterProgram
                     Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
                         File.ReadAllBytes(pipelinePath).SequenceEqual(bytes),
                         "SliceProvider production repair preserves authored nodes, mixed markup, CDATA, comments, processing instructions, attributes, references, attribution and duplicate channels");
+                }
+                if (legacyDocs[index].Element("remarks")!.Elements("code").Any(code =>
+                    code.Value.Contains("// Guard against SQL injection attacks\n", StringComparison.Ordinal)))
+                {
+                    var changed = XElement.Parse(original, LoadOptions.PreserveWhitespace);
+                    var changedDocs = changed.Element("Members")!.Elements("Member").Single(candidate =>
+                        candidate.Elements("MemberSignature").Any(signature =>
+                            (string?)signature.Attribute("Language") == "DocId" &&
+                            (string?)signature.Attribute("Value") == prior.Id)).Element("Docs")!;
+                    var code = changedDocs.Element("remarks")!.Elements("code").Single(element =>
+                        element.Value.Contains("// Guard against SQL injection attacks\n", StringComparison.Ordinal));
+                    var originalCode = code.Value;
+                    code.Value = originalCode.Replace("// Guard against SQL injection attacks\n",
+                        "// Guard against SQL injection attacks ", StringComparison.Ordinal);
+                    Assert(code.Value != originalCode && ImporterMarkupEquals(changedDocs, legacyDocs[index]),
+                        "independent Query seed contains semantics-changing Java whitespace that prose comparison cannot distinguish");
+                    WriteDocument(changed);
+                    var bytes = File.ReadAllBytes(pipelinePath);
+                    for (var repeat = 0; repeat < 2; repeat++)
+                    {
+                        using var report = RunPipeline();
+                        Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                            File.ReadAllBytes(pipelinePath).SequenceEqual(bytes),
+                            "SliceProvider preserves author-modified Query Java code before any channel withdrawal on max-one persisted repeats");
+                    }
                 }
                 WriteDocument(document);
                 var historicalOperations = 0;

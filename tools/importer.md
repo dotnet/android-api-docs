@@ -106,6 +106,11 @@ output or its already-withdrawn placeholders. Source reference and attribution
 bytes are retained when remarks are withdrawn. Authored or mixed XML, comments,
 CDATA, processing instructions, duplicate channels, altered metadata, changed
 source, references or attribution preserve the existing documentation.
+Every Java code body must also match ordinally after XML newline normalization
+before any channel can be withdrawn; prose whitespace normalization cannot prove
+code ownership. Registered max-one production negatives load both independent
+Query samples, alter a line-comment boundary, and require zero changed files,
+zero applied changes, and byte-identical persisted repeats.
 The registered prior-copy tests load `slices-provider-legacy-output.json`, produced
 by a fresh offline run of the unchanged importer from commit
 `f4ce3c93a25be92426e1caa8f65294508c78bd4a` against isolated original binding
