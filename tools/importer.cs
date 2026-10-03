@@ -1805,6 +1805,7 @@ static class ImporterProgram
                     fields[0].Url);
             fieldDocs = WithoutKnownMalformedConversationAnniversary(owner, registration, fieldDocs);
             fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
+            fieldDocs = WithoutKnownUnsafeOobSecuritySource(owner, fieldDocs);
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
@@ -2524,6 +2525,36 @@ static class ImporterProgram
                 paragraph.IsCode || paragraph.Text != RssiMalformedDefault).ToList(),
             UnsafeTargets = targets,
         };
+    }
+
+    static SourceDocs WithoutKnownUnsafeOobSecuritySource(DocsOwner owner, SourceDocs docs)
+    {
+        if (owner.Id != "F:Android.Ranging.Oob.OobInitiatorRangingConfigSecurityLevel.Secure" ||
+            !owner.IsEnumField ||
+            (string?)owner.Member?.Element("ReturnValue")?.Element("ReturnType") !=
+                "Android.Ranging.Oob.OobInitiatorRangingConfigSecurityLevel" ||
+            (string?)owner.Member?.Element("MemberValue") != "1" ||
+            Registration.JniField(owner.Member!) is not
+                { Owner: "android/ranging/oob/OobInitiatorRangingConfig", Name: "SECURITY_LEVEL_SECURE" } ||
+            docs.SourceKind != "android" ||
+            docs.SourceUrl != AndroidReference +
+                "android/ranging/oob/OobInitiatorRangingConfig#SECURITY_LEVEL_SECURE" ||
+            docs.SourceLabel != "android.ranging.oob.OobInitiatorRangingConfig.SECURITY_LEVEL_SECURE" ||
+            docs.Summary != "Basic security level for the ranging session." ||
+            !docs.Paragraphs.SequenceEqual([
+                new SourceParagraph("Basic security level for the ranging session.", false),
+                new SourceParagraph("Example usage: UWB: Provisioned-STS BLE-CS: Security level four", false),
+            ]))
+            return docs;
+
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        const string detail =
+            "The exact Android SECURITY_LEVEL_SECURE description incorrectly labels the distinct provisioned-STS/security-level-four mode as basic; no replacement prose was inferred.";
+        targets["summary"] = detail;
+        targets["remarks"] = detail;
+        return docs with { UnsafeTargets = targets };
     }
 
     static readonly (string Name, string Field, string Text)[] KnownUnsafeRawRates =
@@ -17263,6 +17294,7 @@ static class ImporterProgram
         try
         {
             TestIkeEnumSourceExclusion(repositoryRoot, docsRoot, tempDirectory);
+            TestOobSecuritySourceExclusion(repositoryRoot, docsRoot, tempDirectory);
             TestConversationAnniversarySourceExclusion(repositoryRoot, docsRoot, tempDirectory);
 
             TestKnownUnsafeIkeDocumentation(repositoryRoot, fixtureRoot, tempDirectory);
@@ -20050,6 +20082,188 @@ static class ImporterProgram
                 Assert(
                     Apply("ike-enum-authored") == 0 && File.ReadAllBytes(path).SequenceEqual(authoredBytes),
                     "IKE source exclusion preserves authored, mixed, CDATA, comment, PI, attribute, reference, attribution and metadata channels");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    static void TestOobSecuritySourceExclusion(
+        string repositoryRoot,
+        string docsRoot,
+        string tempDirectory)
+    {
+        const string memberId =
+            "F:Android.Ranging.Oob.OobInitiatorRangingConfigSecurityLevel.Secure";
+        var sourceUrl = AndroidReference + "android/ranging/oob/OobInitiatorRangingConfig";
+        var html = File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "oob-security-android-reference.html"))
+            .ReplaceLineEndings("\n");
+        var fixture = XDocument.Load(Path.Combine(
+            docsRoot, "Android.Ranging.Oob", "OobInitiatorRangingConfigSecurityLevel.xml"),
+            LoadOptions.PreserveWhitespace);
+        fixture.Root!.Element("Docs")!.ReplaceWith(
+            new XElement("Docs", new XElement("summary", "Authored enum overview.")));
+        foreach (var member in fixture.Root.Element("Members")!.Elements("Member"))
+            member.Element("Docs")!.ReplaceWith(
+                new XElement("Docs", new XElement("summary", "To be added.")));
+        var path = Path.Combine(docsRoot,
+            $"OobSecurity.importer-self-test-{Environment.ProcessId}.xml");
+        var cache = Path.Combine(tempDirectory, "oob-security-cache");
+        Directory.CreateDirectory(cache);
+        var cachePath = Path.Combine(cache,
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceUrl)))
+                .ToLowerInvariant() + ".html");
+        var reportPath = Path.Combine(tempDirectory, "oob-security-report");
+        void Write(XDocument document, string source)
+        {
+            File.WriteAllText(path, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            File.WriteAllText(cachePath, source, new UTF8Encoding(false));
+        }
+        DocsOwner LoadOwner()
+        {
+            var file = LoadedFile.Load(repositoryRoot, path);
+            file.SelectOwners("Secure");
+            return file.Owners.Single();
+        }
+        int Apply() => RunAsync([
+            "--path", path, "--namespace", "Android.Ranging.Oob",
+            "--offline", "--cache", cache, "--max-changes", "1",
+            "--apply", "--report", reportPath,
+        ]).GetAwaiter().GetResult();
+        void AssertNoEdit(XDocument document, string source, string message)
+        {
+            Write(document, source);
+            var before = File.ReadAllBytes(path);
+            Assert(Apply() == 0 && before.SequenceEqual(File.ReadAllBytes(path)), message);
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                "OOB no-edit report records zero writes, files and errors");
+        }
+        try
+        {
+            Write(fixture, html);
+            var owner = LoadOwner();
+            var page = SourcePage.Parse(owner.SourceRequest!, html);
+            var raw = page.Members.Single(member => member.Name == "SECURITY_LEVEL_SECURE").Docs!;
+            var filtered = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+            {
+                [sourceUrl] = SourceLoadResult.Success(page),
+            }).Docs!;
+            Assert(owner.Id == memberId && owner.IsEnumField &&
+                owner.MemberRegistration is { IsField: true, Name: "SECURITY_LEVEL_SECURE" } &&
+                raw.UnsafeTargets is null && filtered.UnsafeTargets?.Count == 2 &&
+                ReplacementFor(owner.Placeholders.Single(), filtered, true).Reason ==
+                    "source_channel_ambiguous",
+                "actual OOB enum/JniField mapping withholds the complete defective secure contract before field rendering");
+            foreach (var source in new[]
+            {
+                raw with { SourceUrl = sourceUrl + "#SECURITY_LEVEL_BASIC" },
+                raw with { SourceKind = "java" },
+                raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                raw with { Summary = "Secure security level for the ranging session." },
+                raw with { Paragraphs = [new SourceParagraph("Changed source contract.", false)] },
+                raw with { Paragraphs = raw.Paragraphs.Select(p => p with { IsCode = true }).ToList() },
+                raw with { Paragraphs = [.. raw.Paragraphs, new SourceParagraph("New source context.", false)] },
+            })
+                Assert(WithoutKnownUnsafeOobSecuritySource(owner, source).UnsafeTargets is null,
+                    "OOB exclusion requires the canonical Android identity and complete original contract");
+            foreach (var change in new Action<XElement>[]
+            {
+                member => member.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId")
+                    .SetAttributeValue("Value", memberId + ".Other"),
+                member => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32",
+                member => member.Element("MemberValue")!.Value = "0",
+                member => {
+                    foreach (var attribute in member.Descendants("AttributeName"))
+                        attribute.Value = attribute.Value.Replace("SECURITY_LEVEL_SECURE", "SECURITY_LEVEL_BASIC",
+                            StringComparison.Ordinal);
+                },
+            })
+            {
+                var changed = new XDocument(fixture);
+                change(changed.Root!.Element("Members")!.Elements("Member").Single(member =>
+                    (string?)member.Attribute("MemberName") == "Secure"));
+                Write(changed, html);
+                Assert(WithoutKnownUnsafeOobSecuritySource(LoadOwner(), raw).UnsafeTargets is null,
+                    "OOB exclusion requires the exact managed identity, enum type/value and registered field");
+            }
+            Write(fixture, html);
+            Assert(Apply() == 0, "OOB max-one first fill succeeds");
+            var appliedBytes = File.ReadAllBytes(path);
+            var applied = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+            var members = applied.Root!.Element("Members")!.Elements("Member").ToList();
+            var basic = members.Single(member => (string?)member.Attribute("MemberName") == "Basic");
+            var secure = members.Single(member => (string?)member.Attribute("MemberName") == "Secure");
+            var basicSummary = basic.Element("Docs")!.Element("summary")!;
+            Assert(basicSummary.Elements("para").First().Value == raw.Summary &&
+                ContainsSourceUrl(basicSummary, sourceUrl + "#SECURITY_LEVEL_BASIC") &&
+                basicSummary.Elements("para").Any(IsImporterAttributionParagraph) &&
+                secure.Element("Docs")!.Element("summary")!.Value == "To be added.",
+                "safe Basic enum prose/reference/attribution is published while Secure stays a placeholder");
+            using (var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json")))
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("member").GetString() == memberId &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "OOB first-fill report records one safe fill and the exact source exclusion");
+            var reset = new XDocument(applied);
+            reset.Root!.Element("Members")!.Elements("Member").Single(member =>
+                (string?)member.Attribute("MemberName") == "Basic").Element("Docs")!.ReplaceWith(
+                    new XElement("Docs", new XElement("summary", "To be added.")));
+            Assert(XNode.DeepEquals(reset, fixture), "OOB first fill preserves API metadata and unrelated XML");
+            AssertNoEdit(applied, html, "actual generated Basic enum is byte-identical on repeat");
+            Assert(File.ReadAllBytes(path).SequenceEqual(appliedBytes), "OOB repeat preserves original generated bytes");
+            foreach (var markup in new[]
+            {
+                "<summary>Authored security description.</summary>",
+                "<summary>Authored <c>security</c> description.</summary>",
+                "<summary><![CDATA[Authored security description.]]></summary>",
+                "<summary><!-- Authored -->Authored security description.</summary>",
+                "<summary><?authored preserve?>Authored security description.</summary>",
+                "<summary audience=\"authored\">Authored security description.</summary>",
+                "<summary>Authored security description.</summary><summary>Second authored channel.</summary>",
+                "<summary>Authored <para>To be added.</para> security description.</summary>",
+                "<summary>To be added.</summary><remarks><para>To be added.</para></remarks>",
+                "<summary>To be added.</summary><remarks>To be added.</remarks>",
+                "<summary>Authored description.</summary><remarks><para>Added in API level 36.</para></remarks>",
+            })
+            {
+                secure.Element("Docs")!.ReplaceWith(XElement.Parse("<Docs>" + markup + "</Docs>",
+                    LoadOptions.PreserveWhitespace));
+                AssertNoEdit(applied, html,
+                    "OOB exclusion preserves authored/mixed/CDATA/comment/PI/attributes/duplicate/nested/overlapping and metadata channels");
+            }
+            foreach (var corrected in new[]
+            {
+                html.Replace("Basic security level for the ranging session.</p>\n<p>Example usage:\nUWB: Provisioned-STS",
+                    "Secure security level for the ranging session.</p>\n<p>Example usage:\nUWB: Provisioned-STS",
+                    StringComparison.Ordinal),
+                html.Replace("<p>Basic security level for the ranging session.</p>\n<p>Example usage:\nUWB: Provisioned-STS",
+                    "<p>Example usage:\nUWB: Provisioned-STS", StringComparison.Ordinal),
+            })
+            {
+                Assert(corrected != html, "corrected and removed unsafe source controls actually differ");
+                secure.Element("Docs")!.ReplaceWith(
+                    new XElement("Docs", new XElement("summary", "To be added.")));
+                Write(applied, corrected);
+                Assert(Apply() == 0 && XDocument.Load(path).Root!.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == "Secure")
+                    .Element("Docs")!.Element("summary")!.Elements("para").Any(),
+                    "corrected and removed defective source contracts remain eligible for real max-one enum import");
+                var correctedBytes = File.ReadAllBytes(path);
+                Assert(Apply() == 0 && File.ReadAllBytes(path).SequenceEqual(correctedBytes),
+                    "corrected source production repeat is byte-identical");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("filesChanged").GetInt32() == 0,
+                    "corrected source persisted repeat report records zero writes and files");
             }
         }
         finally
