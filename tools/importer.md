@@ -412,6 +412,15 @@ those in summaries), metadata-only enrichment, placeholder cleanup, Java-signatu
 repair, and importer-owned refresh. These layouts retain their complete original
 bytes; excluded operations are reported against `remarks`, not `summary`.
 
+The exact `ChooserSession.removeStateListener(StateListener)` detail is withheld
+while its complete description names an `UpdateListener` callback. The guard
+requires the canonical Android member URL and label, declaring type, full JNI
+descriptor, managed signature and parameter types, and the original non-null
+parameter contract. It rejects the entire ambiguous mapping before any first-fill,
+enrichment, or repair can write, preserving existing authored and prior imported
+Docs unchanged. No replacement listener prose is inferred. Corrected or removed
+stale descriptions remain eligible, and unrelated Chooser members are unaffected.
+
 The `IkeProtocolErrorType.NoAdditionalSas` enum summary is skipped when its exact
 managed field, canonical `IkeProtocolException.ERROR_TYPE_NO_ADDITIONAL_SAS`
 Android URL, and complete source prose match `No additional SAa are acceptable`.
