@@ -410,6 +410,21 @@ The undefined `SAa` term is not guessed or silently corrected. This exclusion
 is checked in the production `JniField` mapping before its early return;
 other constants, changed source prose, and authored documentation are preserved.
 
+The projected `ConversationActivity.Anniversary` summary and augmented remarks
+are withheld when its
+complete official `ConversationStatus.ACTIVITY_ANNIVERSARY` sentence says
+`and anniversary`. This first-fill-only guard requires the exact managed enum
+field and return type, registered JNI field and `JniField` owner, canonical
+Android URL, source kind, and complete original summary and paragraph.
+No replacement wording is guessed and existing non-placeholder documentation,
+including the legacy constant's prose, is preserved. Enum enrichment also
+preserves the still-placeholder summary and its existing metadata rather than
+wrapping it in a nested placeholder. Corrected official source remains eligible.
+Registered production tests cover direct-text and empty-paragraph augmented
+remarks with canonical reference and attribution, one-change safe sibling fills,
+raw source and binding nonmatches, future corrected or removed source, authored
+markup preservation, and byte-identical zero-write repeats.
+
 The string overload of the Controls `RangeTemplate` constructor withholds the
 exact official remarks containing strict endpoint inequalities rather than
 guessing an inclusive-endpoint correction. This exclusion requires the exact
