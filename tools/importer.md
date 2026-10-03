@@ -278,6 +278,40 @@ The site-root link describes the observed source, not a required exclusion
 predicate: the exact unresolved label remains unsafe even if its hyperlink
 changes. Canonical member-page/JNI provenance is checked independently of that
 inner hyperlink; no source-label correction is inferred from either link.
+Ten exact `Android.Ranging.Raw` channels are withheld: all three update-rate
+enum summaries, the BLE RSSI setter parameter
+description naming the different BLE CS class, and the summary/remarks of three
+parcel writers containing `in to`. These exclusions require the exact managed
+member, canonical Android URL, Android source kind, and complete original text.
+Frequent and Normal advertise WiFi PD intervals contradicted by the pinned
+Android 17 implementation and omit the NAN RTT periodic-ranging enable condition.
+Infrequent has a missing WiFi RTT condition. Implementation is verification
+evidence only, never replacement documentation.
+The enum summary remains withheld while its exact original non-code paragraph
+is present anywhere in the source body, independent of summary edits or added
+safe paragraphs, because enum summaries publish that body. Parcel remarks are
+likewise withheld while their exact bad non-code paragraph remains anywhere in
+the body; only the exact bad parcel summary is also withheld. A safe corrected
+parcel summary remains eligible even when the bad remarks paragraph persists.
+Setter summary/returns and parcel flags remain eligible.
+No replacement prose is invented, no generic grammar correction occurs, and
+existing authored or imported channels remain unchanged, except for strict
+withdrawal of the exact original importer-owned Frequent/Normal summaries.
+Withdrawal requires the exact JNI field owner/name, enum type/value/signature,
+complete original source paragraph, canonical reference label/URL, and entire
+plain summary/reference/attribution structure; it restores the placeholder in
+one operation. Authored or mixed content, CDATA, comments, processing
+instructions, attributes, duplicate channels, and altered metadata or
+provenance preserve the entire original Docs.
+Logical exclusions apply before every supported Raw writer, including nested
+paragraph placeholders, enum completion, augmented-placeholder cleanup,
+metadata-only enrichment, Java-signature and copied-description repairs,
+and importer-owned refreshes. Original source paragraphs remain available for
+strict ownership checks but cannot be rendered into withheld channels.
+Official source with
+the bad paragraph corrected or removed becomes eligible without changing the exclusion.
+Changed paragraph text, code-only copies, and different member/source provenance
+are unaffected. The exclusions do not reorder source paragraphs.
 Java-signature remarks repairs likewise require only an unmodified Java signature,
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
