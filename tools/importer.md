@@ -91,6 +91,69 @@ intact; its unsafe return is restored to `To be added.`. Authored or mixed conte
 duplicate channels, altered metadata, and changed sources are preserved and reported.
 Repairs for one member are atomic and require room for every affected channel.
 Implementation verification is not an AOSP prose fallback.
+The final `HostApduService.onBind` and `HostNfcFService.onBind` overrides have
+the same inherited nullable-binder defect. NFC-specific guards require the
+exact managed sealed signature, JNI descriptor, parameter/return metadata,
+canonical Android URL/label, and the complete exact unsafe non-code paragraph.
+First-fill recognition is independent of unrelated summaries, surrounding prose,
+Binder-thread guidance, and source parameter, return, or exception channels.
+Only that paragraph is replaced, removing only
+`May return null if clients can not bind to the service.`; every other paragraph
+and channel remains unchanged and in source order. Known prior-owned remarks
+are repaired only with the full original plain-text paragraphs, exact summary
+and return, canonical reference, and recognized unchanged attribution. Authored
+parameters are not changed, including their existing links and markup.
+The six `PollingLoopType` summaries are held back when their full official text
+describes a `POLLING_LOOP_TYPE` key in a Bundle passed to
+`HostApduService.processPollingFrames(List)`. That callback receives polling
+frames, not the internal Bundle. The exclusion requires the exact managed enum
+field/value, canonical source URL/label, and complete original prose. Only the
+presence of that exact non-code paragraph enables first-fill exclusion, even
+with safe introductory or concluding context; corrected, removed, changed,
+code-only, or malformed source does not enable it. Only the
+exact prior importer-generated summary with its canonical reference and
+attribution can be withdrawn to `To be added.`; no substitute description is
+invented. Changed source, metadata, authored or mixed XML, CDATA, comments,
+processing instructions, attributes, duplicate channels, and altered references
+or attribution are preserved and reported. Registered first-fill, prior-owned
+repair, negative-case, and byte-identical repeat tests exercise the complete
+importer pipeline for all eight NFC members.
+The same unsafe-summary marker is honored by generic enum-summary refreshes,
+including list-gap completion, source-text refresh, truncated-summary rebuilding,
+and reference/attribution reconciliation. A safe prior importer-owned summary
+is retained byte-for-byte when contextual source still contains the complete
+unsafe polling paragraph; the excluded summary is reported as
+`source_channel_ambiguous` without consuming the change budget. Registered
+regressions first produce safe summaries through the actual importer, then
+exercise all six contextual polling refreshes and persisted zero-write repeats.
+This downstream gate does not broaden NFC first-fill recognition or the strict
+original-output repair predicate. Corrected, removed, changed, or code-only source
+remains eligible under those unchanged rules.
+Copied-description label repairs likewise check the unsafe marker for each
+candidate's own target before any summary replacement or remarks removal.
+Excluded legacy summaries are reported as `source_channel_ambiguous` without
+consuming the budget or changing their source references, attribution or bytes.
+Registered regressions exercise all six polling fields with explicitly
+synthesized legacy-label inputs, not claimed historical importer output.
+The options-taking `MediaBrowser.subscribe` and callback-taking `unsubscribe`
+overloads omit options matching and callback identity in two reference
+paragraphs. Only those exact paragraphs are excluded, with an explicit
+`source_channel_ambiguous` report; the remaining reference prose is retained.
+First-fill filtering requires the exact registered managed/JNI owner, name and
+full descriptor, canonical Android URL and source label, and the complete known
+unsafe plain paragraph. It is independent of summary and surrounding safe
+context changes, retaining every other source paragraph in order and every other
+channel unchanged. Corrected, removed, and code-only versions remain eligible.
+Strict prior-owned repair recognition still requires the complete unchanged
+source summary and paragraph sequence. The full unfiltered paragraph sequence
+is retained independently of the first-fill exclusion marker; reordered or
+duplicated unsafe paragraphs cannot authorize withdrawal merely because they
+filter to the expected safe sequence. A prior imported copy
+can lose only its unsafe paragraph when its complete plain summary, ordered
+remarks, source reference, and attribution match known importer output.
+Authored or mixed nodes, duplicate channels, altered sources, and mismatched
+metadata are preserved. Removal leaves every retained metadata byte unchanged;
+corrected future source prose remains eligible.
 The known Android `SetOperatorPlmnIds` PLMN ordering defect is corrected only
 when the exact Android source URL, managed member ID, parameter name, and full
 importer-owned original parameter text all match; all other parameter
@@ -161,6 +224,13 @@ importer paragraph/reference/attribution structure. Authored or mixed markup,
 changed source text, and duplicate channels are preserved. The same narrow
 allow-list corrects newly imported source channels so later refreshes cannot
 reintroduce these defects; no general grammar or punctuation normalization occurs.
+Two additional allow-list channels correct the same `in to` spelling in the
+exact `Android.App.Blob.BlobHandle.WriteToParcel` summary and remarks. They use
+the same full-text, member, source URL, and importer-ownership requirements;
+other parcel implementations and authored documentation are unchanged.
+Registered production-path tests cover bounded first-fill, strict prior-owned
+repair, provenance and JNI mismatches, authored markup, future corrected source,
+and persisted zero-write repeats.
 The same exact-text allow-list corrects `Tile.writeToParcel`'s `in to` typo.
 For QuickSettings, the exact inherited `TileService.onBind` intent parameter is
 withheld because its claim that extras are invisible contradicts the framework
@@ -314,6 +384,21 @@ Android URL, and complete source prose match `No additional SAa are acceptable`.
 The undefined `SAa` term is not guessed or silently corrected. This exclusion
 is checked in the production `JniField` mapping before its early return;
 other constants, changed source prose, and authored documentation are preserved.
+
+The projected `ConversationActivity.Anniversary` summary and augmented remarks
+are withheld when its
+complete official `ConversationStatus.ACTIVITY_ANNIVERSARY` sentence says
+`and anniversary`. This first-fill-only guard requires the exact managed enum
+field and return type, registered JNI field and `JniField` owner, canonical
+Android URL, source kind, and complete original summary and paragraph.
+No replacement wording is guessed and existing non-placeholder documentation,
+including the legacy constant's prose, is preserved. Enum enrichment also
+preserves the still-placeholder summary and its existing metadata rather than
+wrapping it in a nested placeholder. Corrected official source remains eligible.
+Registered production tests cover direct-text and empty-paragraph augmented
+remarks with canonical reference and attribution, one-change safe sibling fills,
+raw source and binding nonmatches, future corrected or removed source, authored
+markup preservation, and byte-identical zero-write repeats.
 
 The string overload of the Controls `RangeTemplate` constructor withholds the
 exact official remarks containing strict endpoint inequalities rather than
