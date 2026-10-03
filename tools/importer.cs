@@ -372,6 +372,31 @@ static class ImporterProgram
             "Property"),
     ];
 
+    static readonly KnownEapChannelCorrection KnownChangeLogChannelCorrection = new(
+        "M:Android.Health.Connect.ChangeLog.ChangeLogTokenRequest.Builder.AddDataOriginFilter(Android.Health.Connect.DataTypes.DataOrigin)",
+        new("addDataOriginFilter", "(Landroid/health/connect/datatypes/DataOrigin;)Landroid/health/connect/changelog/ChangeLogTokenRequest$Builder;", false),
+        "Android.Health.Connect.ChangeLog.ChangeLogTokenRequest+Builder",
+        "public Android.Health.Connect.ChangeLog.ChangeLogTokenRequest.Builder AddDataOriginFilter (Android.Health.Connect.DataTypes.DataOrigin dataOriginFilter);",
+        [("dataOriginFilter", "Android.Health.Connect.DataTypes.DataOrigin")],
+        new(
+            "",
+            [],
+            new(StringComparer.Ordinal)
+            {
+                ["dataOriginFilter"] = "DataOrigin: list of package names on which to filter the data. If not set logs from all the sources will be returned. This value cannot be null.",
+            },
+            "This value cannot be null.",
+            new(StringComparer.Ordinal),
+            AndroidReference + "android/health/connect/changelog/ChangeLogTokenRequest.Builder#addDataOriginFilter(android.health.connect.datatypes.DataOrigin)",
+            "android.health.connect.changelog.ChangeLogTokenRequest.Builder.addDataOriginFilter",
+            "android"),
+        "param:dataOriginFilter",
+        "list of package names on which to filter the data. If not set logs from all the sources will be returned. This value cannot be null.",
+        null);
+
+    static IEnumerable<KnownEapChannelCorrection> KnownExactChannelCorrections =>
+        KnownEapChannelCorrections.Append(KnownChangeLogChannelCorrection);
+
     static readonly KnownUnsafeIkeChannel[] KnownUnsafeIkeChannels =
     [
         new(
@@ -676,7 +701,9 @@ static class ImporterProgram
                         foreach (var target in eapCandidates)
                         {
                             report.Entries.Add(ReportEntry.Skipped(
-                                file.RelativePath, owner.Id, target, "importer_eap_channel_preserved",
+                                file.RelativePath, owner.Id, target,
+                                owner.Id == KnownChangeLogChannelCorrection.MemberId
+                                    ? "importer_changelog_channel_preserved" : "importer_eap_channel_preserved",
                                 "The complete registered member, official source contract, and prior importer-owned Docs could not all be verified; the existing channel was preserved.",
                                 mapping.SourceUrl));
                         }
@@ -1251,12 +1278,16 @@ static class ImporterProgram
                             remaining--;
                             report.Entries.Add(ReportEntry.Changed(
                                 "would_apply", file.RelativePath, owner.Id, target, mapping.SourceUrl,
-                                target is "param:reauthId" or "value"
+                                target == "param:dataOriginFilter"
+                                    ? "importer_changelog_unsafe_parameter_withdrawal"
+                                    : target is "param:reauthId" or "value"
                                     ? target == "value"
                                         ? "importer_eap_unsafe_value_withdrawal"
                                         : "importer_eap_unsafe_parameter_withdrawal"
                                     : "importer_eap_return_typo_repair",
-                                target == "value"
+                                target == "param:dataOriginFilter"
+                                    ? "Withdrew the exact importer-owned parameter because the official source describes a list of package names for a single DataOrigin."
+                                    : target == "value"
                                     ? "Withdrew the exact importer-owned getter value because the supported no-options configuration can return null."
                                     : target == "param:reauthId"
                                     ? "Withdrew the exact importer-owned parameter because the official source confuses a re-authentication ID with the client's EAP identity."
@@ -2657,7 +2688,7 @@ static class ImporterProgram
 
     static SourceDocs WithKnownEapChannelCorrections(DocsOwner owner, SourceDocs docs)
     {
-        var correction = KnownEapChannelCorrections.SingleOrDefault(candidate =>
+        var correction = KnownExactChannelCorrections.SingleOrDefault(candidate =>
             MatchesKnownEapMember(owner, candidate) &&
             (candidate.Target == "value"
                 ? MatchesKnownEapGetterSource(docs, candidate.Source)
@@ -2671,7 +2702,9 @@ static class ImporterProgram
                 UnsafeTargets = new Dictionary<string, string>(StringComparer.Ordinal)
                 {
                     [correction.Target] =
-                        correction.Target == "value"
+                        correction.Target == "param:dataOriginFilter"
+                            ? "The exact official parameter describes a list of package names, but the registered method accepts one DataOrigin and adds it to a set; no replacement prose was inferred."
+                            : correction.Target == "value"
                             ? "The exact official getter return incorrectly guarantees non-null options although the supported no-options builder passes null; no replacement prose was inferred."
                             : "The exact official source misidentifies the re-authentication ID as the client's EAP identity; no safe same-channel prose was available.",
                 },
@@ -2690,16 +2723,24 @@ static class ImporterProgram
         !actual.HasMalformedSourceMarkup;
 
     static List<string> KnownEapChannelRepairCandidateTargets(DocsOwner owner) =>
-        KnownEapChannelCorrections.Where(correction => correction.MemberId == owner.Id)
+        KnownExactChannelCorrections.Where(correction => correction.MemberId == owner.Id)
             .Where(correction => owner.Docs.Elements(correction.Target.Split(':')[0]).Any(channel =>
                 (!correction.Target.StartsWith("param:", StringComparison.Ordinal) ||
-                    (string?)channel.Attribute("name") == "reauthId") &&
+                    (string?)channel.Attribute("name") == correction.Target["param:".Length..]) &&
                 channel.Value == correction.IncorrectText))
             .Select(correction => correction.Target).ToList();
 
     static XElement KnownEapPriorDocs(KnownEapChannelCorrection correction)
     {
         var source = correction.Source;
+        if (correction == KnownChangeLogChannelCorrection)
+            return new XElement("Docs",
+                new XElement("param", new XAttribute("name", "dataOriginFilter"), correction.IncorrectText),
+                new XElement("summary", "To be added."),
+                new XElement("returns", "To be added."),
+                new XElement("remarks",
+                    ImporterSourceReference(source),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")));
         return new XElement("Docs",
             correction.ParameterTypes.Select(parameter => new XElement("param",
                 new XAttribute("name", parameter.Name),
@@ -2730,11 +2771,12 @@ static class ImporterProgram
                 .Any(channel => !HasPlainTextContent(channel, out var value) ||
                     value != expectedDocs.Elements(channel.Name)
                         .Single(expected => (string?)expected.Attribute("name") == (string?)channel.Attribute("name")).Value) ||
-            actual.Element("remarks")!.Elements("para").First().Value != correction.Source.Paragraphs[0].Text)
+            (correction.Source.Paragraphs.Count > 0 &&
+                actual.Element("remarks")!.Elements("para").First().Value != correction.Source.Paragraphs[0].Text))
             return new(text, []);
         var target = actual.Elements(correction.Target.Split(':')[0]).Single(channel =>
             !correction.Target.StartsWith("param:", StringComparison.Ordinal) ||
-                (string?)channel.Attribute("name") == "reauthId");
+                (string?)channel.Attribute("name") == correction.Target["param:".Length..]);
         if (!TryGetElementSpan(blockText, target, out var span))
             return new(text, []);
         var replacement = new XElement(target.Name, target.Attributes(), correction.CorrectText ?? "To be added.")
@@ -5345,12 +5387,8 @@ static class ImporterProgram
             return false;
         }
 
-        var actualNodes = actual.Nodes()
-            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
-            .ToList();
-        var expectedNodes = expected.Nodes()
-            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
-            .ToList();
+        var actualNodes = SignificantNodes(actual);
+        var expectedNodes = SignificantNodes(expected);
         if (actualNodes.Any(node => node is XCData) ||
             expectedNodes.Any(node => node is XCData) ||
             actualNodes.Count != expectedNodes.Count)
@@ -13019,6 +13057,7 @@ static class ImporterProgram
         TestControlsTemplatesRangeSource(repositoryRoot);
         TestQuickSettingsSources(repositoryRoot);
         TestKnownEapChannelCorrections(repositoryRoot);
+        TestChangeLogDataOriginChannel(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestBlobParcelTextCorrection(repositoryRoot, fixtureRoot);
@@ -20425,6 +20464,239 @@ static class ImporterProgram
                 File.Delete(pipelinePath);
             Directory.Delete(tempDirectory, true);
         }
+    }
+
+    static void TestChangeLogDataOriginChannel(string repositoryRoot)
+    {
+        var correction = KnownChangeLogChannelCorrection;
+        var docsRoot = Path.Combine(repositoryRoot, "docs", "xml", "Android.Health.Connect.ChangeLog");
+        var path = Path.Combine(docsRoot, $"ChangeLog.importer-self-test-{Environment.ProcessId}.xml");
+        var directory = Path.Combine(Path.GetTempPath(), $"changelog-importer-self-test-{Guid.NewGuid():N}");
+        var cache = Path.Combine(directory, "cache");
+        Directory.CreateDirectory(cache);
+        var sourceUrl = correction.Source.SourceUrl.Split('#')[0];
+        var key = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceUrl))).ToLowerInvariant();
+        var cachePath = Path.Combine(cache, key + ".html");
+        var reportPath = Path.Combine(directory, "report");
+        var html = File.ReadAllText(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "changelog-token-builder-android-reference.html"));
+        var root = XElement.Load(Path.Combine(docsRoot, "ChangeLogTokenRequest+Builder.xml"));
+        var member = root.Element("Members")!.Elements("Member").Single(element =>
+            (string?)element.Attribute("MemberName") == "AddDataOriginFilter");
+        root.Element("Members")!.ReplaceNodes(new XElement(member));
+        root.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored type summary."),
+            new XElement("remarks", "Authored type remarks."));
+        member = root.Element("Members")!.Element("Member")!;
+        member.Element("Docs")!.ReplaceNodes(
+            new XElement("param", new XAttribute("name", "dataOriginFilter"), "To be added."),
+            new XElement("summary", "To be added."),
+            new XElement("returns", "To be added."),
+            new XElement("remarks", "To be added."));
+        var args = new[]
+        {
+            "--path", path, "--namespace", "Android.Health.Connect.ChangeLog",
+            "--member", "AddDataOriginFilter", "--offline", "--cache", cache,
+            "--max-changes", "1", "--apply", "--report", reportPath,
+        };
+        JsonDocument Apply(XElement input, string sourceHtml)
+        {
+            File.WriteAllText(path, "\uFEFF" + input.ToString(SaveOptions.DisableFormatting).Replace("\n", "\r\n"),
+                new UTF8Encoding(false));
+            File.WriteAllText(cachePath, sourceHtml, new UTF8Encoding(false));
+            Assert(RunAsync(args).GetAwaiter().GetResult() == 0, "registered ChangeLog pipeline succeeds");
+            var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                "registered ChangeLog pipeline has no errors");
+            return report;
+        }
+        void NoEdit(XElement input, string sourceHtml, string description)
+        {
+            var expected = Encoding.UTF8.GetBytes("\uFEFF" +
+                input.ToString(SaveOptions.DisableFormatting).Replace("\n", "\r\n"));
+            using var report = Apply(input, sourceHtml);
+            Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                expected.SequenceEqual(File.ReadAllBytes(path)), description);
+        }
+        void Repeat(string description)
+        {
+            var before = File.ReadAllBytes(path);
+            Assert(RunAsync(args).GetAwaiter().GetResult() == 0, description);
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                before.SequenceEqual(File.ReadAllBytes(path)), description);
+        }
+        XElement Docs(XElement input) => input.Element("Members")!.Element("Member")!.Element("Docs")!;
+        var originalOutput = Console.Out;
+        using var output = new StringWriter();
+        try
+        {
+            Console.SetOut(output);
+            using (var report = Apply(root, html))
+            {
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("target").GetString() == correction.Target &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "ChangeLog actual JNI first-fill max-one withholds the full contradicted parameter");
+            }
+            Repeat("ChangeLog actual persisted first-fill repeat remains zero-write and byte-identical");
+            var unguarded = new XElement(root);
+            var unguardedId = unguarded.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "DocId");
+            unguardedId.SetAttributeValue("Value", correction.MemberId + ".Other");
+            using (var report = Apply(unguarded, html))
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    Docs(XElement.Load(path)).Element("param")!.Value == correction.IncorrectText,
+                    "ChangeLog independent managed-owner control produces the original unguarded first-fill markup");
+            var prior = XElement.Load(path);
+            prior.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", correction.MemberId);
+            Assert(ImporterMarkupEquals(Docs(prior), KnownEapPriorDocs(correction)),
+                "ChangeLog withdrawal fixture matches real production first-fill output, including metadata-only remarks");
+            using (var report = Apply(prior, html))
+            {
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    Docs(XElement.Load(path)).Element("param")!.Value == "To be added.",
+                    "ChangeLog complete prior-owned parameter is withdrawn in one bounded operation");
+            }
+            var withdrawn = XElement.Load(path);
+            var expectedDocs = KnownEapPriorDocs(correction);
+            expectedDocs.Element("param")!.Value = "To be added.";
+            Assert(ImporterMarkupEquals(Docs(withdrawn), expectedDocs),
+                "ChangeLog withdrawal preserves all other channels and full reference/attribution");
+            Repeat("ChangeLog persisted withdrawal repeat remains zero-write and byte-identical");
+
+            foreach (var location in new[] { "Docs root", "remarks", "source-reference paragraph" })
+            {
+                var authored = new XElement(prior);
+                var docs = Docs(authored);
+                var container = location switch
+                {
+                    "Docs root" => docs,
+                    "remarks" => docs.Element("remarks")!,
+                    _ => docs.Element("remarks")!.Elements("para").First(),
+                };
+                container.Add(new XCData(" "));
+                Assert(!ImporterMarkupEquals(docs, Docs(prior)) &&
+                    !ImporterMarkupEquals(Docs(prior), docs),
+                    $"ChangeLog ownership comparison rejects whitespace-only CDATA at {location} on either side");
+                NoEdit(authored, html,
+                    $"ChangeLog max-one withdrawal preserves whitespace-only CDATA at {location}");
+                Repeat($"ChangeLog whitespace-only CDATA at {location} persisted repeat is zero-write and byte-identical");
+            }
+
+            foreach (var mutation in new Action<XElement>[]
+            {
+                docs => docs.Element("param")!.Value += " Authored.",
+                docs => docs.Element("param")!.ReplaceNodes(new XElement("c", correction.IncorrectText)),
+                docs => docs.Element("param")!.ReplaceNodes(new XCData(correction.IncorrectText)),
+                docs => docs.Element("param")!.Add(new XComment("Authored")),
+                docs => docs.Element("param")!.Add(new XProcessingInstruction("authored", "keep")),
+                docs => docs.Element("param")!.SetAttributeValue("authored", "keep"),
+                docs => docs.Add(new XElement(docs.Element("param")!)),
+                docs => docs.Add(new XElement("remarks", "Authored.")),
+                docs => docs.SetAttributeValue("authored", "keep"),
+                docs => docs.Add(new XComment("Authored")),
+                docs => docs.Add(new XProcessingInstruction("authored", "keep")),
+                docs => docs.Element("summary")!.Value = "Authored.",
+                docs => docs.Element("remarks")!.Add(new XElement("para", "Authored.")),
+                docs => docs.Element("remarks")!.Descendants("a").First().SetAttributeValue("href", sourceUrl + "#other"),
+                docs => docs.Element("remarks")!.Descendants("code").First().Value += ".Other",
+                docs => docs.Element("remarks")!.Elements("para").Last().Add(new XComment("Authored attribution")),
+                docs => docs.Element("remarks")!.Descendants("a").Last().SetAttributeValue("href", "https://example.invalid"),
+            })
+            {
+                var authored = new XElement(prior);
+                mutation(Docs(authored));
+                NoEdit(authored, html, "ChangeLog withdrawal preserves authored/mixed/CDATA/PI/comment/attribute/duplicate/provenance negatives");
+            }
+            foreach (var mutation in new Action<XElement>[]
+            {
+                element => element.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object",
+                element => element.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Type", "System.Object"),
+                element => element.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Name", "other"),
+                element => element.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public object Other ();"),
+                element => element.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", correction.MemberId + ".Other"),
+                element => element.Element("Attributes")!.Descendants("AttributeName")
+                    .First(attribute => attribute.Value.Contains("Android.Runtime.Register", StringComparison.Ordinal)).Value =
+                        "[Android.Runtime.Register(\"other\", \"()V\", \"\")]",
+            })
+            {
+                var altered = new XElement(prior);
+                mutation(altered.Element("Members")!.Element("Member")!);
+                NoEdit(altered, html, "ChangeLog withdrawal requires exact JNI and full managed signature/types");
+            }
+            foreach (var changedHtml in new[]
+            {
+                html.Replace("list of package names", "one data origin", StringComparison.Ordinal),
+                html.Replace("This value cannot be", "This value may be", StringComparison.Ordinal),
+                html.Replace("<p></p></p>", "<p>New official contract.</p>", StringComparison.Ordinal),
+                html.Replace("DataOrigin</code>:", "Object</code>:", StringComparison.Ordinal),
+                html.Replace(">addDataOriginFilter</h3>", ">other</h3>", StringComparison.Ordinal),
+            })
+                NoEdit(prior, changedHtml, "ChangeLog withdrawal requires the entire original official source contract");
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners("AddDataOriginFilter");
+            var owner = loaded.Owners.Single();
+            var wrongSource = correction.Source with { SourceUrl = sourceUrl + "#other" };
+            Assert(WithKnownEapChannelCorrections(owner, wrongSource).UnsafeTargets is null,
+                "ChangeLog wrong canonical source URL cannot activate the exclusion");
+            foreach (var source in new[]
+            {
+                correction.Source with { SourceKind = "java" },
+                correction.Source with { SourceLabel = "other" },
+                correction.Source with { Summary = "New source contract." },
+                correction.Source with { Paragraphs = [new("New source contract.", false)] },
+                correction.Source with { Returns = "New return contract." },
+                correction.Source with { Parameters = new(StringComparer.Ordinal) { ["other"] = correction.IncorrectText } },
+                correction.Source with { Exceptions = new(StringComparer.Ordinal) { ["java.lang.Exception"] = "New exception contract." } },
+            })
+                Assert(WithKnownEapChannelCorrections(owner, source).UnsafeTargets is null,
+                    "ChangeLog first-fill exclusion requires all complete source fields independently");
+            var wrongMember = new XElement(root);
+            wrongMember.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", correction.MemberId + ".Other");
+            using (var report = Apply(wrongMember, html))
+                Assert(Docs(XElement.Load(path)).Element("param")!.Value == correction.IncorrectText,
+                    "ChangeLog first-fill guard never applies to a different managed member");
+            foreach (var remarks in new[]
+            {
+                new XElement("remarks", new XElement("para", "To be added.")),
+                new XElement("remarks", ImporterSourceReference(correction.Source),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")),
+                new XElement("remarks", "Authored remarks."),
+            })
+            {
+                var layout = new XElement(root);
+                Docs(layout).Element("remarks")!.ReplaceWith(remarks);
+                NoEdit(layout, html, "ChangeLog parameter suppression also preserves logical placeholders and metadata/authored layouts");
+            }
+            foreach (var sourceHtml in new[]
+            {
+                html.Replace("list of package names", "the data origin", StringComparison.Ordinal),
+                html.Replace("list of package names on which to filter the data.", "", StringComparison.Ordinal),
+            })
+            {
+                using var report = Apply(root, sourceHtml);
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    Docs(XElement.Load(path)).Element("param")!.Value != "To be added.",
+                    "ChangeLog future corrected or removed defective wording is eligible");
+                Repeat("ChangeLog future source persisted repeat is zero-write");
+            }
+        }
+        finally
+        {
+            Console.SetOut(originalOutput);
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+        Console.WriteLine("SELF-TEST PASS: registered ChangeLog DataOrigin first-fill/withdrawal, exact source/JNI/managed/provenance negatives, corrected-source controls, and persisted repeats.");
     }
 
     static void TestKnownEapChannelCorrections(string repositoryRoot)
