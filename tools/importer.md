@@ -91,6 +91,39 @@ intact; its unsafe return is restored to `To be added.`. Authored or mixed conte
 duplicate channels, altered metadata, and changed sources are preserved and reported.
 Repairs for one member are atomic and require room for every affected channel.
 Implementation verification is not an AOSP prose fallback.
+The seven final `SliceProvider` data-operation overrides also expose copied
+`ContentProvider` contracts despite ignoring their operation arguments:
+`delete`, `getType`, `insert`, the three `query` overloads, and `update`.
+Their exact source channels are reported as `source_channel_ambiguous`.
+Immutable SHA-256 fingerprints cover the registered JNI owner/name/descriptor,
+managed signature and parameter/return bindings, canonical source URL and label,
+and complete ordered parsed source contract, including code and parameter text.
+The raw declared-source fixture makes these fingerprints reproducible.
+Fingerprint serialization uses explicit source-generated JSON contracts so the
+same ordered, escaped UTF-8 hash inputs work when reflection serialization is
+disabled. The registered suite checks literal JSON bytes and all seven pinned
+binding/source hashes without enabling reflection.
+No implementation-derived replacement prose is imported. Corrected or removed
+official guidance remains eligible. A prior copy is withdrawn one channel at
+a time only when the entire Docs block matches the original plain importer
+output or its already-withdrawn placeholders. Source reference and attribution
+bytes are retained when remarks are withdrawn. Authored or mixed XML, comments,
+CDATA, processing instructions, duplicate channels, altered metadata, changed
+source, references or attribution preserve the existing documentation.
+Every Java code body must also match ordinally after XML newline normalization
+before any channel can be withdrawn; prose whitespace normalization cannot prove
+code ownership. Registered max-one production negatives load both independent
+Query samples, alter a line-comment boundary, and require zero changed files,
+zero applied changes, and byte-identical persisted repeats.
+The registered prior-copy tests load `slices-provider-legacy-output.json`, produced
+by a fresh offline run of the unchanged importer from commit
+`f4ce3c93a25be92426e1caa8f65294508c78bd4a` against isolated original binding
+inputs. It retains the exact emitted XML bytes as base64, including attribution
+whitespace, and records the producer, cache, output hashes and bounded commands.
+These are fresh legacy-producer compatibility samples, not historical
+production copies. Each complete emitted Docs block is independently compared
+with the repair expectation before exercising the existing withdrawal and
+preservation controls; the expectation helper does not seed the samples.
 The final `HostApduService.onBind` and `HostNfcFService.onBind` overrides have
 the same inherited nullable-binder defect. NFC-specific guards require the
 exact managed sealed signature, JNI descriptor, parameter/return metadata,
@@ -264,6 +297,19 @@ Android URL, and source kind, not unrelated summary or safe paragraph wording.
 Withdrawal requires the complete original plain importer-owned Docs, reference,
 and attribution and consumes one change. Future corrected source, including
 removal of the false guarantee, remains eligible; no API metadata is changed.
+The registered `ChangeLogTokenRequest.Builder.addDataOriginFilter(DataOrigin)`
+parameter is withheld when its complete official contract describes a list of
+package names for the single `DataOrigin` argument. The implementation adds that
+one origin to a set; it is not used as replacement prose. This exclusion reuses
+the exact registered-channel safeguards: managed identity/signature/types, JNI,
+canonical source URL/label, and the complete original source must all match.
+An exact prior importer-owned parameter can be withdrawn only with its complete
+summary/return placeholders and metadata-only remarks, source reference, and
+attribution intact. Authored or mixed content, including whitespace-only CDATA
+at the Docs root, remarks container, or source-reference paragraph, and changed
+source contracts are preserved. Corrected or removed source
+prose remains eligible under the ordinary channel rules.
+
 The same exact allow-list covers the RSSI builder's Bluetooth-address parameter
 and RSSI parcel-write summary and remarks. The RSSI update-rate setter's malformed
 default paragraph (an unresolved `ERROR(...)` label linked to the site root) is
@@ -399,6 +445,12 @@ complete affected source channel. Safe direct placeholder channels remain
 eligible. These guarded owners take a first-fill-only path: nested placeholders,
 existing documentation, metadata-only enrichment, repairs and refreshes are
 preserved, not normalized. Corrected official channels remain eligible.
+Source reference and attribution are attached only inside newly filled direct
+remarks, atomically with that fill. Existing references in authored summaries
+and excluded returns are not reconciled or removed. Mixed-authored regressions
+exercise a one-operation remarks fill, accurate skipped-return reporting, and
+literal protected-channel and outside-remarks byte preservation across LF/CRLF
+and UTF-8 BOM states, including dry runs and persisted zero-write repeats.
 The registered ordinary suite uses complete native contiguous source fragments
 with byte lengths/SHA-256 and original managed-owner fixtures, exercises real
 bounded offline production applies and zero-write repeats, and checks changed
@@ -429,6 +481,15 @@ The logical remarks exclusion also covers nested paragraph placeholders (includi
 those in summaries), metadata-only enrichment, placeholder cleanup, Java-signature
 repair, and importer-owned refresh. These layouts retain their complete original
 bytes; excluded operations are reported against `remarks`, not `summary`.
+
+The exact `ChooserSession.removeStateListener(StateListener)` detail is withheld
+while its complete description names an `UpdateListener` callback. The guard
+requires the canonical Android member URL and label, declaring type, full JNI
+descriptor, managed signature and parameter types, and the original non-null
+parameter contract. It rejects the entire ambiguous mapping before any first-fill,
+enrichment, or repair can write, preserving existing authored and prior imported
+Docs unchanged. No replacement listener prose is inferred. Corrected or removed
+stale descriptions remain eligible, and unrelated Chooser members are unaffected.
 
 The `IkeProtocolErrorType.NoAdditionalSas` enum summary is skipped when its exact
 managed field, canonical `IkeProtocolException.ERROR_TYPE_NO_ADDITIONAL_SAS`

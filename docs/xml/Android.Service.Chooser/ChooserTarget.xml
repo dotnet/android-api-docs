@@ -176,13 +176,19 @@
         <Parameter Name="intentExtras" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="title">To be added.</param>
-        <param name="icon">To be added.</param>
-        <param name="score">To be added.</param>
-        <param name="componentName">To be added.</param>
-        <param name="intentExtras">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="title">title of this target that will be shown to a user</param>
+        <param name="icon">icon to represent this target</param>
+        <param name="score">ranking score for this target between 0.0f and 1.0f, inclusive</param>
+        <param name="componentName">Name of the component to be launched if this target is chosen</param>
+        <param name="intentExtras">Bundle of extras to merge with the extras of the launched intent. This value may be null.</param>
+        <summary>Construct a deep link target for presentation by a chooser UI.</summary>
         <remarks>
+          <para>Construct a deep link target for presentation by a chooser UI.</para>
+          <para>A target is composed of a title and an icon for presentation to the user. The UI presenting this target may truncate the title if it is too long to be presented in the available space, as well as crop, resize or overlay the supplied icon.</para>
+          <para>The creator of a target may supply a ranking score. This score is assumed to be relative to the other targets supplied by the same query. Scores should be in the range from 0.0f (unlikely match) to 1.0f (very relevant match). Scores for a set of targets do not need to sum to 1.</para>
+          <para>The ComponentName must be the name of an Activity component in the creator's own package, or an exported component from any other package. You may provide an optional Bundle of extras that will be merged into the final intent before it is sent to the target Activity; use this to add any additional data about the deep link that the target activity will read. e.g. conversation IDs, email addresses, etc.</para>
+          <para>Take care not to place custom Parcelable types into the extras bundle, as the system will not be able to unparcel them to merge them.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/chooser/ChooserTarget#ChooserTarget(java.lang.CharSequence,%20android.graphics.drawable.Icon,%20float,%20android.content.ComponentName,%20android.os.Bundle)" title="Reference documentation">Android reference for <code>android.service.chooser.ChooserTarget.ChooserTarget</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -299,9 +305,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation.</summary>
+        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
         <remarks>
+          <para>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/chooser/ChooserTarget#describeContents()" title="Reference documentation">Android reference for <code>android.service.chooser.ChooserTarget.describeContents</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -693,10 +701,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="dest">The Parcel in which the object should be written. This value cannot be null.</param>
+        <param name="flags">Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: Parcelable.PARCELABLE_WRITE_RETURN_VALUE</param>
+        <summary>Flatten this object in to a Parcel.</summary>
         <remarks>
+          <para>Flatten this object in to a Parcel.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/chooser/ChooserTarget#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Android reference for <code>android.service.chooser.ChooserTarget.writeToParcel</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

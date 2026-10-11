@@ -3,13 +3,14 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
 return await ImporterProgram.RunAsync(args);
 
-static class ImporterProgram
+static partial class ImporterProgram
 {
     const string AndroidReference = "https://developer.android.com/reference/";
     const string DreamFocusSourceUrl =
@@ -372,6 +373,31 @@ static class ImporterProgram
             "Property"),
     ];
 
+    static readonly KnownEapChannelCorrection KnownChangeLogChannelCorrection = new(
+        "M:Android.Health.Connect.ChangeLog.ChangeLogTokenRequest.Builder.AddDataOriginFilter(Android.Health.Connect.DataTypes.DataOrigin)",
+        new("addDataOriginFilter", "(Landroid/health/connect/datatypes/DataOrigin;)Landroid/health/connect/changelog/ChangeLogTokenRequest$Builder;", false),
+        "Android.Health.Connect.ChangeLog.ChangeLogTokenRequest+Builder",
+        "public Android.Health.Connect.ChangeLog.ChangeLogTokenRequest.Builder AddDataOriginFilter (Android.Health.Connect.DataTypes.DataOrigin dataOriginFilter);",
+        [("dataOriginFilter", "Android.Health.Connect.DataTypes.DataOrigin")],
+        new(
+            "",
+            [],
+            new(StringComparer.Ordinal)
+            {
+                ["dataOriginFilter"] = "DataOrigin: list of package names on which to filter the data. If not set logs from all the sources will be returned. This value cannot be null.",
+            },
+            "This value cannot be null.",
+            new(StringComparer.Ordinal),
+            AndroidReference + "android/health/connect/changelog/ChangeLogTokenRequest.Builder#addDataOriginFilter(android.health.connect.datatypes.DataOrigin)",
+            "android.health.connect.changelog.ChangeLogTokenRequest.Builder.addDataOriginFilter",
+            "android"),
+        "param:dataOriginFilter",
+        "list of package names on which to filter the data. If not set logs from all the sources will be returned. This value cannot be null.",
+        null);
+
+    static IEnumerable<KnownEapChannelCorrection> KnownExactChannelCorrections =>
+        KnownEapChannelCorrections.Append(KnownChangeLogChannelCorrection);
+
     static readonly KnownUnsafeIkeChannel[] KnownUnsafeIkeChannels =
     [
         new(
@@ -563,8 +589,9 @@ static class ImporterProgram
                                     mapping.SourceUrl));
                                 continue;
                             }
-                            if (!TryReplacePlaceholder(text, file.DocsBlocks[owner.Order], placeholder,
-                                    replacement, out var updated, out var error))
+                            if (!TryReplaceQualityFirstFillPlaceholder(
+                                    text, file.DocsBlocks[owner.Order], placeholder,
+                                    replacement, mapping.Docs, out var updated, out var error))
                             {
                                 report.Entries.Add(ReportEntry.Error(file.RelativePath, owner.Id,
                                     placeholder.Target, "source_xml_layout_mismatch", error, mapping.SourceUrl));
@@ -576,14 +603,6 @@ static class ImporterProgram
                             fileChanged = true;
                             report.Entries.Add(ReportEntry.Changed("would_apply", file.RelativePath,
                                 owner.Id, placeholder.Target, mapping.SourceUrl));
-                            if (placeholder.Name == "remarks")
-                            {
-                                text = AddSourceDocumentationIfSafe(text, file, owner, mapping.Docs,
-                                    out var cleanupSkip, allowEnumCreation: false);
-                                file.UpdateBlockOffsets(owner.Order, text);
-                                if (cleanupSkip is not null)
-                                    ReportSourceReferenceCleanupSkip(report, file, owner, mapping.SourceUrl, cleanupSkip);
-                            }
                         }
                         foreach (var target in mapping.Docs.UnsafeTargets!)
                         {
@@ -592,6 +611,38 @@ static class ImporterProgram
                                     target.Key, "source_channel_ambiguous", target.Value, mapping.SourceUrl));
                         }
                         continue;
+                    }
+
+                    if (mapping.Docs!.SliceProviderContract is not null)
+                    {
+                        var sliceRepair = RepairKnownSliceProviderChannel(text, file, owner, mapping.Docs);
+                        if (sliceRepair.Targets.Count > 0 && remaining > 0)
+                        {
+                            text = sliceRepair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply", file.RelativePath, owner.Id, sliceRepair.Targets[0],
+                                mapping.SourceUrl, "importer_unsafe_slice_provider_withdrawal",
+                                "Withdrew one exact importer-owned inherited ContentProvider channel contradicted by the final SliceProvider implementation; no replacement prose was inferred."));
+                        }
+                        else if (sliceRepair.Targets.Count > 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath, owner.Id, sliceRepair.Targets[0], "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.", mapping.SourceUrl));
+                        }
+                        else if (owner.Docs.Elements().Any(channel =>
+                            !IsPlaceholder(channel) && channel.Name != "remarks") ||
+                            owner.Docs.Elements("remarks").Any(channel => !IsPlaceholder(channel)))
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath, owner.Id, "summary", "importer_slice_provider_channel_preserved",
+                                "The complete original importer-owned Docs could not be verified, or no unsafe prose remains; existing documentation was preserved.",
+                                mapping.SourceUrl));
+                        }
                     }
 
                     var rawWithdrawal = WithdrawKnownUnsafeRawEnumSummary(text, file, owner, mapping.Docs!);
@@ -693,7 +744,9 @@ static class ImporterProgram
                         foreach (var target in eapCandidates)
                         {
                             report.Entries.Add(ReportEntry.Skipped(
-                                file.RelativePath, owner.Id, target, "importer_eap_channel_preserved",
+                                file.RelativePath, owner.Id, target,
+                                owner.Id == KnownChangeLogChannelCorrection.MemberId
+                                    ? "importer_changelog_channel_preserved" : "importer_eap_channel_preserved",
                                 "The complete registered member, official source contract, and prior importer-owned Docs could not all be verified; the existing channel was preserved.",
                                 mapping.SourceUrl));
                         }
@@ -1268,12 +1321,16 @@ static class ImporterProgram
                             remaining--;
                             report.Entries.Add(ReportEntry.Changed(
                                 "would_apply", file.RelativePath, owner.Id, target, mapping.SourceUrl,
-                                target is "param:reauthId" or "value"
+                                target == "param:dataOriginFilter"
+                                    ? "importer_changelog_unsafe_parameter_withdrawal"
+                                    : target is "param:reauthId" or "value"
                                     ? target == "value"
                                         ? "importer_eap_unsafe_value_withdrawal"
                                         : "importer_eap_unsafe_parameter_withdrawal"
                                     : "importer_eap_return_typo_repair",
-                                target == "value"
+                                target == "param:dataOriginFilter"
+                                    ? "Withdrew the exact importer-owned parameter because the official source describes a list of package names for a single DataOrigin."
+                                    : target == "value"
                                     ? "Withdrew the exact importer-owned getter value because the supported no-options configuration can return null."
                                     : target == "param:reauthId"
                                     ? "Withdrew the exact importer-owned parameter because the official source confuses a re-authentication ID with the client's EAP identity."
@@ -1901,6 +1958,11 @@ static class ImporterProgram
                 "source_documentation_empty",
                 "The exact source member had no usable prose.",
                 exact[0].Url);
+        if (HasKnownStaleChooserListenerDescription(owner, registration, docs))
+            return MappingResult.Skip(
+                "source_channel_ambiguous",
+                "The exact official removeStateListener description names UpdateListener, but its declared and registered parameter is ChooserSession.StateListener; no replacement prose was inferred.",
+                docs.SourceUrl);
         var sourceVerifiedMapping = SourceVerifiedMemberMappings.Resolve(owner.Id);
         if (sourceVerifiedMapping is { UseFirstMeaningfulSummary: true })
         {
@@ -1915,6 +1977,7 @@ static class ImporterProgram
         docs = WithoutKnownUnsafeQualityChannels(owner, exact[0], docs);
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeProtoTokenRemark(owner, docs);
+        docs = WithoutKnownUnsafeSliceProviderChannels(owner, docs);
         docs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeJavaSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeHardwareBufferCreateRemark(owner.Id, docs);
@@ -1928,6 +1991,231 @@ static class ImporterProgram
         docs = WithoutUnsafeBrowseSubscriptionRemarks(owner, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
+
+    sealed record SliceProviderContract(string MemberId, string BindingHash, string SourceHash);
+
+    static readonly SliceProviderContract[] KnownSliceProviderContracts =
+    [
+        new("M:Android.App.Slices.SliceProvider.Delete(Android.Net.Uri,System.String,System.String[])",
+            "e065841fd0c86b26d7db0db5036493a324f8961c0a0c2ce368f211fbd3e5e611",
+            "638ddc656fa81385eb7d19215c2270dd31d99eefb129144f52cdc6c7d09c8174"),
+        new("M:Android.App.Slices.SliceProvider.GetType(Android.Net.Uri)",
+            "9d37f39e698aa675999a04fe021c4b090b6aca0db321169ca5cd9a32a8a84dfd",
+            "643b8ed685027ef20c6f357910f1aeb56a969d71c237dc845d0f7849b24d73fa"),
+        new("M:Android.App.Slices.SliceProvider.Insert(Android.Net.Uri,Android.Content.ContentValues)",
+            "cfe1e84059cdf6b3924025c35f4761776959fa354bea41aa866ff9348e507cf3",
+            "ddad26deb6315897e725fd2fbaafbd3b9685a38754087829b3820ef8d0a7c7d8"),
+        new("M:Android.App.Slices.SliceProvider.Query(Android.Net.Uri,System.String[],Android.OS.Bundle,Android.OS.CancellationSignal)",
+            "00c2a53898cfb8ab558d9e1b8efbb1daa29578cbdf3693bb3482267ae5fefeb9",
+            "0aeb28b1acbc84b4142d71c2ede6769d97dd71bdaa1eaa5b7ce46cd3275ad547"),
+        new("M:Android.App.Slices.SliceProvider.Query(Android.Net.Uri,System.String[],System.String,System.String[],System.String)",
+            "e8059a0fb79903aec04f9e9480419b6ccdcb470d79a4ca20ffa0a729f9aa2f85",
+            "da6c2f69442e52f4ea977a48907714c25485d8c6c46e6b9c4a614eda79bdb4e3"),
+        new("M:Android.App.Slices.SliceProvider.Query(Android.Net.Uri,System.String[],System.String,System.String[],System.String,Android.OS.CancellationSignal)",
+            "8f68cd75e5318fc582b19800fd2b30678fbbcd0993fda86e11926a0b6beaaedc",
+            "1a90ccde76e6e8c03bf42586c18242f005086b62467c6129008b67bdf1ecc925"),
+        new("M:Android.App.Slices.SliceProvider.Update(Android.Net.Uri,Android.Content.ContentValues,System.String,System.String[])",
+            "c3b0ebe33893eb0a568d1b37c8c7c0ef907eaaf24495d3cbd81277ba28eadb7d",
+            "bc5824ad290476926618ac1b02b7b14951035b9a36a4f4ac8c9c6df16ea82d37"),
+    ];
+
+    sealed record SliceProviderParameterFingerprint(string? Name, string? Type);
+    sealed record SliceProviderBindingFingerprint(
+        string? JavaPath,
+        MemberRegistration? MemberRegistration,
+        string? MemberType,
+        string?[]? Signature,
+        string? ReturnType,
+        SliceProviderParameterFingerprint[]? Parameters);
+    sealed record SliceProviderSourceFingerprint(
+        string SourceKind,
+        string SourceUrl,
+        string SourceLabel,
+        string Summary,
+        List<SourceParagraph> Paragraphs,
+        string Returns,
+        KeyValuePair<string, string>[] Parameters,
+        KeyValuePair<string, string>[] Exceptions,
+        bool HasMalformedSourceMarkup);
+
+    [JsonSerializable(typeof(SliceProviderBindingFingerprint))]
+    [JsonSerializable(typeof(SliceProviderSourceFingerprint))]
+    partial class SliceProviderJsonContext : JsonSerializerContext;
+
+    static string SliceProviderBindingHash(DocsOwner owner) =>
+        Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(
+            new SliceProviderBindingFingerprint(
+                owner.SourceRequest?.JavaPath,
+                owner.MemberRegistration,
+                owner.Member?.Element("MemberType")?.Value,
+                owner.Member?.Elements("MemberSignature")
+                .Where(signature => (string?)signature.Attribute("Language") == "C#")
+                .Select(signature => (string?)signature.Attribute("Value")).ToArray(),
+                owner.Member?.Element("ReturnValue")?.Element("ReturnType")?.Value,
+                owner.Member?.Element("Parameters")?.Elements("Parameter")
+                    .Select(parameter => new SliceProviderParameterFingerprint(
+                        (string?)parameter.Attribute("Name"),
+                        (string?)parameter.Attribute("Type"))).ToArray()),
+            SliceProviderJsonContext.Default.SliceProviderBindingFingerprint))).ToLowerInvariant();
+
+    static string SliceProviderSourceHash(SourceDocs docs) =>
+        Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(
+            new SliceProviderSourceFingerprint(
+            docs.SourceKind,
+            docs.SourceUrl,
+            docs.SourceLabel,
+            docs.Summary,
+            docs.Paragraphs,
+            docs.Returns,
+            docs.Parameters.OrderBy(pair => pair.Key, StringComparer.Ordinal).ToArray(),
+            docs.Exceptions.OrderBy(pair => pair.Key, StringComparer.Ordinal).ToArray(),
+            docs.HasMalformedSourceMarkup),
+            SliceProviderJsonContext.Default.SliceProviderSourceFingerprint))).ToLowerInvariant();
+
+    static SourceDocs WithoutKnownUnsafeSliceProviderChannels(DocsOwner owner, SourceDocs docs)
+    {
+        var contract = KnownSliceProviderContracts.SingleOrDefault(candidate =>
+            candidate.MemberId == owner.Id &&
+            candidate.BindingHash == SliceProviderBindingHash(owner) &&
+            candidate.SourceHash == SliceProviderSourceHash(docs));
+        if (contract is null || docs.UnsafeTargets is not null)
+            return docs;
+        const string detail =
+            "The exact declared Android page copies ContentProvider implementation and data-operation contracts, but this SliceProvider override is final and ignores the operation arguments; no replacement prose was inferred.";
+        var targets = docs.Parameters.Keys.ToDictionary(key => "param:" + key, _ => detail, StringComparer.Ordinal);
+        targets["summary"] = detail;
+        targets["remarks"] = detail;
+        targets["returns"] = detail;
+        return docs with
+        {
+            UnsafeTargets = targets,
+            WithheldRemarks = docs.Paragraphs,
+            SliceProviderContract = contract,
+        };
+    }
+
+    static bool IsPlaceholder(XElement channel) =>
+        HasPlainTextContent(channel, out var value) &&
+        value is "To be added." or "To be added";
+
+    static XElement SliceProviderPriorDocs(DocsOwner owner, SourceDocs raw)
+    {
+        var expected = new XElement("Docs");
+        foreach (var parameter in owner.Member!.Element("Parameters")!.Elements("Parameter"))
+        {
+            var name = (string)parameter.Attribute("Name")!;
+            var replacement = ReplacementFor(new Placeholder(0, "param", name, "param:" + name), raw);
+            expected.Add(new XElement("param", new XAttribute("name", name), replacement.Text ?? "To be added."));
+        }
+        foreach (var name in new[] { "summary", "returns" })
+        {
+            var replacement = ReplacementFor(new Placeholder(0, name, "", name), raw);
+            expected.Add(new XElement(name, replacement.Text ?? "To be added."));
+        }
+        expected.Add(new XElement("remarks", UsableRemarks(raw.Paragraphs).Select(DocumentationElement),
+            ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        return expected;
+    }
+
+    static AndroidTextRepairResult RepairKnownSliceProviderChannel(
+        string text, LoadedFile file, DocsOwner owner, SourceDocs source)
+    {
+        if (source.SliceProviderContract is not { } contract ||
+            contract.MemberId != owner.Id || contract.BindingHash != SliceProviderBindingHash(owner) ||
+            contract.SourceHash != SliceProviderSourceHash(source))
+            return new(text, []);
+        var raw = source with { UnsafeTargets = null, WithheldRemarks = null, SliceProviderContract = null };
+        var expected = SliceProviderPriorDocs(owner, raw);
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actual) ||
+            !XNode.DeepEquals(actual, owner.Docs) ||
+            actual.Attributes().Any() || actual.Nodes().Any(node =>
+                node is not XElement && (node is not XText content || !string.IsNullOrWhiteSpace(content.Value))) ||
+            actual.Elements().Count() != expected.Elements().Count())
+            return new(text, []);
+        XElement? target = null;
+        foreach (var (channel, original) in actual.Elements().Zip(expected.Elements()))
+        {
+            if (channel.Name != original.Name ||
+                !channel.Attributes().Select(attribute => (attribute.Name, attribute.Value))
+                    .SequenceEqual(original.Attributes().Select(attribute => (attribute.Name, attribute.Value))))
+                return new(text, []);
+            if (IsPlaceholder(channel))
+                continue;
+            if (channel.Name == "remarks" && ImporterMarkupEquals(channel,
+                new XElement("remarks", "To be added.", ImporterSourceReference(raw),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>"))))
+                continue;
+            if (channel.Name == "remarks" && !channel.Elements("code")
+                .Select(element => element.Value.Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\r", "\n", StringComparison.Ordinal))
+                .SequenceEqual(original.Elements("code")
+                    .Select(element => element.Value.Replace("\r\n", "\n", StringComparison.Ordinal)
+                        .Replace("\r", "\n", StringComparison.Ordinal)), StringComparer.Ordinal))
+                return new(text, []);
+            if (!ImporterMarkupEquals(channel, original))
+                return new(text, []);
+            if (channel.Name != "remarks" && !HasPlainTextContent(channel, out _))
+                return new(text, []);
+            if (channel.Name == "remarks" && channel.Elements().Any(element =>
+                element.Name == "code" ? element.Nodes().Any(node => node is not XText) :
+                element.Name == "para" && element.Element("format") is null && !HasPlainTextContent(element, out _)))
+                return new(text, []);
+            target ??= channel;
+        }
+        if (target is null || !TryGetElementSpan(blockText, target, out var span))
+            return new(text, []);
+        var replacementText = new XElement(target.Name, target.Attributes(), "To be added.")
+            .ToString(SaveOptions.DisableFormatting);
+        if (target.Name == "remarks")
+        {
+            var retained = target.Elements().TakeLast(2).ToArray();
+            if (!TryGetElementSpan(blockText, retained[0], out var referenceSpan) ||
+                !TryGetElementSpan(blockText, retained[1], out var attributionSpan))
+                return new(text, []);
+            replacementText = "<remarks>To be added." +
+                blockText[referenceSpan.Start..attributionSpan.End] + "</remarks>";
+        }
+        var targetName = target.Name == "param" ? "param:" + (string?)target.Attribute("name") : target.Name.LocalName;
+        return new(text[..block.Start] + blockText[..span.Start] + replacementText +
+            blockText[span.End..] + text[block.End..], [targetName]);
+    }
+
+    const string ChooserRemoveListenerMemberId =
+        "M:Android.Service.Chooser.ChooserSession.RemoveStateListener(Android.Service.Chooser.ChooserSession.IStateListener)";
+    const string ChooserRemoveListenerSourceUrl =
+        AndroidReference + "android/service/chooser/ChooserSession#removeStateListener(android.service.chooser.ChooserSession.StateListener)";
+    const string StaleChooserListenerDescription =
+        "Removes a previously added UpdateListener callback.";
+
+    static bool HasKnownStaleChooserListenerDescription(
+        DocsOwner owner, MemberRegistration registration, SourceDocs docs) =>
+        owner.Id == ChooserRemoveListenerMemberId &&
+        owner.SourceRequest is { Kind: "android", JavaPath: "android/service/chooser/ChooserSession" } &&
+        owner.SourceRequest.Url == AndroidReference + "android/service/chooser/ChooserSession" &&
+        registration == new MemberRegistration(
+            "removeStateListener", "(Landroid/service/chooser/ChooserSession$StateListener;)V", false) &&
+        owner.Member?.Element("MemberType")?.Value == "Method" &&
+        owner.Member.Element("ReturnValue")?.Element("ReturnType")?.Value == "System.Void" &&
+        owner.Member.Elements("MemberSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "C#")
+            .Select(signature => (string?)signature.Attribute("Value"))
+            .SequenceEqual(["public void RemoveStateListener (Android.Service.Chooser.ChooserSession.IStateListener listener);"]) &&
+        (owner.Member.Element("Parameters")?.Elements("Parameter") ?? [])
+            .Select(parameter => ((string?)parameter.Attribute("Name"), (string?)parameter.Attribute("Type")))
+            .SequenceEqual([("listener", "Android.Service.Chooser.ChooserSession+IStateListener")]) &&
+        docs.SourceKind == "android" &&
+        docs.SourceUrl == ChooserRemoveListenerSourceUrl &&
+        docs.SourceLabel == "android.service.chooser.ChooserSession.removeStateListener" &&
+        string.IsNullOrEmpty(docs.Returns) &&
+        docs.Parameters.Count == 1 &&
+        docs.Parameters.TryGetValue("listener", out var listener) &&
+        RemoveLeadingJavaType(listener) == "This value cannot be null." &&
+        docs.Exceptions.Count == 0 &&
+        (docs.Summary == StaleChooserListenerDescription ||
+            docs.Paragraphs.Any(paragraph =>
+                paragraph is { IsCode: false, Text: StaleChooserListenerDescription }));
 
     static bool MatchesNfcManagedContract(DocsOwner owner, KnownNfcContract rule)
     {
@@ -2561,7 +2849,7 @@ static class ImporterProgram
 
     static SourceDocs WithKnownEapChannelCorrections(DocsOwner owner, SourceDocs docs)
     {
-        var correction = KnownEapChannelCorrections.SingleOrDefault(candidate =>
+        var correction = KnownExactChannelCorrections.SingleOrDefault(candidate =>
             MatchesKnownEapMember(owner, candidate) &&
             (candidate.Target == "value"
                 ? MatchesKnownEapGetterSource(docs, candidate.Source)
@@ -2575,7 +2863,9 @@ static class ImporterProgram
                 UnsafeTargets = new Dictionary<string, string>(StringComparer.Ordinal)
                 {
                     [correction.Target] =
-                        correction.Target == "value"
+                        correction.Target == "param:dataOriginFilter"
+                            ? "The exact official parameter describes a list of package names, but the registered method accepts one DataOrigin and adds it to a set; no replacement prose was inferred."
+                            : correction.Target == "value"
                             ? "The exact official getter return incorrectly guarantees non-null options although the supported no-options builder passes null; no replacement prose was inferred."
                             : "The exact official source misidentifies the re-authentication ID as the client's EAP identity; no safe same-channel prose was available.",
                 },
@@ -2594,16 +2884,24 @@ static class ImporterProgram
         !actual.HasMalformedSourceMarkup;
 
     static List<string> KnownEapChannelRepairCandidateTargets(DocsOwner owner) =>
-        KnownEapChannelCorrections.Where(correction => correction.MemberId == owner.Id)
+        KnownExactChannelCorrections.Where(correction => correction.MemberId == owner.Id)
             .Where(correction => owner.Docs.Elements(correction.Target.Split(':')[0]).Any(channel =>
                 (!correction.Target.StartsWith("param:", StringComparison.Ordinal) ||
-                    (string?)channel.Attribute("name") == "reauthId") &&
+                    (string?)channel.Attribute("name") == correction.Target["param:".Length..]) &&
                 channel.Value == correction.IncorrectText))
             .Select(correction => correction.Target).ToList();
 
     static XElement KnownEapPriorDocs(KnownEapChannelCorrection correction)
     {
         var source = correction.Source;
+        if (correction == KnownChangeLogChannelCorrection)
+            return new XElement("Docs",
+                new XElement("param", new XAttribute("name", "dataOriginFilter"), correction.IncorrectText),
+                new XElement("summary", "To be added."),
+                new XElement("returns", "To be added."),
+                new XElement("remarks",
+                    ImporterSourceReference(source),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")));
         return new XElement("Docs",
             correction.ParameterTypes.Select(parameter => new XElement("param",
                 new XAttribute("name", parameter.Name),
@@ -2634,11 +2932,12 @@ static class ImporterProgram
                 .Any(channel => !HasPlainTextContent(channel, out var value) ||
                     value != expectedDocs.Elements(channel.Name)
                         .Single(expected => (string?)expected.Attribute("name") == (string?)channel.Attribute("name")).Value) ||
-            actual.Element("remarks")!.Elements("para").First().Value != correction.Source.Paragraphs[0].Text)
+            (correction.Source.Paragraphs.Count > 0 &&
+                actual.Element("remarks")!.Elements("para").First().Value != correction.Source.Paragraphs[0].Text))
             return new(text, []);
         var target = actual.Elements(correction.Target.Split(':')[0]).Single(channel =>
             !correction.Target.StartsWith("param:", StringComparison.Ordinal) ||
-                (string?)channel.Attribute("name") == "reauthId");
+                (string?)channel.Attribute("name") == correction.Target["param:".Length..]);
         if (!TryGetElementSpan(blockText, target, out var span))
             return new(text, []);
         var replacement = new XElement(target.Name, target.Attributes(), correction.CorrectText ?? "To be added.")
@@ -3513,6 +3812,8 @@ static class ImporterProgram
         var targets = owner.Placeholders
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
+        if (KnownSliceProviderContracts.Any(contract => contract.MemberId == owner.Id))
+            targets.Add("summary");
         targets.UnionWith(KnownAndroidTextRepairCandidateTargets(owner));
         targets.UnionWith(KnownEapChannelRepairCandidateTargets(owner));
         if (HasKnownUnsafeRawEnumCandidate(owner))
@@ -3581,6 +3882,7 @@ static class ImporterProgram
         HasKnownIncorrectBooleanReturnRepairCandidate(file, owner) ||
         KnownAndroidTextRepairCandidateTargets(owner).Count > 0 ||
         KnownEapChannelRepairCandidateTargets(owner).Count > 0 ||
+        KnownSliceProviderContracts.Any(contract => contract.MemberId == owner.Id) ||
         HasKnownUnsafeRawEnumCandidate(owner) ||
         HasKnownUnsafeWifiRttRemarksCandidate(owner) ||
         KnownUnsafeIkeRepairCandidateTargets(owner).Count > 0 ||
@@ -4576,6 +4878,59 @@ static class ImporterProgram
             _ => true,
         };
 
+    static bool TryReplaceQualityFirstFillPlaceholder(
+        string text,
+        DocsBlock block,
+        Placeholder placeholder,
+        Replacement replacement,
+        SourceDocs docs,
+        out string updated,
+        out string error)
+    {
+        if (!TryReplacePlaceholder(text, block, placeholder, replacement, out updated, out error))
+            return false;
+        if (placeholder.Name != "remarks")
+            return true;
+
+        var updatedBlockEnd = block.End + updated.Length - text.Length;
+        var blockText = updated[block.Start..updatedBlockEnd];
+        if (!docs.QualityFirstFillOnly ||
+            docs.WithheldRemarks is not null ||
+            docs.UnsafeTargets?.ContainsKey("remarks") == true ||
+            !TryParseDocsBlock(blockText, out var parsedDocs) ||
+            parsedDocs.Elements("remarks").Count() != 1 ||
+            !TryGetElementSpan(blockText, parsedDocs.Element("remarks")!, out var remarksSpan) ||
+            !TryGetClosingElementStart(blockText, remarksSpan, out var remarksClose))
+        {
+            updated = text;
+            error = "Could not locate the newly filled direct Quality remarks for scoped source metadata.";
+            return false;
+        }
+
+        var newline = blockText.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+        var multiline = TryGetLineWhitespaceIndent(
+            blockText, remarksSpan.Start, out _, out var indent);
+        var paragraphIndent = multiline ? indent + "  " : "";
+        var additions = new List<string>
+        {
+            paragraphIndent + ImporterSourceReference(docs).ToString(SaveOptions.DisableFormatting),
+        };
+        if (docs.SourceKind == "android")
+            additions.Add($"{paragraphIndent}<para>{AndroidAttribution}</para>");
+        var insertion = multiline
+            ? ClosingInsertionPoint(blockText, remarksClose, newline)
+            : remarksClose;
+        var metadata = multiline
+            ? (insertion == remarksClose ? newline : "") +
+                string.Join(newline, additions) + newline +
+                (insertion == remarksClose ? indent : "")
+            : string.Concat(additions);
+        var replacementBlock = blockText[..insertion] + metadata + blockText[insertion..];
+        updated = updated[..block.Start] + replacementBlock + updated[updatedBlockEnd..];
+        error = "";
+        return true;
+    }
+
     static string AddSourceDocumentationIfSafe(
         string text,
         LoadedFile file,
@@ -5246,12 +5601,8 @@ static class ImporterProgram
             return false;
         }
 
-        var actualNodes = actual.Nodes()
-            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
-            .ToList();
-        var expectedNodes = expected.Nodes()
-            .Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
-            .ToList();
+        var actualNodes = SignificantNodes(actual);
+        var expectedNodes = SignificantNodes(expected);
         if (actualNodes.Any(node => node is XCData) ||
             expectedNodes.Any(node => node is XCData) ||
             actualNodes.Count != expectedNodes.Count)
@@ -9238,6 +9589,213 @@ static class ImporterProgram
         }
     }
 
+    static void TestChooserListenerDescription(string repositoryRoot, string fixtureRoot)
+    {
+        var fixture = File.ReadAllText(Path.Combine(fixtureRoot, "chooser-listener.xml"));
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "chooser-listener.html"));
+        var originalFile = LoadedFile.Load(repositoryRoot, Path.Combine(fixtureRoot, "chooser-listener.xml"));
+        originalFile.SelectOwners("RemoveStateListener");
+        var owner = originalFile.Owners.Single();
+        var request = owner.SourceRequest!;
+        var registration = owner.MemberRegistration!;
+        var page = SourcePage.Parse(request, html);
+        var source = page.Members.Single().Docs!;
+        var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+        {
+            [request.Url] = SourceLoadResult.Success(page),
+        };
+        Assert(source.Summary == StaleChooserListenerDescription &&
+            source.Paragraphs is [{ IsCode: false, Text: StaleChooserListenerDescription }] &&
+            source.Parameters.Count == 1 &&
+            RemoveLeadingJavaType(source.Parameters["listener"]) == "This value cannot be null." &&
+            HasKnownStaleChooserListenerDescription(owner, registration, source) &&
+            MapOwner(owner, pages).ErrorReason == "source_channel_ambiguous",
+            "Chooser removeStateListener rejects the exact contradicted listener label before mapping");
+
+        const string correctedDescription = "Removes a previously added StateListener callback.";
+        foreach (var changed in new[]
+        {
+            source with { SourceUrl = source.SourceUrl + ".Other" },
+            source with { SourceKind = "java" },
+            source with { SourceLabel = source.SourceLabel + ".Other" },
+            source with { Returns = "A different return contract." },
+            source with { Parameters = new Dictionary<string, string> { ["other"] = source.Parameters["listener"] } },
+            source with { Parameters = new Dictionary<string, string> { ["listener"] = "This value may be null." } },
+            source with { Summary = correctedDescription, Paragraphs = [new(correctedDescription, false)] },
+            source with { Summary = "Removes the callback.", Paragraphs = [new("Removes the callback.", false)] },
+        })
+        {
+            Assert(!HasKnownStaleChooserListenerDescription(owner, registration, changed),
+                "Chooser exclusion requires exact source provenance and parameter contract; corrected or removed stale prose stays eligible");
+        }
+        foreach (var changed in new[]
+        {
+            source with { Summary = "Additional safe summary." },
+            source with { Paragraphs = [new("Additional safe paragraph.", false), .. source.Paragraphs] },
+            source with { Paragraphs = [.. source.Paragraphs, new("Additional safe paragraph.", false)] },
+        })
+        {
+            Assert(HasKnownStaleChooserListenerDescription(owner, registration, changed),
+                "Unrelated summary and paragraph changes do not re-enable the stale Chooser listener description");
+        }
+        foreach (var changed in new[]
+        {
+            owner with { Id = owner.Id + ".Other" },
+            owner with { SourceRequest = SourceRequest.Create("android/service/chooser/OtherSession") },
+            owner with { SourceRequest = request with { Url = request.Url + ".Other" } },
+            owner with { SourceRequest = request with { Kind = "java" } },
+            owner with { SourceRequest = null },
+        })
+            Assert(!HasKnownStaleChooserListenerDescription(changed, registration, source),
+                "Chooser exclusion requires the exact managed member and declaring source type");
+        foreach (var changed in new[]
+        {
+            registration with { Name = "removeOtherListener" },
+            registration with { Descriptor = "(Landroid/service/chooser/ChooserSession$StateListener;)I" },
+            registration with { Descriptor = "(Ljava/lang/Object;)V" },
+            registration with { IsField = true },
+        })
+            Assert(!HasKnownStaleChooserListenerDescription(owner, changed, source),
+                "Chooser exclusion requires the complete registered JNI name, descriptor and method kind");
+        foreach (var mutate in new Action<XElement>[]
+        {
+            member => member.Element("MemberType")!.Value = "Property",
+            member => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32",
+            member => member.Elements("MemberSignature").First().SetAttributeValue("Value", "public virtual void RemoveStateListener (Android.Service.Chooser.ChooserSession.IStateListener listener);"),
+            member => member.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Name", "other"),
+            member => member.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Type", "Java.Lang.Object"),
+            member => member.Element("Parameters")!.Add(new XElement("Parameter",
+                new XAttribute("Name", "other"), new XAttribute("Type", "System.Int32"))),
+        })
+        {
+            var member = new XElement(owner.Member!);
+            mutate(member);
+            Assert(!HasKnownStaleChooserListenerDescription(owner with { Member = member }, registration, source),
+                "Chooser exclusion preserves other managed signatures, return and parameter bindings");
+        }
+
+        var token = ".chooser-listener-self-test-" + Guid.NewGuid().ToString("N");
+        var tempDirectory = Path.Combine(repositoryRoot, "tools", token);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Service.Chooser", token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var cachePath = Path.Combine(tempDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            void WriteFixture(string text) => File.WriteAllText(pipelinePath,
+                text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", "\r\n", StringComparison.Ordinal),
+                new UTF8Encoding(true));
+            JsonDocument RunPipeline(bool apply, int limit)
+            {
+                var args = new List<string>
+                {
+                    "--path", pipelinePath, "--namespace", "Android.Service.Chooser",
+                    "--member", "RemoveStateListener", "--cache", tempDirectory, "--offline",
+                    "--max-changes", limit.ToString(), "--report", Path.Combine(tempDirectory, "report"),
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Chooser listener production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(tempDirectory, "report.json")));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Chooser listener pipeline reports no errors");
+                return report;
+            }
+            void AssertZero(bool apply, int limit, byte[] expected)
+            {
+                using var report = RunPipeline(apply, limit);
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(expected),
+                    "Chooser listener exclusion reports its cause and performs zero operations and writes byte-for-byte");
+            }
+            WriteFixture(fixture);
+            var originalBytes = File.ReadAllBytes(pipelinePath);
+            AssertZero(false, 1, originalBytes);
+            AssertZero(true, 1, originalBytes);
+            AssertZero(true, 10, originalBytes);
+
+            foreach (var corrected in new[] { correctedDescription, "Removes the callback." })
+            {
+                WriteFixture(fixture);
+                File.WriteAllText(cachePath, html.Replace(StaleChooserListenerDescription, corrected, StringComparison.Ordinal));
+                using (var first = RunPipeline(true, 1))
+                    Assert(first.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "Future corrected and removed Chooser descriptions support real one-operation first fills");
+                using (var remaining = RunPipeline(true, 10))
+                    Assert(remaining.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "Future corrected Chooser source fills its remaining channel without a forced combined budget");
+                var completed = File.ReadAllBytes(pipelinePath);
+                using var repeated = RunPipeline(true, 10);
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    repeated.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(completed),
+                    "Future Chooser source has a persisted numeric zero-write repeat");
+            }
+
+            File.WriteAllText(cachePath, html);
+            const string managedSignature =
+                "public void RemoveStateListener (Android.Service.Chooser.ChooserSession.IStateListener listener);";
+            const string otherSignature =
+                "public virtual void RemoveStateListener (Android.Service.Chooser.ChooserSession.IStateListener listener);";
+            WriteFixture(fixture.Replace(managedSignature, otherSignature, StringComparison.Ordinal));
+            using (var generated = RunPipeline(true, 10))
+                Assert(generated.RootElement.GetProperty("appliedCount").GetInt32() == 2,
+                    "Exact binding negative generates actual prior importer-owned stale prose through the production pipeline");
+            var priorOwned = File.ReadAllText(pipelinePath).Replace(otherSignature, managedSignature, StringComparison.Ordinal);
+            WriteFixture(priorOwned);
+            var priorBytes = File.ReadAllBytes(pipelinePath);
+            AssertZero(true, 1, priorBytes);
+            AssertZero(true, 10, priorBytes);
+
+            var priorDocument = XDocument.Parse(priorOwned, LoadOptions.PreserveWhitespace);
+            var priorDocs = priorDocument.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+            var reference = priorDocs.Element("remarks")!.Elements("para").ElementAt(1).ToString(SaveOptions.DisableFormatting);
+            var attribution = priorDocs.Element("remarks")!.Elements("para").Last().ToString(SaveOptions.DisableFormatting);
+            var variants = new[]
+            {
+                "<param name=\"listener\">Authored guidance.</param><summary>To be added.</summary><remarks>Authored remarks.</remarks>",
+                $"<summary>To be added.</summary><remarks>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks>{StaleChooserListenerDescription}{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><para>To be added.</para>{reference}{attribution}</remarks>",
+                $"<summary>To be added.<para>To be added.</para></summary><remarks>To be added.</remarks>",
+                $"<summary>To be added.</summary><remarks><para><c>{StaleChooserListenerDescription}</c></para>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><![CDATA[{StaleChooserListenerDescription}]]>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><!-- {StaleChooserListenerDescription} -->{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><?authored value?>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks data-authored=\"true\"><para>{StaleChooserListenerDescription}</para>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><para>{StaleChooserListenerDescription}</para>{reference}{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks>To be added.</remarks><remarks>{reference}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><para>{StaleChooserListenerDescription}</para>{reference.Replace("removeStateListener", "otherListener", StringComparison.Ordinal)}{attribution}</remarks>",
+                $"<summary>To be added.</summary><remarks><para>{StaleChooserListenerDescription}</para>{reference}{attribution.Replace("shared", "shared with authored guidance", StringComparison.Ordinal)}</remarks>",
+            };
+            foreach (var variant in variants)
+            {
+                var document = XDocument.Parse(fixture, LoadOptions.PreserveWhitespace);
+                document.Root!.Element("Members")!.Element("Member")!.Element("Docs")!.ReplaceWith(
+                    XElement.Parse("<Docs>" + variant + "</Docs>", LoadOptions.PreserveWhitespace));
+                WriteFixture(document.ToString(SaveOptions.DisableFormatting));
+                var layout = LoadedFile.Load(repositoryRoot, pipelinePath);
+                layout.SelectOwners("RemoveStateListener");
+                Assert(layout.Owners.Single().Placeholders.Count > 0 &&
+                    MapOwner(layout.Owners.Single(), pages).ErrorReason == "source_channel_ambiguous",
+                    "Chooser raw layout negatives have real selection and exact guarded mapping preconditions");
+                AssertZero(true, 10, File.ReadAllBytes(pipelinePath));
+            }
+        }
+        finally
+        {
+            if (File.Exists(pipelinePath))
+                File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, true);
+        }
+    }
+
     static void TestNfcContracts(string repositoryRoot, string fixtureRoot)
     {
         var token = $"nfc-contract-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
@@ -12055,6 +12613,306 @@ static class ImporterProgram
         }
     }
 
+    static void TestSliceProviderContracts(string repositoryRoot, string fixtureRoot)
+    {
+        Assert(JsonSerializer.SerializeToUtf8Bytes(
+            new SliceProviderBindingFingerprint(null, null, null, null, null, null),
+            SliceProviderJsonContext.Default.SliceProviderBindingFingerprint).SequenceEqual(
+                Encoding.UTF8.GetBytes(
+                    """{"JavaPath":null,"MemberRegistration":null,"MemberType":null,"Signature":null,"ReturnType":null,"Parameters":null}""")),
+            "SliceProvider generated binding JSON preserves original property order and null values");
+        Assert(JsonSerializer.SerializeToUtf8Bytes(
+            new SliceProviderSourceFingerprint("android", "<source>", "label", "line\n",
+                [new SourceParagraph("text", false)], "",
+                [new KeyValuePair<string, string>("key", "value")], [], false),
+            SliceProviderJsonContext.Default.SliceProviderSourceFingerprint).SequenceEqual(
+                Encoding.UTF8.GetBytes(
+                    """{"SourceKind":"android","SourceUrl":"\u003Csource\u003E","SourceLabel":"label","Summary":"line\n","Paragraphs":[{"Text":"text","IsCode":false}],"Returns":"","Parameters":[{"Key":"key","Value":"value"}],"Exceptions":[],"HasMalformedSourceMarkup":false}""")),
+            "SliceProvider generated source JSON preserves original casing, arrays, escaping and UTF8 bytes");
+        var fixturePath = Path.Combine(fixtureRoot, "slices-provider-source.xml");
+        var fixtureText = File.ReadAllText(fixturePath);
+        using var legacyFixture = JsonDocument.Parse(
+            File.ReadAllText(Path.Combine(fixtureRoot, "slices-provider-legacy-output.json")));
+        var legacyBytes = Convert.FromBase64String(legacyFixture.RootElement.GetProperty("rawXmlBase64").GetString()!);
+        Assert(Convert.ToHexString(SHA256.HashData(legacyBytes)).ToLowerInvariant() ==
+            legacyFixture.RootElement.GetProperty("fixtureRawSha256").GetString(),
+            "independently generated legacy output retains its exact original bytes");
+        var legacyOutput = XElement.Parse(Encoding.UTF8.GetString(legacyBytes));
+        var html = File.ReadAllText(Path.Combine(fixtureRoot, "slices-provider-android-reference.html"));
+        var file = LoadedFile.Load(repositoryRoot, fixturePath);
+        file.SelectOwners(null);
+        var owners = file.Owners.Where(owner => KnownSliceProviderContracts.Any(contract =>
+            contract.MemberId == owner.Id)).ToArray();
+        var legacyDocs = owners.Select(owner => legacyOutput.Element("Members")!.Elements("Member")
+            .Single(candidate => candidate.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "DocId" &&
+                (string?)signature.Attribute("Value") == owner.Id)).Element("Docs")!).ToArray();
+        Assert(legacyDocs.Count(docs => docs.Element("remarks")!.Elements("code").Any(code =>
+            code.Value.Contains("// Guard against SQL injection attacks\n", StringComparison.Ordinal))) == 2,
+            "both independently produced Query samples retain the original Java line-comment boundary");
+        var request = owners[0].SourceRequest!;
+        var page = SourcePage.Parse(request, html);
+        var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+        {
+            [request.Url] = SourceLoadResult.Success(page),
+        };
+        var sources = owners.Select(owner => MapOwner(owner, pages).Docs!).ToArray();
+        var implementation = File.ReadAllText(Path.Combine(fixtureRoot, "slices-provider-implementation.txt"));
+        Assert(Regex.IsMatch(implementation, @"public final int delete\([^)]*\)\s*\{[^}]*return 0;", RegexOptions.Singleline) &&
+            Regex.IsMatch(implementation, @"public final int update\([^)]*\)\s*\{[^}]*return 0;", RegexOptions.Singleline) &&
+            Regex.Matches(implementation, @"public final Cursor query\([^)]*\)\s*\{[^}]*return null;", RegexOptions.Singleline).Count == 3 &&
+            Regex.IsMatch(implementation, @"public final Uri insert\([^)]*\)\s*\{[^}]*return null;", RegexOptions.Singleline) &&
+            Regex.IsMatch(implementation, @"public final String getType\([^)]*\)\s*\{[^}]*return SLICE_TYPE;", RegexOptions.Singleline),
+            "pinned Android implementation confirms all seven final SliceProvider operations ignore the inherited data-operation contracts; verification is not replacement documentation");
+        for (var index = 0; index < owners.Length; index++)
+        {
+            Console.WriteLine($"SLICE CONTRACT: {owners[index].Id} " +
+                $"{SliceProviderBindingHash(owners[index])} {SliceProviderSourceHash(sources[index])}");
+        }
+        Assert(owners.Length == 7 && sources.All(source => source.SliceProviderContract is not null),
+            "seven exact registered SliceProvider inherited contracts match immutable binding and complete source fingerprints");
+        for (var index = 0; index < owners.Length; index++)
+        {
+            var owner = owners[index];
+            var source = sources[index];
+            var raw = source with { UnsafeTargets = null, WithheldRemarks = null, SliceProviderContract = null };
+            var expected = SliceProviderPriorDocs(owner, raw);
+            Console.WriteLine($"SLICE LEGACY ACTUAL: {owner.Id} " +
+                legacyDocs[index].ToString(SaveOptions.DisableFormatting));
+            Console.WriteLine($"SLICE LEGACY EXPECTED: {owner.Id} " +
+                expected.ToString(SaveOptions.DisableFormatting));
+            Assert(ImporterMarkupEquals(legacyDocs[index], expected),
+                "fresh unchanged pre-guard production output matches the complete SliceProvider repair expectation");
+            Assert(owner.Placeholders.All(placeholder =>
+                ReplacementFor(placeholder, source).Reason == "source_channel_ambiguous"),
+                "SliceProvider first fill withholds every copied data-operation contract without invented replacement prose");
+            foreach (var changed in new[]
+            {
+                raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                raw with { SourceKind = "java" },
+                raw with { Summary = "Corrected source summary." },
+                raw with { Paragraphs = [new SourceParagraph("Corrected source guidance.", false)] },
+                raw with { Paragraphs = [] },
+                raw with { Returns = "Corrected source return." },
+                raw with { Parameters = new Dictionary<string, string>(StringComparer.Ordinal) },
+                raw with { Exceptions = new Dictionary<string, string> { ["Exception"] = "Changed contract." } },
+                raw with { HasMalformedSourceMarkup = true },
+            })
+            {
+                Assert(WithoutKnownUnsafeSliceProviderChannels(owner, changed) == changed,
+                    "SliceProvider guard preserves different URLs, labels, source kinds, changed contracts, and corrected or removed guidance");
+            }
+            var alteredMember = new XElement(owner.Member!);
+            alteredMember.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object";
+            var alteredParameter = new XElement(owner.Member!);
+            alteredParameter.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Type", "System.Object");
+            var alteredSignature = new XElement(owner.Member!);
+            alteredSignature.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "Changed managed signature.");
+            foreach (var changed in new[]
+            {
+                owner with { Id = owner.Id + ".Other" },
+                owner with { SourceRequest = SourceRequest.Create("android/app/slice/OtherProvider") },
+                owner with { MemberRegistration = null },
+                owner with { MemberRegistration = owner.MemberRegistration! with { Name = "other" } },
+                owner with { MemberRegistration = owner.MemberRegistration! with { Descriptor = "()V" } },
+                owner with { MemberRegistration = owner.MemberRegistration! with { IsField = true } },
+                owner with { Member = alteredMember },
+                owner with { Member = alteredParameter },
+                owner with { Member = alteredSignature },
+            })
+            {
+                Assert(WithoutKnownUnsafeSliceProviderChannels(changed, raw) == raw,
+                    "SliceProvider guard requires the exact managed identity, JNI owner/name/descriptor, signature and return/parameter binding");
+            }
+        }
+        var token = $"slices-contract-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var tempDirectory = Path.Combine(repositoryRoot, "tools", token);
+        var pipelinePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Slices", token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var cachePath = Path.Combine(tempDirectory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            void WriteDocument(XElement document) => File.WriteAllText(pipelinePath,
+                document.ToString(SaveOptions.DisableFormatting).Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+            JsonDocument RunPipeline()
+            {
+                var reportPath = Path.Combine(tempDirectory, "report");
+                var result = RunAsync([
+                    "--path", pipelinePath, "--namespace", "Android.App.Slices",
+                    "--offline", "--cache", tempDirectory, "--max-changes", "1",
+                    "--apply", "--report", reportPath,
+                ]).GetAwaiter().GetResult();
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(result == 0 && report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "SliceProvider registered max-one offline production pipeline succeeds without errors");
+                return report;
+            }
+            WriteDocument(XElement.Parse(fixtureText));
+            var initial = File.ReadAllBytes(pipelinePath);
+            for (var repeat = 0; repeat < 2; repeat++)
+            {
+                using var report = RunPipeline();
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(initial),
+                    "SliceProvider registered first-fill and persisted repeat retain every placeholder byte with zero writes");
+            }
+            for (var index = 0; index < owners.Length; index++)
+            {
+                var raw = sources[index] with
+                {
+                    UnsafeTargets = null, WithheldRemarks = null, SliceProviderContract = null,
+                };
+                var document = XElement.Parse(fixtureText);
+                var member = document.Element("Members")!.Elements("Member").Single(candidate =>
+                    candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == owners[index].Id));
+                member.Element("Docs")!.ReplaceWith(new XElement(legacyDocs[index]));
+                WriteDocument(document);
+                var original = File.ReadAllText(pipelinePath);
+                var loaded = LoadedFile.Load(repositoryRoot, pipelinePath);
+                loaded.SelectOwners(null);
+                var prior = loaded.Owners.Single(candidate => candidate.Id == owners[index].Id);
+                Assert(RepairKnownSliceProviderChannel(original, loaded, prior, sources[index]).Targets.Count == 1,
+                    "complete independently produced legacy SliceProvider Docs enables exactly one channel withdrawal");
+                foreach (var mutation in new Action<XElement>[]
+                {
+                    docs => docs.Add(new XElement("para", "Authored addition.")),
+                    docs => docs.Element("summary")!.Add(new XComment("authored")),
+                    docs => docs.Element("summary")!.ReplaceNodes(new XCData(docs.Element("summary")!.Value)),
+                    docs => docs.Element("summary")!.Add(new XProcessingInstruction("authored", "value")),
+                    docs => docs.Element("summary")!.SetAttributeValue("authored", "true"),
+                    docs => docs.Element("summary")!.Add(new XElement("c", "authored")),
+                    docs => docs.Element("remarks")!.Elements().Last().Remove(),
+                    docs => docs.Element("remarks")!.Descendants("a").First().SetAttributeValue("href", "https://example.invalid/"),
+                    docs => docs.Add(new XElement(docs.Element("summary")!)),
+                })
+                {
+                    var changed = XElement.Parse(original, LoadOptions.PreserveWhitespace);
+                    var changedDocs = changed.Element("Members")!.Elements("Member").Single(candidate =>
+                        candidate.Elements("MemberSignature").Any(signature =>
+                            (string?)signature.Attribute("Language") == "DocId" &&
+                            (string?)signature.Attribute("Value") == prior.Id)).Element("Docs")!;
+                    mutation(changedDocs);
+                    WriteDocument(changed);
+                    var bytes = File.ReadAllBytes(pipelinePath);
+                    using var report = RunPipeline();
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(bytes),
+                        "SliceProvider production repair preserves authored nodes, mixed markup, CDATA, comments, processing instructions, attributes, references, attribution and duplicate channels");
+                }
+                if (legacyDocs[index].Element("remarks")!.Elements("code").Any(code =>
+                    code.Value.Contains("// Guard against SQL injection attacks\n", StringComparison.Ordinal)))
+                {
+                    var changed = XElement.Parse(original, LoadOptions.PreserveWhitespace);
+                    var changedDocs = changed.Element("Members")!.Elements("Member").Single(candidate =>
+                        candidate.Elements("MemberSignature").Any(signature =>
+                            (string?)signature.Attribute("Language") == "DocId" &&
+                            (string?)signature.Attribute("Value") == prior.Id)).Element("Docs")!;
+                    var code = changedDocs.Element("remarks")!.Elements("code").Single(element =>
+                        element.Value.Contains("// Guard against SQL injection attacks\n", StringComparison.Ordinal));
+                    var originalCode = code.Value;
+                    code.Value = originalCode.Replace("// Guard against SQL injection attacks\n",
+                        "// Guard against SQL injection attacks ", StringComparison.Ordinal);
+                    Assert(code.Value != originalCode && ImporterMarkupEquals(changedDocs, legacyDocs[index]),
+                        "independent Query seed contains semantics-changing Java whitespace that prose comparison cannot distinguish");
+                    WriteDocument(changed);
+                    var bytes = File.ReadAllBytes(pipelinePath);
+                    for (var repeat = 0; repeat < 2; repeat++)
+                    {
+                        using var report = RunPipeline();
+                        Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                            report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                            File.ReadAllBytes(pipelinePath).SequenceEqual(bytes),
+                            "SliceProvider preserves author-modified Query Java code before any channel withdrawal on max-one persisted repeats");
+                    }
+                }
+                WriteDocument(document);
+                var historicalOperations = 0;
+                while (true)
+                {
+                    using var report = RunPipeline();
+                    var count = report.RootElement.GetProperty("appliedCount").GetInt32();
+                    Assert(count is 0 or 1,
+                        "SliceProvider prior-owned production withdrawal respects max-one operations");
+                    if (count == 0)
+                        break;
+                    historicalOperations += count;
+                    Assert(historicalOperations <= prior.Docs.Elements().Count(),
+                        "SliceProvider prior-owned withdrawal terminates within the original channel count");
+                    XDocument.Load(pipelinePath);
+                }
+                Assert(historicalOperations > 0,
+                    "SliceProvider exact prior-owned channels were withdrawn rather than silently retained");
+                var persisted = File.ReadAllBytes(pipelinePath);
+                using var repeated = RunPipeline();
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(persisted) &&
+                    persisted.Take(3).SequenceEqual(new byte[] { 0xef, 0xbb, 0xbf }) &&
+                    !Regex.IsMatch(File.ReadAllText(pipelinePath), "(?<!\\r)\\n"),
+                    "SliceProvider completed withdrawals persist as zero-write repeats with BOM and CRLF preserved");
+                var resultDocs = XDocument.Load(pipelinePath).Descendants("Member").Single(candidate =>
+                    candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == prior.Id)).Element("Docs")!;
+                Assert(resultDocs.Element("remarks")!.Elements().Count() == 2 &&
+                    ImporterMarkupEquals(resultDocs.Element("remarks")!.Elements().First(), ImporterSourceReference(raw)) &&
+                    ImporterMarkupEquals(resultDocs.Element("remarks")!.Elements().Last(),
+                        XElement.Parse($"<para>{AndroidAttribution}</para>")),
+                    "SliceProvider remarks withdrawal retains the exact source reference and Android attribution");
+
+                var anchor = sourceAnchor(raw.SourceUrl);
+                var heading = Regex.Match(html, @"<h3\b[^>]*\bid=""" + Regex.Escape(anchor) + @"""[^>]*>[\s\S]*?</h3>");
+                Assert(heading.Success, "SliceProvider corrected-source controls retain the exact declared heading");
+                var signature = Regex.Match(html[heading.Index..], @"<pre\b[^>]*class=""api-signature[^""]*""[^>]*>[\s\S]*?</pre>");
+                Assert(signature.Success, "SliceProvider corrected-source controls retain the exact Java signature");
+                foreach (var lead in new[] { "Corrected source-only test contract.", "Safe source-only test lead." })
+                {
+                    var correctedHtml = "<html><body><main>" + heading.Value + signature.Value +
+                        "<p>" + lead + "</p></main></body></html>";
+                    File.WriteAllText(cachePath, correctedHtml, new UTF8Encoding(false));
+                    var changedPage = SourcePage.Parse(request, correctedHtml);
+                    var changedMapping = MapOwner(owners[index], new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(changedPage),
+                    });
+                    Assert(changedMapping.Docs is { SliceProviderContract: null, UnsafeTargets: null } &&
+                        changedMapping.Docs.Summary == lead &&
+                        changedMapping.Docs.Paragraphs.All(paragraph => !paragraph.Text.Contains("Implement this", StringComparison.Ordinal)),
+                        "registered parsing makes corrected source and removal of inherited unsafe guidance eligible without implementation-derived prose");
+                    WriteDocument(XElement.Parse(fixtureText));
+                    using var corrected = RunPipeline();
+                    Assert(corrected.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "SliceProvider corrected or removed source imports one eligible channel in the actual max-one production pipeline");
+                    using var completed = RunPipeline();
+                    Assert(completed.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "SliceProvider corrected-source remarks import remains separately max-one bounded");
+                    var correctedBytes = File.ReadAllBytes(pipelinePath);
+                    using var correctedRepeat = RunPipeline();
+                    Assert(correctedRepeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(pipelinePath).SequenceEqual(correctedBytes),
+                        "SliceProvider future corrected and removed-source controls persist with byte-identical zero-write repeats");
+                }
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            }
+            static string sourceAnchor(string url) =>
+                WebUtility.HtmlEncode(Uri.UnescapeDataString(url.Split('#')[1]))
+                    .Replace(" ", "%20", StringComparison.Ordinal);
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
     static void TestTvAdSourceCorrections(string repositoryRoot)
     {
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
@@ -12557,6 +13415,147 @@ static class ImporterProgram
                 var before = File.ReadAllBytes(path);
                 Assert(Apply() == 0 && File.ReadAllBytes(path).SequenceEqual(before),
                     "Quality all writers preserve authored and nested Docs without metadata enrichment: " + id);
+
+                if (id == "M:Android.Media.Quality.MediaQualityManager.GetAvailablePictureProfiles(Android.Media.Quality.MediaQualityManager.ProfileQueryParams)")
+                {
+                    foreach (var newline in new[] { "\n", "\r\n" })
+                    foreach (var emitBom in new[] { false, true })
+                    {
+                        var mixed = XDocument.Parse(input, LoadOptions.PreserveWhitespace);
+                        var mixedDocs = mixed.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+                        foreach (var element in mixedDocs.Elements())
+                            element.ReplaceNodes(new XText("Preserved authored " + element.Name + "."));
+                        mixedDocs.Element("summary")!.ReplaceNodes(
+                            new XElement("para", "Authored summary."),
+                            ImporterSourceReference(mapped));
+                        mixedDocs.Element("returns")!.ReplaceNodes(
+                            new XElement("para", "Authored collection return."),
+                            ImporterSourceReference(mapped));
+                        mixedDocs.Element("remarks")!.ReplaceNodes(new XText("To be added."));
+                        var mixedInput = mixed.ToString(SaveOptions.DisableFormatting);
+                        mixedInput = mixedInput.Replace("\r\n", "\n", StringComparison.Ordinal)
+                            .Replace("\n", newline, StringComparison.Ordinal);
+                        File.WriteAllText(path, mixedInput, new UTF8Encoding(emitBom, true));
+                        var mixedBeforeBytes = File.ReadAllBytes(path);
+                        var strictUtf8 = new UTF8Encoding(false, true);
+                        int ByteOffset(byte[] bytes, string decoded, int characterOffset)
+                        {
+                            var bomLength = bytes.Length >= 3 &&
+                                bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf ? 3 : 0;
+                            Assert(bytes.AsSpan(bomLength).SequenceEqual(strictUtf8.GetBytes(decoded)),
+                                "Mixed Quality byte offsets require exact strict UTF8 payload identity.");
+                            Assert(characterOffset >= 0 && characterOffset <= decoded.Length,
+                                "Mixed Quality character offset is within decoded payload.");
+                            return bomLength + strictUtf8.GetByteCount(decoded.AsSpan(0, characterOffset));
+                        }
+                        Assert((mixedBeforeBytes.Length >= 3 &&
+                            mixedBeforeBytes[0] == 0xef && mixedBeforeBytes[1] == 0xbb &&
+                            mixedBeforeBytes[2] == 0xbf) == emitBom,
+                            "Mixed Quality starts with the explicitly selected UTF8 BOM state.");
+                        var mixedFile = LoadedFile.Load(repositoryRoot, path);
+                        mixedFile.SelectOwners(null);
+                        var mixedOwner = mixedFile.Owners.Single(item => item.Id == id);
+                        var block = mixedFile.DocsBlocks[mixedOwner.Order];
+                        var blockText = mixedInput[block.Start..block.End];
+                        Assert(TryParseDocsBlock(blockText, out var mixedParsedDocs),
+                            "Mixed Quality parses original Docs with block-relative line information.");
+                        Assert(TryGetElementSpan(blockText, mixedParsedDocs.Element("remarks")!, out var originalRemarksSpan),
+                            "Mixed Quality locates original direct remarks.");
+                        var protectedSpans = mixedParsedDocs.Elements()
+                            .Where(element => element.Name != "remarks")
+                            .Select(element =>
+                            {
+                                Assert(TryGetElementSpan(blockText, element, out var span),
+                                    "Mixed Quality control locates every protected channel.");
+                                var byteStart = ByteOffset(mixedBeforeBytes, mixedInput, block.Start + span.Start);
+                                var byteEnd = ByteOffset(mixedBeforeBytes, mixedInput, block.Start + span.End);
+                                return (element.Name, Text: blockText[span.Start..span.End],
+                                    Bytes: mixedBeforeBytes[byteStart..byteEnd]);
+                            }).ToArray();
+                        int MixedRun(bool apply) => RunAsync([
+                            "--path", directory, "--path", overview, "--namespace", "Android.Media.Quality",
+                            "--member", id, "--cache", temporary, "--offline", "--max-changes", "1",
+                            .. (apply ? new[] { "--apply" } : Array.Empty<string>()),
+                            "--report", reportPath,
+                        ]).GetAwaiter().GetResult();
+                        void AssertMixedReport(bool applied)
+                        {
+                            using var mixedReport = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                            var root = mixedReport.RootElement;
+                            Assert(root.GetProperty(applied ? "appliedCount" : "wouldApplyCount").GetInt32() == 1,
+                                "Mixed Quality report records exactly one remarks operation within budget1.");
+                            Assert(root.GetProperty("errorCount").GetInt32() == 0,
+                                "Mixed Quality production report has no errors.");
+                            var entries = root.GetProperty("entries").EnumerateArray().ToArray();
+                            Assert(entries.Count(entry =>
+                                entry.GetProperty("status").GetString() == (applied ? "applied" : "would_apply") &&
+                                entry.GetProperty("target").GetString() == "remarks") == 1,
+                                "Only direct remarks is recorded as changed.");
+                            Assert(!entries.Any(entry =>
+                                entry.GetProperty("target").GetString() != "remarks" &&
+                                entry.GetProperty("status").GetString() is "applied" or "would_apply"),
+                                "No protected channel is reported changed.");
+                            Assert(entries.Any(entry =>
+                                entry.GetProperty("target").GetString() == "returns" &&
+                                entry.GetProperty("status").GetString() == "skipped" &&
+                                entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                                "The excluded return is accurately reported skipped and remains protected.");
+                            Assert(File.ReadAllText(reportPath + ".txt").Contains(
+                                "source_channel_ambiguous", StringComparison.Ordinal),
+                                "Complete TXT report retains excluded-return diagnostics.");
+                        }
+                        Assert(MixedRun(false) == 0 && File.ReadAllText(path) == mixedInput,
+                            "Mixed Quality dry run preserves all original text.");
+                        Assert(File.ReadAllBytes(path).SequenceEqual(mixedBeforeBytes),
+                            "Mixed Quality dry run preserves every actual byte including BOM.");
+                        AssertMixedReport(false);
+                        Assert(MixedRun(true) == 0, "Mixed Quality production apply succeeds.");
+                        AssertMixedReport(true);
+                        var mixedApplied = File.ReadAllText(path);
+                        var mixedAppliedBytes = File.ReadAllBytes(path);
+                        var reloaded = LoadedFile.Load(repositoryRoot, path);
+                        reloaded.SelectOwners(null);
+                        var resultOwner = reloaded.Owners.Single(item => item.Id == id);
+                        var resultBlock = reloaded.DocsBlocks[resultOwner.Order];
+                        var resultText = mixedApplied[resultBlock.Start..resultBlock.End];
+                        Assert(TryParseDocsBlock(resultText, out var resultParsedDocs),
+                            "Mixed Quality parses applied Docs with block-relative line information.");
+                        Assert(TryGetElementSpan(resultText, resultParsedDocs.Element("remarks")!, out var resultRemarksSpan),
+                            "Mixed Quality locates only changed remarks.");
+                        Assert(mixedInput[..(block.Start + originalRemarksSpan.Start)] ==
+                                mixedApplied[..(resultBlock.Start + resultRemarksSpan.Start)] &&
+                            mixedInput[(block.Start + originalRemarksSpan.End)..] ==
+                                mixedApplied[(resultBlock.Start + resultRemarksSpan.End)..],
+                            "Mixed Quality preserves ALL exact file text outside newly filled remarks.");
+                        var beforeRemarksStart = ByteOffset(mixedBeforeBytes, mixedInput, block.Start + originalRemarksSpan.Start);
+                        var beforeRemarksEnd = ByteOffset(mixedBeforeBytes, mixedInput, block.Start + originalRemarksSpan.End);
+                        var afterRemarksStart = ByteOffset(mixedAppliedBytes, mixedApplied, resultBlock.Start + resultRemarksSpan.Start);
+                        var afterRemarksEnd = ByteOffset(mixedAppliedBytes, mixedApplied, resultBlock.Start + resultRemarksSpan.End);
+                        Assert(mixedBeforeBytes[..beforeRemarksStart].SequenceEqual(mixedAppliedBytes[..afterRemarksStart]) &&
+                            mixedBeforeBytes[beforeRemarksEnd..].SequenceEqual(mixedAppliedBytes[afterRemarksEnd..]),
+                            "Mixed Quality preserves actual whole-file byte prefix/suffix including BOM outside remarks.");
+                        foreach (var channel in protectedSpans)
+                        {
+                            Assert(TryGetElementSpan(resultText, resultParsedDocs.Element(channel.Name)!, out var span) &&
+                                resultText[span.Start..span.End] == channel.Text,
+                                "Mixed Quality preserves exact authored/excluded channel text: " + channel.Name);
+                            var byteStart = ByteOffset(mixedAppliedBytes, mixedApplied, resultBlock.Start + span.Start);
+                            var byteEnd = ByteOffset(mixedAppliedBytes, mixedApplied, resultBlock.Start + span.End);
+                            Assert(mixedAppliedBytes[byteStart..byteEnd].SequenceEqual(channel.Bytes),
+                                "Mixed Quality preserves literal protected-channel UTF8 byte slice: " + channel.Name);
+                        }
+                        Assert(CountImporterSourceReferences(resultOwner.Docs.Element("remarks")!, mapped.SourceUrl) == 1 &&
+                            resultOwner.Docs.Element("remarks")!.Elements("para").Count(IsImporterAttributionParagraph) == 1,
+                            "Only newly filled remarks gains one canonical reference and attribution.");
+                        Assert(MixedRun(true) == 0 && File.ReadAllText(path) == mixedApplied,
+                            "Mixed Quality repeated budget1 apply preserves every character.");
+                        Assert(File.ReadAllBytes(path).SequenceEqual(mixedAppliedBytes),
+                            "Mixed Quality repeat preserves every actual byte including BOM.");
+                        using var mixedRepeatReport = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                        Assert(mixedRepeatReport.RootElement.GetProperty("appliedCount").GetInt32() == 0,
+                            "Mixed Quality repeat accurately reports zero operations.");
+                    }
+                }
             }
         }
         finally
@@ -12577,6 +13576,7 @@ static class ImporterProgram
         TestControlsTemplatesRangeSource(repositoryRoot);
         TestQuickSettingsSources(repositoryRoot);
         TestKnownEapChannelCorrections(repositoryRoot);
+        TestChangeLogDataOriginChannel(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestBlobParcelTextCorrection(repositoryRoot, fixtureRoot);
@@ -12587,6 +13587,8 @@ static class ImporterProgram
         TestNfcCopiedDescriptionExclusion(repositoryRoot, fixtureRoot);
         TestBrowseSubscriptionContracts(repositoryRoot, fixtureRoot);
         TestProtoTokenRemark(repositoryRoot, fixtureRoot);
+        TestSliceProviderContracts(repositoryRoot, fixtureRoot);
+        TestChooserListenerDescription(repositoryRoot, fixtureRoot);
         TestRssiSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSupportedWriters(repositoryRoot, fixtureRoot);
@@ -19983,6 +20985,239 @@ static class ImporterProgram
         }
     }
 
+    static void TestChangeLogDataOriginChannel(string repositoryRoot)
+    {
+        var correction = KnownChangeLogChannelCorrection;
+        var docsRoot = Path.Combine(repositoryRoot, "docs", "xml", "Android.Health.Connect.ChangeLog");
+        var path = Path.Combine(docsRoot, $"ChangeLog.importer-self-test-{Environment.ProcessId}.xml");
+        var directory = Path.Combine(Path.GetTempPath(), $"changelog-importer-self-test-{Guid.NewGuid():N}");
+        var cache = Path.Combine(directory, "cache");
+        Directory.CreateDirectory(cache);
+        var sourceUrl = correction.Source.SourceUrl.Split('#')[0];
+        var key = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceUrl))).ToLowerInvariant();
+        var cachePath = Path.Combine(cache, key + ".html");
+        var reportPath = Path.Combine(directory, "report");
+        var html = File.ReadAllText(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "changelog-token-builder-android-reference.html"));
+        var root = XElement.Load(Path.Combine(docsRoot, "ChangeLogTokenRequest+Builder.xml"));
+        var member = root.Element("Members")!.Elements("Member").Single(element =>
+            (string?)element.Attribute("MemberName") == "AddDataOriginFilter");
+        root.Element("Members")!.ReplaceNodes(new XElement(member));
+        root.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored type summary."),
+            new XElement("remarks", "Authored type remarks."));
+        member = root.Element("Members")!.Element("Member")!;
+        member.Element("Docs")!.ReplaceNodes(
+            new XElement("param", new XAttribute("name", "dataOriginFilter"), "To be added."),
+            new XElement("summary", "To be added."),
+            new XElement("returns", "To be added."),
+            new XElement("remarks", "To be added."));
+        var args = new[]
+        {
+            "--path", path, "--namespace", "Android.Health.Connect.ChangeLog",
+            "--member", "AddDataOriginFilter", "--offline", "--cache", cache,
+            "--max-changes", "1", "--apply", "--report", reportPath,
+        };
+        JsonDocument Apply(XElement input, string sourceHtml)
+        {
+            File.WriteAllText(path, "\uFEFF" + input.ToString(SaveOptions.DisableFormatting).Replace("\n", "\r\n"),
+                new UTF8Encoding(false));
+            File.WriteAllText(cachePath, sourceHtml, new UTF8Encoding(false));
+            Assert(RunAsync(args).GetAwaiter().GetResult() == 0, "registered ChangeLog pipeline succeeds");
+            var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                "registered ChangeLog pipeline has no errors");
+            return report;
+        }
+        void NoEdit(XElement input, string sourceHtml, string description)
+        {
+            var expected = Encoding.UTF8.GetBytes("\uFEFF" +
+                input.ToString(SaveOptions.DisableFormatting).Replace("\n", "\r\n"));
+            using var report = Apply(input, sourceHtml);
+            Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                expected.SequenceEqual(File.ReadAllBytes(path)), description);
+        }
+        void Repeat(string description)
+        {
+            var before = File.ReadAllBytes(path);
+            Assert(RunAsync(args).GetAwaiter().GetResult() == 0, description);
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                before.SequenceEqual(File.ReadAllBytes(path)), description);
+        }
+        XElement Docs(XElement input) => input.Element("Members")!.Element("Member")!.Element("Docs")!;
+        var originalOutput = Console.Out;
+        using var output = new StringWriter();
+        try
+        {
+            Console.SetOut(output);
+            using (var report = Apply(root, html))
+            {
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("target").GetString() == correction.Target &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "ChangeLog actual JNI first-fill max-one withholds the full contradicted parameter");
+            }
+            Repeat("ChangeLog actual persisted first-fill repeat remains zero-write and byte-identical");
+            var unguarded = new XElement(root);
+            var unguardedId = unguarded.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "DocId");
+            unguardedId.SetAttributeValue("Value", correction.MemberId + ".Other");
+            using (var report = Apply(unguarded, html))
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    Docs(XElement.Load(path)).Element("param")!.Value == correction.IncorrectText,
+                    "ChangeLog independent managed-owner control produces the original unguarded first-fill markup");
+            var prior = XElement.Load(path);
+            prior.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", correction.MemberId);
+            Assert(ImporterMarkupEquals(Docs(prior), KnownEapPriorDocs(correction)),
+                "ChangeLog withdrawal fixture matches real production first-fill output, including metadata-only remarks");
+            using (var report = Apply(prior, html))
+            {
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    Docs(XElement.Load(path)).Element("param")!.Value == "To be added.",
+                    "ChangeLog complete prior-owned parameter is withdrawn in one bounded operation");
+            }
+            var withdrawn = XElement.Load(path);
+            var expectedDocs = KnownEapPriorDocs(correction);
+            expectedDocs.Element("param")!.Value = "To be added.";
+            Assert(ImporterMarkupEquals(Docs(withdrawn), expectedDocs),
+                "ChangeLog withdrawal preserves all other channels and full reference/attribution");
+            Repeat("ChangeLog persisted withdrawal repeat remains zero-write and byte-identical");
+
+            foreach (var location in new[] { "Docs root", "remarks", "source-reference paragraph" })
+            {
+                var authored = new XElement(prior);
+                var docs = Docs(authored);
+                var container = location switch
+                {
+                    "Docs root" => docs,
+                    "remarks" => docs.Element("remarks")!,
+                    _ => docs.Element("remarks")!.Elements("para").First(),
+                };
+                container.Add(new XCData(" "));
+                Assert(!ImporterMarkupEquals(docs, Docs(prior)) &&
+                    !ImporterMarkupEquals(Docs(prior), docs),
+                    $"ChangeLog ownership comparison rejects whitespace-only CDATA at {location} on either side");
+                NoEdit(authored, html,
+                    $"ChangeLog max-one withdrawal preserves whitespace-only CDATA at {location}");
+                Repeat($"ChangeLog whitespace-only CDATA at {location} persisted repeat is zero-write and byte-identical");
+            }
+
+            foreach (var mutation in new Action<XElement>[]
+            {
+                docs => docs.Element("param")!.Value += " Authored.",
+                docs => docs.Element("param")!.ReplaceNodes(new XElement("c", correction.IncorrectText)),
+                docs => docs.Element("param")!.ReplaceNodes(new XCData(correction.IncorrectText)),
+                docs => docs.Element("param")!.Add(new XComment("Authored")),
+                docs => docs.Element("param")!.Add(new XProcessingInstruction("authored", "keep")),
+                docs => docs.Element("param")!.SetAttributeValue("authored", "keep"),
+                docs => docs.Add(new XElement(docs.Element("param")!)),
+                docs => docs.Add(new XElement("remarks", "Authored.")),
+                docs => docs.SetAttributeValue("authored", "keep"),
+                docs => docs.Add(new XComment("Authored")),
+                docs => docs.Add(new XProcessingInstruction("authored", "keep")),
+                docs => docs.Element("summary")!.Value = "Authored.",
+                docs => docs.Element("remarks")!.Add(new XElement("para", "Authored.")),
+                docs => docs.Element("remarks")!.Descendants("a").First().SetAttributeValue("href", sourceUrl + "#other"),
+                docs => docs.Element("remarks")!.Descendants("code").First().Value += ".Other",
+                docs => docs.Element("remarks")!.Elements("para").Last().Add(new XComment("Authored attribution")),
+                docs => docs.Element("remarks")!.Descendants("a").Last().SetAttributeValue("href", "https://example.invalid"),
+            })
+            {
+                var authored = new XElement(prior);
+                mutation(Docs(authored));
+                NoEdit(authored, html, "ChangeLog withdrawal preserves authored/mixed/CDATA/PI/comment/attribute/duplicate/provenance negatives");
+            }
+            foreach (var mutation in new Action<XElement>[]
+            {
+                element => element.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object",
+                element => element.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Type", "System.Object"),
+                element => element.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Name", "other"),
+                element => element.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public object Other ();"),
+                element => element.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", correction.MemberId + ".Other"),
+                element => element.Element("Attributes")!.Descendants("AttributeName")
+                    .First(attribute => attribute.Value.Contains("Android.Runtime.Register", StringComparison.Ordinal)).Value =
+                        "[Android.Runtime.Register(\"other\", \"()V\", \"\")]",
+            })
+            {
+                var altered = new XElement(prior);
+                mutation(altered.Element("Members")!.Element("Member")!);
+                NoEdit(altered, html, "ChangeLog withdrawal requires exact JNI and full managed signature/types");
+            }
+            foreach (var changedHtml in new[]
+            {
+                html.Replace("list of package names", "one data origin", StringComparison.Ordinal),
+                html.Replace("This value cannot be", "This value may be", StringComparison.Ordinal),
+                html.Replace("<p></p></p>", "<p>New official contract.</p>", StringComparison.Ordinal),
+                html.Replace("DataOrigin</code>:", "Object</code>:", StringComparison.Ordinal),
+                html.Replace(">addDataOriginFilter</h3>", ">other</h3>", StringComparison.Ordinal),
+            })
+                NoEdit(prior, changedHtml, "ChangeLog withdrawal requires the entire original official source contract");
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners("AddDataOriginFilter");
+            var owner = loaded.Owners.Single();
+            var wrongSource = correction.Source with { SourceUrl = sourceUrl + "#other" };
+            Assert(WithKnownEapChannelCorrections(owner, wrongSource).UnsafeTargets is null,
+                "ChangeLog wrong canonical source URL cannot activate the exclusion");
+            foreach (var source in new[]
+            {
+                correction.Source with { SourceKind = "java" },
+                correction.Source with { SourceLabel = "other" },
+                correction.Source with { Summary = "New source contract." },
+                correction.Source with { Paragraphs = [new("New source contract.", false)] },
+                correction.Source with { Returns = "New return contract." },
+                correction.Source with { Parameters = new(StringComparer.Ordinal) { ["other"] = correction.IncorrectText } },
+                correction.Source with { Exceptions = new(StringComparer.Ordinal) { ["java.lang.Exception"] = "New exception contract." } },
+            })
+                Assert(WithKnownEapChannelCorrections(owner, source).UnsafeTargets is null,
+                    "ChangeLog first-fill exclusion requires all complete source fields independently");
+            var wrongMember = new XElement(root);
+            wrongMember.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", correction.MemberId + ".Other");
+            using (var report = Apply(wrongMember, html))
+                Assert(Docs(XElement.Load(path)).Element("param")!.Value == correction.IncorrectText,
+                    "ChangeLog first-fill guard never applies to a different managed member");
+            foreach (var remarks in new[]
+            {
+                new XElement("remarks", new XElement("para", "To be added.")),
+                new XElement("remarks", ImporterSourceReference(correction.Source),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")),
+                new XElement("remarks", "Authored remarks."),
+            })
+            {
+                var layout = new XElement(root);
+                Docs(layout).Element("remarks")!.ReplaceWith(remarks);
+                NoEdit(layout, html, "ChangeLog parameter suppression also preserves logical placeholders and metadata/authored layouts");
+            }
+            foreach (var sourceHtml in new[]
+            {
+                html.Replace("list of package names", "the data origin", StringComparison.Ordinal),
+                html.Replace("list of package names on which to filter the data.", "", StringComparison.Ordinal),
+            })
+            {
+                using var report = Apply(root, sourceHtml);
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    Docs(XElement.Load(path)).Element("param")!.Value != "To be added.",
+                    "ChangeLog future corrected or removed defective wording is eligible");
+                Repeat("ChangeLog future source persisted repeat is zero-write");
+            }
+        }
+        finally
+        {
+            Console.SetOut(originalOutput);
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+        Console.WriteLine("SELF-TEST PASS: registered ChangeLog DataOrigin first-fill/withdrawal, exact source/JNI/managed/provenance negatives, corrected-source controls, and persisted repeats.");
+    }
+
     static void TestKnownEapChannelCorrections(string repositoryRoot)
     {
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
@@ -25081,6 +26316,7 @@ static class ImporterProgram
         KnownEapChannelCorrection? EapCorrection = null,
         bool HasRawExclusions = false,
         List<SourceParagraph>? WithheldRemarks = null,
+        SliceProviderContract? SliceProviderContract = null,
         KnownNfcContract? NfcContract = null,
         KnownTvAdCorrection? TvAdCorrection = null,
         IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null,
