@@ -99,6 +99,10 @@ Immutable SHA-256 fingerprints cover the registered JNI owner/name/descriptor,
 managed signature and parameter/return bindings, canonical source URL and label,
 and complete ordered parsed source contract, including code and parameter text.
 The raw declared-source fixture makes these fingerprints reproducible.
+Fingerprint serialization uses explicit source-generated JSON contracts so the
+same ordered, escaped UTF-8 hash inputs work when reflection serialization is
+disabled. The registered suite checks literal JSON bytes and all seven pinned
+binding/source hashes without enabling reflection.
 No implementation-derived replacement prose is imported. Corrected or removed
 official guidance remains eligible. A prior copy is withdrawn one channel at
 a time only when the entire Docs block matches the original plain importer
@@ -428,6 +432,30 @@ managed member ID, official `getRetryPolicy()` URL, and complete source return
 text match the known incorrect flag-combination wording. Retry policies are
 mutually exclusive codes, not flags. The guard does not affect other channels,
 members, URLs, corrected source text, or existing authored documentation.
+
+`Android.Media.Quality` has source-bound first-fill exclusions for eight
+`WriteToParcel(Parcel, int)` summary/remarks pairs containing the exact
+`Flatten this object in to a Parcel.` typo, the two `GetAvailable*Profiles`
+returns describing a single nullable profile despite a collection declaration,
+and `ParameterCapability.ParameterType` value prose advertising combinations
+of mutually exclusive type codes. Each exclusion requires the original full
+official declaration (including return type), canonical URL/source label,
+managed DocId/C# signature/return/ordered parameters, JNI registration, and
+complete affected source channel. Safe direct placeholder channels remain
+eligible. These guarded owners take a first-fill-only path: nested placeholders,
+existing documentation, metadata-only enrichment, repairs and refreshes are
+preserved, not normalized. Corrected official channels remain eligible.
+Source reference and attribution are attached only inside newly filled direct
+remarks, atomically with that fill. Existing references in authored summaries
+and excluded returns are not reconciled or removed. Mixed-authored regressions
+exercise a one-operation remarks fill, accurate skipped-return reporting, and
+literal protected-channel and outside-remarks byte preservation across LF/CRLF
+and UTF-8 BOM states, including dry runs and persisted zero-write repeats.
+The registered ordinary suite uses complete native contiguous source fragments
+with byte lengths/SHA-256 and original managed-owner fixtures, exercises real
+bounded offline production applies and zero-write repeats, and checks changed
+provenance/declarations/signatures and authored/nested preservation. These are
+fresh fixtures, not historical producer-output claims.
 
 The OOB `OobInitiatorRangingConfigSecurityLevel.Secure` enum source is withheld
 when its complete official description calls the provisioned-STS/security-level-four
