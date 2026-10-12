@@ -9402,10 +9402,10 @@ static partial class ImporterProgram
                     ".html"),
                 source,
                 new UTF8Encoding(false));
-            string Fixture(string typeRegistration) => $"""
+            string Fixture(string managedSignature) => $"""
                 <Type Name="CompanionDeviceManager+TrustPairingCallback" FullName="Android.Companion.CompanionDeviceManager+TrustPairingCallback">
-                  <TypeSignature Language="C#" Value="public abstract class CompanionDeviceManager.TrustPairingCallback : Java.Lang.Object" />
-                  <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("{typeRegistration}", ApiSince=37, DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
+                  <TypeSignature Language="C#" Value="{managedSignature}" />
+                  <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("android/companion/CompanionDeviceManager$TrustPairingCallback", ApiSince=37, DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
                   <Docs><summary>Authored type summary.</summary><remarks>To be added.</remarks></Docs>
                   <Members />
                 </Type>
@@ -9451,18 +9451,18 @@ static partial class ImporterProgram
                     blockText[attributionSpan.Start..attributionSpan.End]);
             }
 
-            const string alteredRegistration =
-                "android/companion/CompanionDeviceManager$TrustPairingCallbackOther";
+            const string managedSignature =
+                "public abstract class CompanionDeviceManager.TrustPairingCallback : Java.Lang.Object";
+            const string alteredManagedSignature =
+                "public abstract class CompanionDeviceManager.TrustPairingCallback : Java.Lang.Throwable";
             WriteSourceCache(request);
-            WriteSourceCache(SourceRequest.Create(alteredRegistration) ??
-                throw new InvalidOperationException("SELF-TEST FAIL: TrustPairingCallback altered source request"));
-            WriteFixture(Fixture(alteredRegistration));
+            WriteFixture(Fixture(alteredManagedSignature));
             using (var generated = RunPipeline(true, 1))
                 Assert(generated.RootElement.GetProperty("appliedCount").GetInt32() == 1,
-                    "TrustPairingCallback production pipeline generates exact prior importer-owned remarks");
+                    "TrustPairingCallback production pipeline generates canonical prior importer-owned remarks");
 
             var priorOwned = File.ReadAllText(path).Replace(
-                alteredRegistration, TrustPairingCallbackJavaPath, StringComparison.Ordinal);
+                alteredManagedSignature, managedSignature, StringComparison.Ordinal);
             WriteFixture(priorOwned);
             var metadata = MetadataBytes();
             using (var withdrawn = RunPipeline(true, 1))
@@ -9487,6 +9487,16 @@ static partial class ImporterProgram
                 Assert(authored.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
                     File.ReadAllBytes(path).SequenceEqual(authoredBytes),
                     "TrustPairingCallback withdrawal preserves authored remarks");
+
+            WriteFixture(priorOwned.Replace(
+                TrustPairingCallbackSourceUrl,
+                TrustPairingCallbackSourceUrl + ".Other",
+                StringComparison.Ordinal));
+            var changedProvenanceBytes = File.ReadAllBytes(path);
+            using (var changedProvenance = RunPipeline(true, 1))
+                Assert(changedProvenance.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(changedProvenanceBytes),
+                    "TrustPairingCallback withdrawal preserves changed source provenance");
         }
         finally
         {
