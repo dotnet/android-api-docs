@@ -2172,12 +2172,12 @@ static partial class ImporterProgram
             !XNode.DeepEquals(actual, owner.Docs) ||
             actual.Elements("remarks").ToList() is not [XElement remarks] ||
             !ImporterMarkupEquals(remarks, expectedRemarks) ||
-            !TryGetElementSpan(blockText, remarks, out var span))
+            !TryGetElementSpan(blockText, remarks.Elements("para").First(), out var span))
             return new(text, []);
 
         return new(
             text[..block.Start] + blockText[..span.Start] +
-            "<remarks>To be added.</remarks>" +
+            "<para>To be added.</para>" +
             blockText[span.End..] + text[block.End..],
             ["remarks"]);
     }
@@ -9380,6 +9380,122 @@ static partial class ImporterProgram
             "TrustPairingCallback type guard requires the exact managed registration");
     }
 
+    static void TestTrustPairingCallbackWithdrawal(string repositoryRoot)
+    {
+        var request = SourceRequest.Create(TrustPairingCallbackJavaPath) ??
+            throw new InvalidOperationException("SELF-TEST FAIL: TrustPairingCallback source request");
+        var token = ".trust-pairing-callback-self-test-" + Guid.NewGuid().ToString("N");
+        var directory = Path.Combine(repositoryRoot, "tools", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Companion", token + ".xml");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var source = $"""
+                <div id="jd-content">
+                  <p>Callback for applications to receive updates about and the outcome of
+                  <code>{TrustPairingCallbackUnsafeHref}{TrustPairingCallbackUnsafeLinkText[1..]}</code></p>
+                <h2 class="api-section" id="summary">Summary</h2>
+                """;
+            void WriteSourceCache(SourceRequest sourceRequest) => File.WriteAllText(
+                Path.Combine(directory,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceRequest.Url))).ToLowerInvariant() +
+                    ".html"),
+                source,
+                new UTF8Encoding(false));
+            string Fixture(string typeRegistration) => $"""
+                <Type Name="CompanionDeviceManager+TrustPairingCallback" FullName="Android.Companion.CompanionDeviceManager+TrustPairingCallback">
+                  <TypeSignature Language="C#" Value="public abstract class CompanionDeviceManager.TrustPairingCallback : Java.Lang.Object" />
+                  <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("{typeRegistration}", ApiSince=37, DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
+                  <Docs><summary>Authored type summary.</summary><remarks>To be added.</remarks></Docs>
+                  <Members />
+                </Type>
+                """;
+            void WriteFixture(string text) => File.WriteAllText(path,
+                text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", "\r\n", StringComparison.Ordinal),
+                new UTF8Encoding(true));
+            JsonDocument RunPipeline(bool apply, int maxChanges)
+            {
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.Companion", "--cache", directory,
+                    "--offline", "--max-changes", maxChanges.ToString(), "--report",
+                    Path.Combine(directory, "report"),
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "TrustPairingCallback production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "report.json")));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "TrustPairingCallback production pipeline reports no errors");
+                return report;
+            }
+            (string Reference, string Attribution) MetadataBytes()
+            {
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                var owner = file.Owners.Single(candidate => candidate.Id == TrustPairingCallbackTypeId);
+                var block = file.DocsBlocks[owner.Order];
+                var blockText = file.Text[block.Start..block.End];
+                Assert(TryParseDocsBlock(blockText, out var docs),
+                    "TrustPairingCallback prior importer-owned Docs parse");
+                var paragraphs = docs.Element("remarks")!.Elements("para").ToList();
+                Assert(paragraphs.Count == 3,
+                    "TrustPairingCallback prior importer-owned remarks retain source prose and metadata");
+                var foundReference = TryGetElementSpan(blockText, paragraphs[1], out var referenceSpan);
+                var foundAttribution = TryGetElementSpan(blockText, paragraphs[2], out var attributionSpan);
+                Assert(foundReference && foundAttribution,
+                    "TrustPairingCallback prior importer-owned metadata spans are located");
+                return (
+                    blockText[referenceSpan.Start..referenceSpan.End],
+                    blockText[attributionSpan.Start..attributionSpan.End]);
+            }
+
+            const string alteredRegistration =
+                "android/companion/CompanionDeviceManager$TrustPairingCallbackOther";
+            WriteSourceCache(request);
+            WriteSourceCache(SourceRequest.Create(alteredRegistration) ??
+                throw new InvalidOperationException("SELF-TEST FAIL: TrustPairingCallback altered source request"));
+            WriteFixture(Fixture(alteredRegistration));
+            using (var generated = RunPipeline(true, 1))
+                Assert(generated.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "TrustPairingCallback production pipeline generates exact prior importer-owned remarks");
+
+            var priorOwned = File.ReadAllText(path).Replace(
+                alteredRegistration, TrustPairingCallbackJavaPath, StringComparison.Ordinal);
+            WriteFixture(priorOwned);
+            var metadata = MetadataBytes();
+            using (var withdrawn = RunPipeline(true, 1))
+                Assert(withdrawn.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "TrustPairingCallback production pipeline withdraws only the unsafe remarks prose");
+            var withdrawnText = File.ReadAllText(path);
+            Assert(
+                withdrawnText.Contains("<para>To be added.</para>", StringComparison.Ordinal) &&
+                withdrawnText.Contains(metadata.Reference, StringComparison.Ordinal) &&
+                withdrawnText.Contains(metadata.Attribution, StringComparison.Ordinal),
+                "TrustPairingCallback withdrawal retains the exact source-reference and attribution bytes");
+            var withdrawnBytes = File.ReadAllBytes(path);
+            using (var repeated = RunPipeline(true, 1))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(withdrawnBytes),
+                    "TrustPairingCallback withdrawal has a persisted zero-write repeat");
+
+            WriteFixture(priorOwned.Replace(
+                "<remarks>", "<remarks data-authored=\"true\">", StringComparison.Ordinal));
+            var authoredBytes = File.ReadAllBytes(path);
+            using (var authored = RunPipeline(true, 1))
+                Assert(authored.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(authoredBytes),
+                    "TrustPairingCallback withdrawal preserves authored remarks");
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, true);
+        }
+    }
+
     static void TestControlTemplateParagraphBoundary(string repositoryRoot, string fixtureRoot)
     {
         var html = File.ReadAllText(Path.Combine(fixtureRoot, "controls-template-android-reference.html"))
@@ -13767,6 +13883,7 @@ static partial class ImporterProgram
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestMultisensoryDragTokenMarkup();
         TestTrustPairingCallbackTypeRemarks();
+        TestTrustPairingCallbackWithdrawal(repositoryRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
         TestNfcContracts(repositoryRoot, fixtureRoot);
         TestNfcSafeEnumRefresh(repositoryRoot, fixtureRoot);
