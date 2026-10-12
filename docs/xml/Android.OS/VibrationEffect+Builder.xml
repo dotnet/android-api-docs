@@ -26,8 +26,22 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>A builder for composing haptic effects by sequencing various haptic elements.</summary>
+    <remarks>
+      <para>A builder for composing haptic effects by sequencing various haptic elements.</para>
+      <para>This API is the preferred alternative to VibrationEffect.Composition for creating complex vibration effects. It offers more flexibility for creating haptic patterns by allowing multiple elements to be scheduled at specific points in a timeline.</para>
+      <para>This builder allows you to add Envelopes, Presets, and existing VibrationEffects (as Events) to create a complex waveform. Each element is added with a specified startTimeMillis. Note that the use of legacy VibrationEffects is not recommended here.</para>
+      <para>Additionally, a repeating part can be set using setRepeatingEffect(long,VibrationEffect,long). Once a repeating effect is set, no more haptic elements can be added to the composition.</para>
+      <para>Fallback Support: Vibrations created by this builder will provide fallback support if the device does not support the requested haptic elements.</para>
+      <para>Note that fallback support is not provided for envelope effects created by WaveformEnvelopeBuilder, even when they are added to this builder. For such effects, if the device does not support PWLE effects or the requested frequencies, the vibration will not play.</para>
+      <para>For more details about the background of haptics implementation and how OEMs support these effects, see the Android Haptics Implementation Guidelines.</para>
+      <para>Timing and Alignment: The startTimeMillis is the time in milliseconds from the start of the composition being built. Elements must be added in increasing order of their start times.</para>
+      <para>The framework provides best-effort timing support during playback. If a previous event is still playing back when the next event's specified start time is reached, the framework will automatically shift the next event to the next earliest slot. This guarantees that no haptic feedback is dropped and events do not overlap in the actual playback (they will play sequentially instead).</para>
+      <para>However, this automatic shifting can introduce timing drift. To ensure that the actual playback timing aligns as closely as possible with your specified timeline, the builder performs best-effort validation at build time to help you avoid scheduling elements too close together. This validation uses known durations of some elements (like Envelopes) or a minimum duration (1ms) for device-dependent elements (like Presets). If a potential overlap is detected at build time, an IllegalArgumentException is thrown.</para>
+      <para>Because the actual duration of some elements is only fully known at runtime on the physical device, developers should still be mindful when sequencing elements with variable durations to ensure the best alignment between the designed and actual playback timing.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/VibrationEffect.Builder" title="Reference documentation">Android reference for <code>android.os.VibrationEffect.Builder</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -51,8 +65,12 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates an empty Builder to compose a new VibrationEffect.</summary>
+        <remarks>
+          <para>Creates an empty Builder to compose a new VibrationEffect.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/VibrationEffect.Builder#Builder()" title="Reference documentation">Android reference for <code>android.os.VibrationEffect.Builder.Builder</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -79,9 +97,14 @@
         <Parameter Name="effect" Type="Android.OS.VibrationEffect" />
       </Parameters>
       <Docs>
-        <param name="effect">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="effect">The VibrationEffect to initialize this builder with. This value cannot be null.</param>
+        <summary>Creates a Builder initialized with a copy of an existing VibrationEffect.</summary>
+        <remarks>
+          <para>Creates a Builder initialized with a copy of an existing VibrationEffect.</para>
+          <para>Initializes the builder by copying the sequence of events from the provided effect.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/VibrationEffect.Builder#Builder(android.os.VibrationEffect)" title="Reference documentation">Android reference for <code>android.os.VibrationEffect.Builder.Builder</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddEnvelope">
@@ -112,9 +135,9 @@
         <Parameter Name="envelope" Type="Android.OS.VibrationEffect+Envelope" />
       </Parameters>
       <Docs>
-        <param name="startTimeMillis">To be added.</param>
-        <param name="envelope">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="startTimeMillis">The time in milliseconds from the start of the composition to start the envelope. Value is a non-negative duration in milliseconds.</param>
+        <param name="envelope">The Envelope to add. This value cannot be null.</param>
+        <summary>Adds a haptic Envelope to the composition.</summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
