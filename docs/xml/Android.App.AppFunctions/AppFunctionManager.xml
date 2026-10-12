@@ -304,13 +304,20 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="appInteractionSession">To be added.</param>
-        <param name="request">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="cancellationSignal">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="appInteractionSession">the app interaction session to associate with the function execution. This value cannot be null.</param>
+        <param name="request">the request to execute the app function. This value cannot be null.</param>
+        <param name="executor">the executor to run the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="cancellationSignal">the cancellation signal to cancel the execution. This value cannot be null.</param>
+        <param name="callback">the callback to receive the function execution result or error. This value cannot be null.</param>
+        <summary>Executes the app function with an AppInteractionSession.</summary>
+        <remarks>
+          <para>Executes the app function with an AppInteractionSession.</para>
+          <para>Applications can execute functions they define. To execute functions defined in another component, the caller must have the Manifest.permission.EXECUTE_APP_FUNCTIONS or android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM permissions.</para>
+          <para>A function can only be executed while its AppFunctionState.isEnabled is true.</para>
+          <para>See AppFunctionException for possible failures.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#executeAppFunction(android.app.AppInteractionSession,%20android.app.appfunctions.ExecuteAppFunctionRequest,%20java.util.concurrent.Executor,%20android.os.CancellationSignal,%20android.os.OutcomeReceiver&lt;android.app.appfunctions.ExecuteAppFunctionResponse,android.app.appfunctions.AppFunctionException&gt;)" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionManager.executeAppFunction</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetAppFunctionActivityStates">
@@ -620,8 +627,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Application level PackageManager.Property tag that informs the system whether the app supports runtime user control when invoking app functions.</summary>
+        <remarks>
+          <para>Application level PackageManager.Property tag that informs the system whether the app supports runtime user control when invoking app functions.</para>
+          <para>Setting this property to true indicates that the app supports runtime user control. Therefore, the system will no longer automatically grant "always allow" access to the caller at package installation time.</para>
+          <para>Setting this property to false (or leaving it unset) indicates that the app has not migrated to runtime user control. To maintain compatibility, the system will grant the caller "always allow" access by default. However, users can still manually adjust the permission in system settings to restrict or block this access.</para>
+          <para>This property will stop being respected in a future Android release.</para>
+          <code lang="text/java">&lt;application&gt;
+  &lt;property
+    android:name="android.app.appfunctions.PROPERTY_SUPPORTS_APP_FUNCTION_USER_CONTROL"
+    android:value="true|false"/&gt;
+&lt;/application&gt;</code>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appfunctions/AppFunctionManager#PROPERTY_SUPPORT_APP_FUNCTION_USER_CONTROL" title="Reference documentation">Android reference for <code>android.app.appfunctions.AppFunctionManager.PROPERTY_SUPPORT_APP_FUNCTION_USER_CONTROL</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterAppFunction">
