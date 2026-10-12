@@ -32,7 +32,11 @@
   <Docs>
     <summary>AuthenticationPolicyManager is a centralized interface for managing authentication related
             policies on the device.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>AuthenticationPolicyManager is a centralized interface for managing authentication related policies on the device. AuthenticationPolicyManager is designed to protect Android users by integrating with apps and key system components, such as the lock screen. It is not related to enterprise control surfaces and does not offer additional administrative controls. Secure Lock Secure lockdown includes a set of device locking capabilities to protect users in "at risk" environments.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/authenticationpolicy/AuthenticationPolicyManager" title="Reference documentation">Android reference for <code>android.security.authenticationpolicy.AuthenticationPolicyManager</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="CreateCrossDeviceAuthenticationRequest">
@@ -70,7 +74,15 @@
         <param name="callback">the receiver for the encrypted request on success, or an exception on failure</param>
         <summary>Creates a new cross-device authentication request associated with the given
             <c>android.companion.CompanionDeviceManager</c>'s obfuscated remote device ID.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new cross-device authentication request associated with the given CompanionDeviceManager's obfuscated remote device ID. Callers typically get this ID from a companion application which uses AssociationInfo.getAssociationToken() to retrieve it along with other device information that will be shared with applications.</para>
+          <para>Use PROPERTY_CROSS_DEVICE_TRUSTED_PACKAGES if the application is known by another name on the remote device.</para>
+          <para>Use PROPERTY_CROSS_DEVICE_TRUSTED_CERTIFICATES if the application is signed with a different certificate on the remote device.</para>
+          <para>Using this API requires that the association has been granted a supported trust type via CompanionDeviceManager.requestDeviceTrustPairing(int, OutOfBandPairingRequest, int, Executor, TrustPairingCallback) to ensure the user is informed that cross-device actions are allowed. Untrusted associations will always fail with an error.</para>
+          <para>Using this API may also require meeting additional requirements, such as showing an active notification to the user while the cross-device operation is in progress. Refer to the documentation of the service that is guarded by this API for details.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/authenticationpolicy/AuthenticationPolicyManager#createCrossDeviceAuthenticationRequest(java.util.UUID,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;byte[],android.security.authenticationpolicy.CrossDeviceAuthenticationException&gt;)" title="Reference documentation">Android reference for <code>android.security.authenticationpolicy.AuthenticationPolicyManager.createCrossDeviceAuthenticationRequest</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -129,7 +141,13 @@
         <summary>An optional property that applications can define in their manifest's <c>&lt;application&gt;</c>
             element on the &lt;b&gt;target device&lt;/b&gt; (the receiver of the request) to specify trusted
             signing certificates for cross-device authentication requests.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>An optional property that applications can define in their manifest's &lt;application&gt; element on the target device (the receiver of the request) to specify trusted signing certificates for cross-device authentication requests.</para>
+          <para>This property is only relevant for applications that use the cross-device authentication framework (createCrossDeviceAuthenticationRequest(UUID,Executor,OutcomeReceiver)).</para>
+          <para>This property allows the target application to trust cross-device authentication requests originating from applications signed with different certificates. The value should be a comma-separated list of SHA-256 fingerprints of the trusted certificates and a maximum of 50 entries is supported.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/authenticationpolicy/AuthenticationPolicyManager#PROPERTY_CROSS_DEVICE_TRUSTED_CERTIFICATES" title="Reference documentation">Android reference for <code>android.security.authenticationpolicy.AuthenticationPolicyManager.PROPERTY_CROSS_DEVICE_TRUSTED_CERTIFICATES</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PropertyCrossDeviceTrustedPackages">
@@ -159,7 +177,13 @@
         <summary>An optional property that applications can define in their manifest's <c>&lt;application&gt;</c>
             element on the &lt;b&gt;originating device&lt;/b&gt; (the sender of the request) to specify package
             name aliases.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>An optional property that applications can define in their manifest's &lt;application&gt; element on the originating device (the sender of the request) to specify package name aliases.</para>
+          <para>This property is only relevant for applications that use the cross-device authentication framework (createCrossDeviceAuthenticationRequest(UUID,Executor,OutcomeReceiver)). For example, an application should use this property when the application's package name on a wearable, or any other form factor, is different than the package name on the phone.</para>
+          <para>Using these aliases does not remove the need for the applications on each device to be signed with the same certificate unless PROPERTY_CROSS_DEVICE_TRUSTED_CERTIFICATES is also used.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/authenticationpolicy/AuthenticationPolicyManager#PROPERTY_CROSS_DEVICE_TRUSTED_PACKAGES" title="Reference documentation">Android reference for <code>android.security.authenticationpolicy.AuthenticationPolicyManager.PROPERTY_CROSS_DEVICE_TRUSTED_PACKAGES</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
