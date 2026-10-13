@@ -580,3 +580,20 @@ Limitations:
   reference and attribution match; the reference and attribution are retained.
   Authored or mixed XML, CDATA, comments, processing instructions, duplicate
   channels and mismatched provenance are reported and preserved.
+- The two `MultisensoryManager` drag-indicator token remarks retain their exact
+  official continuous-effect sentence. Only their exact Android source URLs and
+  generated `ERROR(MultisensoryContinuousEffectModifier/...)` link wrapper are
+  normalized to the linked type name; unrelated malformed source markup remains
+  a conservative skip.
+- `CompanionDeviceManager.TrustPairingCallback` type remarks are withheld only
+  when the exact official class link has an `int[]` request signature but visible
+  scalar-`int` prose, and the managed type registration and signature also match.
+  An exact prior importer-owned remarks block can be withdrawn to its placeholder;
+  authored or changed documentation and corrected source remain eligible.
+- `AuthenticationPolicyManager.createCrossDeviceAuthenticationRequest` omits only
+  its exact stale trust-pairing paragraph when the official paragraph links an
+  `int[]` request signature but visibly names a scalar `int`. The guard requires
+  the exact managed owner, JNI descriptor, full source paragraph sequence,
+  canonical URL and label. A strict prior importer-owned repair removes only that
+  paragraph, retaining the valid source paragraphs, reference, attribution, and
+  all other documentation channels.
