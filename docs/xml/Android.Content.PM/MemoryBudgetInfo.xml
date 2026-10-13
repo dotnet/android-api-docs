@@ -44,7 +44,15 @@
   </Attributes>
   <Docs>
     <summary>Memory budget information for an application.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Memory budget information for an application. MemoryBudgetInfo entries are retrieved from &lt;memory-budget&gt; entries in an application's manifest, and can be obtained through PackageManager.getMemoryBudgets.</para>
+      <para>A MemoryBudgetInfo that is declared in the Android manifest sets a ceiling on the memory available to the package or to a process within the package. MemoryBudgetInfo declarations may appear at the application level and at the process level. The two are independent and neither overrides the other. In practice, however, the smaller budget dominates.</para>
+      <para>Every MemoryBudgetInfo has a state and a feature; these two attributes determine if and when the MemoryBudgetInfo is applicable. The state is the operational state of the process or the application, and is one of Foreground, Perceptible, or Background; The feature selects for device form-factor and is one of Unspecified, TV, Auto, and Watch A MemoryBudgetInfo is applicable to a process if its feature is Unspecified or if its feature matches the device's form-factor. A MemoryBudgetInfo applies to a process if it is applicable to the process and the MemoryBudgetInfo state is less than or equal to the operational state of the process. Applications also have state, which is roughly the lowest state of any process running in the application.</para>
+      <para>A MemoryBudgetInfo declares an upper bound on the amount of memory the process or application may use. The upper bound is computed from three factors:; maxMb is a baseline amount of memory, expressed in MiB. This must be positive; additionalBytesPerPixel is a scaling factor: bytes per display pixel. This must be non-negative and defaults to zero; additionalMbPerDensity is a scaling factor: MiB times display density. This must be non-negative and defaults to zero. The actual limit is calculated as the maxMb value plus the scale factors applied to the default display of the device.</para>
+      <para>If a process RSS exceeds its declared budget then the kernel will force it to drop memory. This usually means dropping file cache pages but it may also mean that some memory will be moved to swap. In most cases this happens without any impact on the process, but if the process is actively using more memory than the budget limit, the process will slow down as pages are swapped out and then back in. In the limit, the process may ANR.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/MemoryBudgetInfo" title="Reference documentation">Android reference for <code>android.content.pm.MemoryBudgetInfo</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="AdditionalBytesPerDisplayPixel">
@@ -74,7 +82,11 @@
         <summary>Returns the additional bytes per pixel that this <c>MemoryBudgetInfo</c>'s limit will
             be raised by.</summary>
         <value>The additionalBytesPerDisplayPixel attribute.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the additional bytes per pixel that this MemoryBudgetInfo's limit will be raised by.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/MemoryBudgetInfo#getAdditionalBytesPerDisplayPixel()" title="Reference documentation">Android reference for <code>android.content.pm.MemoryBudgetInfo.getAdditionalBytesPerDisplayPixel</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AdditionalMbPerDensity">
@@ -104,7 +116,11 @@
         <summary>Returns the additional memory (in MiB) that this <c>MemoryBudgetInfo</c>'s limit will
             be raised by, based on the screen density of the device.</summary>
         <value>The additionalMbPerDensity attribute.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the additional memory (in MiB) that this MemoryBudgetInfo's limit will be raised by, based on the screen density of the device. The formula used for calculating the additional memory is (N * { ldpi=0.75, mdpi=1.0, hdpi=1.5, xhdpi=2... }).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/MemoryBudgetInfo#getAdditionalMbPerDensity()" title="Reference documentation">Android reference for <code>android.content.pm.MemoryBudgetInfo.getAdditionalMbPerDensity</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -164,9 +180,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation.</summary>
+        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
+        <remarks>
+          <para>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/MemoryBudgetInfo#describeContents()" title="Reference documentation">Android reference for <code>android.content.pm.MemoryBudgetInfo.describeContents</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Feature">
@@ -195,7 +215,11 @@
       <Docs>
         <summary>Returns the form factor to which this <c>MemoryBudgetInfo</c> applies.</summary>
         <value>The form factor to which this <c>MemoryBudgetInfo</c> applies.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the form factor to which this MemoryBudgetInfo applies.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/MemoryBudgetInfo#getFeature()" title="Reference documentation">Android reference for <code>android.content.pm.MemoryBudgetInfo.getFeature</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FeatureAutomotive">
@@ -231,7 +255,11 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>Indicates that this <c>MemoryBudgetInfo</c> applies to the automotive form factor.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Indicates that this MemoryBudgetInfo applies to the automotive form factor.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/MemoryBudgetInfo#FEATURE_AUTOMOTIVE" title="Reference documentation">Android reference for <code>android.content.pm.MemoryBudgetInfo.FEATURE_AUTOMOTIVE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FeatureLeanback">
@@ -267,7 +295,11 @@
       <MemberValue>2</MemberValue>
       <Docs>
         <summary>Indicates that this <c>MemoryBudgetInfo</c> applies to the TV form factor.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Indicates that this MemoryBudgetInfo applies to the TV form factor.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/MemoryBudgetInfo#FEATURE_LEANBACK" title="Reference documentation">Android reference for <code>android.content.pm.MemoryBudgetInfo.FEATURE_LEANBACK</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FeatureUnspecified">
@@ -304,7 +336,11 @@
       <Docs>
         <summary>Indicates that this <c>MemoryBudgetInfo</c> is generic, and can apply to any form
             factor.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Indicates that this MemoryBudgetInfo is generic, and can apply to any form factor. This is the default if "feature" is not specified in the manifest.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/MemoryBudgetInfo#FEATURE_UNSPECIFIED" title="Reference documentation">Android reference for <code>android.content.pm.MemoryBudgetInfo.FEATURE_UNSPECIFIED</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FeatureWatch">
