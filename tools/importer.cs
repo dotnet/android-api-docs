@@ -2624,7 +2624,9 @@ static partial class ImporterProgram
         ],
         "The exact official paragraph links an int[] trust-types request signature but visibly names a scalar int; no array shape was inferred.");
 
-    static bool IsUnsafeAuthenticationPolicyTrustPairingRemarks(DocsOwner owner, SourceDocs docs) =>
+    static bool MatchesAuthenticationPolicyTrustPairingOwnerAndSource(
+        DocsOwner owner,
+        SourceDocs docs) =>
         owner.Id == AuthenticationPolicyTrustPairingContract.MemberId &&
         owner.MemberRegistration == new MemberRegistration(
             "createCrossDeviceAuthenticationRequest",
@@ -2635,12 +2637,15 @@ static partial class ImporterProgram
         docs.SourceUrl == AuthenticationPolicyTrustPairingContract.SourceUrl &&
         docs.SourceLabel == "android.security.authenticationpolicy.AuthenticationPolicyManager.createCrossDeviceAuthenticationRequest" &&
         docs.Summary == AuthenticationPolicyTrustPairingContract.Summary &&
-        docs.Paragraphs.SequenceEqual(AuthenticationPolicyTrustPairingContract.Paragraphs
-            .Select(paragraph => new SourceParagraph(paragraph, false))) &&
         docs.Parameters.Count == 3 &&
         docs.Returns.Length == 0 &&
         docs.Exceptions.Count == 0 &&
         !docs.HasMalformedSourceMarkup;
+
+    static bool IsUnsafeAuthenticationPolicyTrustPairingRemarks(DocsOwner owner, SourceDocs docs) =>
+        MatchesAuthenticationPolicyTrustPairingOwnerAndSource(owner, docs) &&
+        docs.Paragraphs.SequenceEqual(AuthenticationPolicyTrustPairingContract.Paragraphs
+            .Select(paragraph => new SourceParagraph(paragraph, false)));
 
     static SourceDocs WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(
         DocsOwner owner,
@@ -2672,7 +2677,9 @@ static partial class ImporterProgram
         DocsOwner owner,
         SourceDocs docs)
     {
-        if (!IsUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs) ||
+        if (!MatchesAuthenticationPolicyTrustPairingOwnerAndSource(owner, docs) ||
+            docs.UnsafeTargets?.ContainsKey(
+                "remarks:authentication_policy_trust_pairing") != true ||
             !docs.Paragraphs.SequenceEqual(AuthenticationPolicyTrustPairingContract.SafeParagraphs))
             return new(text, "source_authentication_policy_trust_pairing_mismatch",
                 "The exact source member no longer matches the verified trust-pairing array contract.");
@@ -9701,6 +9708,128 @@ static partial class ImporterProgram
             "AuthenticationPolicy changed source paragraphs remain eligible");
     }
 
+    static void TestAuthenticationPolicyTrustPairingWithdrawal(string repositoryRoot)
+    {
+        var request = SourceRequest.Create(
+            "android/security/authenticationpolicy/AuthenticationPolicyManager") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: AuthenticationPolicy source request");
+        var token = ".authentication-policy-trust-pairing-self-test-" + Guid.NewGuid().ToString("N");
+        var directory = Path.Combine(repositoryRoot, "tools", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Security.AuthenticationPolicy", token + ".xml");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var source = $"""
+                <h3 class="api-name" id="createCrossDeviceAuthenticationRequest(java.util.UUID,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;byte[],android.security.authenticationpolicy.CrossDeviceAuthenticationException&gt;)">createCrossDeviceAuthenticationRequest</h3>
+                <p>{AuthenticationPolicyTrustPairingContract.Paragraphs[0]}</p>
+                <p>{AuthenticationPolicyTrustPairingContract.Paragraphs[1]}</p>
+                <p>{AuthenticationPolicyTrustPairingContract.Paragraphs[2]}</p>
+                <p>{AuthenticationPolicyTrustPairingContract.Paragraphs[3]}</p>
+                <p>{AuthenticationPolicyTrustPairingContract.Paragraphs[4]}</p>
+                <table>
+                  <tr><td>associationToken</td><td>the association token</td></tr>
+                  <tr><td>callbackExecutor</td><td>the executor</td></tr>
+                  <tr><td>callback</td><td>the receiver</td></tr>
+                </table>
+                """;
+            var cachePath = Path.Combine(directory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, source, new UTF8Encoding(false));
+            const string canonicalId = AuthenticationPolicyTrustPairingMemberId;
+            const string alteredId =
+                "M:Android.Security.AuthenticationPolicy.AuthenticationPolicyManager.CreateCrossDeviceAuthenticationRequestOther(Java.Util.UUID,Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)";
+            string Fixture(string id) => $"""
+                <Type Name="AuthenticationPolicyManager" FullName="Android.Security.AuthenticationPolicy.AuthenticationPolicyManager">
+                  <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("android/security/authenticationpolicy/AuthenticationPolicyManager", ApiSince=37, DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
+                  <Docs><summary>Authored type summary.</summary><remarks>Authored type remarks.</remarks></Docs>
+                  <Members>
+                    <Member MemberName="CreateCrossDeviceAuthenticationRequest">
+                      <MemberSignature Language="C#" Value="public void CreateCrossDeviceAuthenticationRequest (Java.Util.UUID associationToken, Java.Util.Concurrent.IExecutor callbackExecutor, Android.OS.IOutcomeReceiver callback);" />
+                      <MemberSignature Language="DocId" Value="{id}" />
+                      <MemberType>Method</MemberType>
+                      <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("createCrossDeviceAuthenticationRequest", "(Ljava/util/UUID;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=37)]</AttributeName></Attribute></Attributes>
+                      <ReturnValue><ReturnType>System.Void</ReturnType></ReturnValue>
+                      <Parameters>
+                        <Parameter Name="associationToken" Type="Java.Util.UUID" />
+                        <Parameter Name="callbackExecutor" Type="Java.Util.Concurrent.IExecutor" />
+                        <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
+                      </Parameters>
+                      <Docs>
+                        <param name="associationToken">To be added.</param>
+                        <param name="callbackExecutor">To be added.</param>
+                        <param name="callback">To be added.</param>
+                        <summary>To be added.</summary>
+                        <remarks>To be added.</remarks>
+                      </Docs>
+                    </Member>
+                  </Members>
+                </Type>
+                """;
+            void WriteFixture(string text) => File.WriteAllText(path,
+                text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", "\r\n", StringComparison.Ordinal),
+                new UTF8Encoding(true));
+            JsonDocument RunPipeline(int maxChanges)
+            {
+                Assert(RunAsync(
+                    [
+                        "--path", path, "--namespace", "Android.Security.AuthenticationPolicy",
+                        "--cache", directory, "--offline", "--apply", "--max-changes",
+                        maxChanges.ToString(), "--report", Path.Combine(directory, "report"),
+                    ]).GetAwaiter().GetResult() == 0,
+                    "AuthenticationPolicy trust-pairing production pipeline succeeds");
+                return JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "report.json")));
+            }
+
+            WriteFixture(Fixture(alteredId));
+            using (var generated = RunPipeline(8))
+                Assert(generated.RootElement.GetProperty("appliedCount").GetInt32() == 5,
+                    "AuthenticationPolicy pipeline generates a complete canonical prior importer-owned block");
+            var priorOwned = File.ReadAllText(path).Replace(alteredId, canonicalId, StringComparison.Ordinal);
+            WriteFixture(priorOwned);
+            var originalBytes = File.ReadAllBytes(path);
+            using (var withdrawn = RunPipeline(1))
+                Assert(withdrawn.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "AuthenticationPolicy pipeline withdraws only the unsafe trust-pairing paragraph");
+            var withdrawnText = File.ReadAllText(path);
+            Assert(
+                !withdrawnText.Contains(AuthenticationPolicyTrustPairingUnsafeParagraph, StringComparison.Ordinal) &&
+                withdrawnText.Contains(AuthenticationPolicyTrustPairingContract.Paragraphs[0], StringComparison.Ordinal) &&
+                withdrawnText.Contains(AuthenticationPolicyTrustPairingContract.Paragraphs[^1], StringComparison.Ordinal) &&
+                withdrawnText.Contains(AuthenticationPolicyTrustPairingSourceUrl, StringComparison.Ordinal) &&
+                withdrawnText.Contains(AndroidAttribution, StringComparison.Ordinal),
+                "AuthenticationPolicy withdrawal retains valid remarks and canonical metadata");
+            var withdrawnBytes = File.ReadAllBytes(path);
+            using (var repeated = RunPipeline(1))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(withdrawnBytes),
+                    "AuthenticationPolicy withdrawal has a persisted zero-write repeat");
+            WriteFixture(priorOwned.Replace(
+                "<remarks>", "<remarks data-authored=\"true\">", StringComparison.Ordinal));
+            var authoredBytes = File.ReadAllBytes(path);
+            using (var authored = RunPipeline(1))
+                Assert(authored.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(authoredBytes),
+                    "AuthenticationPolicy withdrawal preserves authored remarks");
+            WriteFixture(priorOwned.Replace(
+                AuthenticationPolicyTrustPairingSourceUrl,
+                AuthenticationPolicyTrustPairingSourceUrl + ".Other",
+                StringComparison.Ordinal));
+            var changedProvenanceBytes = File.ReadAllBytes(path);
+            using (var changedProvenance = RunPipeline(1))
+                Assert(changedProvenance.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(changedProvenanceBytes),
+                    "AuthenticationPolicy withdrawal preserves changed source provenance");
+            Assert(!File.ReadAllBytes(path).SequenceEqual(originalBytes),
+                "AuthenticationPolicy withdrawal changes only the verified prior importer-owned candidate");
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, true);
+        }
+    }
+
     static void TestControlTemplateParagraphBoundary(string repositoryRoot, string fixtureRoot)
     {
         var html = File.ReadAllText(Path.Combine(fixtureRoot, "controls-template-android-reference.html"))
@@ -14090,6 +14219,7 @@ static partial class ImporterProgram
         TestTrustPairingCallbackTypeRemarks();
         TestTrustPairingCallbackWithdrawal(repositoryRoot);
         TestAuthenticationPolicyTrustPairingRemarks();
+        TestAuthenticationPolicyTrustPairingWithdrawal(repositoryRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
         TestNfcContracts(repositoryRoot, fixtureRoot);
         TestNfcSafeEnumRefresh(repositoryRoot, fixtureRoot);
