@@ -590,3 +590,10 @@ Limitations:
   scalar-`int` prose, and the managed type registration and signature also match.
   An exact prior importer-owned remarks block can be withdrawn to its placeholder;
   authored or changed documentation and corrected source remain eligible.
+- `AuthenticationPolicyManager.createCrossDeviceAuthenticationRequest` omits only
+  its exact stale trust-pairing paragraph when the official paragraph links an
+  `int[]` request signature but visibly names a scalar `int`. The guard requires
+  the exact managed owner, JNI descriptor, full source paragraph sequence,
+  canonical URL and label. A strict prior importer-owned repair removes only that
+  paragraph, retaining the valid source paragraphs, reference, attribution, and
+  all other documentation channels.
