@@ -9786,6 +9786,7 @@ static partial class ImporterProgram
                 Assert(generated.RootElement.GetProperty("appliedCount").GetInt32() == 5,
                     "AuthenticationPolicy pipeline generates a complete canonical prior importer-owned block");
             var priorOwned = File.ReadAllText(path).Replace(alteredId, canonicalId, StringComparison.Ordinal);
+            var serializedSourceUrl = XmlAttributeEscape(AuthenticationPolicyTrustPairingSourceUrl);
             WriteFixture(priorOwned);
             var originalBytes = File.ReadAllBytes(path);
             using (var withdrawn = RunPipeline(1))
@@ -9796,7 +9797,7 @@ static partial class ImporterProgram
                 !withdrawnText.Contains(AuthenticationPolicyTrustPairingUnsafeParagraph, StringComparison.Ordinal) &&
                 withdrawnText.Contains(AuthenticationPolicyTrustPairingContract.Paragraphs[0], StringComparison.Ordinal) &&
                 withdrawnText.Contains(AuthenticationPolicyTrustPairingContract.Paragraphs[^1], StringComparison.Ordinal) &&
-                withdrawnText.Contains(AuthenticationPolicyTrustPairingSourceUrl, StringComparison.Ordinal) &&
+                withdrawnText.Contains(serializedSourceUrl, StringComparison.Ordinal) &&
                 withdrawnText.Contains(AndroidAttribution, StringComparison.Ordinal) &&
                 !Regex.IsMatch(withdrawnText, @"(?m)^[ \t]+$",
                     RegexOptions.CultureInvariant),
@@ -9813,10 +9814,14 @@ static partial class ImporterProgram
                 Assert(authored.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
                     File.ReadAllBytes(path).SequenceEqual(authoredBytes),
                     "AuthenticationPolicy withdrawal preserves authored remarks");
-            WriteFixture(priorOwned.Replace(
-                AuthenticationPolicyTrustPairingSourceUrl,
-                AuthenticationPolicyTrustPairingSourceUrl + ".Other",
-                StringComparison.Ordinal));
+            var changedProvenanceText = priorOwned.Replace(
+                serializedSourceUrl,
+                XmlAttributeEscape(AuthenticationPolicyTrustPairingSourceUrl + ".Other"),
+                StringComparison.Ordinal);
+            Assert(
+                !changedProvenanceText.Equals(priorOwned, StringComparison.Ordinal),
+                "AuthenticationPolicy changed-provenance seed mutates the serialized source reference");
+            WriteFixture(changedProvenanceText);
             var changedProvenanceBytes = File.ReadAllBytes(path);
             using (var changedProvenance = RunPipeline(1))
                 Assert(changedProvenance.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
