@@ -2694,10 +2694,11 @@ static partial class ImporterProgram
             !XNode.DeepEquals(actual, owner.Docs) ||
             actual.Elements("remarks").ToList() is not [XElement remarks] ||
             !ImporterMarkupEquals(remarks, expected) ||
-            !TryGetElementSpan(blockText, remarks.Elements("para").ElementAt(3), out var unsafeSpan))
+            !TryGetElementSpan(blockText, remarks.Elements("para").ElementAt(3), out var unsafeSpan) ||
+            !TryGetElementRemovalSpan(blockText, unsafeSpan, out var removalSpan))
             return new(text, "existing_authentication_policy_trust_pairing_not_importer_owned",
                 "The complete source prose, canonical reference and attribution did not match prior importer output.");
-        var updated = blockText[..unsafeSpan.Start] + blockText[unsafeSpan.End..];
+        var updated = blockText[..removalSpan.Start] + blockText[removalSpan.End..];
         return new(text[..block.Start] + updated + text[block.End..], null, null);
     }
 
@@ -9796,8 +9797,10 @@ static partial class ImporterProgram
                 withdrawnText.Contains(AuthenticationPolicyTrustPairingContract.Paragraphs[0], StringComparison.Ordinal) &&
                 withdrawnText.Contains(AuthenticationPolicyTrustPairingContract.Paragraphs[^1], StringComparison.Ordinal) &&
                 withdrawnText.Contains(AuthenticationPolicyTrustPairingSourceUrl, StringComparison.Ordinal) &&
-                withdrawnText.Contains(AndroidAttribution, StringComparison.Ordinal),
-                "AuthenticationPolicy withdrawal retains valid remarks and canonical metadata");
+                withdrawnText.Contains(AndroidAttribution, StringComparison.Ordinal) &&
+                !Regex.IsMatch(withdrawnText, @"(?m)^[ \t]+$",
+                    RegexOptions.CultureInvariant),
+                "AuthenticationPolicy withdrawal retains valid remarks and canonical metadata without blank whitespace lines");
             var withdrawnBytes = File.ReadAllBytes(path);
             using (var repeated = RunPipeline(1))
                 Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
