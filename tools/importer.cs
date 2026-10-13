@@ -74,6 +74,38 @@ static partial class ImporterProgram
         "with a single ControlTemplate. Therefore, the selected template should be most closely aligned " +
         "with what the expected primary device action will be. Any secondary interactions can be done " +
         "via the setAppIntent(PendingIntent).";
+    const string MultisensoryContinuousDragTokenSourceUrl =
+        AndroidReference + "android/os/multisensory/MultisensoryManager#TOKEN_DRAG_INDICATOR_CONTINUOUS";
+    const string MultisensoryDiscreteDragTokenSourceUrl =
+        AndroidReference + "android/os/multisensory/MultisensoryManager#TOKEN_DRAG_INDICATOR_DISCRETE";
+    const string MultisensoryContinuousEffectModifierError =
+        "ERROR(MultisensoryContinuousEffectModifier/android.os.multisensory.MultisensoryContinuousEffectModifier " +
+        "MultisensoryContinuousEffectModifier)";
+    const string MultisensoryContinuousEffectModifier =
+        "MultisensoryContinuousEffectModifier";
+    const string TrustPairingCallbackTypeId =
+        "T:Android.Companion.CompanionDeviceManager+TrustPairingCallback";
+    const string TrustPairingCallbackJavaPath =
+        "android/companion/CompanionDeviceManager$TrustPairingCallback";
+    const string TrustPairingCallbackSourceUrl =
+        AndroidReference + "android/companion/CompanionDeviceManager.TrustPairingCallback";
+    const string TrustPairingCallbackSourceLabel =
+        "android.companion.CompanionDeviceManager.TrustPairingCallback";
+    const string TrustPairingCallbackUnsafeText =
+        "Callback for applications to receive updates about and the outcome of " +
+        "CompanionDeviceManager.requestDeviceTrustPairing(int, OutOfBandPairingRequest, int, Executor, TrustPairingCallback)";
+    const string TrustPairingCallbackUnsafeHref =
+        "<a href=\"/reference/android/companion/CompanionDeviceManager#requestDeviceTrustPairing(int,%20android.companion.OutOfBandPairingRequest,%20int[],%20java.util.concurrent.Executor,%20android.companion.CompanionDeviceManager.TrustPairingCallback)\">";
+    const string TrustPairingCallbackUnsafeLinkText =
+        ">CompanionDeviceManager.requestDeviceTrustPairing(int, OutOfBandPairingRequest, int, Executor, TrustPairingCallback)</a>";
+    const string AuthenticationPolicyTrustPairingMemberId =
+        "M:Android.Security.AuthenticationPolicy.AuthenticationPolicyManager.CreateCrossDeviceAuthenticationRequest(Java.Util.UUID,Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)";
+    const string AuthenticationPolicyTrustPairingSourceUrl =
+        AndroidReference + "android/security/authenticationpolicy/AuthenticationPolicyManager#createCrossDeviceAuthenticationRequest(java.util.UUID,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver<byte[],android.security.authenticationpolicy.CrossDeviceAuthenticationException>)";
+    const string AuthenticationPolicyTrustPairingUnsafeParagraph =
+        "Using this API requires that the association has been granted a supported trust type via " +
+        "CompanionDeviceManager.requestDeviceTrustPairing(int, OutOfBandPairingRequest, int, Executor, TrustPairingCallback) " +
+        "to ensure the user is informed that cross-device actions are allowed. Untrusted associations will always fail with an error.";
     const string LegacyControlTemplateParagraph =
         ControlTemplateLead + " " + ControlTemplateDescription;
     const string LegacyControlTemplateSummary =
@@ -645,6 +677,29 @@ static partial class ImporterProgram
                         }
                     }
 
+                    var trustPairingWithdrawal = WithdrawUnsafeTrustPairingCallbackRemarks(
+                        text, file, owner, mapping.Docs!);
+                    if (trustPairingWithdrawal.Targets.Count > 0)
+                    {
+                        if (remaining > 0)
+                        {
+                            text = trustPairingWithdrawal.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                "would_apply", file.RelativePath, owner.Id, "remarks", mapping.SourceUrl,
+                                "importer_unsafe_trust_pairing_callback_withdrawal",
+                                "Withdrew the exact importer-owned type remarks whose linked request signature contradicts its scalar array description."));
+                        }
+                        else
+                            report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath, owner.Id, "remarks", "max_changes_reached",
+                                $"The --max-changes limit of {options.MaxChanges} was reached.", mapping.SourceUrl));
+                        continue;
+                    }
+
                     var rawWithdrawal = WithdrawKnownUnsafeRawEnumSummary(text, file, owner, mapping.Docs!);
                     if (rawWithdrawal.Targets.Count > 0)
                     {
@@ -734,6 +789,39 @@ static partial class ImporterProgram
                                 "would_apply", file.RelativePath, owner.Id, "remarks", mapping.SourceUrl,
                                 "importer_known_unsafe_browse_subscription_repair",
                                 "Withdrew only the exact unsafe callback paragraph from complete prior importer-owned remarks."));
+                        }
+                    }
+
+                    if (mapping.Docs!.UnsafeTargets?.TryGetValue(
+                        "remarks:authentication_policy_trust_pairing", out var trustPairingDetail) == true)
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                                file.RelativePath, owner.Id, "remarks",
+                                "source_channel_ambiguous", trustPairingDetail, mapping.SourceUrl));
+                    }
+                    if (HasUnsafeAuthenticationPolicyTrustPairingRemarks(owner))
+                    {
+                        var repair = RepairAuthenticationPolicyTrustPairingRemarks(
+                                text, file, owner, mapping.Docs!);
+                        if (repair.Reason is not null || remaining == 0)
+                        {
+                                report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath, owner.Id, "remarks",
+                                    repair.Reason ?? "max_changes_reached",
+                                    repair.Detail ?? $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                        }
+                        else if (repair.Text != text)
+                        {
+                                text = repair.Text;
+                                file.UpdateBlockOffsets(owner.Order, text);
+                                fileChanged = true;
+                                ownerChanged = true;
+                                remaining--;
+                                report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply", file.RelativePath, owner.Id, "remarks", mapping.SourceUrl,
+                                    "importer_unsafe_authentication_policy_trust_pairing_repair",
+                                    "Withdrew only the exact unsafe trust-pairing paragraph from complete prior importer-owned remarks."));
                         }
                     }
 
@@ -1876,7 +1964,8 @@ static partial class ImporterProgram
                     "type_documentation_missing",
                     "The official page did not contain a usable declared-type description.",
                     owner.SourceRequest.Url);
-            return MappingResult.Success(page.TypeDocs);
+            return MappingResult.Success(
+                WithoutUnsafeTrustPairingCallbackTypeRemarks(owner, page.TypeDocs));
         }
 
         var registration = owner.MemberRegistration ??
@@ -1989,6 +2078,7 @@ static partial class ImporterProgram
         docs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, docs);
         docs = WithKnownNfcContractSafety(owner, docs);
         docs = WithoutUnsafeBrowseSubscriptionRemarks(owner, docs);
+        docs = WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
 
@@ -2071,6 +2161,68 @@ static partial class ImporterProgram
             docs.Exceptions.OrderBy(pair => pair.Key, StringComparer.Ordinal).ToArray(),
             docs.HasMalformedSourceMarkup),
             SliceProviderJsonContext.Default.SliceProviderSourceFingerprint))).ToLowerInvariant();
+
+    static bool IsUnsafeTrustPairingCallbackTypeRemarks(DocsOwner owner, SourceDocs docs)
+    {
+        var root = owner.Docs.Parent;
+        return owner.Id == TrustPairingCallbackTypeId &&
+            owner.Member is null &&
+            !owner.IsEnumField &&
+            root is not null &&
+            Registration.Type(root) == TrustPairingCallbackJavaPath &&
+            root.Elements("TypeSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "C#")
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual(
+                    ["public abstract class CompanionDeviceManager.TrustPairingCallback : Java.Lang.Object"]) &&
+            owner.SourceRequest?.JavaPath == TrustPairingCallbackJavaPath &&
+            docs.SourceKind == "android" &&
+            docs.SourceUrl == TrustPairingCallbackSourceUrl &&
+            docs.SourceLabel == TrustPairingCallbackSourceLabel &&
+            docs.Summary == TrustPairingCallbackUnsafeText &&
+            docs.Paragraphs is [{ IsCode: false, Text: TrustPairingCallbackUnsafeText }] &&
+            docs.Parameters.Count == 0 &&
+            docs.Returns.Length == 0 &&
+            docs.Exceptions.Count == 0 &&
+            !docs.HasMalformedSourceMarkup &&
+            docs.UnsafeTargets?.ContainsKey("remarks") == true;
+    }
+
+    static SourceDocs WithoutUnsafeTrustPairingCallbackTypeRemarks(
+        DocsOwner owner,
+        SourceDocs docs) =>
+        IsUnsafeTrustPairingCallbackTypeRemarks(owner, docs)
+            ? docs
+            : docs with { UnsafeTargets = null, WithheldRemarks = null };
+
+    static AndroidTextRepairResult WithdrawUnsafeTrustPairingCallbackRemarks(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        if (!IsUnsafeTrustPairingCallbackTypeRemarks(owner, docs))
+            return new(text, []);
+
+        var expectedRemarks = new XElement("remarks",
+            docs.Paragraphs.Select(DocumentationElement),
+            ImporterSourceReference(docs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actual) ||
+            !XNode.DeepEquals(actual, owner.Docs) ||
+            actual.Elements("remarks").ToList() is not [XElement remarks] ||
+            !ImporterMarkupEquals(remarks, expectedRemarks) ||
+            !TryGetElementSpan(blockText, remarks.Elements("para").First(), out var span))
+            return new(text, []);
+
+        return new(
+            text[..block.Start] + blockText[..span.Start] +
+            "<para>To be added.</para>" +
+            blockText[span.End..] + text[block.End..],
+            ["remarks"]);
+    }
 
     static SourceDocs WithoutKnownUnsafeSliceProviderChannels(DocsOwner owner, SourceDocs docs)
     {
@@ -2443,6 +2595,101 @@ static partial class ImporterProgram
                 out var unsafeSpan))
             return new(text, "existing_browse_subscription_not_importer_owned",
                 "The full plain source prose, summary, exact source reference, and attribution did not match prior importer output.");
+        var updated = blockText[..unsafeSpan.Start] + blockText[unsafeSpan.End..];
+        return new(text[..block.Start] + updated + text[block.End..], null, null);
+    }
+
+    sealed record AuthenticationPolicyTrustPairingRule(
+        string MemberId,
+        string SourceUrl,
+        string Summary,
+        string[] Paragraphs,
+        string Detail)
+    {
+        public IReadOnlyList<SourceParagraph> SafeParagraphs =>
+            Paragraphs.Where(paragraph => paragraph != AuthenticationPolicyTrustPairingUnsafeParagraph)
+                .Select(paragraph => new SourceParagraph(paragraph, false)).ToArray();
+    }
+
+    static readonly AuthenticationPolicyTrustPairingRule AuthenticationPolicyTrustPairingContract = new(
+        AuthenticationPolicyTrustPairingMemberId,
+        AuthenticationPolicyTrustPairingSourceUrl,
+        "Creates a new cross-device authentication request associated with the given CompanionDeviceManager's obfuscated remote device ID.",
+        [
+            "Creates a new cross-device authentication request associated with the given CompanionDeviceManager's obfuscated remote device ID. Callers typically get this ID from a companion application which uses AssociationInfo.getAssociationToken() to retrieve it along with other device information that will be shared with applications.",
+            "Use PROPERTY_CROSS_DEVICE_TRUSTED_PACKAGES if the application is known by another name on the remote device.",
+            "Use PROPERTY_CROSS_DEVICE_TRUSTED_CERTIFICATES if the application is signed with a different certificate on the remote device.",
+            AuthenticationPolicyTrustPairingUnsafeParagraph,
+            "Using this API may also require meeting additional requirements, such as showing an active notification to the user while the cross-device operation is in progress. Refer to the documentation of the service that is guarded by this API for details.",
+        ],
+        "The exact official paragraph links an int[] trust-types request signature but visibly names a scalar int; no array shape was inferred.");
+
+    static bool IsUnsafeAuthenticationPolicyTrustPairingRemarks(DocsOwner owner, SourceDocs docs) =>
+        owner.Id == AuthenticationPolicyTrustPairingContract.MemberId &&
+        owner.MemberRegistration == new MemberRegistration(
+            "createCrossDeviceAuthenticationRequest",
+            "(Ljava/util/UUID;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V",
+            false) &&
+        owner.SourceRequest?.JavaPath == "android/security/authenticationpolicy/AuthenticationPolicyManager" &&
+        docs.SourceKind == "android" &&
+        docs.SourceUrl == AuthenticationPolicyTrustPairingContract.SourceUrl &&
+        docs.SourceLabel == "android.security.authenticationpolicy.AuthenticationPolicyManager.createCrossDeviceAuthenticationRequest" &&
+        docs.Summary == AuthenticationPolicyTrustPairingContract.Summary &&
+        docs.Paragraphs.SequenceEqual(AuthenticationPolicyTrustPairingContract.Paragraphs
+            .Select(paragraph => new SourceParagraph(paragraph, false))) &&
+        docs.Parameters.Count == 3 &&
+        docs.Returns.Length == 0 &&
+        docs.Exceptions.Count == 0 &&
+        !docs.HasMalformedSourceMarkup;
+
+    static SourceDocs WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        if (!IsUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs))
+            return docs;
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["remarks:authentication_policy_trust_pairing"] =
+            AuthenticationPolicyTrustPairingContract.Detail;
+        return docs with
+        {
+            Paragraphs = AuthenticationPolicyTrustPairingContract.SafeParagraphs.ToList(),
+            UnsafeTargets = targets,
+        };
+    }
+
+    static bool HasUnsafeAuthenticationPolicyTrustPairingRemarks(DocsOwner owner) =>
+        owner.Id == AuthenticationPolicyTrustPairingContract.MemberId &&
+        owner.Docs.Elements("remarks").Any(remarks =>
+            remarks.Elements("para").Any(paragraph =>
+                paragraph.Value == AuthenticationPolicyTrustPairingUnsafeParagraph));
+
+    static RemarksRefreshResult RepairAuthenticationPolicyTrustPairingRemarks(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        if (!IsUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs) ||
+            !docs.Paragraphs.SequenceEqual(AuthenticationPolicyTrustPairingContract.SafeParagraphs))
+            return new(text, "source_authentication_policy_trust_pairing_mismatch",
+                "The exact source member no longer matches the verified trust-pairing array contract.");
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var expected = new XElement("remarks",
+            AuthenticationPolicyTrustPairingContract.Paragraphs
+                .Select(paragraph => new XElement("para", paragraph)),
+            ImporterSourceReference(docs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        if (!TryParseDocsBlock(blockText, out var actual) ||
+            !XNode.DeepEquals(actual, owner.Docs) ||
+            actual.Elements("remarks").ToList() is not [XElement remarks] ||
+            !ImporterMarkupEquals(remarks, expected) ||
+            !TryGetElementSpan(blockText, remarks.Elements("para").ElementAt(3), out var unsafeSpan))
+            return new(text, "existing_authentication_policy_trust_pairing_not_importer_owned",
+                "The complete source prose, canonical reference and attribution did not match prior importer output.");
         var updated = blockText[..unsafeSpan.Start] + blockText[unsafeSpan.End..];
         return new(text[..block.Start] + updated + text[block.End..], null, null);
     }
@@ -9196,6 +9443,264 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestMultisensoryDragTokenMarkup()
+    {
+        var request = SourceRequest.Create("android/os/multisensory/MultisensoryManager") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: Multisensory source request");
+        const string firstSentence =
+            "Inform the user that their drag gesture has resulted in an incremental value change.";
+        const string secondSentence =
+            "This token can be used to create a continuous effect affected by " +
+            MultisensoryContinuousEffectModifier;
+        var source = $"""
+            <h3 class="api-name" id="TOKEN_DRAG_INDICATOR_CONTINUOUS">TOKEN_DRAG_INDICATOR_CONTINUOUS</h3>
+            <p>{firstSentence}
+            <p>This token can be used to create a continuous effect affected by <code><a href="/">{MultisensoryContinuousEffectModifierError}</a></code></p></p>
+            """;
+        var docs = SourcePage.Parse(request, source).Members.Single().Docs!;
+        Assert(
+            docs.Paragraphs.Select(paragraph => paragraph.Text)
+                .SequenceEqual([firstSentence, secondSentence]),
+            "Multisensory continuous drag token retains the nested official effect-modifier sentence");
+        Assert(
+            SourcePage.NormalizeKnownAndroidParagraphBoundary(
+                source,
+                MultisensoryContinuousDragTokenSourceUrl + ".Altered") == source,
+            "Multisensory drag token normalization is limited to the exact official source URL");
+    }
+
+    static void TestTrustPairingCallbackTypeRemarks()
+    {
+        var request = SourceRequest.Create(TrustPairingCallbackJavaPath) ??
+            throw new InvalidOperationException("SELF-TEST FAIL: TrustPairingCallback source request");
+        var source = $"""
+            <div id="jd-content">
+              <p>Callback for applications to receive updates about and the outcome of
+              <code>{TrustPairingCallbackUnsafeHref}{TrustPairingCallbackUnsafeLinkText[1..]}</code></p>
+            <h2 class="api-section" id="summary">Summary</h2>
+            """;
+        var sourceDocs = SourcePage.Parse(request, source).TypeDocs ??
+            throw new InvalidOperationException("SELF-TEST FAIL: TrustPairingCallback type documentation");
+        var type = XElement.Parse($"""
+            <Type FullName="Android.Companion.CompanionDeviceManager+TrustPairingCallback">
+              <TypeSignature Language="C#" Value="public abstract class CompanionDeviceManager.TrustPairingCallback : Java.Lang.Object" />
+              <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("android/companion/CompanionDeviceManager$TrustPairingCallback", ApiSince=37, DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
+              <Docs><summary>Authored type summary.</summary><remarks>To be added.</remarks></Docs>
+            </Type>
+            """);
+        var owner = new DocsOwner(
+            0,
+            TrustPairingCallbackTypeId,
+            type.Element("Docs")!,
+            null,
+            null,
+            request,
+            [],
+            false);
+        var guarded = WithoutUnsafeTrustPairingCallbackTypeRemarks(owner, sourceDocs);
+        Assert(
+            guarded.UnsafeTargets?.ContainsKey("remarks") == true &&
+            ReplacementFor(new Placeholder(0, "remarks", "", "remarks"), guarded).Reason ==
+                "source_channel_ambiguous",
+            "TrustPairingCallback scalar array-link prose is withheld from type remarks");
+        Assert(
+            SourcePage.Parse(
+                request,
+                source.Replace("int[],", "int,", StringComparison.Ordinal)).TypeDocs?.UnsafeTargets is null,
+            "TrustPairingCallback corrected array-link source remains eligible");
+        var mismatchedType = new XElement(type);
+        mismatchedType.Element("Attributes")!.Element("Attribute")!.Element("AttributeName")!.Value =
+            "[Android.Runtime.Register(\"android/companion/CompanionDeviceManager$Other\", ApiSince=37, DoNotGenerateAcw=true)]";
+        var mismatchedOwner = owner with { Docs = mismatchedType.Element("Docs")! };
+        Assert(
+            WithoutUnsafeTrustPairingCallbackTypeRemarks(mismatchedOwner, sourceDocs).UnsafeTargets is null,
+            "TrustPairingCallback type guard requires the exact managed registration");
+    }
+
+    static void TestTrustPairingCallbackWithdrawal(string repositoryRoot)
+    {
+        var request = SourceRequest.Create(TrustPairingCallbackJavaPath) ??
+            throw new InvalidOperationException("SELF-TEST FAIL: TrustPairingCallback source request");
+        var token = ".trust-pairing-callback-self-test-" + Guid.NewGuid().ToString("N");
+        var directory = Path.Combine(repositoryRoot, "tools", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Companion", token + ".xml");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var source = $"""
+                <div id="jd-content">
+                  <p>Callback for applications to receive updates about and the outcome of
+                  <code>{TrustPairingCallbackUnsafeHref}{TrustPairingCallbackUnsafeLinkText[1..]}</code></p>
+                <h2 class="api-section" id="summary">Summary</h2>
+                """;
+            void WriteSourceCache(SourceRequest sourceRequest) => File.WriteAllText(
+                Path.Combine(directory,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceRequest.Url))).ToLowerInvariant() +
+                    ".html"),
+                source,
+                new UTF8Encoding(false));
+            string Fixture(string managedSignature) => $"""
+                <Type Name="CompanionDeviceManager+TrustPairingCallback" FullName="Android.Companion.CompanionDeviceManager+TrustPairingCallback">
+                  <TypeSignature Language="C#" Value="{managedSignature}" />
+                  <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("android/companion/CompanionDeviceManager$TrustPairingCallback", ApiSince=37, DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
+                  <Docs><summary>Authored type summary.</summary><remarks>To be added.</remarks></Docs>
+                  <Members />
+                </Type>
+                """;
+            void WriteFixture(string text) => File.WriteAllText(path,
+                text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", "\r\n", StringComparison.Ordinal),
+                new UTF8Encoding(true));
+            JsonDocument RunPipeline(bool apply, int maxChanges)
+            {
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.Companion", "--cache", directory,
+                    "--offline", "--max-changes", maxChanges.ToString(), "--report",
+                    Path.Combine(directory, "report"),
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "TrustPairingCallback production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "report.json")));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "TrustPairingCallback production pipeline reports no errors");
+                return report;
+            }
+            (string Reference, string Attribution) MetadataBytes()
+            {
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                var owner = file.Owners.Single(candidate => candidate.Id == TrustPairingCallbackTypeId);
+                var block = file.DocsBlocks[owner.Order];
+                var blockText = file.Text[block.Start..block.End];
+                Assert(TryParseDocsBlock(blockText, out var docs),
+                    "TrustPairingCallback prior importer-owned Docs parse");
+                var paragraphs = docs.Element("remarks")!.Elements("para").ToList();
+                Assert(paragraphs.Count == 3,
+                    "TrustPairingCallback prior importer-owned remarks retain source prose and metadata");
+                var foundReference = TryGetElementSpan(blockText, paragraphs[1], out var referenceSpan);
+                var foundAttribution = TryGetElementSpan(blockText, paragraphs[2], out var attributionSpan);
+                Assert(foundReference && foundAttribution,
+                    "TrustPairingCallback prior importer-owned metadata spans are located");
+                return (
+                    blockText[referenceSpan.Start..referenceSpan.End],
+                    blockText[attributionSpan.Start..attributionSpan.End]);
+            }
+
+            const string managedSignature =
+                "public abstract class CompanionDeviceManager.TrustPairingCallback : Java.Lang.Object";
+            const string alteredManagedSignature =
+                "public abstract class CompanionDeviceManager.TrustPairingCallback : Java.Lang.Throwable";
+            WriteSourceCache(request);
+            WriteFixture(Fixture(alteredManagedSignature));
+            using (var generated = RunPipeline(true, 1))
+                Assert(generated.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "TrustPairingCallback production pipeline generates canonical prior importer-owned remarks");
+
+            var priorOwned = File.ReadAllText(path).Replace(
+                alteredManagedSignature, managedSignature, StringComparison.Ordinal);
+            WriteFixture(priorOwned);
+            var metadata = MetadataBytes();
+            using (var withdrawn = RunPipeline(true, 1))
+                Assert(withdrawn.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "TrustPairingCallback production pipeline withdraws only the unsafe remarks prose");
+            var withdrawnText = File.ReadAllText(path);
+            Assert(
+                withdrawnText.Contains("<para>To be added.</para>", StringComparison.Ordinal) &&
+                withdrawnText.Contains(metadata.Reference, StringComparison.Ordinal) &&
+                withdrawnText.Contains(metadata.Attribution, StringComparison.Ordinal),
+                "TrustPairingCallback withdrawal retains the exact source-reference and attribution bytes");
+            var withdrawnBytes = File.ReadAllBytes(path);
+            using (var repeated = RunPipeline(true, 1))
+                Assert(repeated.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(withdrawnBytes),
+                    "TrustPairingCallback withdrawal has a persisted zero-write repeat");
+
+            WriteFixture(priorOwned.Replace(
+                "<remarks>", "<remarks data-authored=\"true\">", StringComparison.Ordinal));
+            var authoredBytes = File.ReadAllBytes(path);
+            using (var authored = RunPipeline(true, 1))
+                Assert(authored.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(authoredBytes),
+                    "TrustPairingCallback withdrawal preserves authored remarks");
+
+            WriteFixture(priorOwned.Replace(
+                TrustPairingCallbackSourceUrl,
+                TrustPairingCallbackSourceUrl + ".Other",
+                StringComparison.Ordinal));
+            var changedProvenanceBytes = File.ReadAllBytes(path);
+            using (var changedProvenance = RunPipeline(true, 1))
+                Assert(changedProvenance.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(changedProvenanceBytes),
+                    "TrustPairingCallback withdrawal preserves changed source provenance");
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, true);
+        }
+    }
+
+    static void TestAuthenticationPolicyTrustPairingRemarks()
+    {
+        var member = XElement.Parse("""
+            <Member>
+              <MemberSignature Language="C#" Value="public void CreateCrossDeviceAuthenticationRequest (Java.Util.UUID associationToken, Java.Util.Concurrent.IExecutor callbackExecutor, Android.OS.IOutcomeReceiver callback);" />
+              <MemberType>Method</MemberType>
+              <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("createCrossDeviceAuthenticationRequest", "(Ljava/util/UUID;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", "", ApiSince=37)]</AttributeName></Attribute></Attributes>
+              <Parameters>
+                <Parameter Name="associationToken" Type="Java.Util.UUID" />
+                <Parameter Name="callbackExecutor" Type="Java.Util.Concurrent.IExecutor" />
+                <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
+              </Parameters>
+              <Docs><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+            </Member>
+            """);
+        var owner = new DocsOwner(
+            0,
+            AuthenticationPolicyTrustPairingMemberId,
+            member.Element("Docs")!,
+            member,
+            Registration.Member(member),
+            SourceRequest.Create("android/security/authenticationpolicy/AuthenticationPolicyManager") ??
+                throw new InvalidOperationException("SELF-TEST FAIL: AuthenticationPolicy source request"),
+            [],
+            false);
+        var raw = new SourceDocs(
+            AuthenticationPolicyTrustPairingContract.Summary,
+            AuthenticationPolicyTrustPairingContract.Paragraphs
+                .Select(paragraph => new SourceParagraph(paragraph, false)).ToList(),
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["associationToken"] = "the association token",
+                ["callbackExecutor"] = "the executor",
+                ["callback"] = "the receiver",
+            },
+            "",
+            new Dictionary<string, string>(StringComparer.Ordinal),
+            AuthenticationPolicyTrustPairingSourceUrl,
+            "android.security.authenticationpolicy.AuthenticationPolicyManager.createCrossDeviceAuthenticationRequest",
+            "android");
+        var guarded = WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(owner, raw);
+        Assert(
+            guarded.UnsafeTargets?.ContainsKey("remarks:authentication_policy_trust_pairing") == true &&
+            guarded.Paragraphs.SequenceEqual(AuthenticationPolicyTrustPairingContract.SafeParagraphs),
+            "AuthenticationPolicy trust-pairing guard withholds only the exact scalar-array source paragraph");
+        var changed = raw with
+        {
+            Paragraphs = raw.Paragraphs
+                .Select(paragraph => paragraph.Text == AuthenticationPolicyTrustPairingUnsafeParagraph
+                    ? paragraph with { Text = paragraph.Text + " Changed." }
+                    : paragraph)
+                .ToList(),
+        };
+        Assert(
+            ReferenceEquals(WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(owner, changed), changed),
+            "AuthenticationPolicy changed source paragraphs remain eligible");
+    }
+
     static void TestControlTemplateParagraphBoundary(string repositoryRoot, string fixtureRoot)
     {
         var html = File.ReadAllText(Path.Combine(fixtureRoot, "controls-template-android-reference.html"))
@@ -13581,6 +14086,10 @@ static partial class ImporterProgram
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestBlobParcelTextCorrection(repositoryRoot, fixtureRoot);
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
+        TestMultisensoryDragTokenMarkup();
+        TestTrustPairingCallbackTypeRemarks();
+        TestTrustPairingCallbackWithdrawal(repositoryRoot);
+        TestAuthenticationPolicyTrustPairingRemarks();
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
         TestNfcContracts(repositoryRoot, fixtureRoot);
         TestNfcSafeEnumRefresh(repositoryRoot, fixtureRoot);
@@ -25427,6 +25936,14 @@ static partial class ImporterProgram
             var paragraphs = ExtractParagraphs(fragment);
             if (paragraphs.Count == 0)
                 return null;
+            var unsafeTargets = HasUnsafeTrustPairingCallbackTypeRemarks(
+                html, request, paragraphs)
+                ? new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["remarks"] =
+                        "The exact linked request signature declares an int[] argument, but the visible class description names a scalar int; no array shape was inferred.",
+                }
+                : null;
             return new SourceDocs(
                 FirstSentence(paragraphs[0].Text),
                 paragraphs,
@@ -25435,8 +25952,20 @@ static partial class ImporterProgram
                 new Dictionary<string, string>(StringComparer.Ordinal),
                 request.Url,
                 request.JavaPath.Replace('/', '.').Replace('$', '.'),
-                request.Kind);
+                request.Kind,
+                UnsafeTargets: unsafeTargets,
+                WithheldRemarks: unsafeTargets is null ? null : paragraphs);
         }
+
+        static bool HasUnsafeTrustPairingCallbackTypeRemarks(
+            string html,
+            SourceRequest request,
+            List<SourceParagraph> paragraphs) =>
+            request.JavaPath == TrustPairingCallbackJavaPath &&
+            request.Url == TrustPairingCallbackSourceUrl &&
+            html.Contains(TrustPairingCallbackUnsafeHref, StringComparison.Ordinal) &&
+            html.Contains(TrustPairingCallbackUnsafeLinkText, StringComparison.Ordinal) &&
+            paragraphs is [{ IsCode: false, Text: TrustPairingCallbackUnsafeText }];
 
         static SourceDocs? ExtractAndroidDocs(
             string fragment,
@@ -25503,6 +26032,15 @@ static partial class ImporterProgram
 
         internal static string NormalizeKnownAndroidParagraphBoundary(string html, string sourceUrl)
         {
+            if (sourceUrl.Equals(MultisensoryContinuousDragTokenSourceUrl, StringComparison.Ordinal) ||
+                sourceUrl.Equals(MultisensoryDiscreteDragTokenSourceUrl, StringComparison.Ordinal))
+            {
+                return html.Replace(
+                    MultisensoryContinuousEffectModifierError,
+                    MultisensoryContinuousEffectModifier,
+                    StringComparison.Ordinal);
+            }
+
             if (!sourceUrl.Equals(ControlTemplateSourceUrl, StringComparison.Ordinal))
                 return html;
 
