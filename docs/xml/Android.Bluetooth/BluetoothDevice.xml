@@ -541,8 +541,13 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>This intent will be broadcasted for bonded devices after LE connection is established, if the LE Appearance value was not known already or changed.</summary>
+        <remarks>
+          <para>This intent will be broadcasted for bonded devices after LE connection is established, if the LE Appearance value was not known already or changed.</para>
+          <para>Always contains the extra fields EXTRA_DEVICE and EXTRA_LE_APPEARANCE. For apps targeting Build.VERSION_CODES.S or or higher, this requires the Manifest.permission.BLUETOOTH_CONNECT permission which can be gained with android.app.Activity.requestPermissions(String[],int). Requires Manifest.permission.BLUETOOTH_CONNECT</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#ACTION_LE_APPEARANCE_CHANGED" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothDevice.ACTION_LE_APPEARANCE_CHANGED</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionNameChanged">
@@ -2650,7 +2655,14 @@
         <returns>
           <c>BluetoothStatusCodes#SUCCESS</c> upon successful setting, otherwise an error
                 code.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Disconnects ACL links for this device.</para>
+          <para>If transport is TRANSPORT_AUTO, it disconnects all ACL links for the device. Otherwise, it disconnects the ACL link for the specified transport.</para>
+          <para>Disconnection is asynchronous, so apps should listen to ACTION_ACL_DISCONNECTED to verify whether disconnection was successful.</para>
+          <para>This method requires the calling app to have the Manifest.permission.BLUETOOTH_CONNECT permission. Additionally, an app must either have Manifest.permission.BLUETOOTH_PRIVILEGED or have a Companion Device Manager association with this device (see android.companion.CompanionDeviceManager.associate(AssociationRequest,android.companion.CompanionDeviceManager.Callback,Handler)). For apps targeting Build.VERSION_CODES.S or or higher, this requires the Manifest.permission.BLUETOOTH_CONNECT permission which can be gained with android.app.Activity.requestPermissions(String[],int).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#disconnectAcl(int)" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothDevice.disconnectAcl</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="EncryptionAlgorithmAes">
@@ -3367,8 +3379,12 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Used as an integer extra field in ACTION_FOUND, ACTION_LE_APPEARANCE_CHANGED intents, and in ACTION_*_CONNECTION_STATE_CHANGED intents for audio related profiles.</summary>
+        <remarks>
+          <para>Used as an integer extra field in ACTION_FOUND, ACTION_LE_APPEARANCE_CHANGED intents, and in ACTION_*_CONNECTION_STATE_CHANGED intents for audio related profiles. Contains the LE Appearance of the device.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#EXTRA_LE_APPEARANCE" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothDevice.EXTRA_LE_APPEARANCE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraName">
@@ -4280,7 +4296,15 @@
         <summary>Get the Bluetooth LE Appearance of the remote device.</summary>
         <value>the LE Appearance value, or <c>#LE_APPEARANCE_UNKNOWN</c> if the appearance is
                 unknown or not yet available.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Get the Bluetooth LE Appearance of the remote device.</para>
+          <para>The LE Appearance values are defined by the Bluetooth SIG and provide a visual representation of the device type. For a complete list of valid LE Appearance values, refer to the Bluetooth Assigned Numbers document.</para>
+          <para>This value is returned from the local cache and can be retrieved even when the device is disconnected. The value represents a static physical characteristic and typically stays constant throughout the lifetime of a device.</para>
+          <para>The cache is populated either by extracting Appearance AD type from LE advertisements during device discovery prior to pairing, or by performing a GATT read on the GAP service's Appearance characteristic on first LE connection.</para>
+          <para>According to the Bluetooth SIG GAP specifications, the Appearance characteristic does not support GATT notifications/indications. The changes to a device's appearance are only broadcasted for bonded devices using the ACTION_LE_APPEARANCE_CHANGED intent containing the new EXTRA_LE_APPEARANCE value. For apps targeting Build.VERSION_CODES.R or lower, this requires the Manifest.permission.BLUETOOTH permission which can be gained with a simple &lt;uses-permission&gt; manifest tag. For apps targeting Build.VERSION_CODES.S or or higher, this requires the Manifest.permission.BLUETOOTH_CONNECT permission which can be gained with android.app.Activity.requestPermissions(String[],int). Requires Manifest.permission.BLUETOOTH_CONNECT</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#getLeAppearance()" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothDevice.getLeAppearance</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="LeAppearanceUnknown">
@@ -4312,7 +4336,11 @@
       <MemberValue>0</MemberValue>
       <Docs>
         <summary>Value indicating that the LE Appearance of the device is unknown.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Value indicating that the LE Appearance of the device is unknown.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice#LE_APPEARANCE_UNKNOWN" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothDevice.LE_APPEARANCE_UNKNOWN</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Name">
