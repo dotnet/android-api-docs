@@ -72,6 +72,14 @@ eligibility is evaluated against the untouched summary and requires exactly
 three importer-owned
 paragraphs: plain deprecation prose, the exact field source reference, and exact
 Android attribution. Additional nodes or markup preserve the summary verbatim.
+For a structurally verified Android list with omitted closing tags, the importer
+retains its nonempty list's immediately preceding colon-ended introduction as a
+separate paragraph, followed by ordered list-item and trailing prose paragraphs.
+Ordinary colon-ended fragments, empty lists, nested lists, and malformed list
+markup retain the usual conservative filtering. A parser-layout refresh is allowed
+only when the complete existing remarks exactly match a prior importer rendering
+of the same source, including its source reference and attribution; authored or
+mixed remarks are preserved.
 Repair of the known `Control.StatefulBuilder.setControlTemplate` paragraph boundary
 is restricted to its exact Android member URL and verified lead-in/description,
 preserving the source's blank line as two paragraphs without inventing punctuation.

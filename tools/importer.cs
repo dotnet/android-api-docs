@@ -4381,14 +4381,28 @@ static partial class ImporterProgram
         IEnumerable<SourceParagraph> paragraphs)
     {
         var cleaned = paragraphs
-            .Select(paragraph => paragraph.IsCode
-                ? paragraph
-                : paragraph with { Text = CleanSourceText(paragraph.Text) })
+            .Select(paragraph =>
+            {
+                if (paragraph.IsCode)
+                    return paragraph;
+                var isImplicitAndroidListIntroduction = paragraph.Text.StartsWith(
+                    SourcePage.ImplicitAndroidListIntroductionMarker,
+                    StringComparison.Ordinal);
+                var text = isImplicitAndroidListIntroduction
+                    ? paragraph.Text[SourcePage.ImplicitAndroidListIntroductionMarker.Length..]
+                    : paragraph.Text;
+                return paragraph with
+                {
+                    Text = CleanSourceText(text),
+                    IsImplicitAndroidListIntroduction = isImplicitAndroidListIntroduction,
+                };
+            })
             .ToList();
         return cleaned
             .Where((paragraph, index) => paragraph.IsCode
                 ? !string.IsNullOrWhiteSpace(paragraph.Text)
-                : IsMeaningfulChannel(paragraph.Text, "remarks") ||
+                : paragraph.IsImplicitAndroidListIntroduction ||
+                  IsMeaningfulChannel(paragraph.Text, "remarks") ||
                   (index + 1 < cleaned.Count &&
                    cleaned[index + 1].IsCode &&
                    !string.IsNullOrWhiteSpace(cleaned[index + 1].Text) &&
@@ -5553,23 +5567,25 @@ static partial class ImporterProgram
             .Select(DocumentationElement)
             .ToList();
         var existingSourceParagraphs = existing.Take(sourceReferenceIndex).ToList();
-        var expectedLegacySourceParagraphs = docs.LegacyFlattenedParagraphs?
-            .Select(DocumentationElement)
-            .ToList();
-        var isExactLegacyImplicitListSource =
-            expectedLegacySourceParagraphs is not null &&
-            existingSourceParagraphs.Count == expectedLegacySourceParagraphs.Count &&
-            existingSourceParagraphs.Zip(
-                expectedLegacySourceParagraphs,
-                (actual, expected) => ImporterMarkupEquals(actual, expected))
-                .All(equal => equal);
+        var isExactPriorImplicitListSource = new[]
+            {
+                docs.LegacyFlattenedParagraphs,
+                docs.IntermediateImplicitListParagraphs,
+            }
+            .Any(prior =>
+                prior is not null &&
+                existingSourceParagraphs.Count == prior.Count &&
+                existingSourceParagraphs.Zip(
+                    prior.Select(DocumentationElement),
+                    (actual, expected) => ImporterMarkupEquals(actual, expected))
+                    .All(equal => equal));
         var isLegacyGestureClone = IsExactLegacyGestureCloneRemarks(
             owner, document, docs, existingSourceParagraphs);
         if (!MatchesSourceParagraphSubsequence(
                 existingSourceParagraphs,
                 expectedSourceParagraphs,
                 allowKnownAndroidCorrections: true) &&
-            !isExactLegacyImplicitListSource &&
+            !isExactPriorImplicitListSource &&
             !isLegacyGestureClone &&
             (!HasLegacyFormattedSourceReference(existing[sourceReferenceIndex]) ||
              !MatchesSourceParagraphSubsequence(
@@ -18833,6 +18849,24 @@ static partial class ImporterProgram
                     "The smallest limit applies.",
                 ]),
             "implicitly closed Android list paragraphs retain list and trailing prose boundaries");
+        Assert(
+            SourcePage.ExtractParagraphs("<p>Unsupported lead:</p>").Count == 0,
+            "ordinary colon-ended fragments remain filtered without a recognized list");
+        var emptyImplicitListParagraphs = SourcePage.ExtractParagraphs(
+            "<p>Unsupported lead:<ul></ul><p>Following prose.</p>");
+        Assert(
+            !emptyImplicitListParagraphs.Any(paragraph => paragraph.Text == "Unsupported lead:"),
+            "empty implicitly closed lists do not retain their colon-ended lead");
+        var nestedImplicitListParagraphs = SourcePage.ExtractParagraphs(
+            "<p>Unsupported lead:<ul><li>Outer<ul><li>Nested</li></ul></li></ul><p>Following prose.</p>");
+        Assert(
+            !nestedImplicitListParagraphs.Any(paragraph => paragraph.Text == "Unsupported lead:"),
+            "nested implicitly closed lists do not retain an unverified list lead");
+        var malformedImplicitListParagraphs = SourcePage.ExtractParagraphs(
+            "<p>Unsupported lead:<ul><li>Only item");
+        Assert(
+            !malformedImplicitListParagraphs.Any(paragraph => paragraph.Text == "Unsupported lead:"),
+            "malformed implicitly closed lists do not retain an unverified list lead");
         var missingJavaSignaturePeriod = SourcePage.ExtractBlocks(
             "<div class=\"block\">Sets a value.<p>The method signature is of the form <code>(T value)void</code></p><p>The symbolic type descriptor must match.</p></div>");
         Assert(
@@ -26019,6 +26053,8 @@ static partial class ImporterProgram
 
     sealed class SourcePage
     {
+        internal const string ImplicitAndroidListIntroductionMarker = "\uE000";
+
         public SourceDocs? TypeDocs { get; init; }
         public List<SourceMember> Members { get; init; } = [];
 
@@ -26099,6 +26135,9 @@ static partial class ImporterProgram
             if (finalRule >= 0)
                 fragment = fragment[finalRule..];
             var paragraphs = ExtractParagraphs(fragment);
+            var intermediateImplicitListParagraphs = ExtractParagraphs(
+                fragment,
+                preserveImplicitAndroidListIntroductions: false);
             var legacyFlattenedParagraphs = ExtractParagraphs(
                 fragment,
                 normalizeImplicitAndroidLists: false);
@@ -26126,7 +26165,11 @@ static partial class ImporterProgram
                 LegacyFlattenedParagraphs:
                     legacyFlattenedParagraphs.SequenceEqual(paragraphs)
                         ? null
-                        : legacyFlattenedParagraphs);
+                        : legacyFlattenedParagraphs,
+                IntermediateImplicitListParagraphs:
+                    intermediateImplicitListParagraphs.SequenceEqual(paragraphs)
+                        ? null
+                        : intermediateImplicitListParagraphs);
         }
 
         static bool HasUnsafeTrustPairingCallbackTypeRemarks(
@@ -26185,6 +26228,11 @@ static partial class ImporterProgram
                     StringComparison.Ordinal);
             }
             var paragraphs = ExtractParagraphs(prose, IsGestureCloneSourceUrl(url), url);
+            var intermediateImplicitListParagraphs = ExtractParagraphs(
+                prose,
+                IsGestureCloneSourceUrl(url),
+                url,
+                preserveImplicitAndroidListIntroductions: false);
             var legacyFlattenedParagraphs = ExtractParagraphs(
                 prose,
                 IsGestureCloneSourceUrl(url),
@@ -26208,7 +26256,11 @@ static partial class ImporterProgram
                 LegacyFlattenedParagraphs:
                     legacyFlattenedParagraphs.SequenceEqual(paragraphs)
                         ? null
-                        : legacyFlattenedParagraphs);
+                        : legacyFlattenedParagraphs,
+                IntermediateImplicitListParagraphs:
+                    intermediateImplicitListParagraphs.SequenceEqual(paragraphs)
+                        ? null
+                        : intermediateImplicitListParagraphs);
         }
 
         internal static string NormalizeKnownAndroidParagraphBoundary(string html, string sourceUrl)
@@ -26469,10 +26521,13 @@ static partial class ImporterProgram
             string html,
             bool preserveGestureCloneIntroductions = false,
             string? sourceUrl = null,
-            bool normalizeImplicitAndroidLists = true)
+            bool normalizeImplicitAndroidLists = true,
+            bool preserveImplicitAndroidListIntroductions = true)
         {
             if (normalizeImplicitAndroidLists)
-                html = NormalizeImplicitAndroidListParagraphs(html);
+                html = NormalizeImplicitAndroidListParagraphs(
+                    html,
+                    preserveImplicitAndroidListIntroductions);
             html = NormalizeHtmlLists(html);
             html = NormalizeNestedListParagraphs(html);
             html = Regex.Replace(
@@ -26485,9 +26540,9 @@ static partial class ImporterProgram
                 @"</p>\s*\.\s*<br>\s*(?<thread>This method must be called from the main thread of your app\.)\s*</p>\s*</p>",
                 "</p><p>${thread}</p>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            var paragraphs = new List<(int Position, SourceParagraph Paragraph)>();
+            var paragraphs = new List<(int Position, SourceParagraph Paragraph, bool PreserveTrailingColon)>();
             var codeRanges = new List<(int Start, int End, SourceParagraph Paragraph)>();
-            var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
+            var stack = new Stack<(string Tag, int TagStart, int ContentStart, bool PreserveTrailingColon)>();
 
             IReadOnlyList<(int Start, int End, SourceParagraph Paragraph)> VisibleCodeRanges() =>
                 codeRanges
@@ -26499,7 +26554,7 @@ static partial class ImporterProgram
                     .ToList();
 
             void CompleteElement(
-                (string Tag, int TagStart, int ContentStart) open,
+                (string Tag, int TagStart, int ContentStart, bool PreserveTrailingColon) open,
                 int contentEnd,
                 int elementEnd)
             {
@@ -26523,8 +26578,9 @@ static partial class ImporterProgram
                     AddSourceTextParagraph(
                         html[textStart..code.Start],
                         textStart,
-                        paragraphs);
-                    paragraphs.Add((code.Start, code.Paragraph));
+                        paragraphs,
+                        preserveTrailingColon: open.PreserveTrailingColon);
+                    paragraphs.Add((code.Start, code.Paragraph, false));
                     textStart = code.End;
                 }
                 if (textStart <= contentEnd)
@@ -26532,7 +26588,8 @@ static partial class ImporterProgram
                         html[textStart..contentEnd],
                         textStart,
                         paragraphs,
-                        preserveEmpty: nestedCode.Count == 0);
+                        preserveEmpty: nestedCode.Count == 0,
+                        preserveTrailingColon: open.PreserveTrailingColon);
             }
 
             foreach (Match tag in Regex.Matches(
@@ -26555,7 +26612,11 @@ static partial class ImporterProgram
                     {
                         CompleteElement(stack.Pop(), tag.Index, tag.Index);
                     }
-                    stack.Push((name, tag.Index, tag.Index + tag.Length));
+                    stack.Push((
+                        name,
+                        tag.Index,
+                        tag.Index + tag.Length,
+                        false));
                     continue;
                 }
 
@@ -26570,16 +26631,16 @@ static partial class ImporterProgram
                 !paragraphs.Any(paragraph => paragraph.Position == code.Start &&
                     paragraph.Paragraph == code.Paragraph)))
             {
-                paragraphs.Add((code.Start, code.Paragraph));
+                paragraphs.Add((code.Start, code.Paragraph, false));
             }
             var ordered = paragraphs
                 .OrderBy(paragraph => paragraph.Position)
-                .Select(paragraph => paragraph.Paragraph)
                 .ToList();
             var usable = new List<SourceParagraph>();
             for (var index = 0; index < ordered.Count; index++)
             {
-                var paragraph = ordered[index];
+                var current = ordered[index];
+                var paragraph = current.Paragraph;
                 if (paragraph.IsCode)
                 {
                     if (!string.IsNullOrWhiteSpace(paragraph.Text))
@@ -26589,23 +26650,27 @@ static partial class ImporterProgram
 
                 var isCddlIntroduction = IsCddlCodeLeadIn(paragraph.Text) &&
                     index + 1 < ordered.Count &&
-                    ordered[index + 1].IsCode &&
-                    !string.IsNullOrWhiteSpace(ordered[index + 1].Text);
+                    ordered[index + 1].Paragraph.IsCode &&
+                    !string.IsNullOrWhiteSpace(ordered[index + 1].Paragraph.Text);
                 var isGestureCloneIntroduction = preserveGestureCloneIntroductions &&
                     index + 1 < ordered.Count &&
-                    IsGestureCloneCodeLeadIn(paragraph.Text, ordered[index + 1]);
-                var text = isCddlIntroduction || isGestureCloneIntroduction
+                    IsGestureCloneCodeLeadIn(paragraph.Text, ordered[index + 1].Paragraph);
+                var text = isCddlIntroduction || isGestureCloneIntroduction ||
+                    current.PreserveTrailingColon
                     ? paragraph.Text
                     : CleanSourceParagraph(paragraph.Text);
                 // Retain this rejected fragment for member-verified ambiguity reporting, not rendering.
-                if (isCddlIntroduction || isGestureCloneIntroduction || IsMeaningfulChannel(text, "remarks") ||
+                if (isCddlIntroduction || isGestureCloneIntroduction || current.PreserveTrailingColon ||
+                    IsMeaningfulChannel(text, "remarks") ||
                     (sourceUrl == RssiUpdateRateSourceUrl && text == RssiMalformedDefault))
                     usable.Add(paragraph with { Text = text });
             }
             return usable;
         }
 
-        static string NormalizeImplicitAndroidListParagraphs(string html) =>
+        static string NormalizeImplicitAndroidListParagraphs(
+            string html,
+            bool preserveListIntroductions) =>
             Regex.Replace(
                 html,
                 @"(?<open><p\b[^>]*>)(?<lead>(?:(?!</?p\b|<(?:ul|ol)\b).)*?)<(?<tag>ul|ol)\b[^>]*>(?<items>(?:(?!</?(?:ul|ol)\b).)*)</\k<tag>\s*>(?<tail>(?:(?!</?p\b|<(?:ul|ol|h[1-6]|table|pre|devsite-code)\b).)*?)(?=(?:<p\b|<h[1-6]\b|<table\b|<pre\b|<devsite-code\b|$))",
@@ -26616,6 +26681,7 @@ static partial class ImporterProgram
                         @"<li\b[^>]*>(?<item>.*?)(?=<li\b|</li\b|$)",
                         RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
                         .Select(item => item.Groups["item"].Value)
+                        .Where(item => HtmlTextCore(item, includeCode: true).Length > 0)
                         .ToList();
                     if (items.Count == 0 ||
                         items.Any(item => Regex.IsMatch(
@@ -26629,6 +26695,10 @@ static partial class ImporterProgram
 
                     var normalized = new StringBuilder()
                         .Append(match.Groups["open"].Value)
+                        .Append(
+                            preserveListIntroductions
+                                ? ImplicitAndroidListIntroductionMarker
+                                : "")
                         .Append(match.Groups["lead"].Value)
                         .Append("</p>");
                     foreach (var item in items)
@@ -26656,12 +26726,24 @@ static partial class ImporterProgram
         static void AddSourceTextParagraph(
             string html,
             int position,
-            List<(int Position, SourceParagraph Paragraph)> paragraphs,
-            bool preserveEmpty = false)
+            List<(int Position, SourceParagraph Paragraph, bool PreserveTrailingColon)> paragraphs,
+            bool preserveEmpty = false,
+            bool preserveTrailingColon = false)
         {
             var sourceText = CleanSourceText(HtmlText(html));
+            if (sourceText.StartsWith(
+                    ImplicitAndroidListIntroductionMarker,
+                    StringComparison.Ordinal))
+            {
+                sourceText = ImplicitAndroidListIntroductionMarker +
+                    sourceText[ImplicitAndroidListIntroductionMarker.Length..].TrimStart();
+                preserveTrailingColon = true;
+            }
             if (preserveEmpty || sourceText.Length > 0)
-                paragraphs.Add((position, new SourceParagraph(sourceText, IsCode: false)));
+                paragraphs.Add((
+                    position,
+                    new SourceParagraph(sourceText, IsCode: false),
+                    preserveTrailingColon));
         }
 
         internal static List<SourceParagraph> ExtractBlocks(string html) =>
@@ -27056,7 +27138,10 @@ static partial class ImporterProgram
         string Url,
         string? Declaration = null);
 
-    sealed record SourceParagraph(string Text, bool IsCode);
+    sealed record SourceParagraph(
+        string Text,
+        bool IsCode,
+        bool IsImplicitAndroidListIntroduction = false);
 
     sealed record SourceDocs(
         string Summary,
@@ -27077,7 +27162,8 @@ static partial class ImporterProgram
         KnownTvAdCorrection? TvAdCorrection = null,
         IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null,
         bool QualityFirstFillOnly = false,
-        IReadOnlyList<SourceParagraph>? LegacyFlattenedParagraphs = null);
+        IReadOnlyList<SourceParagraph>? LegacyFlattenedParagraphs = null,
+        IReadOnlyList<SourceParagraph>? IntermediateImplicitListParagraphs = null);
 
     static class Descriptor
     {
