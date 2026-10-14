@@ -4380,21 +4380,16 @@ static partial class ImporterProgram
     static List<SourceParagraph> UsableRemarks(
         IEnumerable<SourceParagraph> paragraphs)
     {
+        var implicitAndroidListIntroductionIndexes =
+            (paragraphs as SourcePage.ParsedSourceParagraphList)?
+                .ImplicitAndroidListIntroductionIndexes;
         var cleaned = paragraphs
-            .Select(paragraph =>
-            {
-                if (paragraph.IsCode)
-                    return (Paragraph: paragraph, IsImplicitAndroidListIntroduction: false);
-                var isImplicitAndroidListIntroduction = paragraph.Text.StartsWith(
-                    SourcePage.ImplicitAndroidListIntroductionMarker,
-                    StringComparison.Ordinal);
-                var text = isImplicitAndroidListIntroduction
-                    ? paragraph.Text[SourcePage.ImplicitAndroidListIntroductionMarker.Length..]
-                    : paragraph.Text;
-                return (
-                    Paragraph: paragraph with { Text = CleanSourceText(text) },
-                    IsImplicitAndroidListIntroduction: isImplicitAndroidListIntroduction);
-            })
+            .Select((paragraph, index) => (
+                Paragraph: paragraph.IsCode
+                    ? paragraph
+                    : paragraph with { Text = CleanSourceText(paragraph.Text) },
+                IsImplicitAndroidListIntroduction:
+                    implicitAndroidListIntroductionIndexes?.Contains(index) == true))
             .ToList();
         return cleaned
             .Where((item, index) => item.Paragraph.IsCode
@@ -26056,6 +26051,11 @@ static partial class ImporterProgram
     {
         internal const string ImplicitAndroidListIntroductionMarker = "\uE000";
 
+        internal sealed class ParsedSourceParagraphList : List<SourceParagraph>
+        {
+            public HashSet<int> ImplicitAndroidListIntroductionIndexes { get; } = [];
+        }
+
         public SourceDocs? TypeDocs { get; init; }
         public List<SourceMember> Members { get; init; } = [];
 
@@ -26637,7 +26637,7 @@ static partial class ImporterProgram
             var ordered = paragraphs
                 .OrderBy(paragraph => paragraph.Position)
                 .ToList();
-            var usable = new List<SourceParagraph>();
+            var usable = new ParsedSourceParagraphList();
             for (var index = 0; index < ordered.Count; index++)
             {
                 var current = ordered[index];
@@ -26664,7 +26664,11 @@ static partial class ImporterProgram
                 if (isCddlIntroduction || isGestureCloneIntroduction || current.PreserveTrailingColon ||
                     IsMeaningfulChannel(text, "remarks") ||
                     (sourceUrl == RssiUpdateRateSourceUrl && text == RssiMalformedDefault))
+                {
+                    if (current.PreserveTrailingColon)
+                        usable.ImplicitAndroidListIntroductionIndexes.Add(usable.Count);
                     usable.Add(paragraph with { Text = text });
+                }
             }
             return usable;
         }
@@ -26736,8 +26740,7 @@ static partial class ImporterProgram
                     ImplicitAndroidListIntroductionMarker,
                     StringComparison.Ordinal))
             {
-                sourceText = ImplicitAndroidListIntroductionMarker +
-                    sourceText[ImplicitAndroidListIntroductionMarker.Length..].TrimStart();
+                sourceText = sourceText[ImplicitAndroidListIntroductionMarker.Length..].TrimStart();
                 preserveTrailingColon = true;
             }
             if (preserveEmpty || sourceText.Length > 0)
