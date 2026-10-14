@@ -83,6 +83,26 @@ static partial class ImporterProgram
         "MultisensoryContinuousEffectModifier)";
     const string MultisensoryContinuousEffectModifier =
         "MultisensoryContinuousEffectModifier";
+    const string DeviceBuilderSetUdiSourceUrl =
+        AndroidReference + "android/health/connect/datatypes/Device.Builder#setUdi(java.lang.String)";
+    const string DeviceBuilderSetUdiMemberId =
+        "M:Android.Health.Connect.DataTypes.Device.Builder.SetUdi(System.String)";
+    const string DeviceBuilderSetUdiDescriptor =
+        "(Ljava/lang/String;)Landroid/health/connect/datatypes/Device$Builder;";
+    const string DeviceBuilderSetUdiSourceLabel =
+        "android.health.connect.datatypes.Device.Builder.setUdi";
+    const string DeviceBuilderSetUdiPermissionError =
+        "ERROR(/HealthPermissions#WRITE_DEVICE_UDI)";
+    const string DeviceBuilderSetUdiPermission =
+        "android.permission.health.WRITE_DEVICE_UDI";
+    const string DeviceBuilderSetUdiRawPermissionParagraph =
+        "The calling package needs to declare " + DeviceBuilderSetUdiPermissionError +
+        " in manifest to be able to set UDI for any record. SecurityException is thrown when " +
+        "upserting a record with UDI without the permission.";
+    const string DeviceBuilderSetUdiPermissionParagraph =
+        "The calling package needs to declare " + DeviceBuilderSetUdiPermission +
+        " in manifest to be able to set UDI for any record. SecurityException is thrown when " +
+        "upserting a record with UDI without the permission.";
     const string TrustPairingCallbackTypeId =
         "T:Android.Companion.CompanionDeviceManager+TrustPairingCallback";
     const string TrustPairingCallbackJavaPath =
@@ -2052,6 +2072,7 @@ static partial class ImporterProgram
                 "source_channel_ambiguous",
                 "The exact official removeStateListener description names UpdateListener, but its declared and registered parameter is ChooserSession.StateListener; no replacement prose was inferred.",
                 docs.SourceUrl);
+        docs = WithVerifiedDeviceBuilderSetUdiPermissionContract(owner, registration, docs);
         var sourceVerifiedMapping = SourceVerifiedMemberMappings.Resolve(owner.Id);
         if (sourceVerifiedMapping is { UseFirstMeaningfulSummary: true })
         {
@@ -2080,6 +2101,50 @@ static partial class ImporterProgram
         docs = WithoutUnsafeBrowseSubscriptionRemarks(owner, docs);
         docs = WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    static SourceDocs WithVerifiedDeviceBuilderSetUdiPermissionContract(
+        DocsOwner owner,
+        MemberRegistration registration,
+        SourceDocs docs)
+    {
+        if (!docs.Paragraphs.Any(paragraph =>
+                !paragraph.IsCode &&
+                paragraph.Text.Equals(
+                    DeviceBuilderSetUdiPermissionParagraph,
+                    StringComparison.Ordinal)))
+        {
+            return docs;
+        }
+
+        if (owner.Id.Equals(DeviceBuilderSetUdiMemberId, StringComparison.Ordinal) &&
+            owner.SourceRequest is
+            {
+                Kind: "android",
+                JavaPath: "android/health/connect/datatypes/Device$Builder",
+            } &&
+            owner.SourceRequest.Url + "#setUdi(java.lang.String)" == DeviceBuilderSetUdiSourceUrl &&
+            registration is
+            {
+                Name: "setUdi",
+                Descriptor: DeviceBuilderSetUdiDescriptor,
+                IsField: false,
+            } &&
+            docs.SourceKind == "android" &&
+            docs.SourceUrl == DeviceBuilderSetUdiSourceUrl &&
+            docs.SourceLabel == DeviceBuilderSetUdiSourceLabel)
+        {
+            return docs;
+        }
+
+        return docs with
+        {
+            Paragraphs = docs.Paragraphs.Where(paragraph =>
+                paragraph.IsCode ||
+                !paragraph.Text.Equals(
+                    DeviceBuilderSetUdiPermissionParagraph,
+                    StringComparison.Ordinal)).ToList(),
+        };
     }
 
     sealed record SliceProviderContract(string MemberId, string BindingHash, string SourceHash);
@@ -9640,6 +9705,30 @@ static partial class ImporterProgram
             "Multisensory drag token normalization is limited to the exact official source URL");
     }
 
+    static void TestDeviceBuilderSetUdiPermissionMarkup()
+    {
+        var source = $"<p>{DeviceBuilderSetUdiRawPermissionParagraph}</p>";
+        var paragraphs = SourcePage.ExtractParagraphs(
+            source,
+            sourceUrl: DeviceBuilderSetUdiSourceUrl);
+        Assert(
+            paragraphs is [{ IsCode: false, Text: DeviceBuilderSetUdiPermissionParagraph }],
+            "Device.Builder.setUdi retains the exact official permission and upsert SecurityException paragraph");
+        Assert(
+            SourcePage.ExtractParagraphs(
+                source,
+                sourceUrl: DeviceBuilderSetUdiSourceUrl + ".Other").Count == 0,
+            "Device.Builder.setUdi permission normalization is limited to the exact official source URL");
+        Assert(
+            SourcePage.ExtractParagraphs(
+                "<p>" + DeviceBuilderSetUdiRawPermissionParagraph.Replace(
+                    "without the permission.",
+                    "without an explicit permission.",
+                    StringComparison.Ordinal) + "</p>",
+                sourceUrl: DeviceBuilderSetUdiSourceUrl).Count == 0,
+            "Device.Builder.setUdi permission normalization requires the complete unchanged source paragraph");
+    }
+
     static void TestTrustPairingCallbackTypeRemarks()
     {
         var request = SourceRequest.Create(TrustPairingCallbackJavaPath) ??
@@ -14387,6 +14476,7 @@ static partial class ImporterProgram
         TestBlobParcelTextCorrection(repositoryRoot, fixtureRoot);
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestMultisensoryDragTokenMarkup();
+        TestDeviceBuilderSetUdiPermissionMarkup();
         TestTrustPairingCallbackTypeRemarks();
         TestTrustPairingCallbackWithdrawal(repositoryRoot);
         TestAuthenticationPolicyTrustPairingRemarks();
@@ -26412,6 +26502,18 @@ static partial class ImporterProgram
                 return html.Replace(
                     MultisensoryContinuousEffectModifierError,
                     MultisensoryContinuousEffectModifier,
+                    StringComparison.Ordinal);
+            }
+
+            if (sourceUrl.Equals(DeviceBuilderSetUdiSourceUrl, StringComparison.Ordinal) &&
+                html.Contains(DeviceBuilderSetUdiPermissionError, StringComparison.Ordinal) &&
+                HtmlText(html).Contains(
+                    DeviceBuilderSetUdiRawPermissionParagraph,
+                    StringComparison.Ordinal))
+            {
+                return html.Replace(
+                    DeviceBuilderSetUdiPermissionError,
+                    DeviceBuilderSetUdiPermission,
                     StringComparison.Ordinal);
             }
 

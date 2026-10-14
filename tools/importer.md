@@ -595,6 +595,17 @@ Limitations:
   generated `ERROR(MultisensoryContinuousEffectModifier/...)` link wrapper are
   normalized to the linked type name; unrelated malformed source markup remains
   a conservative skip.
+- `Device.Builder.setUdi(String)` retains its complete official permission and
+  upsert-exception paragraph only when the canonical member URL contains the
+  unchanged `ERROR(/HealthPermissions#WRITE_DEVICE_UDI)` wrapper and complete
+  source text. That wrapper is normalized to the official
+  `android.permission.health.WRITE_DEVICE_UDI` value verified by
+  `HealthPermissions.WRITE_DEVICE_UDI`. Rendering additionally requires the
+  exact managed `SetUdi(String)` member, JNI descriptor, Android source label,
+  and URL; other managed identities, URLs, malformed wrappers, or changed
+  paragraphs retain the ordinary conservative `ERROR(...)` skip. Existing
+  authored or mixed remarks remain protected by the ordinary importer-ownership
+  checks.
 - `CompanionDeviceManager.TrustPairingCallback` type remarks are withheld only
   when the exact official class link has an `int[]` request signature but visible
   scalar-`int` prose, and the managed type registration and signature also match.
