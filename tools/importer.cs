@@ -9707,26 +9707,103 @@ static partial class ImporterProgram
 
     static void TestDeviceBuilderSetUdiPermissionMarkup()
     {
-        var source = $"<p>{DeviceBuilderSetUdiRawPermissionParagraph}</p>";
-        var paragraphs = SourcePage.ExtractParagraphs(
-            source,
-            sourceUrl: DeviceBuilderSetUdiSourceUrl);
+        var request = SourceRequest.Create("android/health/connect/datatypes/Device$Builder") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: Device.Builder source request");
+        var member = XElement.Parse($"""
+            <Member MemberName="SetUdi">
+              <MemberSignature Language="C#" Value="public Android.Health.Connect.DataTypes.Device.Builder SetUdi (string? udi);" />
+              <MemberSignature Language="DocId" Value="{DeviceBuilderSetUdiMemberId}" />
+              <Attributes>
+                <Attribute>
+                  <AttributeName Language="C#">[Android.Runtime.Register("setUdi", "{DeviceBuilderSetUdiDescriptor}", "", ApiSince=37)]</AttributeName>
+                </Attribute>
+              </Attributes>
+              <Docs><summary>To be added.</summary><remarks>To be added.</remarks></Docs>
+            </Member>
+            """);
+        var owner = new DocsOwner(
+            0,
+            DeviceBuilderSetUdiMemberId,
+            member.Element("Docs")!,
+            member,
+            Registration.Member(member),
+            request,
+            [new Placeholder(0, "remarks", "", "remarks")],
+            false);
+        string Page(string paragraphs, string? code = null) => $"""
+            <h3 class="api-name" id="setUdi(java.lang.String)">setUdi</h3>
+            <devsite-code><pre class="api-signature">public Device.Builder setUdi (String udi)</pre></devsite-code>
+            {paragraphs}
+            {code}
+            <h2 class="api-section" id="summary"></h2>
+            """;
+        MappingResult Map(DocsOwner candidate, string html) =>
+            MapOwner(candidate, new Dictionary<string, SourceLoadResult>
+            {
+                [request.Url] = SourceLoadResult.Success(SourcePage.Parse(request, html)),
+            });
+        var source = Page($"<p>{DeviceBuilderSetUdiRawPermissionParagraph}</p>");
+        var mapped = Map(owner, source);
         Assert(
-            paragraphs is [{ IsCode: false, Text: DeviceBuilderSetUdiPermissionParagraph }],
-            "Device.Builder.setUdi retains the exact official permission and upsert SecurityException paragraph");
+            owner.MemberRegistration is
+            {
+                Name: "setUdi",
+                Descriptor: DeviceBuilderSetUdiDescriptor,
+                IsField: false,
+            } &&
+            mapped.Docs?.SourceUrl == DeviceBuilderSetUdiSourceUrl &&
+            mapped.Docs.SourceLabel == DeviceBuilderSetUdiSourceLabel &&
+            mapped.Docs.Paragraphs.Any(paragraph =>
+                !paragraph.IsCode &&
+                paragraph.Text == DeviceBuilderSetUdiPermissionParagraph),
+            "Device.Builder.setUdi maps the exact JNI overload and preserves the exact official permission and upsert SecurityException paragraph");
+
+        var code = $"<pre>String marker = \"{DeviceBuilderSetUdiPermissionError}\";</pre>";
+        var withCode = Map(owner, Page($"<p>{DeviceBuilderSetUdiRawPermissionParagraph}</p>", code));
         Assert(
-            SourcePage.ExtractParagraphs(
-                source,
-                sourceUrl: DeviceBuilderSetUdiSourceUrl + ".Other").Count == 0,
-            "Device.Builder.setUdi permission normalization is limited to the exact official source URL");
+            withCode.Docs?.Paragraphs.Any(paragraph =>
+                paragraph.IsCode &&
+                paragraph.Text == $"String marker = \"{DeviceBuilderSetUdiPermissionError}\";") == true &&
+            withCode.Docs.Paragraphs.Any(paragraph =>
+                !paragraph.IsCode &&
+                paragraph.Text == DeviceBuilderSetUdiPermissionParagraph),
+            "Device.Builder.setUdi recovery replaces only the verified non-code paragraph token and preserves Java code bytes");
+
+        foreach (var paragraphs in new[]
+        {
+            $"<p>{DeviceBuilderSetUdiRawPermissionParagraph.Replace(
+                "The calling package needs",
+                "A calling package needs",
+                StringComparison.Ordinal)}</p>",
+            $"<p>{DeviceBuilderSetUdiRawPermissionParagraph.Replace(
+                "without the permission.",
+                "without an explicit permission.",
+                StringComparison.Ordinal)}</p>",
+            $"<p>{DeviceBuilderSetUdiRawPermissionParagraph}</p><p>{DeviceBuilderSetUdiRawPermissionParagraph}</p>",
+        })
+        {
+            var rejected = Map(owner, Page(paragraphs));
+            Assert(
+                rejected.Docs?.Paragraphs.All(paragraph =>
+                    paragraph.IsCode ||
+                    paragraph.Text != DeviceBuilderSetUdiPermissionParagraph) != false,
+                "Device.Builder.setUdi recovery rejects changed and ambiguous permission source paragraphs");
+        }
+
+        var wrongOwner = Map(owner with { Id = DeviceBuilderSetUdiMemberId + ".Other" }, source);
+        var wrongDescriptor = Map(owner with
+        {
+            MemberRegistration = new MemberRegistration(
+                "setUdi",
+                "(Ljava/lang/String;)Ljava/lang/Object;",
+                false),
+        }, source);
         Assert(
-            SourcePage.ExtractParagraphs(
-                "<p>" + DeviceBuilderSetUdiRawPermissionParagraph.Replace(
-                    "without the permission.",
-                    "without an explicit permission.",
-                    StringComparison.Ordinal) + "</p>",
-                sourceUrl: DeviceBuilderSetUdiSourceUrl).Count == 0,
-            "Device.Builder.setUdi permission normalization requires the complete unchanged source paragraph");
+            wrongOwner.Docs?.Paragraphs.All(paragraph =>
+                paragraph.IsCode ||
+                paragraph.Text != DeviceBuilderSetUdiPermissionParagraph) != false &&
+            wrongDescriptor.Docs is null,
+            "Device.Builder.setUdi permission recovery requires the exact managed identity and JNI descriptor");
     }
 
     static void TestTrustPairingCallbackTypeRemarks()
@@ -26506,15 +26583,9 @@ static partial class ImporterProgram
             }
 
             if (sourceUrl.Equals(DeviceBuilderSetUdiSourceUrl, StringComparison.Ordinal) &&
-                html.Contains(DeviceBuilderSetUdiPermissionError, StringComparison.Ordinal) &&
-                HtmlText(html).Contains(
-                    DeviceBuilderSetUdiRawPermissionParagraph,
-                    StringComparison.Ordinal))
+                TryNormalizeDeviceBuilderSetUdiPermissionParagraph(html, out var normalized))
             {
-                return html.Replace(
-                    DeviceBuilderSetUdiPermissionError,
-                    DeviceBuilderSetUdiPermission,
-                    StringComparison.Ordinal);
+                return normalized;
             }
 
             if (!sourceUrl.Equals(ControlTemplateSourceUrl, StringComparison.Ordinal))
@@ -26530,6 +26601,55 @@ static partial class ImporterProgram
                             "</p><p>" + match.Groups["description"].Value + "</p>"
                         : match.Value,
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        }
+
+        static bool TryNormalizeDeviceBuilderSetUdiPermissionParagraph(
+            string html,
+            out string normalized)
+        {
+            normalized = html;
+            var candidates = Regex.Matches(
+                    html,
+                    @"(?<open><p\b[^>]*>)(?<body>(?:(?!<p\b|</p\b).)*)</p>",
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Where(candidate => !IsInsidePreformattedBlock(html, candidate.Index))
+                .Where(candidate => HtmlText(candidate.Groups["body"].Value).Equals(
+                    DeviceBuilderSetUdiRawPermissionParagraph,
+                    StringComparison.Ordinal))
+                .ToList();
+            if (candidates.Count != 1)
+                return false;
+
+            var candidate = candidates[0];
+            var body = candidate.Groups["body"];
+            var tokens = Regex.Matches(
+                body.Value,
+                Regex.Escape(DeviceBuilderSetUdiPermissionError),
+                RegexOptions.CultureInvariant);
+            if (tokens.Count != 1)
+                return false;
+
+            var token = tokens[0];
+            var tokenStart = body.Index + token.Index;
+            normalized = html[..tokenStart] + DeviceBuilderSetUdiPermission +
+                html[(tokenStart + token.Length)..];
+            return true;
+        }
+
+        static bool IsInsidePreformattedBlock(string html, int position)
+        {
+            var depth = 0;
+            foreach (Match tag in Regex.Matches(
+                html[..position],
+                @"<(?<close>/)?(?<tag>pre|devsite-code)\b[^>]*>",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+            {
+                if (tag.Groups["close"].Success)
+                    depth = Math.Max(0, depth - 1);
+                else
+                    depth++;
+            }
+            return depth > 0;
         }
 
         static string ExtractAndroidTableValue(string fragment, string heading)
