@@ -3356,6 +3356,14 @@ static partial class ImporterProgram
         AndroidReference + "android/service/controls/templates/RangeTemplate#RangeTemplate(java.lang.String,%20float,%20float,%20float,%20float,%20java.lang.CharSequence)";
     const string RangeTemplateUnsafeParagraph =
         "Construct a new RangeTemplate. The range must be valid, meaning: minValue < maxValue; minValue < currentValue; currentValue < maxValue; 0 < stepValue";
+    static readonly SourceParagraph[] RangeTemplateUnsafeSplitParagraphs =
+    [
+        new("Construct a new RangeTemplate. The range must be valid, meaning:", false),
+        new("minValue < maxValue", false),
+        new("minValue < currentValue", false),
+        new("currentValue < maxValue", false),
+        new("0 < stepValue", false),
+    ];
 
     static SourceDocs WithoutKnownUnsafeRangeTemplateRemarks(
         DocsOwner owner, MemberRegistration registration, SourceDocs docs)
@@ -3366,8 +3374,7 @@ static partial class ImporterProgram
                 ".ctor", "(Ljava/lang/String;FFFFLjava/lang/CharSequence;)V", false) ||
             docs.SourceKind != "android" ||
             docs.SourceUrl != RangeTemplateSourceUrl ||
-            !docs.Paragraphs.Any(paragraph =>
-                !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph))
+            !HasKnownUnsafeRangeTemplateRemarks(docs.Paragraphs))
             return docs;
 
         var targets = docs.UnsafeTargets is null
@@ -3376,6 +3383,23 @@ static partial class ImporterProgram
         targets["remarks"] =
             "The exact Android constructor remarks assert strict range endpoints; this channel is withheld rather than guessing an inclusive-endpoint correction.";
         return docs with { Paragraphs = [], UnsafeTargets = targets, WithheldRemarks = docs.Paragraphs };
+    }
+
+    static bool HasKnownUnsafeRangeTemplateRemarks(IReadOnlyList<SourceParagraph> paragraphs)
+    {
+        if (paragraphs.Any(paragraph =>
+                !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph))
+        {
+            return true;
+        }
+
+        return paragraphs.Count >= RangeTemplateUnsafeSplitParagraphs.Length &&
+            Enumerable.Range(0, paragraphs.Count - RangeTemplateUnsafeSplitParagraphs.Length + 1)
+                .Any(start =>
+                    paragraphs
+                        .Skip(start)
+                        .Take(RangeTemplateUnsafeSplitParagraphs.Length)
+                        .SequenceEqual(RangeTemplateUnsafeSplitParagraphs));
     }
 
     static SourceDocs WithoutKnownUnsafeAndroidSourceChannels(string ownerId, SourceDocs docs)
@@ -5573,21 +5597,23 @@ static partial class ImporterProgram
                 existingSourceParagraphs.Count == prior.Count &&
                 existingSourceParagraphs.Zip(
                     prior.Select(DocumentationElement),
-                    (actual, expected) => ImporterMarkupEquals(actual, expected))
+                    (actual, expected) => SourceParagraphMarkupEquals(actual, expected))
                     .All(equal => equal));
         var isLegacyGestureClone = IsExactLegacyGestureCloneRemarks(
             owner, document, docs, existingSourceParagraphs);
         if (!MatchesSourceParagraphSubsequence(
                 existingSourceParagraphs,
                 expectedSourceParagraphs,
-                allowKnownAndroidCorrections: true) &&
+                allowKnownAndroidCorrections: true,
+                requireExactCodeText: true) &&
             !isExactPriorImplicitListSource &&
             !isLegacyGestureClone &&
             (!HasLegacyFormattedSourceReference(existing[sourceReferenceIndex]) ||
              !MatchesSourceParagraphSubsequence(
                  CoalesceLegacyNestedCodeContainers(existingSourceParagraphs),
                  expectedSourceParagraphs,
-                 allowKnownAndroidCorrections: true)))
+                 allowKnownAndroidCorrections: true,
+                 requireExactCodeText: true)))
         {
             return new RemarksRefreshResult(
                 text,
@@ -5598,7 +5624,10 @@ static partial class ImporterProgram
         var hasCompleteSource = existingSourceParagraphs.Count == expectedSourceParagraphs.Count &&
             existingSourceParagraphs.Zip(
                 expectedSourceParagraphs,
-                (actual, expected) => ImporterMarkupEquals(actual, expected))
+                (actual, expected) => SourceParagraphMarkupEquals(
+                    actual,
+                    expected,
+                    allowKnownAndroidCorrections: true))
                 .All(equal => equal);
         var restoreGestureCloneAttribution = hasCompleteSource &&
             IsExactGestureCloneSource(owner, document, docs) &&
@@ -5800,13 +5829,15 @@ static partial class ImporterProgram
     static bool MatchesSourceParagraphSubsequence(
         IReadOnlyList<XElement> existing,
         IReadOnlyList<XElement> expected,
-        bool allowKnownAndroidCorrections = false)
+        bool allowKnownAndroidCorrections = false,
+        bool requireExactCodeText = false)
     {
         if (existing.Count == 0 ||
-            !ImporterMarkupEquals(
+            !SourceParagraphMarkupEquals(
                 existing[0],
                 expected[0],
-                allowKnownAndroidCorrections))
+                allowKnownAndroidCorrections,
+                requireExactCodeText))
         {
             return false;
         }
@@ -5815,10 +5846,11 @@ static partial class ImporterProgram
         foreach (var element in existing.Skip(1))
         {
             while (expectedIndex < expected.Count &&
-                !ImporterMarkupEquals(
+                !SourceParagraphMarkupEquals(
                     element,
                     expected[expectedIndex],
-                    allowKnownAndroidCorrections))
+                    allowKnownAndroidCorrections,
+                    requireExactCodeText))
             {
                 expectedIndex++;
             }
@@ -5828,6 +5860,17 @@ static partial class ImporterProgram
         }
         return true;
     }
+
+    static bool SourceParagraphMarkupEquals(
+        XElement actual,
+        XElement expected,
+        bool allowKnownAndroidCorrections = false,
+        bool requireExactCodeText = true) =>
+        ImporterMarkupEquals(
+            actual,
+            expected,
+            allowKnownAndroidCorrections,
+            requireExactCodeText);
 
     static XElement ImporterSourceReference(SourceDocs docs)
     {
@@ -5862,7 +5905,8 @@ static partial class ImporterProgram
     static bool ImporterMarkupEquals(
         XElement actual,
         XElement expected,
-        bool allowKnownAndroidCorrections = false)
+        bool allowKnownAndroidCorrections = false,
+        bool requireExactCodeText = false)
     {
         if (actual.Name != expected.Name ||
             actual.Attributes().Count() != expected.Attributes().Count() ||
@@ -5877,6 +5921,13 @@ static partial class ImporterProgram
                 .Any(equal => !equal))
         {
             return false;
+        }
+
+        if (requireExactCodeText && actual.Name.LocalName == "code")
+        {
+            return NormalizeXmlNewlines(actual.Value).Equals(
+                NormalizeXmlNewlines(expected.Value),
+                StringComparison.Ordinal);
         }
 
         var actualNodes = SignificantNodes(actual);
@@ -5894,7 +5945,8 @@ static partial class ImporterProgram
                 if (!ImporterMarkupEquals(
                         actualElement,
                         expectedElement,
-                        allowKnownAndroidCorrections))
+                        allowKnownAndroidCorrections,
+                        requireExactCodeText))
                     return false;
             }
             else if (actualNodes[index] is XText actualText &&
@@ -5920,6 +5972,10 @@ static partial class ImporterProgram
         }
         return true;
     }
+
+    static string NormalizeXmlNewlines(string value) =>
+        value.Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace('\r', '\n');
 
     static bool HasAugmentedRemarksPlaceholder(LoadedFile file, DocsOwner owner)
     {
@@ -9107,10 +9163,10 @@ static partial class ImporterProgram
             Assert(
                 rawDocs.Paragraphs.SequenceEqual(
                     [
-                        new SourceParagraph(RangeTemplateUnsafeParagraph, false),
+                        .. RangeTemplateUnsafeSplitParagraphs,
                         new SourceParagraph("The current value of the Control will be formatted accordingly.", false),
                     ]),
-                "unfiltered official RangeTemplate fixture retains the full bad paragraph before production filtering");
+                "unfiltered official RangeTemplate fixture retains the full bad list before production filtering");
             var guarded = WithoutKnownUnsafeRangeTemplateRemarks(owner, owner.MemberRegistration!, rawDocs);
             Assert(
                 guarded.UnsafeTargets?.ContainsKey("remarks") == true &&
@@ -9118,6 +9174,21 @@ static partial class ImporterProgram
                 guarded.Parameters.SequenceEqual(rawDocs.Parameters),
                 "exact Controls RangeTemplate source remarks are excluded without changing safe channels: " +
                     string.Join(" | ", rawDocs.Paragraphs.Select(paragraph => paragraph.Text)));
+            Assert(
+                WithoutKnownUnsafeRangeTemplateRemarks(
+                    owner,
+                    owner.MemberRegistration!,
+                    rawDocs with
+                    {
+                        Paragraphs =
+                        [
+                            new SourceParagraph(RangeTemplateUnsafeParagraph, false),
+                            new SourceParagraph(
+                                "The current value of the Control will be formatted accordingly.",
+                                false),
+                        ],
+                    }).UnsafeTargets?.ContainsKey("remarks") == true,
+                "RangeTemplate exclusion recognizes the exact pre-list-normalization layout");
 
             JsonElement RunPipeline(string label, string selectedMember = memberId, int maxChanges = 10)
             {
@@ -9161,6 +9232,16 @@ static partial class ImporterProgram
                 rawDocs with { SourceKind = "java" },
                 rawDocs with { Paragraphs = [new SourceParagraph("Corrected range guidance.", false)] },
                 rawDocs with { Paragraphs = [new SourceParagraph(RangeTemplateUnsafeParagraph, true)] },
+                rawDocs with
+                {
+                    Paragraphs =
+                    [
+                        .. RangeTemplateUnsafeSplitParagraphs
+                            .Select((paragraph, index) => index == 2
+                                ? paragraph with { Text = "minValue <= currentValue" }
+                                : paragraph),
+                    ],
+                },
             })
             {
                 Assert(
@@ -9194,10 +9275,9 @@ static partial class ImporterProgram
             {
                 var parsed = SourcePage.Parse(request, contextSource).Members.Single().Docs!;
                 Assert(
-                    parsed.Paragraphs.Any(paragraph =>
-                        !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph) &&
+                    HasKnownUnsafeRangeTemplateRemarks(parsed.Paragraphs) &&
                     parsed.Parameters.SequenceEqual(rawDocs.Parameters),
-                    "parsed harmless context retains exact bad paragraph and all original parameter contracts");
+                    "parsed harmless context retains exact bad list and all original parameter contracts");
                 File.WriteAllText(path, firstFill, new UTF8Encoding(false));
                 File.WriteAllText(cachePath, contextSource, new UTF8Encoding(false));
                 var contextReport = RunPipeline("context-first-fill");
@@ -9363,9 +9443,8 @@ static partial class ImporterProgram
                         : HasAugmentedRemarksPlaceholder(legacyFile, legacyOwner),
                     "both registered legacy Range forms reach the real repair-only candidate paths");
                 var legacySource = SourcePage.Parse(legacyOwner.SourceRequest!, fixture).Members.Single().Docs!;
-                Assert(legacySource.Paragraphs.Any(paragraph =>
-                        !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph),
-                    "legacy repair regressions parse the complete unfiltered bad source paragraph");
+                Assert(HasKnownUnsafeRangeTemplateRemarks(legacySource.Paragraphs),
+                    "legacy repair regressions parse the complete unfiltered bad source list");
                 var withheld = WithoutKnownUnsafeRangeTemplateRemarks(
                     legacyOwner, legacyOwner.MemberRegistration!, legacySource);
                 var legacyBytes = File.ReadAllBytes(path);
@@ -9431,6 +9510,67 @@ static partial class ImporterProgram
                         "legacy negative persisted repeat is byte-identical");
                 }
             }
+            File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+
+            var codeSource = fixture
+                .Replace(
+                    "<li> <code>minValue</code> < <code>maxValue</code>",
+                    "<li> First safe condition.",
+                    StringComparison.Ordinal)
+                .Replace(
+                    "<li> <code>minValue</code> < <code>currentValue</code>",
+                    "<li> Second safe condition.",
+                    StringComparison.Ordinal)
+                .Replace(
+                    "<li> <code>currentValue</code> < <code>maxValue</code>",
+                    "<li> Third safe condition.",
+                    StringComparison.Ordinal)
+                .Replace(
+                    "<li> 0 < <code>stepValue</code>",
+                    "<li> Fourth safe condition.",
+                    StringComparison.Ordinal)
+                .Replace(
+                    "<p>\nThe current value of the Control will be formatted accordingly.",
+                    "<pre>start(); // note\nfinish();</pre><p>\nThe current value of the Control will be formatted accordingly.",
+                    StringComparison.Ordinal);
+            var codeSourceDocs = SourcePage.Parse(request, codeSource).Members.Single().Docs!;
+            Assert(
+                codeSourceDocs.LegacyFlattenedParagraphs is { } legacyCodeSourceParagraphs &&
+                legacyCodeSourceParagraphs.Any(paragraph =>
+                    paragraph.IsCode && paragraph.Text == "start(); // note\nfinish();") &&
+                WithoutKnownUnsafeRangeTemplateRemarks(
+                    owner,
+                    owner.MemberRegistration!,
+                    codeSourceDocs).UnsafeTargets is null,
+                "RangeTemplate code-layout fixture retains an exact legacy list source sequence");
+            var legacyCodeRemarks = RenderImporterOwnedRemarks(
+                codeSourceDocs.LegacyFlattenedParagraphs!,
+                codeSourceDocs,
+                "\r\n",
+                "        ",
+                "          ").Replace(
+                    "start(); // note\nfinish();",
+                    "start(); // note finish();",
+                    StringComparison.Ordinal);
+            var legacyCodeText = LegacyDocument(legacyCodeRemarks);
+            File.WriteAllText(path, legacyCodeText, new UTF8Encoding(true));
+            File.WriteAllText(cachePath, codeSource, new UTF8Encoding(false));
+            var legacyCodeBytes = File.ReadAllBytes(path);
+            var legacyCodeReport = RunPipeline("legacy-list-authored-code");
+            Assert(
+                legacyCodeReport.GetProperty("appliedCount").GetInt32() == 0 &&
+                legacyCodeReport.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                legacyCodeReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("target").GetString() == "remarks" &&
+                    entry.GetProperty("reason").GetString() ==
+                        "existing_remarks_not_importer_owned") &&
+                File.ReadAllBytes(path).SequenceEqual(legacyCodeBytes),
+                "actual pipeline preserves an old-layout list with authored code whose comment newline changed");
+            var legacyCodeRepeat = RunPipeline("legacy-list-authored-code-repeat");
+            Assert(
+                legacyCodeRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllBytes(path).SequenceEqual(legacyCodeBytes),
+                "authored old-layout code persisted repeat is byte-identical");
             File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
 
             foreach (var authored in new[]

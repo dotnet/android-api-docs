@@ -79,7 +79,9 @@ Ordinary colon-ended fragments, empty lists, nested lists, and malformed list
 markup retain the usual conservative filtering. A parser-layout refresh is allowed
 only when the complete existing remarks exactly match a prior importer rendering
 of the same source, including its source reference and attribution; authored or
-mixed remarks are preserved.
+mixed remarks are preserved. Prior-ownership comparisons normalize prose but
+compare Java code text ordinally after XML newline normalization, so authored
+code whitespace and comment boundaries cannot authorize a refresh.
 Repair of the known `Control.StatefulBuilder.setControlTemplate` paragraph boundary
 is restricted to its exact Android member URL and verified lead-in/description,
 preserving the source's blank line as two paragraphs without inventing punctuation.
