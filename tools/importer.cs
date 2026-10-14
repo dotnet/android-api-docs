@@ -4384,31 +4384,32 @@ static partial class ImporterProgram
             .Select(paragraph =>
             {
                 if (paragraph.IsCode)
-                    return paragraph;
+                    return (Paragraph: paragraph, IsImplicitAndroidListIntroduction: false);
                 var isImplicitAndroidListIntroduction = paragraph.Text.StartsWith(
                     SourcePage.ImplicitAndroidListIntroductionMarker,
                     StringComparison.Ordinal);
                 var text = isImplicitAndroidListIntroduction
                     ? paragraph.Text[SourcePage.ImplicitAndroidListIntroductionMarker.Length..]
                     : paragraph.Text;
-                return paragraph with
-                {
-                    Text = CleanSourceText(text),
-                    IsImplicitAndroidListIntroduction = isImplicitAndroidListIntroduction,
-                };
+                return (
+                    Paragraph: paragraph with { Text = CleanSourceText(text) },
+                    IsImplicitAndroidListIntroduction: isImplicitAndroidListIntroduction);
             })
             .ToList();
         return cleaned
-            .Where((paragraph, index) => paragraph.IsCode
-                ? !string.IsNullOrWhiteSpace(paragraph.Text)
-                : paragraph.IsImplicitAndroidListIntroduction ||
-                  IsMeaningfulChannel(paragraph.Text, "remarks") ||
+            .Where((item, index) => item.Paragraph.IsCode
+                ? !string.IsNullOrWhiteSpace(item.Paragraph.Text)
+                : item.IsImplicitAndroidListIntroduction ||
+                  IsMeaningfulChannel(item.Paragraph.Text, "remarks") ||
                   (index + 1 < cleaned.Count &&
-                   cleaned[index + 1].IsCode &&
-                   !string.IsNullOrWhiteSpace(cleaned[index + 1].Text) &&
-                   (IsExplanatoryJavaCodeLeadIn(paragraph.Text) ||
-                    IsCddlCodeLeadIn(paragraph.Text) ||
-                    IsGestureCloneCodeLeadIn(paragraph.Text, cleaned[index + 1]))))
+                   cleaned[index + 1].Paragraph.IsCode &&
+                   !string.IsNullOrWhiteSpace(cleaned[index + 1].Paragraph.Text) &&
+                   (IsExplanatoryJavaCodeLeadIn(item.Paragraph.Text) ||
+                    IsCddlCodeLeadIn(item.Paragraph.Text) ||
+                    IsGestureCloneCodeLeadIn(
+                        item.Paragraph.Text,
+                        cleaned[index + 1].Paragraph))))
+            .Select(item => item.Paragraph)
             .ToList();
     }
 
@@ -27138,10 +27139,7 @@ static partial class ImporterProgram
         string Url,
         string? Declaration = null);
 
-    sealed record SourceParagraph(
-        string Text,
-        bool IsCode,
-        bool IsImplicitAndroidListIntroduction = false);
+    sealed record SourceParagraph(string Text, bool IsCode);
 
     sealed record SourceDocs(
         string Summary,
