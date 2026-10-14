@@ -5553,12 +5553,23 @@ static partial class ImporterProgram
             .Select(DocumentationElement)
             .ToList();
         var existingSourceParagraphs = existing.Take(sourceReferenceIndex).ToList();
+        var expectedLegacySourceParagraphs = docs.LegacyFlattenedParagraphs?
+            .Select(DocumentationElement)
+            .ToList();
+        var isExactLegacyImplicitListSource =
+            expectedLegacySourceParagraphs is not null &&
+            existingSourceParagraphs.Count == expectedLegacySourceParagraphs.Count &&
+            existingSourceParagraphs.Zip(
+                expectedLegacySourceParagraphs,
+                (actual, expected) => ImporterMarkupEquals(actual, expected))
+                .All(equal => equal);
         var isLegacyGestureClone = IsExactLegacyGestureCloneRemarks(
             owner, document, docs, existingSourceParagraphs);
         if (!MatchesSourceParagraphSubsequence(
                 existingSourceParagraphs,
                 expectedSourceParagraphs,
                 allowKnownAndroidCorrections: true) &&
+            !isExactLegacyImplicitListSource &&
             !isLegacyGestureClone &&
             (!HasLegacyFormattedSourceReference(existing[sourceReferenceIndex]) ||
              !MatchesSourceParagraphSubsequence(
@@ -18806,6 +18817,22 @@ static partial class ImporterProgram
                 multiBridgeParagraphs[2].Text == "Second: Three; Four" &&
                 multiBridgeParagraphs[3].Text == "Last.",
             "multiple list bridges retain following paragraphs and nested list content");
+        var implicitListParagraphs = SourcePage.ExtractParagraphs(
+            "<p>An entry has two states:<ul><li>Foreground applies while visible.<li>Background applies while not visible.</ul>An entry applies when its state matches.<p>An entry has three limits:<ul><li>The baseline must be positive.<li>The pixel scale defaults to zero.<li>The density scale defaults to zero.</ul>The smallest limit applies.<p>");
+        Assert(
+            implicitListParagraphs.Select(paragraph => paragraph.Text).SequenceEqual(
+                [
+                    "An entry has two states:",
+                    "Foreground applies while visible.",
+                    "Background applies while not visible.",
+                    "An entry applies when its state matches.",
+                    "An entry has three limits:",
+                    "The baseline must be positive.",
+                    "The pixel scale defaults to zero.",
+                    "The density scale defaults to zero.",
+                    "The smallest limit applies.",
+                ]),
+            "implicitly closed Android list paragraphs retain list and trailing prose boundaries");
         var missingJavaSignaturePeriod = SourcePage.ExtractBlocks(
             "<div class=\"block\">Sets a value.<p>The method signature is of the form <code>(T value)void</code></p><p>The symbolic type descriptor must match.</p></div>");
         Assert(
@@ -26072,6 +26099,9 @@ static partial class ImporterProgram
             if (finalRule >= 0)
                 fragment = fragment[finalRule..];
             var paragraphs = ExtractParagraphs(fragment);
+            var legacyFlattenedParagraphs = ExtractParagraphs(
+                fragment,
+                normalizeImplicitAndroidLists: false);
             if (paragraphs.Count == 0)
                 return null;
             var unsafeTargets = HasUnsafeTrustPairingCallbackTypeRemarks(
@@ -26092,7 +26122,11 @@ static partial class ImporterProgram
                 request.JavaPath.Replace('/', '.').Replace('$', '.'),
                 request.Kind,
                 UnsafeTargets: unsafeTargets,
-                WithheldRemarks: unsafeTargets is null ? null : paragraphs);
+                WithheldRemarks: unsafeTargets is null ? null : paragraphs,
+                LegacyFlattenedParagraphs:
+                    legacyFlattenedParagraphs.SequenceEqual(paragraphs)
+                        ? null
+                        : legacyFlattenedParagraphs);
         }
 
         static bool HasUnsafeTrustPairingCallbackTypeRemarks(
@@ -26151,6 +26185,11 @@ static partial class ImporterProgram
                     StringComparison.Ordinal);
             }
             var paragraphs = ExtractParagraphs(prose, IsGestureCloneSourceUrl(url), url);
+            var legacyFlattenedParagraphs = ExtractParagraphs(
+                prose,
+                IsGestureCloneSourceUrl(url),
+                url,
+                normalizeImplicitAndroidLists: false);
             if (paragraphs.Count == 0 &&
                 parameters.Count == 0 &&
                 returns.Length == 0 &&
@@ -26165,7 +26204,11 @@ static partial class ImporterProgram
                 url,
                 $"{request.JavaPath.Replace('/', '.').Replace('$', '.')}.{title}",
                 request.Kind,
-                HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal));
+                HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal),
+                LegacyFlattenedParagraphs:
+                    legacyFlattenedParagraphs.SequenceEqual(paragraphs)
+                        ? null
+                        : legacyFlattenedParagraphs);
         }
 
         internal static string NormalizeKnownAndroidParagraphBoundary(string html, string sourceUrl)
@@ -26425,8 +26468,11 @@ static partial class ImporterProgram
         internal static List<SourceParagraph> ExtractParagraphs(
             string html,
             bool preserveGestureCloneIntroductions = false,
-            string? sourceUrl = null)
+            string? sourceUrl = null,
+            bool normalizeImplicitAndroidLists = true)
         {
+            if (normalizeImplicitAndroidLists)
+                html = NormalizeImplicitAndroidListParagraphs(html);
             html = NormalizeHtmlLists(html);
             html = NormalizeNestedListParagraphs(html);
             html = Regex.Replace(
@@ -26558,6 +26604,40 @@ static partial class ImporterProgram
             }
             return usable;
         }
+
+        static string NormalizeImplicitAndroidListParagraphs(string html) =>
+            Regex.Replace(
+                html,
+                @"(?<open><p\b[^>]*>)(?<lead>(?:(?!</?p\b|<(?:ul|ol)\b).)*?)<(?<tag>ul|ol)\b[^>]*>(?<items>(?:(?!</?(?:ul|ol)\b).)*)</\k<tag>\s*>(?<tail>(?:(?!</?p\b|<(?:ul|ol|h[1-6]|table|pre|devsite-code)\b).)*?)(?=(?:<p\b|<h[1-6]\b|<table\b|<pre\b|<devsite-code\b|$))",
+                match =>
+                {
+                    var items = Regex.Matches(
+                        match.Groups["items"].Value,
+                        @"<li\b[^>]*>(?<item>.*?)(?=<li\b|</li\b|$)",
+                        RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                        .Select(item => item.Groups["item"].Value)
+                        .ToList();
+                    if (items.Count == 0 ||
+                        items.Any(item => Regex.IsMatch(
+                            item,
+                            @"<(?:p|ul|ol|pre|devsite-code)\b",
+                            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) ||
+                        HtmlTextCore(match.Groups["lead"].Value).Length == 0)
+                    {
+                        return match.Value;
+                    }
+
+                    var normalized = new StringBuilder()
+                        .Append(match.Groups["open"].Value)
+                        .Append(match.Groups["lead"].Value)
+                        .Append("</p>");
+                    foreach (var item in items)
+                        normalized.Append("<p>").Append(item).Append("</p>");
+                    if (HtmlTextCore(match.Groups["tail"].Value).Length > 0)
+                        normalized.Append("<p>").Append(match.Groups["tail"].Value).Append("</p>");
+                    return normalized.ToString();
+                },
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         static string NormalizeNestedListParagraphs(string html) =>
             Regex.Replace(
@@ -26996,7 +27076,8 @@ static partial class ImporterProgram
         KnownNfcContract? NfcContract = null,
         KnownTvAdCorrection? TvAdCorrection = null,
         IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null,
-        bool QualityFirstFillOnly = false);
+        bool QualityFirstFillOnly = false,
+        IReadOnlyList<SourceParagraph>? LegacyFlattenedParagraphs = null);
 
     static class Descriptor
     {
