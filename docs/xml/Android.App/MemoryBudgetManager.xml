@@ -31,7 +31,22 @@
   </Attributes>
   <Docs>
     <summary>This class is the client interface to memory budgets for applications and processes.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>This class is the client interface to memory budgets for applications and processes. A memory budget is a promise by the application or one of its processes that its memory requirements will not exceed some limit. The budget is not a hard limit: it can be exceeded but that will likely cause processes to slow down as they try to release memory and drop below the budget limit.</para>
+      <para>A budget declaration is not a request for memory from the system, nor does the declaration influence how the system allocates memory to a process. Budgets allow an application to monitor its own resource use.</para>
+      <para>The memory usage tracked against these budgets includes:</para>
+      <para>Anonymous allocations, most commonly the Java heap and native heap.</para>
+      <para>File-backed pages (such as files mapped into memory or cached by the process).</para>
+      <para>In the case of memory shared between processes (e.g., shared memory segments), the usage is charged to the first process that maps or allocates it.</para>
+      <para>The tracked memory usage does not include native graphics buffers or DMA-BUFs.</para>
+      <para>There are two sets of limits on memory, in addition to the budgets managed through this interface. There are system limits and manifest budgets (declared via &lt;memory-budget&gt; in the manifest). Budgets managed through this interface may not exceed the system or manifest limits. Any attempt to exceed the system or manifest limits will result in an IllegalArgumentException. However, the budget set through this interface can be changed at any time, up or down, so long as the new value does not exceed the system or manifest limits.</para>
+      <para>A budget must be positive; attempting to set a budget that is zero or negative will result in an IllegalArgumentException.</para>
+      <para>A package (application) budget applies to all processes in the application as a group (specifically, all processes running under the application's UID). If the application shares a UID with other applications, the budget applies to the aggregate usage of all processes running under that shared UID.</para>
+      <para>A process budget applies to a single process. It is possible to set a large budget on a process and a small budget on the package; the package budget dominates and the large process budget is irrelevant. This is not an error.</para>
+      <para>The primary interfaces provided by this class are: Memory Budget Configuration:; setPackageBudgetBytes(long) / clearPackageBudget() - Sets or clears the memory budget for the application; setProcessBudgetBytes(long) / clearProcessBudget() - Sets or clears the memory budget for the calling process; Memory Budget Queries:; getPackageBudgetBytes() - Returns the current budget for the application; getProcessBudgetBytes() - Returns the current budget for the calling process; Memory Usage Queries:; getPackageCurrentUsageBytes() - Returns the aggregate memory usage across all processes in the application package; getProcessCurrentUsageBytes() - Returns the memory usage for the caller's specific process; Over-Budget Event Monitoring:; OnOverBudgetListener - Callback interface notified when memory usage exceeds a budget threshold; registerPackageOverBudgetListener(Looper,OnOverBudgetListener) / unregisterPackageOverBudgetListener(OnOverBudgetListener) - Registers or unregisters listeners for package-level budget breaches; registerProcessOverBudgetListener(Looper,OnOverBudgetListener) / unregisterProcessOverBudgetListener(OnOverBudgetListener) - Registers or unregisters listeners for process-level budget breaches.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="ClearPackageBudget">
@@ -60,7 +75,11 @@
       <Parameters />
       <Docs>
         <summary>Removes the package budget, if any, for the caller's application.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Removes the package budget, if any, for the caller's application. Any manifest budget or system limit that was masked by the package budget is resumed.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#clearPackageBudget()" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.clearPackageBudget</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ClearProcessBudget">
@@ -89,7 +108,11 @@
       <Parameters />
       <Docs>
         <summary>Removes the process budget, if any, for the caller's process.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Removes the process budget, if any, for the caller's process. Any manifest budget or system limit that was masked by the process budget is resumed.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#clearProcessBudget()" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.clearProcessBudget</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -149,7 +172,11 @@
         <summary>This value is returned by <c>#getPackageBudgetBytes()</c> and
             <c>#getProcessBudgetBytes()</c> if there is no memory limit associated with the application
             or process, respectively.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>This value is returned by getPackageBudgetBytes() and getProcessBudgetBytes() if there is no memory limit associated with the application or process, respectively. This value may not be passed to a function that sets a budget: use the clear functions instead.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#LIMIT_IS_DISABLED" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.LIMIT_IS_DISABLED</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PackageBudgetBytes">
@@ -188,7 +215,11 @@
         <summary>Returns the budget for the caller's application. -or- Sets the memory budget for the caller's application.</summary>
         <value>memory limit for the caller's application in bytes; may return
             <c>LIMIT_IS_DISABLED</c></value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the budget for the caller's application. The value returned will be the last value set via setPackageBudgetBytes(long), if any, or the existing system or manifest limit, if there is no package budget.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#getPackageBudgetBytes()" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.getPackageBudgetBytes</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PackageCurrentUsageBytes">
@@ -218,7 +249,11 @@
         <summary>Returns the aggregate memory usage across all processes running under the caller's
             application UID.</summary>
         <value>the current memory usage in bytes.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the aggregate memory usage across all processes running under the caller's application UID.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#getPackageCurrentUsageBytes()" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.getPackageCurrentUsageBytes</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ProcessBudgetBytes">
@@ -257,7 +292,11 @@
         <summary>Returns the budget for the caller's process. -or- Sets the memory budget for the caller's process.</summary>
         <value>memory limit for the caller's process in bytes; may return
             <c>LIMIT_IS_DISABLED</c></value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the budget for the caller's process. The value returned will be the last value set via setProcessBudgetBytes(long), if any, or the existing system or manifest limit, if there is no process budget.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#getProcessBudgetBytes()" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.getProcessBudgetBytes</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ProcessCurrentUsageBytes">
@@ -286,7 +325,11 @@
       <Docs>
         <summary>Returns the current memory usage for the caller's process.</summary>
         <value>the current memory usage in bytes.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the current memory usage for the caller's process.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#getProcessCurrentUsageBytes()" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.getProcessCurrentUsageBytes</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterPackageOverBudgetListener">
@@ -324,8 +367,8 @@
         <Parameter Name="listener" Type="Android.App.MemoryBudgetManager+IOnOverBudgetListener" />
       </Parameters>
       <Docs>
-        <param name="looper">To be added.</param>
-        <param name="listener">To be added.</param>
+        <param name="looper">OnOverBudgetListener callbacks will be dispatched on this Looper's thread. If null, the looper from Looper.getMainLooper() will be used.</param>
+        <param name="listener">callback to be notified of an over-budget event. This value cannot be null.</param>
         <summary>To be added.</summary>
         <remarks>To be added.</remarks>
       </Docs>
