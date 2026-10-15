@@ -9812,15 +9812,15 @@ static partial class ImporterProgram
 
         var parameterTable = $"""
             <table><tr><th colspan="2">Parameters</th></tr>
-            <tr><td>udi</td><td>{DeviceBuilderSetUdiRawPermissionParagraph}</td></tr></table>
+            <tr><td>udi</td><td><p>{DeviceBuilderSetUdiRawPermissionParagraph}</p></td></tr></table>
             """;
         var returnsTable = $"""
             <table><tr><th colspan="2">Returns</th></tr>
-            <tr><td>Device.Builder</td><td>{DeviceBuilderSetUdiRawPermissionParagraph}</td></tr></table>
+            <tr><td>Device.Builder</td><td><p>{DeviceBuilderSetUdiRawPermissionParagraph}</p></td></tr></table>
             """;
         var exceptionsTable = $"""
             <table><tr><th colspan="2">Throws</th></tr>
-            <tr><td>SecurityException</td><td>{DeviceBuilderSetUdiRawPermissionParagraph}</td></tr></table>
+            <tr><td>SecurityException</td><td><p>{DeviceBuilderSetUdiRawPermissionParagraph}</p></td></tr></table>
             """;
         foreach (var table in new[] { parameterTable, returnsTable, exceptionsTable })
         {
