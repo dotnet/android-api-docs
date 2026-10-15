@@ -444,9 +444,13 @@
       </Parameters>
       <Docs>
         <param name="executor">The executor on which callback events will be executed. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="listener">The callback listener to register. This value cannot be null.</param>
+        <summary>Registers a listener to receive real-time input reports and hotplug events for this HID device.</summary>
+        <remarks>
+          <para>Registers a listener to receive real-time input reports and hotplug events for this HID device. If the listener is already registered, this call does nothing. Requires Manifest.permission.ACCESS_HID</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/hid/HidDevice#registerEventListener(java.util.concurrent.Executor,%20android.hardware.hid.HidEventListener)" title="Reference documentation">Android reference for <code>android.hardware.hid.HidDevice.registerEventListener</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
 
@@ -483,11 +487,17 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="report">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="report">the feature report to send. This value cannot be null.</param>
+        <param name="executor">the executor on which the callback will be invoked. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">the callback object to be used to notify of an error. This value cannot be null.</param>
+        <summary>Send a feature report to the HID device.</summary>
+        <remarks>
+          <para>Send a feature report to the HID device.</para>
+          <para>The device must be opened first before calling this method.</para>
+          <para>On success, callback.onResult is called with null. On failure, callback.onError is called with one of the following: IOException: If the underlying hardware device could not be accessed or the system service returned a failure; SecurityException: If the caller lacks the required permission.. Requires Manifest.permission.ACCESS_HID</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/hid/HidDevice#sendFeatureReport(android.hardware.hid.Report,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;java.lang.Void,java.lang.Exception&gt;)" title="Reference documentation">Android reference for <code>android.hardware.hid.HidDevice.sendFeatureReport</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SendOutputReport">
@@ -523,8 +533,8 @@
         <Parameter Name="callback" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="report">To be added.</param>
-        <param name="executor">To be added.</param>
+        <param name="report">the output report to send. This value cannot be null.</param>
+        <param name="executor">the executor on which the callback will be invoked. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="callback">To be added.</param>
         <summary>To be added.</summary>
         <remarks>To be added.</remarks>
