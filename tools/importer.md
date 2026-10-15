@@ -605,8 +605,10 @@ Limitations:
   and URL. Recovery runs only in method prose after parameter, return, and
   exception tables are separated; matching malformed table text is retained in
   its original channel and receives the ordinary conservative `ERROR(...)` skip.
-  A recovered contract that fails any managed/source identity check rejects the
-  entire mapping so no derived summary or remarks can be written. Other managed
+  The recovery event is retained as member-scoped provenance through later prose
+  formatting, including flat-list coalescing. A recovered contract that fails
+  any managed/source identity check rejects the entire mapping so no derived
+  summary or remarks can be written. Other managed
   identities, URLs, malformed wrappers, or changed paragraphs retain the
   ordinary conservative skip. Existing
   authored or mixed remarks remain protected by the ordinary importer-ownership

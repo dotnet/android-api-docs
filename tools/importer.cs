@@ -2072,7 +2072,7 @@ static partial class ImporterProgram
                 "source_channel_ambiguous",
                 "The exact official removeStateListener description names UpdateListener, but its declared and registered parameter is ChooserSession.StateListener; no replacement prose was inferred.",
                 docs.SourceUrl);
-        if (HasRecoveredDeviceBuilderSetUdiPermissionContract(docs) &&
+        if (docs.HasRecoveredDeviceBuilderSetUdiPermissionContract &&
             !IsVerifiedDeviceBuilderSetUdiPermissionContract(owner, registration, docs))
         {
             return MappingResult.Skip(
@@ -2109,13 +2109,6 @@ static partial class ImporterProgram
         docs = WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
-
-    static bool HasRecoveredDeviceBuilderSetUdiPermissionContract(SourceDocs docs) =>
-        docs.Paragraphs.Any(paragraph =>
-            !paragraph.IsCode &&
-            paragraph.Text.Equals(
-                DeviceBuilderSetUdiPermissionParagraph,
-                StringComparison.Ordinal));
 
     static bool IsVerifiedDeviceBuilderSetUdiPermissionContract(
         DocsOwner owner,
@@ -9764,6 +9757,31 @@ static partial class ImporterProgram
                 paragraph.Text == DeviceBuilderSetUdiPermissionParagraph),
             "Device.Builder.setUdi recovery replaces only the verified non-code paragraph token and preserves Java code bytes");
 
+        var listSource = Page(
+            $"<p>{DeviceBuilderSetUdiRawPermissionParagraph}</p>" +
+            "<ul><li>Additional source context.</li></ul>");
+        var listMapped = Map(owner, listSource);
+        var listWrongReturn = Map(owner with
+        {
+            MemberRegistration = new MemberRegistration(
+                "setUdi",
+                "(Ljava/lang/String;)Ljava/lang/Object;",
+                false),
+        }, listSource);
+        Assert(
+            listMapped.Docs is { HasRecoveredDeviceBuilderSetUdiPermissionContract: true } &&
+            listMapped.Docs.Paragraphs.Any(paragraph =>
+                !paragraph.IsCode &&
+                paragraph.Text.Contains(
+                    DeviceBuilderSetUdiPermission,
+                    StringComparison.Ordinal) &&
+                paragraph.Text.Contains(
+                    "Additional source context.",
+                    StringComparison.Ordinal)) &&
+            listWrongReturn.Docs is null &&
+            listWrongReturn.ErrorReason == "source_channel_ambiguous",
+            "Device.Builder.setUdi recovery provenance survives flat-list coalescing and rejects a mismatched full JNI descriptor");
+
         foreach (var paragraphs in new[]
         {
             $"<p>{DeviceBuilderSetUdiRawPermissionParagraph.Replace(
@@ -9834,7 +9852,7 @@ static partial class ImporterProgram
             }, Page(table));
             Assert(
                 tableOnly.Docs is { } tableDocs &&
-                !HasRecoveredDeviceBuilderSetUdiPermissionContract(tableDocs) &&
+                !tableDocs.HasRecoveredDeviceBuilderSetUdiPermissionContract &&
                 !tableDocs.Summary.Contains(
                     DeviceBuilderSetUdiPermission,
                     StringComparison.Ordinal) &&
@@ -9842,7 +9860,7 @@ static partial class ImporterProgram
                 ReplacementFor(new Placeholder(1, "returns", "", "returns"), tableDocs).Text is null &&
                 ReplacementFor(new Placeholder(2, "exception", "T:Java.Lang.SecurityException", "exception:T:Java.Lang.SecurityException"), tableDocs).Text is null &&
                 wrongBinding.Docs is { } wrongBindingDocs &&
-                !HasRecoveredDeviceBuilderSetUdiPermissionContract(wrongBindingDocs) &&
+                !wrongBindingDocs.HasRecoveredDeviceBuilderSetUdiPermissionContract &&
                 !wrongBindingDocs.Summary.Contains(
                     DeviceBuilderSetUdiPermission,
                     StringComparison.Ordinal),
@@ -9853,7 +9871,7 @@ static partial class ImporterProgram
             $"<p>{DeviceBuilderSetUdiRawPermissionParagraph}</p>{parameterTable}"));
         Assert(
             proseAndTable.Docs is { } proseAndTableDocs &&
-            HasRecoveredDeviceBuilderSetUdiPermissionContract(proseAndTableDocs) &&
+            proseAndTableDocs.HasRecoveredDeviceBuilderSetUdiPermissionContract &&
             proseAndTableDocs.Parameters.TryGetValue("udi", out var rawParameter) &&
             rawParameter.Contains(DeviceBuilderSetUdiPermissionError, StringComparison.Ordinal) &&
             ReplacementFor(new Placeholder(0, "param", "udi", "param:udi"), proseAndTableDocs).Text is null,
@@ -26578,7 +26596,10 @@ static partial class ImporterProgram
                 @"<pre\b(?=[^>]*\bclass=[""'][^""']*\bapi-signature\b[^""']*[""'])[^>]*>.*?</pre>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            prose = NormalizeKnownAndroidParagraphBoundary(prose, url);
+            prose = NormalizeKnownAndroidParagraphBoundary(
+                prose,
+                url,
+                out var recoveredDeviceBuilderSetUdiPermissionContract);
             if (url == DreamFocusSourceUrl)
             {
                 prose = prose.Replace(
@@ -26615,6 +26636,8 @@ static partial class ImporterProgram
                 $"{request.JavaPath.Replace('/', '.').Replace('$', '.')}.{title}",
                 request.Kind,
                 HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal),
+                HasRecoveredDeviceBuilderSetUdiPermissionContract:
+                    recoveredDeviceBuilderSetUdiPermissionContract,
                 LegacyFlattenedParagraphs:
                     legacyFlattenedParagraphs.SequenceEqual(paragraphs)
                         ? null
@@ -26625,8 +26648,20 @@ static partial class ImporterProgram
                         : intermediateImplicitListParagraphs);
         }
 
-        internal static string NormalizeKnownAndroidParagraphBoundary(string html, string sourceUrl)
+        internal static string NormalizeKnownAndroidParagraphBoundary(
+            string html,
+            string sourceUrl) =>
+            NormalizeKnownAndroidParagraphBoundary(
+                html,
+                sourceUrl,
+                out _);
+
+        static string NormalizeKnownAndroidParagraphBoundary(
+            string html,
+            string sourceUrl,
+            out bool recoveredDeviceBuilderSetUdiPermissionContract)
         {
+            recoveredDeviceBuilderSetUdiPermissionContract = false;
             if (sourceUrl.Equals(MultisensoryContinuousDragTokenSourceUrl, StringComparison.Ordinal) ||
                 sourceUrl.Equals(MultisensoryDiscreteDragTokenSourceUrl, StringComparison.Ordinal))
             {
@@ -26639,6 +26674,7 @@ static partial class ImporterProgram
             if (sourceUrl.Equals(DeviceBuilderSetUdiSourceUrl, StringComparison.Ordinal) &&
                 TryNormalizeDeviceBuilderSetUdiPermissionParagraph(html, out var normalized))
             {
+                recoveredDeviceBuilderSetUdiPermissionContract = true;
                 return normalized;
             }
 
@@ -27580,7 +27616,8 @@ static partial class ImporterProgram
         IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null,
         bool QualityFirstFillOnly = false,
         IReadOnlyList<SourceParagraph>? LegacyFlattenedParagraphs = null,
-        IReadOnlyList<SourceParagraph>? IntermediateImplicitListParagraphs = null);
+        IReadOnlyList<SourceParagraph>? IntermediateImplicitListParagraphs = null,
+        bool HasRecoveredDeviceBuilderSetUdiPermissionContract = false);
 
     static class Descriptor
     {
