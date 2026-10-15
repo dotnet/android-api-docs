@@ -825,6 +825,39 @@ static partial class ImporterProgram
                         }
                     }
 
+                    if (mapping.Docs!.UnsafeTargets?.TryGetValue(
+                        "remarks:vibration_effect_add_events", out var vibrationAddEventsDetail) == true)
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id, "remarks",
+                            "source_channel_ambiguous", vibrationAddEventsDetail, mapping.SourceUrl));
+                    }
+                    if (HasUnsafeVibrationEffectAddEventsRemarks(owner))
+                    {
+                        var repair = RepairUnsafeVibrationEffectAddEventsRemarks(
+                            text, file, owner, mapping.Docs!);
+                        if (repair.Reason is not null || remaining == 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath, owner.Id, "remarks",
+                                    repair.Reason ?? "max_changes_reached",
+                                    repair.Detail ?? $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                        }
+                        else if (repair.Text != text)
+                        {
+                            text = repair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply", file.RelativePath, owner.Id, "remarks", mapping.SourceUrl,
+                                    "importer_unsafe_vibration_effect_add_events_repair",
+                                    "Withdrew only the exact unsafe timeline-shift paragraph from complete prior importer-owned remarks."));
+                        }
+                    }
+
                     var eapCorrection = RepairKnownEapChannel(text, file, owner, mapping.Docs!);
                     var eapCandidates = KnownEapChannelRepairCandidateTargets(owner);
                     if (eapCandidates.Count > 0 && eapCorrection.Targets.Count == 0)
@@ -2079,6 +2112,7 @@ static partial class ImporterProgram
         docs = WithKnownNfcContractSafety(owner, docs);
         docs = WithoutUnsafeBrowseSubscriptionRemarks(owner, docs);
         docs = WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs);
+        docs = WithoutUnsafeVibrationEffectAddEventsRemarks(owner, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
 
@@ -2697,6 +2731,107 @@ static partial class ImporterProgram
             !TryGetElementSpan(blockText, remarks.Elements("para").ElementAt(3), out var unsafeSpan) ||
             !TryGetElementRemovalSpan(blockText, unsafeSpan, out var removalSpan))
             return new(text, "existing_authentication_policy_trust_pairing_not_importer_owned",
+                "The complete source prose, canonical reference and attribution did not match prior importer output.");
+        var updated = blockText[..removalSpan.Start] + blockText[removalSpan.End..];
+        return new(text[..block.Start] + updated + text[block.End..], null, null);
+    }
+
+    sealed record VibrationEffectAddEventsRule(
+        string MemberId,
+        string SourceUrl,
+        string[] Paragraphs,
+        string StartTimeShiftMillis,
+        string Detail)
+    {
+        public IReadOnlyList<SourceParagraph> SafeParagraphs =>
+            Paragraphs.Where(paragraph => paragraph != Paragraphs[1])
+                .Select(paragraph => new SourceParagraph(paragraph, false))
+                .ToArray();
+    }
+
+    static readonly VibrationEffectAddEventsRule VibrationEffectAddEventsContract = new(
+        "M:Android.OS.VibrationEffect.Builder.AddEvents(System.Int64,System.Collections.Generic.IList{Android.OS.VibrationEffect.Event})",
+        AndroidReference + "android/os/VibrationEffect.Builder#addEvents(long,%20java.util.List<android.os.VibrationEffect.Event>)",
+        [
+            "Adds a list of existing Events to the composition.",
+            "Each event in the list has a start time relative to the start of the composition it was retrieved from. The startTimeShiftMillis parameter is added to the start time of each event in the list, effectively shifting the whole block of events forward or backward in the timeline of this builder.",
+            "For example, if an event within the list has a start time of 50ms, and startTimeShiftMillis is 100ms, the event will be shifted to start at 150ms within this builder's timeline.",
+            "All events will be added and validated according to the builder's timing rules, with best-effort checks to prevent overlaps being introduced by the shift.",
+            "You can get events by calling VibrationEffect.getEvents() on non-repeating effects.",
+        ],
+        "The non-negative time in milliseconds to add to the start time of each event in the provided list. Value is a non-negative duration in milliseconds.",
+        "The exact Android paragraph says a non-negative start-time shift can move events backward; no replacement timeline behavior was inferred.");
+
+    static bool MatchesVibrationEffectAddEventsOwnerAndSource(
+        DocsOwner owner,
+        SourceDocs docs) =>
+        owner.Id == VibrationEffectAddEventsContract.MemberId &&
+        owner.MemberRegistration == new MemberRegistration(
+            "addEvents", "(JLjava/util/List;)Landroid/os/VibrationEffect$Builder;", false) &&
+        owner.SourceRequest?.JavaPath == "android/os/VibrationEffect$Builder" &&
+        docs.SourceKind == "android" &&
+        docs.SourceUrl == VibrationEffectAddEventsContract.SourceUrl &&
+        docs.SourceLabel == "android.os.VibrationEffect.Builder.addEvents" &&
+        docs.Parameters.TryGetValue("startTimeShiftMillis", out var startTimeShiftMillis) &&
+        RemoveLeadingJavaType(startTimeShiftMillis) ==
+            VibrationEffectAddEventsContract.StartTimeShiftMillis &&
+        !docs.HasMalformedSourceMarkup;
+
+    static bool IsUnsafeVibrationEffectAddEventsRemarks(DocsOwner owner, SourceDocs docs) =>
+        MatchesVibrationEffectAddEventsOwnerAndSource(owner, docs) &&
+        docs.Paragraphs.SequenceEqual(VibrationEffectAddEventsContract.Paragraphs
+            .Select(paragraph => new SourceParagraph(paragraph, false)));
+
+    static SourceDocs WithoutUnsafeVibrationEffectAddEventsRemarks(
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        if (!IsUnsafeVibrationEffectAddEventsRemarks(owner, docs))
+            return docs;
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["remarks:vibration_effect_add_events"] =
+            VibrationEffectAddEventsContract.Detail;
+        return docs with
+        {
+            Paragraphs = VibrationEffectAddEventsContract.SafeParagraphs.ToList(),
+            UnsafeTargets = targets,
+        };
+    }
+
+    static bool HasUnsafeVibrationEffectAddEventsRemarks(DocsOwner owner) =>
+        owner.Id == VibrationEffectAddEventsContract.MemberId &&
+        owner.Docs.Elements("remarks").Any(remarks =>
+            remarks.Elements("para").Any(paragraph =>
+                paragraph.Value == VibrationEffectAddEventsContract.Paragraphs[1]));
+
+    static RemarksRefreshResult RepairUnsafeVibrationEffectAddEventsRemarks(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        if (!MatchesVibrationEffectAddEventsOwnerAndSource(owner, docs) ||
+            docs.UnsafeTargets?.ContainsKey(
+                "remarks:vibration_effect_add_events") != true ||
+            !docs.Paragraphs.SequenceEqual(VibrationEffectAddEventsContract.SafeParagraphs))
+            return new(text, "source_vibration_effect_add_events_mismatch",
+                "The exact source member no longer matches the verified non-negative timeline-shift contract.");
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var expected = new XElement("remarks",
+            VibrationEffectAddEventsContract.Paragraphs
+                .Select(paragraph => new XElement("para", paragraph)),
+            ImporterSourceReference(docs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        if (!TryParseDocsBlock(blockText, out var actual) ||
+            !XNode.DeepEquals(actual, owner.Docs) ||
+            actual.Elements("remarks").ToList() is not [XElement remarks] ||
+            !ImporterMarkupEquals(remarks, expected) ||
+            !TryGetElementSpan(blockText, remarks.Elements("para").ElementAt(1), out var unsafeSpan) ||
+            !TryGetElementRemovalSpan(blockText, unsafeSpan, out var removalSpan))
+            return new(text, "existing_vibration_effect_add_events_not_importer_owned",
                 "The complete source prose, canonical reference and attribution did not match prior importer output.");
         var updated = blockText[..removalSpan.Start] + blockText[removalSpan.End..];
         return new(text[..block.Start] + updated + text[block.End..], null, null);
@@ -4105,6 +4240,8 @@ static partial class ImporterProgram
             targets.Add(nfcTarget);
         if (HasUnsafeBrowseSubscriptionRemarks(owner))
             targets.Add("remarks");
+        if (HasUnsafeVibrationEffectAddEventsRemarks(owner))
+            targets.Add("remarks");
         if (IsEnumSummaryRepairCandidate(owner) ||
             HasTruncatedImporterSummary(file, owner) ||
             KnownControlsLifecycleRepairTargets(owner).Count > 0 ||
@@ -4168,6 +4305,7 @@ static partial class ImporterProgram
         HasKnownAndroidProseRepairCandidate(file, owner) ||
         NfcRepairTarget(owner) is not null ||
         HasUnsafeBrowseSubscriptionRemarks(owner) ||
+        HasUnsafeVibrationEffectAddEventsRemarks(owner) ||
         HasKnownUnsafeZoneTransitionTimeCandidate(owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
