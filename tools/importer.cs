@@ -9776,7 +9776,7 @@ static partial class ImporterProgram
                     DeviceBuilderSetUdiPermission,
                     StringComparison.Ordinal) &&
                 paragraph.Text.Contains(
-                    "Additional source context.",
+                    "Additional source context",
                     StringComparison.Ordinal)) &&
             listWrongReturn.Docs is null &&
             listWrongReturn.ErrorReason == "source_channel_ambiguous",
