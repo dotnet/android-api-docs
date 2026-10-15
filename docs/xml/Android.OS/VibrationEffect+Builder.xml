@@ -138,8 +138,15 @@
         <param name="startTimeMillis">The time in milliseconds from the start of the composition to start the envelope. Value is a non-negative duration in milliseconds.</param>
         <param name="envelope">The Envelope to add. This value cannot be null.</param>
         <summary>Adds a haptic Envelope to the composition.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>This Builder object. This value cannot be null.</returns>
+        <remarks>
+          <para>Adds a haptic Envelope to the composition.</para>
+          <para>The startTimeMillis is the time in milliseconds from the start of the composition being built. The envelope will be scheduled to start at this time.</para>
+          <para>The builder performs best-effort validation to prevent overlaps with previously added elements. The duration of an Envelope is generally well-defined, but care should still be taken with the startTimeMillis to ensure correct sequencing with other elements.</para>
+          <para>Fallback Support: If the envelope is created using WaveformEnvelopeBuilder, fallback support is not provided. If the device does not support the envelope, the entire vibration effect may fail to play. Envelopes created using BasicEnvelopeBuilder will have fallback support.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/VibrationEffect.Builder#addEnvelope(long,%20android.os.VibrationEffect.Envelope)" title="Reference documentation">Android reference for <code>android.os.VibrationEffect.Builder.addEnvelope</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddEvents">
@@ -170,11 +177,19 @@
         <Parameter Name="events" Type="System.Collections.Generic.IList&lt;Android.OS.VibrationEffect+Event&gt;" />
       </Parameters>
       <Docs>
-        <param name="startTimeShiftMillis">To be added.</param>
-        <param name="events">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="startTimeShiftMillis">The non-negative time in milliseconds to add to the start time of each event in the provided list. Value is a non-negative duration in milliseconds.</param>
+        <param name="events">The list of events to add. This value cannot be null.</param>
+        <summary>Adds a list of existing Events to the composition.</summary>
+        <returns>This Builder object. This value cannot be null.</returns>
+        <remarks>
+          <para>Adds a list of existing Events to the composition.</para>
+          <para>Each event in the list has a start time relative to the start of the composition it was retrieved from. The startTimeShiftMillis parameter is added to the start time of each event in the list, effectively shifting the whole block of events forward or backward in the timeline of this builder.</para>
+          <para>For example, if an event within the list has a start time of 50ms, and startTimeShiftMillis is 100ms, the event will be shifted to start at 150ms within this builder's timeline.</para>
+          <para>All events will be added and validated according to the builder's timing rules, with best-effort checks to prevent overlaps being introduced by the shift.</para>
+          <para>You can get events by calling VibrationEffect.getEvents() on non-repeating effects.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/VibrationEffect.Builder#addEvents(long,%20java.util.List&lt;android.os.VibrationEffect.Event&gt;)" title="Reference documentation">Android reference for <code>android.os.VibrationEffect.Builder.addEvents</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddPreset">
@@ -205,9 +220,9 @@
         <Parameter Name="preset" Type="Android.OS.VibrationEffect+Preset" />
       </Parameters>
       <Docs>
-        <param name="startTimeMillis">To be added.</param>
-        <param name="preset">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="startTimeMillis">The time in milliseconds from the start of the composition to start the preset. Value is a non-negative duration in milliseconds.</param>
+        <param name="preset">The Preset to add. This value cannot be null.</param>
+        <summary>Adds a predefined haptic Preset to the composition.</summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
