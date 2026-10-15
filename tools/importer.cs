@@ -825,6 +825,39 @@ static partial class ImporterProgram
                         }
                     }
 
+                    if (mapping.Docs!.UnsafeTargets?.TryGetValue(
+                        "remarks:vibration_effect_add_events", out var vibrationAddEventsDetail) == true)
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id, "remarks",
+                            "source_channel_ambiguous", vibrationAddEventsDetail, mapping.SourceUrl));
+                    }
+                    if (HasUnsafeVibrationEffectAddEventsRemarks(owner))
+                    {
+                        var repair = RepairUnsafeVibrationEffectAddEventsRemarks(
+                            text, file, owner, mapping.Docs!);
+                        if (repair.Reason is not null || remaining == 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(
+                                    file.RelativePath, owner.Id, "remarks",
+                                    repair.Reason ?? "max_changes_reached",
+                                    repair.Detail ?? $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                    mapping.SourceUrl));
+                        }
+                        else if (repair.Text != text)
+                        {
+                            text = repair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            ownerChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed(
+                                    "would_apply", file.RelativePath, owner.Id, "remarks", mapping.SourceUrl,
+                                    "importer_unsafe_vibration_effect_add_events_repair",
+                                    "Withdrew only the exact unsafe timeline-shift paragraph from complete prior importer-owned remarks."));
+                        }
+                    }
+
                     var eapCorrection = RepairKnownEapChannel(text, file, owner, mapping.Docs!);
                     var eapCandidates = KnownEapChannelRepairCandidateTargets(owner);
                     if (eapCandidates.Count > 0 && eapCorrection.Targets.Count == 0)
@@ -2079,6 +2112,7 @@ static partial class ImporterProgram
         docs = WithKnownNfcContractSafety(owner, docs);
         docs = WithoutUnsafeBrowseSubscriptionRemarks(owner, docs);
         docs = WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs);
+        docs = WithoutUnsafeVibrationEffectAddEventsRemarks(owner, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
 
@@ -2697,6 +2731,107 @@ static partial class ImporterProgram
             !TryGetElementSpan(blockText, remarks.Elements("para").ElementAt(3), out var unsafeSpan) ||
             !TryGetElementRemovalSpan(blockText, unsafeSpan, out var removalSpan))
             return new(text, "existing_authentication_policy_trust_pairing_not_importer_owned",
+                "The complete source prose, canonical reference and attribution did not match prior importer output.");
+        var updated = blockText[..removalSpan.Start] + blockText[removalSpan.End..];
+        return new(text[..block.Start] + updated + text[block.End..], null, null);
+    }
+
+    sealed record VibrationEffectAddEventsRule(
+        string MemberId,
+        string SourceUrl,
+        string[] Paragraphs,
+        string StartTimeShiftMillis,
+        string Detail)
+    {
+        public IReadOnlyList<SourceParagraph> SafeParagraphs =>
+            Paragraphs.Where(paragraph => paragraph != Paragraphs[1])
+                .Select(paragraph => new SourceParagraph(paragraph, false))
+                .ToArray();
+    }
+
+    static readonly VibrationEffectAddEventsRule VibrationEffectAddEventsContract = new(
+        "M:Android.OS.VibrationEffect.Builder.AddEvents(System.Int64,System.Collections.Generic.IList{Android.OS.VibrationEffect.Event})",
+        AndroidReference + "android/os/VibrationEffect.Builder#addEvents(long,%20java.util.List<android.os.VibrationEffect.Event>)",
+        [
+            "Adds a list of existing Events to the composition.",
+            "Each event in the list has a start time relative to the start of the composition it was retrieved from. The startTimeShiftMillis parameter is added to the start time of each event in the list, effectively shifting the whole block of events forward or backward in the timeline of this builder.",
+            "For example, if an event within the list has a start time of 50ms, and startTimeShiftMillis is 100ms, the event will be shifted to start at 150ms within this builder's timeline.",
+            "All events will be added and validated according to the builder's timing rules, with best-effort checks to prevent overlaps being introduced by the shift.",
+            "You can get events by calling VibrationEffect.getEvents() on non-repeating effects.",
+        ],
+        "The non-negative time in milliseconds to add to the start time of each event in the provided list. Value is a non-negative duration in milliseconds.",
+        "The exact Android paragraph says a non-negative start-time shift can move events backward; no replacement timeline behavior was inferred.");
+
+    static bool MatchesVibrationEffectAddEventsOwnerAndSource(
+        DocsOwner owner,
+        SourceDocs docs) =>
+        owner.Id == VibrationEffectAddEventsContract.MemberId &&
+        owner.MemberRegistration == new MemberRegistration(
+            "addEvents", "(JLjava/util/List;)Landroid/os/VibrationEffect$Builder;", false) &&
+        owner.SourceRequest?.JavaPath == "android/os/VibrationEffect$Builder" &&
+        docs.SourceKind == "android" &&
+        docs.SourceUrl == VibrationEffectAddEventsContract.SourceUrl &&
+        docs.SourceLabel == "android.os.VibrationEffect.Builder.addEvents" &&
+        docs.Parameters.TryGetValue("startTimeShiftMillis", out var startTimeShiftMillis) &&
+        RemoveLeadingJavaType(startTimeShiftMillis) ==
+            VibrationEffectAddEventsContract.StartTimeShiftMillis &&
+        !docs.HasMalformedSourceMarkup;
+
+    static bool IsUnsafeVibrationEffectAddEventsRemarks(DocsOwner owner, SourceDocs docs) =>
+        MatchesVibrationEffectAddEventsOwnerAndSource(owner, docs) &&
+        docs.Paragraphs.SequenceEqual(VibrationEffectAddEventsContract.Paragraphs
+            .Select(paragraph => new SourceParagraph(paragraph, false)));
+
+    static SourceDocs WithoutUnsafeVibrationEffectAddEventsRemarks(
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        if (!IsUnsafeVibrationEffectAddEventsRemarks(owner, docs))
+            return docs;
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["remarks:vibration_effect_add_events"] =
+            VibrationEffectAddEventsContract.Detail;
+        return docs with
+        {
+            Paragraphs = VibrationEffectAddEventsContract.SafeParagraphs.ToList(),
+            UnsafeTargets = targets,
+        };
+    }
+
+    static bool HasUnsafeVibrationEffectAddEventsRemarks(DocsOwner owner) =>
+        owner.Id == VibrationEffectAddEventsContract.MemberId &&
+        owner.Docs.Elements("remarks").Any(remarks =>
+            remarks.Elements("para").Any(paragraph =>
+                paragraph.Value == VibrationEffectAddEventsContract.Paragraphs[1]));
+
+    static RemarksRefreshResult RepairUnsafeVibrationEffectAddEventsRemarks(
+        string text,
+        LoadedFile file,
+        DocsOwner owner,
+        SourceDocs docs)
+    {
+        if (!MatchesVibrationEffectAddEventsOwnerAndSource(owner, docs) ||
+            docs.UnsafeTargets?.ContainsKey(
+                "remarks:vibration_effect_add_events") != true ||
+            !docs.Paragraphs.SequenceEqual(VibrationEffectAddEventsContract.SafeParagraphs))
+            return new(text, "source_vibration_effect_add_events_mismatch",
+                "The exact source member no longer matches the verified non-negative timeline-shift contract.");
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        var expected = new XElement("remarks",
+            VibrationEffectAddEventsContract.Paragraphs
+                .Select(paragraph => new XElement("para", paragraph)),
+            ImporterSourceReference(docs),
+            XElement.Parse($"<para>{AndroidAttribution}</para>"));
+        if (!TryParseDocsBlock(blockText, out var actual) ||
+            !XNode.DeepEquals(actual, owner.Docs) ||
+            actual.Elements("remarks").ToList() is not [XElement remarks] ||
+            !ImporterMarkupEquals(remarks, expected) ||
+            !TryGetElementSpan(blockText, remarks.Elements("para").ElementAt(1), out var unsafeSpan) ||
+            !TryGetElementRemovalSpan(blockText, unsafeSpan, out var removalSpan))
+            return new(text, "existing_vibration_effect_add_events_not_importer_owned",
                 "The complete source prose, canonical reference and attribution did not match prior importer output.");
         var updated = blockText[..removalSpan.Start] + blockText[removalSpan.End..];
         return new(text[..block.Start] + updated + text[block.End..], null, null);
@@ -3356,6 +3491,14 @@ static partial class ImporterProgram
         AndroidReference + "android/service/controls/templates/RangeTemplate#RangeTemplate(java.lang.String,%20float,%20float,%20float,%20float,%20java.lang.CharSequence)";
     const string RangeTemplateUnsafeParagraph =
         "Construct a new RangeTemplate. The range must be valid, meaning: minValue < maxValue; minValue < currentValue; currentValue < maxValue; 0 < stepValue";
+    static readonly SourceParagraph[] RangeTemplateUnsafeSplitParagraphs =
+    [
+        new("Construct a new RangeTemplate. The range must be valid, meaning:", false),
+        new("minValue < maxValue", false),
+        new("minValue < currentValue", false),
+        new("currentValue < maxValue", false),
+        new("0 < stepValue", false),
+    ];
 
     static SourceDocs WithoutKnownUnsafeRangeTemplateRemarks(
         DocsOwner owner, MemberRegistration registration, SourceDocs docs)
@@ -3366,8 +3509,7 @@ static partial class ImporterProgram
                 ".ctor", "(Ljava/lang/String;FFFFLjava/lang/CharSequence;)V", false) ||
             docs.SourceKind != "android" ||
             docs.SourceUrl != RangeTemplateSourceUrl ||
-            !docs.Paragraphs.Any(paragraph =>
-                !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph))
+            !HasKnownUnsafeRangeTemplateRemarks(docs.Paragraphs))
             return docs;
 
         var targets = docs.UnsafeTargets is null
@@ -3376,6 +3518,23 @@ static partial class ImporterProgram
         targets["remarks"] =
             "The exact Android constructor remarks assert strict range endpoints; this channel is withheld rather than guessing an inclusive-endpoint correction.";
         return docs with { Paragraphs = [], UnsafeTargets = targets, WithheldRemarks = docs.Paragraphs };
+    }
+
+    static bool HasKnownUnsafeRangeTemplateRemarks(IReadOnlyList<SourceParagraph> paragraphs)
+    {
+        if (paragraphs.Any(paragraph =>
+                !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph))
+        {
+            return true;
+        }
+
+        return paragraphs.Count >= RangeTemplateUnsafeSplitParagraphs.Length &&
+            Enumerable.Range(0, paragraphs.Count - RangeTemplateUnsafeSplitParagraphs.Length + 1)
+                .Any(start =>
+                    paragraphs
+                        .Skip(start)
+                        .Take(RangeTemplateUnsafeSplitParagraphs.Length)
+                        .SequenceEqual(RangeTemplateUnsafeSplitParagraphs));
     }
 
     static SourceDocs WithoutKnownUnsafeAndroidSourceChannels(string ownerId, SourceDocs docs)
@@ -4081,6 +4240,8 @@ static partial class ImporterProgram
             targets.Add(nfcTarget);
         if (HasUnsafeBrowseSubscriptionRemarks(owner))
             targets.Add("remarks");
+        if (HasUnsafeVibrationEffectAddEventsRemarks(owner))
+            targets.Add("remarks");
         if (IsEnumSummaryRepairCandidate(owner) ||
             HasTruncatedImporterSummary(file, owner) ||
             KnownControlsLifecycleRepairTargets(owner).Count > 0 ||
@@ -4144,6 +4305,7 @@ static partial class ImporterProgram
         HasKnownAndroidProseRepairCandidate(file, owner) ||
         NfcRepairTarget(owner) is not null ||
         HasUnsafeBrowseSubscriptionRemarks(owner) ||
+        HasUnsafeVibrationEffectAddEventsRemarks(owner) ||
         HasKnownUnsafeZoneTransitionTimeCandidate(owner);
 
     static void RestoreOffsetsAfterSkippedRepair(
@@ -4380,21 +4542,31 @@ static partial class ImporterProgram
     static List<SourceParagraph> UsableRemarks(
         IEnumerable<SourceParagraph> paragraphs)
     {
+        var implicitAndroidListIntroductionIndexes =
+            (paragraphs as SourcePage.ParsedSourceParagraphList)?
+                .ImplicitAndroidListIntroductionIndexes;
         var cleaned = paragraphs
-            .Select(paragraph => paragraph.IsCode
-                ? paragraph
-                : paragraph with { Text = CleanSourceText(paragraph.Text) })
+            .Select((paragraph, index) => (
+                Paragraph: paragraph.IsCode
+                    ? paragraph
+                    : paragraph with { Text = CleanSourceText(paragraph.Text) },
+                IsImplicitAndroidListIntroduction:
+                    implicitAndroidListIntroductionIndexes?.Contains(index) == true))
             .ToList();
         return cleaned
-            .Where((paragraph, index) => paragraph.IsCode
-                ? !string.IsNullOrWhiteSpace(paragraph.Text)
-                : IsMeaningfulChannel(paragraph.Text, "remarks") ||
+            .Where((item, index) => item.Paragraph.IsCode
+                ? !string.IsNullOrWhiteSpace(item.Paragraph.Text)
+                : item.IsImplicitAndroidListIntroduction ||
+                  IsMeaningfulChannel(item.Paragraph.Text, "remarks") ||
                   (index + 1 < cleaned.Count &&
-                   cleaned[index + 1].IsCode &&
-                   !string.IsNullOrWhiteSpace(cleaned[index + 1].Text) &&
-                   (IsExplanatoryJavaCodeLeadIn(paragraph.Text) ||
-                    IsCddlCodeLeadIn(paragraph.Text) ||
-                    IsGestureCloneCodeLeadIn(paragraph.Text, cleaned[index + 1]))))
+                   cleaned[index + 1].Paragraph.IsCode &&
+                   !string.IsNullOrWhiteSpace(cleaned[index + 1].Paragraph.Text) &&
+                   (IsExplanatoryJavaCodeLeadIn(item.Paragraph.Text) ||
+                    IsCddlCodeLeadIn(item.Paragraph.Text) ||
+                    IsGestureCloneCodeLeadIn(
+                        item.Paragraph.Text,
+                        cleaned[index + 1].Paragraph))))
+            .Select(item => item.Paragraph)
             .ToList();
     }
 
@@ -5553,18 +5725,33 @@ static partial class ImporterProgram
             .Select(DocumentationElement)
             .ToList();
         var existingSourceParagraphs = existing.Take(sourceReferenceIndex).ToList();
+        var isExactPriorImplicitListSource = new[]
+            {
+                docs.LegacyFlattenedParagraphs,
+                docs.IntermediateImplicitListParagraphs,
+            }
+            .Any(prior =>
+                prior is not null &&
+                existingSourceParagraphs.Count == prior.Count &&
+                existingSourceParagraphs.Zip(
+                    prior.Select(DocumentationElement),
+                    (actual, expected) => SourceParagraphMarkupEquals(actual, expected))
+                    .All(equal => equal));
         var isLegacyGestureClone = IsExactLegacyGestureCloneRemarks(
             owner, document, docs, existingSourceParagraphs);
         if (!MatchesSourceParagraphSubsequence(
                 existingSourceParagraphs,
                 expectedSourceParagraphs,
-                allowKnownAndroidCorrections: true) &&
+                allowKnownAndroidCorrections: true,
+                requireExactCodeText: true) &&
+            !isExactPriorImplicitListSource &&
             !isLegacyGestureClone &&
             (!HasLegacyFormattedSourceReference(existing[sourceReferenceIndex]) ||
              !MatchesSourceParagraphSubsequence(
                  CoalesceLegacyNestedCodeContainers(existingSourceParagraphs),
                  expectedSourceParagraphs,
-                 allowKnownAndroidCorrections: true)))
+                 allowKnownAndroidCorrections: true,
+                 requireExactCodeText: true)))
         {
             return new RemarksRefreshResult(
                 text,
@@ -5575,7 +5762,10 @@ static partial class ImporterProgram
         var hasCompleteSource = existingSourceParagraphs.Count == expectedSourceParagraphs.Count &&
             existingSourceParagraphs.Zip(
                 expectedSourceParagraphs,
-                (actual, expected) => ImporterMarkupEquals(actual, expected))
+                (actual, expected) => SourceParagraphMarkupEquals(
+                    actual,
+                    expected,
+                    allowKnownAndroidCorrections: true))
                 .All(equal => equal);
         var restoreGestureCloneAttribution = hasCompleteSource &&
             IsExactGestureCloneSource(owner, document, docs) &&
@@ -5777,13 +5967,15 @@ static partial class ImporterProgram
     static bool MatchesSourceParagraphSubsequence(
         IReadOnlyList<XElement> existing,
         IReadOnlyList<XElement> expected,
-        bool allowKnownAndroidCorrections = false)
+        bool allowKnownAndroidCorrections = false,
+        bool requireExactCodeText = false)
     {
         if (existing.Count == 0 ||
-            !ImporterMarkupEquals(
+            !SourceParagraphMarkupEquals(
                 existing[0],
                 expected[0],
-                allowKnownAndroidCorrections))
+                allowKnownAndroidCorrections,
+                requireExactCodeText))
         {
             return false;
         }
@@ -5792,10 +5984,11 @@ static partial class ImporterProgram
         foreach (var element in existing.Skip(1))
         {
             while (expectedIndex < expected.Count &&
-                !ImporterMarkupEquals(
+                !SourceParagraphMarkupEquals(
                     element,
                     expected[expectedIndex],
-                    allowKnownAndroidCorrections))
+                    allowKnownAndroidCorrections,
+                    requireExactCodeText))
             {
                 expectedIndex++;
             }
@@ -5805,6 +5998,17 @@ static partial class ImporterProgram
         }
         return true;
     }
+
+    static bool SourceParagraphMarkupEquals(
+        XElement actual,
+        XElement expected,
+        bool allowKnownAndroidCorrections = false,
+        bool requireExactCodeText = true) =>
+        ImporterMarkupEquals(
+            actual,
+            expected,
+            allowKnownAndroidCorrections,
+            requireExactCodeText);
 
     static XElement ImporterSourceReference(SourceDocs docs)
     {
@@ -5839,7 +6043,8 @@ static partial class ImporterProgram
     static bool ImporterMarkupEquals(
         XElement actual,
         XElement expected,
-        bool allowKnownAndroidCorrections = false)
+        bool allowKnownAndroidCorrections = false,
+        bool requireExactCodeText = false)
     {
         if (actual.Name != expected.Name ||
             actual.Attributes().Count() != expected.Attributes().Count() ||
@@ -5854,6 +6059,13 @@ static partial class ImporterProgram
                 .Any(equal => !equal))
         {
             return false;
+        }
+
+        if (requireExactCodeText && actual.Name.LocalName == "code")
+        {
+            return NormalizeXmlNewlines(actual.Value).Equals(
+                NormalizeXmlNewlines(expected.Value),
+                StringComparison.Ordinal);
         }
 
         var actualNodes = SignificantNodes(actual);
@@ -5871,7 +6083,8 @@ static partial class ImporterProgram
                 if (!ImporterMarkupEquals(
                         actualElement,
                         expectedElement,
-                        allowKnownAndroidCorrections))
+                        allowKnownAndroidCorrections,
+                        requireExactCodeText))
                     return false;
             }
             else if (actualNodes[index] is XText actualText &&
@@ -5897,6 +6110,10 @@ static partial class ImporterProgram
         }
         return true;
     }
+
+    static string NormalizeXmlNewlines(string value) =>
+        value.Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace('\r', '\n');
 
     static bool HasAugmentedRemarksPlaceholder(LoadedFile file, DocsOwner owner)
     {
@@ -9084,10 +9301,10 @@ static partial class ImporterProgram
             Assert(
                 rawDocs.Paragraphs.SequenceEqual(
                     [
-                        new SourceParagraph(RangeTemplateUnsafeParagraph, false),
+                        .. RangeTemplateUnsafeSplitParagraphs,
                         new SourceParagraph("The current value of the Control will be formatted accordingly.", false),
                     ]),
-                "unfiltered official RangeTemplate fixture retains the full bad paragraph before production filtering");
+                "unfiltered official RangeTemplate fixture retains the full bad list before production filtering");
             var guarded = WithoutKnownUnsafeRangeTemplateRemarks(owner, owner.MemberRegistration!, rawDocs);
             Assert(
                 guarded.UnsafeTargets?.ContainsKey("remarks") == true &&
@@ -9095,6 +9312,21 @@ static partial class ImporterProgram
                 guarded.Parameters.SequenceEqual(rawDocs.Parameters),
                 "exact Controls RangeTemplate source remarks are excluded without changing safe channels: " +
                     string.Join(" | ", rawDocs.Paragraphs.Select(paragraph => paragraph.Text)));
+            Assert(
+                WithoutKnownUnsafeRangeTemplateRemarks(
+                    owner,
+                    owner.MemberRegistration!,
+                    rawDocs with
+                    {
+                        Paragraphs =
+                        [
+                            new SourceParagraph(RangeTemplateUnsafeParagraph, false),
+                            new SourceParagraph(
+                                "The current value of the Control will be formatted accordingly.",
+                                false),
+                        ],
+                    }).UnsafeTargets?.ContainsKey("remarks") == true,
+                "RangeTemplate exclusion recognizes the exact pre-list-normalization layout");
 
             JsonElement RunPipeline(string label, string selectedMember = memberId, int maxChanges = 10)
             {
@@ -9138,6 +9370,16 @@ static partial class ImporterProgram
                 rawDocs with { SourceKind = "java" },
                 rawDocs with { Paragraphs = [new SourceParagraph("Corrected range guidance.", false)] },
                 rawDocs with { Paragraphs = [new SourceParagraph(RangeTemplateUnsafeParagraph, true)] },
+                rawDocs with
+                {
+                    Paragraphs =
+                    [
+                        .. RangeTemplateUnsafeSplitParagraphs
+                            .Select((paragraph, index) => index == 2
+                                ? paragraph with { Text = "minValue <= currentValue" }
+                                : paragraph),
+                    ],
+                },
             })
             {
                 Assert(
@@ -9171,10 +9413,9 @@ static partial class ImporterProgram
             {
                 var parsed = SourcePage.Parse(request, contextSource).Members.Single().Docs!;
                 Assert(
-                    parsed.Paragraphs.Any(paragraph =>
-                        !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph) &&
+                    HasKnownUnsafeRangeTemplateRemarks(parsed.Paragraphs) &&
                     parsed.Parameters.SequenceEqual(rawDocs.Parameters),
-                    "parsed harmless context retains exact bad paragraph and all original parameter contracts");
+                    "parsed harmless context retains exact bad list and all original parameter contracts");
                 File.WriteAllText(path, firstFill, new UTF8Encoding(false));
                 File.WriteAllText(cachePath, contextSource, new UTF8Encoding(false));
                 var contextReport = RunPipeline("context-first-fill");
@@ -9340,9 +9581,8 @@ static partial class ImporterProgram
                         : HasAugmentedRemarksPlaceholder(legacyFile, legacyOwner),
                     "both registered legacy Range forms reach the real repair-only candidate paths");
                 var legacySource = SourcePage.Parse(legacyOwner.SourceRequest!, fixture).Members.Single().Docs!;
-                Assert(legacySource.Paragraphs.Any(paragraph =>
-                        !paragraph.IsCode && paragraph.Text == RangeTemplateUnsafeParagraph),
-                    "legacy repair regressions parse the complete unfiltered bad source paragraph");
+                Assert(HasKnownUnsafeRangeTemplateRemarks(legacySource.Paragraphs),
+                    "legacy repair regressions parse the complete unfiltered bad source list");
                 var withheld = WithoutKnownUnsafeRangeTemplateRemarks(
                     legacyOwner, legacyOwner.MemberRegistration!, legacySource);
                 var legacyBytes = File.ReadAllBytes(path);
@@ -9408,6 +9648,67 @@ static partial class ImporterProgram
                         "legacy negative persisted repeat is byte-identical");
                 }
             }
+            File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+
+            var codeSource = fixture
+                .Replace(
+                    "<li> <code>minValue</code> < <code>maxValue</code>",
+                    "<li> First safe condition.",
+                    StringComparison.Ordinal)
+                .Replace(
+                    "<li> <code>minValue</code> < <code>currentValue</code>",
+                    "<li> Second safe condition.",
+                    StringComparison.Ordinal)
+                .Replace(
+                    "<li> <code>currentValue</code> < <code>maxValue</code>",
+                    "<li> Third safe condition.",
+                    StringComparison.Ordinal)
+                .Replace(
+                    "<li> 0 < <code>stepValue</code>",
+                    "<li> Fourth safe condition.",
+                    StringComparison.Ordinal)
+                .Replace(
+                    "<p>\nThe current value of the Control will be formatted accordingly.",
+                    "<pre>start(); // note\nfinish();</pre><p>\nThe current value of the Control will be formatted accordingly.",
+                    StringComparison.Ordinal);
+            var codeSourceDocs = SourcePage.Parse(request, codeSource).Members.Single().Docs!;
+            Assert(
+                codeSourceDocs.LegacyFlattenedParagraphs is { } legacyCodeSourceParagraphs &&
+                legacyCodeSourceParagraphs.Any(paragraph =>
+                    paragraph.IsCode && paragraph.Text == "start(); // note\nfinish();") &&
+                WithoutKnownUnsafeRangeTemplateRemarks(
+                    owner,
+                    owner.MemberRegistration!,
+                    codeSourceDocs).UnsafeTargets is null,
+                "RangeTemplate code-layout fixture retains an exact legacy list source sequence");
+            var legacyCodeRemarks = RenderImporterOwnedRemarks(
+                codeSourceDocs.LegacyFlattenedParagraphs!,
+                codeSourceDocs,
+                "\r\n",
+                "        ",
+                "          ").Replace(
+                    "start(); // note\nfinish();",
+                    "start(); // note finish();",
+                    StringComparison.Ordinal);
+            var legacyCodeText = LegacyDocument(legacyCodeRemarks);
+            File.WriteAllText(path, legacyCodeText, new UTF8Encoding(true));
+            File.WriteAllText(cachePath, codeSource, new UTF8Encoding(false));
+            var legacyCodeBytes = File.ReadAllBytes(path);
+            var legacyCodeReport = RunPipeline("legacy-list-authored-code");
+            Assert(
+                legacyCodeReport.GetProperty("appliedCount").GetInt32() == 0 &&
+                legacyCodeReport.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                legacyCodeReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("target").GetString() == "remarks" &&
+                    entry.GetProperty("reason").GetString() ==
+                        "existing_remarks_not_importer_owned") &&
+                File.ReadAllBytes(path).SequenceEqual(legacyCodeBytes),
+                "actual pipeline preserves an old-layout list with authored code whose comment newline changed");
+            var legacyCodeRepeat = RunPipeline("legacy-list-authored-code-repeat");
+            Assert(
+                legacyCodeRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllBytes(path).SequenceEqual(legacyCodeBytes),
+                "authored old-layout code persisted repeat is byte-identical");
             File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
 
             foreach (var authored in new[]
@@ -18806,6 +19107,40 @@ static partial class ImporterProgram
                 multiBridgeParagraphs[2].Text == "Second: Three; Four" &&
                 multiBridgeParagraphs[3].Text == "Last.",
             "multiple list bridges retain following paragraphs and nested list content");
+        var implicitListParagraphs = SourcePage.ExtractParagraphs(
+            "<p>An entry has two states:<ul><li>Foreground applies while visible.<li>Background applies while not visible.</ul>An entry applies when its state matches.<p>An entry has three limits:<ul><li>The baseline must be positive.<li>The pixel scale defaults to zero.<li>The density scale defaults to zero.</ul>The smallest limit applies.<p>");
+        Assert(
+            implicitListParagraphs.Select(paragraph => paragraph.Text).SequenceEqual(
+                [
+                    "An entry has two states:",
+                    "Foreground applies while visible.",
+                    "Background applies while not visible.",
+                    "An entry applies when its state matches.",
+                    "An entry has three limits:",
+                    "The baseline must be positive.",
+                    "The pixel scale defaults to zero.",
+                    "The density scale defaults to zero.",
+                    "The smallest limit applies.",
+                ]),
+            "implicitly closed Android list paragraphs retain list and trailing prose boundaries");
+        Assert(
+            SourcePage.ExtractParagraphs("<p>Unsupported lead:</p>").Count == 0,
+            "ordinary colon-ended fragments remain filtered without a recognized list");
+        var emptyImplicitListParagraphs = SourcePage.ExtractParagraphs(
+            "<p>Unsupported lead:<ul></ul><p>Following prose.</p>");
+        Assert(
+            !emptyImplicitListParagraphs.Any(paragraph => paragraph.Text == "Unsupported lead:"),
+            "empty implicitly closed lists do not retain their colon-ended lead");
+        var nestedImplicitListParagraphs = SourcePage.ExtractParagraphs(
+            "<p>Unsupported lead:<ul><li>Outer<ul><li>Nested</li></ul></li></ul><p>Following prose.</p>");
+        Assert(
+            !nestedImplicitListParagraphs.Any(paragraph => paragraph.Text == "Unsupported lead:"),
+            "nested implicitly closed lists do not retain an unverified list lead");
+        var malformedImplicitListParagraphs = SourcePage.ExtractParagraphs(
+            "<p>Unsupported lead:<ul><li>Only item");
+        Assert(
+            !malformedImplicitListParagraphs.Any(paragraph => paragraph.Text == "Unsupported lead:"),
+            "malformed implicitly closed lists do not retain an unverified list lead");
         var missingJavaSignaturePeriod = SourcePage.ExtractBlocks(
             "<div class=\"block\">Sets a value.<p>The method signature is of the form <code>(T value)void</code></p><p>The symbolic type descriptor must match.</p></div>");
         Assert(
@@ -25992,6 +26327,13 @@ static partial class ImporterProgram
 
     sealed class SourcePage
     {
+        internal const string ImplicitAndroidListIntroductionMarker = "\uE000";
+
+        internal sealed class ParsedSourceParagraphList : List<SourceParagraph>
+        {
+            public HashSet<int> ImplicitAndroidListIntroductionIndexes { get; } = [];
+        }
+
         public SourceDocs? TypeDocs { get; init; }
         public List<SourceMember> Members { get; init; } = [];
 
@@ -26072,6 +26414,12 @@ static partial class ImporterProgram
             if (finalRule >= 0)
                 fragment = fragment[finalRule..];
             var paragraphs = ExtractParagraphs(fragment);
+            var intermediateImplicitListParagraphs = ExtractParagraphs(
+                fragment,
+                preserveImplicitAndroidListIntroductions: false);
+            var legacyFlattenedParagraphs = ExtractParagraphs(
+                fragment,
+                normalizeImplicitAndroidLists: false);
             if (paragraphs.Count == 0)
                 return null;
             var unsafeTargets = HasUnsafeTrustPairingCallbackTypeRemarks(
@@ -26092,7 +26440,15 @@ static partial class ImporterProgram
                 request.JavaPath.Replace('/', '.').Replace('$', '.'),
                 request.Kind,
                 UnsafeTargets: unsafeTargets,
-                WithheldRemarks: unsafeTargets is null ? null : paragraphs);
+                WithheldRemarks: unsafeTargets is null ? null : paragraphs,
+                LegacyFlattenedParagraphs:
+                    legacyFlattenedParagraphs.SequenceEqual(paragraphs)
+                        ? null
+                        : legacyFlattenedParagraphs,
+                IntermediateImplicitListParagraphs:
+                    intermediateImplicitListParagraphs.SequenceEqual(paragraphs)
+                        ? null
+                        : intermediateImplicitListParagraphs);
         }
 
         static bool HasUnsafeTrustPairingCallbackTypeRemarks(
@@ -26151,6 +26507,16 @@ static partial class ImporterProgram
                     StringComparison.Ordinal);
             }
             var paragraphs = ExtractParagraphs(prose, IsGestureCloneSourceUrl(url), url);
+            var intermediateImplicitListParagraphs = ExtractParagraphs(
+                prose,
+                IsGestureCloneSourceUrl(url),
+                url,
+                preserveImplicitAndroidListIntroductions: false);
+            var legacyFlattenedParagraphs = ExtractParagraphs(
+                prose,
+                IsGestureCloneSourceUrl(url),
+                url,
+                normalizeImplicitAndroidLists: false);
             if (paragraphs.Count == 0 &&
                 parameters.Count == 0 &&
                 returns.Length == 0 &&
@@ -26165,7 +26531,15 @@ static partial class ImporterProgram
                 url,
                 $"{request.JavaPath.Replace('/', '.').Replace('$', '.')}.{title}",
                 request.Kind,
-                HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal));
+                HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal),
+                LegacyFlattenedParagraphs:
+                    legacyFlattenedParagraphs.SequenceEqual(paragraphs)
+                        ? null
+                        : legacyFlattenedParagraphs,
+                IntermediateImplicitListParagraphs:
+                    intermediateImplicitListParagraphs.SequenceEqual(paragraphs)
+                        ? null
+                        : intermediateImplicitListParagraphs);
         }
 
         internal static string NormalizeKnownAndroidParagraphBoundary(string html, string sourceUrl)
@@ -26425,8 +26799,14 @@ static partial class ImporterProgram
         internal static List<SourceParagraph> ExtractParagraphs(
             string html,
             bool preserveGestureCloneIntroductions = false,
-            string? sourceUrl = null)
+            string? sourceUrl = null,
+            bool normalizeImplicitAndroidLists = true,
+            bool preserveImplicitAndroidListIntroductions = true)
         {
+            if (normalizeImplicitAndroidLists)
+                html = NormalizeImplicitAndroidListParagraphs(
+                    html,
+                    preserveImplicitAndroidListIntroductions);
             html = NormalizeHtmlLists(html);
             html = NormalizeNestedListParagraphs(html);
             html = Regex.Replace(
@@ -26439,9 +26819,9 @@ static partial class ImporterProgram
                 @"</p>\s*\.\s*<br>\s*(?<thread>This method must be called from the main thread of your app\.)\s*</p>\s*</p>",
                 "</p><p>${thread}</p>",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            var paragraphs = new List<(int Position, SourceParagraph Paragraph)>();
+            var paragraphs = new List<(int Position, SourceParagraph Paragraph, bool PreserveTrailingColon)>();
             var codeRanges = new List<(int Start, int End, SourceParagraph Paragraph)>();
-            var stack = new Stack<(string Tag, int TagStart, int ContentStart)>();
+            var stack = new Stack<(string Tag, int TagStart, int ContentStart, bool PreserveTrailingColon)>();
 
             IReadOnlyList<(int Start, int End, SourceParagraph Paragraph)> VisibleCodeRanges() =>
                 codeRanges
@@ -26453,7 +26833,7 @@ static partial class ImporterProgram
                     .ToList();
 
             void CompleteElement(
-                (string Tag, int TagStart, int ContentStart) open,
+                (string Tag, int TagStart, int ContentStart, bool PreserveTrailingColon) open,
                 int contentEnd,
                 int elementEnd)
             {
@@ -26477,8 +26857,9 @@ static partial class ImporterProgram
                     AddSourceTextParagraph(
                         html[textStart..code.Start],
                         textStart,
-                        paragraphs);
-                    paragraphs.Add((code.Start, code.Paragraph));
+                        paragraphs,
+                        preserveTrailingColon: open.PreserveTrailingColon);
+                    paragraphs.Add((code.Start, code.Paragraph, false));
                     textStart = code.End;
                 }
                 if (textStart <= contentEnd)
@@ -26486,7 +26867,8 @@ static partial class ImporterProgram
                         html[textStart..contentEnd],
                         textStart,
                         paragraphs,
-                        preserveEmpty: nestedCode.Count == 0);
+                        preserveEmpty: nestedCode.Count == 0,
+                        preserveTrailingColon: open.PreserveTrailingColon);
             }
 
             foreach (Match tag in Regex.Matches(
@@ -26509,7 +26891,11 @@ static partial class ImporterProgram
                     {
                         CompleteElement(stack.Pop(), tag.Index, tag.Index);
                     }
-                    stack.Push((name, tag.Index, tag.Index + tag.Length));
+                    stack.Push((
+                        name,
+                        tag.Index,
+                        tag.Index + tag.Length,
+                        false));
                     continue;
                 }
 
@@ -26524,16 +26910,16 @@ static partial class ImporterProgram
                 !paragraphs.Any(paragraph => paragraph.Position == code.Start &&
                     paragraph.Paragraph == code.Paragraph)))
             {
-                paragraphs.Add((code.Start, code.Paragraph));
+                paragraphs.Add((code.Start, code.Paragraph, false));
             }
             var ordered = paragraphs
                 .OrderBy(paragraph => paragraph.Position)
-                .Select(paragraph => paragraph.Paragraph)
                 .ToList();
-            var usable = new List<SourceParagraph>();
+            var usable = new ParsedSourceParagraphList();
             for (var index = 0; index < ordered.Count; index++)
             {
-                var paragraph = ordered[index];
+                var current = ordered[index];
+                var paragraph = current.Paragraph;
                 if (paragraph.IsCode)
                 {
                     if (!string.IsNullOrWhiteSpace(paragraph.Text))
@@ -26543,21 +26929,68 @@ static partial class ImporterProgram
 
                 var isCddlIntroduction = IsCddlCodeLeadIn(paragraph.Text) &&
                     index + 1 < ordered.Count &&
-                    ordered[index + 1].IsCode &&
-                    !string.IsNullOrWhiteSpace(ordered[index + 1].Text);
+                    ordered[index + 1].Paragraph.IsCode &&
+                    !string.IsNullOrWhiteSpace(ordered[index + 1].Paragraph.Text);
                 var isGestureCloneIntroduction = preserveGestureCloneIntroductions &&
                     index + 1 < ordered.Count &&
-                    IsGestureCloneCodeLeadIn(paragraph.Text, ordered[index + 1]);
-                var text = isCddlIntroduction || isGestureCloneIntroduction
+                    IsGestureCloneCodeLeadIn(paragraph.Text, ordered[index + 1].Paragraph);
+                var text = isCddlIntroduction || isGestureCloneIntroduction ||
+                    current.PreserveTrailingColon
                     ? paragraph.Text
                     : CleanSourceParagraph(paragraph.Text);
                 // Retain this rejected fragment for member-verified ambiguity reporting, not rendering.
-                if (isCddlIntroduction || isGestureCloneIntroduction || IsMeaningfulChannel(text, "remarks") ||
+                if (isCddlIntroduction || isGestureCloneIntroduction || current.PreserveTrailingColon ||
+                    IsMeaningfulChannel(text, "remarks") ||
                     (sourceUrl == RssiUpdateRateSourceUrl && text == RssiMalformedDefault))
+                {
+                    if (current.PreserveTrailingColon)
+                        usable.ImplicitAndroidListIntroductionIndexes.Add(usable.Count);
                     usable.Add(paragraph with { Text = text });
+                }
             }
             return usable;
         }
+
+        static string NormalizeImplicitAndroidListParagraphs(
+            string html,
+            bool preserveListIntroductions) =>
+            Regex.Replace(
+                html,
+                @"(?<open><p\b[^>]*>)(?<lead>(?:(?!</?p\b|<(?:ul|ol)\b).)*?)<(?<tag>ul|ol)\b[^>]*>(?<items>(?:(?!</?(?:ul|ol)\b).)*)</\k<tag>\s*>(?<tail>(?:(?!</?p\b|<(?:ul|ol|h[1-6]|table|pre|devsite-code)\b).)*?)(?=(?:<p\b|<h[1-6]\b|<table\b|<pre\b|<devsite-code\b|$))",
+                match =>
+                {
+                    var items = Regex.Matches(
+                        match.Groups["items"].Value,
+                        @"<li\b[^>]*>(?<item>.*?)(?=<li\b|</li\b|$)",
+                        RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                        .Select(item => item.Groups["item"].Value)
+                        .Where(item => HtmlTextCore(item, includeCode: true).Length > 0)
+                        .ToList();
+                    if (items.Count == 0 ||
+                        items.Any(item => Regex.IsMatch(
+                            item,
+                            @"<(?:p|ul|ol|pre|devsite-code)\b",
+                            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) ||
+                        HtmlTextCore(match.Groups["lead"].Value).Length == 0)
+                    {
+                        return match.Value;
+                    }
+
+                    var normalized = new StringBuilder()
+                        .Append(match.Groups["open"].Value)
+                        .Append(
+                            preserveListIntroductions
+                                ? ImplicitAndroidListIntroductionMarker
+                                : "")
+                        .Append(match.Groups["lead"].Value)
+                        .Append("</p>");
+                    foreach (var item in items)
+                        normalized.Append("<p>").Append(item).Append("</p>");
+                    if (HtmlTextCore(match.Groups["tail"].Value).Length > 0)
+                        normalized.Append("<p>").Append(match.Groups["tail"].Value).Append("</p>");
+                    return normalized.ToString();
+                },
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         static string NormalizeNestedListParagraphs(string html) =>
             Regex.Replace(
@@ -26576,12 +27009,23 @@ static partial class ImporterProgram
         static void AddSourceTextParagraph(
             string html,
             int position,
-            List<(int Position, SourceParagraph Paragraph)> paragraphs,
-            bool preserveEmpty = false)
+            List<(int Position, SourceParagraph Paragraph, bool PreserveTrailingColon)> paragraphs,
+            bool preserveEmpty = false,
+            bool preserveTrailingColon = false)
         {
             var sourceText = CleanSourceText(HtmlText(html));
+            if (sourceText.StartsWith(
+                    ImplicitAndroidListIntroductionMarker,
+                    StringComparison.Ordinal))
+            {
+                sourceText = sourceText[ImplicitAndroidListIntroductionMarker.Length..].TrimStart();
+                preserveTrailingColon = true;
+            }
             if (preserveEmpty || sourceText.Length > 0)
-                paragraphs.Add((position, new SourceParagraph(sourceText, IsCode: false)));
+                paragraphs.Add((
+                    position,
+                    new SourceParagraph(sourceText, IsCode: false),
+                    preserveTrailingColon));
         }
 
         internal static List<SourceParagraph> ExtractBlocks(string html) =>
@@ -26996,7 +27440,9 @@ static partial class ImporterProgram
         KnownNfcContract? NfcContract = null,
         KnownTvAdCorrection? TvAdCorrection = null,
         IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null,
-        bool QualityFirstFillOnly = false);
+        bool QualityFirstFillOnly = false,
+        IReadOnlyList<SourceParagraph>? LegacyFlattenedParagraphs = null,
+        IReadOnlyList<SourceParagraph>? IntermediateImplicitListParagraphs = null);
 
     static class Descriptor
     {

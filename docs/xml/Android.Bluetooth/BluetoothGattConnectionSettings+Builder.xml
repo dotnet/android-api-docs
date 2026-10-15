@@ -265,10 +265,19 @@
         <Parameter Name="pathlossThresholdDb" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="pathlossThresholdDb">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="pathlossThresholdDb">the pathloss threshold in dB for initiating connection. Value is between -1 and 100 inclusive</param>
+        <summary>Sets the Pathloss threshold for initiating a connection.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the Pathloss threshold for initiating a connection. If the device is already connected, then the GATT connection will succeed regardless of the Pathloss Threshold.</para>
+          <para>The Pathloss threshold is used to initiate an LE connection to a remote device when autoConnect is enabled. When autoConnect is enabled, the Bluetooth controller will add the remote device to the accept list and initiate the connection when the device is in range and has minimal pathloss. The Bluetooth controller will initiate the connection if the Pathloss is lower than the given Pathloss threshold value.</para>
+          <para>This is just a preference for the Bluetooth controller; the controller may or may not use this pathloss threshold value to initiate the connection.</para>
+          <para>When multiple applications request connections with different pathloss threshold values, the Bluetooth system will use the maximum of pathloss threshold among all active requests when initiating the next LE connection based on pathloss threshold.</para>
+          <para>Default pathloss threshold will be set to BluetoothGattConnectionSettings.PATHLOSS_THRESHOLD_NOT_SET which indicates that pathloss based LE connection trigger is not enabled.</para>
+          <para>When the Pathloss is not available, or this value is BluetoothGattConnectionSettings.PATHLOSS_THRESHOLD_NOT_SET, then system will fall back to the RSSI threshold based connection trigger if RSSI threshold is set using setRssiThresholdDbm(int)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattConnectionSettings.Builder#setPathlossThresholdDb(int)" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothGattConnectionSettings.Builder.setPathlossThresholdDb</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRssiThresholdDbm">
@@ -298,10 +307,19 @@
         <Parameter Name="rssiThresholdDbm" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="rssiThresholdDbm">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="rssiThresholdDbm">the RSSI threshold in dBm for initiating connection. Value is between -128 and 20 inclusive</param>
+        <summary>Sets the RSSI threshold for initiating a connection.</summary>
+        <returns>This builder. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets the RSSI threshold for initiating a connection. If the device is already connected, then the GATT connection will succeed regardless of the RSSI.</para>
+          <para>The RSSI threshold is used to initiate an LE connection to a remote device when autoConnect is enabled. When autoConnect is enabled, the Bluetooth controller will add the remote device to the accept list and initiate the connection when the device is in range and has a strong signal. The Bluetooth controller will initiate the connection if the RSSI is greater than the given RSSI threshold value.</para>
+          <para>This is just a preference for the Bluetooth controller; the controller may or may not use this threshold to initiate the connection.</para>
+          <para>When multiple applications request connections with different RSSI threshold values, the Bluetooth system will use the lowest (least stringent) RSSI threshold among all active requests when initiating the next LE connection based on signal strength, allowing connections to be initiated at weaker signal levels if any app requests it.</para>
+          <para>Default RSSI threshold will be set to BluetoothGattConnectionSettings.RSSI_THRESHOLD_NOT_SET which indicates that RSSI based LE connection trigger is not enabled.</para>
+          <para>Pathloss threshold set using setPathlossThresholdDb(int) will be prioritized over RSSI threshold for triggering LE connection. RSSI threshold will be used for triggering LE connection only if pathloss threshold is not set.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothGattConnectionSettings.Builder#setRssiThresholdDbm(int)" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothGattConnectionSettings.Builder.setRssiThresholdDbm</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetTransport">
