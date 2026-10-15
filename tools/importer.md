@@ -602,8 +602,10 @@ Limitations:
   `android.permission.health.WRITE_DEVICE_UDI` value verified by
   `HealthPermissions.WRITE_DEVICE_UDI`. Rendering additionally requires the
   exact managed `SetUdi(String)` member, JNI descriptor, Android source label,
-  and URL; other managed identities, URLs, malformed wrappers, or changed
-  paragraphs retain the ordinary conservative `ERROR(...)` skip. Existing
+  and URL; a recovered contract that fails any of these checks rejects the
+  entire mapping so no derived summary or remarks can be written. Other managed
+  identities, URLs, malformed wrappers, or changed paragraphs retain the
+  ordinary conservative `ERROR(...)` skip. Existing
   authored or mixed remarks remain protected by the ordinary importer-ownership
   checks.
 - `CompanionDeviceManager.TrustPairingCallback` type remarks are withheld only

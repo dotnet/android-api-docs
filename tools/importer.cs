@@ -2072,7 +2072,14 @@ static partial class ImporterProgram
                 "source_channel_ambiguous",
                 "The exact official removeStateListener description names UpdateListener, but its declared and registered parameter is ChooserSession.StateListener; no replacement prose was inferred.",
                 docs.SourceUrl);
-        docs = WithVerifiedDeviceBuilderSetUdiPermissionContract(owner, registration, docs);
+        if (HasRecoveredDeviceBuilderSetUdiPermissionContract(docs) &&
+            !IsVerifiedDeviceBuilderSetUdiPermissionContract(owner, registration, docs))
+        {
+            return MappingResult.Skip(
+                "source_channel_ambiguous",
+                "The recovered Device.Builder.setUdi permission contract did not match the exact managed binding and canonical Android source identity.",
+                docs.SourceUrl);
+        }
         var sourceVerifiedMapping = SourceVerifiedMemberMappings.Resolve(owner.Id);
         if (sourceVerifiedMapping is { UseFirstMeaningfulSummary: true })
         {
@@ -2103,21 +2110,18 @@ static partial class ImporterProgram
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
 
-    static SourceDocs WithVerifiedDeviceBuilderSetUdiPermissionContract(
+    static bool HasRecoveredDeviceBuilderSetUdiPermissionContract(SourceDocs docs) =>
+        docs.Paragraphs.Any(paragraph =>
+            !paragraph.IsCode &&
+            paragraph.Text.Equals(
+                DeviceBuilderSetUdiPermissionParagraph,
+                StringComparison.Ordinal));
+
+    static bool IsVerifiedDeviceBuilderSetUdiPermissionContract(
         DocsOwner owner,
         MemberRegistration registration,
-        SourceDocs docs)
-    {
-        if (!docs.Paragraphs.Any(paragraph =>
-                !paragraph.IsCode &&
-                paragraph.Text.Equals(
-                    DeviceBuilderSetUdiPermissionParagraph,
-                    StringComparison.Ordinal)))
-        {
-            return docs;
-        }
-
-        if (owner.Id.Equals(DeviceBuilderSetUdiMemberId, StringComparison.Ordinal) &&
+        SourceDocs docs) =>
+        owner.Id.Equals(DeviceBuilderSetUdiMemberId, StringComparison.Ordinal) &&
             owner.SourceRequest is
             {
                 Kind: "android",
@@ -2132,20 +2136,7 @@ static partial class ImporterProgram
             } &&
             docs.SourceKind == "android" &&
             docs.SourceUrl == DeviceBuilderSetUdiSourceUrl &&
-            docs.SourceLabel == DeviceBuilderSetUdiSourceLabel)
-        {
-            return docs;
-        }
-
-        return docs with
-        {
-            Paragraphs = docs.Paragraphs.Where(paragraph =>
-                paragraph.IsCode ||
-                !paragraph.Text.Equals(
-                    DeviceBuilderSetUdiPermissionParagraph,
-                    StringComparison.Ordinal)).ToList(),
-        };
-    }
+            docs.SourceLabel == DeviceBuilderSetUdiSourceLabel;
 
     sealed record SliceProviderContract(string MemberId, string BindingHash, string SourceHash);
 
@@ -9730,18 +9721,22 @@ static partial class ImporterProgram
             request,
             [new Placeholder(0, "remarks", "", "remarks")],
             false);
-        string Page(string paragraphs, string? code = null) => $"""
-            <h3 class="api-name" id="setUdi(java.lang.String)">setUdi</h3>
+        string Page(string paragraphs, string? code = null, string title = "setUdi") => $"""
+            <h3 class="api-name" id="setUdi(java.lang.String)">{title}</h3>
             <devsite-code><pre class="api-signature">public Device.Builder setUdi (String udi)</pre></devsite-code>
             {paragraphs}
             {code}
             <h2 class="api-section" id="summary"></h2>
             """;
-        MappingResult Map(DocsOwner candidate, string html) =>
+        MappingResult Map(DocsOwner candidate, string html)
+        {
+            var sourceRequest = candidate.SourceRequest ?? request;
+            return
             MapOwner(candidate, new Dictionary<string, SourceLoadResult>
             {
-                [request.Url] = SourceLoadResult.Success(SourcePage.Parse(request, html)),
+                [sourceRequest.Url] = SourceLoadResult.Success(SourcePage.Parse(sourceRequest, html)),
             });
+        }
         var source = Page($"<p>{DeviceBuilderSetUdiRawPermissionParagraph}</p>");
         var mapped = Map(owner, source);
         Assert(
@@ -9798,12 +9793,22 @@ static partial class ImporterProgram
                 "(Ljava/lang/String;)Ljava/lang/Object;",
                 false),
         }, source);
+        var wrongUrl = Map(owner with
+        {
+            SourceRequest = request with { Url = request.Url + ".Other" },
+        }, source);
+        var wrongLabel = Map(owner, Page(
+            $"<p>{DeviceBuilderSetUdiRawPermissionParagraph}</p>",
+            title: "setUdiOther"));
         Assert(
-            wrongOwner.Docs?.Paragraphs.All(paragraph =>
-                paragraph.IsCode ||
-                paragraph.Text != DeviceBuilderSetUdiPermissionParagraph) != false &&
-            wrongDescriptor.Docs is null,
-            "Device.Builder.setUdi permission recovery requires the exact managed identity and JNI descriptor");
+            wrongOwner.Docs is null &&
+            wrongOwner.ErrorReason == "source_channel_ambiguous" &&
+            wrongDescriptor.Docs is null &&
+            wrongDescriptor.ErrorReason == "source_channel_ambiguous" &&
+            wrongUrl.Docs is null &&
+            wrongLabel.Docs is null &&
+            wrongLabel.ErrorReason == "source_channel_ambiguous",
+            "Device.Builder.setUdi permission recovery rejects every recovered channel without the exact managed identity, full JNI descriptor, URL, and label");
     }
 
     static void TestTrustPairingCallbackTypeRemarks()
