@@ -602,10 +602,13 @@ Limitations:
   `android.permission.health.WRITE_DEVICE_UDI` value verified by
   `HealthPermissions.WRITE_DEVICE_UDI`. Rendering additionally requires the
   exact managed `SetUdi(String)` member, JNI descriptor, Android source label,
-  and URL; a recovered contract that fails any of these checks rejects the
+  and URL. Recovery runs only in method prose after parameter, return, and
+  exception tables are separated; matching malformed table text is retained in
+  its original channel and receives the ordinary conservative `ERROR(...)` skip.
+  A recovered contract that fails any managed/source identity check rejects the
   entire mapping so no derived summary or remarks can be written. Other managed
   identities, URLs, malformed wrappers, or changed paragraphs retain the
-  ordinary conservative `ERROR(...)` skip. Existing
+  ordinary conservative skip. Existing
   authored or mixed remarks remain protected by the ordinary importer-ownership
   checks.
 - `CompanionDeviceManager.TrustPairingCallback` type remarks are withheld only

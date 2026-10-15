@@ -9809,6 +9809,55 @@ static partial class ImporterProgram
             wrongLabel.Docs is null &&
             wrongLabel.ErrorReason == "source_channel_ambiguous",
             "Device.Builder.setUdi permission recovery rejects every recovered channel without the exact managed identity, full JNI descriptor, URL, and label");
+
+        var parameterTable = $"""
+            <table><tr><th colspan="2">Parameters</th></tr>
+            <tr><td>udi</td><td>{DeviceBuilderSetUdiRawPermissionParagraph}</td></tr></table>
+            """;
+        var returnsTable = $"""
+            <table><tr><th colspan="2">Returns</th></tr>
+            <tr><td>Device.Builder</td><td>{DeviceBuilderSetUdiRawPermissionParagraph}</td></tr></table>
+            """;
+        var exceptionsTable = $"""
+            <table><tr><th colspan="2">Throws</th></tr>
+            <tr><td>SecurityException</td><td>{DeviceBuilderSetUdiRawPermissionParagraph}</td></tr></table>
+            """;
+        foreach (var table in new[] { parameterTable, returnsTable, exceptionsTable })
+        {
+            var tableOnly = Map(owner, Page(table));
+            var wrongBinding = Map(owner with
+            {
+                MemberRegistration = new MemberRegistration(
+                    "setUdi",
+                    "(Ljava/lang/String;)Ljava/lang/Object;",
+                    false),
+            }, Page(table));
+            Assert(
+                tableOnly.Docs is { } tableDocs &&
+                !HasRecoveredDeviceBuilderSetUdiPermissionContract(tableDocs) &&
+                !tableDocs.Summary.Contains(
+                    DeviceBuilderSetUdiPermission,
+                    StringComparison.Ordinal) &&
+                ReplacementFor(new Placeholder(0, "param", "udi", "param:udi"), tableDocs).Text is null &&
+                ReplacementFor(new Placeholder(1, "returns", "", "returns"), tableDocs).Text is null &&
+                ReplacementFor(new Placeholder(2, "exception", "T:Java.Lang.SecurityException", "exception:T:Java.Lang.SecurityException"), tableDocs).Text is null &&
+                wrongBinding.Docs is { } wrongBindingDocs &&
+                !HasRecoveredDeviceBuilderSetUdiPermissionContract(wrongBindingDocs) &&
+                !wrongBindingDocs.Summary.Contains(
+                    DeviceBuilderSetUdiPermission,
+                    StringComparison.Ordinal),
+                "Device.Builder.setUdi recovery is limited to method prose after all table channels are separated");
+        }
+
+        var proseAndTable = Map(owner, Page(
+            $"<p>{DeviceBuilderSetUdiRawPermissionParagraph}</p>{parameterTable}"));
+        Assert(
+            proseAndTable.Docs is { } proseAndTableDocs &&
+            HasRecoveredDeviceBuilderSetUdiPermissionContract(proseAndTableDocs) &&
+            proseAndTableDocs.Parameters.TryGetValue("udi", out var rawParameter) &&
+            rawParameter.Contains(DeviceBuilderSetUdiPermissionError, StringComparison.Ordinal) &&
+            ReplacementFor(new Placeholder(0, "param", "udi", "param:udi"), proseAndTableDocs).Text is null,
+            "Device.Builder.setUdi recovers only the verified prose paragraph when identical malformed text also appears in a parameter table");
     }
 
     static void TestTrustPairingCallbackTypeRemarks()
@@ -26501,7 +26550,6 @@ static partial class ImporterProgram
             string title,
             string url)
         {
-            fragment = NormalizeKnownAndroidParagraphBoundary(fragment, url);
             var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (Match row in Regex.Matches(
                 fragment,
@@ -26530,6 +26578,7 @@ static partial class ImporterProgram
                 @"<pre\b(?=[^>]*\bclass=[""'][^""']*\bapi-signature\b[^""']*[""'])[^>]*>.*?</pre>",
                 " ",
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            prose = NormalizeKnownAndroidParagraphBoundary(prose, url);
             if (url == DreamFocusSourceUrl)
             {
                 prose = prose.Replace(
