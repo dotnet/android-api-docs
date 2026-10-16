@@ -2188,7 +2188,8 @@ static partial class ImporterProgram
                 "The recovered ImageDecoder.decodeDrawable worker-thread contract did not match the exact managed binding and canonical Android source identity.",
                 docs.SourceUrl);
         }
-        if (docs.HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract)
+        if (docs.HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract &&
+            HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract(docs.Paragraphs))
         {
             return MappingResult.Skip(
                 "source_channel_ambiguous",
@@ -2366,24 +2367,43 @@ static partial class ImporterProgram
     static bool HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(
         IEnumerable<SourceParagraph> paragraphs)
     {
-        var prose = paragraphs.Where(paragraph => !paragraph.IsCode)
-            .Select(paragraph => paragraph.Text)
-            .ToList();
-        var lead = prose.IndexOf(ImageDecoderDecodeDrawableLead);
-        var defaultSettings = prose.IndexOf(ImageDecoderDecodeDrawableDefaultSettings);
-        var workerThread = prose.IndexOf(ImageDecoderDecodeDrawableWorkerThread);
-        return lead >= 0 && defaultSettings > lead && workerThread > defaultSettings;
+        var prose = string.Join(
+            "\n",
+            paragraphs.Where(paragraph => !paragraph.IsCode).Select(paragraph => paragraph.Text));
+        var lead = prose.IndexOf(ImageDecoderDecodeDrawableLead, StringComparison.Ordinal);
+        var defaultSettings = lead < 0
+            ? -1
+            : prose.IndexOf(
+                ImageDecoderDecodeDrawableDefaultSettings,
+                lead + ImageDecoderDecodeDrawableLead.Length,
+                StringComparison.Ordinal);
+        var workerThread = defaultSettings < 0
+            ? -1
+            : prose.IndexOf(
+                ImageDecoderDecodeDrawableWorkerThread,
+                defaultSettings + ImageDecoderDecodeDrawableDefaultSettings.Length,
+                StringComparison.Ordinal);
+        return workerThread >= 0;
     }
 
     static bool HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract(
         IEnumerable<SourceParagraph> paragraphs)
     {
-        var prose = paragraphs.Where(paragraph => !paragraph.IsCode)
-            .Select(paragraph => paragraph.Text)
-            .ToList();
-        return prose.Contains(ImageDecoderDecodeDrawableLead) &&
-            prose.Contains(ImageDecoderDecodeDrawableDefaultSettings) &&
-            !prose.Contains(ImageDecoderDecodeDrawableWorkerThread);
+        var prose = string.Join(
+            "\n",
+            paragraphs.Where(paragraph => !paragraph.IsCode).Select(paragraph => paragraph.Text));
+        var lead = prose.IndexOf(ImageDecoderDecodeDrawableLead, StringComparison.Ordinal);
+        var defaultSettings = lead < 0
+            ? -1
+            : prose.IndexOf(
+                ImageDecoderDecodeDrawableDefaultSettings,
+                lead + ImageDecoderDecodeDrawableLead.Length,
+                StringComparison.Ordinal);
+        return defaultSettings >= 0 &&
+            prose.IndexOf(
+                ImageDecoderDecodeDrawableWorkerThread,
+                defaultSettings + ImageDecoderDecodeDrawableDefaultSettings.Length,
+                StringComparison.Ordinal) < 0;
     }
 
     sealed record SliceProviderContract(string MemberId, string BindingHash, string SourceHash);
@@ -10116,6 +10136,19 @@ static partial class ImporterProgram
             HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(futureDocs.Paragraphs) &&
             Map(owner, futureWrapped).ErrorReason is null,
             "ImageDecoder correctly wrapped future worker source remains eligible without recovery");
+
+        var futureWithSeparator = Page($".<br><p>{ImageDecoderDecodeDrawableWorkerThread}</p></p>");
+        var futureWithAppendedSentence = Page(
+            $".<br><p>{ImageDecoderDecodeDrawableWorkerThread} Additional source context.</p></p>");
+        foreach (var future in new[] { futureWithSeparator, futureWithAppendedSentence })
+        {
+            Assert(
+                SourcePage.Parse(request, future).Members.Single().Docs is { } candidateDocs &&
+                !candidateDocs.HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract &&
+                HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(candidateDocs.Paragraphs) &&
+                Map(owner, future).ErrorReason is null,
+                "ImageDecoder complete future worker prose remains eligible despite a retained separator or appended sentence");
+        }
 
         foreach (var lookalike in new[]
         {
