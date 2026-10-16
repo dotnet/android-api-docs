@@ -2172,14 +2172,6 @@ static partial class ImporterProgram
                 "The recovered Device.Builder.setUdi permission contract did not match the exact managed binding and canonical Android source identity.",
                 docs.SourceUrl);
         }
-        if (IsImageDecoderDecodeDrawableWorkerThreadContractCandidate(owner, registration) &&
-            HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract(docs.Paragraphs))
-        {
-            return MappingResult.Skip(
-                "source_channel_ambiguous",
-                "The ImageDecoder.decodeDrawable source did not retain the complete direct worker-thread contract; no partial contract was imported.",
-                docs.SourceUrl);
-        }
         if (docs.HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract &&
             !IsVerifiedImageDecoderDecodeDrawableWorkerThreadContract(owner, registration, docs))
         {
@@ -2189,11 +2181,11 @@ static partial class ImporterProgram
                 docs.SourceUrl);
         }
         if (docs.HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract &&
-            HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract(docs.Paragraphs))
+            !HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(docs.Paragraphs))
         {
             return MappingResult.Skip(
                 "source_channel_ambiguous",
-                "The malformed ImageDecoder.decodeDrawable source boundary did not contain one complete direct worker-thread paragraph; no partial contract was imported.",
+                "The malformed ImageDecoder.decodeDrawable source boundary did not retain the complete ordered non-code contract; no partial contract was imported.",
                 docs.SourceUrl);
         }
         var sourceVerifiedMapping = SourceVerifiedMemberMappings.Resolve(owner.Id);
@@ -2384,26 +2376,6 @@ static partial class ImporterProgram
                 defaultSettings + ImageDecoderDecodeDrawableDefaultSettings.Length,
                 StringComparison.Ordinal);
         return workerThread >= 0;
-    }
-
-    static bool HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract(
-        IEnumerable<SourceParagraph> paragraphs)
-    {
-        var prose = string.Join(
-            "\n",
-            paragraphs.Where(paragraph => !paragraph.IsCode).Select(paragraph => paragraph.Text));
-        var lead = prose.IndexOf(ImageDecoderDecodeDrawableLead, StringComparison.Ordinal);
-        var defaultSettings = lead < 0
-            ? -1
-            : prose.IndexOf(
-                ImageDecoderDecodeDrawableDefaultSettings,
-                lead + ImageDecoderDecodeDrawableLead.Length,
-                StringComparison.Ordinal);
-        return defaultSettings >= 0 &&
-            prose.IndexOf(
-                ImageDecoderDecodeDrawableWorkerThread,
-                defaultSettings + ImageDecoderDecodeDrawableDefaultSettings.Length,
-                StringComparison.Ordinal) < 0;
     }
 
     sealed record SliceProviderContract(string MemberId, string BindingHash, string SourceHash);
@@ -10161,6 +10133,25 @@ static partial class ImporterProgram
             preserved.Docs is null &&
             preserved.ErrorReason == "source_channel_ambiguous",
             "ImageDecoder code and parameter-table worker lookalikes cannot authorize partial prose");
+        }
+
+        foreach (var incomplete in new[]
+        {
+            malformed.Replace(
+            ImageDecoderDecodeDrawableDefaultSettings,
+            "Default-settings source text removed.",
+            StringComparison.Ordinal),
+            malformed.Replace(
+            ImageDecoderDecodeDrawableLead,
+            "Lead source text removed.",
+            StringComparison.Ordinal),
+        })
+        {
+            var preserved = Map(owner, incomplete);
+            Assert(
+            preserved.Docs is null &&
+            preserved.ErrorReason == "source_channel_ambiguous",
+            "ImageDecoder malformed-boundary sources without the complete ordered contract cannot authorize partial prose");
         }
 
         var wrongReturnMember = new XElement(member);
