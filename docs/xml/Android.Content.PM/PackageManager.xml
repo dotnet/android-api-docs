@@ -8997,7 +8997,12 @@
           <c>ApplicationInfo</c>, <c>ComponentInfo</c>, and <c>ResolveInfo</c> flag: return the
             <c>ApplicationInfo#isAppLockSupported</c> and <c>ApplicationInfo#isAppLockEnabled</c>
             associated with an application.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>ApplicationInfo, ComponentInfo, and ResolveInfo flag: return the ApplicationInfo.isAppLockSupported and ApplicationInfo.isAppLockEnabled associated with an application.</para>
+          <para>The caller should have the Manifest.permission.LOCK_APPS permission, or a SecurityException will be thrown. This flag cannot be used with GET_ATTRIBUTIONS, if the caller wishes to retrieve attributions, they must use GET_ATTRIBUTIONS_LONG.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/PackageManager#GET_APP_LOCK_INFO" title="Reference documentation">Android reference for <code>android.content.pm.PackageManager.GET_APP_LOCK_INFO</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetAppUidForPrivateComputeCoreUid">
@@ -9390,7 +9395,19 @@
         <returns>a <c>PendingIntent</c> to launch an activity to set App Lock for the passed in
                     package. If the package does not support App Lock or the package's App Lock state is
                     already in the passed in state, return null.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns a PendingIntent to launch an Activity that allows the caller to set App Lock for the specified package. Returns null if the App Lock state of the package cannot be set, either because App Lock is not supported for that package, or because it is already set to that value.</para>
+          <para>App Lock is a feature that allows users to add authentication as a requirement to open individual apps, even if the device is unlocked. When App Lock is enabled for an app, the system performs the following protections:</para>
+          <para>Requires authentication using device credentials (e.g. PIN, pattern, or password) or Class 3 biometrics, whenever the user attempts to open the app (including after reinstallation), or share information to it via the Sharesheet.</para>
+          <para>Redacts sensitive content of notifications sent by the app.</para>
+          <para>Removes the app's widgets and shortcuts from the home screen.</para>
+          <para>Displays a locked view of the app in Recents to prevent content leakage.</para>
+          <para>Hides the app's Direct Share targets from the Sharesheet.</para>
+          <para>Once authenticated, an App Lock enabled app remains unlocked while it is visible in the foreground. The app will remain unlocked for a short grace period after the user navigates away, after which the system will re-lock it. Additionally, all App Lock enabled apps are immediately locked whenever the device is locked.</para>
+          <para>Before calling this API to avoid getting a null PendingIntent callers should first verify that App Lock is supported for the specified package by first checking ApplicationInfo.isAppLockSupported, or if it's already at the target state for that package by checking ApplicationInfo.isAppLockEnabled. The PendingIntent resolves to an activity, which allows the user to enroll a device credential if one isn't enrolled, and then requires authentication before setting the App Lock enablement state as enabled or disabled. Requires Manifest.permission.LOCK_APPS</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/PackageManager#getEnableAppLockIntentForPackage(java.lang.String,%20boolean)" title="Reference documentation">Android reference for <code>android.content.pm.PackageManager.getEnableAppLockIntentForPackage</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetGroupOfPlatformPermission">
@@ -10101,7 +10118,11 @@
         <summary>Return the memory budgets for the application described by the given
             <c>ApplicationInfo</c>.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Return the memory budgets for the application described by the given ApplicationInfo.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/content/pm/PackageManager#getMemoryBudgets(android.content.pm.ApplicationInfo)" title="Reference documentation">Android reference for <code>android.content.pm.PackageManager.getMemoryBudgets</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetMimeGroup">
