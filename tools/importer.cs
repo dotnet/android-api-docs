@@ -14889,7 +14889,7 @@ static partial class ImporterProgram
                 <pre class="api-signature">public BiometricPrompt.Builder setAllowedAuthenticators (int authenticators)</pre>
                 <p>{BiometricAllowedAuthenticatorsLead}
                 {(malformedList
-                    ? $"<ul><li>{BiometricAllowedAuthenticatorsWeakDefault}</li><li>{BiometricAllowedAuthenticatorsStrongDefault}</li><ul></p>"
+                    ? $"<ul><li>{BiometricAllowedAuthenticatorsWeakDefault}</li><li>{BiometricAllowedAuthenticatorsStrongDefault}</li></ul>"
                     : $"<p>{BiometricAllowedAuthenticatorsWeakDefault}</p><p>{BiometricAllowedAuthenticatorsStrongDefault}</p>")}
                 <p>{BiometricAllowedAuthenticatorsAvailability}</p>
                 <p>{BiometricAllowedAuthenticatorsCredential}</p>
@@ -15022,15 +15022,19 @@ static partial class ImporterProgram
             }
 
             var oldCombinedDefault = BiometricAllowedAuthenticatorsLead + " " +
-                BiometricAllowedAuthenticatorsWeakDefault + " " +
+                BiometricAllowedAuthenticatorsWeakDefault + "; " +
                 BiometricAllowedAuthenticatorsStrongDefault;
             var oldInvalid = original.Replace(
                 "<para>" + oldCombinedDefault + "</para>",
                 "<para>" + BiometricAllowedAuthenticatorsLead + "</para>" +
                 "<para>" + BiometricAllowedAuthenticatorsStrongDefault + "</para>",
                 StringComparison.Ordinal);
-            Assert(oldInvalid != original,
-                "BiometricPrompt.Builder old invalid remarks fixture is nonvacuous");
+            Assert(
+                original.Contains("<para>" + oldCombinedDefault + "</para>", StringComparison.Ordinal) &&
+                oldInvalid != original &&
+                !oldInvalid.Contains(BiometricAllowedAuthenticatorsWeakDefault, StringComparison.Ordinal) &&
+                oldInvalid.Contains(BiometricAllowedAuthenticatorsStrongDefault, StringComparison.Ordinal),
+                "BiometricPrompt.Builder old invalid remarks fixture is literal, nonvacuous and retains only the crypto default");
             WriteFixture(oldInvalid);
             var invalidBytes = File.ReadAllBytes(path);
             using (var legacy = Run("legacy-invalid"))
