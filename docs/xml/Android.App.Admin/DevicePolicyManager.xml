@@ -7270,7 +7270,10 @@
           <para>Generates a new private/public key pair with a specified scope.</para>
           <para>This method extends generateKeyPair(ComponentName,String,KeyGenParameterSpec,int), adding the scope parameter to determine if the key pair is user-specific or device-wide.</para>
           <para>Please refer to the documentation of generateKeyPair(ComponentName,String,KeyGenParameterSpec,int) for complete details on general functionality, permissions, caller types, attestation, secure hardware usage, and exceptions.</para>
-          <para>Key differences in this overload: The scope parameter MUST be provided to define the key's visibility; Using KeyChainManager.KEYPAIR_SCOPE_DEVICE: The key pair will be accessible across all affiliated users on the device. See isAffiliatedUser(). The caller MUST be running in an affiliated user to use this scope. Credential management apps are not permitted to use this scope; Using KeyChainManager.KEYPAIR_SCOPE_USER: The key pair is private to the calling user. This mirrors the behavior of the base generateKeyPair method.</para>
+          <para>Key differences in this overload:</para>
+          <para>The scope parameter MUST be provided to define the key's visibility.</para>
+          <para>Using KeyChainManager.KEYPAIR_SCOPE_DEVICE: The key pair will be accessible across all affiliated users on the device. See isAffiliatedUser(). The caller MUST be running in an affiliated user to use this scope. Credential management apps are not permitted to use this scope.</para>
+          <para>Using KeyChainManager.KEYPAIR_SCOPE_USER: The key pair is private to the calling user. This mirrors the behavior of the base generateKeyPair method.</para>
           <para>Note: Like the base method, this may take several seconds and should not be called on the main thread. It is not thread-safe.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#generateKeyPair(java.lang.String,%20android.security.keystore.KeyGenParameterSpec,%20int,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.generateKeyPair</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -12160,8 +12163,13 @@
         <returns>
           <c>true</c> if a key pair with this alias exists, <c>false</c> otherwise.</returns>
         <remarks>
-          <para>This API can be called by the following to query whether a certificate and private key are installed under a given alias for the specified scope: Device owner; Profile owner; Delegated certificate installer; Credential management app (user-specific keychain only); An app that holds the Manifest.permission.MANAGE_DEVICE_POLICY_CERTIFICATES permission</para>
-          <para>Key differences in this overload:; Using KeyChainManager.KEYPAIR_SCOPE_DEVICE: The key pair will be searched in the device-wide keychain. The caller MUST be running in an affiliated user to manage device keys. See isAffiliatedUser(). Credential management apps are not permitted to use this scope; Using KeyChainManager.KEYPAIR_SCOPE_USER: The key pair is searched in the calling user's own keychain. This mirrors the behavior of the base hasKeyPair method.</para>
+          <para>This API can be called by the following to query whether a certificate and private key are installed under a given alias for the specified scope:</para>
+          <para>Device owner</para>
+          <para>Profile owner</para>
+          <para>Delegated certificate installer</para>
+          <para>Credential management app (user-specific keychain only)</para>
+          <para>An app that holds the Manifest.permission.MANAGE_DEVICE_POLICY_CERTIFICATES permission</para>
+          <para>Key differences in this overload: Using KeyChainManager.KEYPAIR_SCOPE_DEVICE: The key pair will be searched in the device-wide keychain. The caller MUST be running in an affiliated user to manage device keys. See isAffiliatedUser(). Credential management apps are not permitted to use this scope; Using KeyChainManager.KEYPAIR_SCOPE_USER: The key pair is searched in the calling user's own keychain. This mirrors the behavior of the base hasKeyPair method.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#hasKeyPair(java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.hasKeyPair</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -18640,9 +18648,13 @@
         <returns>
           <c>true</c> if the private key alias no longer exists, <c>false</c> otherwise.</returns>
         <remarks>
-          <para>This API can be called by the following to remove a certificate and private key pair installed under a given alias, specifying whether it resides in user-specific or device-wide keychain: Device owner; Profile owner; Delegated certificate installer; Credential management app (user-specific keychain only)</para>
+          <para>This API can be called by the following to remove a certificate and private key pair installed under a given alias, specifying whether it resides in user-specific or device-wide keychain:</para>
+          <para>Device owner</para>
+          <para>Profile owner</para>
+          <para>Delegated certificate installer</para>
+          <para>Credential management app (user-specific keychain only)</para>
           <para>This method extends removeKeyPair(ComponentName,String), adding the scope parameter to determine if the key pair should be removed from user-specific or device-wide keychain. The calling application must hold the same permission requirements as the base method.</para>
-          <para>Key differences in this overload:; Using KeyChainManager.KEYPAIR_SCOPE_DEVICE: The key pair will be removed from the device-wide keychain. The caller MUST be running in an affiliated user to manage device keys. See isAffiliatedUser(). Credential management apps are not permitted to use this scope; Using KeyChainManager.KEYPAIR_SCOPE_USER: The key pair is removed from the calling user's own keychain. This mirrors the behavior of the base removeKeyPair method.</para>
+          <para>Key differences in this overload: Using KeyChainManager.KEYPAIR_SCOPE_DEVICE: The key pair will be removed from the device-wide keychain. The caller MUST be running in an affiliated user to manage device keys. See isAffiliatedUser(). Credential management apps are not permitted to use this scope; Using KeyChainManager.KEYPAIR_SCOPE_USER: The key pair is removed from the calling user's own keychain. This mirrors the behavior of the base removeKeyPair method.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#removeKeyPair(java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.removeKeyPair</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

@@ -97,7 +97,7 @@
         <param name="uid">int: The uid of the application attempting to perform the operation.</param>
         <param name="packageName">String: The name of the application attempting to perform the operation. This value cannot be null.</param>
         <summary>Check whether an application can perform an operation.</summary>
-        <returns>To be added.</returns>
+        <returns>Returns MODE_ALLOWED if the operation is allowed, or MODE_IGNORED if it is not allowed and should be silently ignored (without causing the app to crash).</returns>
         <remarks>
           <para>Check whether an application can perform an operation. For platform versions before Build.VERSION_CODES.BAKLAVA, this is not a security check; you must use noteOp(String,int,String,String,String) or startOp(String,int,String,String,String) for your actual security checks. This function can just be used for a quick check to see if an operation has been disabled for the application, as an early reject of some work. For platform versions equal to or after Build.VERSION_CODES.BAKLAVA, it does the same security check as noteOp(String,int,String,String,String) and startOp(String,int,String,String,String), and should be preferred to use. This API does not modify the time stamp or other data about the operation.</para>
           <para>Throws: SecurityException If the app has been configured to crash on this op.</para>
@@ -159,7 +159,7 @@
         <param name="packageName">String: The name of the application attempting to perform the operation. This value cannot be null.</param>
         <param name="attributionTag">String: The attribution tag of the calling context or null for default attribution</param>
         <summary>Check whether an application can perform an operation.</summary>
-        <returns>To be added.</returns>
+        <returns>Returns MODE_ALLOWED if the operation is allowed, or MODE_IGNORED if it is not allowed and should be silently ignored (without causing the app to crash).</returns>
         <remarks>
           <para>Check whether an application can perform an operation. It does the same security check as noteOp(String,int,String,String,String) and startOp(String,int,String,String,String), but does not modify the time stamp or other data about the operation.</para>
           <para>Throws: SecurityException If the app has been configured to crash on this op.</para>
@@ -909,7 +909,7 @@
         <param name="attributionTag">String: The attribution tag of the calling context or null for default attribution</param>
         <param name="message">String: A message describing why the op was noted. This value may be null.</param>
         <summary>Make note of an application performing an operation and check if the application is allowed to perform it.</summary>
-        <returns>To be added.</returns>
+        <returns>Returns MODE_ALLOWED if the operation is allowed, or MODE_IGNORED if it is not allowed and should be silently ignored (without causing the app to crash).</returns>
         <remarks>
           <para>Make note of an application performing an operation and check if the application is allowed to perform it. If this is a check that is not preceding the protected operation, use unsafeCheckOp(String, int, String) instead. The identity of the package the app-op is noted for is specified by the uid and packageName parameters. If this is noted for a regular app both should be set and the package needs to be part of the uid. In the very rare case that an app-op is noted for an entity that does not have a package name, the package can be null. As it is possible that a single process contains more than one package the packageName should be read from the context of the caller of the API (in the app process) that eventually triggers this check. If this op is not noted for a running process the packageName cannot be read from the context, but it should be clear which package the note is for. If the uid and packageName do not match this return MODE_IGNORED. Beside the access check this method also records the access. While the access check is based on uid and/or packageName the access recording is done based on the packageName and attributionTag. The attributionTag should be read from the same context the package name is read from. In the case the check is not related to an API call, the attributionTag should be null. Please note that e.g. registering a callback for later is still an API call and the code should store the attribution tag along the package name for being used in this method later. The message parameter only needs to be set when this method is not called in a two-way binder call from the client. In this case the message is a free form text that is meant help the app developer determine what part of the app's code triggered the note. This message is passed back to the app in the OnOpNotedCallback.onAsyncNoted(AsyncNotedAppOp) callback. A good example of a useful message is including the System.identityHashCode(Object) of the listener that will receive data or the name of the manifest-receiver.</para>
           <para>Throws: SecurityException If the app has been configured to crash on this op.</para>
@@ -1150,7 +1150,7 @@
         <param name="proxiedAttributionTag">String: The proxied attribution tag or null for default attribution</param>
         <param name="message">String: A message describing the reason the op was noted. This value may be null.</param>
         <summary>Make note of an application performing an operation on behalf of another application when handling an IPC.</summary>
-        <returns>To be added.</returns>
+        <returns>Returns MODE_ALLOWED if the operation is allowed, or MODE_IGNORED if it is not allowed and should be silently ignored (without causing the app to crash).</returns>
         <remarks>
           <para>Make note of an application performing an operation on behalf of another application when handling an IPC. This function will verify that the calling uid and proxied package name match, and if not, return MODE_IGNORED. If this call succeeds, the last execution time of the operation for the proxied app and your app will be updated to the current time.</para>
           <para>Throws: SecurityException If the proxy or proxied app has been configured to crash on this op.</para>
@@ -1687,8 +1687,12 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Allows an application to manage the user's contacts data.</summary>
+        <remarks>
+          <para>Allows an application to manage the user's contacts data.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/AppOpsManager#OPSTR_MANAGE_CONTACTS" title="Reference documentation">Android reference for <code>android.app.AppOpsManager.OPSTR_MANAGE_CONTACTS</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OpstrMockLocation">
@@ -2874,7 +2878,7 @@
         <param name="attributionTag">String: The attribution tag or null for default attribution</param>
         <param name="message">String: Description why op was started. This value may be null.</param>
         <summary>Report that an application has started executing a long-running operation.</summary>
-        <returns>To be added.</returns>
+        <returns>Returns MODE_ALLOWED if the operation is allowed, or MODE_IGNORED if it is not allowed and should be silently ignored (without causing the app to crash).</returns>
         <remarks>
           <para>Report that an application has started executing a long-running operation. For more details how to determine the callingPackageName, callingAttributionTag, and message, please check the description in noteOp(String,int,String,String,String)</para>
           <para>Throws: SecurityException If the app has been configured to crash on this op or the package is not in the passed in UID.</para>
@@ -3059,7 +3063,7 @@
         <param name="proxiedAttributionTag">String: The proxied attribution tag or null for default attribution</param>
         <param name="message">String: A message describing the reason the op was noted. This value may be null.</param>
         <summary>Report that an application has started executing a long-running operation on behalf of another application when handling an IPC.</summary>
-        <returns>To be added.</returns>
+        <returns>Returns MODE_ALLOWED if the operation is allowed, or MODE_IGNORED if it is not allowed and should be silently ignored (without causing the app to crash).</returns>
         <remarks>
           <para>Report that an application has started executing a long-running operation on behalf of another application when handling an IPC. This function will verify that the calling uid and proxied package name match, and if not, return MODE_IGNORED.</para>
           <para>Throws: SecurityException If the proxy or proxied app has been configured to crash on this op.</para>
@@ -3472,7 +3476,7 @@
         <param name="uid">int: The user id of the application attempting to perform the operation.</param>
         <param name="packageName">String: The name of the application attempting to perform the operation. This value cannot be null.</param>
         <summary>This method was deprecated in API level 36.</summary>
-        <returns>To be added.</returns>
+        <returns>Returns MODE_ALLOWED if the operation is allowed, or MODE_IGNORED if it is not allowed and should be silently ignored (without causing the app to crash).</returns>
         <remarks>
           <para>This method was deprecated in API level 36. Use checkOp(String,int,String)</para>
           <para>Check whether an application might be able to perform an operation. For platform versions before Build.VERSION_CODES.BAKLAVA, this is not a security check; you must use noteOp(String,int,String,String,String) or startOp(String,int,String,String,String) for your actual security checks. This function can just be used for a quick check to see if an operation has been disabled for the application, as an early reject of some work. For platform versions equal to or after Build.VERSION_CODES.BAKLAVA, this is no longer an unsafe check, and it does the same security check as noteOp(String,int,String,String,String) and startOp(String,int,String,String,String). However, it's preferred to use checkOp(String,int,String), since the word "unsafe" in the name of this API is no longer accurate. This API does not modify the time stamp or other data about the operation.</para>

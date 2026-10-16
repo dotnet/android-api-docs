@@ -82,6 +82,16 @@ of the same source, including its source reference and attribution; authored or
 mixed remarks are preserved. Prior-ownership comparisons normalize prose but
 compare Java code text ordinally after XML newline normalization, so authored
 code whitespace and comment boundaries cannot authorize a refresh.
+The exact Android `BiometricPrompt.Builder.setAllowedAuthenticators(int)` remarks
+refresh is withheld when the canonical source contains both the
+`BIOMETRIC_WEAK` non-crypto and `BIOMETRIC_STRONG` crypto defaults but the parsed
+list loses the former. Detection uses the table- and signature-free non-code
+source paragraphs (including the retained legacy list representation), so
+unrelated summary or safety-condition wording cannot bypass it. A mismatched
+managed/JNI binding or canonical source identity is rejected before any writer.
+The existing importer-owned remarks remain untouched and the report records
+`source_channel_ambiguous`; a future source paragraph that preserves both
+defaults remains eligible for an existing remarks placeholder.
 Repair of the known `Control.StatefulBuilder.setControlTemplate` paragraph boundary
 is restricted to its exact Android member URL and verified lead-in/description,
 preserving the source's blank line as two paragraphs without inventing punctuation.
@@ -605,6 +615,24 @@ Limitations:
   generated `ERROR(MultisensoryContinuousEffectModifier/...)` link wrapper are
   normalized to the linked type name; unrelated malformed source markup remains
   a conservative skip.
+- `Device.Builder.setUdi(String)` retains its complete official permission and
+  upsert-exception paragraph only when the canonical member URL contains the
+  unchanged `ERROR(/HealthPermissions#WRITE_DEVICE_UDI)` wrapper and complete
+  source text. That wrapper is normalized to the official
+  `android.permission.health.WRITE_DEVICE_UDI` value verified by
+  `HealthPermissions.WRITE_DEVICE_UDI`. Rendering additionally requires the
+  exact managed `SetUdi(String)` member, JNI descriptor, Android source label,
+  and URL. Recovery runs only in method prose after parameter, return, and
+  exception tables are separated; matching malformed table text is retained in
+  its original channel and receives the ordinary conservative `ERROR(...)` skip.
+  The recovery event is retained as member-scoped provenance through later prose
+  formatting, including flat-list coalescing. A recovered contract that fails
+  any managed/source identity check rejects the entire mapping so no derived
+  summary or remarks can be written. Other managed
+  identities, URLs, malformed wrappers, or changed paragraphs retain the
+  ordinary conservative skip. Existing
+  authored or mixed remarks remain protected by the ordinary importer-ownership
+  checks.
 - `CompanionDeviceManager.TrustPairingCallback` type remarks are withheld only
   when the exact official class link has an `int[]` request signature but visible
   scalar-`int` prose, and the managed type registration and signature also match.

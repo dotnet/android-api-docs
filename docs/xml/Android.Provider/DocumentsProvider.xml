@@ -2220,7 +2220,13 @@
         <param name="signal">used by the caller to signal if the request should be cancelled. May be null.</param>
         <summary>Return documents that match the given query under the requested directory.</summary>
         <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Return documents that match the given query under the requested directory. The returned documents should be sorted by relevance in descending order. How documents are matched against the query string is an implementation detail left to each provider, but it's suggested that at least Document.COLUMN_DISPLAY_NAME be matched in a case-insensitive fashion.</para>
+          <para>If your provider is cloud-based, and you have some data cached or pinned locally, you may return the local data immediately, setting DocumentsContract.EXTRA_LOADING on the Cursor to indicate that you are still fetching additional data. Then, when the network data is available, you can send a change notification to trigger a requery and return the complete contents.</para>
+          <para>To support change notifications, you must Cursor.setNotificationUri(ContentResolver,Uri) with a relevant Uri, such as DocumentsContract.buildSearchDocumentsUri(Uri,String). Then you can call ContentResolver.notifyChange(Uri,android.database.ContentObserver,boolean) with that Uri to send change notifications.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/DocumentsProvider#querySearchDocuments(java.lang.String,%20java.lang.String,%20java.lang.String[],%20android.os.CancellationSignal)" title="Reference documentation">Android reference for <code>android.provider.DocumentsProvider.querySearchDocuments</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="QuerySearchDocuments">
@@ -2287,7 +2293,14 @@
         <returns>cursor containing search result. Include <c>ContentResolver#EXTRA_HONORED_ARGS</c>
                 in <c>Cursor</c> extras <c>Bundle</c> when any QUERY_ARG_* value was honored during the
                 preparation of the results.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Return documents that match the given query under the requested directory. The returned documents should be sorted by relevance in descending order. How documents are matched against the query string is an implementation detail left to each provider, but it's suggested that at least Document.COLUMN_DISPLAY_NAME be matched in a case-insensitive fashion.</para>
+          <para>This method is called for subtree-level searches. It requires the specific directory to advertise Document.FLAG_SUPPORTS_SUBTREE_SEARCH.</para>
+          <para>If your provider is cloud-based, and you have some data cached or pinned locally, you may return the local data immediately, setting DocumentsContract.EXTRA_LOADING on the Cursor to indicate that you are still fetching additional data. Then, when the network data is available, you can send a change notification to trigger a requery and return the complete contents.</para>
+          <para>To support change notifications, you must Cursor.setNotificationUri(ContentResolver,Uri) with a relevant Uri, such as DocumentsContract.buildSearchDocumentsUri(Uri,String). Then you can call ContentResolver.notifyChange(Uri,android.database.ContentObserver,boolean) with that Uri to send change notifications.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/DocumentsProvider#querySearchDocuments(java.lang.String,%20java.lang.String[],%20android.os.Bundle,%20android.os.CancellationSignal)" title="Reference documentation">Android reference for <code>android.provider.DocumentsProvider.querySearchDocuments</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="QueryTrashDocuments">
@@ -2342,7 +2355,10 @@
         <summary>To be added.</summary>
         <returns>a cursor of trashed documents. This will be called for each provider (for local just
                 externalstorage provider) and combine the results.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/DocumentsProvider#queryTrashDocuments(java.lang.String,%20java.lang.String[],%20android.os.Bundle,%20android.os.CancellationSignal)" title="Reference documentation">Android reference for <code>android.provider.DocumentsProvider.queryTrashDocuments</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveDocument">

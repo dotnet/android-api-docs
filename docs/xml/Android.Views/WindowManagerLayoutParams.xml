@@ -811,7 +811,11 @@
           <c>true</c> if the window can control the touch mode, <c>false</c>
                     otherwise.</returns>
 
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns whether this window is allowed to change the global touch mode state. If the window is not WindowManager.LayoutParams.TYPE_INPUT_METHOD, this will always return true (default value).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/WindowManager.LayoutParams#canChangeGlobalTouchMode()" title="Reference documentation">Android reference for <code>android.view.WindowManager.LayoutParams.canChangeGlobalTouchMode</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CanPlayMoveAnimation">
@@ -891,7 +895,7 @@
       <Docs>
         <summary>Returns the color mode of the window, one of <c>ActivityInfo#COLOR_MODE_DEFAULT</c>,
             <c>ActivityInfo#COLOR_MODE_WIDE_COLOR_GAMUT</c> or <c>ActivityInfo#COLOR_MODE_HDR</c>. -or- Set the color mode of the window.</summary>
-        <value>To be added.</value>
+        <value>Value is one of the following: ActivityInfo.COLOR_MODE_DEFAULT; ActivityInfo.COLOR_MODE_WIDE_COLOR_GAMUT; ActivityInfo.COLOR_MODE_HDR</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the color mode of the window, one of <c>ActivityInfo#COLOR_MODE_DEFAULT</c>,
@@ -1208,9 +1212,13 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>When FLAG_DIM_BEHIND is set, this is the color of the dimming to apply.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>When FLAG_DIM_BEHIND is set, this is the color of the dimming to apply. The default value is black (0xFF000000). The alpha component of this color is ignored, as the opacity of the dim layer is controlled by dimAmount.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/WindowManager.LayoutParams#dimColor" title="Reference documentation">Android reference for <code>android.view.WindowManager.LayoutParams.dimColor</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DisplayFlagDisableHdrConversion">
@@ -3370,7 +3378,16 @@
         <param name="canChangeGlobalTouchMode">whether the window should control the TouchMode state.</param>
         <summary>Sets the TouchMode state of the window.</summary>
 
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Sets the TouchMode state of the window. This is specifically for IMEs that want to change the global Touchmode state at runtime, will otherwise do a no-op for all other apps.</para>
+          <para>Note: This property is currently only supported for windows of type WindowManager.LayoutParams.TYPE_INPUT_METHOD. Setting this on other window types is a no-op.</para>
+          <para>By default, this is set to true in which the window can set the TouchMode state through interactions (touch/mouse/touchpad). This is only necessary if this window was previously called with false.</para>
+          <para>If set to false, user interactions within this window will not modify the global TouchMode state. This is particularly useful for accessibility on-screen keyboards that wish to avoid clearing the focus of the application they are interacting with.</para>
+          <para>Recommended use case: IMEs with WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE that do not receive any focus may want to set this to false to ensure that the application bound to the IME does not destroy its focus when interacting with the IME via touch/mouse/touchpad.</para>
+          <para>Important: TouchMode is a global system synchronized state that applies to all windows. If this is set to false, TouchMode will no longer be a global synchronized state as this window no longer subscribes to TouchMode state changes until either the window is closed or this is set to true.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/WindowManager.LayoutParams#setCanChangeGlobalTouchMode(boolean)" title="Reference documentation">Android reference for <code>android.view.WindowManager.LayoutParams.setCanChangeGlobalTouchMode</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetCanPlayMoveAnimation">
