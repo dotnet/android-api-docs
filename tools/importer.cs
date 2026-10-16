@@ -2172,6 +2172,14 @@ static partial class ImporterProgram
                 "The recovered Device.Builder.setUdi permission contract did not match the exact managed binding and canonical Android source identity.",
                 docs.SourceUrl);
         }
+        if (IsImageDecoderDecodeDrawableWorkerThreadContractCandidate(owner, registration) &&
+            !HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(docs.Paragraphs))
+        {
+            return MappingResult.Skip(
+                "source_channel_ambiguous",
+                "The ImageDecoder.decodeDrawable source did not retain the complete ordered non-code contract; no partial contract was imported.",
+                docs.SourceUrl);
+        }
         if (docs.HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract &&
             !IsVerifiedImageDecoderDecodeDrawableWorkerThreadContract(owner, registration, docs))
         {
@@ -10153,6 +10161,19 @@ static partial class ImporterProgram
             preserved.ErrorReason == "source_channel_ambiguous",
             "ImageDecoder malformed-boundary sources without the complete ordered contract cannot authorize partial prose");
         }
+
+        var unflaggedMissingWorker = Page("</p>");
+        Assert(
+            SourcePage.Parse(request, unflaggedMissingWorker).Members.Single().Docs is
+            {
+            HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract: false,
+            } &&
+            Map(owner, unflaggedMissingWorker) is
+            {
+            Docs: null,
+            ErrorReason: "source_channel_ambiguous",
+            },
+            "ImageDecoder normally wrapped sources without the worker contract cannot authorize partial prose");
 
         var wrongReturnMember = new XElement(member);
         wrongReturnMember.Element("ReturnValue")!.Element("ReturnType")!.Value = "Java.Lang.Object";
