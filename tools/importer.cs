@@ -47,6 +47,28 @@ static partial class ImporterProgram
         "This represents a tile that is currently active. (e.g. wifi is connected, bluetooth is on, cast is casting).";
     const string QuickSettingsIncorrectActiveDescription =
         QuickSettingsActiveDescription + " This is the default state.";
+    const string BiometricAllowedAuthenticatorsMemberId =
+        "M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetAllowedAuthenticators(System.Int32)";
+    const string BiometricAllowedAuthenticatorsJavaPath =
+        "android/hardware/biometrics/BiometricPrompt$Builder";
+    const string BiometricAllowedAuthenticatorsSourceUrl =
+        AndroidReference + "android/hardware/biometrics/BiometricPrompt.Builder#setAllowedAuthenticators(int)";
+    const string BiometricAllowedAuthenticatorsSourceLabel =
+        "android.hardware.biometrics.BiometricPrompt.Builder.setAllowedAuthenticators";
+    const string BiometricAllowedAuthenticatorsDescriptor =
+        "(I)Landroid/hardware/biometrics/BiometricPrompt$Builder;";
+    const string BiometricAllowedAuthenticatorsLead =
+        "Optional: Specifies the type(s) of authenticators that may be invoked by BiometricPrompt to authenticate the user. Available authenticator types are defined in Authenticators and can be combined via bitwise OR. Defaults to:";
+    const string BiometricAllowedAuthenticatorsWeakDefault =
+        "Authenticators.BIOMETRIC_WEAK for non-crypto authentication, or";
+    const string BiometricAllowedAuthenticatorsStrongDefault =
+        "Authenticators.BIOMETRIC_STRONG for crypto-based authentication.";
+    const string BiometricAllowedAuthenticatorsAvailability =
+        "If this method is used and no authenticator of any of the specified types is available at the time BiometricPrompt#authenticate(...) is called, authentication will be canceled and AuthenticationCallback.onAuthenticationError(int,CharSequence) will be invoked with an appropriate error code.";
+    const string BiometricAllowedAuthenticatorsCredential =
+        "This method should be preferred over setDeviceCredentialAllowed(boolean) and overrides the latter if both are used. Using this method to enable device credential authentication (with Authenticators.DEVICE_CREDENTIAL) will replace the negative button on the prompt, making it an error to also call setNegativeButton(CharSequence,Executor,DialogInterface.OnClickListener).";
+    const string BiometricAllowedAuthenticatorsKeyGeneration =
+        "If unlocking cryptographic operation(s), it is the application's responsibility to request authentication with the proper set of authenticators (e.g. match the authenticators specified during key generation).";
     const string UserAgent = "dotnet-android-api-docs-importer/1.0 (+https://github.com/dotnet/android-api-docs)";
     const int MaximumDownloadBytes = 12 * 1024 * 1024;
     const string AndroidAttribution =
@@ -1772,6 +1794,20 @@ static partial class ImporterProgram
 
                     if (canRepairExistingDocumentation &&
                         mapping.Docs is not null &&
+                        mapping.Docs.HasBiometricAllowedAuthenticatorsIncompleteDefaultList &&
+                        mapping.Docs.UnsafeTargets?.TryGetValue("remarks", out var biometricRemarksDetail) == true &&
+                        HasPotentialImporterOwnedRemarksRefresh(file, owner))
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath,
+                            owner.Id,
+                            "remarks",
+                            "source_channel_ambiguous",
+                            biometricRemarksDetail,
+                            mapping.SourceUrl));
+                    }
+                    else if (canRepairExistingDocumentation &&
+                        mapping.Docs is not null &&
                         mapping.Docs.UnsafeTargets?.ContainsKey("remarks") != true &&
                         HasPotentialImporterOwnedRemarksRefresh(file, owner))
                     {
@@ -2100,6 +2136,14 @@ static partial class ImporterProgram
                 "source_documentation_empty",
                 "The exact source member had no usable prose.",
                 exact[0].Url);
+        if (docs.HasBiometricAllowedAuthenticatorsIncompleteDefaultList &&
+            !MatchesIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs))
+        {
+            return MappingResult.Skip(
+                "source_channel_ambiguous",
+                "The parsed source lost BIOMETRIC_WEAK from the default-authenticator list, but the managed member, JNI binding, return type, ordered parameter, or canonical source provenance did not exactly match the guarded Builder method.",
+                docs.SourceUrl);
+        }
         if (HasKnownStaleChooserListenerDescription(owner, registration, docs))
             return MappingResult.Skip(
                 "source_channel_ambiguous",
@@ -2141,7 +2185,76 @@ static partial class ImporterProgram
         docs = WithoutUnsafeBrowseSubscriptionRemarks(owner, docs);
         docs = WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs);
         docs = WithoutUnsafeVibrationEffectAddEventsRemarks(owner, docs);
+        docs = WithoutIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    static SourceDocs WithoutIncompleteBiometricAllowedAuthenticatorsRemarks(
+        DocsOwner owner,
+        MemberRegistration registration,
+        SourceDocs docs)
+    {
+        if (!docs.HasBiometricAllowedAuthenticatorsIncompleteDefaultList)
+            return docs;
+
+        if (!MatchesIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs))
+            throw new InvalidOperationException(
+                "A guarded BiometricPrompt.Builder default list reached a writer without exact binding provenance.");
+
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["remarks"] =
+            "The exact official default-authenticator list contains both BIOMETRIC_WEAK and BIOMETRIC_STRONG, but the parsed remarks lost BIOMETRIC_WEAK; existing remarks were preserved rather than publishing an incomplete contract.";
+        return docs with
+        {
+            UnsafeTargets = targets,
+            WithheldRemarks = docs.Paragraphs,
+            HasRawExclusions = true,
+        };
+    }
+
+    static bool MatchesIncompleteBiometricAllowedAuthenticatorsRemarks(
+        DocsOwner owner,
+        MemberRegistration registration,
+        SourceDocs docs)
+    {
+        if (owner.Id != BiometricAllowedAuthenticatorsMemberId ||
+            owner.Member is not XElement member ||
+            owner.IsEnumField ||
+            member.Element("MemberType")?.Value != "Method" ||
+            owner.SourceRequest is not
+            {
+                Kind: "android",
+                JavaPath: BiometricAllowedAuthenticatorsJavaPath,
+                Url: AndroidReference + "android/hardware/biometrics/BiometricPrompt.Builder",
+            } ||
+            registration != new MemberRegistration(
+                "setAllowedAuthenticators",
+                BiometricAllowedAuthenticatorsDescriptor,
+                false))
+        {
+            return false;
+        }
+
+        if (!member.Elements("MemberSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "C#")
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual(
+            ["public virtual Android.Hardware.Biometrics.BiometricPrompt.Builder SetAllowedAuthenticators (int authenticators);"]) ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value !=
+                "Android.Hardware.Biometrics.BiometricPrompt+Builder" ||
+            member.Element("Parameters")?.Elements("Parameter").ToList() is not
+                [XElement parameter] ||
+            (string?)parameter.Attribute("Name") != "authenticators" ||
+            (string?)parameter.Attribute("Type") != "System.Int32")
+        {
+            return false;
+        }
+
+        return docs.SourceKind == "android" &&
+            docs.SourceUrl == BiometricAllowedAuthenticatorsSourceUrl &&
+            docs.SourceLabel == BiometricAllowedAuthenticatorsSourceLabel;
     }
 
     static bool IsVerifiedDeviceBuilderSetUdiPermissionContract(
@@ -14746,8 +14859,253 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestBiometricAllowedAuthenticatorsRemarksGuard(string repositoryRoot)
+    {
+        var directory = Path.Combine(
+            Path.GetTempPath(), "biometric-allowed-authenticators-" + Guid.NewGuid().ToString("N"));
+        var cache = Path.Combine(directory, "cache");
+        var path = Path.Combine(
+            repositoryRoot,
+            "docs",
+            "xml",
+            "Android.Hardware.Biometrics",
+            ".biometric-allowed-authenticators-importer-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            var request = SourceRequest.Create(BiometricAllowedAuthenticatorsJavaPath) ??
+                throw new InvalidOperationException("SELF-TEST FAIL: BiometricPrompt.Builder source request");
+            var cachePath = Path.Combine(cache, Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            var original = File.ReadAllText(Path.Combine(
+                repositoryRoot,
+                "docs",
+                "xml",
+                "Android.Hardware.Biometrics",
+                "BiometricPrompt+Builder.xml"));
+
+            string Source(bool malformedList) => $"""
+                <h3 class="api-name" id="setAllowedAuthenticators(int)">setAllowedAuthenticators</h3>
+                <pre class="api-signature">public BiometricPrompt.Builder setAllowedAuthenticators (int authenticators)</pre>
+                <p>{BiometricAllowedAuthenticatorsLead}
+                {(malformedList
+                    ? $"<ul><li>{BiometricAllowedAuthenticatorsWeakDefault}</li><li>{BiometricAllowedAuthenticatorsStrongDefault}</li><ul></p>"
+                    : $"<p>{BiometricAllowedAuthenticatorsWeakDefault}</p><p>{BiometricAllowedAuthenticatorsStrongDefault}</p>")}
+                <p>{BiometricAllowedAuthenticatorsAvailability}</p>
+                <p>{BiometricAllowedAuthenticatorsCredential}</p>
+                <p>{BiometricAllowedAuthenticatorsKeyGeneration}</p>
+                <table><tr><th colspan=2>Returns</th></tr><tr><td>BiometricPrompt.Builder</td><td>This builder.</td></tr></table>
+                """;
+            string FutureSource() => $"""
+                <h3 class="api-name" id="setAllowedAuthenticators(int)">setAllowedAuthenticators</h3>
+                <pre class="api-signature">public BiometricPrompt.Builder setAllowedAuthenticators (int authenticators)</pre>
+                <p>{BiometricAllowedAuthenticatorsLead} {BiometricAllowedAuthenticatorsWeakDefault} {BiometricAllowedAuthenticatorsStrongDefault}</p>
+                <p>{BiometricAllowedAuthenticatorsAvailability}</p>
+                <p>{BiometricAllowedAuthenticatorsCredential}</p>
+                <p>{BiometricAllowedAuthenticatorsKeyGeneration}</p>
+                <table><tr><th colspan=2>Returns</th></tr><tr><td>BiometricPrompt.Builder</td><td>This builder.</td></tr></table>
+                """;
+
+            void WriteSource(string source) =>
+                File.WriteAllText(cachePath, source, new UTF8Encoding(false));
+            void WriteFixture(string text) =>
+                File.WriteAllText(path, text, new UTF8Encoding(false));
+            string RemarksPlaceholderFixture()
+            {
+                var document = XDocument.Parse(original, LoadOptions.PreserveWhitespace);
+                var member = document.Root!.Element("Members")!.Elements("Member").Single(candidate =>
+                    candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") ==
+                            BiometricAllowedAuthenticatorsMemberId));
+                member.Element("Docs")!.Element("remarks")!.ReplaceWith(
+                    new XElement("remarks", "To be added."));
+                return document.ToString(SaveOptions.DisableFormatting);
+            }
+            JsonDocument Run(string label)
+            {
+                var report = Path.Combine(directory, label);
+                Assert(RunAsync(
+                    [
+                        "--path", path,
+                        "--namespace", "Android.Hardware.Biometrics",
+                        "--member", BiometricAllowedAuthenticatorsMemberId,
+                        "--offline", "--cache", cache,
+                        "--max-changes", "10",
+                        "--apply", "--report", report,
+                    ]).GetAwaiter().GetResult() == 0,
+                    "BiometricPrompt.Builder registered production pipeline succeeds");
+                return JsonDocument.Parse(File.ReadAllText(report + ".json"));
+            }
+            void AssertCompleteContract(string text, string assertion)
+            {
+                var member = XDocument.Parse(text).Root!.Element("Members")!.Elements("Member")
+                    .Single(candidate => candidate.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") ==
+                            BiometricAllowedAuthenticatorsMemberId));
+                var remarks = member.Element("Docs")!.Element("remarks")!.Value;
+                Assert(
+                    remarks.Contains(BiometricAllowedAuthenticatorsWeakDefault, StringComparison.Ordinal) &&
+                    remarks.Contains(BiometricAllowedAuthenticatorsStrongDefault, StringComparison.Ordinal) &&
+                    remarks.Contains(BiometricAllowedAuthenticatorsAvailability, StringComparison.Ordinal) &&
+                    remarks.Contains(BiometricAllowedAuthenticatorsCredential, StringComparison.Ordinal) &&
+                    remarks.Contains(BiometricAllowedAuthenticatorsKeyGeneration, StringComparison.Ordinal),
+                    assertion);
+            }
+
+            var malformedSource = Source(malformedList: true);
+            var parsed = SourcePage.Parse(request, malformedSource).Members.Single().Docs!;
+            Assert(
+                parsed.HasBiometricAllowedAuthenticatorsIncompleteDefaultList &&
+                !parsed.Paragraphs.Any(paragraph =>
+                    !paragraph.IsCode && paragraph.Text == BiometricAllowedAuthenticatorsWeakDefault) &&
+                parsed.Paragraphs.Any(paragraph =>
+                    !paragraph.IsCode && paragraph.Text == BiometricAllowedAuthenticatorsStrongDefault),
+                "BiometricPrompt.Builder fixture reproduces the parsed loss of only the non-crypto default");
+            Assert(
+                !SourcePage.Parse(request, FutureSource()).Members.Single().Docs!
+                    .HasBiometricAllowedAuthenticatorsIncompleteDefaultList,
+                "BiometricPrompt.Builder hypothetical complete future source remains eligible");
+            Assert(
+                !SourcePage.Parse(request, malformedSource.Replace(
+                    BiometricAllowedAuthenticatorsWeakDefault,
+                    "Authenticators.BIOMETRIC_WEAK changed.",
+                    StringComparison.Ordinal)).Members.Single().Docs!
+                    .HasBiometricAllowedAuthenticatorsIncompleteDefaultList,
+                "BiometricPrompt.Builder source guard requires the complete declared default contract");
+            Assert(
+                !SourcePage.Parse(request, malformedSource.Replace(
+                    "<ul>", "<pre>", StringComparison.Ordinal)).Members.Single().Docs!
+                    .HasBiometricAllowedAuthenticatorsIncompleteDefaultList,
+                "BiometricPrompt.Builder source guard does not treat code-only text as a list contract");
+            Assert(
+                SourcePage.Parse(request, malformedSource.Replace(
+                    BiometricAllowedAuthenticatorsAvailability,
+                    "Harmless context. " + BiometricAllowedAuthenticatorsAvailability,
+                    StringComparison.Ordinal)).Members.Single().Docs!
+                    .HasBiometricAllowedAuthenticatorsIncompleteDefaultList,
+                "BiometricPrompt.Builder source guard retains the incomplete-default hold with harmless surrounding prose");
+            Assert(
+                !SourcePage.Parse(request, malformedSource.Replace(
+                    BiometricAllowedAuthenticatorsWeakDefault,
+                    "No weak default is listed here.",
+                    StringComparison.Ordinal).Replace(
+                        "<table>",
+                        "<table><tr><td>" + BiometricAllowedAuthenticatorsWeakDefault + "</td></tr>",
+                        StringComparison.Ordinal)).Members.Single().Docs!
+                    .HasBiometricAllowedAuthenticatorsIncompleteDefaultList,
+                "BiometricPrompt.Builder source guard ignores weak-default text found only in parameter or return tables");
+
+            WriteSource(malformedSource);
+            WriteFixture(original);
+            var originalBytes = File.ReadAllBytes(path);
+            using (var guarded = Run("guarded"))
+            {
+                Assert(
+                    guarded.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    guarded.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("status").GetString() == "skipped" &&
+                        entry.GetProperty("target").GetString() == "remarks" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                    "BiometricPrompt.Builder production guard reports the unsafe refresh without writing");
+            }
+            Assert(File.ReadAllBytes(path).SequenceEqual(originalBytes),
+                "BiometricPrompt.Builder production guard preserves source reference, attribution, ordering and every existing byte");
+            AssertCompleteContract(File.ReadAllText(path),
+                "BiometricPrompt.Builder guard preserves both defaults and the availability, credential and key-generation conditions");
+            using (var repeat = Run("guarded-repeat"))
+            {
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(originalBytes),
+                    "BiometricPrompt.Builder guarded production repeat is byte-identical");
+            }
+
+            var oldCombinedDefault = BiometricAllowedAuthenticatorsLead + " " +
+                BiometricAllowedAuthenticatorsWeakDefault + " " +
+                BiometricAllowedAuthenticatorsStrongDefault;
+            var oldInvalid = original.Replace(
+                "<para>" + oldCombinedDefault + "</para>",
+                "<para>" + BiometricAllowedAuthenticatorsLead + "</para>" +
+                "<para>" + BiometricAllowedAuthenticatorsStrongDefault + "</para>",
+                StringComparison.Ordinal);
+            Assert(oldInvalid != original,
+                "BiometricPrompt.Builder old invalid remarks fixture is nonvacuous");
+            WriteFixture(oldInvalid);
+            var invalidBytes = File.ReadAllBytes(path);
+            using (var legacy = Run("legacy-invalid"))
+            {
+                Assert(legacy.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(invalidBytes),
+                    "BiometricPrompt.Builder guard never rewrites a legacy incomplete importer-shaped remarks block");
+            }
+
+            WriteFixture(RemarksPlaceholderFixture());
+            WriteSource(FutureSource());
+            using (var corrected = Run("future-placeholder"))
+            {
+                Assert(corrected.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "BiometricPrompt.Builder complete future source fills exactly one remarks placeholder");
+            }
+            var correctedText = File.ReadAllText(path);
+            AssertCompleteContract(correctedText,
+                "BiometricPrompt.Builder complete future source persists both defaults and every remaining safety condition");
+            var correctedBytes = File.ReadAllBytes(path);
+            using (var correctedRepeat = Run("future-placeholder-repeat"))
+            {
+                Assert(correctedRepeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(correctedBytes),
+                    "BiometricPrompt.Builder complete future source repeat is byte-identical");
+            }
+
+            WriteSource(malformedSource);
+            WriteFixture(original.Replace(
+                "<ReturnType>Android.Hardware.Biometrics.BiometricPrompt+Builder</ReturnType>",
+                "<ReturnType>System.Object</ReturnType>",
+                StringComparison.Ordinal));
+            var bindingMismatchBytes = File.ReadAllBytes(path);
+            using (var bindingMismatch = Run("managed-return-mismatch"))
+            {
+                Assert(bindingMismatch.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(bindingMismatchBytes),
+                    "BiometricPrompt.Builder guard rejects a flagged source with an altered managed return");
+            }
+
+            WriteFixture(original.Replace(
+                "<Parameter Name=\"authenticators\" Type=\"System.Int32\" />",
+                "<Parameter Name=\"authenticators\" Type=\"System.Int64\" />",
+                StringComparison.Ordinal));
+            var parameterMismatchBytes = File.ReadAllBytes(path);
+            using (var parameterMismatch = Run("parameter-mismatch"))
+            {
+                Assert(parameterMismatch.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(parameterMismatchBytes),
+                    "BiometricPrompt.Builder guard rejects a flagged source with an altered managed parameter");
+            }
+
+            WriteFixture(original.Replace(
+                "<remarks>",
+                "<remarks><!-- authored --><para><c>Authored mixed markup.</c></para>",
+                StringComparison.Ordinal));
+            var authoredBytes = File.ReadAllBytes(path);
+            using (var authored = Run("authored"))
+            {
+                Assert(authored.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(authoredBytes),
+                    "BiometricPrompt.Builder preserves authored mixed remarks byte-for-byte");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
+        TestBiometricAllowedAuthenticatorsRemarksGuard(repositoryRoot);
         TestQualityFirstFillGuards(repositoryRoot);
         TestTvAdSourceCorrections(repositoryRoot);
         TestAdminOnBindRawSource(repositoryRoot);
@@ -26776,6 +27134,9 @@ static partial class ImporterProgram
                 HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal),
                 HasRecoveredDeviceBuilderSetUdiPermissionContract:
                     recoveredDeviceBuilderSetUdiPermissionContract,
+                HasBiometricAllowedAuthenticatorsIncompleteDefaultList:
+                    HasIncompleteBiometricAllowedAuthenticatorsDefaultList(
+                        request, title, paragraphs, legacyFlattenedParagraphs),
                 LegacyFlattenedParagraphs:
                     legacyFlattenedParagraphs.SequenceEqual(paragraphs)
                         ? null
@@ -26785,6 +27146,41 @@ static partial class ImporterProgram
                         ? null
                         : intermediateImplicitListParagraphs);
         }
+
+        static bool HasIncompleteBiometricAllowedAuthenticatorsDefaultList(
+            SourceRequest request,
+            string title,
+            IReadOnlyList<SourceParagraph> parsedParagraphs,
+            IReadOnlyList<SourceParagraph> legacyFlattenedParagraphs)
+        {
+            return request.Kind == "android" &&
+                title == "setAllowedAuthenticators" &&
+                ContainsOrderedNonCodeDefaultPair(legacyFlattenedParagraphs) &&
+                !ContainsNonCodeDefault(parsedParagraphs, BiometricAllowedAuthenticatorsWeakDefault) &&
+                ContainsNonCodeDefault(parsedParagraphs, BiometricAllowedAuthenticatorsStrongDefault);
+        }
+
+        static bool ContainsOrderedNonCodeDefaultPair(
+            IEnumerable<SourceParagraph> paragraphs)
+        {
+            var prose = string.Join(
+                "\n",
+                paragraphs.Where(paragraph => !paragraph.IsCode).Select(paragraph => paragraph.Text));
+            var weak = prose.IndexOf(
+                BiometricAllowedAuthenticatorsWeakDefault,
+                StringComparison.Ordinal);
+            var strong = prose.IndexOf(
+                BiometricAllowedAuthenticatorsStrongDefault,
+                StringComparison.Ordinal);
+            return weak >= 0 && strong > weak;
+        }
+
+        static bool ContainsNonCodeDefault(
+            IEnumerable<SourceParagraph> paragraphs,
+            string defaultText) =>
+            paragraphs.Any(paragraph =>
+                !paragraph.IsCode &&
+                paragraph.Text.Contains(defaultText, StringComparison.Ordinal));
 
         internal static string NormalizeKnownAndroidParagraphBoundary(
             string html,
@@ -27755,7 +28151,8 @@ static partial class ImporterProgram
         bool QualityFirstFillOnly = false,
         IReadOnlyList<SourceParagraph>? LegacyFlattenedParagraphs = null,
         IReadOnlyList<SourceParagraph>? IntermediateImplicitListParagraphs = null,
-        bool HasRecoveredDeviceBuilderSetUdiPermissionContract = false);
+        bool HasRecoveredDeviceBuilderSetUdiPermissionContract = false,
+        bool HasBiometricAllowedAuthenticatorsIncompleteDefaultList = false);
 
     static class Descriptor
     {

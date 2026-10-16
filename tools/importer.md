@@ -82,6 +82,16 @@ of the same source, including its source reference and attribution; authored or
 mixed remarks are preserved. Prior-ownership comparisons normalize prose but
 compare Java code text ordinally after XML newline normalization, so authored
 code whitespace and comment boundaries cannot authorize a refresh.
+The exact Android `BiometricPrompt.Builder.setAllowedAuthenticators(int)` remarks
+refresh is withheld when the canonical source contains both the
+`BIOMETRIC_WEAK` non-crypto and `BIOMETRIC_STRONG` crypto defaults but the parsed
+list loses the former. Detection uses the table- and signature-free non-code
+source paragraphs (including the retained legacy list representation), so
+unrelated summary or safety-condition wording cannot bypass it. A mismatched
+managed/JNI binding or canonical source identity is rejected before any writer.
+The existing importer-owned remarks remain untouched and the report records
+`source_channel_ambiguous`; a future source paragraph that preserves both
+defaults remains eligible for an existing remarks placeholder.
 Repair of the known `Control.StatefulBuilder.setControlTemplate` paragraph boundary
 is restricted to its exact Android member URL and verified lead-in/description,
 preserving the source's blank line as two paragraphs without inventing punctuation.
