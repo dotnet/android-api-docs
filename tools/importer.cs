@@ -125,6 +125,21 @@ static partial class ImporterProgram
         "The calling package needs to declare " + DeviceBuilderSetUdiPermission +
         " in manifest to be able to set UDI for any record. SecurityException is thrown when " +
         "upserting a record with UDI without the permission.";
+    const string ImageDecoderDecodeDrawableSourceMemberId =
+        "M:Android.Graphics.ImageDecoder.DecodeDrawable(Android.Graphics.ImageDecoder.Source)";
+    const string ImageDecoderDecodeDrawableSourceUrl =
+        AndroidReference + "android/graphics/ImageDecoder#decodeDrawable(android.graphics.ImageDecoder.Source)";
+    const string ImageDecoderDecodeDrawableSourceLabel =
+        "android.graphics.ImageDecoder.decodeDrawable";
+    const string ImageDecoderDecodeDrawableDescriptor =
+        "(Landroid/graphics/ImageDecoder$Source;)Landroid/graphics/drawable/Drawable;";
+    const string ImageDecoderDecodeDrawableLead =
+        "Create a Drawable from a Source.";
+    const string ImageDecoderDecodeDrawableDefaultSettings =
+        "Since there is no OnHeaderDecodedListener, the default settings will be used. In order to change any settings, call " +
+        "decodeDrawable(Source,OnHeaderDecodedListener) instead.";
+    const string ImageDecoderDecodeDrawableWorkerThread =
+        "This method may take several seconds to complete, so it should only be called from a worker thread.";
     const string TrustPairingCallbackTypeId =
         "T:Android.Companion.CompanionDeviceManager+TrustPairingCallback";
     const string TrustPairingCallbackJavaPath =
@@ -2157,6 +2172,30 @@ static partial class ImporterProgram
                 "The recovered Device.Builder.setUdi permission contract did not match the exact managed binding and canonical Android source identity.",
                 docs.SourceUrl);
         }
+        if (IsImageDecoderDecodeDrawableWorkerThreadContractCandidate(owner, registration) &&
+            !HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(docs.Paragraphs))
+        {
+            return MappingResult.Skip(
+                "source_channel_ambiguous",
+                "The ImageDecoder.decodeDrawable source did not retain the complete ordered non-code contract; no partial contract was imported.",
+                docs.SourceUrl);
+        }
+        if (docs.HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract &&
+            !IsVerifiedImageDecoderDecodeDrawableWorkerThreadContract(owner, registration, docs))
+        {
+            return MappingResult.Skip(
+                "source_channel_ambiguous",
+                "The recovered ImageDecoder.decodeDrawable worker-thread contract did not match the exact managed binding and canonical Android source identity.",
+                docs.SourceUrl);
+        }
+        if (docs.HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract &&
+            !HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(docs.Paragraphs))
+        {
+            return MappingResult.Skip(
+                "source_channel_ambiguous",
+                "The malformed ImageDecoder.decodeDrawable source boundary did not retain the complete ordered non-code contract; no partial contract was imported.",
+                docs.SourceUrl);
+        }
         var sourceVerifiedMapping = SourceVerifiedMemberMappings.Resolve(owner.Id);
         if (sourceVerifiedMapping is { UseFirstMeaningfulSummary: true })
         {
@@ -2277,6 +2316,75 @@ static partial class ImporterProgram
             docs.SourceKind == "android" &&
             docs.SourceUrl == DeviceBuilderSetUdiSourceUrl &&
             docs.SourceLabel == DeviceBuilderSetUdiSourceLabel;
+
+    static bool IsVerifiedImageDecoderDecodeDrawableWorkerThreadContract(
+        DocsOwner owner,
+        MemberRegistration registration,
+        SourceDocs docs)
+    {
+        if (!owner.Id.Equals(ImageDecoderDecodeDrawableSourceMemberId, StringComparison.Ordinal) ||
+            owner.SourceRequest is not
+            {
+                Kind: "android",
+                JavaPath: "android/graphics/ImageDecoder",
+            } ||
+            owner.SourceRequest.Url + "#decodeDrawable(android.graphics.ImageDecoder.Source)" !=
+                ImageDecoderDecodeDrawableSourceUrl ||
+            !IsImageDecoderDecodeDrawableWorkerThreadContractCandidate(owner, registration) ||
+            owner.Member is not { } member ||
+            !member.Elements("MemberSignature").Where(signature =>
+                    (string?)signature.Attribute("Language") == "C#")
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual(
+                    ["public static Android.Graphics.Drawables.Drawable DecodeDrawable (Android.Graphics.ImageDecoder.Source src);"]) ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value !=
+                "Android.Graphics.Drawables.Drawable" ||
+            member.Element("Parameters")?.Elements("Parameter").ToList() is not
+            [XElement parameter] ||
+            (string?)parameter.Attribute("Name") != "src" ||
+            (string?)parameter.Attribute("Type") != "Android.Graphics.ImageDecoder+Source")
+        {
+            return false;
+        }
+
+        return docs.SourceKind == "android" &&
+            docs.SourceUrl == ImageDecoderDecodeDrawableSourceUrl &&
+            docs.SourceLabel == ImageDecoderDecodeDrawableSourceLabel &&
+            HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(docs.Paragraphs);
+    }
+
+    static bool IsImageDecoderDecodeDrawableWorkerThreadContractCandidate(
+        DocsOwner owner,
+        MemberRegistration registration) =>
+        owner.Id.Equals(ImageDecoderDecodeDrawableSourceMemberId, StringComparison.Ordinal) &&
+        registration is
+        {
+            Name: "decodeDrawable",
+            Descriptor: ImageDecoderDecodeDrawableDescriptor,
+            IsField: false,
+        };
+
+    static bool HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(
+        IEnumerable<SourceParagraph> paragraphs)
+    {
+        var prose = string.Join(
+            "\n",
+            paragraphs.Where(paragraph => !paragraph.IsCode).Select(paragraph => paragraph.Text));
+        var lead = prose.IndexOf(ImageDecoderDecodeDrawableLead, StringComparison.Ordinal);
+        var defaultSettings = lead < 0
+            ? -1
+            : prose.IndexOf(
+                ImageDecoderDecodeDrawableDefaultSettings,
+                lead + ImageDecoderDecodeDrawableLead.Length,
+                StringComparison.Ordinal);
+        var workerThread = defaultSettings < 0
+            ? -1
+            : prose.IndexOf(
+                ImageDecoderDecodeDrawableWorkerThread,
+                defaultSettings + ImageDecoderDecodeDrawableDefaultSettings.Length,
+                StringComparison.Ordinal);
+        return workerThread >= 0;
+    }
 
     sealed record SliceProviderContract(string MemberId, string BindingHash, string SourceHash);
 
@@ -9940,6 +10048,167 @@ static partial class ImporterProgram
             "Multisensory drag token normalization is limited to the exact official source URL");
     }
 
+    static void TestImageDecoderDecodeDrawableWorkerThreadRecovery()
+    {
+        var request = SourceRequest.Create("android/graphics/ImageDecoder") ??
+            throw new InvalidOperationException("SELF-TEST FAIL: ImageDecoder source request");
+        var member = XElement.Parse($"""
+            <Member MemberName="DecodeDrawable">
+              <MemberSignature Language="C#" Value="public static Android.Graphics.Drawables.Drawable DecodeDrawable (Android.Graphics.ImageDecoder.Source src);" />
+              <MemberSignature Language="DocId" Value="{ImageDecoderDecodeDrawableSourceMemberId}" />
+              <Attributes>
+            <Attribute>
+              <AttributeName Language="C#">[Android.Runtime.Register("decodeDrawable", "{ImageDecoderDecodeDrawableDescriptor}", "", ApiSince=28)]</AttributeName>
+            </Attribute>
+              </Attributes>
+              <ReturnValue><ReturnType>Android.Graphics.Drawables.Drawable</ReturnType></ReturnValue>
+              <Parameters><Parameter Name="src" Type="Android.Graphics.ImageDecoder+Source" /></Parameters>
+              <Docs><summary>See <c>#decodeDrawable(Source, OnHeaderDecodedListener)</c>.</summary><remarks>To be added.</remarks></Docs>
+            </Member>
+            """);
+        var owner = new DocsOwner(
+            0,
+            ImageDecoderDecodeDrawableSourceMemberId,
+            member.Element("Docs")!,
+            member,
+            Registration.Member(member),
+            request,
+            [new Placeholder(0, "remarks", "", "remarks")],
+            false);
+        string Page(string tail) => $"""
+            <h3 class="api-name" id="decodeDrawable(android.graphics.ImageDecoder.Source)">decodeDrawable</h3>
+            <devsite-code><pre class="api-signature">public static Drawable decodeDrawable (ImageDecoder.Source src)</pre></devsite-code>
+            <p>{ImageDecoderDecodeDrawableLead}
+            <p>{ImageDecoderDecodeDrawableDefaultSettings}</p>{tail}
+            <h2 class="api-section" id="summary"></h2>
+            """;
+        MappingResult Map(DocsOwner candidate, string html)
+        {
+            var sourceRequest = candidate.SourceRequest ?? request;
+            return MapOwner(candidate, new Dictionary<string, SourceLoadResult>
+            {
+            [sourceRequest.Url] = SourceLoadResult.Success(SourcePage.Parse(sourceRequest, html)),
+            });
+        }
+
+        var malformedTail = $".<br>{ImageDecoderDecodeDrawableWorkerThread}</p></p>";
+        var malformed = Page(malformedTail);
+        var parsed = SourcePage.Parse(request, malformed).Members.Single().Docs!;
+        var mapped = Map(owner, malformed);
+        Assert(
+            parsed.HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract &&
+            HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(parsed.Paragraphs) &&
+            mapped.ErrorReason is null &&
+            mapped.Docs is { HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract: true } &&
+            HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(mapped.Docs.Paragraphs),
+            "ImageDecoder no-listener recovery restores the complete source-ordered worker-thread contract");
+
+        var context = Page("<p>Unrelated source context.</p>" + malformedTail);
+        Assert(
+            Map(owner, context).Docs is { } contextual &&
+            HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(contextual.Paragraphs),
+            "ImageDecoder worker-thread recovery retains unrelated source context without dropping the ordered contract");
+
+        var futureWrapped = Page($"</p><p>{ImageDecoderDecodeDrawableWorkerThread}</p></p>");
+        Assert(
+            SourcePage.Parse(request, futureWrapped).Members.Single().Docs is { } futureDocs &&
+            !futureDocs.HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract &&
+            HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(futureDocs.Paragraphs) &&
+            Map(owner, futureWrapped).ErrorReason is null,
+            "ImageDecoder correctly wrapped future worker source remains eligible without recovery");
+
+        var futureWithSeparator = Page($".<br><p>{ImageDecoderDecodeDrawableWorkerThread}</p></p>");
+        var futureWithAppendedSentence = Page(
+            $".<br><p>{ImageDecoderDecodeDrawableWorkerThread} Additional source context.</p></p>");
+        foreach (var future in new[] { futureWithSeparator, futureWithAppendedSentence })
+        {
+            Assert(
+                SourcePage.Parse(request, future).Members.Single().Docs is { } candidateDocs &&
+                !candidateDocs.HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract &&
+                HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(candidateDocs.Paragraphs) &&
+                Map(owner, future).ErrorReason is null,
+                "ImageDecoder complete future worker prose remains eligible despite a retained separator or appended sentence");
+        }
+
+        foreach (var lookalike in new[]
+        {
+            Page($".<br><pre>{ImageDecoderDecodeDrawableWorkerThread}</pre></p>"),
+            Page($".<br><table><tr><th colspan=\"2\">Parameters</th></tr><tr><td>src</td><td>{ImageDecoderDecodeDrawableWorkerThread}</td></tr></table></p>"),
+        })
+        {
+            var preserved = Map(owner, lookalike);
+            Assert(
+            preserved.Docs is null &&
+            preserved.ErrorReason == "source_channel_ambiguous",
+            "ImageDecoder code and parameter-table worker lookalikes cannot authorize partial prose");
+        }
+
+        foreach (var incomplete in new[]
+        {
+            malformed.Replace(
+            ImageDecoderDecodeDrawableDefaultSettings,
+            "Default-settings source text removed.",
+            StringComparison.Ordinal),
+            malformed.Replace(
+            ImageDecoderDecodeDrawableLead,
+            "Lead source text removed.",
+            StringComparison.Ordinal),
+        })
+        {
+            var preserved = Map(owner, incomplete);
+            Assert(
+            preserved.Docs is null &&
+            preserved.ErrorReason == "source_channel_ambiguous",
+            "ImageDecoder malformed-boundary sources without the complete ordered contract cannot authorize partial prose");
+        }
+
+        var unflaggedMissingWorker = Page("</p>");
+        Assert(
+            SourcePage.Parse(request, unflaggedMissingWorker).Members.Single().Docs is
+            {
+            HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract: false,
+            } &&
+            Map(owner, unflaggedMissingWorker) is
+            {
+            Docs: null,
+            ErrorReason: "source_channel_ambiguous",
+            },
+            "ImageDecoder normally wrapped sources without the worker contract cannot authorize partial prose");
+
+        var wrongReturnMember = new XElement(member);
+        wrongReturnMember.Element("ReturnValue")!.Element("ReturnType")!.Value = "Java.Lang.Object";
+        var wrongParameterMember = new XElement(member);
+        wrongParameterMember.Element("Parameters")!.Element("Parameter")!
+            .SetAttributeValue("Type", "Java.Lang.Object");
+        foreach (var candidate in new[]
+        {
+            owner with
+            {
+            Member = wrongReturnMember,
+            Docs = new XElement(owner.Docs),
+            },
+            owner with
+            {
+            Member = wrongParameterMember,
+            Docs = new XElement(owner.Docs),
+            },
+            owner with
+            {
+            SourceRequest = request with
+            {
+                JavaPath = "android/graphics/OtherImageDecoder",
+                Url = AndroidReference + "android/graphics/OtherImageDecoder",
+            },
+            },
+        })
+        {
+            var rejected = Map(candidate, malformed);
+            Assert(
+            rejected.Docs is null && rejected.ErrorReason is not null,
+            "ImageDecoder recovery rejects return, parameter, and source provenance mismatches before writing");
+        }
+    }
+
     static void TestDeviceBuilderSetUdiPermissionMarkup()
     {
         var request = SourceRequest.Create("android/health/connect/datatypes/Device$Builder") ??
@@ -15125,6 +15394,7 @@ static partial class ImporterProgram
         TestBlobParcelTextCorrection(repositoryRoot, fixtureRoot);
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestMultisensoryDragTokenMarkup();
+        TestImageDecoderDecodeDrawableWorkerThreadRecovery();
         TestDeviceBuilderSetUdiPermissionMarkup();
         TestTrustPairingCallbackTypeRemarks();
         TestTrustPairingCallbackWithdrawal(repositoryRoot);
@@ -27099,7 +27369,9 @@ static partial class ImporterProgram
             prose = NormalizeKnownAndroidParagraphBoundary(
                 prose,
                 url,
-                out var recoveredDeviceBuilderSetUdiPermissionContract);
+                out var recoveredDeviceBuilderSetUdiPermissionContract,
+                out var recoveredImageDecoderDecodeDrawableWorkerThreadContract,
+                out var incompleteImageDecoderDecodeDrawableWorkerThreadContract);
             if (url == DreamFocusSourceUrl)
             {
                 prose = prose.Replace(
@@ -27138,6 +27410,10 @@ static partial class ImporterProgram
                 HasMalformedSourceMarkup: prose.Contains("()}", StringComparison.Ordinal),
                 HasRecoveredDeviceBuilderSetUdiPermissionContract:
                     recoveredDeviceBuilderSetUdiPermissionContract,
+                HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract:
+                    recoveredImageDecoderDecodeDrawableWorkerThreadContract,
+                HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract:
+                    incompleteImageDecoderDecodeDrawableWorkerThreadContract,
                 HasBiometricAllowedAuthenticatorsIncompleteDefaultList:
                     HasIncompleteBiometricAllowedAuthenticatorsDefaultList(
                         request, title, paragraphs, legacyFlattenedParagraphs),
@@ -27192,14 +27468,20 @@ static partial class ImporterProgram
             NormalizeKnownAndroidParagraphBoundary(
                 html,
                 sourceUrl,
+                out _,
+                out _,
                 out _);
 
         static string NormalizeKnownAndroidParagraphBoundary(
             string html,
             string sourceUrl,
-            out bool recoveredDeviceBuilderSetUdiPermissionContract)
+            out bool recoveredDeviceBuilderSetUdiPermissionContract,
+            out bool recoveredImageDecoderDecodeDrawableWorkerThreadContract,
+            out bool incompleteImageDecoderDecodeDrawableWorkerThreadContract)
         {
             recoveredDeviceBuilderSetUdiPermissionContract = false;
+            recoveredImageDecoderDecodeDrawableWorkerThreadContract = false;
+            incompleteImageDecoderDecodeDrawableWorkerThreadContract = false;
             if (sourceUrl.Equals(MultisensoryContinuousDragTokenSourceUrl, StringComparison.Ordinal) ||
                 sourceUrl.Equals(MultisensoryDiscreteDragTokenSourceUrl, StringComparison.Ordinal))
             {
@@ -27216,6 +27498,19 @@ static partial class ImporterProgram
                 return normalized;
             }
 
+            if (sourceUrl.Equals(ImageDecoderDecodeDrawableSourceUrl, StringComparison.Ordinal) &&
+                TryNormalizeImageDecoderDecodeDrawableWorkerThreadParagraph(html, out normalized))
+            {
+                recoveredImageDecoderDecodeDrawableWorkerThreadContract = true;
+                return normalized;
+            }
+            if (sourceUrl.Equals(ImageDecoderDecodeDrawableSourceUrl, StringComparison.Ordinal) &&
+                HasImageDecoderDecodeDrawableMalformedBoundary(html))
+            {
+                incompleteImageDecoderDecodeDrawableWorkerThreadContract = true;
+                return html;
+            }
+
             if (!sourceUrl.Equals(ControlTemplateSourceUrl, StringComparison.Ordinal))
                 return html;
 
@@ -27229,6 +27524,54 @@ static partial class ImporterProgram
                             "</p><p>" + match.Groups["description"].Value + "</p>"
                         : match.Value,
                 RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        }
+
+        static bool TryNormalizeImageDecoderDecodeDrawableWorkerThreadParagraph(
+            string html,
+            out string normalized)
+        {
+            normalized = html;
+            var candidates = Regex.Matches(
+                    html,
+                    @"</p>\s*\.\s*<br\s*/?>\s*(?<worker>This\s+method\s+may\s+take\s+several\s+seconds\s+to\s+complete,\s+so\s+it\s+should\s+only\s+be\s+called\s+from\s+a\s+worker\s+thread\.)\s*</p>\s*</p>",
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Where(candidate => !IsInsidePreformattedBlock(html, candidate.Index))
+                .Where(candidate => HtmlText(candidate.Groups["worker"].Value).Equals(
+                    ImageDecoderDecodeDrawableWorkerThread,
+                    StringComparison.Ordinal))
+                .ToList();
+            if (candidates.Count != 1 ||
+                CountOccurrences(HtmlText(html), ImageDecoderDecodeDrawableLead) != 1 ||
+                CountOccurrences(HtmlText(html), ImageDecoderDecodeDrawableDefaultSettings) != 1 ||
+                CountOccurrences(HtmlText(html), ImageDecoderDecodeDrawableWorkerThread) != 1)
+            {
+                return false;
+            }
+
+            var candidate = candidates[0];
+            normalized = html[..candidate.Index] + "</p><p>" +
+                candidate.Groups["worker"].Value + "</p>" +
+                html[(candidate.Index + candidate.Length)..];
+            return true;
+        }
+
+        static bool HasImageDecoderDecodeDrawableMalformedBoundary(string html) =>
+            Regex.Matches(
+                    html,
+                    @"</p>\s*\.\s*<br\s*/?>",
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Any(candidate => !IsInsidePreformattedBlock(html, candidate.Index));
+
+        static int CountOccurrences(string value, string expected)
+        {
+            var count = 0;
+            var index = 0;
+            while ((index = value.IndexOf(expected, index, StringComparison.Ordinal)) >= 0)
+            {
+                count++;
+                index += expected.Length;
+            }
+            return count;
         }
 
         static bool TryNormalizeDeviceBuilderSetUdiPermissionParagraph(
@@ -28156,6 +28499,8 @@ static partial class ImporterProgram
         IReadOnlyList<SourceParagraph>? LegacyFlattenedParagraphs = null,
         IReadOnlyList<SourceParagraph>? IntermediateImplicitListParagraphs = null,
         bool HasRecoveredDeviceBuilderSetUdiPermissionContract = false,
+        bool HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract = false,
+        bool HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract = false,
         bool HasBiometricAllowedAuthenticatorsIncompleteDefaultList = false);
 
     static class Descriptor

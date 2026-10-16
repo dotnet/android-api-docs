@@ -100,6 +100,17 @@ managed member ID, full old plain-text summary/remarks, exact source reference,
 and Android attribution all match the prior importer output. Authored additions,
 mixed content, source changes, and unsafe XML locations are reported and preserved.
 The two-channel repair requires at least two remaining changes in the batch.
+The exact no-listener `ImageDecoder.decodeDrawable(Source)` member has a separate
+source-bound recovery for the official malformed `</p>.<br>` boundary that leaves
+its worker-thread requirement outside the parsed paragraph stack. Recovery requires
+the complete ordered create/default-settings/worker-thread contract, exact managed
+DocId, static signature, `Drawable` return, `Source` parameter, JNI descriptor,
+and canonical Android URL and label before any writer runs. Table, signature, and
+code-only lookalikes are not recovered; authored or mixed existing remarks are
+preserved, and a future correctly wrapped source paragraph remains ordinarily
+eligible. A malformed-boundary source that retains only the create/default-settings
+fragments is reported as ambiguous rather than falling back to an incomplete
+remarks import.
 The final `ControlsProviderService.onBind` and `onUnbind` overrides expose inherited
 `Service` Javadoc that contradicts their implementations. Exact member-ID/source-URL
 guards remove only the verified nullable-binder and default-false remarks sentences,
