@@ -260,9 +260,15 @@
         <ReturnType>Android.Views.ContentCaptures.ContentCaptureSessionVersion</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the Content Capture version enabled for this session.</summary>
+        <value>the enabled version, either VERSION_1 or VERSION_2. Calls to Version 1 methods become no-ops if the returned version is not VERSION_1, and calls to Version 2 methods become no-ops if the returned version is not VERSION_2. Value is one of the following: VERSION_1; VERSION_2</value>
+        <remarks>
+          <para>Gets the Content Capture version enabled for this session.</para>
+          <para>ContentCaptureSession offers two versions: VERSION_1 (legacy event-based capture using ViewStructure) and VERSION_2 (leaner, buffer-backed capture focused on text and bounding boxes).</para>
+          <para>The returned version is decided by the system intelligence service that coordinates this ContentCaptureSession.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureSession#getContentCaptureVersion()" title="Reference documentation">Android reference for <code>android.view.contentcapture.ContentCaptureSession.getContentCaptureVersion</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateContentCaptureSession">
@@ -1256,7 +1262,14 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>Content Capture Version 1.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Content Capture Version 1.</para>
+          <para>The first Content Capture version is an information rich, event based system that attempts to transfer the current view hierarchy from the application process to a system intelligence service through periodic event dumps, e.g. flush(). However, this system can also be resource heavy due to the large number of events it generates.</para>
+          <para>When this version is returned by getContentCaptureVersion(), developers should use Version 1 APIs to notify the system of view hierarchy changes. Calling Version 2 APIs when the session is configured for Version 1 will result in no-ops.</para>
+          <para>A list of functions that belong explicitly to Content Capture Version 1: notifyViewAppeared(ViewStructure); notifyViewDisappeared(AutofillId); notifyViewsAppeared(List); notifyViewsDisappeared(AutofillId,long[]); notifyViewTextChanged(AutofillId,CharSequence); flush(); newViewStructure(View); newVirtualViewStructure(AutofillId,long)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureSession#VERSION_1" title="Reference documentation">Android reference for <code>android.view.contentcapture.ContentCaptureSession.VERSION_1</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Version2">
@@ -1289,7 +1302,14 @@
       <MemberValue>2</MemberValue>
       <Docs>
         <summary>Content Capture Version 2.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Content Capture Version 2.</para>
+          <para>The second and newer Content Capture takes a more focused and leaner approach to passing the view hierarchy from the application to a system intelligence service. The required information is mostly limited to text on screen and bounding boxes of these text nodes. This version of Content Capture is also significantly more efficient at resource usage and recommended to be the default one for various system intelligence services to use.</para>
+          <para>When this version is returned by getContentCaptureVersion(), developers should use Version 2 APIs to report node lifecycle and property updates. Calling Version 1 APIs when the session is configured for Version 2 will result in no-ops.</para>
+          <para>A list of functions that belong explicitly to Content Capture Version 2: notifyNodeAppearedOrChanged(AutofillId,ContentCaptureNodeProperties); notifyNodeDisappeared(AutofillId)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureSession#VERSION_2" title="Reference documentation">Android reference for <code>android.view.contentcapture.ContentCaptureSession.VERSION_2</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
