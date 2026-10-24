@@ -172,7 +172,13 @@
         <summary>Obtains SeekPoint seek points for the specified seek time in microseconds,
             using cue points from a specific track.</summary>
         <returns>The corresponding SeekPoint seek points.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Obtains seek points for the specified seek time in microseconds, using cue points from a specific track.</para>
+          <para>This method is similar to getSeekPoints(long), but allows specifying a trackIndex. The trackIndex is the same index passed to OutputConsumer.onTrackDataFound(int,TrackData).</para>
+          <para>Use trackHasSeekPoints(int) to check if a track has its own seek points. If it returns false for the given trackIndex, this method will fall back to using the container's seek points, which is equivalent to calling getSeekPoints(long).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap#getSeekPoints(long,%20int)" title="Reference documentation">Android reference for <code>android.media.MediaParser.SeekMap.getSeekPoints</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="IsSeekable">
@@ -333,7 +339,13 @@
         <param name="trackIndex">The index of the track.</param>
         <summary>Returns whether the given track has its own SeekPoint seek points.</summary>
         <returns>Whether seeking is supported for the track.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns whether the given track has its own seek points.</para>
+          <para>The trackIndex is the same index passed to OutputConsumer.onTrackDataFound(int,TrackData).</para>
+          <para>This method can return false for all tracks even when isSeekable() returns true. In such cases, seeking is supported for the container, but not on a per-track basis. When this method returns false for a given track, calling getSeekPoints(long, int) for that track will fall back to using the container's seek points.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap#trackHasSeekPoints(int)" title="Reference documentation">Android reference for <code>android.media.MediaParser.SeekMap.trackHasSeekPoints</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="UnknownDuration">
