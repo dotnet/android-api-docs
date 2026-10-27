@@ -100,7 +100,7 @@
         <param name="pendingIntent">a PendingIntent for an activity to be launched onclick, or <c>null</c>
                                  to handle the clicks in the `TileService`.</param>
         <summary>Gets the Activity <c>PendingIntent</c> to be launched when the tile is clicked. -or- Sets an Activity <c>PendingIntent</c> to be launched when the tile is clicked.</summary>
-        <value>To be added.</value>
+        <value>The activity pending intent to launch when the tile is clicked, or <see langword="null" /> to handle clicks in <see cref="M:Android.Service.QuickSettings.TileService.OnClick" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Gets the Activity <c>PendingIntent</c> to be launched when the tile is clicked.</para>
@@ -149,8 +149,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the tile's content description as a string.</summary>
+        <value>The string representation of <see cref="P:Android.Service.QuickSettings.Tile.ContentDescriptionFormatted" />, or <see langword="null" /> if that property is <see langword="null" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -190,7 +190,7 @@
       <Docs>
         <param name="contentDescription">New content description to use.</param>
         <summary>Gets the current content description for the tile. -or- Sets the current content description for the tile.</summary>
-        <value>To be added.</value>
+        <value>The tile's content description as a character sequence, or <see langword="null" /> if no content description is set.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Gets the current content description for the tile.</para>
@@ -240,8 +240,8 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the creator used to read tiles from parcels and create tile arrays.</summary>
+        <value>The parcelable creator for <see cref="T:Android.Service.QuickSettings.Tile" /> objects.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -318,7 +318,7 @@
       <Docs>
         <param name="icon">New icon to show.</param>
         <summary>Gets the current icon for the tile. -or- Sets the current icon for the tile.</summary>
-        <value>To be added.</value>
+        <value>The tile's current icon, or <see langword="null" /> if no icon is set.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Gets the current icon for the tile.</para>
@@ -433,8 +433,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the tile's label as a string.</summary>
+        <value>The string representation of <see cref="P:Android.Service.QuickSettings.Tile.LabelFormatted" />, or <see langword="null" /> if that property is <see langword="null" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -474,7 +474,7 @@
       <Docs>
         <param name="label">New label to show.</param>
         <summary>Gets the current label for the tile. -or- Sets the current label for the tile.</summary>
-        <value>To be added.</value>
+        <value>The tile's current label as a character sequence, or <see langword="null" /> if no label is available.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Gets the current label for the tile.</para>
@@ -535,7 +535,7 @@
         <param name="state">One of <c>#STATE_UNAVAILABLE</c>, <c>#STATE_INACTIVE</c>,
             <c>#STATE_ACTIVE</c></param>
         <summary>The current state of the tile. -or- Sets the current state for the tile.</summary>
-        <value>To be added.</value>
+        <value>A <see cref="T:Android.Service.QuickSettings.TileState" /> value that specifies whether the tile is unavailable, inactive, or active.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>The current state of the tile.</para>
@@ -630,9 +630,12 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets or sets the tile's state description as a string.</summary>
+        <value>The string representation of <see cref="P:Android.Service.QuickSettings.Tile.StateDescriptionFormatted" />, or <see langword="null" /> if that property is <see langword="null" />.</value>
+        <remarks>
+          <para>This is the string form of <see cref="P:Android.Service.QuickSettings.Tile.StateDescriptionFormatted" />. The getter converts the character sequence to a string. Setting this property passes the string, or <see langword="null" />, to the same Android setter.</para>
+          <para>Call <see cref="M:Android.Service.QuickSettings.Tile.UpdateTile" /> to send the change to Quick Settings.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="StateDescriptionFormatted">
@@ -669,7 +672,7 @@
       <Docs>
         <param name="stateDescription">New state description to use.</param>
         <summary>Gets the current state description for the tile. -or- Sets the current state description for the tile.</summary>
-        <value>To be added.</value>
+        <value>The tile's state description as a character sequence, or <see langword="null" /> if no state description is set.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Gets the current state description for the tile.</para>
@@ -818,9 +821,12 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets or sets the tile's secondary label as a string.</summary>
+        <value>The string representation of <see cref="P:Android.Service.QuickSettings.Tile.SubtitleFormatted" />, or <see langword="null" /> if that property is <see langword="null" />.</value>
+        <remarks>
+          <para>This is the string form of <see cref="P:Android.Service.QuickSettings.Tile.SubtitleFormatted" />. The getter converts the character sequence to a string. Setting this property passes the string, or <see langword="null" />, to the same Android setter.</para>
+          <para>Call <see cref="M:Android.Service.QuickSettings.Tile.UpdateTile" /> to send the change to Quick Settings.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SubtitleFormatted">
@@ -857,7 +863,7 @@
       <Docs>
         <param name="subtitle">the subtitle to show.</param>
         <summary>Gets the current subtitle for the tile. -or- Set the subtitle for the tile.</summary>
-        <value>To be added.</value>
+        <value>The tile's secondary label as a character sequence, or <see langword="null" /> if no subtitle is set.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Gets the current subtitle for the tile.</para>
