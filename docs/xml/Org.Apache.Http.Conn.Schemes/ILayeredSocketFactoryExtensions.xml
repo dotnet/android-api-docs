@@ -18,7 +18,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides task-based extension methods for <see cref="T:Org.Apache.Http.Conn.Schemes.ILayeredSocketFactory" />.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -64,14 +64,16 @@
         <Parameter Name="autoClose" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="self">To be added.</param>
-        <param name="socket">To be added.</param>
-        <param name="host">To be added.</param>
-        <param name="port">To be added.</param>
-        <param name="autoClose">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="self">The layered socket factory on which to call <see cref="M:Org.Apache.Http.Conn.Schemes.ILayeredSocketFactory.CreateSocket(Java.Net.Socket,System.String,System.Int32,System.Boolean)" />.</param>
+        <param name="socket">The existing socket over which to create the new socket.</param>
+        <param name="host">The name or IP address of the remote host.</param>
+        <param name="port">The port number on the remote host.</param>
+        <param name="autoClose"><see langword="true" /> to close <paramref name="socket" /> when the new socket is closed; otherwise, <see langword="false" />.</param>
+        <summary>Runs the layered socket factory's socket creation operation as a task.</summary>
+        <returns>A task whose result is the new socket returned by <c>self.CreateSocket(socket, host, port, autoClose)</c>, connected to the specified host and layered over <paramref name="socket" />.</returns>
         <remarks>
+          <para>This .NET extension method uses <c>System.Threading.Tasks.Task.Run</c> to call the synchronous <see cref="M:Org.Apache.Http.Conn.Schemes.ILayeredSocketFactory.CreateSocket(Java.Net.Socket,System.String,System.Int32,System.Boolean)" /> method on <paramref name="self" />. It does not use native asynchronous socket I/O and has no cancellation token parameter. Exceptions from the synchronous call are stored in the returned task.</para>
+          <para>For the generated implementation, see the <see href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodExtensionAsyncWrapper.cs">.NET for Android async extension generator</see>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

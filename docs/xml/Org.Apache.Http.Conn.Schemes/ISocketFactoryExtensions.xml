@@ -18,7 +18,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides task-based extension methods for <see cref="T:Org.Apache.Http.Conn.Schemes.ISocketFactory" />.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -66,16 +66,18 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="self">To be added.</param>
-        <param name="sock">To be added.</param>
-        <param name="host">To be added.</param>
-        <param name="port">To be added.</param>
-        <param name="localAddress">To be added.</param>
-        <param name="localPort">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="self">The socket factory on which to call <see cref="M:Org.Apache.Http.Conn.Schemes.ISocketFactory.ConnectSocket(Java.Net.Socket,System.String,System.Int32,Java.Net.InetAddress,System.Int32,Org.Apache.Http.Params.IHttpParams)" />.</param>
+        <param name="sock">The socket to connect, or <see langword="null" /> to create and connect a new socket.</param>
+        <param name="host">The name of the remote host.</param>
+        <param name="port">The port number on the remote host.</param>
+        <param name="localAddress">The local address to bind to, or <see langword="null" /> to use any local address.</param>
+        <param name="localPort">The local port number, or zero or a negative number to use any local port.</param>
+        <param name="params">The parameters that control the connection.</param>
+        <summary>Runs the socket factory's connection operation as a task.</summary>
+        <returns>A task whose result is the socket returned by <c>self.ConnectSocket(sock, host, port, localAddress, localPort, params)</c>. This socket can differ from <paramref name="sock" /> when the factory uses a layered protocol.</returns>
         <remarks>
+          <para>This .NET extension method uses <c>System.Threading.Tasks.Task.Run</c> to call the synchronous <see cref="M:Org.Apache.Http.Conn.Schemes.ISocketFactory.ConnectSocket(Java.Net.Socket,System.String,System.Int32,Java.Net.InetAddress,System.Int32,Org.Apache.Http.Params.IHttpParams)" /> method on <paramref name="self" />. It does not use native asynchronous socket I/O and has no cancellation token parameter. Exceptions from the synchronous call are stored in the returned task.</para>
+          <para>For the generated implementation, see the <see href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodExtensionAsyncWrapper.cs">.NET for Android async extension generator</see>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
