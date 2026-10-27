@@ -254,9 +254,9 @@
         <Parameter Name="pdu" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="pdu">To be added.</param>
+        <param name="pdu">The raw SMS protocol data unit (PDU) bytes.</param>
         <summary>Create an SmsMessage from a raw PDU.</summary>
-        <returns>To be added.</returns>
+        <returns>An SMS message created from <paramref name="pdu" />.</returns>
         <remarks>
           <para>Create an SmsMessage from a raw PDU.</para>
           <para>This member is deprecated. Use android.telephony.SmsMessage.</para>
@@ -300,7 +300,7 @@
       <Docs>
         <summary>Returns the message body, or email message body if this message was from
             an email gateway.</summary>
-        <value>To be added.</value>
+        <value>The message body, or the email body for a message from an email gateway; <see langword="null" /> if the body is unavailable.</value>
         <remarks>
           <para>Returns the message body, or email message body if this message was from
             an email gateway. Returns null if message body unavailable.</para>
@@ -345,7 +345,7 @@
       <Docs>
         <summary>Returns the originating address, or email from address if this message
             was from an email gateway.</summary>
-        <value>To be added.</value>
+        <value>The sender address, or the email sender address for a message from an email gateway; <see langword="null" /> if the sender address is unavailable.</value>
         <remarks>
           <para>Returns the originating address, or email from address if this message
             was from an email gateway. Returns null if originating address
@@ -477,7 +477,7 @@
       <Parameters />
       <Docs>
         <summary>Returns the class of this message.</summary>
-        <returns>To be added.</returns>
+        <returns>The SMS message class of this message.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -568,9 +568,9 @@
       </Parameters>
       <Docs>
         <param name="scAddress">Service Centre address.  Null means use default.</param>
-        <param name="destinationAddress">To be added.</param>
-        <param name="message">To be added.</param>
-        <param name="statusReportRequested">To be added.</param>
+        <param name="destinationAddress">The destination address for the message.</param>
+        <param name="message">The text to encode in the message.</param>
+        <param name="statusReportRequested"><see langword="true" /> to request a status report for this message; otherwise, <see langword="false" />.</param>
         <summary>Get an SMS-SUBMIT PDU for a destination address and a message</summary>
         <returns>a &lt;code&gt;SubmitPdu&lt;/code&gt; containing the encoded SC
                     address, if applicable, and the encoded message.
@@ -626,7 +626,7 @@
         <param name="destinationPort">the port to deliver the message to at the
         destination</param>
         <param name="data">the dat for the message</param>
-        <param name="statusReportRequested">To be added.</param>
+        <param name="statusReportRequested"><see langword="true" /> to request a status report for this message; otherwise, <see langword="false" />.</param>
         <summary>Get an SMS-SUBMIT PDU for a destination address and a message</summary>
         <returns>a &lt;code&gt;SubmitPdu&lt;/code&gt; containing the encoded SC
                     address, if applicable, and the encoded message.
@@ -673,10 +673,10 @@
         <Parameter Name="pdu" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pdu">To be added.</param>
+        <param name="pdu">The SMS-SUBMIT PDU as a hexadecimal string, including the service center address header for GSM.</param>
         <summary>Get the TP-Layer-Length for the given SMS-SUBMIT PDU Basically, the
             length in bytes (not hex chars) less the SMSC header</summary>
-        <returns>To be added.</returns>
+        <returns>The transport-layer PDU length in bytes, not hexadecimal characters, excluding the service center address header for GSM.</returns>
         <remarks>
           <para>Get the TP-Layer-Length for the given SMS-SUBMIT PDU Basically, the
             length in bytes (not hex chars) less the SMSC header</para>
@@ -721,7 +721,7 @@
       <Parameters />
       <Docs>
         <summary>returns the user data section minus the user data header if one was present.</summary>
-        <returns>To be added.</returns>
+        <returns>The user data bytes, without the user data header if one was present.</returns>
         <remarks>
           <para>returns the user data section minus the user data header if one was present.</para>
           <para>This member is deprecated. Use android.telephony.SmsMessage.</para>
@@ -896,7 +896,7 @@
       <Docs>
         <summary>returns true if this message is a CPHS voicemail / message waiting
             indicator (MWI) clear message</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if this message clears the voicemail message waiting indicator; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>returns true if this message is a CPHS voicemail / message waiting
             indicator (MWI) clear message</para>
@@ -941,7 +941,7 @@
       <Docs>
         <summary>returns true if this message is a "Message Waiting Indication Group:
             Discard Message" notification and should not be stored.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if this message is a message waiting notification that should not be stored; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>returns true if this message is a "Message Waiting Indication Group:
             Discard Message" notification and should not be stored.</para>
@@ -986,7 +986,7 @@
       <Docs>
         <summary>returns true if this message is a CPHS voicemail / message waiting
             indicator (MWI) set message</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if this message sets the voicemail message waiting indicator; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>returns true if this message is a CPHS voicemail / message waiting
             indicator (MWI) set message</para>
@@ -1030,7 +1030,7 @@
       </ReturnValue>
       <Docs>
         <summary>See TS 23.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if this is a replace short message SMS, as specified in TS 23.040 section 9.2.3.9; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>See TS 23.040 9.2.3.9 returns true if this is a "replace short message" SMS</para>
           <para>This member is deprecated. Use android.telephony.SmsMessage.</para>
@@ -1074,7 +1074,7 @@
       <Docs>
         <summary>Returns true iff the <c>TP-Reply-Path</c> bit is set in
             this message.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the <c>TP-Reply-Path</c> bit is set in this message; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns true iff the <c>TP-Reply-Path</c> bit is set in
             this message.</para>
@@ -1118,7 +1118,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return true iff the message is a SMS-STATUS-REPORT message.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if this is an SMS-STATUS-REPORT message; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Return true iff the message is a SMS-STATUS-REPORT message.</para>
           <para>This member is deprecated. Use android.telephony.SmsMessage.</para>
@@ -1376,7 +1376,7 @@
       <Docs>
         <summary>Returns the originating address (sender) of this SMS message in String
             form or null if unavailable</summary>
-        <value>To be added.</value>
+        <value>The sender address as a string, or <see langword="null" /> if unavailable.</value>
         <remarks>
           <para>Returns the originating address (sender) of this SMS message in String
             form or null if unavailable</para>
@@ -1420,7 +1420,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get protocol identifier.</summary>
-        <value>To be added.</value>
+        <value>The protocol identifier of this message.</value>
         <remarks>
           <para>Get protocol identifier.</para>
           <para>This member is deprecated. Use android.telephony.SmsMessage.</para>
@@ -1464,7 +1464,7 @@
       <Docs>
         <summary>Unofficial convention of a subject line enclosed in parens empty string
             if not present</summary>
-        <value>To be added.</value>
+        <value>The subject that follows the parenthesized-subject convention, or an empty string if no subject is present.</value>
         <remarks>
           <para>Unofficial convention of a subject line enclosed in parens empty string
             if not present</para>
@@ -1509,7 +1509,7 @@
       <Docs>
         <summary>Returns the address of the SMS service center that relayed this message
             or null if there is none.</summary>
-        <value>To be added.</value>
+        <value>The address of the SMS service center that relayed this message, or <see langword="null" /> if there is none.</value>
         <remarks>
           <para>Returns the address of the SMS service center that relayed this message
             or null if there is none.</para>
@@ -1727,7 +1727,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the service centre timestamp in currentTimeMillis() format</summary>
-        <value>To be added.</value>
+        <value>The service center timestamp, in milliseconds since January 1, 1970, 00:00:00 UTC.</value>
         <remarks>
           <para>Returns the service centre timestamp in currentTimeMillis() format</para>
           <para>This member is deprecated. Use android.telephony.SmsMessage.</para>
