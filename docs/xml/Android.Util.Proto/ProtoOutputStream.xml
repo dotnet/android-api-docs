@@ -120,7 +120,7 @@
         <Parameter Name="chunkSize" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="chunkSize">To be added.</param>
+        <param name="chunkSize">The size, in bytes, of each internal buffer chunk. A value less than or equal to zero selects the default size.</param>
         <summary>Construct a <c>ProtoOutputStream</c> with the given chunk size.</summary>
         <remarks>
           <para>Construct a <c>ProtoOutputStream with the given chunk size.
@@ -163,7 +163,7 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
+        <param name="stream">The output stream to which <see cref="M:Android.Util.Proto.ProtoOutputStream.Flush" /> writes the encoded data.</param>
         <summary>Construct a <c>ProtoOutputStream</c> that sits on top of an <c>OutputStream</c>.</summary>
         <remarks>
           <para>Construct a <c>ProtoOutputStream</c> that sits on top of an <c>OutputStream</c>.</para>
@@ -211,8 +211,8 @@
         <Parameter Name="expectedFlags" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="fieldId">To be added.</param>
-        <param name="expectedFlags">To be added.</param>
+        <param name="fieldId">The field identifier to check, including its field number, type, and count flags.</param>
+        <param name="expectedFlags">The expected field type and count flags. The type must match exactly. The count must match, except that a packed field is also accepted when a repeated field is expected.</param>
         <summary>Validates that the fieldId provided is of the type and count from expectedType.</summary>
         <returns>The raw ID of that field.</returns>
         <remarks>
@@ -267,7 +267,7 @@
         <Parameter Name="tag" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="tag">To be added.</param>
+        <param name="tag">The log tag for the buffer debugging output.</param>
         <summary>Dump debugging data about the buffers with the given log tag.</summary>
         <remarks>
           <para>Dump debugging data about the buffers with the given log tag.</para>
@@ -1264,7 +1264,7 @@ int tag = (fieldNumber &lt;&lt; FIELD_ID_SHIFT) | wireType;</code>
       <Docs>
         <summary>Finish the encoding of the data, and return a byte[] with
             the protobuf formatted data.</summary>
-        <returns>To be added.</returns>
+        <returns>A byte array containing the completed protobuf encoding of the buffered data.</returns>
         <remarks>
           <para>Finish the encoding of the data, and return a byte[] with
             the protobuf formatted data.</para>
@@ -1314,9 +1314,9 @@ int tag = (fieldNumber &lt;&lt; FIELD_ID_SHIFT) | wireType;</code>
         <Parameter Name="fieldCount" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="fieldCount">To be added.</param>
+        <param name="fieldCount">A field count flag, such as <see cref="F:Android.Util.Proto.ProtoOutputStream.FieldCountSingle" />, <see cref="F:Android.Util.Proto.ProtoOutputStream.FieldCountRepeated" />, or <see cref="F:Android.Util.Proto.ProtoOutputStream.FieldCountPacked" />, without a field number or type flags.</param>
         <summary>Get the developer-usable name of a field count.</summary>
-        <returns>To be added.</returns>
+        <returns>An empty string for a single field, <c>"Repeated"</c> for a repeated field, or <c>"Packed"</c> for a packed field; otherwise, <see langword="null" />.</returns>
         <remarks>
           <para>Get the developer-usable name of a field count.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/util/proto/ProtoOutputStream#getFieldCountString(long)" title="Reference documentation">Android reference for <code>android.util.proto.ProtoOutputStream.getFieldCountString</code>.</a></format></para>
@@ -1351,9 +1351,9 @@ int tag = (fieldNumber &lt;&lt; FIELD_ID_SHIFT) | wireType;</code>
         <Parameter Name="fieldId" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="fieldId">To be added.</param>
+        <param name="fieldId">The field identifier to describe, including its field number, type, and count flags.</param>
         <summary>Get a debug string for a fieldId.</summary>
-        <returns>To be added.</returns>
+        <returns>A debugging string containing the field count and type descriptions, the field number, and the complete identifier in hexadecimal. Unrecognized count or type flags are shown as numeric values.</returns>
         <remarks>
           <para>Get a debug string for a fieldId.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/util/proto/ProtoOutputStream#getFieldIdString(long)" title="Reference documentation">Android reference for <code>android.util.proto.ProtoOutputStream.getFieldIdString</code>.</a></format></para>
@@ -1392,9 +1392,9 @@ int tag = (fieldNumber &lt;&lt; FIELD_ID_SHIFT) | wireType;</code>
         <Parameter Name="fieldType" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="fieldType">To be added.</param>
+        <param name="fieldType">The field type flags to describe. Only the bits selected by <see cref="F:Android.Util.Proto.ProtoOutputStream.FieldTypeMask" /> are used.</param>
         <summary>Get the developer-usable name of a field type.</summary>
-        <returns>To be added.</returns>
+        <returns>The name of the field type, such as <c>"Double"</c>, <c>"String"</c>, or <c>"Message"</c>; or <see langword="null" /> if the masked type code has no name.</returns>
         <remarks>
           <para>Get the developer-usable name of a field type.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/util/proto/ProtoOutputStream#getFieldTypeString(long)" title="Reference documentation">Android reference for <code>android.util.proto.ProtoOutputStream.getFieldTypeString</code>.</a></format></para>
@@ -1440,9 +1440,9 @@ int tag = (fieldNumber &lt;&lt; FIELD_ID_SHIFT) | wireType;</code>
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="wireType">To be added.</param>
+        <param name="wireType">The wire type code to describe, without a field number.</param>
         <summary>Get the developer-usable name of a wire type.</summary>
-        <returns>To be added.</returns>
+        <returns><c>"Varint"</c>, <c>"Fixed64"</c>, <c>"Length Delimited"</c>, <c>"Start Group"</c>, <c>"End Group"</c>, or <c>"Fixed32"</c> for the corresponding wire type code; otherwise, <see langword="null" />.</returns>
         <remarks>
           <para>Get the developer-usable name of a wire type.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/util/proto/ProtoOutputStream#getWireTypeString(int)" title="Reference documentation">Android reference for <code>android.util.proto.ProtoOutputStream.getWireTypeString</code>.</a></format></para>
@@ -1509,10 +1509,10 @@ int tag = (fieldNumber &lt;&lt; FIELD_ID_SHIFT) | wireType;</code>
         <Parameter Name="fieldFlags" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <param name="fieldFlags">To be added.</param>
+        <param name="id">The field number from the protobuf definition.</param>
+        <param name="fieldFlags">The field type and count flags to combine with the field number.</param>
         <summary>Combine a fieldId (the field keys in the proto file) and the field flags.</summary>
-        <returns>To be added.</returns>
+        <returns>The bitwise OR of <paramref name="fieldFlags" /> and the unsigned low 32 bits of <paramref name="id" />.</returns>
         <remarks>
           <para>Combine a fieldId (the field keys in the proto file) and the field flags.
             Mostly useful for testing because the generated code contains the fieldId
@@ -1561,14 +1561,19 @@ int tag = (fieldNumber &lt;&lt; FIELD_ID_SHIFT) | wireType;</code>
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="tagSize">To be added.</param>
-        <param name="repeated">To be added.</param>
-        <param name="depth">To be added.</param>
-        <param name="objectId">To be added.</param>
-        <param name="offset">To be added.</param>
+        <param name="tagSize">The encoded field tag size, in bytes. Only the low 3 bits are stored.</param>
+        <param name="repeated">Whether the object is a repeated field.</param>
+        <param name="depth">The object nesting depth. Only the low 9 bits are stored.</param>
+        <param name="objectId">The object identifier used for error checking. Only the low 19 bits are stored.</param>
+        <param name="offset">The buffer offset associated with the object. All 32 bits are stored.</param>
         <summary>Make a token.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A 64-bit token containing the masked tag size, repeated flag, masked depth, masked object identifier, and offset.</returns>
+        <remarks>
+          <para>Bits 61 through 63 contain the tag size; bit 60 contains the repeated flag; bits 51 through 59 contain the depth; bits 32 through 50 contain the object identifier; and bits 0 through 31 contain the offset. Bit 0 is the least significant bit.</para>
+          <para>The depth and object identifier are masked to 9 and 19 bits, respectively. Their stored values range from 0 through 511 and from 0 through 524287. Higher bits are discarded; this method does not validate the supplied values.</para>
+          <para>These fields describe an internal object token, not a protobuf field tag. Use the token returned by <see cref="M:Android.Util.Proto.ProtoOutputStream.Start(System.Int64)" /> with <see cref="M:Android.Util.Proto.ProtoOutputStream.End(System.Int64)" /> when writing nested messages.</para>
+          <para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/util/proto/ProtoStream.java">AOSP implementation of <c>ProtoStream.makeToken</c></see> for the token layout.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RawSize">
@@ -1748,9 +1753,9 @@ int tag = (fieldNumber &lt;&lt; FIELD_ID_SHIFT) | wireType;</code>
         <Parameter Name="token" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="token">To be added.</param>
+        <param name="token">The object token to describe.</param>
         <summary>Return a debugging string of a token.</summary>
-        <returns>To be added.</returns>
+        <returns><c>"Token(0)"</c> for zero; otherwise, a debugging string containing the token in hexadecimal, its depth, its object ordinal, its tag size, and its buffer offset.</returns>
         <remarks>
           <para>Return a debugging string of a token.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/util/proto/ProtoOutputStream#token2String(long)" title="Reference documentation">Android reference for <code>android.util.proto.ProtoOutputStream.token2String</code>.</a></format></para>
@@ -2402,8 +2407,8 @@ int tag = (fieldNumber &lt;&lt; FIELD_ID_SHIFT) | wireType;</code>
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <param name="wireType">To be added.</param>
+        <param name="id">The field number, before shifting it to form the tag.</param>
+        <param name="wireType">The wire type code to combine with the shifted field number. The tag is written as <c>(id &lt;&lt; 3) | wireType</c>, using variable-length integer encoding.</param>
         <summary>Write an individual field tag by hand.</summary>
         <remarks>
           <para>Write an individual field tag by hand.
