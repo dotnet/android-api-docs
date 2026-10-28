@@ -154,7 +154,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the quota in bytes for the application's current backup operation.</summary>
-        <value>To be added.</value>
+        <value>The quota, in bytes, for the current backup operation; or -1 when the output was created without quota information. The quota can differ between operations.</value>
         <remarks>
           <para>Returns the quota in bytes for the application's current backup operation.  The
             value can vary for each operation.</para>
@@ -258,7 +258,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns flags with additional information about the backup transport.</summary>
-        <value>To be added.</value>
+        <value>The backup transport flags for this operation, or zero if no flags are set.</value>
         <remarks>
           <para>Returns flags with additional information about the backup transport. For supported flags see
             <c>android.app.backup.BackupAgent</c></para>
@@ -350,11 +350,14 @@
         <Parameter Name="size" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
-        <param name="size">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="data">The buffer containing the entity data to write.</param>
+        <param name="size">The number of bytes to write from the start of <paramref name="data" />.</param>
+        <summary>Runs <see cref="M:Android.App.Backup.BackupDataOutput.WriteEntityData(System.Byte[],System.Int32)" /> on a thread pool thread.</summary>
+        <returns>A task whose result is the status returned by <c>WriteEntityData</c>. The Android framework implementation returns zero on a successful write, not the number of bytes written.</returns>
         <remarks>
+          <para>Write the entity header first. This .NET wrapper uses <c>Task.Run</c> to call the synchronous method. Await the task before changing the buffer or starting another operation on this output. The total entity data written must match the size specified in the header.</para>
+          <para>Do not use the result as a byte count to advance a buffer position or retry data. The wrapper forwards the synchronous result without converting it. See the <format type="text/html"><a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/1cdfff555f4a21f71ccc978290e2e212e2f8b168/libs/androidfw/BackupData.cpp">Android native writer implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -437,11 +440,14 @@
         <Parameter Name="dataSize" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="dataSize">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="key">The key that uniquely identifies the record in the application's backup data. The first character must be less than U+FF00.</param>
+        <param name="dataSize">The size of the record data, in bytes; or -1 to delete the record with this key.</param>
+        <summary>Runs <see cref="M:Android.App.Backup.BackupDataOutput.WriteEntityHeader(System.String,System.Int32)" /> on a thread pool thread.</summary>
+        <returns>A task whose result is the status returned by <c>WriteEntityHeader</c>. The Android framework implementation returns zero on a successful write, not the number of bytes written.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call the synchronous method. Await the task before writing the entity data or starting another operation on this output. Do not write entity data for a deletion record.</para>
+          <para>Do not use the result to calculate the number of bytes in the backup stream. The wrapper forwards the synchronous result without converting it. See the <format type="text/html"><a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/1cdfff555f4a21f71ccc978290e2e212e2f8b168/libs/androidfw/BackupData.cpp">Android native writer implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

@@ -12,7 +12,7 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides task-based extension methods for <see cref="T:Android.App.Backup.IBackupHelper" />.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -57,13 +57,16 @@
         <Parameter Name="newState" Type="Android.OS.ParcelFileDescriptor" />
       </Parameters>
       <Docs>
-        <param name="self">To be added.</param>
-        <param name="oldState">To be added.</param>
-        <param name="data">To be added.</param>
-        <param name="newState">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="self">The backup helper on which to call <c>PerformBackup</c>.</param>
+        <param name="oldState">The read-only descriptor containing this helper's previous backup state, or <see langword="null" /> if no previous state is available.</param>
+        <param name="data">The output to which the helper writes the backup data.</param>
+        <param name="newState">The open descriptor at which the helper writes its new backup state.</param>
+        <summary>Runs <see cref="M:Android.App.Backup.IBackupHelper.PerformBackup(Android.OS.ParcelFileDescriptor,Android.App.Backup.BackupDataOutput,Android.OS.ParcelFileDescriptor)" /> on a thread pool thread.</summary>
+        <returns>A task that represents completion of the helper's <c>PerformBackup</c> call.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call the synchronous method. Await the task before reusing or disposing of the supplied objects, invoking another helper, or returning from the backup callback.</para>
+          <para>The helper must not close or seek the state descriptors. Read only the state saved by this helper, so that later helpers can read their own state.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodExtensionAsyncWrapper.cs">.NET extension task wrapper implementation</a></format> and <format type="text/html"><a href="https://developer.android.com/reference/android/app/backup/BackupHelper#performBackup(android.os.ParcelFileDescriptor,%20android.app.backup.BackupDataOutput,%20android.os.ParcelFileDescriptor)">Android backup helper contract</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
