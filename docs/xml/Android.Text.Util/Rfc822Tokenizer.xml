@@ -142,9 +142,9 @@
         <param name="text">The non-null address-list text to search.</param>
         <param name="cursor">The zero-based UTF-16 offset at which to start searching, from zero through the length of <paramref name="text" />.</param>
         <summary>Returns the end of the token (minus trailing punctuation) that begins at offset cursor within text.</summary>
-        <returns>The index of the first comma or semicolon outside a quoted name, comment, or angle-bracketed address at or after <paramref name="cursor" />, or the text length if none is found.</returns>
+        <returns>The index of the first comma or semicolon found by a forward scan from <paramref name="cursor" />, skipping quoted names, comments, and angle-bracketed addresses whose opening delimiter is encountered during that scan, or the text length if no separator is found.</returns>
         <remarks>
-          <para>The end index is exclusive. The search skips escaped characters in quoted names and comments, including nested comments. It does not validate the address syntax.</para>
+          <para>The end index is exclusive. The scan does not recover quoting or nesting state from text before the cursor. To find a token boundary, start at the beginning of the token, for example at the offset returned by <see cref="M:Android.Text.Util.Rfc822Tokenizer.FindTokenStart(Java.Lang.ICharSequence,System.Int32)" />. Within constructs opened during the scan, it skips escaped characters in quoted names and comments, including nested comments. It does not validate the address syntax.</para>
           <para>Returns the end of the token (minus trailing punctuation) that begins at offset cursor within text.</para>
           <para>
             <format type="text/html">
@@ -181,9 +181,9 @@
         <param name="text">The non-null address-list text to search.</param>
         <param name="cursor">The zero-based UTF-16 offset at which to start searching, from zero through the length of <paramref name="text" />.</param>
         <summary>Finds the end of a token in an address-list string.</summary>
-        <returns>The index of the first comma or semicolon outside a quoted name, comment, or angle-bracketed address at or after <paramref name="cursor" />, or the string length if none is found.</returns>
+        <returns>The index of the first comma or semicolon found by a forward scan from <paramref name="cursor" />, skipping quoted names, comments, and angle-bracketed addresses whose opening delimiter is encountered during that scan, or the string length if no separator is found.</returns>
         <remarks>
-          <para>The end index is exclusive. The search skips escaped characters in quoted names and comments, including nested comments. It does not validate the address syntax. This .NET string overload calls <see cref="M:Android.Text.Util.Rfc822Tokenizer.FindTokenEnd(Java.Lang.ICharSequence,System.Int32)" /> after converting the string to a Java character sequence.</para>
+          <para>The end index is exclusive. The scan does not recover quoting or nesting state from text before the cursor. To find a token boundary, start at the beginning of the token, for example at the offset returned by <see cref="M:Android.Text.Util.Rfc822Tokenizer.FindTokenStart(System.String,System.Int32)" />. Within constructs opened during the scan, it skips escaped characters in quoted names and comments, including nested comments. It does not validate the address syntax. This .NET string overload calls <see cref="M:Android.Text.Util.Rfc822Tokenizer.FindTokenEnd(Java.Lang.ICharSequence,System.Int32)" /> after converting the string to a Java character sequence.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/text/util/Rfc822Tokenizer#findTokenEnd(java.lang.CharSequence,%20int)" title="Reference documentation">Java documentation for <code>android.text.util.Rfc822Tokenizer.findTokenEnd(java.lang.CharSequence, int)</code>.</a>
@@ -633,11 +633,12 @@
       </Parameters>
       <Docs>
         <param name="text">The non-null address-list text to split into tokens.</param>
-        <param name="out">The non-null writable collection to which parsed tokens are appended in input order. Existing entries are not removed.</param>
+        <param name="out">The non-null collection passed to Android. A writable <c>Android.Runtime.JavaCollection&lt;Rfc822Token&gt;</c> wrapper receives appended tokens in input order without removing existing entries. An ordinary managed collection is copied to a temporary Java collection and does not receive the appended tokens.</param>
         <summary>This constructor will try to take a string like
             "Foo Bar (something) &amp;lt;foo\</summary>
         <remarks>
           <para>Commas and semicolons separate tokens outside quoted names, comments, and angle-bracketed addresses. No token is added for a part that has neither a name nor an address. The parser tolerates broken syntax and does not decode MIME encoded words.</para>
+          <para>For managed results, use <see cref="M:Android.Text.Util.Rfc822Tokenizer.Tokenize(Java.Lang.ICharSequence)" />, which returns an array. This collection overload does not copy changes back to an ordinary managed collection, such as <c>List&lt;Rfc822Token&gt;</c>. It passes an existing <c>Android.Runtime.JavaCollection&lt;Rfc822Token&gt;</c> wrapper through to its underlying Java collection. See the pinned <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/Java.Interop.Tools.Generator.ObjectModel/Symbols/CollectionSymbol.cs">collection binding generator</a></format> and <format type="text/html"><a href="https://github.com/dotnet/android/blob/3c25fed857508e40c364dfa1427c98fef4a0e5c0/src/Mono.Android/Android.Runtime/JavaCollection.cs">Java collection conversion helper</a></format>.</para>
           <para>This constructor will try to take a string like
             "Foo Bar (something) &amp;lt;foo\</para>
           <para>
@@ -679,11 +680,12 @@
       </Parameters>
       <Docs>
         <param name="text">The non-null address-list string to split into tokens.</param>
-        <param name="out">The non-null writable collection to which parsed tokens are appended in input order. Existing entries are not removed.</param>
+        <param name="out">The non-null collection passed to Android. A writable <c>Android.Runtime.JavaCollection&lt;Rfc822Token&gt;</c> wrapper receives appended tokens in input order without removing existing entries. An ordinary managed collection is copied to a temporary Java collection and does not receive the appended tokens.</param>
         <summary>This constructor will try to take a string like
             "Foo Bar (something) &amp;lt;foo\</summary>
         <remarks>
           <para>Commas and semicolons separate tokens outside quoted names, comments, and angle-bracketed addresses. No token is added for a part that has neither a name nor an address. The parser tolerates broken syntax and does not decode MIME encoded words. This .NET overload converts the string to a Java character sequence and forwards to the character-sequence overload.</para>
+          <para>For managed results, use <see cref="M:Android.Text.Util.Rfc822Tokenizer.Tokenize(System.String)" />, which returns an array. This collection overload does not copy changes back to an ordinary managed collection, such as <c>List&lt;Rfc822Token&gt;</c>. It passes an existing <c>Android.Runtime.JavaCollection&lt;Rfc822Token&gt;</c> wrapper through to its underlying Java collection. See the pinned <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/Java.Interop.Tools.Generator.ObjectModel/Symbols/CollectionSymbol.cs">collection binding generator</a></format> and <format type="text/html"><a href="https://github.com/dotnet/android/blob/3c25fed857508e40c364dfa1427c98fef4a0e5c0/src/Mono.Android/Android.Runtime/JavaCollection.cs">Java collection conversion helper</a></format>.</para>
           <para>This constructor will try to take a string like
             "Foo Bar (something) &amp;lt;foo\</para>
           <para>
