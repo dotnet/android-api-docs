@@ -134,12 +134,16 @@
         <Parameter Name="pendingIntent" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="cardId">To be added.</param>
-        <param name="cardImage">To be added.</param>
-        <param name="contentDescription">To be added.</param>
-        <param name="pendingIntent">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="cardId">The non-null card identifier. It must be unique within the response list and must not contain personal information.</param>
+        <param name="cardImage">The non-null card image. Bitmap images must use the hardware configuration and should match the image dimensions in the request.</param>
+        <param name="contentDescription">The nonempty description of the card image. It must not contain personal information.</param>
+        <param name="pendingIntent">The non-null pending intent sent when the user taps the card. The wallet requests device unlock first if needed. Use an immutable pending intent as recommended by Android.</param>
+        <summary>Called when a card type is not provided, in which case it defaults to CARD_TYPE_UNKNOWN.</summary>
+        <remarks>
+          <para>Called when a card type is not provided, in which case it defaults to CARD_TYPE_UNKNOWN. Calls Builder.Builder(String,int,Icon,CharSequence,PendingIntent)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/quickaccesswallet/WalletCard.Builder#Builder(java.lang.String,%20android.graphics.drawable.Icon,%20java.lang.CharSequence,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.service.quickaccesswallet.WalletCard.Builder.Builder</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -198,7 +202,7 @@
                                       will be sent. If the device is locked, the wallet will first
                                       request device unlock before sending the pending intent. It is
                                       recommended that the pending intent be immutable (use <c>PendingIntent#FLAG_IMMUTABLE</c>).</param>
-        <summary>To be added.</summary>
+        <summary>Initializes a wallet card builder with an identifier, card type, image, content description, and pending intent.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -248,13 +252,16 @@
         <Parameter Name="pendingIntent" Type="Android.App.PendingIntent" />
       </Parameters>
       <Docs>
-        <param name="cardId">To be added.</param>
-        <param name="cardType">To be added.</param>
-        <param name="cardImage">To be added.</param>
-        <param name="contentDescription">To be added.</param>
-        <param name="pendingIntent">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="cardId">The card id must be non-null and unique within the list of cards returned. Note: this card ID should not contain PII (Personally Identifiable Information, such as username or email address).</param>
+        <param name="cardType">Integer representing the card type. The card type must be non-null. Value is one of the following: WalletCard.CARD_TYPE_UNKNOWN; WalletCard.CARD_TYPE_PAYMENT; WalletCard.CARD_TYPE_NON_PAYMENT</param>
+        <param name="cardImage">The visual representation of the card. If the card image Icon is a bitmap, it should have a width of GetWalletCardsRequest.getCardWidthPx() and a height of GetWalletCardsRequest.getCardHeightPx(). If the card image does not have these dimensions, it may appear distorted when it is scaled to fit these dimensions on screen. Bitmaps must be of type Bitmap.Config.HARDWARE for performance reasons. This value cannot be null.</param>
+        <param name="contentDescription">The content description of the card image. This field is required and may not be null or empty. Note: this message should not contain PII (Personally Identifiable Information, such as username or email address).</param>
+        <param name="pendingIntent">If the user performs a click on the card, this PendingIntent will be sent. If the device is locked, the wallet will first request device unlock before sending the pending intent. It is recommended that the pending intent be immutable (use PendingIntent.FLAG_IMMUTABLE). This value cannot be null.</param>
+        <summary>Initializes a wallet card builder with an identifier, card type, image, string content description, and pending intent.</summary>
+        <remarks>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/quickaccesswallet/WalletCard.Builder#Builder(java.lang.String,%20int,%20android.graphics.drawable.Icon,%20java.lang.CharSequence,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.service.quickaccesswallet.WalletCard.Builder.Builder</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -364,10 +371,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="cardIcon">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cardIcon">The optional icon that describes how to use the card, or <see langword="null" />. A bitmap icon should have the width and height specified by <see cref="P:Android.Service.QuickAccessWallet.GetWalletCardsRequest.IconSizePx" />.</param>
+        <summary>An icon may be shown alongside the card image to convey information about how the card can be used, or if some other action must be taken before using the card.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+          <para>An icon may be shown alongside the card image to convey information about how the card can be used, or if some other action must be taken before using the card. For example, an NFC logo could indicate that the card is NFC-enabled and will be provided to an NFC terminal if the phone is held in close proximity to the NFC reader. This field is optional.</para>
+          <para>If the supplied Icon is backed by a bitmap, it should have width and height GetWalletCardsRequest.getIconSizePx().</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/quickaccesswallet/WalletCard.Builder#setCardIcon(android.graphics.drawable.Icon)" title="Reference documentation">Android reference for <code>android.service.quickaccesswallet.WalletCard.Builder.setCardIcon</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetCardLabel">
@@ -404,10 +416,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="cardLabel">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cardLabel">The optional label that describes how to use the card, or <see langword="null" />. Do not include personal information.</param>
+        <summary>A card label may be shown alongside the card image to convey information about how the card can be used, or if some other action must be taken before using the card.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+          <para>A card label may be shown alongside the card image to convey information about how the card can be used, or if some other action must be taken before using the card. For example, an NFC-enabled card could be labeled "Hold near reader" to inform the user of how to use NFC cards when interacting with an NFC reader. This field is optional. Note: this card label should not contain PII (Personally Identifiable Information, such as username or email address). If the provided label is too long to fit on one line, it may be truncated and ellipsized.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/quickaccesswallet/WalletCard.Builder#setCardLabel(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.service.quickaccesswallet.WalletCard.Builder.setCardLabel</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetCardLabel">
@@ -440,10 +456,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="cardLabel">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cardLabel">The optional label that describes how to use the card, or <see langword="null" />. Do not include personal information.</param>
+        <summary>Sets the optional card label from a string.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+          <para>A label can describe an action such as holding an NFC card near a reader. A label that does not fit on one line can be shortened and shown with an ellipsis.</para>
+          <para>This overload accepts a string for the label in the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/core/java/android/service/quickaccesswallet/WalletCard.java">Android 16 card builder</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetCardLocations">
@@ -473,10 +492,14 @@
         <Parameter Name="cardLocations" Type="System.Collections.Generic.IList&lt;Android.Locations.Location&gt;" />
       </Parameters>
       <Docs>
-        <param name="cardLocations">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cardLocations">The locations where the card can be useful. The list and its elements must not be null. An empty list supplies no locations.</param>
+        <summary>Set of locations this card might be useful at.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+          <para>Set of locations this card might be useful at. If PackageManager.FEATURE_WALLET_LOCATION_BASED_SUGGESTIONS is enabled, the card might be shown to the user when a user is near one of these locations.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/quickaccesswallet/WalletCard.Builder#setCardLocations(java.util.List&lt;android.location.Location&gt;)" title="Reference documentation">Android reference for <code>android.service.quickaccesswallet.WalletCard.Builder.setCardLocations</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetNonPaymentCardSecondaryImage">
@@ -513,10 +536,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="nonPaymentCardSecondaryImage">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="nonPaymentCardSecondaryImage">The optional image shown when the card is tapped, or <see langword="null" />. The builder's card type must be <see cref="F:Android.Service.QuickAccessWallet.WalletCardType.NonPayment" />, even when this argument is null.</param>
+        <summary>Visual representation of the card when it is tapped.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+          <para>Visual representation of the card when it is tapped. May include additional information unique to the card, such as a barcode or number. Only valid for CARD_TYPE_NON_PAYMENT.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/quickaccesswallet/WalletCard.Builder#setNonPaymentCardSecondaryImage(android.graphics.drawable.Icon)" title="Reference documentation">Android reference for <code>android.service.quickaccesswallet.WalletCard.Builder.setNonPaymentCardSecondaryImage</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
