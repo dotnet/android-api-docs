@@ -106,7 +106,7 @@
       </ReturnValue>
       <Docs>
         <summary>Retrieve attributes as a map of String keys to byte[] values.</summary>
-        <value>To be added.</value>
+        <value>The service's DNS-SD TXT attributes, with string keys and byte-array values. Use <see cref="M:Android.Net.Nsd.NsdServiceInfo.SetAttribute(System.String,System.String)" /> and <see cref="M:Android.Net.Nsd.NsdServiceInfo.RemoveAttribute(System.String)" /> to change attributes.</value>
         <remarks>
           <para>Retrieve attributes as a map of String keys to byte[] values. The attributes map is only
             valid for a resolved service.</para>
@@ -146,7 +146,7 @@
       </ReturnValue>
       <Docs>
         <summary>Implement the Parcelable interface</summary>
-        <value>To be added.</value>
+        <value>The parcelable creator that reconstructs service information from a parcel.</value>
         <remarks>
           <para>
             <format type="text/html">
@@ -233,7 +233,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the host address. -or- Set the host address</summary>
-        <value>To be added.</value>
+        <value>The first host address, or <see langword="null" /> if there are no addresses. For a discovered service, resolve it before using the address; use <see cref="P:Android.Net.Nsd.NsdServiceInfo.HostAddresses" /> for all addresses.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Get the host address. The host address is valid for a resolved service.</para>
@@ -305,7 +305,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the host addresses. -or- Set the host addresses.</summary>
-        <value>To be added.</value>
+        <value>The host addresses for the service. After resolution, all addresses use the same <see cref="P:Android.Net.Nsd.NsdServiceInfo.Port" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Get the host addresses.</para>
@@ -361,7 +361,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the hostname.</summary>
-        <value>To be added.</value>
+        <value>The resolved hostname without the <c>.local.</c> suffix, or <see langword="null" /> if the service has not been resolved.</value>
         <remarks>
           <para>Get the hostname.</para>
           <para>When a service is resolved through <c>NsdManager#resolveService</c> or
@@ -482,7 +482,7 @@
         <param name="network">The network, or null to search for, or to announce, the service on all
                            connected networks.</param>
         <summary>Get the network where the service can be found. -or- Set the network where the service can be found.</summary>
-        <value>To be added.</value>
+        <value>The network where the service can be found. A discovered service can have <see langword="null" /> here if its interface has no corresponding <see cref="T:Android.Net.Network" />. When configuring a search or announcement, <see langword="null" /> selects all connected networks.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Get the network where the service can be found.
@@ -537,7 +537,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get port number. -or- Set port number</summary>
-        <value>To be added.</value>
+        <value>The service port, shared by all host addresses. For a discovered service, this value is valid after resolution.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Get port number. The port number is valid for a resolved service.</para>
@@ -586,7 +586,7 @@
         <Parameter Name="key" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The key of the DNS-SD TXT attribute to remove.</param>
         <summary>Remove an attribute by key</summary>
         <remarks>
           <para>Remove an attribute by key</para>
@@ -628,7 +628,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the service name -or- Set the service name</summary>
-        <value>To be added.</value>
+        <value>The service instance name. A registered service can have a different name from the one requested if Android resolves a name conflict.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Get the service name</para>
@@ -678,7 +678,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the service type -or- Set the service type</summary>
-        <value>To be added.</value>
+        <value>The DNS-SD service type, such as <c>_ipp._tcp</c>.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Get the service type</para>
@@ -780,8 +780,8 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
+        <param name="key">A nonempty DNS-SD TXT attribute key made of printable US-ASCII characters, excluding <c>=</c>.</param>
+        <param name="value">The attribute value, encoded as UTF-8, or <see langword="null" /> for an attribute with no value. The combined key and encoded value must be less than 255 bytes.</param>
         <summary>Add a service attribute as a key/value pair.</summary>
         <remarks>
           <para>Add a service attribute as a key/value pair.</para>
@@ -849,7 +849,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns subtypes of this service instance. -or- Sets the subtypes to be advertised for this service instance.</summary>
-        <value>To be added.</value>
+        <value>The subtype labels without the trailing <c>._sub</c>, such as <c>_printer</c>. Discovery results do not necessarily include every subtype.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns subtypes of this service instance.
