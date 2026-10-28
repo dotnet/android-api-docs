@@ -153,7 +153,12 @@
         <param name="stepValue">minimum value of increments/decrements when interacting with this control.</param>
         <param name="formatString">a formatting string as per String.format used to display the currentValue. If null is passed, the "%.1f" is used.</param>
         <summary>Construct a new RangeTemplate.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The constructor uses Java <c>Float.compare</c> to check that <paramref name="minValue" /> does not exceed <paramref name="maxValue" /> and that <paramref name="currentValue" /> is within those limits, including both endpoints. Equal limits are accepted when all three values compare equal. A failed range check or a zero or negative <paramref name="stepValue" /> causes a <see cref="T:Java.Lang.IllegalArgumentException" />.</para>
+          <para>Java <c>Float.compare</c> orders negative zero below positive zero and NaN above all other values. The constructor does not separately require finite values. The step check uses <c>stepValue &lt;= 0</c>, so it does not reject NaN.</para>
+          <para>The constructor stores <paramref name="formatString" /> for display of the current value. It uses <c>%.1f</c> when the argument is <see langword="null" />. It does not format the value or validate the format string in the constructor. The string uses Java formatting rules, not .NET composite formatting.</para>
+          <para>These limits are based on the constructor and <c>validate()</c> in the <see href="https://android.googlesource.com/platform/frameworks/base/+/99b01a65cc4c104933788b3143285ab6bae65827/core/java/android/service/controls/templates/RangeTemplate.java">Android implementation</see>, rather than the strict inequalities in its constructor Javadoc.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CurrentValue">
@@ -181,7 +186,7 @@
       </ReturnValue>
       <Docs>
         <summary>The current value for this range.</summary>
-        <value>To be added.</value>
+        <value>The current value supplied for this range.</value>
         <remarks>
           <para>The current value for this range.</para>
           <para>
@@ -225,9 +230,12 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the Java format string used to display the current value.</summary>
+        <value>The text of <see cref="P:Android.Service.Controls.Templates.RangeTemplate.FormatStringFormatted" />, or <see langword="null" /> if that property is <see langword="null" />.</value>
+        <remarks>
+          <para>This is the string form of <see cref="P:Android.Service.Controls.Templates.RangeTemplate.FormatStringFormatted" />. A template constructed with a null format argument uses <c>%.1f</c>. The format follows Java formatting rules, not .NET composite formatting.</para>
+          <para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/99b01a65cc4c104933788b3143285ab6bae65827/core/java/android/service/controls/templates/RangeTemplate.java">Android format storage and getter</see> and the <see href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/BoundPropertyStringVariant.cs">.NET string-property generator</see>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FormatStringFormatted">
@@ -329,7 +337,7 @@
       </ReturnValue>
       <Docs>
         <summary>The maximum value for this range.</summary>
-        <value>To be added.</value>
+        <value>The upper limit supplied for this range.</value>
         <remarks>
           <para>The maximum value for this range.</para>
           <para>
@@ -370,7 +378,7 @@
       </ReturnValue>
       <Docs>
         <summary>The minimum value for this range.</summary>
-        <value>To be added.</value>
+        <value>The lower limit supplied for this range.</value>
         <remarks>
           <para>The minimum value for this range.</para>
           <para>
@@ -411,7 +419,7 @@
       </ReturnValue>
       <Docs>
         <summary>The value of the smallest increment or decrement that can be performed on this range.</summary>
-        <value>To be added.</value>
+        <value>The step value supplied for this range.</value>
         <remarks>
           <para>The value of the smallest increment or decrement that can be performed on this range.</para>
           <para>
