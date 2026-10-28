@@ -30,8 +30,11 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Provides a callback for validation of ZIP entry paths.</summary>
+    <remarks>
+      <para>The default callback accepts all entry paths. Use <see cref="M:Dalvik.SystemInterop.ZipPathValidator.SetCallback(Dalvik.SystemInterop.ZipPathValidator.ICallback)" /> to install custom validation, such as checks for components that can cause path traversal. This class does not reject such paths by default.</para>
+      <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/dalvik/src/main/java/dalvik/system/ZipPathValidator.java">Android ZipPathValidator source</a></format>.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="ClearCallback">
@@ -59,8 +62,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Restores the default ZIP entry path callback.</summary>
+        <remarks>
+          <para>The default callback accepts all paths without throwing an exception. This method removes the current custom validation.</para>
+          <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/dalvik/src/main/java/dalvik/system/ZipPathValidator.java">Android clearCallback source</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -121,9 +127,12 @@
         <Parameter Name="callback" Type="Dalvik.SystemInterop.ZipPathValidator+ICallback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="callback">The non-null callback that validates ZIP entry paths.</param>
+        <summary>Sets the callback used to validate ZIP entry paths.</summary>
+        <remarks>
+          <para>The callback must only validate the path. It should not perform input/output or other blocking operations. A typical callback checks the entry name in one pass and throws <see cref="T:Java.Util.Zip.ZipException" /> if the path contains potentially hazardous components, such as <c>..</c>.</para>
+          <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/dalvik/src/main/java/dalvik/system/ZipPathValidator.java">Android setCallback source</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
