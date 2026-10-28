@@ -32,6 +32,7 @@
   <Docs since="1">
     <summary>Minimalistic server-side implementation of an HTTP processor.</summary>
     <remarks>
+      <para>Request handling, error responses, and connection reuse are described from the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/protocol/HttpService.java">Android implementation</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/org/apache/http/protocol/HttpService" title="Reference documentation">Android platform documentation</a>
@@ -87,9 +88,9 @@
         <Parameter Name="responseFactory" Type="Org.Apache.Http.IHttpResponseFactory" />
       </Parameters>
       <Docs>
-        <param name="proc">To be added.</param>
-        <param name="connStrategy">To be added.</param>
-        <param name="responseFactory">To be added.</param>
+        <param name="proc">The processor for requests and responses. This must not be <see langword="null" />.</param>
+        <param name="connStrategy">The strategy that decides whether to keep the connection open after a response. This must not be <see langword="null" />.</param>
+        <param name="responseFactory">The factory used to create responses. This must not be <see langword="null" />.</param>
         <summary>Create a new HTTP service.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -122,9 +123,9 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="response">To be added.</param>
-        <param name="context">To be added.</param>
+        <param name="request">The request whose URI is passed to the configured handler resolver.</param>
+        <param name="response">The response to fill through the resolved handler. Its status is set to <c>501 Not Implemented</c> if no handler is found or no resolver is configured.</param>
+        <param name="context">The execution context passed to the request handler.</param>
         <summary>
         </summary>
         <remarks>
@@ -159,8 +160,8 @@
         <Parameter Name="response" Type="Org.Apache.Http.IHttpResponse" />
       </Parameters>
       <Docs>
-        <param name="ex">To be added.</param>
-        <param name="response">To be added.</param>
+        <param name="ex">The HTTP exception to map to a response status: unsupported method to 501, unsupported HTTP version to 505, protocol error to 400, and other HTTP exceptions to 500.</param>
+        <param name="response">The response whose status and entity are replaced. The entity contains the exception message as US-ASCII plain text.</param>
         <summary>
         </summary>
         <remarks>
@@ -193,8 +194,8 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="conn">To be added.</param>
-        <param name="context">To be added.</param>
+        <param name="conn">The server connection from which to receive one request and to which to send the response. The connection is closed if the reuse strategy does not keep it alive.</param>
+        <param name="context">The context used for processing. The connection is stored in this context; the request and response are stored before normal request processing.</param>
         <summary>
         </summary>
         <remarks>
@@ -270,7 +271,7 @@
       <Docs>
         <summary>
         </summary>
-        <value>To be added.</value>
+        <value>The service parameters used as defaults for request and response parameters, or <see langword="null" /> if none have been set.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -300,7 +301,7 @@
         <Parameter Name="connStrategy" Type="Org.Apache.Http.IConnectionReuseStrategy" />
       </Parameters>
       <Docs>
-        <param name="connStrategy">To be added.</param>
+        <param name="connStrategy">The strategy that decides whether to keep the connection open after a response. This must not be <see langword="null" />.</param>
         <summary>
         </summary>
         <remarks>
@@ -332,7 +333,7 @@
         <Parameter Name="expectationVerifier" Type="Org.Apache.Http.Protocol.IHttpExpectationVerifier" />
       </Parameters>
       <Docs>
-        <param name="expectationVerifier">To be added.</param>
+        <param name="expectationVerifier">The verifier for requests that expect <c>100 Continue</c>, or <see langword="null" /> to disable this additional check.</param>
         <summary>
         </summary>
         <remarks>
@@ -364,7 +365,7 @@
         <Parameter Name="handlerResolver" Type="Org.Apache.Http.Protocol.IHttpRequestHandlerResolver" />
       </Parameters>
       <Docs>
-        <param name="handlerResolver">To be added.</param>
+        <param name="handlerResolver">The resolver used to find a handler by request URI, or <see langword="null" /> to remove the resolver.</param>
         <summary>
         </summary>
         <remarks>
@@ -396,7 +397,7 @@
         <Parameter Name="processor" Type="Org.Apache.Http.Protocol.IHttpProcessor" />
       </Parameters>
       <Docs>
-        <param name="processor">To be added.</param>
+        <param name="processor">The processor for requests and responses. This must not be <see langword="null" />.</param>
         <summary>
         </summary>
         <remarks>
@@ -428,7 +429,7 @@
         <Parameter Name="responseFactory" Type="Org.Apache.Http.IHttpResponseFactory" />
       </Parameters>
       <Docs>
-        <param name="responseFactory">To be added.</param>
+        <param name="responseFactory">The factory used to create responses. This must not be <see langword="null" />.</param>
         <summary>
         </summary>
         <remarks>

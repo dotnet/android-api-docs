@@ -40,6 +40,7 @@
  to the given default <see cref="T:Org.Apache.Http.Protocol.HttpContext" /> instance if the attribute is not 
  present in the local one.</summary>
     <remarks>
+      <para>Local and default attribute behavior is described from the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/protocol/DefaultedHttpContext.java">Android implementation</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/org/apache/http/protocol/DefaultedHttpContext" title="Reference documentation">Android platform documentation</a>
@@ -75,8 +76,8 @@
         <Parameter Name="defaults" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="local">To be added.</param>
-        <param name="defaults">To be added.</param>
+        <param name="local">The context used for local reads, writes, and removals. This must not be <see langword="null" />.</param>
+        <param name="defaults">The context queried when the local context returns <see langword="null" />. A default context is required for such reads.</param>
         <summary>
         </summary>
         <remarks>
@@ -115,7 +116,7 @@
       <Docs>
         <summary>
         </summary>
-        <value>To be added.</value>
+        <value>The default context supplied to the constructor. Writes and removals through this wrapper affect only the local context.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -152,10 +153,10 @@
         <Parameter Name="id" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
+        <param name="id">The attribute name to look up in the local context and, if needed, the default context.</param>
         <summary>
         </summary>
-        <returns>To be added.</returns>
+        <returns>The local value, or the default context's value if the local value is <see langword="null" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -258,10 +259,10 @@
         <Parameter Name="id" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
+        <param name="id">The name of the attribute to remove from the local context.</param>
         <summary>
         </summary>
-        <returns>To be added.</returns>
+        <returns>The value returned by the local context's removal operation. The default context is not changed.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -299,8 +300,8 @@
         <Parameter Name="obj" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
-        <param name="obj">To be added.</param>
+        <param name="id">The name of the attribute to set in the local context.</param>
+        <param name="obj">The value passed to the local context. If a later local lookup returns <see langword="null" />, the default context is queried.</param>
         <summary>
         </summary>
         <remarks>
