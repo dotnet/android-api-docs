@@ -69,8 +69,11 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates a TV interactive app service.</summary>
+        <remarks>
+          <para>Implement <see cref="M:Android.Media.TV.Interactive.TvInteractiveAppService.OnCreateSession(System.String,System.Int32)" /> in a derived service. The Android framework manages the service lifecycle; construction does not create an interactive app session.</para>
+          <para>See the <format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppService">Android interactive app service reference</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -769,7 +772,7 @@
         <Parameter Name="command" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="command">To be added.</param>
+        <param name="command">The bundle containing the app link command sent to this service.</param>
         <summary>Called when app link command is received.</summary>
         <remarks>
           <para>Called when app link command is received.</para>
@@ -819,10 +822,14 @@
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="intent">The intent used to bind to this interactive app service.</param>
+        <summary>Returns the communication interface for this interactive app service.</summary>
+        <returns>The binder that exposes the interactive app service to the system.</returns>
+        <remarks>
+          <para>The framework implementation creates and returns the service binder. It does not test the intent action before returning it.</para>
+          <para>Calls to the returned binder can arrive on threads other than the main thread.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppService.java">Android 16 service implementation</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnCreateSession">
@@ -866,11 +873,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="iAppServiceId">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="iAppServiceId">The ID of the TV Interactive App associated with the session. This value cannot be null.</param>
+        <param name="type">The type of the TV Interactive App associated with the session. Value is one of the following: TvInteractiveAppServiceInfo.INTERACTIVE_APP_TYPE_HBBTV; TvInteractiveAppServiceInfo.INTERACTIVE_APP_TYPE_ATSC; TvInteractiveAppServiceInfo.INTERACTIVE_APP_TYPE_GINGA; TvInteractiveAppServiceInfo.INTERACTIVE_APP_TYPE_TARGETED_AD; TvInteractiveAppServiceInfo.INTERACTIVE_APP_TYPE_OTHER</param>
+        <summary>Returns a concrete implementation of Session.</summary>
+        <returns>The new session, or <see langword="null" /> if the service cannot create it.</returns>
+        <remarks>
+          <para>Returns a concrete implementation of Session.</para>
+          <para>May return null if this TV Interactive App service fails to create a session for some reason.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppService#onCreateSession(java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppService.onCreateSession</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnRegisterAppLinkInfo">
@@ -900,7 +912,7 @@
         <Parameter Name="appLinkInfo" Type="Android.Media.TV.Interactive.AppLinkInfo" />
       </Parameters>
       <Docs>
-        <param name="appLinkInfo">To be added.</param>
+        <param name="appLinkInfo">The Android application link record to register.</param>
         <summary>Called when a request to register an Android application link info record is received.</summary>
         <remarks>
           <para>Called when a request to register an Android application link info record is received.</para>
@@ -944,7 +956,7 @@
         <Parameter Name="appLinkInfo" Type="Android.Media.TV.Interactive.AppLinkInfo" />
       </Parameters>
       <Docs>
-        <param name="appLinkInfo">To be added.</param>
+        <param name="appLinkInfo">The Android application link record to unregister.</param>
         <summary>Called when a request to unregister an Android application link info record is received.</summary>
         <remarks>
           <para>Called when a request to unregister an Android application link info record is received.</para>
