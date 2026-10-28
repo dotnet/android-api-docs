@@ -168,8 +168,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -307,12 +307,14 @@
         <Parameter Name="size" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="size">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="data">The buffer that receives the data. It must have space for <paramref name="size" /> bytes starting at <paramref name="offset" />.</param>
+        <param name="offset">The index in <paramref name="data" /> at which to start writing the bytes read.</param>
+        <param name="size">The number of bytes to read in this call.</param>
+        <summary>Runs <see cref="M:Android.App.Backup.BackupDataInput.ReadEntityData(System.Byte[],System.Int32,System.Int32)" /> on a thread pool thread.</summary>
+        <returns>A task whose result is the number of bytes read, or zero when all data for the current entity has been read.</returns>
         <remarks>
+          <para>Read the entity header first. This .NET wrapper uses <c>Task.Run</c> to call the synchronous method. Await the task before accessing the buffer or starting another operation on this input.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -377,9 +379,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Runs <see cref="M:Android.App.Backup.BackupDataInput.ReadNextHeader" /> on a thread pool thread.</summary>
+        <returns>A task whose result is <see langword="true" /> if an entity is ready to read, or <see langword="false" /> if the restore stream has been fully read.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call the synchronous method. Await the task before inspecting <see cref="P:Android.App.Backup.BackupDataInput.Key" /> or <see cref="P:Android.App.Backup.BackupDataInput.DataSize" />, or starting another operation on this input.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -443,9 +447,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Runs <see cref="M:Android.App.Backup.BackupDataInput.SkipEntityData" /> on a thread pool thread.</summary>
+        <returns>A task that represents completion of the call to <c>SkipEntityData</c>.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to discard the current entity's remaining data without copying it to a buffer. Await the task before starting another operation on this input.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

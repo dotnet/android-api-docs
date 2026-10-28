@@ -660,7 +660,7 @@
             will be cleared.</param>
         <summary>Returns whether this dream is in fullscreen mode. -or- Controls <c>android.view.WindowManager.LayoutParams#FLAG_FULLSCREEN</c>
             on the dream's window.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the dream is in fullscreen mode; otherwise, <see langword="false" />. The default is <see langword="false" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns whether this dream is in fullscreen mode. Defaults to false.</para>
@@ -713,7 +713,7 @@
       <Docs>
         <param name="interactive">True if this dream will handle input events.</param>
         <summary>Returns whether this dream is interactive. -or- Marks this dream as interactive to receive input events.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the dream handles input events; otherwise, <see langword="false" />. The default is <see langword="false" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns whether this dream is interactive. Defaults to false.</para>
@@ -759,8 +759,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Removes this instance from the runtime's Java object lookup.</summary>
+        <remarks>
+          <para>Call this method to prevent future runtime lookups of the Java object from returning this managed instance.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -798,8 +800,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1498,7 +1500,7 @@
         <Parameter Name="e" Type="Android.Views.SearchEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
+        <param name="e">The event that describes the signal to start a search.</param>
         <summary>Called when the user signals the desire to start a search.</summary>
         <returns>true if search launched, false if activity refuses (blocks)</returns>
         <remarks>
@@ -1508,6 +1510,7 @@
               <a href="https://developer.android.com/reference/android/service/dreams/DreamService#onSearchRequested(android.view.SearchEvent)" title="Reference documentation">Java documentation for <code>android.service.dreams.DreamService.onSearchRequested(android.view.SearchEvent)</code>.</a>
             </format>
           </para>
+          <para>The event parameter is described by the <format type="text/html"><a href="https://developer.android.com/reference/android/view/Window.Callback#onSearchRequested(android.view.SearchEvent)">Window.Callback.onSearchRequested(SearchEvent) contract</a></format>.</para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1585,14 +1588,15 @@
         <Parameter Name="attrs" Type="Android.Views.WindowManagerLayoutParams" />
       </Parameters>
       <Docs>
-        <param name="attrs">To be added.</param>
-        <summary>[TODO: @inheritDoc]</summary>
+        <param name="attrs">The changed attributes of the dream's window.</param>
+        <summary>This is called whenever the current window attributes change.</summary>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/service/dreams/DreamService#onWindowAttributesChanged(android.view.LayoutParams)" title="Reference documentation">Java documentation for <code>android.service.dreams.DreamService.onWindowAttributesChanged(android.view.LayoutParams)</code>.</a>
+              <a href="https://developer.android.com/reference/android/service/dreams/DreamService#onWindowAttributesChanged(android.view.WindowManager.LayoutParams)" title="Reference documentation">Java documentation for <code>android.service.dreams.DreamService.onWindowAttributesChanged(android.view.WindowManager.LayoutParams)</code>.</a>
             </format>
           </para>
+          <para>This callback implements the <format type="text/html"><a href="https://developer.android.com/reference/android/view/Window.Callback#onWindowAttributesChanged(android.view.WindowManager.LayoutParams)">Window.Callback.onWindowAttributesChanged(WindowManager.LayoutParams) contract</a></format>.</para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1674,15 +1678,14 @@
       </Parameters>
       <Docs>
         <param name="callback">Callback to control the lifecycle of this action mode</param>
-        <summary>[TODO: @inheritDoc]</summary>
+        <summary>Called when an action mode is being started for this window.</summary>
         <returns>The ActionMode that was started, or null if the system should present it</returns>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/service/dreams/DreamService#onWindowStartingActionMode(android.view.Callback)" title="Reference documentation">Java documentation for <code>android.service.dreams.DreamService.onWindowStartingActionMode(android.view.Callback)</code>.</a>
+              <a href="https://developer.android.com/reference/android/service/dreams/DreamService#onWindowStartingActionMode(android.view.ActionMode.Callback)" title="Reference documentation">Java documentation for <code>android.service.dreams.DreamService.onWindowStartingActionMode(android.view.ActionMode.Callback)</code>.</a>
             </format>
           </para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/dreams/DreamService#onWindowStartingActionMode(android.view.ActionMode.Callback)" title="Reference documentation">Android reference for <code>android.service.dreams.DreamService.onWindowStartingActionMode</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1732,15 +1735,14 @@
       <Docs>
         <param name="callback">Callback to control the lifecycle of this action mode</param>
         <param name="type">One of ActionMode.TYPE_PRIMARY or ActionMode.TYPE_FLOATING.</param>
-        <summary>[TODO: @inheritDoc]</summary>
+        <summary>Called when an action mode is being started for this window.</summary>
         <returns>The ActionMode that was started, or null if the system should present it</returns>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/service/dreams/DreamService#onWindowStartingActionMode(android.view.Callback)" title="Reference documentation">Java documentation for <code>android.service.dreams.DreamService.onWindowStartingActionMode(android.view.Callback)</code>.</a>
+              <a href="https://developer.android.com/reference/android/service/dreams/DreamService#onWindowStartingActionMode(android.view.ActionMode.Callback,%20int)" title="Reference documentation">Java documentation for <code>android.service.dreams.DreamService.onWindowStartingActionMode(android.view.ActionMode.Callback, int)</code>.</a>
             </format>
           </para>
-          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/dreams/DreamService#onWindowStartingActionMode(android.view.ActionMode.Callback,%20int)" title="Reference documentation">Android reference for <code>android.service.dreams.DreamService.onWindowStartingActionMode</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1837,7 +1839,7 @@
       <Docs>
         <param name="screenBright">True to keep the screen bright while dreaming.</param>
         <summary>Returns whether this dream keeps the screen bright while dreaming. -or- Marks this dream as keeping the screen bright while dreaming.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the dream keeps the screen bright; otherwise, <see langword="false" />. The default is <see langword="true" />. Preview mode allows the screen to dim regardless of this setting.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns whether this dream keeps the screen bright while dreaming.
@@ -1934,7 +1936,7 @@
         <Parameter Name="view" Type="Android.Views.View" />
       </Parameters>
       <Docs>
-        <param name="view">To be added.</param>
+        <param name="view">The view to display as the dream's content.</param>
         <summary>Sets a view to be the content view for this Dream.</summary>
         <remarks>
           <para>Sets a view to be the content view for this Dream.

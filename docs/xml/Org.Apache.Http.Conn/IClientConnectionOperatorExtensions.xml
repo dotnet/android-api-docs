@@ -26,8 +26,10 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides task-based extension methods for <see cref="T:Org.Apache.Http.Conn.IClientConnectionOperator" />.</summary>
     <remarks>
+      <para>These methods use <see cref="M:System.Threading.Tasks.Task.Run(System.Action)" /> to run the synchronous connection methods on a thread pool thread. They do not use native asynchronous I/O or accept a cancellation token.</para>
+      <para>See the <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodExtensionAsyncWrapper.cs">Java.Interop async extension generator</a></format>.</para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
   </Docs>
@@ -67,14 +69,14 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="self">To be added.</param>
-        <param name="conn">To be added.</param>
-        <param name="target">To be added.</param>
-        <param name="local">To be added.</param>
-        <param name="context">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="self">The operator that opens the connection.</param>
+        <param name="conn">The connection to open.</param>
+        <param name="target">The target host to connect to.</param>
+        <param name="local">The local address to connect from, or <see langword="null" /> to use the default address.</param>
+        <param name="context">The context for the connection.</param>
+        <param name="params">The HTTP parameters for the connection.</param>
+        <summary>Runs <see cref="M:Org.Apache.Http.Conn.IClientConnectionOperator.OpenConnection(Org.Apache.Http.Conn.IOperatedClientConnection,Org.Apache.Http.HttpHost,Java.Net.InetAddress,Org.Apache.Http.Protocol.IHttpContext,Org.Apache.Http.Params.IHttpParams)" /> on a thread pool thread to open a connection to the target host.</summary>
+        <returns>A task that completes when the synchronous connection method completes. If that method throws an exception, the task is faulted with that exception.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -114,13 +116,13 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="self">To be added.</param>
-        <param name="conn">To be added.</param>
-        <param name="target">To be added.</param>
-        <param name="context">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="self">The operator that updates the connection.</param>
+        <param name="conn">The open connection to update.</param>
+        <param name="target">The target host for the updated connection. The connection must already be open or tunnelled to this host and port. The target scheme selects the layered connection.</param>
+        <param name="context">The context for the connection.</param>
+        <param name="params">The HTTP parameters for the updated connection.</param>
+        <summary>Runs <see cref="M:Org.Apache.Http.Conn.IClientConnectionOperator.UpdateSecureConnection(Org.Apache.Http.Conn.IOperatedClientConnection,Org.Apache.Http.HttpHost,Org.Apache.Http.Protocol.IHttpContext,Org.Apache.Http.Params.IHttpParams)" /> on a thread pool thread to add a secure protocol layer to the connection.</summary>
+        <returns>A task that completes when the synchronous connection method completes. If that method throws an exception, the task is faulted with that exception.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

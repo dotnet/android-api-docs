@@ -74,10 +74,12 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="javaReference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="javaReference">A JNI reference to the Java object.</param>
+        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <summary>Creates a managed instance that represents an existing Java object.</summary>
+        <remarks>
+          <para>The runtime calls this constructor to create a managed representation of an existing Java object.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Close">
@@ -433,8 +435,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Removes this instance from the runtime's Java object lookup.</summary>
+        <remarks>
+          <para>Call this method to prevent future runtime lookups of the Java object from returning this managed instance.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -464,9 +468,11 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
+        <remarks>
+          <para>The runtime uses this metadata to invoke Java constructors, methods, and fields.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="NewAutofillId">
@@ -715,7 +721,17 @@
         <param name="properties">The <c>ContentCaptureNodeProperties</c> holding the attributes for this
                               node.</param>
         <summary>Creates a new node or updates an existing one according to the changes in properties.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Creates a new node or updates an existing one according to the changes in properties.</para>
+          <para>This is the primary method to construct and report the UI hierarchy in Content Capture Version 2. It unifies the reporting of both standard Views and virtual views (e.g., inside a Webview) into a single, cohesive API. Call this method when a node is attached, laid out, and ready to be drawn in the active UI hierarchy, or when its properties (like text or bounds) change.</para>
+          <para>For standard views, the id can be obtained via View.getAutofillId(). For virtual views, the id must be created using newAutofillId(AutofillId,long).</para>
+          <para>To minimize memory allocations, applications should reuse a single ContentCaptureNodeProperties instance, calling ContentCaptureNodeProperties.clear() before populating it for a new node.</para>
+          <para>If the node already exists, only the properties explicitly set in the ContentCaptureNodeProperties payload will be updated. The parent-child relationship is modified based on the parent ID configuration: Setting parent ID to null: Guarantees that this node is treated as a root node with no parent; Not setting parent ID at all: Leaves the existing parent unchanged. If the node is appearing for the first time, it defaults to a root node.</para>
+          <para>Note: This function belongs to Content Capture Version 2.</para>
+          <para>Call this method on the thread that created the UI element. This is usually the application's main thread.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureSession#notifyNodeAppearedOrChanged(android.view.autofill.AutofillId,%20android.view.contentcapture.ContentCaptureNodeProperties)" title="Reference documentation">Android reference for <code>android.view.contentcapture.ContentCaptureSession.notifyNodeAppearedOrChanged</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="NotifyNodeDisappeared">
@@ -747,7 +763,15 @@
       <Docs>
         <param name="id">The <c>AutofillId</c> of the node to delete.</param>
         <summary>Removes a node from the active content capture hierarchy.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Removes a node from the active content capture hierarchy.</para>
+          <para>This is the primary method to report the removal of UI components in Content Capture Version 2. It applies to both standard Views and virtual views, signaling that the node is no longer part of the visible hierarchy.</para>
+          <para>When a node is deleted: Its internal resources (such as text and content description allocations) are freed; Its children are orphaned and promoted to root nodes (their parent pointer is cleared). If you want to remove an entire subtree, you must recursively call this method for all descendant nodes in the subtree. Re-adding this node will not automatically relink previous children.</para>
+          <para>Note; This function belongs to Content Capture Version 2.</para>
+          <para>Call this method on the thread that created the UI element. This is usually the application's main thread.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/contentcapture/ContentCaptureSession#notifyNodeDisappeared(android.view.autofill.AutofillId)" title="Reference documentation">Android reference for <code>android.view.contentcapture.ContentCaptureSession.notifyNodeDisappeared</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="NotifySessionPaused">
@@ -1198,9 +1222,11 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the Java class used for virtual method dispatch.</summary>
+        <value>A JNI reference to the Java class for this binding type.</value>
+        <remarks>
+          <para>The runtime uses this class reference to dispatch calls to the Java implementation.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdType">
@@ -1227,9 +1253,11 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the managed type that declares this Java binding.</summary>
+        <value>The managed type associated with the JNI member metadata.</value>
+        <remarks>
+          <para>The runtime uses this type to preserve virtual method dispatch for the binding.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Version1">

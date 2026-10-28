@@ -211,7 +211,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="in">To be added.</param>
+        <param name="in">The stream that supplies the bytes to copy to the target file.</param>
         <param name="target">the path to the file</param>
         <param name="options">options specifying how the copy should be done</param>
         <summary>Reads all bytes from an input stream and writes them to an output stream.</summary>
@@ -1813,8 +1813,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3430,8 +3430,8 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the Java class used for virtual method dispatch.</summary>
+        <value>A JNI reference to the Java class for this binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3469,8 +3469,8 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the managed type that declares this Java binding.</summary>
+        <value>The managed type associated with the JNI member metadata.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3905,12 +3905,17 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
-        <param name="csq">To be added.</param>
-        <param name="options">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="path">The path of the file to write.</param>
+        <param name="csq">The string to encode and write to the file.</param>
+        <param name="options">The options that control file creation and opening.</param>
+        <summary>Writes a string to a file with UTF-8 encoding.</summary>
+        <returns>The <paramref name="path" /> supplied to this method.</returns>
+        <remarks>
+          <para>This is the managed string overload of Java's <c>writeString(Path, CharSequence, OpenOption...)</c> method. It uses UTF-8, not the platform's default encoding.</para>
+          <para>Line separators in the string are retained. The method does not add a line separator or other characters.</para>
+          <para>If no <paramref name="options" /> are supplied, the method uses <see cref="P:Java.Nio.FileNio.StandardOpenOption.Create" />, <see cref="P:Java.Nio.FileNio.StandardOpenOption.TruncateExisting" />, and <see cref="P:Java.Nio.FileNio.StandardOpenOption.Write" />. It creates a missing file or clears an existing regular file before writing. To change this behavior, supply the required open options.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#writeString(java.nio.file.Path,java.lang.CharSequence,java.nio.file.OpenOption...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.writeString</code> with UTF-8 encoding.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteString">
@@ -4003,13 +4008,18 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
-        <param name="csq">To be added.</param>
-        <param name="cs">To be added.</param>
-        <param name="options">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="path">The path of the file to write.</param>
+        <param name="csq">The string to encode and write to the file.</param>
+        <param name="cs">The character encoding to use when converting the string to bytes.</param>
+        <param name="options">The options that control file creation and opening.</param>
+        <summary>Writes a string to a file with the specified character encoding.</summary>
+        <returns>The <paramref name="path" /> supplied to this method.</returns>
+        <remarks>
+          <para>This is the managed string overload of Java's <c>writeString(Path, CharSequence, Charset, OpenOption...)</c> method. It converts the string to bytes with <paramref name="cs" />.</para>
+          <para>Line separators in the string are retained. The method does not add a line separator or other characters.</para>
+          <para>If no <paramref name="options" /> are supplied, the method uses <see cref="P:Java.Nio.FileNio.StandardOpenOption.Create" />, <see cref="P:Java.Nio.FileNio.StandardOpenOption.TruncateExisting" />, and <see cref="P:Java.Nio.FileNio.StandardOpenOption.Write" />. It creates a missing file or clears an existing regular file before writing. To change this behavior, supply the required open options.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#writeString(java.nio.file.Path,java.lang.CharSequence,java.nio.charset.Charset,java.nio.file.OpenOption...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.writeString</code> with a specified character encoding.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

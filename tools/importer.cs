@@ -550,7 +550,7 @@ static partial class ImporterProgram
         }
 
         if (options.SelfTest)
-            return RunSelfTest(repositoryRoot);
+            return options.ManagedOnly ? RunManagedSelfTest(repositoryRoot) : RunSelfTest(repositoryRoot);
 
         var report = new ImportReport
         {
@@ -587,7 +587,7 @@ static partial class ImporterProgram
 
             var sourceRequests = loadedFiles
                 .SelectMany(file => file.Owners.Select(owner => (File: file, Owner: owner)))
-                .Where(item => RequiresSourceLoad(item.File, item.Owner))
+                .Where(item => !options.ManagedOnly && RequiresSourceLoad(item.File, item.Owner))
                 .Select(item => item.Owner.SourceRequest)
                 .Where(request => request is not null)
                 .Cast<SourceRequest>()
@@ -639,6 +639,13 @@ static partial class ImporterProgram
                 var fileChanged = false;
                 foreach (var owner in file.Owners.OrderBy(item => item.Order))
                 {
+                    if (options.ManagedOnly)
+                    {
+                        var updated = FillManagedPlaceholders(file, owner, text, report, ref remaining);
+                        fileChanged |= !updated.Equals(text, StringComparison.Ordinal);
+                        text = updated;
+                        continue;
+                    }
                     var ownerChanged = false;
                     var importedSourceChannel = false;
                     var replacedRemarksPlaceholder = false;
@@ -5350,6 +5357,319 @@ static partial class ImporterProgram
                 "source_exception_missing",
                 $"The exact source member did not document exception '{placeholder.Key}'."),
         };
+    }
+
+    const string ManagedBindingSource =
+        "https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/" +
+        "tests/generator-Tests/expected.xaji/Constructors/Xamarin.Test.SomeObject.cs";
+    const string ManagedLifetimeSource =
+        "https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/" +
+        "src/Java.Interop/Documentation/Java.Interop/IJavaPeerable.xml";
+
+    static (Dictionary<string, string> Channels, string Source)? ManagedDocumentation(
+        LoadedFile file, DocsOwner owner)
+    {
+        var member = owner.Member;
+        if (member is null || Registration.Type(file.Root) is null ||
+            (string?)file.Root.Element("AssemblyInfo")?.Element("AssemblyName") != "Mono.Android" ||
+            Registration.Member(member) is not null || Registration.JniField(member) is not null ||
+            member.Elements("Attributes").Count() > 1 ||
+            (string?)file.Root.Attribute("FullName") is not { Length: > 0 } typeName)
+            return null;
+        typeName = typeName.Replace('+', '.');
+
+        var name = (string?)member.Attribute("MemberName");
+        var signatures = member.Elements("MemberSignature")
+            .Where(element => (string?)element.Attribute("Language") == "C#").ToArray();
+        if (signatures.Length != 1)
+            return null;
+        var signature = (string?)signatures[0].Attribute("Value");
+        var type = (string?)member.Element("MemberType");
+        var returnType = (string?)member.Element("ReturnValue")?.Element("ReturnType");
+        var parameters = member.Element("Parameters")?.Elements("Parameter").ToArray() ?? [];
+        var parameterName = (string?)parameters.FirstOrDefault()?.Attribute("Name");
+        var channels = new Dictionary<string, string>(StringComparer.Ordinal);
+        var source = ManagedBindingSource;
+        if (type == "Property" && parameters.Length == 0 &&
+            owner.Id == $"P:{typeName}.{name}" &&
+            member.Element("Attributes")?.Value.Contains(
+                "System.ComponentModel.EditorBrowsableState.Never", StringComparison.Ordinal) == true)
+        {
+            switch (name, returnType, signature)
+            {
+                case ("JniPeerMembers", "Java.Interop.JniPeerMembers",
+                    "public override Java.Interop.JniPeerMembers JniPeerMembers { get; }"):
+                    channels["summary"] = "Gets the JNI metadata used to access members of this Java binding.";
+                    channels["value"] = "The JNI member metadata for this managed binding type.";
+                    channels["remarks"] = "The runtime uses this metadata to invoke Java constructors, methods, and fields.";
+                    break;
+                case ("ThresholdClass", "System.IntPtr", "protected override IntPtr ThresholdClass { get; }"):
+                    channels["summary"] = "Gets the Java class used for virtual method dispatch.";
+                    channels["value"] = "A JNI reference to the Java class for this binding type.";
+                    channels["remarks"] = "The runtime uses this class reference to dispatch calls to the Java implementation.";
+                    break;
+                case ("ThresholdType", "System.Type", "protected override Type ThresholdType { get; }"):
+                    channels["summary"] = "Gets the managed type that declares this Java binding.";
+                    channels["value"] = "The managed type associated with the JNI member metadata.";
+                    channels["remarks"] = "The runtime uses this type to preserve virtual method dispatch for the binding.";
+                    break;
+            }
+        }
+        else if (name == "Java.Interop.IJavaPeerable.UnregisterFromRuntime" &&
+            type == "Method" && returnType == "System.Void" && parameters.Length == 0 &&
+            signature == "void IJavaPeerable.UnregisterFromRuntime ();" &&
+            owner.Id == $"M:{typeName}.Java#Interop#IJavaPeerable#UnregisterFromRuntime" &&
+            member.Element("Implements")?.Elements("InterfaceMember").Any(element =>
+                element.Value == "M:Java.Interop.IJavaPeerable.UnregisterFromRuntime") == true)
+        {
+            channels["summary"] = "Removes this instance from the runtime's Java object lookup.";
+            channels["remarks"] = "Call this method to prevent future runtime lookups of the Java object from returning this managed instance.";
+            source = ManagedLifetimeSource;
+        }
+        else if (name == ".ctor" && type == "Constructor" && parameters.Length == 2 &&
+            (string?)parameters[0].Attribute("Type") == "System.IntPtr" &&
+            (string?)parameters[1].Attribute("Type") == "Android.Runtime.JniHandleOwnership" &&
+            parameterName is "javaReference" or "handle" &&
+            (string?)parameters[1].Attribute("Name") == "transfer" &&
+            owner.Id == $"M:{typeName}.#ctor(System.IntPtr,Android.Runtime.JniHandleOwnership)")
+        {
+            var shortName = ((string?)file.Root.Attribute("Name") ?? "").Split('+')[^1];
+            if (signature != $"protected {shortName} (IntPtr {parameterName}, Android.Runtime.JniHandleOwnership transfer);")
+                return null;
+            channels["summary"] = "Creates a managed instance that represents an existing Java object.";
+            channels["param:" + parameterName] = "A JNI reference to the Java object.";
+            channels["param:transfer"] = "Specifies whether ownership of the JNI reference transfers to this instance.";
+            channels["remarks"] = "The runtime calls this constructor to create a managed representation of an existing Java object.";
+        }
+        return channels.Count == 0 ? null : (channels, source);
+    }
+
+    static string FillManagedPlaceholders(
+        LoadedFile file, DocsOwner owner, string text, ImportReport report, ref int remaining)
+    {
+        if (owner.Placeholders.Count == 0)
+            return text;
+        var documentation = ManagedDocumentation(file, owner);
+        foreach (var placeholder in owner.Placeholders)
+        {
+            var block = file.DocsBlocks[owner.Order];
+            var blockText = text[block.Start..block.End];
+            var reason = "managed_member_not_supported";
+            var detail = "No exact source-verified .NET binding rule matches this declaration and channel.";
+            if (documentation is { } rule &&
+                rule.Channels.TryGetValue(placeholder.Target, out var replacement))
+            {
+                var candidates = owner.Docs.Elements(placeholder.Name)
+                    .Where(element => placeholder.Name != "param" ||
+                        (string?)element.Attribute("name") == placeholder.Key).ToArray();
+                if (candidates.Length != 1 || !IsPlaceholder(candidates[0]) ||
+                    candidates[0].Attributes().Any(attribute =>
+                        placeholder.Name != "param" || attribute.Name != "name") ||
+                    !TryParseDocsBlock(blockText, out var parsed) ||
+                    parsed.Elements(placeholder.Name).Count(element => placeholder.Name != "param" ||
+                        (string?)element.Attribute("name") == placeholder.Key) != 1)
+                {
+                    reason = "managed_channel_not_plain_placeholder";
+                    detail = "Only one direct plain-text placeholder is eligible; authored or mixed XML is preserved.";
+                }
+                else if (remaining == 0)
+                {
+                    reason = "max_changes_reached";
+                    detail = "The scoped batch change limit was reached.";
+                }
+                else if (TryReplacePlaceholder(
+                    text, block, placeholder, replacement, out var updated, out var error))
+                {
+                    text = updated;
+                    file.UpdateBlockOffsets(owner.Order, text);
+                    remaining--;
+                    report.Entries.Add(ReportEntry.Changed("would_apply", file.RelativePath,
+                        owner.Id, placeholder.Target, rule.Source, "exact_managed_binding_match"));
+                    continue;
+                }
+                else
+                {
+                    report.Entries.Add(ReportEntry.Error(file.RelativePath, owner.Id,
+                        placeholder.Target, "source_xml_layout_mismatch", error, rule.Source));
+                    continue;
+                }
+            }
+            report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id,
+                placeholder.Target, reason, detail, documentation?.Source ?? ""));
+        }
+        return text;
+    }
+
+    static int RunManagedSelfTest(string repositoryRoot)
+    {
+        static XElement RequiredElement(XContainer parent, string name) =>
+            parent.Element(name) ?? throw new InvalidOperationException(
+                $"SELF-TEST FIXTURE: Missing required {name} element.");
+
+        static XElement MemberOf(XElement root) =>
+            RequiredElement(RequiredElement(root, "Members"), "Member");
+
+        var directory = Path.Combine(repositoryRoot, "docs", "xml",
+            ".managed-importer-self-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var examples = new[]
+            {
+                ("Java.Time.Format", "TextStyle.xml", "JniPeerMembers", 3),
+                ("Java.Time.Format", "TextStyle.xml", "ThresholdClass", 3),
+                ("Java.Time.Format", "TextStyle.xml", "ThresholdType", 3),
+                ("Javax.Crypto.Spec", "DHParameterSpec.xml", "Java.Interop.IJavaPeerable.UnregisterFromRuntime", 2),
+                ("Java.Time.Format", "DateTimeParseException.xml", ".ctor", 4),
+                ("Java.Nio.FileNio.Attributes", "AclEntry+Builder.xml", "JniPeerMembers", 3),
+                ("Java.Nio.FileNio.Attributes", "AclEntry+Builder.xml", "ThresholdClass", 3),
+                ("Java.Nio.FileNio.Attributes", "AclEntry+Builder.xml", "ThresholdType", 3),
+            };
+            foreach (var (ns, filename, memberName, channelCount) in examples)
+            {
+                var original = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", ns, filename));
+                var member = RequiredElement(original, "Members").Elements("Member").First(element =>
+                    (string?)element.Attribute("MemberName") == memberName &&
+                    (memberName != ".ctor" || element.Element("Parameters")?.Elements("Parameter")
+                        .FirstOrDefault()?.Attribute("Type")?.Value == "System.IntPtr"));
+                var root = new XElement(original);
+                RequiredElement(root, "Members").ReplaceNodes(new XElement(member));
+                var selected = MemberOf(root);
+                var docs = new XElement("Docs",
+                    selected.Element("Parameters")?.Elements("Parameter").Select(parameter =>
+                        new XElement("param", new XAttribute("name", parameter.Attribute("Name")?.Value ??
+                            throw new InvalidOperationException("SELF-TEST FIXTURE: Missing parameter name.")),
+                            "To be added.")) ?? [],
+                    new XElement("summary", "To be added."),
+                    memberName is "JniPeerMembers" or "ThresholdClass" or "ThresholdType"
+                        ? new XElement("value", "To be added.") : null,
+                    new XElement("remarks", "To be added."));
+                RequiredElement(selected, "Docs").ReplaceWith(docs);
+                var path = Path.Combine(directory, filename);
+                var reportPath = Path.Combine(directory, "report.json");
+
+                JsonElement Run(params string[] extra)
+                {
+                    var output = Console.Out;
+                    using var captured = new StringWriter();
+                    int result;
+                    try
+                    {
+                        Console.SetOut(captured);
+                        result = RunAsync([
+                            "--managed-only", "--path", path, "--offline", "--member", memberName,
+                            "--max-changes", "100", "--report", reportPath, .. extra
+                        ]).GetAwaiter().GetResult();
+                    }
+                    finally
+                    {
+                        Console.SetOut(output);
+                    }
+                    Assert(result == 0, "managed production invocation: " + captured);
+                    using var report = JsonDocument.Parse(File.ReadAllText(reportPath));
+                    return report.RootElement.Clone();
+                }
+
+                foreach (var newline in new[] { "\n", "\r\n" })
+                foreach (var bom in new[] { false, true })
+                {
+                    var input = root.ToString().ReplaceLineEndings(newline);
+                    File.WriteAllText(path, input, new UTF8Encoding(bom));
+                    var bytes = File.ReadAllBytes(path);
+                    var preview = Run();
+                    Assert(preview.GetProperty("wouldApplyCount").GetInt32() == channelCount &&
+                        preview.GetProperty("sourcesFetched").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(bytes),
+                        "managed dry run is exact, offline, and read-only");
+                    var bounded = Run("--apply", "--max-changes", "1");
+                    Assert(bounded.GetProperty("appliedCount").GetInt32() == 1,
+                        "managed production apply honors the one-channel budget");
+                    var rest = Run("--apply");
+                    Assert(rest.GetProperty("appliedCount").GetInt32() == channelCount - 1,
+                        "managed production apply fills the remaining exact channels");
+                    var resultBytes = File.ReadAllBytes(path);
+                    var resultText = File.ReadAllText(path);
+                    Assert(resultBytes.AsSpan().StartsWith(Encoding.UTF8.Preamble) == bom &&
+                        LoadedFile.SelectNewline(resultText) == newline &&
+                        !resultText.Contains("To be added.", StringComparison.Ordinal),
+                        "managed production preserves encoding/newlines and fills every selected placeholder");
+                    var repeat = Run("--apply");
+                    Assert(repeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(resultBytes),
+                        "managed persisted repeat is byte-identical");
+                }
+
+                foreach (var variant in new[]
+                {
+                    "<summary>Authored <c>summary</c>.</summary>",
+                    "<summary><![CDATA[To be added.]]></summary>",
+                    "<summary><!-- retained -->To be added.</summary>",
+                    "<summary><?retained instruction?>To be added.</summary>",
+                    "<summary data-authored=\"true\">To be added.</summary>",
+                    "<summary><para>To be added.</para></summary>",
+                    "<summary>To be added.</summary><summary>To be added.</summary>",
+                })
+                {
+                    var input = root.ToString().Replace("<summary>To be added.</summary>", variant,
+                        StringComparison.Ordinal);
+                    File.WriteAllText(path, input, new UTF8Encoding(false));
+                    var protectedRoot = XElement.Parse(input);
+                    Run("--apply");
+                    var persisted = XElement.Load(path);
+                    var before = RequiredElement(MemberOf(protectedRoot), "Docs");
+                    var after = RequiredElement(MemberOf(persisted), "Docs");
+                    Assert(before.Elements("summary").SequenceEqual(after.Elements("summary"), XNode.EqualityComparer),
+                        "managed production preserves authored, mixed, duplicate, attributed, and nested summaries");
+                }
+
+                foreach (var change in new Action<XElement>[]
+                {
+                    element => MemberOf(element)
+                        .Elements("MemberSignature").First(signature =>
+                            (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "changed"),
+                    element => RequiredElement(RequiredElement(element, "AssemblyInfo"), "AssemblyName").Value = "Other.Assembly",
+                    element => RequiredElement(element, "Attributes").Remove(),
+                    element => MemberOf(element)
+                        .Elements("MemberSignature").First(signature =>
+                            (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", "M:Other.Member"),
+                    element =>
+                    {
+                        var target = MemberOf(element);
+                        if (target.Element("ReturnValue") is { } returnValue)
+                            RequiredElement(returnValue, "ReturnType").Value = "System.String";
+                        else
+                            RequiredElement(target, "Parameters").Elements("Parameter").First()
+                                .SetAttributeValue("Type", "System.String");
+                    },
+                    element =>
+                    {
+                        var target = MemberOf(element);
+                        if (target.Element("Attributes") is null)
+                            target.Add(new XElement("Attributes"));
+                        RequiredElement(target, "Attributes").Add(new XElement("Attribute", new XElement("AttributeName",
+                            "[Android.Runtime.Register(\"different\", \"()V\", \"\")]")));
+                    },
+                })
+                {
+                    var changed = new XElement(root);
+                    change(changed);
+                    File.WriteAllText(path, changed.ToString(), new UTF8Encoding(false));
+                    var bytes = File.ReadAllBytes(path);
+                    var negative = Run("--apply");
+                    Assert(negative.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(bytes),
+                        "managed production rejects altered declarations, assembly, registration, and DocIds");
+                }
+            }
+            Console.WriteLine("Managed binding self-tests passed.");
+            return 0;
+        }
+        finally
+        {
+            foreach (var path in Directory.EnumerateFiles(directory))
+                File.Delete(path);
+            Directory.Delete(directory);
+        }
     }
 
     static bool TryReplacePlaceholder(
@@ -15378,6 +15698,7 @@ static partial class ImporterProgram
 
     static int RunSelfTest(string repositoryRoot)
     {
+        RunManagedSelfTest(repositoryRoot);
         TestBiometricAllowedAuthenticatorsRemarksGuard(repositoryRoot);
         TestQualityFirstFillGuards(repositoryRoot);
         TestTvAdSourceCorrections(repositoryRoot);
@@ -26030,6 +26351,7 @@ static partial class ImporterProgram
         public bool Apply { get; private set; }
         public bool Offline { get; private set; }
         public bool SelfTest { get; private set; }
+        public bool ManagedOnly { get; private set; }
         public bool Help { get; private set; }
         public int MaxChanges { get; private set; } = 25;
         public int Concurrency { get; private set; } = 4;
@@ -26067,6 +26389,9 @@ static partial class ImporterProgram
                         break;
                     case "--self-test":
                         options.SelfTest = true;
+                        break;
+                    case "--managed-only":
+                        options.ManagedOnly = true;
                         break;
                     case "--path":
                         options.Paths.Add(Value());
@@ -26138,6 +26463,7 @@ static partial class ImporterProgram
               --apply                Write changes; requires --path or --namespace
               --max-changes <n>      Maximum placeholder elements (default: 25)
               --offline              Read only from cache; never use the network
+              --managed-only         Fill exact shared .NET binding placeholders without network access
               --cache <directory>    Cache official pages by URL hash
               --report <path>        Write deterministic JSON and adjacent text reports
 
@@ -26146,7 +26472,7 @@ static partial class ImporterProgram
               --retries <0-6>        Retry count with deterministic backoff (default: 3)
 
             Validation:
-              --self-test            Run local fixture tests without network access
+              --self-test            Run local fixture tests; add --managed-only for the .NET rules
               -h, --help             Show help
             """);
     }

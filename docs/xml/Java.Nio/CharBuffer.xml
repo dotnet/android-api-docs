@@ -486,8 +486,8 @@
                     appended.  If <c>csq</c> is <c>null</c>, then characters
                     will be appended as if <c>csq</c> contained the four
                     characters <c>"null"</c>.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
+        <param name="start">The zero-based index of the first character to append. Must be between zero and <paramref name="end" />.</param>
+        <param name="end">The zero-based index after the last character to append. Must not exceed the length of <paramref name="csq" />, or four if <paramref name="csq" /> is <see langword="null" />.</param>
         <summary>Appends a subsequence of the  specified character sequence  to this
             buffer&amp;nbsp;&amp;nbsp;<i>(optional operation)</i>.</summary>
         <returns>This buffer</returns>
@@ -1152,12 +1152,16 @@
         <Parameter Name="dstBegin" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="srcBegin">To be added.</param>
-        <param name="srcEnd">To be added.</param>
-        <param name="dst">To be added.</param>
-        <param name="dstBegin">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="srcBegin">The index of the first character to copy, relative to the current buffer position. Must be non-negative and no greater than <paramref name="srcEnd" />.</param>
+        <param name="srcEnd">The index after the last character to copy, relative to the current buffer position. Must not exceed <see cref="M:Java.Nio.CharBuffer.Length" />.</param>
+        <param name="dst">The array that receives the characters. Must not be <see langword="null" />.</param>
+        <param name="dstBegin">The non-negative destination index at which to start writing. The array must have room for <paramref name="srcEnd" /> minus <paramref name="srcBegin" /> characters.</param>
+        <summary>Copies a range of characters from this buffer's remaining sequence into an array.</summary>
+        <remarks>
+          <para>The source range includes <paramref name="srcBegin" /> and excludes <paramref name="srcEnd" />. Source indices are relative to the current position, not the start of the buffer. This operation does not change the buffer's position.</para>
+          <para>The inherited default implementation calls <see cref="M:Java.Nio.CharBuffer.CharAt(System.Int32)" /> for each character. If another operation shortens the sequence during the copy, an index exception can occur after some characters have been copied.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/java/lang/CharSequence#getChars(int,%20int,%20char[],%20int)">Android reference for the inherited CharSequence.getChars contract.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetEnumerator">
@@ -1188,9 +1192,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns an enumerator for the characters between this buffer's position and limit.</summary>
+        <returns>An enumerator that reads characters in order with <see cref="M:Java.Nio.CharBuffer.CharAt(System.Int32)" /> without changing the buffer's position.</returns>
         <remarks>
+          <para>The enumerator reads the current sequence as it advances; it does not take a copy. Do not change the buffer's position, limit, or contents during enumeration.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/CharSequenceEnumeratorMethod.cs">.NET character-sequence enumerator implementation.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1304,8 +1310,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Removes this instance from the runtime's Java object lookup.</summary>
+        <remarks>
+          <para>Call this method to prevent future runtime lookups of the Java object from returning this managed instance.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Lang.IAppendable.Append">
@@ -1377,7 +1385,7 @@
         <Parameter Name="ch" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="ch">To be added.</param>
+        <param name="ch">The character to append at the current buffer position.</param>
         <summary>Appends the specified character to this Appendable.</summary>
         <returns>A reference to this Appendable</returns>
         <remarks>
@@ -1506,8 +1514,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2490,9 +2498,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns a non-generic enumerator for the characters between this buffer's position and limit.</summary>
+        <returns>The enumerator returned by <see cref="M:Java.Nio.CharBuffer.GetEnumerator" />, which reads characters in order without changing the buffer's position.</returns>
         <remarks>
+          <para>This interface method calls <see cref="M:Java.Nio.CharBuffer.GetEnumerator" />. The enumerator does not take a copy. Do not change the buffer's position, limit, or contents during enumeration.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/CharSequenceEnumeratorMethod.cs">.NET character-sequence enumerator implementation.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

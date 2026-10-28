@@ -71,8 +71,11 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates a builder for a measurement deletion request.</summary>
+        <remarks>
+          <para>The default time range starts at <c>Instant.MIN</c> and ends at <c>Instant.MAX</c>. The default match behavior is <see cref="F:Android.AdServices.Measurement.DeletionRequestMatchBehavior.Delete" />, and the default deletion mode is <see cref="F:Android.AdServices.Measurement.DeletionRequestDeletionMode.All" />. Origin and domain lists that are not set become empty lists when the request is built.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/AdServices/+/593832a5beabbc740974dc6c07f3294cd8a3bc6d/adservices/framework/java/android/adservices/measurement/DeletionRequest.java">Android source for DeletionRequest and its builder.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -105,7 +108,7 @@
       <Parameters />
       <Docs>
         <summary>Builds a <c>DeletionRequest</c> instance.</summary>
-        <returns>To be added.</returns>
+        <returns>A new deletion request with the settings from this builder.</returns>
         <remarks>
           <para>Builds a <c>DeletionRequest</c> instance.</para>
           <para>
@@ -145,9 +148,11 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
+        <remarks>
+          <para>The runtime uses this metadata to invoke Java constructors, methods, and fields.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetDeletionMode">
@@ -190,7 +195,7 @@
       <Docs>
         <param name="deletionMode">Value is one of the following: DeletionRequest.DELETION_MODE_ALL; DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA</param>
         <summary>Set the deletion mode for the supplied params.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the deletion mode set.</returns>
         <remarks>
           <para>Set the deletion mode for the supplied params. DeletionRequest.DELETION_MODE_ALL: All data associated with the selected records will be deleted. DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA: All data except the internal system data (e.g. rate limits) associated with the selected records will be deleted.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/measurement/DeletionRequest.Builder#setDeletionMode(int)" title="Reference documentation">Android reference for <code>android.adservices.measurement.DeletionRequest.Builder.setDeletionMode</code>.</a></format></para>
@@ -236,9 +241,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="domainUris">To be added.</param>
+        <param name="domainUris">The domain URIs to match, including their subdomains, or <see langword="null" /> to use an empty domain list when the request is built.</param>
         <summary>Set the list of domain URI which will be used for matching.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the domain URI list set.</returns>
         <remarks>
           <para>Set the list of domain URI which will be used for matching. These will be matched with records using the same domain or any subdomains. E.g. If domainUri is https://example.com, then https://a.example.com, https://example.com and https://b.example.com will match; https://abcexample.com will NOT match.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/measurement/DeletionRequest.Builder#setDomainUris(java.util.List&lt;android.net.Uri&gt;)" title="Reference documentation">Android reference for <code>android.adservices.measurement.DeletionRequest.Builder.setDomainUris</code>.</a></format></para>
@@ -277,9 +282,9 @@
         <Parameter Name="end" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="end">To be added.</param>
+        <param name="end">The end of the deletion range. Use <c>Instant.MAX</c> to extend the range to the newest record. The default is <c>Instant.MAX</c>.</param>
         <summary>Set the end of the deletion range.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the end of the deletion range set.</returns>
         <remarks>
           <para>Set the end of the deletion range. Passing in Instant.MAX will cause everything from the specified start until the newest record to be deleted. No set end will default to Instant.MAX.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/measurement/DeletionRequest.Builder#setEnd(java.time.Instant)" title="Reference documentation">Android reference for <code>android.adservices.measurement.DeletionRequest.Builder.setEnd</code>.</a></format></para>
@@ -327,7 +332,7 @@
       <Docs>
         <param name="matchBehavior">Value is one of the following: DeletionRequest.MATCH_BEHAVIOR_DELETE; DeletionRequest.MATCH_BEHAVIOR_PRESERVE</param>
         <summary>Set the match behavior for the supplied params.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the match behavior set.</returns>
         <remarks>
           <para>Set the match behavior for the supplied params. DeletionRequest.MATCH_BEHAVIOR_DELETE: This option will use the supplied params (Origin URIs &amp; Domain URIs) for selecting records for deletion. DeletionRequest.MATCH_BEHAVIOR_PRESERVE: This option will preserve the data associated with the supplied params (Origin URIs &amp; Domain URIs) and select remaining records for deletion.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/measurement/DeletionRequest.Builder#setMatchBehavior(int)" title="Reference documentation">Android reference for <code>android.adservices.measurement.DeletionRequest.Builder.setMatchBehavior</code>.</a></format></para>
@@ -373,9 +378,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="originUris">To be added.</param>
+        <param name="originUris">The origin URIs to match exactly, without matching other origins such as subdomains, or <see langword="null" /> to use an empty origin list when the request is built.</param>
         <summary>Set the list of origin URI which will be used for matching.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the origin URI list set.</returns>
         <remarks>
           <para>Set the list of origin URI which will be used for matching. These will be matched with records using the same origin only, i.e. subdomains won't match. E.g. If originUri is https://a.example.com, then https://a.example.com will match; https://example.com, https://b.example.com and https://abcexample.com will NOT match.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/measurement/DeletionRequest.Builder#setOriginUris(java.util.List&lt;android.net.Uri&gt;)" title="Reference documentation">Android reference for <code>android.adservices.measurement.DeletionRequest.Builder.setOriginUris</code>.</a></format></para>
@@ -414,9 +419,9 @@
         <Parameter Name="start" Type="Java.Time.Instant" />
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
+        <param name="start">The start of the deletion range. Use <c>Instant.MIN</c> to extend the range to the oldest record. The default is <c>Instant.MIN</c>.</param>
         <summary>Set the start of the deletion range.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the start of the deletion range set.</returns>
         <remarks>
           <para>Set the start of the deletion range. Passing in Instant.MIN will cause everything from the oldest record to the specified end be deleted. No set start will default to Instant.MIN.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/measurement/DeletionRequest.Builder#setStart(java.time.Instant)" title="Reference documentation">Android reference for <code>android.adservices.measurement.DeletionRequest.Builder.setStart</code>.</a></format></para>
@@ -448,9 +453,11 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the Java class used for virtual method dispatch.</summary>
+        <value>A JNI reference to the Java class for this binding type.</value>
+        <remarks>
+          <para>The runtime uses this class reference to dispatch calls to the Java implementation.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdType">
@@ -477,9 +484,11 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the managed type that declares this Java binding.</summary>
+        <value>The managed type associated with the JNI member metadata.</value>
+        <remarks>
+          <para>The runtime uses this type to preserve virtual method dispatch for the binding.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

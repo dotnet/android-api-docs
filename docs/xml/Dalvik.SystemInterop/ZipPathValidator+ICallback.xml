@@ -29,8 +29,11 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Defines a callback that validates ZIP entry paths when they are accessed.</summary>
+    <remarks>
+      <para>Install an implementation with <see cref="M:Dalvik.SystemInterop.ZipPathValidator.SetCallback(Dalvik.SystemInterop.ZipPathValidator.ICallback)" />. The default Android implementation accepts all entry paths.</para>
+      <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/dalvik/src/main/java/dalvik/system/ZipPathValidator.java">Android ZipPathValidator.Callback source</a></format>.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="OnZipEntryAccess">
@@ -64,9 +67,12 @@
         <Parameter Name="path" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="path">The name of the ZIP entry to validate.</param>
+        <summary>Checks whether a ZIP entry path is valid.</summary>
+        <remarks>
+          <para>Android calls this method when <see cref="P:Java.Util.Zip.ZipInputStream.NextEntry" /> reads an entry or a <see cref="T:Java.Util.Zip.ZipFile" /> is opened. An implementation can throw <see cref="T:Java.Util.Zip.ZipException" /> if the entry path is invalid under its validation rules. The default Android implementation accepts all paths without throwing an exception.</para>
+          <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/dalvik/src/main/java/dalvik/system/ZipPathValidator.java">Android onZipEntryAccess source</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

@@ -411,10 +411,16 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="context">The context from which to request the storage service.</param>
+        <summary>Gets the storage manager from the specified context.</summary>
+        <returns>The context's storage service as a <see cref="T:Android.OS.Storage.StorageManager" />, or <see langword="null" /> if the service is unavailable or is not a storage manager.</returns>
         <remarks>
+          <para>This .NET helper calls <see cref="M:Android.Content.Context.GetSystemService(System.String)" /> with <see cref="F:Android.Content.Context.StorageService" /> and converts the result to <see cref="T:Android.OS.Storage.StorageManager" />.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://github.com/dotnet/android/blob/9beaf081148d4a494ea09fdc1bf07108fe869e5b/src/Mono.Android/Android.OS.Storage/StorageManager.cs">.NET for Android implementation of StorageManager.FromContext.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -748,10 +754,10 @@
         <Parameter Name="uri" Type="Android.Net.Uri" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
+        <param name="uri">The non-null URI of a <see cref="T:Android.Provider.MediaStore" /> item whose storage volume is requested.</param>
         <summary>Return the <c>StorageVolume</c> that contains the given
             <c>MediaStore</c> item.</summary>
-        <returns>To be added.</returns>
+        <returns>The storage volume that contains the specified media item.</returns>
         <remarks>
           <para>Return the <c>StorageVolume</c> that contains the given
             <c>MediaStore</c> item.</para>
@@ -801,10 +807,10 @@
         <Parameter Name="file" Type="Java.IO.File" />
       </Parameters>
       <Docs>
-        <param name="file">To be added.</param>
+        <param name="file">The non-null file whose containing storage volume is requested.</param>
         <summary>Return the <c>StorageVolume</c> that contains the given file, or
             <c>null</c> if none.</summary>
-        <returns>To be added.</returns>
+        <returns>The storage volume that contains <paramref name="file" />, or <see langword="null" /> if no matching volume is found.</returns>
         <remarks>
           <para>Return the <c>StorageVolume</c> that contains the given file, or
             <c>null</c> if none.</para>
@@ -848,10 +854,10 @@
         <Parameter Name="path" Type="Java.IO.File" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
+        <param name="path">The non-null filesystem path whose storage volume is to be identified.</param>
         <summary>Return a UUID identifying the storage volume that hosts the given
             filesystem path.</summary>
-        <returns>To be added.</returns>
+        <returns>The UUID of the volume that contains <paramref name="path" />, or <see cref="P:Android.OS.Storage.StorageManager.UuidDefault" /> for the device's default internal storage.</returns>
         <remarks>
           <para>Return a UUID identifying the storage volume that hosts the given
             filesystem path.</para>
@@ -898,10 +904,10 @@
         <Parameter Name="fd" Type="Java.IO.FileDescriptor" />
       </Parameters>
       <Docs>
-        <param name="fd">To be added.</param>
+        <param name="fd">The non-null file descriptor to check for disk-space allocation support.</param>
         <summary>Test if the given file descriptor supports allocation of disk space using
             <c>#allocateBytes(FileDescriptor, long)</c>.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the descriptor supports disk-space allocation with <see cref="M:Android.OS.Storage.StorageManager.AllocateBytes(Java.IO.FileDescriptor,System.Int64)" />; otherwise, <see langword="false" />. Support does not guarantee that a requested allocation will succeed.</returns>
         <remarks>
           <para>Test if the given file descriptor supports allocation of disk space using
             <c>#allocateBytes(FileDescriptor, long)</c>.</para>
@@ -949,10 +955,10 @@
         <Parameter Name="path" Type="Java.IO.File" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
+        <param name="path">The directory whose cache-group setting is to be read.</param>
         <summary>Read the current value set by
             <c>#setCacheBehaviorGroup(File, boolean)</c>.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the directory has cache-group behavior enabled; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Read the current value set by
             <c>#setCacheBehaviorGroup(File, boolean)</c>.</para>
@@ -1000,10 +1006,10 @@
         <Parameter Name="path" Type="Java.IO.File" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
+        <param name="path">The directory whose cache-tombstone setting is to be read.</param>
         <summary>Read the current value set by
             <c>#setCacheBehaviorTombstone(File, boolean)</c>.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the directory has cache-tombstone behavior enabled; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Read the current value set by
             <c>#setCacheBehaviorTombstone(File, boolean)</c>.</para>
@@ -1092,10 +1098,10 @@
         <Parameter Name="file" Type="Java.IO.File" />
       </Parameters>
       <Docs>
-        <param name="file">To be added.</param>
+        <param name="file">The filesystem path to check for encryption of data stored at or below it.</param>
         <summary>Return if data stored at or under the given path will be encrypted while
             at rest.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if Android identifies the path as storage encrypted at rest; otherwise, <see langword="false" />. A false result does not establish that shared storage is unencrypted.</returns>
         <remarks>
           <para>Return if data stored at or under the given path will be encrypted while
             at rest. This can help apps avoid the overhead of double-encrypting data.</para>
@@ -1182,8 +1188,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1357,7 +1363,7 @@
       <Docs>
         <summary>Return the primary shared/external storage volume available to the
             current user.</summary>
-        <value>To be added.</value>
+        <value>The primary shared or external storage volume for the current user.</value>
         <remarks>
           <para>Return the primary shared/external storage volume available to the
             current user. This volume is the same storage device returned by
@@ -1402,7 +1408,7 @@
       <Docs>
         <summary>Return the list of shared/external storage volumes both currently and
             recently available to the calling user.</summary>
-        <value>To be added.</value>
+        <value>The shared or external storage volumes currently or recently available to the calling user.</value>
         <remarks>
           <para>Return the list of shared/external storage volumes both currently and
             recently available to the calling user.</para>
@@ -1451,7 +1457,7 @@
       </Parameters>
       <Docs>
         <param name="executor">Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread. This value cannot be null.</param>
-        <param name="callback">To be added.</param>
+        <param name="callback">The non-null callback that will receive storage-volume state changes.</param>
         <summary>Registers the given callback to listen for <c>StorageVolume</c> changes.</summary>
         <remarks>
           <para>
@@ -1500,8 +1506,8 @@
         <Parameter Name="group" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
-        <param name="group">To be added.</param>
+        <param name="path">The directory on which to set cache-group behavior. The setting applies recursively to its contents.</param>
+        <param name="group"><see langword="true" /> to treat the directory and its contents as a group for automatic cache deletion; <see langword="false" /> to disable this behavior.</param>
         <summary>Enable or disable special cache behavior that treats this directory and
             its contents as an entire group.</summary>
         <remarks>
@@ -1562,8 +1568,8 @@
         <Parameter Name="tombstone" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
-        <param name="tombstone">To be added.</param>
+        <param name="path">The directory on which to set cache-tombstone behavior. The setting applies recursively to its contents.</param>
+        <param name="tombstone"><see langword="true" /> to truncate automatically deleted cache files to zero bytes instead of removing them; <see langword="false" /> to disable this behavior. An explicit user request to clear all cached data ignores this setting.</param>
         <summary>Enable or disable special cache behavior that leaves deleted cache files
             intact as tombstones.</summary>
         <remarks>
@@ -1616,7 +1622,7 @@
       <Docs>
         <summary>Return the list of shared/external storage volumes currently available to
             the calling user.</summary>
-        <value>To be added.</value>
+        <value>The shared or external storage volumes currently attached for the calling user, including primary storage and attached SD cards or USB drives. The volumes can be in any mount state.</value>
         <remarks>
           <para>Return the list of shared/external storage volumes currently available to
             the calling user.</para>
@@ -1667,7 +1673,7 @@
       <Docs>
         <summary>Return the list of shared/external storage volumes currently available to
             the calling user and the user it shares media with.</summary>
-        <value>To be added.</value>
+        <value>The shared or external storage volumes for the calling user and users with whom it shares media. Access requires <see cref="F:Android.Manifest.Permission.ManageExternalStorage" />.</value>
         <remarks>
           <para>Return the list of shared/external storage volumes currently available to
             the calling user and the user it shares media with. Please refer to
@@ -1837,7 +1843,7 @@
         <Parameter Name="callback" Type="Android.OS.Storage.StorageManager+StorageVolumeCallback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
+        <param name="callback">The non-null callback previously registered to receive storage-volume state changes.</param>
         <summary>Unregisters the given callback from listening for <c>StorageVolume</c>
             changes.</summary>
         <remarks>
@@ -1888,7 +1894,7 @@
       <Docs>
         <summary>UUID representing the default internal storage of this device which
             provides <c>Environment#getDataDirectory()</c>.</summary>
-        <value>To be added.</value>
+        <value>The UUID for the device's default internal storage. This constant is the same on all devices and does not identify a physical device.</value>
         <remarks>
           <para>UUID representing the default internal storage of this device which
             provides <c>Environment#getDataDirectory()</c>.</para>

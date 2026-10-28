@@ -26,8 +26,12 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Builds a conversation status from an identifier, an activity, and optional status details.</summary>
+    <remarks>
+      <para>The identifier and activity are supplied to the constructor. Availability initially is unknown, the description and image initially are <see langword="null" />, and both times initially are <c>-1</c>. Each setter returns this builder.</para>
+      <para>Call <see cref="M:Android.App.People.ConversationStatus.Builder.Build" /> to create a status from the current settings. This does not publish the status.</para>
+      <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1a5cb387d6542391d0edf69cdd828e5b7c8a9d65/core/java/android/app/people/ConversationStatus.java">Android builder implementation</a></format>.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -98,9 +102,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Creates a conversation status from this builder's current settings.</summary>
+        <returns>A new conversation status with the identifier, activity, and optional details stored in this builder.</returns>
+        <remarks>To publish the result for a conversation, pass it to <see cref="M:Android.App.People.PeopleManager.AddOrUpdateStatus(System.String,Android.App.People.ConversationStatus)" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -127,9 +131,11 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
+        <remarks>
+          <para>The runtime uses this metadata to invoke Java constructors, methods, and fields.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetAvailability">
@@ -161,7 +167,7 @@
       <Docs>
         <param name="availability">Value is one of the following: ConversationStatus.AVAILABILITY_UNKNOWN; ConversationStatus.AVAILABILITY_AVAILABLE; ConversationStatus.AVAILABILITY_BUSY; ConversationStatus.AVAILABILITY_OFFLINE</param>
         <summary>Sets the availability of the conversation to provide a hint about how likely it is that the user would receive a timely response if they sent a message.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, so that more settings can be applied.</returns>
         <remarks>
           <para>Sets the availability of the conversation to provide a hint about how likely it is that the user would receive a timely response if they sent a message.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/people/ConversationStatus.Builder#setAvailability(int)" title="Reference documentation">Android reference for <code>android.app.people.ConversationStatus.Builder.setAvailability</code>.</a></format></para>
@@ -203,9 +209,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="description">To be added.</param>
+        <param name="description">The activity description as a Java character sequence, or <see langword="null" /> to clear the description.</param>
         <summary>Sets a user visible description expanding on the conversation user(s)'s activity.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, so that more settings can be applied.</returns>
         <remarks>
           <para>Sets a user visible description expanding on the conversation user(s)'s activity.</para>
           <para>Examples include: what media someone is watching or listening to, their approximate location, or what type of anniversary they are celebrating.</para>
@@ -244,10 +250,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="description">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="description">The activity description as a string, or <see langword="null" /> to clear the description.</param>
+        <summary>Sets the text that describes the conversation activity.</summary>
+        <returns>This builder, so that more settings can be applied.</returns>
+        <remarks>This overload accepts a .NET string. Use <see cref="M:Android.App.People.ConversationStatus.Builder.SetDescription(Java.Lang.ICharSequence)" /> to supply a Java character sequence.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetEndTimeMillis">
@@ -277,9 +283,9 @@
         <Parameter Name="endTimeMs" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="endTimeMs">To be added.</param>
+        <param name="endTimeMs">The expiration time in milliseconds since the Unix epoch. The default is <c>-1</c>, which leaves the expiration time unset.</param>
         <summary>Sets an expiration time for this status.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, so that more settings can be applied.</returns>
         <remarks>
           <para>Sets an expiration time for this status.</para>
           <para>The system will remove the status at this time if it hasn't already been withdrawn.</para>
@@ -322,9 +328,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="icon">To be added.</param>
+        <param name="icon">The image for the conversation activity, or <see langword="null" /> to clear the image.</param>
         <summary>Sets an image representing the conversation user(s)'s activity.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, so that more settings can be applied.</returns>
         <remarks>
           <para>Sets an image representing the conversation user(s)'s activity.</para>
           <para>Examples include: A still from a new story update, album art, or a map showing approximate location.</para>
@@ -360,9 +366,9 @@
         <Parameter Name="startTimeMs" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="startTimeMs">To be added.</param>
+        <param name="startTimeMs">The time in milliseconds at which the status became valid. The default is <c>-1</c>, which leaves the start time unset.</param>
         <summary>Sets the time at which this status became valid.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, so that more settings can be applied.</returns>
         <remarks>
           <para>Sets the time at which this status became valid.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/people/ConversationStatus.Builder#setStartTimeMillis(long)" title="Reference documentation">Android reference for <code>android.app.people.ConversationStatus.Builder.setStartTimeMillis</code>.</a></format></para>
@@ -394,9 +400,11 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the Java class used for virtual method dispatch.</summary>
+        <value>A JNI reference to the Java class for this binding type.</value>
+        <remarks>
+          <para>The runtime uses this class reference to dispatch calls to the Java implementation.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdType">
@@ -423,9 +431,11 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the managed type that declares this Java binding.</summary>
+        <value>The managed type associated with the JNI member metadata.</value>
+        <remarks>
+          <para>The runtime uses this type to preserve virtual method dispatch for the binding.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

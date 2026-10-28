@@ -1108,8 +1108,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1510,10 +1510,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="e">The ZIP entry to start writing.</param>
+        <summary>Starts a new ZIP entry as a task and positions the stream for its data.</summary>
+        <returns>A task that completes when the entry header has been written and the stream is ready for the entry data.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call <see cref="M:Java.Util.Zip.ZipOutputStream.PutNextEntry(Java.Util.Zip.ZipEntry)" />. It does not use a native asynchronous operation.</para>
+          <para>The call closes any active entry. If the new entry has no compression method, the stream's default method is used. If it has no modification time, the current time is used. It does not write the entry data or finish the archive.</para>
+          <para>Wait for the task to complete before writing entry data or using this stream again. Exceptions from the synchronous call, including ZIP format and output errors, are reported through the task.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper implementation.</a></format></para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/ojluni/src/main/java/java/util/zip/ZipOutputStream.java">Android ZIP entry implementation.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

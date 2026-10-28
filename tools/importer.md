@@ -23,6 +23,41 @@ owners to declarations introduced in an exact Android API level. Selection
 recognizes both `ApiSince` and `SupportedOSPlatform` metadata. Members without
 their own availability metadata inherit the containing type's API level.
 
+## Shared .NET binding members
+
+Use `--managed-only` for repeated .NET binding members that have no Android or
+Java reference declaration. This is a separate, explicit mode. It does not
+download pages or change the normal Android/Java import rules.
+
+```powershell
+dotnet run tools\importer.cs -- --managed-only --self-test
+dotnet run tools\importer.cs -- --managed-only --path docs\xml\Javax.Crypto.Spec --namespace Javax.Crypto.Spec --max-changes 10 --report artifacts\managed-preview
+```
+
+Review both reports before repeating a scoped command with `--apply`. Keep
+each batch bounded. Parse changed XML and run `git diff --check` after applying.
+
+The shared text describes the generated `JniPeerMembers`, `ThresholdClass`,
+`ThresholdType`, explicit `IJavaPeerable.UnregisterFromRuntime`, and protected
+`IntPtr`/`JniHandleOwnership` constructor members. Its sources are the official
+[generated binding](https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tests/generator-Tests/expected.xaji/Constructors/Xamarin.Test.SomeObject.cs),
+[interface contract](https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/src/Java.Interop/Documentation/Java.Interop/IJavaPeerable.xml),
+and [runtime implementation](https://github.com/dotnet/android/blob/3c25fed857508e40c364dfa1427c98fef4a0e5c0/src/Mono.Android/Java.Lang/Object.cs).
+Reports record the pinned source for each replacement. The text is written for
+these .NET members; it is not presented as Android or Java reference text.
+
+Each rule checks the registered containing type, assembly, exact C# signature,
+DocId, parameter and return types, and applicable hidden-member or interface
+metadata. A JNI-registered member is not eligible. Only unique direct
+plain-text placeholders are replaced. Existing prose, empty channels, nested
+placeholders, markup, comments, CDATA, processing instructions, duplicate
+channels, and channel attributes are preserved. Unsupported declarations and
+channels are reported, not guessed. The managed self-tests exercise actual
+dry runs, bounded applies, encoding and newline preservation, changed metadata,
+protected content, and byte-identical repeat runs without network access.
+
+## Android and Java reference import
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.

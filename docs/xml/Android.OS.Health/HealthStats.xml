@@ -108,9 +108,9 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="javaReference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="javaReference">A JNI reference to the Java object.</param>
+        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -149,7 +149,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get a name representing the contents of this object.</summary>
-        <value>To be added.</value>
+        <value>A name that identifies the type of health data in this object.</value>
         <remarks>
           <para>Get a name representing the contents of this object.</para>
           <para>
@@ -192,9 +192,10 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The key for a single measurement.</param>
         <summary>Get the measurement for the given key.</summary>
-        <returns>To be added.</returns>
+        <returns>The measurement value for <paramref name="key" />. The key constant specifies the unit.</returns>
+        <exception cref="T:Java.Lang.IndexOutOfBoundsException">This object does not contain the measurement key.</exception>
         <remarks>
           <para>Get the measurement for the given key.</para>
           <para>
@@ -237,9 +238,9 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
+        <param name="index">A zero-based index less than <see cref="P:Android.OS.Health.HealthStats.MeasurementKeyCount" />.</param>
         <summary>Get the key for the measurement at the given index.</summary>
-        <returns>To be added.</returns>
+        <returns>The measurement key at <paramref name="index" />, not the measurement value.</returns>
         <remarks>
           <para>Get the key for the measurement at the given index.  Index must be between 0 and the result
             of <c>#getMeasurementKeyCount getMeasurementKeyCount()</c>.</para>
@@ -289,9 +290,10 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The key for a map of named measurements, not a single-measurement key.</param>
         <summary>Get the measurements map for the given key.</summary>
-        <returns>To be added.</returns>
+        <returns>A map from names to measurement values for <paramref name="key" />. The key constant specifies the unit.</returns>
+        <exception cref="T:Java.Lang.IndexOutOfBoundsException">This object does not contain the measurement-map key.</exception>
         <remarks>
           <para>Get the measurements map for the given key.</para>
           <para>
@@ -334,9 +336,9 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
+        <param name="index">A zero-based index less than <see cref="P:Android.OS.Health.HealthStats.MeasurementsKeyCount" />.</param>
         <summary>Get the key for the measurement map at the given index.</summary>
-        <returns>To be added.</returns>
+        <returns>The measurement-map key at <paramref name="index" />, for use with <see cref="M:Android.OS.Health.HealthStats.GetMeasurements(System.Int32)" />.</returns>
         <remarks>
           <para>Get the key for the measurement map at the given index.
             Index must be between 0 and the result
@@ -387,9 +389,10 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The key for a map of named <see cref="T:Android.OS.Health.HealthStats" /> objects.</param>
         <summary>Get the HealthStats map for the given key.</summary>
-        <returns>To be added.</returns>
+        <returns>A map from names to health statistics for <paramref name="key" />.</returns>
+        <exception cref="T:Java.Lang.IndexOutOfBoundsException">This object does not contain the health-statistics-map key.</exception>
         <remarks>
           <para>Get the HealthStats map for the given key.</para>
           <para>
@@ -432,9 +435,9 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
+        <param name="index">A zero-based index less than <see cref="P:Android.OS.Health.HealthStats.StatsKeyCount" />.</param>
         <summary>Get the key for the timer at the given index.</summary>
-        <returns>To be added.</returns>
+        <returns>The health-statistics-map key at <paramref name="index" />, for use with <see cref="M:Android.OS.Health.HealthStats.GetStats(System.Int32)" />.</returns>
         <remarks>
           <para>Get the key for the timer at the given index.  Index must be between 0 and the result
             of <c>#getStatsKeyCount getStatsKeyCount()</c>.</para>
@@ -482,9 +485,10 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The key for a single timer, not a timer-map key.</param>
         <summary>Return a TimerStat object for the given key.</summary>
-        <returns>To be added.</returns>
+        <returns>A new <see cref="T:Android.OS.Health.TimerStat" /> with the count and total time, in milliseconds, for <paramref name="key" />.</returns>
+        <exception cref="T:Java.Lang.IndexOutOfBoundsException">This object does not contain the timer key.</exception>
         <remarks>
           <para>Return a TimerStat object for the given key.
             
@@ -530,9 +534,10 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The key for a single timer, not a timer-map key.</param>
         <summary>Get the count for the timer for the given key.</summary>
-        <returns>To be added.</returns>
+        <returns>The number of times the resource tracked by the timer was used.</returns>
+        <exception cref="T:Java.Lang.IndexOutOfBoundsException">This object does not contain the timer key.</exception>
         <remarks>
           <para>Get the count for the timer for the given key.</para>
           <para>
@@ -575,9 +580,9 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
+        <param name="index">A zero-based index less than <see cref="P:Android.OS.Health.HealthStats.TimerKeyCount" />.</param>
         <summary>Get the key for the timer at the given index.</summary>
-        <returns>To be added.</returns>
+        <returns>The single-timer key at <paramref name="index" />, for use with <see cref="M:Android.OS.Health.HealthStats.GetTimer(System.Int32)" />.</returns>
         <remarks>
           <para>Get the key for the timer at the given index.  Index must be between 0 and the result
             of <c>#getTimerKeyCount getTimerKeyCount()</c>.</para>
@@ -627,9 +632,10 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The key for a map of named timers, not a single-timer key.</param>
         <summary>Get the TimerStat map for the given key.</summary>
-        <returns>To be added.</returns>
+        <returns>A map from names to timer counts and total times, in milliseconds, for <paramref name="key" />.</returns>
+        <exception cref="T:Java.Lang.IndexOutOfBoundsException">This object does not contain the timer-map key.</exception>
         <remarks>
           <para>Get the TimerStat map for the given key.</para>
           <para>
@@ -672,9 +678,9 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
+        <param name="index">A zero-based index less than <see cref="P:Android.OS.Health.HealthStats.TimersKeyCount" />.</param>
         <summary>Get the key for the timer map at the given index.</summary>
-        <returns>To be added.</returns>
+        <returns>The timer-map key at <paramref name="index" />, for use with <see cref="M:Android.OS.Health.HealthStats.GetTimers(System.Int32)" />.</returns>
         <remarks>
           <para>Get the key for the timer map at the given index.  Index must be between 0 and the result
             of <c>#getTimersKeyCount getTimersKeyCount()</c>.</para>
@@ -718,9 +724,10 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The key for a single timer, not a timer-map key.</param>
         <summary>Get the time for the timer for the given key, in milliseconds.</summary>
-        <returns>To be added.</returns>
+        <returns>The total time, in milliseconds, recorded by the timer for <paramref name="key" />.</returns>
+        <exception cref="T:Java.Lang.IndexOutOfBoundsException">This object does not contain the timer key.</exception>
         <remarks>
           <para>Get the time for the timer for the given key, in milliseconds.</para>
           <para>
@@ -763,9 +770,9 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The single-measurement key to check.</param>
         <summary>Return whether this object contains a measurement for the supplied key.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if this object contains the measurement key; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Return whether this object contains a measurement for the supplied key.</para>
           <para>
@@ -808,9 +815,9 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The measurement-map key to check.</param>
         <summary>Return whether this object contains a measurements map for the supplied key.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if this object contains the measurement-map key; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Return whether this object contains a measurements map for the supplied key.</para>
           <para>
@@ -853,9 +860,9 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The health-statistics-map key to check.</param>
         <summary>Return whether this object contains a HealthStats map for the supplied key.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if this object contains the health-statistics-map key; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Return whether this object contains a HealthStats map for the supplied key.</para>
           <para>
@@ -898,9 +905,9 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The single-timer key to check.</param>
         <summary>Return whether this object contains a TimerStat for the supplied key.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if this object contains the timer key; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Return whether this object contains a TimerStat for the supplied key.</para>
           <para>
@@ -943,9 +950,9 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The timer-map key to check.</param>
         <summary>Return whether this object contains a timers map for the supplied key.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if this object contains the timer-map key; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Return whether this object contains a timers map for the supplied key.</para>
           <para>
@@ -985,8 +992,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1017,7 +1024,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the number of measurement values in this object.</summary>
-        <value>To be added.</value>
+        <value>The number of single-measurement keys available through <see cref="M:Android.OS.Health.HealthStats.GetMeasurementKeyAt(System.Int32)" />.</value>
         <remarks>
           <para>Get the number of measurement values in this object. Can be used to iterate through
             the available measurements.</para>
@@ -1059,7 +1066,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the number of measurement map values in this object.</summary>
-        <value>To be added.</value>
+        <value>The number of measurement-map keys available through <see cref="M:Android.OS.Health.HealthStats.GetMeasurementsKeyAt(System.Int32)" />, not the number of entries within each map.</value>
         <remarks>
           <para>Get the number of measurement map values in this object. Can be used to iterate through
             the available measurement maps.</para>
@@ -1101,7 +1108,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the number of HealthStat map values in this object.</summary>
-        <value>To be added.</value>
+        <value>The number of health-statistics-map keys available through <see cref="M:Android.OS.Health.HealthStats.GetStatsKeyAt(System.Int32)" />, not the number of entries within each map.</value>
         <remarks>
           <para>Get the number of HealthStat map values in this object. Can be used to iterate through
             the available measurements.</para>
@@ -1142,8 +1149,8 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the Java class used for virtual method dispatch.</summary>
+        <value>A JNI reference to the Java class for this binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1173,8 +1180,8 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the managed type that declares this Java binding.</summary>
+        <value>The managed type associated with the JNI member metadata.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1205,7 +1212,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the number of timer values in this object.</summary>
-        <value>To be added.</value>
+        <value>The number of single-timer keys available through <see cref="M:Android.OS.Health.HealthStats.GetTimerKeyAt(System.Int32)" />.</value>
         <remarks>
           <para>Get the number of timer values in this object. Can be used to iterate through
             the available timers.</para>
@@ -1247,7 +1254,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the number of timer map values in this object.</summary>
-        <value>To be added.</value>
+        <value>The number of timer-map keys available through <see cref="M:Android.OS.Health.HealthStats.GetTimersKeyAt(System.Int32)" />, not the number of entries within each map.</value>
         <remarks>
           <para>Get the number of timer map values in this object. Can be used to iterate through
             the available timer maps.</para>

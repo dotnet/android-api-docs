@@ -613,10 +613,17 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="output">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="output">The writable buffer that receives uncompressed bytes between its current position and its limit.</param>
+        <summary>Runs decompression into a byte buffer as a task.</summary>
+        <returns>A task whose result is the number of uncompressed bytes written to <paramref name="output" />, not the number of compressed input bytes consumed.</returns>
+        <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call <see cref="M:Java.Util.Zip.Inflater.Inflate(Java.Nio.ByteBuffer)" />. It does not use a native asynchronous operation.</para>
+          <para>The output position advances by the number of bytes produced. If input was supplied as a byte buffer, its position advances by the number of bytes consumed. These positions and the byte totals reflect progress even if a <see cref="T:Java.Util.Zip.DataFormatException" /> occurs. Wait for the task to complete before changing these buffers or using this decompressor again.</para>
+          <para>A result of zero does not by itself mean that decompression is complete. Check <see cref="M:Java.Util.Zip.Inflater.Finished" />, <see cref="M:Java.Util.Zip.Inflater.NeedsInput" />, and <see cref="M:Java.Util.Zip.Inflater.NeedsDictionary" />, and provide output space as needed. If a dictionary is required, <see cref="P:Java.Util.Zip.Inflater.Adler" /> identifies its Adler-32 checksum.</para>
+          <para>Exceptions from the synchronous call, including invalid compressed data or a read-only output buffer, are reported through the task.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper implementation.</a></format></para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/ojluni/src/main/java/java/util/zip/Inflater.java">Android decompression implementation.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="InflateAsync">
@@ -649,10 +656,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="output">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="output">The array that receives uncompressed bytes, starting at index zero.</param>
+        <summary>Runs decompression into a byte array as a task.</summary>
+        <returns>A task whose result is the number of uncompressed bytes written to <paramref name="output" />, not the number of compressed input bytes consumed.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call <see cref="M:Java.Util.Zip.Inflater.Inflate(System.Byte[])" />. It does not use a native asynchronous operation.</para>
+          <para>The output capacity is the array length. If input was supplied as a byte buffer, its position advances by the number of bytes consumed. The input position and byte totals reflect progress even if a <see cref="T:Java.Util.Zip.DataFormatException" /> occurs. Wait for the task to complete before changing these buffers or using this decompressor again.</para>
+          <para>A result of zero does not by itself mean that decompression is complete. Check <see cref="M:Java.Util.Zip.Inflater.Finished" />, <see cref="M:Java.Util.Zip.Inflater.NeedsInput" />, and <see cref="M:Java.Util.Zip.Inflater.NeedsDictionary" />, and provide output space as needed. If a dictionary is required, <see cref="P:Java.Util.Zip.Inflater.Adler" /> identifies its Adler-32 checksum. Exceptions from the synchronous call are reported through the task.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper implementation.</a></format></para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/ojluni/src/main/java/java/util/zip/Inflater.java">Android decompression implementation.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -689,12 +701,17 @@
         <Parameter Name="len" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="output">To be added.</param>
-        <param name="off">To be added.</param>
-        <param name="len">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="output">The array that receives uncompressed bytes.</param>
+        <param name="off">The index in <paramref name="output" /> at which to start writing.</param>
+        <param name="len">The maximum number of uncompressed bytes to write.</param>
+        <summary>Runs decompression into a byte array range as a task.</summary>
+        <returns>A task whose result is the number of uncompressed bytes written to the specified range, not the number of compressed input bytes consumed.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call <see cref="M:Java.Util.Zip.Inflater.Inflate(System.Byte[],System.Int32,System.Int32)" />. It does not use a native asynchronous operation.</para>
+          <para>If input was supplied as a byte buffer, its position advances by the number of bytes consumed. The input position and byte totals reflect progress even if a <see cref="T:Java.Util.Zip.DataFormatException" /> occurs. Wait for the task to complete before changing the input or output buffers or using this decompressor again.</para>
+          <para>A result of zero does not by itself mean that decompression is complete. Check <see cref="M:Java.Util.Zip.Inflater.Finished" />, <see cref="M:Java.Util.Zip.Inflater.NeedsInput" />, and <see cref="M:Java.Util.Zip.Inflater.NeedsDictionary" />, and provide output space as needed. If a dictionary is required, <see cref="P:Java.Util.Zip.Inflater.Adler" /> identifies its Adler-32 checksum. Exceptions from the synchronous call are reported through the task.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper implementation.</a></format></para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/ojluni/src/main/java/java/util/zip/Inflater.java">Android decompression implementation.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -731,8 +748,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

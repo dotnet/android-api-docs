@@ -468,15 +468,17 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="sock">To be added.</param>
-        <param name="host">To be added.</param>
-        <param name="port">To be added.</param>
-        <param name="localAddress">To be added.</param>
-        <param name="localPort">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sock">The socket to connect, as obtained from <see cref="M:Org.Apache.Http.Conn.Ssl.SSLSocketFactory.CreateSocket" />, or <see langword="null" /> to create and connect a new socket.</param>
+        <param name="host">The host to connect to.</param>
+        <param name="port">The port to connect to on the host.</param>
+        <param name="localAddress">The local address to bind the socket to, or <see langword="null" /> for any local address.</param>
+        <param name="localPort">The local port to bind to, or zero or a negative number for any local port.</param>
+        <param name="params">Additional HTTP parameters for the connection.</param>
+        <summary>Connects a socket to the given host by running the synchronous method on the thread pool.</summary>
+        <returns>A task whose result is the connected socket returned by <see cref="M:Org.Apache.Http.Conn.Ssl.SSLSocketFactory.ConnectSocket(Java.Net.Socket,System.String,System.Int32,Java.Net.InetAddress,System.Int32,Org.Apache.Http.Params.IHttpParams)" />.</returns>
         <remarks>
+          <para>This .NET method uses <c>Task.Run</c> to call <see cref="M:Org.Apache.Http.Conn.Ssl.SSLSocketFactory.ConnectSocket(Java.Net.Socket,System.String,System.Int32,Java.Net.InetAddress,System.Int32,Org.Apache.Http.Params.IHttpParams)" /> with the same arguments. It does not use native asynchronous socket I/O. The task preserves the synchronous method's return value, including <see langword="null" />. If that method throws an exception, the task records the exception, which is rethrown when the task is awaited.</para>
+          <para>Source: <see href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET async method generator</see>.</para>
           <para>Portions of this page are based on work created and shared by the <format type="text/html"><a href="https://www.apache.org/" title="Apache Software Foundation">Apache Software Foundation</a></format> and used under the terms of the <format type="text/html"><a href="https://www.apache.org/licenses/LICENSE-2.0" title="Apache License, Version 2.0">Apache License, Version 2.0.</a></format></para>
         </remarks>
       </Docs>
@@ -588,9 +590,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Creates a new, unconnected SSL socket by running the synchronous method on the thread pool.</summary>
+        <returns>A task whose result is the new, unconnected SSL socket returned by <see cref="M:Org.Apache.Http.Conn.Ssl.SSLSocketFactory.CreateSocket" />.</returns>
         <remarks>
+          <para>This .NET method uses <c>Task.Run</c> to call <see cref="M:Org.Apache.Http.Conn.Ssl.SSLSocketFactory.CreateSocket" />. It does not use native asynchronous socket I/O. The task preserves the synchronous method's return value, including <see langword="null" />. If that method throws an exception, the task records the exception, which is rethrown when the task is awaited.</para>
+          <para>Source: <see href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET async method generator</see>.</para>
           <para>Portions of this page are based on work created and shared by the <format type="text/html"><a href="https://www.apache.org/" title="Apache Software Foundation">Apache Software Foundation</a></format> and used under the terms of the <format type="text/html"><a href="https://www.apache.org/licenses/LICENSE-2.0" title="Apache License, Version 2.0">Apache License, Version 2.0.</a></format></para>
         </remarks>
       </Docs>
@@ -621,13 +625,15 @@
         <Parameter Name="autoClose" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="socket">To be added.</param>
-        <param name="host">To be added.</param>
-        <param name="port">To be added.</param>
-        <param name="autoClose">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="socket">The existing socket over which to create the SSL socket.</param>
+        <param name="host">The host name or IP address.</param>
+        <param name="port">The port on the host.</param>
+        <param name="autoClose">Whether to close <paramref name="socket" /> when the created socket is closed.</param>
+        <summary>Creates a socket connected to the given host and layered over an existing socket by running the synchronous method on the thread pool.</summary>
+        <returns>A task whose result is the connected, layered socket returned by <see cref="M:Org.Apache.Http.Conn.Ssl.SSLSocketFactory.CreateSocket(Java.Net.Socket,System.String,System.Int32,System.Boolean)" />.</returns>
         <remarks>
+          <para>This .NET method uses <c>Task.Run</c> to call <see cref="M:Org.Apache.Http.Conn.Ssl.SSLSocketFactory.CreateSocket(Java.Net.Socket,System.String,System.Int32,System.Boolean)" /> with the same arguments. It does not use native asynchronous socket I/O. The task preserves the synchronous method's return value, including <see langword="null" />. If that method throws an exception, the task records the exception, which is rethrown when the task is awaited.</para>
+          <para>Source: <see href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET async method generator</see>.</para>
           <para>Portions of this page are based on work created and shared by the <format type="text/html"><a href="https://www.apache.org/" title="Apache Software Foundation">Apache Software Foundation</a></format> and used under the terms of the <format type="text/html"><a href="https://www.apache.org/licenses/LICENSE-2.0" title="Apache License, Version 2.0">Apache License, Version 2.0.</a></format></para>
         </remarks>
       </Docs>
@@ -741,8 +747,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Removes this instance from the runtime's Java object lookup.</summary>
+        <remarks>
+          <para>Call this method to prevent future runtime lookups of the Java object from returning this managed instance.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">

@@ -205,13 +205,16 @@
         <Parameter Name="timeout" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="endpoint">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="timeout">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="endpoint">The endpoint that determines the transfer direction.</param>
+        <param name="buffer">The buffer for data to send or receive, starting at index zero. If <see langword="null" />, <paramref name="length" /> must be zero.</param>
+        <param name="length">The number of bytes to send or receive. Must be nonnegative and no greater than the buffer length. See the remarks for the 16384-byte compatibility limit.</param>
+        <param name="timeout">The transfer timeout in milliseconds; zero waits indefinitely.</param>
+        <summary>Runs a bulk transfer on the given endpoint in a task.</summary>
+        <returns>A task whose result is the number of bytes transferred, including zero, on success, or a negative value on failure.</returns>
         <remarks>
+          <para>This .NET method uses <see cref="M:System.Threading.Tasks.Task.Run``1(System.Func{``0})" /> to call <see cref="M:Android.Hardware.Usb.UsbDeviceConnection.BulkTransfer(Android.Hardware.Usb.UsbEndpoint,System.Byte[],System.Int32,System.Int32)" />. Keep the connection open and do not read or change the buffer until the task completes.</para>
+          <para>Before Android 9 (API level 28), transfer lengths greater than 16384 bytes are reduced to 16384. On Android 9 and later, this limit still applies to applications that target an API level below 28. Buffer bounds are checked before this reduction.</para>
+          <para>Implementation sources: <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper generator</a></format> and <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/hardware/usb/UsbDeviceConnection.java">Android USB connection implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -243,14 +246,17 @@
         <Parameter Name="timeout" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="endpoint">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="timeout">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="endpoint">The endpoint that determines the transfer direction.</param>
+        <param name="buffer">The buffer for data to send or receive. If <see langword="null" />, <paramref name="offset" /> and <paramref name="length" /> must both be zero.</param>
+        <param name="offset">The nonnegative index of the first byte to send or receive in <paramref name="buffer" />.</param>
+        <param name="length">The number of bytes to send or receive. Must be nonnegative, and the range starting at <paramref name="offset" /> must fit within the buffer. See the remarks for the 16384-byte compatibility limit.</param>
+        <param name="timeout">The transfer timeout in milliseconds; zero waits indefinitely.</param>
+        <summary>Runs a bulk transfer from the given buffer offset in a task.</summary>
+        <returns>A task whose result is the number of bytes transferred, including zero, on success, or a negative value on failure.</returns>
         <remarks>
+          <para>This .NET method uses <see cref="M:System.Threading.Tasks.Task.Run``1(System.Func{``0})" /> to call <see cref="M:Android.Hardware.Usb.UsbDeviceConnection.BulkTransfer(Android.Hardware.Usb.UsbEndpoint,System.Byte[],System.Int32,System.Int32,System.Int32)" />. Keep the connection open and do not read or change the buffer until the task completes.</para>
+          <para>Before Android 9 (API level 28), transfer lengths greater than 16384 bytes are reduced to 16384. On Android 9 and later, this limit still applies to applications that target an API level below 28. Buffer bounds are checked before this reduction.</para>
+          <para>Implementation sources: <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper generator</a></format> and <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/hardware/usb/UsbDeviceConnection.java">Android USB connection implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -526,16 +532,18 @@
         <Parameter Name="timeout" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="requestType">To be added.</param>
-        <param name="request">To be added.</param>
-        <param name="value">To be added.</param>
-        <param name="index">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="timeout">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="requestType">The USB request type, which includes the transfer direction.</param>
+        <param name="request">The USB request ID.</param>
+        <param name="value">The value field of the USB control request.</param>
+        <param name="index">The index field of the USB control request.</param>
+        <param name="buffer">The buffer for the data portion of the request, starting at index zero, or <see langword="null" /> for a request without data.</param>
+        <param name="length">The number of bytes to send or receive. Must be nonnegative and no greater than the buffer length, or zero when <paramref name="buffer" /> is <see langword="null" />.</param>
+        <param name="timeout">The transfer timeout in milliseconds.</param>
+        <summary>Runs a control transfer on the device's endpoint zero in a task.</summary>
+        <returns>A task whose result is the number of bytes transferred, including zero, on success, or a negative value on failure.</returns>
         <remarks>
+          <para>This .NET method uses <see cref="M:System.Threading.Tasks.Task.Run``1(System.Func{``0})" /> to call <see cref="M:Android.Hardware.Usb.UsbDeviceConnection.ControlTransfer(Android.Hardware.Usb.UsbAddressing,System.Int32,System.Int32,System.Int32,System.Byte[],System.Int32,System.Int32)" />. Keep the connection open and do not read or change the buffer until the task completes. The direction bit in <paramref name="requestType" /> selects a read from or write to the device.</para>
+          <para>Implementation sources: <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper generator</a></format> and <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/hardware/usb/UsbDeviceConnection.java">Android USB connection implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -584,17 +592,19 @@
         <Parameter Name="timeout" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="requestType">To be added.</param>
-        <param name="request">To be added.</param>
-        <param name="value">To be added.</param>
-        <param name="index">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="timeout">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="requestType">The USB request type, which includes the transfer direction.</param>
+        <param name="request">The USB request ID.</param>
+        <param name="value">The value field of the USB control request.</param>
+        <param name="index">The index field of the USB control request.</param>
+        <param name="buffer">The buffer for the data portion of the request, or <see langword="null" /> for a request without data.</param>
+        <param name="offset">The nonnegative index of the first byte to send or receive in <paramref name="buffer" />. Must be zero when <paramref name="buffer" /> is <see langword="null" />.</param>
+        <param name="length">The number of bytes to send or receive. Must be nonnegative, and the range starting at <paramref name="offset" /> must fit within the buffer. Must be zero when <paramref name="buffer" /> is <see langword="null" />.</param>
+        <param name="timeout">The transfer timeout in milliseconds.</param>
+        <summary>Runs a control transfer from the given buffer offset on the device's endpoint zero in a task.</summary>
+        <returns>A task whose result is the number of bytes transferred, including zero, on success, or a negative value on failure.</returns>
         <remarks>
+          <para>This .NET method uses <see cref="M:System.Threading.Tasks.Task.Run``1(System.Func{``0})" /> to call <see cref="M:Android.Hardware.Usb.UsbDeviceConnection.ControlTransfer(Android.Hardware.Usb.UsbAddressing,System.Int32,System.Int32,System.Int32,System.Byte[],System.Int32,System.Int32,System.Int32)" />. Keep the connection open and do not read or change the buffer until the task completes. The direction bit in <paramref name="requestType" /> selects a read from or write to the device.</para>
+          <para>Implementation sources: <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper generator</a></format> and <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/hardware/usb/UsbDeviceConnection.java">Android USB connection implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -713,8 +723,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI metadata used to access members of this Java binding.</summary>
+        <value>The JNI member metadata for this managed binding type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -743,7 +753,7 @@
         <Parameter Name="intf" Type="Android.Hardware.Usb.UsbInterface" />
       </Parameters>
       <Docs>
-        <param name="intf">To be added.</param>
+        <param name="intf">The interface whose exclusive access is to be released.</param>
         <summary>Releases exclusive access to a <c>android.hardware.usb.UsbInterface</c>.</summary>
         <returns>true if the interface was successfully released</returns>
         <remarks>
@@ -878,9 +888,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Runs an indefinite wait for a queued USB request to complete in a task.</summary>
+        <returns>A task whose result is a completed USB request, or <see langword="null" /> if an error occurred.</returns>
         <remarks>
+          <para>This .NET method uses <see cref="M:System.Threading.Tasks.Task.Run``1(System.Func{``0})" /> to call <see cref="M:Android.Hardware.Usb.UsbDeviceConnection.RequestWait" />. It can return requests from any endpoint on this connection. Use the returned request's <see cref="P:Android.Hardware.Usb.UsbRequest.Endpoint" /> and <see cref="P:Android.Hardware.Usb.UsbRequest.ClientData" /> to identify the operation.</para>
+          <para>Exceptions from the wait fault the task. For requests queued with <c>Queue(ByteBuffer, int)</c>, if a transfer exceeds the request buffer's limit, Android 8 (API level 26) and later use <see cref="T:Java.Nio.BufferOverflowException" /> for applications that target API level 26 or later, and <see cref="T:Java.Lang.IllegalArgumentException" /> for applications that target earlier API levels. Earlier Android versions throw <see cref="T:Java.Lang.IllegalArgumentException" /> regardless of the application's target API level.</para>
+          <para>Implementation sources: <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper generator</a></format> and <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/hardware/usb/UsbDeviceConnection.java">Android USB connection implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -914,10 +927,14 @@
         <Parameter Name="timeout" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="timeout">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="timeout">The nonnegative wait timeout in milliseconds. Zero checks for a completed request without waiting; it does not mean an infinite wait.</param>
+        <summary>Runs a wait for a queued USB request to complete, with a timeout, in a task.</summary>
+        <returns>A task whose result is a completed USB request, or <see langword="null" /> if an error occurred. If no request completes within the timeout, the task faults with <see cref="T:Java.Util.Concurrent.TimeoutException" />.</returns>
         <remarks>
+          <para>This .NET method uses <see cref="M:System.Threading.Tasks.Task.Run``1(System.Func{``0})" /> to call <see cref="M:Android.Hardware.Usb.UsbDeviceConnection.RequestWait(System.Int64)" />. The timeout applies when that call runs, not when the task is created. This overload requires Android 8 (API level 26) or later.</para>
+          <para>The result can be a request from any endpoint on this connection. Use the returned request's <see cref="P:Android.Hardware.Usb.UsbRequest.Endpoint" /> and <see cref="P:Android.Hardware.Usb.UsbRequest.ClientData" /> to identify the operation. A zero timeout can miss a newly queued request because Android processes requests asynchronously.</para>
+          <para>Exceptions from the wait fault the task. A negative timeout causes <see cref="T:Java.Lang.IllegalArgumentException" />. For requests queued with <c>Queue(ByteBuffer, int)</c>, if a transfer exceeds the request buffer's limit, the wait throws <see cref="T:Java.Nio.BufferOverflowException" />.</para>
+          <para>Implementation sources: <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET task wrapper generator</a></format> and <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/hardware/usb/UsbDeviceConnection.java">Android USB connection implementation</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -984,7 +1001,7 @@
         <Parameter Name="configuration" Type="Android.Hardware.Usb.UsbConfiguration" />
       </Parameters>
       <Docs>
-        <param name="configuration">To be added.</param>
+        <param name="configuration">The configuration to select for this device.</param>
         <summary>Sets the device's current <c>android.hardware.usb.UsbConfiguration</c>.</summary>
         <returns>true if the configuration was successfully set</returns>
         <remarks>
@@ -1025,7 +1042,7 @@
         <Parameter Name="intf" Type="Android.Hardware.Usb.UsbInterface" />
       </Parameters>
       <Docs>
-        <param name="intf">To be added.</param>
+        <param name="intf">The interface with the ID and alternate setting to select.</param>
         <summary>Sets the current <c>android.hardware.usb.UsbInterface</c>.</summary>
         <returns>true if the interface was successfully selected</returns>
         <remarks>
