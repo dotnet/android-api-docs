@@ -32,6 +32,7 @@
   <Docs>
     <summary>A helper class for connection managers to track idle connections.</summary>
     <remarks>
+      <para>The member descriptions are based on the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/conn/IdleConnectionHandler.java">Android idle connection handler implementation</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://android.googlesource.com/platform/external/apache-http/+/android-4.4.4_r1/src/org/apache/http/impl/conn/IdleConnectionHandler.java" title="Android Open Source Project source documentation">AOSP source documentation for <code>IdleConnectionHandler</code>.</a>
@@ -58,7 +59,7 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Creates an idle connection handler with no registered connections.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -116,10 +117,10 @@
         <Parameter Name="unit" Type="Java.Util.Concurrent.TimeUnit" />
       </Parameters>
       <Docs>
-        <param name="connection">To be added.</param>
-        <param name="validDuration">To be added.</param>
-        <param name="unit">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="connection">The connection to register.</param>
+        <param name="validDuration">The validity duration from registration. Zero or a negative value means no expiry limit.</param>
+        <param name="unit">The unit of <paramref name="validDuration" />, used when the duration is positive.</param>
+        <summary>Registers a connection with the current time as its idle start and computes its expiry time.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -146,7 +147,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Removes registered connections whose expiry time has been reached and attempts to close them, logging I/O errors from close operations.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -175,8 +176,8 @@
         <Parameter Name="idleTime" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="idleTime">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="idleTime">The minimum elapsed time since registration, in milliseconds.</param>
+        <summary>Removes connections registered at least the specified time ago and attempts to close them, logging I/O errors from close operations.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -240,9 +241,9 @@
         <Parameter Name="connection" Type="Org.Apache.Http.IHttpConnection" />
       </Parameters>
       <Docs>
-        <param name="connection">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="connection">The connection to remove from idle tracking.</param>
+        <summary>Removes the connection without closing it and reports whether it is still within its validity period.</summary>
+        <returns><see langword="false" /> if the connection's expiry time has passed; otherwise, <see langword="true" />. An unknown connection causes a warning and returns <see langword="true" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -269,7 +270,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Clears all connection registrations without closing the connections.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

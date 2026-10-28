@@ -32,6 +32,7 @@
   <Docs>
     <summary>Abstract adapter from pool entries to managed client connections.</summary>
     <remarks>
+      <para>The member descriptions are based on the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/conn/AbstractPooledConnAdapter.java">Android pooled connection adapter implementation</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://android.googlesource.com/platform/external/apache-http/+/android-4.4.4_r1/src/org/apache/http/impl/conn/AbstractPooledConnAdapter.java" title="Android Open Source Project source documentation">AOSP source documentation for <code>AbstractPooledConnAdapter</code>.</a>
@@ -62,9 +63,9 @@
         <Parameter Name="entry" Type="Org.Apache.Http.Impl.Conn.AbstractPoolEntry" />
       </Parameters>
       <Docs>
-        <param name="manager">To be added.</param>
-        <param name="entry">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="manager">The manager that receives connection release calls.</param>
+        <param name="entry">The pool entry whose underlying connection is wrapped.</param>
+        <summary>Creates a managed connection adapter for the supplied pool entry.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -114,7 +115,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Throws <see cref="T:Java.Lang.IllegalStateException" /> if this adapter is detached from its pool entry.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -141,7 +142,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Clears the pool entry's tracked route and gracefully closes the wrapped connection, if still attached.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -210,9 +211,9 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="context">The context for adding the protocol layer.</param>
+        <param name="params">The parameters for adding the protocol layer.</param>
+        <summary>Delegates protocol layering over an established tunnel to the attached pool entry.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -243,10 +244,10 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="context">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="route">The route to open, starting with its first proxy or target.</param>
+        <param name="context">The context for opening the connection.</param>
+        <param name="params">The parameters for opening the connection.</param>
+        <summary>Delegates opening the connection to the attached pool entry.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -272,8 +273,8 @@
         <ReturnType>Org.Apache.Http.Impl.Conn.AbstractPoolEntry</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the pool entry wrapped by this adapter.</summary>
+        <value>The wrapped pool entry, or <see langword="null" /> after detachment.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -299,8 +300,8 @@
         <ReturnType>Org.Apache.Http.Conn.Routing.HttpRoute</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the route established so far from the attached entry's tracker.</summary>
+        <value>The tracked route, or <see langword="null" /> if the entry has no tracker. Access fails if the adapter is detached.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -327,7 +328,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Clears the pool entry's tracked route and forces the wrapped connection to close without flushing, if still attached.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -357,8 +358,8 @@
         <ReturnType>Java.Lang.Object</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the state object in the attached pool entry.</summary>
+        <value>The pool entry's state object. Access fails if the adapter is detached.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -459,10 +460,10 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="next">To be added.</param>
-        <param name="secure">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="next">The proxy at the new endpoint of the tunnel.</param>
+        <param name="secure"><see langword="true" /> if the connection is to be considered secure; otherwise, <see langword="false" />.</param>
+        <param name="params">The parameters for updating the tunnelled connection.</param>
+        <summary>Delegates tracking of an already established tunnel to the next proxy to the attached pool entry. Does not send CONNECT.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -492,9 +493,9 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="secure">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="secure"><see langword="true" /> if the tunnel is to be considered secure; otherwise, <see langword="false" />.</param>
+        <param name="params">The parameters for updating the tunnelled connection.</param>
+        <summary>Delegates tracking of an already established target tunnel to the attached pool entry. Does not send CONNECT or add a protocol layer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

@@ -45,6 +45,7 @@
   <Docs>
     <summary>A connection manager for a single connection.</summary>
     <remarks>
+      <para>The member descriptions are based on the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/conn/SingleClientConnManager.java">Android single-connection manager implementation</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://android.googlesource.com/platform/external/apache-http/+/android-4.4.4_r1/src/org/apache/http/impl/conn/SingleClientConnManager.java" title="Android Open Source Project source documentation">AOSP source documentation for <code>SingleClientConnManager</code>.</a>
@@ -75,9 +76,9 @@
         <Parameter Name="schreg" Type="Org.Apache.Http.Conn.Schemes.SchemeRegistry" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
-        <param name="schreg">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="params">The manager parameters; not used by this implementation.</param>
+        <param name="schreg">The non-null registry of supported schemes.</param>
+        <summary>Creates a single-connection manager with a new pool entry and no allocated connection. This manager is intended for single-threaded use.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -126,8 +127,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets whether an open connection is shut down whenever it is released.</summary>
+        <value><see langword="true" /> to shut down even a reusable connection on release; otherwise, <see langword="false" />. Initially <see langword="false" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -154,7 +155,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Throws <see cref="T:Java.Lang.IllegalStateException" /> if the manager has been shut down.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -184,7 +185,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Closes an open, unallocated connection when its configured expiry time has been reached.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -217,9 +218,9 @@
         <Parameter Name="tunit" Type="Java.Util.Concurrent.TimeUnit" />
       </Parameters>
       <Docs>
-        <param name="idletime">To be added.</param>
-        <param name="tunit">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="idletime">The minimum elapsed idle time since release. Zero or a negative value is accepted.</param>
+        <param name="tunit">The non-null unit of <paramref name="idletime" />.</param>
+        <summary>Closes the open connection if it is not allocated and was last released at least the specified time ago. Allocated connections are not closed by this method.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -245,8 +246,8 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the expiry time of the last released connection.</summary>
+        <value>The absolute time in milliseconds since the Unix epoch, or the maximum 64-bit signed integer value when release imposed no expiry limit.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -272,8 +273,8 @@
         <ReturnType>Org.Apache.Http.Conn.IClientConnectionOperator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the operator used to open and update connections.</summary>
+        <value>The manager's connection operator.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -302,9 +303,9 @@
         <Parameter Name="schreg" Type="Org.Apache.Http.Conn.Schemes.SchemeRegistry" />
       </Parameters>
       <Docs>
-        <param name="schreg">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="schreg">The scheme registry supplied to the connection operator. The default operator requires a non-null registry.</param>
+        <summary>Creates the connection operator during manager construction. Derived classes can override this method to supply a different operator.</summary>
+        <returns>A new <see cref="T:Org.Apache.Http.Impl.Conn.DefaultClientConnectionOperator" /> in the default implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -334,10 +335,10 @@
         <Parameter Name="state" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="state">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="route">The non-null planned route for the connection.</param>
+        <param name="state">The requested state object; not used by this implementation.</param>
+        <summary>Obtains a managed connection immediately without waiting. Revokes any previous allocation and replaces an expired, closed, or route-incompatible connection as needed.</summary>
+        <returns>A newly issued adapter for the planned route, which can wrap an existing reusable connection or a new connection that is not yet open.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -363,8 +364,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the flag that indicates whether this manager has been shut down.</summary>
+        <value><see langword="true" /> if the shutdown flag is set; otherwise, <see langword="false" />. Changing the flag alone does not close connections.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -456,8 +457,8 @@
         <ReturnType>System.Int64</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the time of the last connection release.</summary>
+        <value>The release time in milliseconds since the Unix epoch, or -1 before the first release.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -483,8 +484,8 @@
         <ReturnType>Org.Apache.Http.Impl.Conn.SingleClientConnManager+ConnAdapter</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the currently issued managed connection adapter.</summary>
+        <value>The allocated adapter, or <see langword="null" /> when no connection is allocated.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -514,7 +515,7 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>The warning message logged when a new connection allocation revokes a connection that has not been released.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -548,10 +549,10 @@
         <Parameter Name="timeUnit" Type="Java.Util.Concurrent.TimeUnit" />
       </Parameters>
       <Docs>
-        <param name="conn">To be added.</param>
-        <param name="validDuration">To be added.</param>
-        <param name="timeUnit">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="conn">The managed connection adapter obtained from this manager.</param>
+        <param name="validDuration">The validity period after release. Zero or a negative value means no expiry limit.</param>
+        <param name="timeUnit">The unit of <paramref name="validDuration" />, used when that duration is positive.</param>
+        <summary>Releases and detaches the adapter, records release and expiry times, and shuts down an open connection if it is not marked reusable or shutdown on release is enabled. Releasing an already detached adapter has no further effect.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -584,10 +585,10 @@
         <Parameter Name="state" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="state">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="route">The planned route passed to connection allocation.</param>
+        <param name="state">The state object passed to connection allocation; not used by this implementation.</param>
+        <summary>Creates a request that obtains a connection immediately when its get-connection method is called. The request's abort operation does nothing, and its timeout arguments are ignored.</summary>
+        <returns>A connection request that delegates allocation to this manager.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -614,7 +615,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Logs the multiple-allocation warning, detaches the current adapter, and attempts to shut down its underlying connection. Does nothing if no adapter is allocated.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -643,8 +644,8 @@
         <ReturnType>Org.Apache.Http.Conn.Schemes.SchemeRegistry</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the schemes supported by this manager.</summary>
+        <value>The scheme registry supplied during construction.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -674,7 +675,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Marks this manager as shut down, detaches any allocated adapter, and attempts to shut down and discard its pool entry.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -770,8 +771,8 @@
         <ReturnType>Org.Apache.Http.Impl.Conn.SingleClientConnManager+PoolEntry</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets this manager's sole pool entry.</summary>
+        <value>The single pool entry, or <see langword="null" /> after manager shutdown.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

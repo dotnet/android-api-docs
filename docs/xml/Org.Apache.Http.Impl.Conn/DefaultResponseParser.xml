@@ -30,8 +30,9 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Parses HTTP responses while permitting a configured number of lines before the response status line.</summary>
     <remarks>
+      <para>The type and member descriptions are based on the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/conn/DefaultResponseParser.java">Android response parser implementation</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/org/apache/http/impl/conn/DefaultResponseParser" title="Reference documentation">Android platform documentation</a>
@@ -91,11 +92,11 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <param name="parser">To be added.</param>
-        <param name="responseFactory">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="buffer">The non-null input buffer from which response lines and headers are read.</param>
+        <param name="parser">The line parser, or <see langword="null" /> to use the default basic line parser.</param>
+        <param name="responseFactory">The non-null factory used to create the parsed response.</param>
+        <param name="params">The non-null parsing parameters, including the permitted number of lines before a valid status line.</param>
+        <summary>Creates an HTTP response parser for the supplied session input buffer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -159,9 +160,9 @@
         <Parameter Name="sessionBuffer" Type="Org.Apache.Http.IO.ISessionInputBuffer" />
       </Parameters>
       <Docs>
-        <param name="sessionBuffer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sessionBuffer">The input buffer from which to read the response status line.</param>
+        <summary>Reads a valid response status line, skipping preceding lines up to the configured limit. Fails if the server sends no response or no valid status line is found.</summary>
+        <returns>A response created from the parsed status line. Header parsing is performed separately by the base parser.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

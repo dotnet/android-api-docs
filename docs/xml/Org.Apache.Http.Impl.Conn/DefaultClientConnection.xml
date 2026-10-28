@@ -54,6 +54,7 @@
   <Docs>
     <summary>Default implementation of an operated client connection.</summary>
     <remarks>
+      <para>The member descriptions are based on the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/conn/DefaultClientConnection.java">Android client connection implementation</a></format> and its operated connection interface.</para>
       <para>
         <format type="text/html">
           <a href="https://android.googlesource.com/platform/external/apache-http/+/android-4.4.4_r1/src/org/apache/http/impl/conn/DefaultClientConnection.java" title="Android Open Source Project source documentation">AOSP source documentation for <code>DefaultClientConnection</code>.</a>
@@ -80,7 +81,7 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Creates an operated client connection that is not yet open.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -132,8 +133,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the security flag supplied when this connection was opened or updated.</summary>
+        <value><see langword="true" /> if the connection is considered secure; otherwise, <see langword="false" />. The value is defined only while the connection is open.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -232,9 +233,9 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="secure">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="secure"><see langword="true" /> if the connection is to be considered secure; otherwise, <see langword="false" />.</param>
+        <param name="params">The non-null parameters used to bind the socket and create connection buffers.</param>
+        <summary>Completes opening by recording the security flag and binding the socket supplied to <see cref="M:Org.Apache.Http.Impl.Conn.DefaultClientConnection.Opening(Java.Net.Socket,Org.Apache.Http.HttpHost)" />. The connection must not already be open.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -267,9 +268,9 @@
         <Parameter Name="target" Type="Org.Apache.Http.HttpHost" />
       </Parameters>
       <Docs>
-        <param name="sock">To be added.</param>
-        <param name="target">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="sock">The socket that is about to be connected.</param>
+        <param name="target">The host to which the connection is being opened.</param>
+        <summary>Records the socket and target before connection begins, so shutdown can close a socket still being connected. If shutdown has already occurred, closes the supplied socket and fails with an I/O exception.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -292,8 +293,8 @@
         <ReturnType>Java.Net.Socket</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the socket associated with this operated connection.</summary>
+        <value>The socket supplied during opening or a later update. Its communication state is defined only while the connection is open.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -319,8 +320,8 @@
         <ReturnType>Java.Net.Socket</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the socket associated with this connection, including a socket still being connected.</summary>
+        <value>The socket recorded during opening or a later update.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -349,8 +350,8 @@
         <ReturnType>Org.Apache.Http.HttpHost</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the current target host recorded for this connection.</summary>
+        <value>The proxy or tunnel target to which this connection is opened. The value is defined only while the connection is open.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -455,11 +456,11 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="sock">To be added.</param>
-        <param name="target">To be added.</param>
-        <param name="secure">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="sock">A replacement socket, or <see langword="null" /> to retain the current socket and its dependent buffers.</param>
+        <param name="target">The non-null new target host.</param>
+        <param name="secure"><see langword="true" /> if the updated connection is to be considered secure; otherwise, <see langword="false" />.</param>
+        <param name="params">The non-null parameters used if a replacement socket is bound.</param>
+        <summary>Updates an open connection's target and security flag, and optionally binds a replacement socket. Does not close the previous socket; the caller must close it if no longer needed.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
