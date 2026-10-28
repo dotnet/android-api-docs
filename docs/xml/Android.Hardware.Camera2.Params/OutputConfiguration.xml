@@ -819,7 +819,7 @@
         <param name="multiResolutionImageReader">The multi-resolution image reader object.</param>
         <summary>Create a list of <c>OutputConfiguration</c> instances for the outputs used by a
             <c>android.hardware.camera2.MultiResolutionImageReader</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>A collection with one output configuration for each image reader in <paramref name="multiResolutionImageReader" />. The configurations share a surface group ID and identify their associated physical cameras.</returns>
         <remarks>
           <para>Create a list of <c>OutputConfiguration</c> instances for the outputs used by a
             <c>android.hardware.camera2.MultiResolutionImageReader</c>.</para>
@@ -937,8 +937,8 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the creator used to read output configurations from a parcel.</summary>
+        <value>The parcelable creator for <see cref="T:Android.Hardware.Camera2.Params.OutputConfiguration" /> instances and arrays.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1203,7 +1203,7 @@
       <Parameters />
       <Docs>
         <summary>Clear any valid output surfaces and mark the configuration as deferred.</summary>
-        <returns>To be added.</returns>
+        <returns>This configuration, after its surfaces have been removed and it has been marked as deferred.</returns>
         <remarks>
           <para>Clear any valid output surfaces and mark the configuration as deferred.</para>
           <para>Do note that this method is intended to be used in conjunction with CameraCaptureSession.updateOutputConfigurations(List) and not CameraCaptureSession.finalizeOutputConfigurations. The latter method is intended to be used only when clients want to finalize an already registered deferred OutputConfiguration with a valid Surface. However surface finalization doesn't accept deferred output configurations. Switching a valid registered surface to deferred state is only possible with CameraCaptureSession.updateOutputConfiguration.</para>
@@ -1613,7 +1613,7 @@
         <param name="on">The output image timestamp is the start of exposure time if false, and
                       the start of readout time if true.</param>
         <summary>Whether readout timestamp is used for this OutputConfiguration. -or- Use the camera sensor's readout time for the image timestamp.</summary>
-        <value>To be added.</value>
+        <value>The stored readout timestamp setting: <see langword="true" /> requests the start of sensor readout rather than the start of exposure. Actual support depends on the camera's readout timestamp capability; some timestamp bases use readout time regardless of this setting.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Whether readout timestamp is used for this OutputConfiguration.</para>
@@ -1787,7 +1787,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="surface">To be added.</param>
+        <param name="surface">A surface already associated with this output configuration. For a deferred output, add the surface before setting its mirror mode.</param>
         <param name="mirrorMode">Value is one of the following: MIRROR_MODE_AUTO; MIRROR_MODE_NONE; MIRROR_MODE_H; MIRROR_MODE_V</param>
         <summary>Set the mirroring mode for a surface belonging to this OutputConfiguration</summary>
         <remarks>
@@ -1849,7 +1849,7 @@
         <Parameter Name="physicalCameraId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="physicalCameraId">To be added.</param>
+        <param name="physicalCameraId">An ID from the logical camera's physical camera IDs, or <see langword="null" /> for a logical camera stream.</param>
         <summary>Set the id of the physical camera for this OutputConfiguration</summary>
         <remarks>
           <para>Set the id of the physical camera for this OutputConfiguration</para>
@@ -2057,7 +2057,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the <c>Surface</c> associated with this <c>OutputConfiguration</c>.</summary>
-        <value>To be added.</value>
+        <value>The first associated surface, or <see langword="null" /> if no surface is associated with this configuration.</value>
         <remarks>
           <para>Get the <c>Surface</c> associated with this <c>OutputConfiguration</c>.
 
