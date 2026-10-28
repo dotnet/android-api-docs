@@ -99,7 +99,7 @@
       <Docs>
         <summary>An icon may be shown alongside the card image to convey information about how the card can be
             used, or if some other action must be taken before using the card.</summary>
-        <value>To be added.</value>
+        <value>The optional icon that describes how to use the card, or <see langword="null" /> if none was supplied.</value>
         <remarks>
           <para>An icon may be shown alongside the card image to convey information about how the card can be
             used, or if some other action must be taken before using the card. For example, an NFC logo
@@ -145,7 +145,7 @@
       </ReturnValue>
       <Docs>
         <summary>The card id must be unique within the list of cards returned.</summary>
-        <value>To be added.</value>
+        <value>The card identifier, which must be unique within the response card list.</value>
         <remarks>
           <para>The card id must be unique within the list of cards returned.</para>
           <para>
@@ -186,7 +186,7 @@
       </ReturnValue>
       <Docs>
         <summary>The visual representation of the card.</summary>
-        <value>To be added.</value>
+        <value>The card image. Bitmap images should match the width and height in the wallet card request.</value>
         <remarks>
           <para>The visual representation of the card. If the card image Icon is a bitmap, it should have a
             width of <c>GetWalletCardsRequest#getCardWidthPx()</c> and a height of <c>GetWalletCardsRequest#getCardHeightPx()</c>.</para>
@@ -231,9 +231,11 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the optional card label as a string.</summary>
+        <value>The label that describes how to use the card, or <see langword="null" /> if none was supplied.</value>
+        <remarks>
+          <para>This is the string form of <see cref="P:Android.Service.QuickAccessWallet.WalletCard.CardLabelFormatted" />. A label that does not fit on one line can be shortened and shown with an ellipsis.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CardLabelFormatted">
@@ -270,7 +272,7 @@
       <Docs>
         <summary>A card label may be shown alongside the card image to convey information about how the card
             can be used, or if some other action must be taken before using the card.</summary>
-        <value>To be added.</value>
+        <value>The optional label that describes how to use the card, or <see langword="null" /> if none was supplied.</value>
         <remarks>
           <para>A card label may be shown alongside the card image to convey information about how the card
             can be used, or if some other action must be taken before using the card. For example, an
@@ -315,7 +317,7 @@
       </ReturnValue>
       <Docs>
         <summary>List of locations that this card might be useful at.</summary>
-        <value>To be added.</value>
+        <value>The list of locations where the card can be useful. The list is empty by default.</value>
         <remarks>
           <para>List of locations that this card might be useful at.</para>
           <para>
@@ -356,7 +358,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the card type.</summary>
-        <value>To be added.</value>
+        <value>This value cannot be null. Value is one of the following: CARD_TYPE_UNKNOWN; CARD_TYPE_PAYMENT; CARD_TYPE_NON_PAYMENT</value>
         <remarks>
           <para>Returns the card type.</para>
           <para>
@@ -548,9 +550,11 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the card image content description as a string.</summary>
+        <value>The text description of the card image.</value>
+        <remarks>
+          <para>This is the string form of <see cref="P:Android.Service.QuickAccessWallet.WalletCard.ContentDescriptionFormatted" />. The description must not be null or empty and must not contain personal information.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentDescriptionFormatted">
@@ -578,7 +582,7 @@
       </ReturnValue>
       <Docs>
         <summary>The content description of the card image.</summary>
-        <value>To be added.</value>
+        <value>The nonempty text description of the card image.</value>
         <remarks>
           <para>The content description of the card image.</para>
           <para>
@@ -618,9 +622,12 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the creator that reads wallet cards from a parcel.</summary>
+        <value>The creator for <see cref="T:Android.Service.QuickAccessWallet.WalletCard" /> instances and arrays.</value>
+        <remarks>
+          <para>The creator reads the card fields and reconstructs the card with a <see cref="T:Android.Service.QuickAccessWallet.WalletCard.Builder" />.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/core/java/android/service/quickaccesswallet/WalletCard.java">Android 16 implementation</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -651,9 +658,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation.</summary>
+        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
+        <remarks>
+          <para>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/quickaccesswallet/WalletCard#describeContents()" title="Reference documentation">Android reference for <code>android.service.quickaccesswallet.WalletCard.describeContents</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -747,7 +758,7 @@
       </ReturnValue>
       <Docs>
         <summary>Visual representation of the card when it is tapped.</summary>
-        <value>To be added.</value>
+        <value>The optional secondary image shown when a non-payment card is tapped, or <see langword="null" /> if none was supplied.</value>
         <remarks>
           <para>Visual representation of the card when it is tapped. May include additional information
             unique to the card, such as a barcode or number. Only valid for CARD_TYPE_NON_PAYMENT.</para>
@@ -789,7 +800,7 @@
       </ReturnValue>
       <Docs>
         <summary>If the user performs a click on the card, this PendingIntent will be sent.</summary>
-        <value>To be added.</value>
+        <value>The pending intent sent when the card is tapped. If the device is locked, the wallet first requests that the device be unlocked.</value>
         <remarks>
           <para>If the user performs a click on the card, this PendingIntent will be sent. If the device is
             locked, the wallet will first request device unlock before sending the pending intent.</para>
@@ -906,10 +917,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel to receive the card fields, including its images, text, pending intent, and locations.</param>
+        <param name="flags">Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: Parcelable.PARCELABLE_WRITE_RETURN_VALUE</param>
+        <summary>Flatten this object in to a Parcel.</summary>
+        <remarks>
+          <para>Flatten this object in to a Parcel.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/quickaccesswallet/WalletCard#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Android reference for <code>android.service.quickaccesswallet.WalletCard.writeToParcel</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
