@@ -66,7 +66,7 @@
         <Parameter Name="serviceType" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="serviceType">To be added.</param>
+        <param name="serviceType">The nonempty service type to discover, such as <c>_ipp._tcp</c>. The first label starts with an underscore; the second is <c>_tcp</c> or <c>_udp</c>.</param>
         <summary>Creates a new default <c>Builder</c> object with given service type.</summary>
         <remarks>
           <para>Creates a new default <c>Builder</c> object with given service type.</para>
@@ -109,7 +109,7 @@
       <Parameters />
       <Docs>
         <summary>Creates a new <c>DiscoveryRequest</c> object.</summary>
-        <returns>To be added.</returns>
+        <returns>A new discovery request with the settings from this builder.</returns>
         <remarks>
           <para>Creates a new <c>DiscoveryRequest</c> object.</para>
           <para>
@@ -192,7 +192,7 @@
       <Docs>
         <param name="attributeFilters">A map of attribute key -&gt; filter for that attribute value. This value may be null.</param>
         <summary>Set filters based on service attributes.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the attribute filters set.</returns>
         <remarks>
           <para>Set filters based on service attributes.</para>
           <para>Service attributes are as per NsdServiceInfo.getAttributes().</para>
@@ -241,7 +241,7 @@
       <Docs>
         <param name="attributeKey">The key of the attribute, or null to use the service name.</param>
         <summary>Set the service attribute to use to display the service in the service picker UI.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the display name attribute set.</returns>
         <remarks>
           <para>Set the service attribute to use to display the service in the service picker UI.</para>
           <para>Attribute key matching is not case-sensitive, as per RFC6763 6.4.</para>
@@ -280,7 +280,7 @@
       <Docs>
         <param name="flags">A bitmask of flags that should be enabled, or 0 to disable all flags. Value is either 0 or a combination of the following: DiscoveryRequest.FLAG_NO_PICKER; DiscoveryRequest.FLAG_SHOW_PICKER; DiscoveryRequest.FLAG_USER_APPROVED_ONLY</param>
         <summary>Set all the discovery flags.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with all discovery flags set to the supplied value.</returns>
         <remarks>
           <para>Set all the discovery flags.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest.Builder#setFlags(long)" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.Builder.setFlags</code>.</a></format></para>
@@ -319,7 +319,7 @@
         <param name="flags">a bitmask of values to set; may be a single flag, the logical OR of multiple flags, or 0 to clear. Value is either 0 or a combination of the following: DiscoveryRequest.FLAG_NO_PICKER; DiscoveryRequest.FLAG_SHOW_PICKER; DiscoveryRequest.FLAG_USER_APPROVED_ONLY</param>
         <param name="mask">a bitmask indicating which flags to modify. Value is either 0 or a combination of the following: DiscoveryRequest.FLAG_NO_PICKER; DiscoveryRequest.FLAG_SHOW_PICKER; DiscoveryRequest.FLAG_USER_APPROVED_ONLY</param>
         <summary>Sets the discovery flags.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the discovery flags selected by the mask updated.</returns>
         <remarks>
           <para>Sets the discovery flags.</para>
           <para>Multiple flags may be enabled or disabled by passing the logical OR of the flags.</para>
@@ -366,7 +366,7 @@
       <Docs>
         <param name="network">the discovery network or null if the query should be sent on all supported networks</param>
         <summary>Sets the Network on which the discovery queries should be sent.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the discovery network set.</returns>
         <remarks>
           <para>Sets the Network on which the discovery queries should be sent.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest.Builder#setNetwork(android.net.Network)" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.Builder.setNetwork</code>.</a></format></para>
@@ -408,9 +408,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="serviceNameFilter">To be added.</param>
+        <param name="serviceNameFilter">The pattern used to filter the service instance names in <see cref="P:Android.Net.Nsd.NsdServiceInfo.ServiceName" />, or <see langword="null" /> to disable name filtering.</param>
         <summary>Set the filter to apply to NsdServiceInfo.getServiceName() on received services.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the service name filter set.</returns>
         <remarks>
           <para>Set the filter to apply to NsdServiceInfo.getServiceName() on received services.</para>
           <para>As per RFC6335 5.1., service names must be only US-ASCII letters, digits and hyphens, and matching is not case-sensitive.</para>
@@ -454,10 +454,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="subtype">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="subtype">The subtype label, such as <c>_printer</c>, without the trailing <c>._sub</c>; or <see langword="null" /> or an empty string to omit subtype filtering.</param>
+        <summary>Sets the optional subtype of the services to discover.</summary>
+        <returns>This builder, with the discovery subtype set.</returns>
+        <remarks>
+          <para>A nonempty subtype must start with an underscore. For example, use <c>_printer</c> for <c>_printer._sub._http._tcp</c>, with <c>_http._tcp</c> as the service type. Discovery then queries that subtype instead of all services of the base type. An invalid subtype causes discovery to fail with a bad-parameter error.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Connectivity/+/refs/tags/android-16.0.0_r1/framework-t/src/android/net/nsd/DiscoveryRequest.java">Android 16 source for DiscoveryRequest.Builder.setSubtype.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
