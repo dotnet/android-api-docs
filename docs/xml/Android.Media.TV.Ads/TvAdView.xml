@@ -70,9 +70,12 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="context">The context used to obtain resources and the TV advertisement manager. This value cannot be <see langword="null" />.</param>
+        <summary>Creates a TV advertisement view with the specified context.</summary>
+        <remarks>
+          <para>This overload uses no XML attribute set and a default style attribute of zero. It does not prepare an advertisement service session.</para>
+          <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/ad/TvAdView.java">Android 16 view constructors</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -107,10 +110,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="attrs">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="context">The context used to obtain resources and the TV advertisement manager. This value cannot be <see langword="null" />.</param>
+        <param name="attrs">The XML attributes for the view, or <see langword="null" /> if no attribute set is supplied.</param>
+        <summary>Creates a TV advertisement view with the specified context and XML attributes.</summary>
+        <remarks>
+          <para>This overload uses a default style attribute of zero. It does not prepare an advertisement service session.</para>
+          <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/ad/TvAdView.java">Android 16 view constructors</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -169,11 +175,14 @@
         <Parameter Name="defStyleAttr" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="attrs">To be added.</param>
-        <param name="defStyleAttr">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="context">The context used to obtain resources and the TV advertisement manager. This value cannot be <see langword="null" />.</param>
+        <param name="attrs">The XML attributes for the view, or <see langword="null" /> if no attribute set is supplied.</param>
+        <param name="defStyleAttr">The theme attribute that supplies default style values, or zero to use no default style attribute.</param>
+        <summary>Creates a TV advertisement view with the specified context, XML attributes, and default style attribute.</summary>
+        <remarks>
+          <para>The constructor passes the attributes and style attribute to the base view and creates the internal surface view. Call <see cref="M:Android.Media.TV.Ads.TvAdView.PrepareAdService(System.String,System.String)" /> separately to prepare an advertisement service session.</para>
+          <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/ad/TvAdView.java">Android 16 view constructors</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ClearCallback">
@@ -285,7 +294,7 @@
         <Parameter Name="e" Type="Android.Views.InputEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
+        <param name="e">The input event to pass first to the registered listener, then to <see cref="M:Android.Media.TV.Ads.TvAdView.OnUnhandledInputEvent(Android.Views.InputEvent)" /> if the listener does not handle it.</param>
         <param name="event">The input event.</param>
         <summary>Dispatches an unhandled input event to the next receiver.</summary>
         <returns>
@@ -706,7 +715,7 @@
         <Parameter Name="e" Type="Android.Views.InputEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
+        <param name="e">The input event that the registered listener did not handle.</param>
         <param name="event">The input event.</param>
         <summary>Called when an unhandled input event also has not been handled by the user provided
             callback.</summary>
@@ -774,7 +783,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the OnUnhandledInputEventListener.</summary>
-        <value>To be added.</value>
+        <value>The listener for input events not handled by the TV advertisement service, or <see langword="null" /> if no listener is set or the listener has been cleared.</value>
         <remarks>
           <para>Gets the OnUnhandledInputEventListener.</para>
           <para>Returns null if the listener is not set or is cleared.</para>
@@ -818,7 +827,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="changedView">To be added.</param>
+        <param name="changedView">The view whose visibility changed: this view or one of its ancestors.</param>
         <param name="visibility">The new visibility, one of View.VISIBLE, View.INVISIBLE or View.GONE. Value is one of the following: View.VISIBLE; View.INVISIBLE; View.GONE</param>
         <summary>Called when the visibility of the view or an ancestor of the view has changed.</summary>
         <remarks>
@@ -856,7 +865,7 @@
         <Parameter Name="type" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
+        <param name="type">The advertisement type to pass to the service when it creates the session. See <see cref="P:Android.Media.TV.Ads.TvAdServiceInfo.SupportedTypes" /> for the service's supported types.</param>
         <param name="serviceId">the AD service ID, which can be found in TvAdServiceInfo#getId().</param>
         <summary>Prepares the AD service of corresponding <c>TvAdService</c>.</summary>
         <remarks>
@@ -1186,7 +1195,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="tracks">To be added.</param>
+        <param name="tracks">The TV track information list to send to the advertisement service. This value can be <see langword="null" />.</param>
         <summary>Sends track info list to related TV AD service.</summary>
         <remarks>
           <para>Sends track info list to related TV AD service.</para>
@@ -1555,8 +1564,11 @@
         <ReturnType>System.EventHandler&lt;Android.Media.TV.Ads.TvAdView+UnhandledInputEventEventArgs&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Occurs when the TV advertisement service does not handle an input event.</summary>
+        <remarks>
+          <para>This .NET event uses <see cref="T:Android.Media.TV.Ads.TvAdView.IOnUnhandledInputEventListener" />. Delivery is asynchronous relative to the original input dispatch. The generated event arguments start with <see cref="P:Android.Media.TV.Ads.TvAdView.UnhandledInputEventEventArgs.Handled" /> set to <see langword="true" />. Set it to <see langword="false" /> to let <see cref="M:Android.Media.TV.Ads.TvAdView.OnUnhandledInputEvent(Android.Views.InputEvent)" /> receive the event. The final value is returned to the Android listener.</para>
+          <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/ad/TvAdView.java">Android 16 input dispatch implementation</a></format> and the <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/InterfaceEventHandlerImplClass.cs">.NET listener event generator</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
