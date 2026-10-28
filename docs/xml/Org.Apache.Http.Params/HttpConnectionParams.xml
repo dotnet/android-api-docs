@@ -32,6 +32,7 @@
   <Docs since="1">
     <summary>An adaptor for accessing connection parameters in <c>HttpParams</c>.</summary>
     <remarks>
+      <para>Parameter access and defaults are described from the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/params/HttpConnectionParams.java">Android 5.1.1 source</a></format>. Android's <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/io/SocketInputBuffer.java">socket input buffer</a></format> and <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/io/SocketOutputBuffer.java">socket output buffer</a></format> ignore the configured buffer size and use 8192 bytes.</para>
       <para>An adaptor for accessing connection parameters in <c>HttpParams</c>.
             &lt;br/&gt;
             Note that the <i>implements</i> relation to <c>CoreConnectionPNames</c>
@@ -82,7 +83,7 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to read. Must not be <see langword="null" />.</param>
         <summary>Returns the timeout until a connection is etablished.</summary>
         <returns>timeout in milliseconds.</returns>
         <remarks>
@@ -129,7 +130,7 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to read. Must not be <see langword="null" />.</param>
         <summary>Returns linger-on-close timeout.</summary>
         <returns>the linger-on-close timeout</returns>
         <remarks>
@@ -176,10 +177,10 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to read. Must not be <see langword="null" />.</param>
         <summary>
         </summary>
-        <returns>To be added.</returns>
+        <returns>The configured socket buffer size hint, in bytes, or -1 if it is not set. Android's socket input and output buffers ignore this hint and use 8192 bytes.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -213,7 +214,7 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to read. Must not be <see langword="null" />.</param>
         <summary>Returns the default socket timeout (<c>SO_TIMEOUT</c>) in milliseconds which is the 
             timeout for waiting for data.</summary>
         <returns>timeout in milliseconds</returns>
@@ -263,7 +264,7 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to read. Must not be <see langword="null" />.</param>
         <summary>Tests if Nagle's algorithm is to be used.</summary>
         <returns>
           <c>true</c> if the Nagle's algorithm is to NOT be used
@@ -311,7 +312,7 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to read. Must not be <see langword="null" />.</param>
         <summary>Tests whether stale connection check is to be used.</summary>
         <returns>
           <c>true</c> if stale connection check is to be used, 
@@ -402,7 +403,7 @@
         <Parameter Name="timeout" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to update. Must not be <see langword="null" />.</param>
         <param name="timeout">Timeout in milliseconds.</param>
         <summary>Sets the timeout until a connection is etablished.</summary>
         <remarks>
@@ -450,7 +451,7 @@
         <Parameter Name="value" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to update. Must not be <see langword="null" />.</param>
         <param name="value">the linger-on-close timeout</param>
         <summary>Returns linger-on-close timeout.</summary>
         <remarks>
@@ -502,8 +503,8 @@
         <Parameter Name="size" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
-        <param name="size">To be added.</param>
+        <param name="params">The parameter collection to update. Must not be <see langword="null" />.</param>
+        <param name="size">The requested socket buffer size, in bytes. This is a hint; Android's socket input and output buffers use 8192 bytes and leave the kernel buffer size unchanged.</param>
         <summary>
         </summary>
         <remarks>
@@ -540,7 +541,7 @@
         <Parameter Name="timeout" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to update. Must not be <see langword="null" />.</param>
         <param name="timeout">Timeout in milliseconds</param>
         <summary>Sets the default socket timeout (<c>SO_TIMEOUT</c>) in milliseconds which is the 
             timeout for waiting for data.</summary>
@@ -591,7 +592,7 @@
         <Parameter Name="value" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to update. Must not be <see langword="null" />.</param>
         <param name="value">
           <c>true</c> if stale connection check is to be used, 
               <c>false</c> otherwise.</param>
@@ -643,7 +644,7 @@
         <Parameter Name="value" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameter collection to update. Must not be <see langword="null" />.</param>
         <param name="value">
           <c>true</c> if the Nagle's algorithm is to NOT be used
               (that is enable TCP_NODELAY), <c>false</c> otherwise.</param>
