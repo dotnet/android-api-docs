@@ -76,9 +76,9 @@
         <Parameter Name="listener" Type="Android.Service.Chooser.ChooserSession+IStateListener" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
+        <param name="executor">The executor used to dispatch the listener callbacks.</param>
         <param name="listener">make sure that the callback is cleared at the end of a component's lifecycle (e.g. Activity) or provide a properly maintained WeakReference wrapper to avoid memory leaks. This value cannot be null.</param>
-        <summary>To be added.</summary>
+        <summary>Registers a listener for changes to the session state and chooser bounds. Callbacks use the supplied executor; registration does not send an initial state or bounds callback.</summary>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/chooser/ChooserSession#addStateListener(java.util.concurrent.Executor,%20android.service.chooser.ChooserSession.StateListener)" title="Reference documentation">Android reference for <code>android.service.chooser.ChooserSession.addStateListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -278,9 +278,9 @@
         <Parameter Name="listener" Type="Android.Service.Chooser.ChooserSession+IStateListener" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="listener">The state listener previously passed to <see cref="M:Android.Service.Chooser.ChooserSession.AddStateListener(Java.Util.Concurrent.IExecutor,Android.Service.Chooser.ChooserSession.IStateListener)" />.</param>
+        <summary>Removes a registered session state listener.</summary>
+        <remarks>The listener is removed from the session's registrations. Callbacks that have not yet passed the subscription check will not be delivered to it. This does not cancel a callback that has already passed that check. See the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/service/chooser/ChooserSession.java">Android implementation of listener removal and dispatch</a></format>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetTargetsEnabled">
@@ -310,7 +310,7 @@
         <Parameter Name="isEnabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isEnabled">To be added.</param>
+        <param name="isEnabled"><see langword="true" /> to enable chooser targets; <see langword="false" /> to disable them temporarily. Targets are enabled by default. This call has no effect unless the session is started.</param>
         <summary>Sets whether the targets in the chooser UI are enabled.</summary>
         <remarks>
           <para>Sets whether the targets in the chooser UI are enabled. By default targets are enabled.</para>
@@ -355,7 +355,7 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Gets the current lifecycle state of this chooser session.</summary>
         <value>current session state.</value>
         <remarks>
           <para>
@@ -593,7 +593,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns this session's token.</summary>
-        <value>To be added.</value>
+        <value>The identifier used to retrieve this session from its chooser manager. It can be saved in activity state, but it does not survive termination of the app process.</value>
         <remarks>
           <para>Returns this session's token. A token serves as a session identifier and can be used to
             retrieve an active session from the <c>ChooserManager</c>.</para>
