@@ -1005,8 +1005,9 @@
         <param name="objectHandle">The handle of the object to read from the device.</param>
         <param name="descriptor">The destination file descriptor. Keep it open until the task completes, then close it when it is no longer needed. This operation does not close it.</param>
         <summary>Runs <see cref="M:Android.Mtp.MtpDevice.ImportFile(System.Int32,Android.OS.ParcelFileDescriptor)" /> on a thread-pool thread.</summary>
-        <returns>A task whose result is <see langword="true" /> if the file transfer succeeds; otherwise, <see langword="false" />.</returns>
+        <returns>A task whose result is the Boolean returned by <see cref="M:Android.Mtp.MtpDevice.ImportFile(System.Int32,Android.OS.ParcelFileDescriptor)" />. A result of <see langword="true" /> does not confirm that all destination writes succeeded. A failed or short write can leave an incomplete file even when the result is <see langword="true" />.</returns>
         <remarks>
+          <para>This limitation is verified in <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/av/+/refs/tags/android-16.0.0_r1/media/mtp/MtpDevice.cpp">MtpDevice.cpp in Android 16 (android-16.0.0_r1)</a></format>: <c>readData</c> records destination write errors but returns whether the MTP response is OK.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1032,8 +1033,9 @@
         <param name="objectHandle">The handle of the object to read from the device.</param>
         <param name="destPath">The destination file path in external storage.</param>
         <summary>Runs <see cref="M:Android.Mtp.MtpDevice.ImportFile(System.Int32,System.String)" /> on a thread-pool thread.</summary>
-        <returns>A task whose result is <see langword="true" /> if the file transfer succeeds; otherwise, <see langword="false" />.</returns>
+        <returns>A task whose result is the Boolean returned by <see cref="M:Android.Mtp.MtpDevice.ImportFile(System.Int32,System.String)" />. A result of <see langword="true" /> does not confirm that all destination writes succeeded. A failed or short write can leave an incomplete file even when the result is <see langword="true" />.</returns>
         <remarks>
+          <para>This limitation is verified in <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/av/+/refs/tags/android-16.0.0_r1/media/mtp/MtpDevice.cpp">MtpDevice.cpp in Android 16 (android-16.0.0_r1)</a></format>: <c>readData</c> records destination write errors but returns whether the MTP response is OK.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
