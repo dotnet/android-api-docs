@@ -28,6 +28,7 @@
   <Docs since="19">
     <summary>This class inflates scenes and transitions from resource files.</summary>
     <remarks>
+      <para><format type="text/html"><a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/99b01a65cc4c104933788b3143285ab6bae65827/core/java/android/transition/TransitionInflater.java">Android 16 implementation</a></format>.</para>
       <para>This class inflates scenes and transitions from resource files.
             
             Information on XML resource descriptions for transitions can be found for
@@ -97,9 +98,9 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
+        <param name="context">The context whose resources and theme are used to inflate transitions.</param>
         <summary>Obtains the TransitionInflater from the given context.</summary>
-        <returns>To be added.</returns>
+        <returns>A new transition inflater that uses <paramref name="context" />.</returns>
         <remarks>
           <para>Obtains the TransitionInflater from the given context.</para>
           <para>
@@ -186,10 +187,12 @@
         <Parameter Name="resource" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="resource">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="resource">The resource ID of the transition to load.</param>
+        <summary>Runs <see cref="M:Android.Transitions.TransitionInflater.InflateTransition(System.Int32)" /> on a thread-pool thread.</summary>
+        <returns>A task whose result is the loaded transition.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call the synchronous method. It does not use a native asynchronous inflation API or run the call on the UI thread. Any custom transition constructor must support execution on that worker thread.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper generator</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -223,7 +226,7 @@
       </Parameters>
       <Docs>
         <param name="resource">The resource id of the transition manager to load</param>
-        <param name="sceneRoot">To be added.</param>
+        <param name="sceneRoot">The root view group used for the scenes referenced by the transition manager resource.</param>
         <summary>Loads a <c>TransitionManager</c> object from a resource</summary>
         <returns>The loaded TransitionManager object</returns>
         <remarks>
@@ -274,11 +277,13 @@
         <Parameter Name="sceneRoot" Type="Android.Views.ViewGroup" />
       </Parameters>
       <Docs>
-        <param name="resource">To be added.</param>
-        <param name="sceneRoot">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="resource">The resource ID of the transition manager to load.</param>
+        <param name="sceneRoot">The root view group used for the scenes referenced by the transition manager resource.</param>
+        <summary>Runs <see cref="M:Android.Transitions.TransitionInflater.InflateTransitionManager(System.Int32,Android.Views.ViewGroup)" /> on a thread-pool thread.</summary>
+        <returns>A task whose result is the loaded transition manager.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call the synchronous method. It does not use a native asynchronous inflation API or run the call on the UI thread. Inflation can access the scene root to cache scenes. Do not use this wrapper with a view hierarchy that requires UI-thread access; call the synchronous method on the UI thread instead.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper generator</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
