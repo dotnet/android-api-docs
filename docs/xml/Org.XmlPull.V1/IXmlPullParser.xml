@@ -33,6 +33,7 @@
             in <see href="http://www.xmlpull.org/">XMLPULL V1 API</see> (visit this website to
             learn more about API and its implementations).</summary>
     <remarks>
+      <para>The event, namespace, and position contracts are defined in the <see href="https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/xml/src/main/java/org/xmlpull/v1/XmlPullParser.java">Android 16 XML pull-parser source</see>.</para>
       <para>XML Pull Parser is an interface that defines parsing functionality provided
             in <see href="http://www.xmlpull.org/">XMLPULL V1 API</see> (visit this website to
             learn more about API and its implementations).</para>
@@ -167,7 +168,7 @@
       <Docs>
         <summary>Returns the number of attributes of the current start tag, or
  -1 if the current event type is not START_TAG</summary>
-        <value>To be added.</value>
+        <value>The number of attributes on the current start tag, or -1 if the current event is not <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartTag" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -226,8 +227,8 @@
         <Parameter Name="replacementText" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="entityName">To be added.</param>
-        <param name="replacementText">To be added.</param>
+        <param name="entityName">The name of the entity to define. The predefined XML entities cannot be redefined.</param>
+        <param name="replacementText">The literal replacement text. Entity references in this text are not expanded.</param>
         <summary>Set new value for entity replacement text as defined in
             <see href="http://www.w3.org/TR/REC-xml#intern-replacement">XML 1.0 Section 4.5
             Construction of Internal Entity Replacement Text</see>.</summary>
@@ -291,7 +292,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the current depth of the element.</summary>
-        <value>To be added.</value>
+        <value>The current element depth. The depth is 0 outside the root element and 1 at the root element. A start tag increases the depth; the matching end tag retains that depth until the parser advances past it.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -319,7 +320,7 @@
       </ReturnValue>
       <Docs>
         <summary tool="true">Returns the type of the current event (START_TAG, END_TAG, TEXT, etc.</summary>
-        <value>To be added.</value>
+        <value>The current parsing event. The initial event is <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartDocument" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -875,10 +876,10 @@
         <Parameter Name="prefix" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="prefix">To be added.</param>
+        <param name="prefix">The namespace prefix to look up, or <see langword="null" /> for the default namespace.</param>
         <summary>Returns the URI corresponding to the given prefix,
             depending on current state of the parser.</summary>
-        <returns>To be added.</returns>
+        <returns>The namespace URI bound to <paramref name="prefix" /> in the current scope, or <see langword="null" /> if no binding exists.</returns>
         <remarks>
           <para>Returns the URI corresponding to the given prefix,
             depending on current state of the parser.</para>
@@ -938,10 +939,10 @@
         <Parameter Name="depth" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="depth">To be added.</param>
+        <param name="depth">The element depth whose cumulative namespace declaration count is required. Use <see cref="P:Org.XmlPull.V1.IXmlPullParser.Depth" /> for the current element.</param>
         <summary>Returns the numbers of elements in the namespace stack for the given
             depth.</summary>
-        <returns>To be added.</returns>
+        <returns>The cumulative number of entries in the namespace stack at <paramref name="depth" />, or 0 if namespace processing is disabled. The difference between the counts at the current depth and the previous depth is the number of declarations on the current element.</returns>
         <remarks>
           <para>Returns the numbers of elements in the namespace stack for the given
             depth.
@@ -997,10 +998,10 @@
         <Parameter Name="pos" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="pos">To be added.</param>
+        <param name="pos">The zero-based position in the namespace stack. It must identify an available entry.</param>
         <summary>Returns the namespace prefix for the given position
             in the namespace stack.</summary>
-        <returns>To be added.</returns>
+        <returns>The prefix at <paramref name="pos" />, or <see langword="null" /> for a default namespace declaration. Declarations on a start tag remain accessible at its matching end tag.</returns>
         <remarks>
           <para>Returns the namespace prefix for the given position
             in the namespace stack.
@@ -1048,11 +1049,11 @@
         <Parameter Name="pos" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="pos">To be added.</param>
+        <param name="pos">The zero-based position in the namespace stack. It must identify an available entry.</param>
         <summary>Returns the namespace URI for the given position in the
             namespace stack
             If the position is out of range, an exception is thrown.</summary>
-        <returns>To be added.</returns>
+        <returns>The namespace URI at <paramref name="pos" />. Declarations on a start tag remain accessible at its matching end tag.</returns>
         <remarks>
           <para>Returns the namespace URI for the given position in the
             namespace stack
@@ -1198,7 +1199,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the input encoding if known, null otherwise.</summary>
-        <value>To be added.</value>
+        <value>The input encoding, if known, or <see langword="null" /> if it is unknown. This can be the encoding supplied with the input stream, a detected encoding, or the encoding read from the XML declaration.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1272,7 +1273,7 @@
         <summary>Returns true if the current event is START_TAG and the tag
  is degenerated
  (e.g. &lt;foobar/&gt;).</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the current start tag uses empty-element syntax, such as <c>&lt;item /&gt;</c>; otherwise, <see langword="false" />. Access is valid only at a <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartTag" /> event.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1302,7 +1303,7 @@
       <Docs>
         <summary>Checks whether the current TEXT event contains only whitespace
  characters.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the current text contains only whitespace; otherwise, <see langword="false" />. It is always <see langword="true" /> for <see cref="F:Org.XmlPull.V1.XmlPullParserNode.IgnorableWhitespace" />. Access is valid only for text, CDATA, or ignorable-whitespace events.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1331,7 +1332,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the current line number, starting from 1.</summary>
-        <value>To be added.</value>
+        <value>The current line number, starting at 1, or -1 if the parser cannot determine it.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1360,7 +1361,7 @@
       <Docs>
         <summary>For START_TAG or END_TAG events, the (local) name of the current
  element is returned when namespaces are enabled.</summary>
-        <value>To be added.</value>
+        <value>The local element name at a start or end tag when namespace processing is enabled, or the raw element name when it is disabled. At an entity-reference event, this is the entity name. For other events, it is <see langword="null" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1388,7 +1389,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the namespace URI of the current element.</summary>
-        <value>To be added.</value>
+        <value>The namespace URI of the current start or end tag, or an empty string if the element has no namespace or namespace processing is disabled. For other events, it is <see langword="null" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1426,7 +1427,7 @@
             TEXT event must be returned for whole element content
             (comments and processing instructions will be ignored and entity references
             must be expanded or exception must be thrown if entity reference can not be expanded).</summary>
-        <returns>To be added.</returns>
+        <returns>The next start-tag, text, end-tag, or end-document event. Adjacent character data, CDATA, and expanded entity references are combined into text; comments and processing instructions are skipped. Empty elements produce separate start-tag and end-tag events. Calls after the end-document event can throw an exception.</returns>
         <remarks>
           <para>Get next parsing event - element content will be coalesced and only one
             TEXT event must be returned for whole element content
@@ -1482,7 +1483,7 @@
       <Docs>
         <summary>Call next() and return event if it is START_TAG or END_TAG
             otherwise throw an exception.</summary>
-        <returns>To be added.</returns>
+        <returns>The next <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartTag" /> or <see cref="F:Org.XmlPull.V1.XmlPullParserNode.EndTag" /> event after whitespace-only text is skipped. An exception is thrown if the next event is not a tag.</returns>
         <remarks>
           <para>Call next() and return event if it is START_TAG or END_TAG
             otherwise throw an exception.
@@ -1536,7 +1537,7 @@
       <Docs>
         <summary>If current event is START_TAG then if next element is TEXT then element content is returned
             or if next event is END_TAG then empty string is returned, otherwise exception is thrown.</summary>
-        <returns>To be added.</returns>
+        <returns>The text-only content of the current element, or an empty string if it has no content. The parser must start on a start tag and, on success, ends on its matching end tag.</returns>
         <remarks>
           <para>If current event is START_TAG then if next element is TEXT then element content is returned
             or if next event is END_TAG then empty string is returned, otherwise exception is thrown.
@@ -1628,7 +1629,7 @@
         <summary>This method works similarly to next() but will expose
             additional event types (COMMENT, CDSECT, DOCDECL, ENTITY_REF, PROCESSING_INSTRUCTION, or
             IGNORABLE_WHITESPACE) if they are available in input.</summary>
-        <returns>To be added.</returns>
+        <returns>The next event, including individual CDATA, entity-reference, whitespace, processing-instruction, comment, and document-type tokens. Text can span multiple events. Token text is end-of-line normalized unless the XML round-trip feature is enabled. At the end of input, returns <see cref="F:Org.XmlPull.V1.XmlPullParserNode.EndDocument" />; further calls can throw an exception.</returns>
         <remarks>
           <para>This method works similarly to next() but will expose
             additional event types (COMMENT, CDSECT, DOCDECL, ENTITY_REF, PROCESSING_INSTRUCTION, or
@@ -1779,7 +1780,7 @@
         <summary>Returns a short text describing the current parser state, including
  the position, a
  description of the current event and the data source if known.</summary>
-        <value>To be added.</value>
+        <value>A short diagnostic description of the current event and position, including the input source if known.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1807,7 +1808,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the prefix of the current element.</summary>
-        <value>To be added.</value>
+        <value>The prefix of the current start or end tag, or <see langword="null" /> if the element has no prefix, namespace processing is disabled, or the current event is not a tag.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1846,9 +1847,9 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="namespace">To be added.</param>
-        <param name="name">To be added.</param>
+        <param name="type">The required event type.</param>
+        <param name="namespace">The required namespace URI, or <see langword="null" /> to accept any namespace.</param>
+        <param name="name">The required name, or <see langword="null" /> to accept any name.</param>
         <summary>Test if the current event is of the given type and if the
             namespace and name do match.</summary>
         <remarks>
@@ -1904,8 +1905,8 @@
         <Parameter Name="state" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="state">To be added.</param>
+        <param name="name">The feature identifier. Set features before parsing starts.</param>
+        <param name="state"><see langword="true" /> to enable the feature; <see langword="false" /> to disable it.</param>
         <summary>Use this call to change the general behaviour of the parser,
             such as namespace processing or doctype declaration handling.</summary>
         <remarks>
@@ -1957,7 +1958,7 @@
         <Parameter Name="in" Type="Java.IO.Reader" />
       </Parameters>
       <Docs>
-        <param name="in">To be added.</param>
+        <param name="in">The character reader to use as input, or <see langword="null" /> to stop parsing and reset the parser state. Setting input resets the current event to <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartDocument" />.</param>
         <summary>Set the input source for parser to the given reader and
             resets the parser.</summary>
         <remarks>
@@ -2061,8 +2062,8 @@
         <Parameter Name="value" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="value">To be added.</param>
+        <param name="name">The fully qualified URI that identifies the property.</param>
+        <param name="value">The value to assign to the property.</param>
         <summary>Set the value of a property.</summary>
         <remarks>
           <para>Set the value of a property.</para>
@@ -2105,7 +2106,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the text content of the current event as String.</summary>
-        <value>To be added.</value>
+        <value>The text associated with the current event, or <see langword="null" /> if no text is available. For an entity reference, this is its replacement text if known. Token text depends on the event type and the XML round-trip feature.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2139,7 +2140,7 @@
         <summary>This array can be used to convert the event type integer constants
             such as START_TAG or TEXT to
             to a string.</summary>
-        <value>To be added.</value>
+        <value>The diagnostic event names indexed by the numeric values of <see cref="T:Org.XmlPull.V1.XmlPullParserNode" />, from <c>START_DOCUMENT</c> at index 0 to <c>DOCDECL</c> at index 10. The underlying Java array can be modified; do not rely on its contents for parsing decisions.</value>
         <remarks>
           <para>This array can be used to convert the event type integer constants
             such as START_TAG or TEXT to
