@@ -159,7 +159,7 @@
       <Docs>
         <param name="offset">an offset of the character.</param>
         <summary>Returns the width of the character at the given offset.</summary>
-        <returns>To be added.</returns>
+        <returns>The non-negative advance width, in pixels, at the given UTF-16 code-unit offset. The offset must be non-negative and less than the paragraph's UTF-16 length.</returns>
         <remarks>
           <para>Returns the width of the character at the given offset.</para>
           <para>
@@ -204,11 +204,18 @@
         <Parameter Name="outMetrics" Type="Android.Graphics.Paint+FontMetricsInt" />
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <param name="outMetrics">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="start">The inclusive start index, in UTF-16 code units. It must be non-negative and no greater than <paramref name="end" />.</param>
+        <param name="end">The exclusive end index, in UTF-16 code units. It must not exceed the paragraph's UTF-16 length.</param>
+        <param name="outMetrics">The non-null object that receives the font ascent, descent, top, and bottom values, in pixels.</param>
+        <summary>Retrieves the font metrics of the given range</summary>
+        <remarks>
+          <para>Retrieves the font metrics of the given range</para>
+          <para>The ascent and descent describe the requested range. The top and bottom values also include the paragraph-wide font limits collected from its style runs. This method does not set the leading value.</para>
+          <para>Vertical metrics use baseline-relative coordinates in pixels: ascent is above the baseline and is normally negative, while descent is below the baseline and is normally positive.</para>
+          <para>See the range checks and output fields in the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/99b01a65cc4c104933788b3143285ab6bae65827/graphics/java/android/graphics/text/MeasuredText.java">Android 16 implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/MeasuredText#getFontMetricsInt(int,%20int,%20android.graphics.Paint.FontMetricsInt)" title="Reference documentation">Android reference for <code>android.graphics.text.MeasuredText.getFontMetricsInt</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetWidth">
@@ -242,7 +249,7 @@
         <param name="start">an inclusive start index of the range</param>
         <param name="end">an exclusive end index of the range</param>
         <summary>Returns the width of a given range.</summary>
-        <returns>To be added.</returns>
+        <returns>The non-negative advance width of the range, in pixels. The indices are UTF-16 code-unit offsets and must satisfy <c>0 &lt;= start &lt;= end &lt;= paragraph length</c>.</returns>
         <remarks>
           <para>Returns the width of a given range.</para>
           <para>

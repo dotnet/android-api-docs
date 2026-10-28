@@ -169,12 +169,18 @@
         <Parameter Name="width" Type="System.Single" />
       </Parameters>
       <Docs>
-        <param name="paint">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="width">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="paint">The non-null paint used for the replacement run.</param>
+        <param name="length">The positive number of UTF-16 code units to replace, starting at the current offset. The run must not extend past the end of the paragraph.</param>
+        <param name="width">a replacement width of the range. The units of this value are pixels. Value is 0.0f or greater</param>
+        <summary>Used to inform the text layout that the given length is replaced with the object of given width.</summary>
+        <returns>This builder instance, with its current offset advanced by <paramref name="length" /> UTF-16 code units.</returns>
+        <remarks>
+          <para>Used to inform the text layout that the given length is replaced with the object of given width. Keeps an internal offset which increases at every append. The initial value for this offset is zero. After the style is applied the internal offset is moved to offset + length, and next call will start from this new position. Informs the layout engine that the given length should not be processed, instead the provided width should be used for calculating the width of that range.</para>
+          <para>Style and replacement runs must together cover the complete paragraph before <see cref="M:Android.Graphics.Text.MeasuredText.Builder.Build" /> is called. The replacement's width is supplied by the caller; this method does not draw the replacement object.</para>
+          <para>For the run-length checks, see the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/99b01a65cc4c104933788b3143285ab6bae65827/graphics/java/android/graphics/text/MeasuredText.java">Android 16 implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/MeasuredText.Builder#appendReplacementRun(android.graphics.Paint,%20int,%20float)" title="Reference documentation">Android reference for <code>android.graphics.text.MeasuredText.Builder.appendReplacementRun</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AppendStyleRun">
@@ -206,12 +212,17 @@
         <Parameter Name="isRtl" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="paint">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="isRtl">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="paint">a paint. This value cannot be null.</param>
+        <param name="length">The positive number of UTF-16 code units to style, starting at the current offset. The run must not extend past the end of the paragraph.</param>
+        <param name="isRtl">true if the text is in RTL context, otherwise false.</param>
+        <summary>Apply styles to the given length.</summary>
+        <returns>This builder instance, with its current offset advanced by <paramref name="length" /> UTF-16 code units.</returns>
+        <remarks>
+          <para>Apply styles to the given length. Keeps an internal offset which increases at every append. The initial value for this offset is zero. After the style is applied the internal offset is moved to offset + length, and next call will start from this new position.</para>
+          <para>Paint.TEXT_RUN_FLAG_RIGHT_EDGE and Paint.TEXT_RUN_FLAG_LEFT_EDGE are ignored and treated as both of them are set.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/MeasuredText.Builder#appendStyleRun(android.graphics.Paint,%20int,%20boolean)" title="Reference documentation">Android reference for <code>android.graphics.text.MeasuredText.Builder.appendStyleRun</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AppendStyleRun">
@@ -251,13 +262,17 @@
         <Parameter Name="isRtl" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="paint">To be added.</param>
-        <param name="lineBreakConfig">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="isRtl">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="paint">a paint. This value cannot be null.</param>
+        <param name="lineBreakConfig">a line break configuration. This value may be null.</param>
+        <param name="length">The positive number of UTF-16 code units to style, starting at the current offset. The run must not extend past the end of the paragraph.</param>
+        <param name="isRtl">true if the text is in RTL context, otherwise false.</param>
+        <summary>Apply styles to the given length.</summary>
+        <returns>This builder instance, with its current offset advanced by <paramref name="length" /> UTF-16 code units.</returns>
+        <remarks>
+          <para>Apply styles to the given length. Keeps an internal offset which increases at every append. The initial value for this offset is zero. After the style is applied the internal offset is moved to offset + length, and next call will start from this new position.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/MeasuredText.Builder#appendStyleRun(android.graphics.Paint,%20android.graphics.text.LineBreakConfig,%20int,%20boolean)" title="Reference documentation">Android reference for <code>android.graphics.text.MeasuredText.Builder.appendStyleRun</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -286,7 +301,7 @@
       <Parameters />
       <Docs>
         <summary>Creates a MeasuredText.</summary>
-        <returns>To be added.</returns>
+        <returns>A new measured-text instance for the complete paragraph, with the runs and computation settings supplied to this builder.</returns>
         <remarks>
           <para>Creates a MeasuredText.</para>
           <para>Once you called build() method, you can't reuse the Builder class again.</para>
@@ -505,10 +520,15 @@
         <Parameter Name="computeHyphenation" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="computeHyphenation">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="computeHyphenation">true if you want to use automatic hyphenations.</param>
+        <summary>By passing true to this method, the build method will compute all possible hyphenation pieces as well.</summary>
+        <returns>This builder instance.</returns>
+        <remarks>
+          <para>This method was deprecated in API level 33. use setComputeHyphenation(int) instead.</para>
+          <para>By passing true to this method, the build method will compute all possible hyphenation pieces as well. If you don't want to use automatic hyphenation, you can pass false to this method and save the computation time of hyphenation. The default value is false. Even if you pass false to this method, you can still enable automatic hyphenation of LineBreaker but line break computation becomes slower.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/MeasuredText.Builder#setComputeHyphenation(boolean)" title="Reference documentation">Android reference for <code>android.graphics.text.MeasuredText.Builder.setComputeHyphenation</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetComputeHyphenation">
@@ -538,10 +558,16 @@
         <Parameter Name="mode" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mode">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="mode">a hyphenation mode. Value is one of the following: HYPHENATION_MODE_NONE; HYPHENATION_MODE_NORMAL; HYPHENATION_MODE_FAST</param>
+        <summary>Sets the mode used to compute hyphenation information when the paragraph is built.</summary>
+        <returns>This builder instance.</returns>
+        <remarks>
+          <para>Pass the integer value of <see cref="F:Android.Graphics.Text.HyphenationMode.None" /> to skip hyphenation computation, <see cref="F:Android.Graphics.Text.HyphenationMode.Normal" /> to compute it, or <see cref="F:Android.Graphics.Text.HyphenationMode.Fast" /> to use the faster algorithm. Only the fast mode ignores some shaping context, such as kerning around a hyphen. The default is no hyphenation computation.</para>
+          <para>If this builder was created from an existing <see cref="T:Android.Graphics.Text.MeasuredText" />, hyphenation computation must remain enabled or disabled as it was for that instance. Otherwise, <see cref="M:Android.Graphics.Text.MeasuredText.Builder.Build" /> fails.</para>
+          <para>See the mode selection and reuse checks in the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/99b01a65cc4c104933788b3143285ab6bae65827/graphics/java/android/graphics/text/MeasuredText.java">Android 16 implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/MeasuredText.Builder#setComputeHyphenation(int)" title="Reference documentation">Android reference for <code>android.graphics.text.MeasuredText.Builder.setComputeHyphenation</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetComputeLayout">
@@ -571,10 +597,15 @@
         <Parameter Name="computeLayout" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="computeLayout">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="computeLayout">true if you want to retrieve full layout info, e.g. bbox.</param>
+        <summary>By passing true to this method, the build method will compute all full layout information.</summary>
+        <returns>This builder instance.</returns>
+        <remarks>
+          <para>By passing true to this method, the build method will compute all full layout information. If you don't use MeasuredText.getBounds(int,int,android.graphics.Rect), you can pass false to this method and save the memory spaces. The default value is true. Even if you pass false to this method, you can still call getBounds but it becomes slower.</para>
+          <para>A measured-text instance built with layout computation disabled cannot be used to construct another <see cref="T:Android.Graphics.Text.MeasuredText.Builder" />. See the constructor check in the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/99b01a65cc4c104933788b3143285ab6bae65827/graphics/java/android/graphics/text/MeasuredText.java">Android 16 implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/MeasuredText.Builder#setComputeLayout(boolean)" title="Reference documentation">Android reference for <code>android.graphics.text.MeasuredText.Builder.setComputeLayout</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
