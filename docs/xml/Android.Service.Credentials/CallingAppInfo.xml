@@ -86,8 +86,8 @@
         <Parameter Name="signingInfo" Type="Android.Content.PM.SigningInfo" />
       </Parameters>
       <Docs>
-        <param name="packageName">To be added.</param>
-        <param name="signingInfo">To be added.</param>
+        <param name="packageName">The calling app's package name. Must not be null or empty.</param>
+        <param name="signingInfo">The non-null signing information for the calling app.</param>
         <summary>Constructs a new instance.</summary>
         <remarks>
           <para>Constructs a new instance.</para>
@@ -181,9 +181,12 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the creator used to read calling app information from a parcel.</summary>
+        <value>The creator for <see cref="T:Android.Service.Credentials.CallingAppInfo" /> objects and arrays.</value>
+        <remarks>
+          <para>Android uses this creator to reconstruct the information written by <see cref="M:Android.Service.Credentials.CallingAppInfo.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />.</para>
+          <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/99b01a65cc4c104933788b3143285ab6bae65827/core/java/android/service/credentials/CallingAppInfo.java">Android 16 implementation</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -314,7 +317,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the origin of the calling app if set otherwise returns null.</summary>
-        <value>To be added.</value>
+        <value>The origin supplied for a request made on behalf of another app, or <see langword="null" /> if no origin is set. Setting an origin on an incoming credential request requires <c>android.permission.CREDENTIAL_MANAGER_SET_ORIGIN</c>.</value>
         <remarks>
           <para>Returns the origin of the calling app if set otherwise returns null.
             This value is set only if the origin is different than that of the calling app,
@@ -363,7 +366,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the package name of the source of this info.</summary>
-        <value>To be added.</value>
+        <value>The package name of the calling app.</value>
         <remarks>
           <para>Returns the package name of the source of this info.</para>
           <para>
@@ -405,7 +408,7 @@
       <Docs>
         <summary>Returns the SigningInfo object that contains an array of
             <c>android.content.pm.Signature</c> belonging to the app.</summary>
-        <value>To be added.</value>
+        <value>The signing information that contains the calling app's signatures.</value>
         <remarks>
           <para>Returns the SigningInfo object that contains an array of
             <c>android.content.pm.Signature</c> belonging to the app.</para>
@@ -522,7 +525,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
+        <param name="dest">The parcel to which the calling app information is written.</param>
         <param name="flags">Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: Parcelable.PARCELABLE_WRITE_RETURN_VALUE</param>
         <summary>Flatten this object in to a Parcel.</summary>
         <remarks>
