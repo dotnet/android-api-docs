@@ -79,7 +79,7 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Initializes a carrier messaging service.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -712,10 +712,11 @@
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="intent">The non-null binding intent whose action identifies the requested service.</param>
+        <summary>Returns the service binder when the intent action matches <see cref="F:Android.Service.Carrier.CarrierMessagingService.ServiceInterface" />.</summary>
+        <returns>The carrier messaging service binder if the action matches; otherwise, <see langword="null" />.</returns>
         <remarks>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/core/java/android/service/carrier/CarrierMessagingService.java">Android 16 implementation of CarrierMessagingService.onBind.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1019,12 +1020,16 @@
         <Parameter Name="callback" Type="Android.Service.Carrier.CarrierMessagingService+IResultCallback" />
       </Parameters>
       <Docs>
-        <param name="pduUri">To be added.</param>
-        <param name="subId">To be added.</param>
-        <param name="location">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="pduUri">the content provider URI of the PDU to send. This value cannot be null.</param>
+        <param name="subId">SMS subscription ID of the SIM</param>
+        <param name="location">the optional URI to send this MMS PDU. If this is null, the PDU should be sent to the default MMSC URL.</param>
+        <param name="callback">result callback. Call with a SendMmsResult. This value cannot be null.</param>
+        <summary>Override this method to intercept MMSs sent from the device.</summary>
         <remarks>
+          <para>The default implementation calls the callback with a <see cref="T:Android.Service.Carrier.CarrierMessagingService.SendMmsResult" /> whose status is <see cref="F:Android.Service.Carrier.MessageSendStatus.RetryOnCarrierNetwork" /> and whose confirmation PDU is <see langword="null" />. It requests a retry through the carrier network; it does not send the message itself.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/core/java/android/service/carrier/CarrierMessagingService.java">Android 16 implementation of CarrierMessagingService.onSendMms.</a></format></para>
+          <para>Override this method to intercept MMSs sent from the device.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/carrier/CarrierMessagingService#onSendMms(android.net.Uri,%20int,%20android.net.Uri,%20android.service.carrier.CarrierMessagingService.ResultCallback&lt;android.service.carrier.CarrierMessagingService.SendMmsResult&gt;)" title="Reference documentation">Android reference for <code>android.service.carrier.CarrierMessagingService.onSendMms</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
