@@ -161,14 +161,16 @@
         <Parameter Name="gid2" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="mcc">To be added.</param>
-        <param name="mnc">To be added.</param>
-        <param name="spn">To be added.</param>
-        <param name="imsi">To be added.</param>
-        <param name="gid1">To be added.</param>
-        <param name="gid2">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mcc">The mobile country code.</param>
+        <param name="mnc">The mobile network code.</param>
+        <param name="spn">The service provider name, or <see langword="null" /> if not supplied.</param>
+        <param name="imsi">The international mobile subscriber identity, or <see langword="null" /> if not supplied.</param>
+        <param name="gid1">The level 1 group identifier, or <see langword="null" /> if not supplied.</param>
+        <param name="gid2">The level 2 group identifier, or <see langword="null" /> if not supplied.</param>
+        <summary>Creates a carrier identifier from SIM information, with both carrier IDs set to the unknown carrier ID.</summary>
         <remarks>
+          <para>This overload sets both carrier IDs to <see cref="F:Android.Telephony.TelephonyManager.UnknownCarrierId" />.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/telephony/java/android/service/carrier/CarrierIdentifier.java">Android 16 implementation of CarrierIdentifier.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -228,7 +230,7 @@
                              to uniquely identify the carrier and look up the carrier configurations.</param>
         <param name="specificCarrierId">specific carrier identifier
             <c>TelephonyManager#getSimSpecificCarrierId()</c></param>
-        <summary>To be added.</summary>
+        <summary>Creates a carrier identifier from SIM information and the supplied carrier and specific carrier IDs.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -268,7 +270,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the carrier id.</summary>
-        <value>To be added.</value>
+        <value>The carrier ID supplied at construction or read from a parcel. Constructors without carrier ID parameters use <see cref="F:Android.Telephony.TelephonyManager.UnknownCarrierId" />.</value>
         <remarks>
           <para>Returns the carrier id.</para>
           <para>
@@ -309,7 +311,7 @@
       </ReturnValue>
       <Docs>
         <summary>Used to create a <c>CarrierIdentifier</c> from a <c>Parcel</c>.</summary>
-        <value>To be added.</value>
+        <value>The creator used to read <see cref="T:Android.Service.Carrier.CarrierIdentifier" /> instances from a parcel and create arrays of them.</value>
         <remarks>
           <para>
             <format type="text/html">
@@ -352,9 +354,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation.</summary>
+        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
         <remarks>
+          <para>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/carrier/CarrierIdentifier#describeContents()" title="Reference documentation">Android reference for <code>android.service.carrier.CarrierIdentifier.describeContents</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -384,7 +388,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the group identifier level 1.</summary>
-        <value>To be added.</value>
+        <value>The level 1 group identifier, or <see langword="null" /> if not supplied.</value>
         <remarks>
           <para>Get the group identifier level 1.</para>
           <para>
@@ -425,7 +429,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the group identifier level 2.</summary>
-        <value>To be added.</value>
+        <value>The level 2 group identifier, or <see langword="null" /> if not supplied.</value>
         <remarks>
           <para>Get the group identifier level 2.</para>
           <para>
@@ -466,7 +470,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the international mobile subscriber identity.</summary>
-        <value>To be added.</value>
+        <value>The international mobile subscriber identity, or <see langword="null" /> if not supplied.</value>
         <remarks>
           <para>Get the international mobile subscriber identity.</para>
           <para>
@@ -573,7 +577,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the mobile country code.</summary>
-        <value>To be added.</value>
+        <value>The mobile country code stored in this identifier.</value>
         <remarks>
           <para>Get the mobile country code.</para>
           <para>
@@ -614,7 +618,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the mobile network code.</summary>
-        <value>To be added.</value>
+        <value>The mobile network code stored in this identifier.</value>
         <remarks>
           <para>Get the mobile network code.</para>
           <para>
@@ -655,7 +659,7 @@
       </ReturnValue>
       <Docs>
         <summary>A specific carrier ID returns the fine-grained carrier ID of the current subscription.</summary>
-        <value>To be added.</value>
+        <value>The specific carrier ID supplied at construction or read from a parcel. Constructors without carrier ID parameters use <see cref="F:Android.Telephony.TelephonyManager.UnknownCarrierId" />.</value>
         <remarks>
           <para>A specific carrier ID returns the fine-grained carrier ID of the current subscription.
             It can represent the fact that a carrier may be in effect an aggregation of other carriers
@@ -701,7 +705,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the service provider name.</summary>
-        <value>To be added.</value>
+        <value>The service provider name, or <see langword="null" /> if not supplied.</value>
         <remarks>
           <para>Get the service provider name.</para>
           <para>
@@ -825,10 +829,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="out">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="out">The Parcel in which the object should be written. This value cannot be null.</param>
+        <param name="flags">Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: Parcelable.PARCELABLE_WRITE_RETURN_VALUE</param>
+        <summary>Flatten this object in to a Parcel.</summary>
         <remarks>
+          <para>Flatten this object in to a Parcel.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/carrier/CarrierIdentifier#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Android reference for <code>android.service.carrier.CarrierIdentifier.writeToParcel</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
