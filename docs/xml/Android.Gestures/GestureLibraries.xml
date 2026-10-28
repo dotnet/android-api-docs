@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs since="4">
-    <summary>To be added.</summary>
+    <summary>Creates gesture libraries backed by files, file descriptors, application-private files, or raw resources.</summary>
     <remarks>
       <para>
         <format type="text/html">
@@ -64,10 +64,9 @@
         <Parameter Name="path" Type="Java.IO.File" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="path">The file that stores the gesture library.</param>
+        <summary>Creates a gesture library backed by the specified file.</summary>
+        <returns>A file-backed gesture library. Call <see cref="M:Android.Gestures.GestureLibrary.Load" /> to read its stored gestures.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -101,10 +100,9 @@
         <Parameter Name="path" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="path">The path of the file that stores the gesture library.</param>
+        <summary>Creates a gesture library backed by the specified file path.</summary>
+        <returns>A file-backed gesture library. Call <see cref="M:Android.Gestures.GestureLibrary.Load" /> to read its stored gestures.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -138,10 +136,14 @@
         <Parameter Name="pfd" Type="Android.OS.ParcelFileDescriptor" />
       </Parameters>
       <Docs>
-        <param name="pfd">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="pfd">An open parcel file descriptor for the gesture data.</param>
+        <summary>Creates a gesture library backed by an open file descriptor.</summary>
+        <returns>A gesture library that uses the supplied descriptor for loading and saving.</returns>
+        <remarks>
+          <para>This factory does not load gesture data or duplicate the descriptor. Keep the supplied descriptor open while the library uses it, and close it when it is no longer needed. Loading and saving use its current file position without rewinding it. They close their stream wrappers, but those wrappers do not own or close the supplied descriptor on Android.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-17.0.0_r1/core/java/android/gesture/GestureLibraries.java">Android 17 GestureLibraries implementation</a></format>.</para>
+          <para>Descriptor ownership follows the Android implementations of <format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/refs/tags/android-17.0.0_r1/ojluni/src/main/java/java/io/FileInputStream.java">FileInputStream</a></format> and <format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/refs/tags/android-17.0.0_r1/ojluni/src/main/java/java/io/FileOutputStream.java">FileOutputStream</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FromPrivateFile">
@@ -172,11 +174,10 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="name">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="context">The context used to resolve the application's private file directory.</param>
+        <param name="name">The name of the gesture file in that directory.</param>
+        <summary>Creates a gesture library backed by a file in the application's private directory.</summary>
+        <returns>A library backed by the named application-private file. Call <see cref="M:Android.Gestures.GestureLibrary.Load" /> to read its stored gestures.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -211,11 +212,10 @@
         <Parameter Name="resourceId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="resourceId">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="context">The context whose resources contain the gesture data.</param>
+        <param name="resourceId">The resource identifier of the raw gesture data.</param>
+        <summary>Creates a read-only gesture library backed by a raw resource.</summary>
+        <returns>A read-only resource-backed library. Call <see cref="M:Android.Gestures.GestureLibrary.Load" /> to read the resource. Saving this library returns <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
