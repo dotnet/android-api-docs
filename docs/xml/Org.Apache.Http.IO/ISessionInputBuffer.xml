@@ -35,6 +35,7 @@
   <Docs since="1">
     <summary>Session input buffer for blocking connections.</summary>
     <remarks>
+      <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/ef38a658a6a717b4a609fd1a53b98067e33302db/src/org/apache/http/impl/io/AbstractSessionInputBuffer.java">Android session input buffer implementation</a></format> and <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/ef38a658a6a717b4a609fd1a53b98067e33302db/src/org/apache/http/impl/io/SocketInputBuffer.java">socket input buffer implementation</a></format> for read and timeout behavior.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/org/apache/http/io/SessionInputBuffer" title="Reference documentation">Android platform documentation</a>
@@ -68,15 +69,15 @@
         <Parameter Name="timeout" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="timeout">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="timeout">The read timeout, in milliseconds, used when the socket buffer has no data. Zero means no timeout.</param>
+        <summary>Checks whether input data is available, waiting if necessary.</summary>
+        <returns><see langword="true" /> if data is available; otherwise, <see langword="false" />.</returns>
         <remarks>
+          <para>The socket implementation returns immediately if data is already buffered. Otherwise, it attempts to read with the specified timeout and restores the previous socket timeout afterward. A timeout or the end of the stream can both produce <see langword="false" />; this result does not by itself establish whether the connection is closed.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs while checking for input data.</exception>
       </Docs>
     </Member>
     <Member MemberName="Metrics">
@@ -99,9 +100,8 @@
         <ReturnType>Org.Apache.Http.IO.IHttpTransportMetrics</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
-        <value>To be added.</value>
+        <summary>Gets the transport metrics for this input buffer.</summary>
+        <value>The metrics that count bytes read from the underlying input stream.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -129,14 +129,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <summary>Reads the next byte from the input buffer.</summary>
+        <returns>The byte value from 0 through 255, or -1 if the end of the stream is reached.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs while reading a byte.</exception>
       </Docs>
     </Member>
     <Member MemberName="Read">
@@ -162,15 +161,15 @@
         <Parameter Name="b" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="b">The array that receives the bytes read.</param>
+        <summary>Reads bytes into an array, starting at its first element.</summary>
+        <returns>The number of bytes read, or -1 if the end of the stream is reached before data is available.</returns>
         <remarks>
+          <para>The Android implementation returns zero if <paramref name="b" /> is <see langword="null" />. A read can return fewer bytes than the array can hold.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs while reading bytes.</exception>
       </Docs>
     </Member>
     <Member MemberName="Read">
@@ -198,17 +197,17 @@
         <Parameter Name="len" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <param name="off">To be added.</param>
-        <param name="len">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="b">The array that receives the bytes read.</param>
+        <param name="off">The zero-based index in <paramref name="b" /> at which to store the first byte.</param>
+        <param name="len">The maximum number of bytes to read.</param>
+        <summary>Reads bytes into the specified part of an array.</summary>
+        <returns>The number of bytes read, or -1 if the end of the stream is reached before data is available.</returns>
         <remarks>
+          <para>The Android implementation returns zero if <paramref name="b" /> is <see langword="null" />. A read can return fewer than <paramref name="len" /> bytes.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs while reading bytes.</exception>
       </Docs>
     </Member>
     <Member MemberName="ReadLine">
@@ -232,14 +231,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <summary>Reads the next line from the input buffer.</summary>
+        <returns>The line without its CR and LF terminators, or <see langword="null" /> if the end of the stream is reached before any line data is read.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs, or the configured maximum line length is exceeded.</exception>
       </Docs>
     </Member>
     <Member MemberName="ReadLine">
@@ -265,15 +263,15 @@
         <Parameter Name="buffer" Type="Org.Apache.Http.Util.CharArrayBuffer" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The character buffer to which the line is appended, without its CR and LF terminators.</param>
+        <summary>Reads the next line and appends it to a character buffer.</summary>
+        <returns>The line length reported by the buffer, excluding CR and LF, or -1 if the end of the stream is reached before any line data is read.</returns>
         <remarks>
+          <para>The Android implementation reports the number of encoded bytes in the line, not necessarily the number of decoded characters appended to <paramref name="buffer" />. These counts can differ for a non-ASCII character set. Existing characters in <paramref name="buffer" /> are retained.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs, or the configured maximum line length is exceeded.</exception>
       </Docs>
     </Member>
   </Members>

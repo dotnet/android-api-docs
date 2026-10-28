@@ -35,6 +35,7 @@
   <Docs since="1">
     <summary>Session output buffer for blocking connections.</summary>
     <remarks>
+      <para>See the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/ef38a658a6a717b4a609fd1a53b98067e33302db/src/org/apache/http/impl/io/AbstractSessionOutputBuffer.java">Android session output buffer implementation</a></format> for write, encoding, and flush behavior.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/org/apache/http/io/SessionOutputBuffer" title="Reference documentation">Android platform documentation</a>
@@ -66,13 +67,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>
-        </summary>
+        <summary>Writes buffered bytes to the underlying output stream and flushes that stream.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs while writing buffered bytes or flushing the underlying stream.</exception>
       </Docs>
     </Member>
     <Member MemberName="Metrics">
@@ -95,9 +95,8 @@
         <ReturnType>Org.Apache.Http.IO.IHttpTransportMetrics</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
-        <value>To be added.</value>
+        <summary>Gets the transport metrics for this output buffer.</summary>
+        <value>The metrics that count bytes written to the underlying output stream, excluding bytes still waiting in the buffer.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -127,14 +126,13 @@
         <Parameter Name="b" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <summary>
-        </summary>
+        <param name="b">The array of bytes to write.</param>
+        <summary>Writes all bytes from an array to the output buffer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs while writing bytes.</exception>
       </Docs>
     </Member>
     <Member MemberName="Write">
@@ -160,14 +158,13 @@
         <Parameter Name="b" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <summary>
-        </summary>
+        <param name="b">The value whose low-order eight bits are written.</param>
+        <summary>Writes one byte to the output buffer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs while writing a byte.</exception>
       </Docs>
     </Member>
     <Member MemberName="Write">
@@ -195,16 +192,15 @@
         <Parameter Name="len" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <param name="off">To be added.</param>
-        <param name="len">To be added.</param>
-        <summary>
-        </summary>
+        <param name="b">The array that contains the bytes to write.</param>
+        <param name="off">The zero-based index in <paramref name="b" /> of the first byte to write.</param>
+        <param name="len">The number of bytes to write.</param>
+        <summary>Writes the specified part of an array to the output buffer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs while writing bytes.</exception>
       </Docs>
     </Member>
     <Member MemberName="WriteLine">
@@ -230,14 +226,13 @@
         <Parameter Name="buffer" Type="Org.Apache.Http.Util.CharArrayBuffer" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <summary>
-        </summary>
+        <param name="buffer">The character buffer whose contents are written before a CRLF line terminator.</param>
+        <summary>Writes a character buffer as a line with a CRLF terminator.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs while encoding or writing the line.</exception>
       </Docs>
     </Member>
     <Member MemberName="WriteLine">
@@ -263,14 +258,13 @@
         <Parameter Name="s" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <summary>
-        </summary>
+        <param name="s">The string written before a CRLF line terminator.</param>
+        <summary>Writes a string as a line with a CRLF terminator.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
-        <exception cref="T:Java.IO.IOException" />
+        <exception cref="T:Java.IO.IOException">An I/O error occurs while encoding or writing the line.</exception>
       </Docs>
     </Member>
   </Members>
