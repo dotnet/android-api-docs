@@ -866,10 +866,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="output">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="output">The writable buffer that receives compressed bytes between its current position and its limit.</param>
+        <summary>Runs compression into a byte buffer as a task.</summary>
+        <returns>A task whose result is the number of compressed bytes written to <paramref name="output" />, not the number of input bytes consumed.</returns>
+        <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call <see cref="M:Java.Util.Zip.Deflater.Deflate(Java.Nio.ByteBuffer)" /> with <see cref="F:Java.Util.Zip.Deflater.NoFlush" />. It does not use a native asynchronous operation.</para>
+          <para>The output position advances by the number of bytes written. If input was supplied as a byte buffer, its position advances by the number of bytes consumed. Wait for the task to complete before changing these buffers or using this compressor again.</para>
+          <para>A result of zero does not by itself mean that compression is complete. Check <see cref="M:Java.Util.Zip.Deflater.NeedsInput" /> and <see cref="M:Java.Util.Zip.Deflater.Finished" />, and provide output space as needed. Exceptions from the synchronous call are reported through the task.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper implementation.</a></format></para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/ojluni/src/main/java/java/util/zip/Deflater.java">Android compression implementation.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DeflateAsync">
@@ -902,10 +908,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="output">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="output">The array that receives compressed bytes, starting at index zero.</param>
+        <summary>Runs compression into a byte array as a task.</summary>
+        <returns>A task whose result is the number of compressed bytes written to <paramref name="output" />, not the number of input bytes consumed.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call <see cref="M:Java.Util.Zip.Deflater.Deflate(System.Byte[])" /> with <see cref="F:Java.Util.Zip.Deflater.NoFlush" />. It does not use a native asynchronous operation.</para>
+          <para>The output capacity is the array length. If input was supplied as a byte buffer, its position advances by the number of bytes consumed. Wait for the task to complete before changing these buffers or using this compressor again.</para>
+          <para>A result of zero does not by itself mean that compression is complete. Check <see cref="M:Java.Util.Zip.Deflater.NeedsInput" /> and <see cref="M:Java.Util.Zip.Deflater.Finished" />, and provide output space as needed. Exceptions from the synchronous call are reported through the task.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper implementation.</a></format></para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/ojluni/src/main/java/java/util/zip/Deflater.java">Android compression implementation.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -945,11 +956,18 @@
         <Parameter Name="flush" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="output">To be added.</param>
-        <param name="flush">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="output">The writable buffer that receives compressed bytes between its current position and its limit.</param>
+        <param name="flush">The flush mode: <see cref="F:Java.Util.Zip.Deflater.NoFlush" />, <see cref="F:Java.Util.Zip.Deflater.SyncFlush" />, or <see cref="F:Java.Util.Zip.Deflater.FullFlush" />.</param>
+        <summary>Runs compression into a byte buffer with the specified flush mode as a task.</summary>
+        <returns>A task whose result is the number of compressed bytes written to <paramref name="output" />, not the number of input bytes consumed.</returns>
+        <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call <see cref="M:Java.Util.Zip.Deflater.Deflate(Java.Nio.ByteBuffer,System.Int32)" />. It does not use a native asynchronous operation.</para>
+          <para>The output position advances by the number of bytes written. If input was supplied as a byte buffer, its position advances by the number of bytes consumed. Wait for the task to complete before changing these buffers or using this compressor again.</para>
+          <para>For <see cref="F:Java.Util.Zip.Deflater.SyncFlush" /> or <see cref="F:Java.Util.Zip.Deflater.FullFlush" />, if the result equals the output space available before the call, repeat with the same mode and more output space. Provide at least six bytes of output space to avoid repeated flush markers. <see cref="F:Java.Util.Zip.Deflater.FullFlush" /> also resets the compression state.</para>
+          <para>A result of zero does not by itself mean that compression is complete. Check <see cref="M:Java.Util.Zip.Deflater.NeedsInput" /> and <see cref="M:Java.Util.Zip.Deflater.Finished" /> as appropriate. Exceptions from the synchronous call, including an invalid flush mode, are reported through the task.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper implementation.</a></format></para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/ojluni/src/main/java/java/util/zip/Deflater.java">Android compression implementation.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DeflateAsync">
@@ -984,12 +1002,17 @@
         <Parameter Name="len" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="output">To be added.</param>
-        <param name="off">To be added.</param>
-        <param name="len">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="output">The array that receives compressed bytes.</param>
+        <param name="off">The index in <paramref name="output" /> at which to start writing.</param>
+        <param name="len">The maximum number of compressed bytes to write.</param>
+        <summary>Runs compression into a byte array range as a task.</summary>
+        <returns>A task whose result is the number of compressed bytes written to the specified range, not the number of input bytes consumed.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call <see cref="M:Java.Util.Zip.Deflater.Deflate(System.Byte[],System.Int32,System.Int32)" /> with <see cref="F:Java.Util.Zip.Deflater.NoFlush" />. It does not use a native asynchronous operation.</para>
+          <para>If input was supplied as a byte buffer, its position advances by the number of bytes consumed. Wait for the task to complete before changing the input or output buffers or using this compressor again.</para>
+          <para>A result of zero does not by itself mean that compression is complete. Check <see cref="M:Java.Util.Zip.Deflater.NeedsInput" /> and <see cref="M:Java.Util.Zip.Deflater.Finished" />, and provide output space as needed. Exceptions from the synchronous call are reported through the task.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper implementation.</a></format></para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/ojluni/src/main/java/java/util/zip/Deflater.java">Android compression implementation.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1027,13 +1050,19 @@
         <Parameter Name="flush" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="output">To be added.</param>
-        <param name="off">To be added.</param>
-        <param name="len">To be added.</param>
-        <param name="flush">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="output">The array that receives compressed bytes.</param>
+        <param name="off">The index in <paramref name="output" /> at which to start writing.</param>
+        <param name="len">The maximum number of compressed bytes to write.</param>
+        <param name="flush">The flush mode: <see cref="F:Java.Util.Zip.Deflater.NoFlush" />, <see cref="F:Java.Util.Zip.Deflater.SyncFlush" />, or <see cref="F:Java.Util.Zip.Deflater.FullFlush" />.</param>
+        <summary>Runs compression into a byte array range with the specified flush mode as a task.</summary>
+        <returns>A task whose result is the number of compressed bytes written to the specified range, not the number of input bytes consumed.</returns>
         <remarks>
+          <para>This .NET wrapper uses <c>Task.Run</c> to call <see cref="M:Java.Util.Zip.Deflater.Deflate(System.Byte[],System.Int32,System.Int32,System.Int32)" />. It does not use a native asynchronous operation.</para>
+          <para>If input was supplied as a byte buffer, its position advances by the number of bytes consumed. Wait for the task to complete before changing the input or output buffers or using this compressor again.</para>
+          <para>For <see cref="F:Java.Util.Zip.Deflater.SyncFlush" /> or <see cref="F:Java.Util.Zip.Deflater.FullFlush" />, if the result equals <paramref name="len" />, repeat with the same mode and more output space. Use a length greater than six bytes to avoid repeated flush markers. <see cref="F:Java.Util.Zip.Deflater.FullFlush" /> also resets the compression state.</para>
+          <para>A result of zero does not by itself mean that compression is complete. Check <see cref="M:Java.Util.Zip.Deflater.NeedsInput" /> and <see cref="M:Java.Util.Zip.Deflater.Finished" /> as appropriate. Exceptions from the synchronous call, including an invalid flush mode, are reported through the task.</para>
+          <para><format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">.NET asynchronous wrapper implementation.</a></format></para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/de876a01b29230b877c9f408348c38a90ee724a5/ojluni/src/main/java/java/util/zip/Deflater.java">Android compression implementation.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
