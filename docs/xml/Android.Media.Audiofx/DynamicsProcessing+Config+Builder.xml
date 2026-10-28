@@ -26,8 +26,8 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Builds a dynamics processing configuration with per-channel input gains and processing stages.</summary>
+    <remarks><para>Choose the effect variant, channel count, stage availability, and band counts in the constructor. A stage excluded from this architecture cannot later be enabled in the effect. The enabled state of an available stage controls whether it processes or bypasses the signal.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -62,17 +62,17 @@
         <Parameter Name="limiterInUse" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="variant">To be added.</param>
-        <param name="channelCount">To be added.</param>
-        <param name="preEqInUse">To be added.</param>
-        <param name="preEqBandCount">To be added.</param>
-        <param name="mbcInUse">To be added.</param>
-        <param name="mbcBandCount">To be added.</param>
-        <param name="postEqInUse">To be added.</param>
-        <param name="postEqBandCount">To be added.</param>
-        <param name="limiterInUse">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="variant">The effect engine variant. Use 0 to favor frequency resolution or 1 to favor time resolution.</param>
+        <param name="channelCount">The number of audio channels to configure.</param>
+        <param name="preEqInUse">Whether the pre-equalizer stage is included in the effect architecture.</param>
+        <param name="preEqBandCount">The number of bands in each available pre-equalizer stage.</param>
+        <param name="mbcInUse">Whether the multiband compressor stage is included in the effect architecture.</param>
+        <param name="mbcBandCount">The number of bands in each available multiband compressor stage.</param>
+        <param name="postEqInUse">Whether the post-equalizer stage is included in the effect architecture.</param>
+        <param name="postEqBandCount">The number of bands in each available post-equalizer stage.</param>
+        <param name="limiterInUse">Whether the limiter stage is included in the effect architecture.</param>
+        <summary>Initializes a builder with the specified effect architecture.</summary>
+        <remarks><para>Each channel starts with an input gain of 0 dB and default stage settings. The preferred frame duration starts at 10 milliseconds. A stage that is not in use has no available processing bands.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -100,9 +100,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Creates a dynamics processing configuration from this builder.</summary>
+        <returns>A new configuration with copies of the builder's channel and stage settings.</returns>
+        <remarks><para>The configuration copies each channel and its stages. Later changes to the builder do not change the configuration returned by this call. This method does not create or update an effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -171,10 +171,10 @@
         <Parameter Name="channel" Type="Android.Media.Audiofx.DynamicsProcessing+Channel" />
       </Parameters>
       <Docs>
-        <param name="channel">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="channel">The input gain and processing stage settings to apply.</param>
+        <summary>Sets the complete channel settings for all channels.</summary>
+        <returns>This builder, with the selected channel settings changed.</returns>
+        <remarks><para>Stores a separate copy of the supplied channel for each selected channel. The pre-equalizer, multiband compressor, and post-equalizer band counts must match the builder's configuration.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetChannelTo">
@@ -205,11 +205,11 @@
         <Parameter Name="channel" Type="Android.Media.Audiofx.DynamicsProcessing+Channel" />
       </Parameters>
       <Docs>
-        <param name="channelIndex">To be added.</param>
-        <param name="channel">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="channelIndex">The zero-based channel index, less than the number of channels.</param>
+        <param name="channel">The input gain and processing stage settings to apply.</param>
+        <summary>Sets the complete channel settings for one channel.</summary>
+        <returns>This builder, with the selected channel settings changed.</returns>
+        <remarks><para>Stores a separate copy of the supplied channel for each selected channel. The pre-equalizer, multiband compressor, and post-equalizer band counts must match the builder's configuration.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetInputGainAllChannelsTo">
@@ -239,10 +239,10 @@
         <Parameter Name="inputGain" Type="System.Single" />
       </Parameters>
       <Docs>
-        <param name="inputGain">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="inputGain">The input gain in decibels (dB). A value of 0 leaves the level unchanged.</param>
+        <summary>Sets the input gain for all channels.</summary>
+        <returns>This builder, with the selected input gain changed.</returns>
+        <remarks><para>The gain is applied before the processing stages. This changes the builder's channel data; it does not update an existing effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetInputGainByChannelIndex">
@@ -273,11 +273,11 @@
         <Parameter Name="inputGain" Type="System.Single" />
       </Parameters>
       <Docs>
-        <param name="channelIndex">To be added.</param>
-        <param name="inputGain">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="channelIndex">The zero-based channel index, less than the number of channels.</param>
+        <param name="inputGain">The input gain in decibels (dB). A value of 0 leaves the level unchanged.</param>
+        <summary>Sets the input gain for one channel.</summary>
+        <returns>This builder, with the selected input gain changed.</returns>
+        <remarks><para>The gain is applied before the processing stages. This changes the builder's channel data; it does not update an existing effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLimiterAllChannelsTo">
@@ -307,10 +307,10 @@
         <Parameter Name="limiter" Type="Android.Media.Audiofx.DynamicsProcessing+Limiter" />
       </Parameters>
       <Docs>
-        <param name="limiter">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="limiter">The limiter stage settings to apply.</param>
+        <summary>Sets the limiter stage settings for all channels.</summary>
+        <returns>This builder, with the selected channel settings changed.</returns>
+        <remarks><para>Stores a separate copy of the supplied stage settings for each selected channel. This changes only the configuration data, not an existing effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLimiterByChannelIndex">
@@ -341,11 +341,11 @@
         <Parameter Name="limiter" Type="Android.Media.Audiofx.DynamicsProcessing+Limiter" />
       </Parameters>
       <Docs>
-        <param name="channelIndex">To be added.</param>
-        <param name="limiter">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="channelIndex">The zero-based channel index, less than the number of channels.</param>
+        <param name="limiter">The limiter stage settings to apply.</param>
+        <summary>Sets the limiter stage settings for one channel.</summary>
+        <returns>This builder, with the selected channel settings changed.</returns>
+        <remarks><para>Stores a separate copy of the supplied stage settings for each selected channel. This changes only the configuration data, not an existing effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetMbcAllChannelsTo">
@@ -375,10 +375,10 @@
         <Parameter Name="mbc" Type="Android.Media.Audiofx.DynamicsProcessing+Mbc" />
       </Parameters>
       <Docs>
-        <param name="mbc">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="mbc">The multiband compressor stage settings to apply.</param>
+        <summary>Sets the multiband compressor stage settings for all channels.</summary>
+        <returns>This builder, with the selected channel settings changed.</returns>
+        <remarks><para>Stores a separate copy of the supplied stage settings for each selected channel. The number of bands must match the stage being replaced. This changes only the configuration data, not an existing effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetMbcByChannelIndex">
@@ -409,11 +409,11 @@
         <Parameter Name="mbc" Type="Android.Media.Audiofx.DynamicsProcessing+Mbc" />
       </Parameters>
       <Docs>
-        <param name="channelIndex">To be added.</param>
-        <param name="mbc">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="channelIndex">The zero-based channel index, less than the number of channels.</param>
+        <param name="mbc">The multiband compressor stage settings to apply.</param>
+        <summary>Sets the multiband compressor stage settings for one channel.</summary>
+        <returns>This builder, with the selected channel settings changed.</returns>
+        <remarks><para>Stores a separate copy of the supplied stage settings for each selected channel. The number of bands must match the stage being replaced. This changes only the configuration data, not an existing effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPostEqAllChannelsTo">
@@ -443,10 +443,10 @@
         <Parameter Name="postEq" Type="Android.Media.Audiofx.DynamicsProcessing+Eq" />
       </Parameters>
       <Docs>
-        <param name="postEq">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="postEq">The post-equalizer stage settings to apply.</param>
+        <summary>Sets the post-equalizer stage settings for all channels.</summary>
+        <returns>This builder, with the selected channel settings changed.</returns>
+        <remarks><para>Stores a separate copy of the supplied stage settings for each selected channel. The number of bands must match the stage being replaced. This changes only the configuration data, not an existing effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPostEqByChannelIndex">
@@ -477,11 +477,11 @@
         <Parameter Name="postEq" Type="Android.Media.Audiofx.DynamicsProcessing+Eq" />
       </Parameters>
       <Docs>
-        <param name="channelIndex">To be added.</param>
-        <param name="postEq">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="channelIndex">The zero-based channel index, less than the number of channels.</param>
+        <param name="postEq">The post-equalizer stage settings to apply.</param>
+        <summary>Sets the post-equalizer stage settings for one channel.</summary>
+        <returns>This builder, with the selected channel settings changed.</returns>
+        <remarks><para>Stores a separate copy of the supplied stage settings for each selected channel. The number of bands must match the stage being replaced. This changes only the configuration data, not an existing effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPreEqAllChannelsTo">
@@ -511,10 +511,10 @@
         <Parameter Name="preEq" Type="Android.Media.Audiofx.DynamicsProcessing+Eq" />
       </Parameters>
       <Docs>
-        <param name="preEq">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="preEq">The pre-equalizer stage settings to apply.</param>
+        <summary>Sets the pre-equalizer stage settings for all channels.</summary>
+        <returns>This builder, with the selected channel settings changed.</returns>
+        <remarks><para>Stores a separate copy of the supplied stage settings for each selected channel. The number of bands must match the stage being replaced. This changes only the configuration data, not an existing effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPreEqByChannelIndex">
@@ -545,11 +545,11 @@
         <Parameter Name="preEq" Type="Android.Media.Audiofx.DynamicsProcessing+Eq" />
       </Parameters>
       <Docs>
-        <param name="channelIndex">To be added.</param>
-        <param name="preEq">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="channelIndex">The zero-based channel index, less than the number of channels.</param>
+        <param name="preEq">The pre-equalizer stage settings to apply.</param>
+        <summary>Sets the pre-equalizer stage settings for one channel.</summary>
+        <returns>This builder, with the selected channel settings changed.</returns>
+        <remarks><para>Stores a separate copy of the supplied stage settings for each selected channel. The number of bands must match the stage being replaced. This changes only the configuration data, not an existing effect engine.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPreferredFrameDuration">
@@ -579,10 +579,10 @@
         <Parameter Name="frameDuration" Type="System.Single" />
       </Parameters>
       <Docs>
-        <param name="frameDuration">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="frameDuration">The preferred processing frame duration in milliseconds. Negative values are rejected.</param>
+        <summary>Sets the preferred processing frame duration.</summary>
+        <returns>This builder, with the preferred frame duration changed.</returns>
+        <remarks><para>The value is a duration in milliseconds, not a number of samples. The builder rejects negative values and stores zero without rejecting it.</para><para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/audiofx/DynamicsProcessing.java">Android 16 implementation</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
