@@ -44,6 +44,7 @@
   <Docs since="10">
     <summary>Provides access to MIFARE Classic properties and I/O operations on a <c>Tag</c>.</summary>
     <remarks>
+      <para>The task-based methods use <c>Task.Run</c>, as shown by <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">Java.Interop's pinned async-wrapper generator</a></format>. Their I/O behavior and the key byte values follow the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Nfc/+/refs/tags/android-16.0.0_r1/framework/java/android/nfc/tech/MifareClassic.java">Android 16 implementation</a></format>.</para>
       <para>Provides access to MIFARE Classic properties and I/O operations on a <c>Tag</c>.</para>
       <para>Acquire a <c>MifareClassic</c> object using <c>#get</c>.</para>
       <para>MIFARE Classic is also known as MIFARE Standard.</para>
@@ -466,11 +467,13 @@
         <Parameter Name="value" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="blockIndex">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="blockIndex">The zero-based index of the value block, from 0 through 255. The block must be available on the tag.</param>
+        <param name="value">The non-negative amount to subtract.</param>
+        <summary>Decreases a value block and stores the result in the tag's temporary block on a thread-pool thread.</summary>
+        <returns>A task that represents the decrement operation.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.MifareClassic.Decrement(System.Int32,System.Int32)" />. Connect and authenticate the block's sector first. Await the task, then use <see cref="M:Android.Nfc.Tech.MifareClassic.TransferAsync(System.Int32)" /> to copy the temporary result to a value block.</para>
+          <para>The synchronous method's connection, access, and NFC permission requirements apply. The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.MifareClassic.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -638,11 +641,13 @@
         <Parameter Name="value" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="blockIndex">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="blockIndex">The zero-based index of the value block, from 0 through 255. The block must be available on the tag.</param>
+        <param name="value">The non-negative amount to add.</param>
+        <summary>Increases a value block and stores the result in the tag's temporary block on a thread-pool thread.</summary>
+        <returns>A task that represents the increment operation.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.MifareClassic.Increment(System.Int32,System.Int32)" />. Connect and authenticate the block's sector first. Await the task, then use <see cref="M:Android.Nfc.Tech.MifareClassic.TransferAsync(System.Int32)" /> to copy the temporary result to a value block.</para>
+          <para>The synchronous method's connection, access, and NFC permission requirements apply. The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.MifareClassic.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -769,7 +774,7 @@
       </ReturnValue>
       <Docs>
         <summary>The default factory key.</summary>
-        <value>To be added.</value>
+        <value>The six factory-key bytes: <c>FF FF FF FF FF FF</c>.</value>
         <remarks>
           <para>The default factory key.</para>
           <para>
@@ -808,7 +813,7 @@
       <Docs>
         <summary>The well-known key for tags formatted according to the
             MIFARE Application Directory (MAD) specification.</summary>
-        <value>To be added.</value>
+        <value>The six MIFARE Application Directory key bytes: <c>A0 A1 A2 A3 A4 A5</c>.</value>
         <remarks>
           <para>The well-known key for tags formatted according to the
             MIFARE Application Directory (MAD) specification.</para>
@@ -848,7 +853,7 @@
       <Docs>
         <summary>The well-known key for tags formatted according to the
             NDEF on MIFARE Classic specification.</summary>
-        <value>To be added.</value>
+        <value>The six NDEF-on-MIFARE-Classic key bytes: <c>D3 F7 D3 F7 D3 F7</c>.</value>
         <remarks>
           <para>The well-known key for tags formatted according to the
             NDEF on MIFARE Classic specification.</para>
@@ -976,10 +981,12 @@
         <Parameter Name="blockIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="blockIndex">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="blockIndex">The zero-based index of the block to read, from 0 through 255. The block must be available on the tag.</param>
+        <summary>Reads a 16-byte block from the tag on a thread-pool thread.</summary>
+        <returns>A task whose result contains the 16 bytes read from the block.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.MifareClassic.ReadBlock(System.Int32)" />. Connect and authenticate the block's sector first. Await the task before starting another operation.</para>
+          <para>The synchronous method's connection, access, and NFC permission requirements apply. The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.MifareClassic.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1055,10 +1062,12 @@
         <Parameter Name="blockIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="blockIndex">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="blockIndex">The zero-based index of the source value block, from 0 through 255. The block must be available on the tag.</param>
+        <summary>Copies a value block to the tag's temporary block on a thread-pool thread.</summary>
+        <returns>A task that represents the restore operation.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.MifareClassic.Restore(System.Int32)" />. Connect and authenticate the block's sector first. Await the task, then use <see cref="M:Android.Nfc.Tech.MifareClassic.TransferAsync(System.Int32)" /> to copy the temporary value to a value block.</para>
+          <para>The synchronous method's connection, access, and NFC permission requirements apply. The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.MifareClassic.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1539,9 +1548,9 @@
         <Parameter Name="data" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
+        <param name="data">The complete NFC-A command bytes to send, without the CRC. The length must not exceed <see cref="P:Android.Nfc.Tech.MifareClassic.MaxTransceiveLength" />.</param>
         <summary>Send raw NfcA data to a tag and receive the response.</summary>
-        <returns>To be added.</returns>
+        <returns>The bytes received in response to the command.</returns>
         <remarks>
           <para>Send raw NfcA data to a tag and receive the response.</para>
           <para>This is equivalent to connecting to this tag via <c>NfcA</c>
@@ -1592,10 +1601,12 @@
         <Parameter Name="data" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="data">The complete NFC-A command bytes to send, without the CRC. The length must not exceed <see cref="P:Android.Nfc.Tech.MifareClassic.MaxTransceiveLength" />.</param>
+        <summary>Sends raw NFC-A data to the tag and receives its response on a thread-pool thread.</summary>
+        <returns>A task whose result contains the response bytes.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.MifareClassic.Transceive(System.Byte[])" />. Connect first and await the task before starting another operation. Android calculates the CRC. Commands that access protected sectors require authentication and the applicable access permissions.</para>
+          <para>The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.MifareClassic.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1671,10 +1682,12 @@
         <Parameter Name="blockIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="blockIndex">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="blockIndex">The zero-based index of the destination value block, from 0 through 255. The block must be available on the tag.</param>
+        <summary>Copies the tag's temporary block to a value block on a thread-pool thread.</summary>
+        <returns>A task that represents the transfer operation.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.MifareClassic.Transfer(System.Int32)" />. Connect and authenticate the destination sector first. Set the temporary value with an increment, decrement, or restore operation and await that operation before calling this method.</para>
+          <para>The synchronous method's connection, access, and NFC permission requirements apply. The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.MifareClassic.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1969,11 +1982,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="blockIndex">To be added.</param>
-        <param name="data">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="blockIndex">The zero-based index of the block to write, from 0 through 255. The block must be available on the tag.</param>
+        <param name="data">Exactly 16 bytes to write.</param>
+        <summary>Writes a 16-byte block to the tag on a thread-pool thread.</summary>
+        <returns>A task that represents the block write operation.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.MifareClassic.WriteBlock(System.Int32,System.Byte[])" />. Connect and authenticate the block's sector first. The sector's access conditions must permit the write. Await the task before starting another operation.</para>
+          <para>The synchronous method's connection, access, and NFC permission requirements apply. The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.MifareClassic.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

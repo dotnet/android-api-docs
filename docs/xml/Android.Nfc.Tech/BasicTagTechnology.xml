@@ -44,6 +44,7 @@
   <Docs>
     <summary>A base class for tag technologies that are built on top of transceive().</summary>
     <remarks>
+      <para>The connection and tag properties are implemented in the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Nfc/+/refs/tags/android-16.0.0_r1/framework/java/android/nfc/tech/BasicTagTechnology.java">Android 16 base implementation</a></format>. Connection and cancellation requirements are defined by the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Nfc/+/refs/tags/android-16.0.0_r1/framework/java/android/nfc/tech/TagTechnology.java">Android 16 tag technology contract</a></format>.</para>
       <para>A base class for tag technologies that are built on top of transceive().</para>
       <para>
         <format type="text/html">
@@ -105,8 +106,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Disables tag I/O, releases the connection, and cancels blocked I/O operations on other threads.</summary>
         <remarks>
+          <para>This method resets the I/O timeouts and clears the technology's connected state. Call it when tag I/O is complete. A blocked I/O call on another thread fails with <see cref="T:Java.IO.IOException" />. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -135,8 +137,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Connects this technology to the tag to enable I/O operations.</summary>
         <remarks>
+          <para>This call can block and must not run on the main application thread. Only one technology can be connected to a tag at a time. Call <see cref="M:Android.Nfc.Tech.BasicTagTechnology.Close" /> when I/O is complete. Calling <see cref="M:Android.Nfc.Tech.BasicTagTechnology.Close" /> from another thread cancels a blocked connection call with <see cref="T:Java.IO.IOException" />. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -164,9 +167,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets whether this technology is connected and the tag is still present.</summary>
+        <value><see langword="true" /> if this technology is connected and the NFC service reports that the tag is present; otherwise, <see langword="false" />.</value>
         <remarks>
+          <para>A successful connection and a present tag are required for a <see langword="true" /> result. If the NFC service cannot be contacted, the result is <see langword="false" />. This check does not guarantee that the tag will remain available for the next I/O operation.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -260,8 +264,8 @@
         <ReturnType>Android.Nfc.Tag</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the tag associated with this technology.</summary>
+        <value>The tag used to create this technology instance.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

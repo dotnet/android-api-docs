@@ -44,6 +44,7 @@
   <Docs since="10">
     <summary>Provides access to ISO-DEP (ISO 14443-4) properties and I/O operations on a <c>Tag</c>.</summary>
     <remarks>
+      <para>The task-based method uses <c>Task.Run</c>, as shown by <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">Java.Interop's pinned async-wrapper generator</a></format>. Its I/O behavior follows the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Nfc/+/refs/tags/android-16.0.0_r1/framework/java/android/nfc/tech/IsoDep.java">Android 16 implementation</a></format>.</para>
       <para>Provides access to ISO-DEP (ISO 14443-4) properties and I/O operations on a <c>Tag</c>.</para>
       <para>Acquire an <c>IsoDep</c> object using <c>#get</c>.</para>
       <para>The primary ISO-DEP I/O operation is <c>#transceive</c>. Applications must
@@ -717,10 +718,12 @@
         <Parameter Name="data" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="data">The non-null ISO-DEP INF payload to send, without start-of-frame or end-of-frame indicators.</param>
+        <summary>Sends ISO-DEP data to the tag and receives its response on a thread-pool thread.</summary>
+        <returns>A task whose result contains the response bytes.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.IsoDep.Transceive(System.Byte[])" />. Connect first and await the task before starting another operation. The payload must not exceed <see cref="P:Android.Nfc.Tech.IsoDep.MaxTransceiveLength" />. ISO-DEP fragmentation and reassembly are automatic.</para>
+          <para>The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.IsoDep.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Tag loss and other exceptions from the synchronous call are reported through the task. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
