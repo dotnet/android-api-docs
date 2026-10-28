@@ -263,11 +263,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <param name="enable">
-          <c>true</c> if you want to enable the media view. <c>false</c>
-                       otherwise.</param>
         <summary>Returns <c>true</c> if media view is enabled, <c>false</c> otherwise. -or- Enables or disables the media view.</summary>
-        <value>To be added.</value>
+        <value>
+          <c>true</c> if you want to enable the media view. <c>false</c>
+                       otherwise.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns <c>true</c> if media view is enabled, <c>false</c> otherwise.</para>
@@ -373,7 +372,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="biIAppUri">To be added.</param>
+        <param name="biIAppUri">The URI from the request to create the broadcast-independent interactive application.</param>
         <param name="biIAppId">BI interactive app ID, which can be used to destroy the BI interactive
                             app. <c>null</c> if it's not created successfully.</param>
         <summary>Notifies the broadcast-independent(BI) interactive application has been created.</summary>
@@ -555,7 +554,7 @@
         <Parameter Name="response" Type="Android.Media.TV.AdResponse" />
       </Parameters>
       <Docs>
-        <param name="response">To be added.</param>
+        <param name="response">The advertisement response received from the TV input.</param>
         <summary>Called when an advertisement response is received.</summary>
         <remarks>
           <para>Called when an advertisement response is received.</para>
@@ -648,7 +647,7 @@
         <Parameter Name="response" Type="Android.Media.TV.BroadcastInfoResponse" />
       </Parameters>
       <Docs>
-        <param name="response">To be added.</param>
+        <param name="response">The broadcast information response received from the TV input.</param>
         <summary>Called when a broadcast info response is received.</summary>
         <remarks>
           <para>Called when a broadcast info response is received.</para>
@@ -781,7 +780,7 @@
         <Parameter Name="rating" Type="Android.Media.TV.TvContentRating" />
       </Parameters>
       <Docs>
-        <param name="rating">To be added.</param>
+        <param name="rating">The content rating that caused the content to be blocked.</param>
         <summary>Called when content is blocked.</summary>
         <remarks>
           <para>Called when content is blocked.</para>
@@ -833,8 +832,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="biIAppUri">To be added.</param>
-        <param name="params">To be added.</param>
+        <param name="biIAppUri">The URI of the broadcast-independent interactive application to create.</param>
+        <param name="params">Additional creation parameters, or <see langword="null" /> when none are supplied.</param>
         <summary>Creates broadcast-independent(BI) interactive application.</summary>
         <remarks>
           <para>Creates broadcast-independent(BI) interactive application.</para>
@@ -927,7 +926,7 @@
         <Parameter Name="lcn" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="lcn">To be added.</param>
+        <param name="lcn">The logical channel number of the current channel.</param>
         <summary>Receives logical channel number (LCN) of current channel.</summary>
         <remarks>
           <para>Receives logical channel number (LCN) of current channel.</para>
@@ -975,7 +974,7 @@
         <Parameter Name="channelUri" Type="Android.Net.Uri" />
       </Parameters>
       <Docs>
-        <param name="channelUri">To be added.</param>
+        <param name="channelUri">The current channel URI, or <see langword="null" /> when no channel is tuned.</param>
         <summary>Receives current channel URI.</summary>
         <remarks>
           <para>Receives current channel URI.</para>
@@ -1023,7 +1022,7 @@
         <Parameter Name="inputId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="inputId">To be added.</param>
+        <param name="inputId">The current TV input ID. This argument can be <see langword="null" />.</param>
         <summary>Receives current TV input ID.</summary>
         <remarks>
           <para>Receives current TV input ID.</para>
@@ -1204,8 +1203,7 @@
         <Parameter Name="e" Type="Android.Views.MotionEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
-        <param name="event">The motion event being received.</param>
+        <param name="e">The motion event being received.</param>
         <summary>Implement this method to handle generic motion events on the current session.</summary>
         <returns>If you handled the event, return <c>true</c>. If you want to allow the event to
                     be handled by the next receiver, return <c>false</c>.</returns>
@@ -1262,11 +1260,17 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">To be added.</param>
-        <param name="e">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="keyCode">The key code reported by <paramref name="e" />.</param>
+        <param name="e">The key-down event received by the session.</param>
+        <summary>Called when a key down event has occurred.</summary>
+        <returns>If you handled the event, return true. If you want to allow the event to be handled by the next receiver, return false.</returns>
+        <remarks>
+          <para>Called when a key down event has occurred. If you return true, you can first call KeyEvent.startTracking() to have the framework track the event through its onKeyUp(int,KeyEvent) and also call your onKeyLongPress(int,KeyEvent) if it occurs.</para>
+          <para>The default session implementation returns <see langword="false" />. Override this method to handle key-down events.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppService.java">Android 16 service implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppService.Session#onKeyDown(int,%20android.view.KeyEvent)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppService.Session.onKeyDown</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnKeyLongPress">
@@ -1307,11 +1311,17 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">To be added.</param>
-        <param name="e">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="keyCode">The key code reported by <paramref name="e" />.</param>
+        <param name="e">The long-press key event received by the session.</param>
+        <summary>Called when a long press has occurred.</summary>
+        <returns>If you handled the event, return true. If you want to allow the event to be handled by the next receiver, return false.</returns>
+        <remarks>
+          <para>Called when a long press has occurred. If you return true, the final key up will have KeyEvent.FLAG_CANCELED and KeyEvent.FLAG_CANCELED_LONG_PRESS set. Note that in order to receive this callback, someone in the event change must return true from onKeyDown(int, KeyEvent) and call KeyEvent.startTracking() on the event.</para>
+          <para>The default session implementation returns <see langword="false" />. Override this method to handle long-press events.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppService.java">Android 16 service implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppService.Session#onKeyLongPress(int,%20android.view.KeyEvent)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppService.Session.onKeyLongPress</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnKeyMultiple">
@@ -1353,12 +1363,18 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="e">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="keyCode">The key code reported by <paramref name="e" />.</param>
+        <param name="count">The number of key-down and key-up pairs reported by the repeat count of <paramref name="e" />.</param>
+        <param name="e">The event that contains the repeated key presses.</param>
+        <summary>Called when a user's interaction with an analog control, such as flinging a trackball, generates simulated down/up events for the same key multiple times in quick succession.</summary>
+        <returns>If you handled the event, return true. If you want to allow the event to be handled by the next receiver, return false.</returns>
+        <remarks>
+          <para>Called when a user's interaction with an analog control, such as flinging a trackball, generates simulated down/up events for the same key multiple times in quick succession.</para>
+          <para>The default session implementation returns <see langword="false" />. Override this method to handle repeated key events.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppService.java">Android 16 service implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppService.Session#onKeyMultiple(int,%20int,%20android.view.KeyEvent)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppService.Session.onKeyMultiple</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnKeyUp">
@@ -1399,11 +1415,17 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">To be added.</param>
-        <param name="e">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="keyCode">The key code reported by <paramref name="e" />.</param>
+        <param name="e">The key-up event received by the session.</param>
+        <summary>Called when a key up event has occurred.</summary>
+        <returns>If you handled the event, return true. If you want to allow the event to be handled by the next receiver, return false.</returns>
+        <remarks>
+          <para>Called when a key up event has occurred.</para>
+          <para>The default session implementation returns <see langword="false" />. Override this method to handle key-up events.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppService.java">Android 16 service implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppService.Session#onKeyUp(int,%20android.view.KeyEvent)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppService.Session.onKeyUp</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnMediaViewSizeChanged">
@@ -2080,7 +2102,7 @@
         <Parameter Name="strength" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="strength">To be added.</param>
+        <param name="strength">Value is one of the following: TvInputManager.SIGNAL_STRENGTH_LOST; TvInputManager.SIGNAL_STRENGTH_WEAK; TvInputManager.SIGNAL_STRENGTH_STRONG</param>
         <summary>Called when signal strength is changed.</summary>
         <remarks>
           <para>Called when signal strength is changed.</para>
@@ -2594,8 +2616,7 @@
         <Parameter Name="e" Type="Android.Views.MotionEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
-        <param name="event">The motion event being received.</param>
+        <param name="e">The motion event being received.</param>
         <summary>Implement this method to handle touch screen motion events on the current session.</summary>
         <returns>If you handled the event, return <c>true</c>. If you want to allow the event to
                     be handled by the next receiver, return <c>false</c>.</returns>
@@ -2641,8 +2662,7 @@
         <Parameter Name="e" Type="Android.Views.MotionEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
-        <param name="event">The motion event being received.</param>
+        <param name="e">The motion event being received.</param>
         <summary>Implement this method to handle trackball events on the current session.</summary>
         <returns>If you handled the event, return <c>true</c>. If you want to allow the event to
                     be handled by the next receiver, return <c>false</c>.</returns>
@@ -2688,7 +2708,7 @@
         <Parameter Name="tracks" Type="System.Collections.Generic.IList&lt;Android.Media.TV.TvTrackInfo&gt;" />
       </Parameters>
       <Docs>
-        <param name="tracks">To be added.</param>
+        <param name="tracks">The list of tracks reported by the host TV application.</param>
         <summary>Receives track list.</summary>
         <remarks>
           <para>Receives track list.</para>
@@ -2732,7 +2752,7 @@
         <Parameter Name="tracks" Type="System.Collections.Generic.IList&lt;Android.Media.TV.TvTrackInfo&gt;" />
       </Parameters>
       <Docs>
-        <param name="tracks">To be added.</param>
+        <param name="tracks">The updated list of tracks from the TV input.</param>
         <summary>Called when the tracks are changed.</summary>
         <remarks>
           <para>Called when the tracks are changed.</para>
@@ -2777,8 +2797,8 @@
         <Parameter Name="trackId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="trackId">To be added.</param>
+        <param name="type">Value is one of the following: TvTrackInfo.TYPE_AUDIO; TvTrackInfo.TYPE_VIDEO; TvTrackInfo.TYPE_SUBTITLE</param>
+        <param name="trackId">The selected track ID, or an empty string if no track of this type is selected.</param>
         <summary>Called when the corresponding TV input selected to a track.</summary>
         <remarks>
           <para>Called when the corresponding TV input selected to a track.</para>
@@ -3107,7 +3127,7 @@
         <Parameter Name="reason" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="reason">To be added.</param>
+        <param name="reason">Value is one of the following: TvInputManager.VIDEO_UNAVAILABLE_REASON_UNKNOWN; TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING; TvInputManager.VIDEO_UNAVAILABLE_REASON_WEAK_SIGNAL; TvInputManager.VIDEO_UNAVAILABLE_REASON_BUFFERING; TvInputManager.VIDEO_UNAVAILABLE_REASON_AUDIO_ONLY; TvInputManager.VIDEO_UNAVAILABLE_REASON_NOT_CONNECTED; TvInputManager.VIDEO_UNAVAILABLE_REASON_INSUFFICIENT_RESOURCE; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_INSUFFICIENT_OUTPUT_PROTECTION; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_PVR_RECORDING_NOT_ALLOWED; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_LICENSE_EXPIRED; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_NEED_ACTIVATION; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_NEED_PAIRING; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_NO_CARD; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_CARD_MUTE; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_CARD_INVALID; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_BLACKOUT; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_REBOOTING; TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_UNKNOWN; TvInputManager.VIDEO_UNAVAILABLE_REASON_STOPPED</param>
         <summary>Called when video is unavailable.</summary>
         <remarks>
           <para>Called when video is unavailable.</para>
