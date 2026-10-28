@@ -44,6 +44,7 @@
   <Docs since="10">
     <summary>Provide access to NDEF format operations on a <c>Tag</c>.</summary>
     <remarks>
+      <para>The task-based methods use <c>Task.Run</c>, as shown by <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">Java.Interop's pinned async-wrapper generator</a></format>. Their formatting, optional message write, and locking steps follow the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Nfc/+/refs/tags/android-16.0.0_r1/framework/java/android/nfc/tech/NdefFormatable.java">Android 16 implementation</a></format>.</para>
       <para>Provide access to NDEF format operations on a <c>Tag</c>.</para>
       <para>Acquire a <c>NdefFormatable</c> object using <c>#get</c>.</para>
       <para>Android devices with NFC must only enumerate and implement this
@@ -212,10 +213,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="firstMessage">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="firstMessage">The NDEF message to write after formatting, or <see langword="null" /> to format without writing a message.</param>
+        <summary>Formats the tag for NDEF and optionally writes an initial message on a thread-pool thread.</summary>
+        <returns>A task that represents the call to <see cref="M:Android.Nfc.Tech.NdefFormatable.Format(Android.Nfc.NdefMessage)" />.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.NdefFormatable.Format(Android.Nfc.NdefMessage)" />. Connect first and await the task before starting another operation. Formatting and writing are separate steps; a later failure does not undo an earlier step.</para>
+          <para>If the NFC service dies during the call, the pinned Android implementation logs the <c>RemoteException</c> and returns without throwing it. Task completion alone does not confirm that all steps completed in this case.</para>
+          <para>The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.NdefFormatable.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -300,10 +304,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="firstMessage">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="firstMessage">The NDEF message to write after formatting, or <see langword="null" /> to skip the message write before making the tag read-only.</param>
+        <summary>Formats the tag for NDEF, optionally writes a message, and makes the tag read-only on a thread-pool thread.</summary>
+        <returns>A task that represents the call to <see cref="M:Android.Nfc.Tech.NdefFormatable.FormatReadOnly(Android.Nfc.NdefMessage)" />.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.NdefFormatable.FormatReadOnly(Android.Nfc.NdefMessage)" />. Connect first and await the task before starting another operation. Making the tag read-only is irreversible. Formatting, writing, and locking are separate steps; a later failure does not undo an earlier step.</para>
+          <para>If the NFC service dies during the call, the pinned Android implementation logs the <c>RemoteException</c> and returns without throwing it. Task completion alone does not confirm that formatting, writing, or locking completed in this case.</para>
+          <para>The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.NdefFormatable.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
