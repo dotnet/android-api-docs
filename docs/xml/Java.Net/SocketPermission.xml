@@ -75,8 +75,7 @@
       <Docs>
         <param name="host">the hostname or IP address of the computer, optionally including a colon followed by a port or port range.</param>
         <param name="action">the action string.</param>
-        <summary>
-        </summary>
+        <summary>Initializes a legacy socket-permission instance. Do not use this class for access control on Android.</summary>
         <remarks>
           <para>Creates a new SocketPermission object with the specified actions. The host is expressed as a DNS name, or as a numerical IP address. Optionally, a port or a portrange may be supplied (separated from the DNS name or IP address by a colon). To specify the local machine, use "localhost" as the host. Also note: An empty host String ("") is equivalent to "localhost". The actions parameter contains a comma-separated list of the actions granted for the specified host (and port(s)). Possible actions are "connect", "listen", "accept", "resolve", or any combination of those. "resolve" is automatically added when any of the other three are specified. Examples of SocketPermission instantiation are the following:</para>
           <code lang="text/java">    nr = new SocketPermission("www.example.com", "connect");
@@ -120,8 +119,7 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>Gets the action string for this legacy permission object. The Android implementation returns <see langword="null" />.</summary>
         <value>the canonical string representation of the actions.</value>
         <remarks>
           <para>Returns the canonical string representation of the actions. Always returns present actions in the following order: connect, listen, accept, resolve.</para>
@@ -162,7 +160,7 @@
         <Parameter Name="other" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
+        <param name="other">The object to compare with this permission.</param>
         <summary>Checks two SocketPermission objects for equality.</summary>
         <returns>true if obj is a SocketPermission, and has the same hostname, port range, and actions as this SocketPermission object. However, port range will be ignored in the comparison if obj only contains the action, 'resolve'.</returns>
         <remarks>
@@ -234,8 +232,7 @@
       </Parameters>
       <Docs>
         <param name="p">the permission to check against.</param>
-        <summary>
-        </summary>
+        <summary>Returns <see langword="true" /> in the Android implementation of this legacy permission check.</summary>
         <returns>true if the specified permission is implied by this object, false if not.</returns>
         <remarks>
           <para>Checks if this socket permission object "implies" the specified permission. More specifically, this method first ensures that all of the following are true (and returns false if any of them are not): p is an instanceof SocketPermission,; p's actions are a proper subset of this object's actions, and; p's port range is included in this port range. Note: port range is ignored when p only contains the action, 'resolve' Then implies checks each of the following, in order, and for each returns true if the stated condition is true:; If this object was initialized with a single IP address and one of p's IP addresses is equal to this object's IP address; If this object is a wildcard domain (such as *.example.com), and p's canonical name (the name without any preceding *) ends with this object's canonical host name. For example, *.example.com implies *.foo.example.com; If this object was not initialized with a single IP address, and one of this object's IP addresses equals one of p's IP addresses; If this canonical name equals p's canonical name. If none of the above are true, implies returns false.</para>
