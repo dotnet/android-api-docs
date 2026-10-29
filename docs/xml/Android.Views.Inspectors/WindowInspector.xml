@@ -74,11 +74,16 @@
         <Parameter Name="consumer" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="consumer">To be added.</param>
+        <param name="executor">The executor that runs the listener callbacks.</param>
+        <param name="consumer">The listener that receives the list of window views attached to the current process.</param>
         <summary>Adds a listener that is notified whenever the value of <c>#getGlobalWindowViews()</c>
             changes.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Adds a listener that is notified whenever the value of getGlobalWindowViews() changes. The current value is provided immediately using the provided Executor. The value is initially relayed using the main thread and then posted to the Executor. Using a direct Executor and doing heavy calculations can cause performance issues. If this Consumer is already registered, then this method is a no op.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/view/WindowManagerGlobal.java">Android implementation of window view listener registration</a> and <a href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/util/ListenerGroup.java">callback delivery</a>.</format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inspector/WindowInspector#addGlobalWindowViewsListener(java.util.concurrent.Executor,%20java.util.function.Consumer&lt;java.util.List&lt;android.view.View&gt;&gt;)" title="Reference documentation">Android reference for <code>android.view.inspector.WindowInspector.addGlobalWindowViewsListener</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GlobalWindowViews">
@@ -179,9 +184,14 @@
         <Parameter Name="consumer" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="consumer">To be added.</param>
+        <param name="consumer">The listener previously passed to <see cref="M:Android.Views.Inspectors.WindowInspector.AddGlobalWindowViewsListener(Java.Util.Concurrent.IExecutor,Java.Util.Functions.IConsumer)" />.</param>
         <summary>Removes a listener from getting notifications of global window views changes.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Removes a listener from getting notifications of global window views changes. If the Consumer is not registered this method is a no op.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/util/ListenerGroup.java">Android implementation of listener removal</a>.</format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inspector/WindowInspector#removeGlobalWindowViewsListener(java.util.function.Consumer&lt;java.util.List&lt;android.view.View&gt;&gt;)" title="Reference documentation">Android reference for <code>android.view.inspector.WindowInspector.removeGlobalWindowViewsListener</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
