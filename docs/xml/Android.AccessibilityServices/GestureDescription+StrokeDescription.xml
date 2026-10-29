@@ -98,7 +98,7 @@
             time the stroke should start. Must not be negative.</param>
         <param name="duration">The duration, in milliseconds, the stroke takes to traverse the path.
             Must be positive.</param>
-        <summary>To be added.</summary>
+        <summary>Creates a stroke with a path, a start time relative to the gesture, and a duration.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -151,7 +151,7 @@
           <c>true</c> if this stroke will be continued by one in the
             next gesture <c>false</c> otherwise. Continued strokes keep their pointers down when
             the gesture completes.</param>
-        <summary>To be added.</summary>
+        <summary>Creates a stroke with a path, timing, and a flag that specifies whether the stroke will continue in the next gesture.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -202,11 +202,13 @@
       <Docs>
         <param name="path">The path for the stroke that continues this one. The starting point of this path must match the ending point of the stroke it continues.</param>
         <param name="startTime">The time, in milliseconds, from the time the gesture starts to the time this stroke should start. Must not be negative. This time is from the start of the new gesture, not the one being continued.</param>
-        <param name="duration">To be added.</param>
+        <param name="duration">The time, in milliseconds, for the new stroke to traverse its path. This value must be greater than zero.</param>
         <param name="willContinue">true if this stroke will be continued by one in the next gesture false otherwise.</param>
         <summary>Create a new stroke that will continue this one.</summary>
-        <returns>To be added.</returns>
+        <returns>A new stroke description that continues this stroke in the next gesture.</returns>
         <remarks>
+          <para>The new stroke uses the same path and timing requirements as a stroke constructor, including a positive duration. This stroke must have been marked to continue. The new start time is relative to the next gesture, not to the gesture that contains this stroke.</para>
+          <para><format type="text/html"><a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/99b01a65cc4c104933788b3143285ab6bae65827/core/java/android/accessibilityservice/GestureDescription.java">Android stroke continuation implementation</a>.</format></para>
           <para>Create a new stroke that will continue this one. This is only possible if this stroke will continue.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/accessibilityservice/GestureDescription.StrokeDescription#continueStroke(android.graphics.Path,%20long,%20long,%20boolean)" title="Reference documentation">Android reference for <code>android.accessibilityservice.GestureDescription.StrokeDescription.continueStroke</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
