@@ -35,6 +35,7 @@
  to the given default <see cref="T:Org.Apache.Http.Params.IHttpParams" /> instance if the parameter is not 
  present in the local one.</summary>
     <remarks>
+      <para>Local lookup, mutation, and copy behavior are described from the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/params/DefaultedHttpParams.java">Android 5.1.1 source</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/org/apache/http/params/DefaultedHttpParams" title="Reference documentation">Android platform documentation</a>
@@ -66,8 +67,8 @@
         <Parameter Name="defaults" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="local">To be added.</param>
-        <param name="defaults">To be added.</param>
+        <param name="local">The local parameter collection to read and modify. Must not be <see langword="null" />.</param>
+        <param name="defaults">The collection to read when a local value is <see langword="null" />, or <see langword="null" /> to use no default collection. This instance does not modify the default collection.</param>
         <summary>
         </summary>
         <remarks>
@@ -99,7 +100,7 @@
       <Docs>
         <summary>Creates a copy of the local collection with the same default
 </summary>
-        <returns>To be added.</returns>
+        <returns>A new collection that wraps a copy of the local parameters and shares the same default collection.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -128,7 +129,7 @@
       <Docs>
         <summary>
         </summary>
-        <value>To be added.</value>
+        <value>The default collection supplied to the constructor, or <see langword="null" /> if none was supplied.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -158,11 +159,11 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the parameter to read.</param>
         <summary>Retrieves the value of the parameter from the local collection and, if the 
  parameter is not set locally, delegates its resolution to the default 
  collection.</summary>
-        <returns>To be added.</returns>
+        <returns>The local value if it is not <see langword="null" />; otherwise, the value from the default collection, or <see langword="null" /> if no value is available.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -231,9 +232,9 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the parameter to remove from the local collection. The default collection is not changed.</param>
         <summary>Attempts to remove the parameter from the local collection.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the local collection removed the parameter; otherwise, <see langword="false" />. A value in the default collection can still be returned after removal.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -264,10 +265,10 @@
         <Parameter Name="value" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="value">To be added.</param>
+        <param name="name">The name of the parameter to set in the local collection.</param>
+        <param name="value">The value to pass to the local collection. A <see langword="null" /> local value allows lookup in the default collection.</param>
         <summary>Sets the parameter in the local collection.</summary>
-        <returns>To be added.</returns>
+        <returns>The result of setting the parameter on the local collection, not this wrapper. The default collection is not changed.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

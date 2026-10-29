@@ -44,6 +44,7 @@
   <Docs since="10">
     <summary>Provides access to MIFARE Ultralight properties and I/O operations on a <c>Tag</c>.</summary>
     <remarks>
+      <para>The task-based methods use <c>Task.Run</c>, as shown by <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">Java.Interop's pinned async-wrapper generator</a></format>. Their I/O behavior and page ranges follow the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Nfc/+/refs/tags/android-16.0.0_r1/framework/java/android/nfc/tech/MifareUltralight.java">Android 16 implementation</a></format>.</para>
       <para>Provides access to MIFARE Ultralight properties and I/O operations on a <c>Tag</c>.</para>
       <para>Acquire a <c>MifareUltralight</c> object using <c>#get</c>.</para>
       <para>MIFARE Ultralight compatible tags have 4 byte pages <c>#PAGE_SIZE</c>.
@@ -449,10 +450,12 @@
         <Parameter Name="pageOffset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="pageOffset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="pageOffset">The zero-based index of the first page to read, from 0 through 255.</param>
+        <summary>Reads four pages from the tag on a thread-pool thread.</summary>
+        <returns>A task whose result contains four pages, totaling 16 bytes.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.MifareUltralight.ReadPages(System.Int32)" />. Connect first and await the task before starting another operation. A read past the last readable page wraps to the first pages. For example, an original Ultralight read at page <c>0x0E</c> returns pages <c>0x0E</c>, <c>0x0F</c>, <c>0x00</c>, and <c>0x01</c>.</para>
+          <para>The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.MifareUltralight.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -641,9 +644,9 @@
         <Parameter Name="data" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
+        <param name="data">The complete NFC-A command bytes to send, without the CRC. The length must not exceed <see cref="P:Android.Nfc.Tech.MifareUltralight.MaxTransceiveLength" />.</param>
         <summary>Send raw NfcA data to a tag and receive the response.</summary>
-        <returns>To be added.</returns>
+        <returns>The bytes received in response to the command.</returns>
         <remarks>
           <para>Send raw NfcA data to a tag and receive the response.</para>
           <para>This is equivalent to connecting to this tag via <c>NfcA</c>
@@ -694,10 +697,12 @@
         <Parameter Name="data" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="data">The complete NFC-A command bytes to send, without the CRC. The length must not exceed <see cref="P:Android.Nfc.Tech.MifareUltralight.MaxTransceiveLength" />.</param>
+        <summary>Sends raw NFC-A data to the tag and receives its response on a thread-pool thread.</summary>
+        <returns>A task whose result contains the response bytes.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.MifareUltralight.Transceive(System.Byte[])" />. Connect first and await the task before starting another operation. Android calculates the CRC.</para>
+          <para>The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.MifareUltralight.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -955,11 +960,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="pageOffset">To be added.</param>
-        <param name="data">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="pageOffset">The zero-based index of the page to write, from 0 through 255. The page must be writable on the tag.</param>
+        <param name="data">The four bytes to write.</param>
+        <summary>Writes one four-byte page to the tag on a thread-pool thread.</summary>
+        <returns>A task that represents the page write operation.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.MifareUltralight.WritePage(System.Int32,System.Byte[])" />. Connect first and await the task before starting another operation. Supply exactly four data bytes as required by the page-write protocol.</para>
+          <para>The pinned Android implementation checks the page index but does not check the array length before sending the command. The four-byte size is a protocol requirement, not a length check supplied by this wrapper.</para>
+          <para>The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.MifareUltralight.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

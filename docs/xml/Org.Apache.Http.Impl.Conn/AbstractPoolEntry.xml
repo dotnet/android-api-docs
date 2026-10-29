@@ -32,6 +32,7 @@
   <Docs>
     <summary>A pool entry for use by connection manager implementations.</summary>
     <remarks>
+      <para>The member descriptions are based on the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/conn/AbstractPoolEntry.java">Android pool entry implementation</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://android.googlesource.com/platform/external/apache-http/+/android-4.4.4_r1/src/org/apache/http/impl/conn/AbstractPoolEntry.java" title="Android Open Source Project source documentation">AOSP source documentation for <code>AbstractPoolEntry</code>.</a>
@@ -62,9 +63,9 @@
         <Parameter Name="route" Type="Org.Apache.Http.Conn.Routing.HttpRoute" />
       </Parameters>
       <Docs>
-        <param name="connOperator">To be added.</param>
-        <param name="route">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="connOperator">The non-null operator used to create and open the underlying connection.</param>
+        <param name="route">The planned route, or <see langword="null" /> if it has not been assigned.</param>
+        <summary>Creates a pool entry and obtains its underlying connection from the supplied operator.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -113,8 +114,8 @@
         <ReturnType>Org.Apache.Http.Conn.IOperatedClientConnection</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the underlying connection held by this pool entry.</summary>
+        <value>The operated connection that is pooled or in use.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -140,8 +141,8 @@
         <ReturnType>Org.Apache.Http.Conn.IClientConnectionOperator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the operator used to open and update this entry's connection.</summary>
+        <value>The connection operator for this entry.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -210,9 +211,9 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="context">The context for adding the protocol layer.</param>
+        <param name="params">The non-null parameters for adding the protocol layer.</param>
+        <summary>Uses the connection operator to add a protocol layer over an established tunnel, then updates the route tracker. The connection must be tunnelled and must not already have a protocol layer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -243,10 +244,10 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="context">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="route">The non-null route whose first proxy or target is opened.</param>
+        <param name="context">The context for opening the connection.</param>
+        <param name="params">The non-null parameters for opening the connection.</param>
+        <summary>Opens the underlying connection and tracks the successful connection to the first proxy or target. If the tracker is cleared during the open operation, the operation fails with an I/O exception.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -272,8 +273,8 @@
         <ReturnType>Org.Apache.Http.Conn.Routing.HttpRoute</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the planned route for which this entry is allocated.</summary>
+        <value>The planned route, which can be <see langword="null" /> before allocation.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -300,7 +301,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Clears the route tracker without closing the underlying connection. An open operation in progress can consequently fail with an I/O exception.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -330,8 +331,8 @@
         <ReturnType>Java.Lang.Object</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the state object associated with this pool entry.</summary>
+        <value>The state object stored with this entry.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -427,8 +428,8 @@
         <ReturnType>Org.Apache.Http.Conn.Routing.RouteTracker</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the tracker for the route established by this entry.</summary>
+        <value>The route tracker, or <see langword="null" /> before tracking starts or after the entry is shut down.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -459,10 +460,10 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="next">To be added.</param>
-        <param name="secure">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="next">The non-null proxy at the new endpoint of the tunnel.</param>
+        <param name="secure"><see langword="true" /> if the connection is to be considered secure; otherwise, <see langword="false" />.</param>
+        <param name="params">The non-null parameters for updating the connection.</param>
+        <summary>Updates the connection and route tracker for a tunnel already established to the next proxy. The caller must send CONNECT separately.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -492,9 +493,9 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="secure">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="secure"><see langword="true" /> if the tunnel is to be considered secure; otherwise, <see langword="false" />.</param>
+        <param name="params">The non-null parameters for updating the connection.</param>
+        <summary>Updates the connection and route tracker for a tunnel already established to the target. The caller must send CONNECT separately; this method does not add a protocol layer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

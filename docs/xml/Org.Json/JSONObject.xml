@@ -269,8 +269,8 @@
         <Parameter Name="names" Type="System.String[]" />
       </Parameters>
       <Docs>
-        <param name="copyFrom">To be added.</param>
-        <param name="names">To be added.</param>
+        <param name="copyFrom">The object from which to copy the selected mappings.</param>
+        <param name="names">The names of the mappings to copy. Names that are not present in <paramref name="copyFrom" /> are skipped.</param>
         <summary>Creates a new <c>JSONObject</c> by copying mappings for the listed names
             from the given object.</summary>
         <remarks>
@@ -346,11 +346,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The non-null name whose value receives the new value. An existing array is extended; an existing non-array value and the new value are placed in a new array.</param>
         <param name="value">a <c>JSONObject</c>, <c>JSONArray</c>, String, Boolean,
                 Integer, Long, Double, <c>#NULL</c> or null. May not be <c>Double#isNaN() NaNs</c> or <c>Double#isInfinite() infinities</c>.</param>
         <summary>Appends <c>value</c> to the array already mapped to <c>name</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>This object. If the name has no mapping, the value is stored directly unless it is a null reference, in which case no mapping is added.</returns>
         <remarks>
           <para>Appends <c>value</c> to the array already mapped to <c>name</c>. If
             this object has no mapping for <c>name</c>, this inserts a new mapping.
@@ -413,10 +413,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="value">To be added.</param>
+        <param name="name">The non-null name of the array to extend. A new array is created if the name has no mapping. An existing non-array mapping causes a <see cref="T:Org.Json.JSONException" />.</param>
+        <param name="value">The value to append. Supported values include JSON objects and arrays, Java strings, Booleans, integers, longs, doubles, <see cref="P:Org.Json.JSONObject.Null" />, and null references. Numbers must be finite.</param>
         <summary>Appends values to the array mapped to <c>name</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>This object after the value is appended to the array.</returns>
         <remarks>
           <para>Appends values to the array mapped to <c>name</c>. A new <c>JSONArray</c>
             mapping for <c>name</c> will be inserted if no mapping exists. If the existing
@@ -953,7 +953,7 @@
       <Parameters />
       <Docs>
         <summary>Returns an iterator of the <c>String</c> names in this object.</summary>
-        <returns>To be added.</returns>
+        <returns>An iterator over this object's names in an unspecified order. Removing a name through the iterator removes its mapping. Other changes to this object make the iterator's behavior undefined.</returns>
         <remarks>
           <para>Returns an iterator of the <c>String</c> names in this object. The
             returned iterator supports <c>Iterator#remove() remove</c>, which will
@@ -1039,7 +1039,7 @@
       <Parameters />
       <Docs>
         <summary>Returns an array containing the string names in this object.</summary>
-        <returns>To be added.</returns>
+        <returns>An array of this object's names, or <see langword="null" /> if this object has no mappings.</returns>
         <remarks>
           <para>Returns an array containing the string names in this object. This method
             returns null if this object contains no mappings.</para>
@@ -1138,7 +1138,7 @@
         <param name="number">a finite value. May not be <c>Double#isNaN() NaNs</c> or
                 <c>Double#isInfinite() infinities</c>.</param>
         <summary>Encodes the number as a JSON string.</summary>
-        <returns>To be added.</returns>
+        <returns>The number encoded as JSON text.</returns>
         <remarks>
           <para>Encodes the number as a JSON string.</para>
           <para>
@@ -1231,10 +1231,10 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists and is a boolean or
             can be coerced to a boolean, or false otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>The Boolean value, or the result of a case-insensitive comparison of a string to <c>"true"</c> or <c>"false"</c>. Returns <see langword="false" /> if the mapping is missing or the value cannot be converted.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists and is a boolean or
             can be coerced to a boolean, or false otherwise.</para>
@@ -1280,11 +1280,11 @@
         <Parameter Name="fallback" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="fallback">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
+        <param name="fallback">The value to return if the mapping is missing or its value cannot be converted to a Boolean.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists and is a boolean or
             can be coerced to a boolean, or <c>fallback</c> otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>The Boolean value, including a string equal to <c>"true"</c> or <c>"false"</c> without regard to case, or <paramref name="fallback" /> if conversion fails.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists and is a boolean or
             can be coerced to a boolean, or <c>fallback</c> otherwise.</para>
@@ -1329,10 +1329,10 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists and is a double or
             can be coerced to a double, or <c>NaN</c> otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>The number or numeric string converted to a double, or <see cref="F:System.Double.NaN" /> if the mapping is missing or the value cannot be converted.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists and is a double or
             can be coerced to a double, or <c>NaN</c> otherwise.</para>
@@ -1378,11 +1378,11 @@
         <Parameter Name="fallback" Type="System.Double" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="fallback">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
+        <param name="fallback">The value to return if the mapping is missing or its value cannot be converted to a double.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists and is a double or
             can be coerced to a double, or <c>fallback</c> otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>The number or numeric string converted to a double, or <paramref name="fallback" /> if conversion fails. A string that represents NaN converts to NaN, not the fallback.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists and is a double or
             can be coerced to a double, or <c>fallback</c> otherwise.</para>
@@ -1427,10 +1427,10 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists and is an int or
             can be coerced to an int, or 0 otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>The number converted to an integer, or <c>0</c> if the mapping is missing or the value cannot be converted. Numeric strings are parsed as Java doubles and then cast to integers; this can lose information.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists and is an int or
             can be coerced to an int, or 0 otherwise.</para>
@@ -1476,11 +1476,11 @@
         <Parameter Name="fallback" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="fallback">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
+        <param name="fallback">The value to return if the mapping is missing or its value cannot be converted to an integer.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists and is an int or
             can be coerced to an int, or <c>fallback</c> otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>The number converted to an integer, or <paramref name="fallback" /> if conversion fails. Numeric strings are parsed as Java doubles and then cast to integers; this can lose information.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists and is an int or
             can be coerced to an int, or <c>fallback</c> otherwise.</para>
@@ -1525,9 +1525,9 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists and is a <c>JSONArray</c>, or null otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>The mapped <see cref="T:Org.Json.JSONArray" />, or <see langword="null" /> if the mapping is missing or its value has another type.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists and is a <c>JSONArray</c>, or null otherwise.</para>
           <para>
@@ -1571,9 +1571,9 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists and is a <c>JSONObject</c>, or null otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>The mapped <see cref="T:Org.Json.JSONObject" />, or <see langword="null" /> if the mapping is missing or its value has another type.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists and is a <c>JSONObject</c>, or null otherwise.</para>
           <para>
@@ -1617,10 +1617,10 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists and is a long or
             can be coerced to a long, or 0 otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>The number converted to a long integer, or <c>0</c> if the mapping is missing or the value cannot be converted. Numeric strings are parsed as Java doubles and then cast to long integers; this can lose precision for large values.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists and is a long or
             can be coerced to a long, or 0 otherwise. Note that JSON represents numbers as doubles,
@@ -1667,11 +1667,11 @@
         <Parameter Name="fallback" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="fallback">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
+        <param name="fallback">The value to return if the mapping is missing or its value cannot be converted to a long integer.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists and is a long or
             can be coerced to a long, or <c>fallback</c> otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>The number converted to a long integer, or <paramref name="fallback" /> if conversion fails. Numeric strings are parsed as Java doubles and then cast to long integers; this can lose precision for large values.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists and is a long or
             can be coerced to a long, or <c>fallback</c> otherwise. Note that JSON represents
@@ -1721,10 +1721,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists, coercing it if
             necessary, or the empty string if no such mapping exists.</summary>
-        <returns>To be added.</returns>
+        <returns>The mapped value converted to a string, or the empty string if the mapping is missing. <see cref="P:Org.Json.JSONObject.Null" /> converts to <c>"null"</c>.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists, coercing it if
             necessary, or the empty string if no such mapping exists.</para>
@@ -1773,11 +1773,11 @@
         <Parameter Name="fallback" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="fallback">To be added.</param>
+        <param name="name">The name of the value to read, or <see langword="null" /> if no name is supplied.</param>
+        <param name="fallback">The string to return if the mapping is missing.</param>
         <summary>Returns the value mapped by <c>name</c> if it exists, coercing it if
             necessary, or <c>fallback</c> if no such mapping exists.</summary>
-        <returns>To be added.</returns>
+        <returns>The mapped value converted to a string, or <paramref name="fallback" /> if the mapping is missing. <see cref="P:Org.Json.JSONObject.Null" /> converts to <c>"null"</c>, not the fallback.</returns>
         <remarks>
           <para>Returns the value mapped by <c>name</c> if it exists, coercing it if
             necessary, or <c>fallback</c> if no such mapping exists.</para>
@@ -1826,7 +1826,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the mapping to set or remove. Use a non-null name for stored values. A null reference as the value removes the mapping; <see cref="P:Org.Json.JSONObject.Null" /> stores a JSON null value.</param>
         <param name="value">a <c>JSONObject</c>, <c>JSONArray</c>, String, Boolean,
                 Integer, Long, Double, <c>#NULL</c>, or <c>null</c>. May not be
                 <c>Double#isNaN() NaNs</c> or <c>Double#isInfinite()
@@ -1877,7 +1877,7 @@
         <Parameter Name="value" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The non-null name of the mapping to set. An existing value with this name is replaced.</param>
         <param name="value">a finite value. May not be <c>Double#isNaN() NaNs</c> or
                 <c>Double#isInfinite() infinities</c>.</param>
         <summary>Maps <c>name</c> to <c>value</c>, clobbering any existing name/value
@@ -1925,7 +1925,7 @@
         <Parameter Name="value" Type="System.Double" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The non-null name of the mapping to set. An existing value with this name is replaced.</param>
         <param name="value">a finite value. May not be <c>Double#isNaN() NaNs</c> or
                 <c>Double#isInfinite() infinities</c>.</param>
         <summary>Maps <c>name</c> to <c>value</c>, clobbering any existing name/value
@@ -1973,7 +1973,7 @@
         <Parameter Name="value" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The non-null name of the mapping to set. An existing value with this name is replaced.</param>
         <param name="value">a finite value. May not be <c>Double#isNaN() NaNs</c> or
                 <c>Double#isInfinite() infinities</c>.</param>
         <summary>Maps <c>name</c> to <c>value</c>, clobbering any existing name/value
@@ -2021,7 +2021,7 @@
         <Parameter Name="value" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The non-null name of the mapping to set. An existing value with this name is replaced.</param>
         <param name="value">a finite value. May not be <c>Double#isNaN() NaNs</c> or
                 <c>Double#isInfinite() infinities</c>.</param>
         <summary>Maps <c>name</c> to <c>value</c>, clobbering any existing name/value
@@ -2079,11 +2079,11 @@
         <Parameter Name="value" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="value">To be added.</param>
+        <param name="name">The name of the mapping to set. If <see langword="null" />, this method makes no change.</param>
+        <param name="value">The value to store. If it is a null reference, this method makes no change and does not remove an existing mapping. Use <see cref="P:Org.Json.JSONObject.Null" /> to store JSON null. Other values must satisfy <see cref="M:Org.Json.JSONObject.Put(System.String,Java.Lang.Object)" />.</param>
         <summary>Equivalent to <c>put(name, value)</c> when both parameters are non-null;
             does nothing otherwise.</summary>
-        <returns>To be added.</returns>
+        <returns>This object, whether or not a mapping was changed.</returns>
         <remarks>
           <para>Equivalent to <c>put(name, value)</c> when both parameters are non-null;
             does nothing otherwise.</para>
@@ -2135,7 +2135,7 @@
         <param name="data">the string to encode. Null will be interpreted as an empty
                 string.</param>
         <summary>Encodes <c>data</c> as a JSON string.</summary>
-        <returns>To be added.</returns>
+        <returns>The string enclosed in double quotes, with special characters escaped for JSON. A null input produces two double quotes, which encode the empty string.</returns>
         <remarks>
           <para>Encodes <c>data</c> as a JSON string. This applies quotes and any
             necessary character escaping.</para>
@@ -2180,7 +2180,7 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The name of the mapping to remove. A missing or null name leaves this object unchanged.</param>
         <summary>Removes the named mapping if it exists; does nothing otherwise.</summary>
         <returns>the value previously mapped by <c>name</c>, or null if there was
                 no such mapping.</returns>
@@ -2289,9 +2289,9 @@
         <Parameter Name="names" Type="Org.Json.JSONArray" />
       </Parameters>
       <Docs>
-        <param name="names">To be added.</param>
+        <param name="names">The array of names whose values are requested, in the order to use in the result. Non-string names are converted to strings. Can be <see langword="null" />.</param>
         <summary>Returns an array with the values corresponding to <c>names</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>An array with one value for each requested name, including a null reference for each missing mapping. Returns <see langword="null" /> if <paramref name="names" /> is null or empty. Stored <see cref="P:Org.Json.JSONObject.Null" /> values are retained.</returns>
         <remarks>
           <para>Returns an array with the values corresponding to <c>names</c>. The
             array contains null for names that aren't mapped. This method returns
@@ -2391,9 +2391,9 @@
         <Parameter Name="o" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="o">To be added.</param>
+        <param name="o">The Java object to convert to a JSON-compatible value, or <see langword="null" />.</param>
         <summary>Wraps the given object if necessary.</summary>
-        <returns>To be added.</returns>
+        <returns><see cref="P:Org.Json.JSONObject.Null" /> for a null reference; an existing JSON object, JSON array, null sentinel, Java primitive wrapper, or Java string unchanged; a JSON array for a Java array or collection; or a JSON object for a Java map. Other objects from a <c>java.</c> package are converted with their Java <c>toString()</c> method. Returns <see langword="null" /> if the object is unsupported or wrapping fails.</returns>
         <remarks>
           <para>Wraps the given object if necessary.</para>
           <para>If the object is null or , returns <c>#NULL</c>.

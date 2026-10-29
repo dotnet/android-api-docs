@@ -60,6 +60,7 @@
   <Docs since="1">
     <summary>Keeps lists of interceptors for processing requests and responses.</summary>
     <remarks>
+      <para>Insertion, lookup, and copy behavior is described from the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/protocol/BasicHttpProcessor.java">Android implementation</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/org/apache/http/protocol/BasicHttpProcessor" title="Reference documentation">Android platform documentation</a>
@@ -183,8 +184,8 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="interceptor">To be added.</param>
-        <param name="index">To be added.</param>
+        <param name="interceptor">The request interceptor to insert. A <see langword="null" /> interceptor is ignored after the index is checked for a negative value.</param>
+        <param name="index">The zero-based insertion index. For a non-null interceptor, this must be between zero and the request interceptor count, inclusive.</param>
         <summary>
         </summary>
         <remarks>
@@ -217,8 +218,8 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="interceptor">To be added.</param>
-        <param name="index">To be added.</param>
+        <param name="interceptor">The response interceptor to insert. A <see langword="null" /> interceptor is ignored after the index is checked for a negative value.</param>
+        <param name="index">The zero-based insertion index. For a non-null interceptor, this must be between zero and the response interceptor count, inclusive.</param>
         <summary>
         </summary>
         <remarks>
@@ -483,7 +484,7 @@
       <Parameters />
       <Docs>
         <summary>Creates and returns a copy of this <c>Object</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>A new processor with separate interceptor lists that contain the same interceptor instances as this processor.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -513,7 +514,7 @@
       <Parameters />
       <Docs>
         <summary>Creates a copy of this instance</summary>
-        <returns>To be added.</returns>
+        <returns>A new processor with separate interceptor lists that contain the same interceptor instances as this processor.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -549,7 +550,7 @@
         <param name="index">the index of the interceptor to obtain,
                   0 for first</param>
         <summary>Obtains a request interceptor from this list.</summary>
-        <returns>To be added.</returns>
+        <returns>The request interceptor at the specified index, or <see langword="null" /> if the index is outside the list.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -585,7 +586,7 @@
         <param name="index">the index of the interceptor to obtain,
                   0 for first</param>
         <summary>Obtains a response interceptor from this list.</summary>
-        <returns>To be added.</returns>
+        <returns>The response interceptor at the specified index, or <see langword="null" /> if the index is outside the list.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -828,7 +829,7 @@
       </ReturnValue>
       <Docs>
         <summary>Obtains the current size of this list.</summary>
-        <value>To be added.</value>
+        <value>The number of request interceptors in this processor, or zero if the list has not been created or has been cleared.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -859,7 +860,7 @@
       </ReturnValue>
       <Docs>
         <summary>Obtains the current size of this list.</summary>
-        <value>To be added.</value>
+        <value>The number of response interceptors in this processor, or zero if the list has not been created or has been cleared.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

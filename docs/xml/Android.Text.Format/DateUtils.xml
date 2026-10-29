@@ -29,6 +29,7 @@
     <summary>This class contains various date-related utilities for creating text for things like
             elapsed time and date ranges, strings for days of the week and months, and AM/PM text etc.</summary>
     <remarks>
+      <para>Additional parameter, return, and property descriptions are based on the <see href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-14.0.0_r1/core/java/android/text/format/DateUtils.java">Android DateUtils source</see>.</para>
       <para>This class contains various date-related utilities for creating text for things like
             elapsed time and date ranges, strings for days of the week and months, and AM/PM text etc.</para>
       <para>
@@ -608,7 +609,7 @@
         <param name="elapsedSeconds">the elapsed time in seconds.</param>
         <summary>Formats an elapsed time in the form "MM:SS" or "H:MM:SS"
             for display on the call-in-progress screen.</summary>
-        <returns>To be added.</returns>
+        <returns>The elapsed duration as locale-appropriate minutes and seconds, with hours included when the duration is at least one hour.</returns>
         <remarks>
           <para>Formats an elapsed time in the form "MM:SS" or "H:MM:SS"
             for display on the call-in-progress screen.</para>
@@ -656,7 +657,7 @@
         <summary>Formats an elapsed time in a format like "MM:SS" or "H:MM:SS" (using a form
             suited to the current locale), similar to that used on the call-in-progress
             screen.</summary>
-        <returns>To be added.</returns>
+        <returns>The elapsed duration as locale-appropriate minutes and seconds, with hours included when the duration is at least one hour.</returns>
         <remarks>
           <para>Formats an elapsed time in a format like "MM:SS" or "H:MM:SS" (using a form
             suited to the current locale), similar to that used on the call-in-progress
@@ -701,13 +702,14 @@
         <Parameter Name="timeStyle" Type="Android.Text.Format.AbbreviationLength" />
       </Parameters>
       <Docs>
-        <param name="then">To be added.</param>
-        <param name="now">To be added.</param>
-        <param name="dateStyle">To be added.</param>
-        <param name="timeStyle">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="then">The instant to format, in milliseconds since the Unix epoch.</param>
+        <param name="now">The reference instant for the day comparison, in milliseconds since the Unix epoch.</param>
+        <param name="dateStyle">The date style. This obsolete overload uses an incorrect enum type; use the overload with integer style parameters instead.</param>
+        <param name="timeStyle">The time style. This obsolete overload uses an incorrect enum type; use the overload with integer style parameters instead.</param>
+        <summary>Formats the time if the two instants are on the same day, or the date if they are on different days.</summary>
+        <returns>The formatted time or date as a string.</returns>
         <remarks>
+          <para>The underlying method takes <see cref="T:Java.Text.DateFormat" /> style constants, not <see cref="T:Android.Text.Format.AbbreviationLength" /> values. See the <see href="https://developer.android.com/reference/android/text/format/DateUtils#formatSameDayTime(long,%20long,%20int,%20int)">Android formatSameDayTime reference</see>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -738,7 +740,7 @@
         <param name="timeStyle">how to format the time portion.</param>
         <summary>Format a date / time such that if the then is on the same day as now, it shows
             just the time and if it's a different day, it shows just the date.</summary>
-        <returns>To be added.</returns>
+        <returns>The time of <paramref name="then" /> if it is on the same day as <paramref name="now" />, or its date otherwise, as a string.</returns>
         <remarks>
           <para>Format a date / time such that if the then is on the same day as now, it shows
             just the time and if it's a different day, it shows just the date.</para>
@@ -795,7 +797,7 @@
 </param>
         <summary>Format a date / time such that if the then is on the same day as now, it shows
  just the time and if it's a different day, it shows just the date.</summary>
-        <returns>To be added.</returns>
+        <returns>The time of <paramref name="then" /> if it is on the same day as <paramref name="now" />, or its date otherwise, as a character sequence. Use the overload with integer style parameters because this overload uses an incorrect enum type.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -834,7 +836,7 @@
         <param name="timeStyle">how to format the time portion.</param>
         <summary>Format a date / time such that if the then is on the same day as now, it shows
             just the time and if it's a different day, it shows just the date.</summary>
-        <returns>To be added.</returns>
+        <returns>The time of <paramref name="then" /> if it is on the same day as <paramref name="now" />, or its date otherwise, as a character sequence.</returns>
         <remarks>
           <para>Format a date / time such that if the then is on the same day as now, it shows
             just the time and if it's a different day, it shows just the date.</para>
@@ -950,7 +952,7 @@
                           Undefined lengths will return <c>#LENGTH_MEDIUM</c>
                           but may return something different in the future.</param>
         <summary>Return a string for the day of the week.</summary>
-        <returns>To be added.</returns>
+        <returns>The localized name of the requested weekday, using the requested abbreviation length where supported.</returns>
         <remarks>
           <para>Return a string for the day of the week.</para>
           <para>This member is deprecated. Use <c>java.text.SimpleDateFormat</c> instead.</para>
@@ -1057,8 +1059,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="flags">To be added.</param>
+        <param name="c">The context used to read the user's 12-hour or 24-hour time preference when needed.</param>
+        <param name="flags">A combination of date and time formatting options. Relative-text abbreviation is used where supported.</param>
         <param name="time">some time in the past.</param>
         <param name="minResolution">the minimum elapsed time (in milliseconds) to report
                        when showing relative times. For example, a time 3 seconds in
@@ -1071,7 +1073,7 @@
                        when using <c>#WEEK_IN_MILLIS</c>.</param>
         <summary>Return string describing the elapsed time since startTime formatted like
             "[relative time/date], [time]".</summary>
-        <returns>To be added.</returns>
+        <returns>A string that combines a relative time or date with a time of day.</returns>
         <remarks>
           <para>Return string describing the elapsed time since startTime formatted like
             "[relative time/date], [time]".</para>
@@ -1129,8 +1131,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="flags">To be added.</param>
+        <param name="c">The context used to read the user's 12-hour or 24-hour time preference when needed.</param>
+        <param name="flags">A combination of date and time formatting options. Relative-text abbreviation is used where supported.</param>
         <param name="time">some time in the past.</param>
         <param name="minResolution">the minimum elapsed time (in milliseconds) to report
                        when showing relative times. For example, a time 3 seconds in
@@ -1143,7 +1145,7 @@
                        when using <c>#WEEK_IN_MILLIS</c>.</param>
         <summary>Return string describing the elapsed time since startTime formatted like
             "[relative time/date], [time]".</summary>
-        <returns>To be added.</returns>
+        <returns>A character sequence that combines a relative time or date with a time of day.</returns>
         <remarks>
           <para>Return string describing the elapsed time since startTime formatted like
             "[relative time/date], [time]".</para>
@@ -1261,8 +1263,8 @@
         <Parameter Name="withPreposition" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="millis">To be added.</param>
+        <param name="c">The context used for date and time formatting and optional preposition resources.</param>
+        <param name="millis">The instant to format, in milliseconds since the Unix epoch.</param>
         <param name="withPreposition">If true, the string returned will include the correct
             preposition ("at 9:20am", "on 10/12/2008" or "on May 29").</param>
         <summary>Returns a string describing the elapsed time since startTime.</summary>
@@ -1505,8 +1507,8 @@
         <Parameter Name="withPreposition" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <param name="millis">To be added.</param>
+        <param name="c">The context used for date and time formatting and optional preposition resources.</param>
+        <param name="millis">The instant to format, in milliseconds since the Unix epoch.</param>
         <param name="withPreposition">If true, the string returned will include the correct
             preposition ("at 9:20am", "on 10/12/2008" or "on May 29").</param>
         <summary>Returns a string describing the elapsed time since startTime.</summary>
@@ -1747,9 +1749,8 @@
         <Parameter Name="when" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="when">To be added.</param>
-        <summary>
-        </summary>
+        <param name="when">The instant to compare with the current date, in milliseconds since the Unix epoch.</param>
+        <summary>Tests whether an instant is on the current date in the default time zone.</summary>
         <returns>true if the supplied when is today else false</returns>
         <remarks>
           <para>
@@ -1955,7 +1956,7 @@
       </ReturnValue>
       <Docs>
         <summary>This member is deprecated.</summary>
-        <value>To be added.</value>
+        <value>A legacy date-range format table. This deprecated field is <see langword="null" /> in current Android source and must not be used.</value>
         <remarks>
           <para>This member is deprecated. Do not use.</para>
           <para>
@@ -1997,7 +1998,7 @@
       </ReturnValue>
       <Docs>
         <summary>This member is deprecated.</summary>
-        <value>To be added.</value>
+        <value>A legacy date-range format table. This deprecated field is <see langword="null" /> in current Android source and must not be used.</value>
         <remarks>
           <para>This member is deprecated. Do not use.</para>
           <para>

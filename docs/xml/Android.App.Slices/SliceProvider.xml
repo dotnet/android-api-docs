@@ -241,12 +241,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="selection">To be added.</param>
-        <param name="selectionArgs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="uri">The URI argument. This override does not use it to delete data.</param>
+        <param name="selection">The selection argument. This override ignores it.</param>
+        <param name="selectionArgs">The selection arguments. This override ignores them.</param>
+        <summary>Returns zero without deleting data.</summary>
+        <returns>Always zero.</returns>
+        <remarks>
+          <para>This sealed override does not support data deletion. It does not apply the selection or change slice content.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/app/slice/SliceProvider.java">Android source for SliceProvider.delete</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetType">
@@ -284,10 +287,13 @@
         <Parameter Name="uri" Type="Android.Net.Uri" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="uri">The URI argument. This override returns the slice MIME type without inspecting it.</param>
+        <summary>Gets the slice MIME type.</summary>
+        <returns>Always <c>vnd.android.slice</c>, the value of <see cref="F:Android.App.Slices.SliceProvider.SliceType" />.</returns>
+        <remarks>
+          <para>This sealed override returns the same MIME type for every URI. It does not check whether a slice exists at that URI.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/app/slice/SliceProvider.java">Android source for SliceProvider.getType</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Insert">
@@ -326,11 +332,14 @@
         <Parameter Name="values" Type="Android.Content.ContentValues" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="values">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="uri">The URI argument. This override does not use it to insert data.</param>
+        <param name="values">The values argument. This override ignores it.</param>
+        <summary>Returns <see langword="null" /> without inserting data.</summary>
+        <returns>Always <see langword="null" />.</returns>
+        <remarks>
+          <para>This sealed override does not support data insertion. It does not create a slice or a data row.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/app/slice/SliceProvider.java">Android source for SliceProvider.insert</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -410,7 +419,7 @@
         <param name="sliceUri">Uri to bind.</param>
         <param name="supportedSpecs">List of supported specs.</param>
         <summary>Implemented to create a slice.</summary>
-        <returns>To be added.</returns>
+        <returns>The slice for <paramref name="sliceUri" />, with a specification compatible with one of <paramref name="supportedSpecs" />, or <see langword="null" /> if no slice is supplied. The default implementation returns <see langword="null" />.</returns>
         <remarks>
           <para>Implemented to create a slice.</para>
           <para>onBindSlice should return as quickly as possible so that the UI tied
@@ -474,7 +483,7 @@
         <param name="sliceUri">the Uri of the slice attempting to be bound.</param>
         <summary>Called when an app requests a slice it does not have write permission
             to the uri for.</summary>
-        <returns>To be added.</returns>
+        <returns>The pending intent used as the action on the permission-request slice. The default implementation opens the system dialog that lets the user grant slice access.</returns>
         <remarks>
           <para>Called when an app requests a slice it does not have write permission
             to the uri for.</para>
@@ -585,7 +594,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="intent">To be added.</param>
+        <param name="intent">The intent to map to a slice URI.</param>
         <summary>This method must be overridden if an <c>IntentFilter</c> is specified on the SliceProvider.</summary>
         <returns>Uri representing the slice associated with the provided intent.</returns>
         <remarks>
@@ -705,7 +714,7 @@
         <Parameter Name="sliceUri" Type="Android.Net.Uri" />
       </Parameters>
       <Docs>
-        <param name="sliceUri">To be added.</param>
+        <param name="sliceUri">The URI of the slice that is no longer pinned.</param>
         <summary>Called to inform an app that a slices is no longer pinned.</summary>
         <remarks>
           <para>Called to inform an app that a slices is no longer pinned.</para>
@@ -770,13 +779,16 @@
         <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="projection">To be added.</param>
-        <param name="queryArgs">To be added.</param>
-        <param name="cancellationSignal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="uri">The URI argument. This override does not use it to query data.</param>
+        <param name="projection">The column names argument. This override ignores it.</param>
+        <param name="queryArgs">The query arguments bundle. This override ignores it.</param>
+        <param name="cancellationSignal">The cancellation signal argument. This override does not check it.</param>
+        <summary>Returns <see langword="null" /> without querying data.</summary>
+        <returns>Always <see langword="null" />; no cursor is created.</returns>
+        <remarks>
+          <para>This sealed override does not support cursor queries. It ignores the query arguments and cancellation signal. To obtain slice content, use <see cref="T:Android.App.Slices.SliceManager" /> to bind a slice instead.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/app/slice/SliceProvider.java">Android source for the bundle-based SliceProvider.query overload</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Query">
@@ -832,14 +844,17 @@
         <Parameter Name="sortOrder" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="projection">To be added.</param>
-        <param name="selection">To be added.</param>
-        <param name="selectionArgs">To be added.</param>
-        <param name="sortOrder">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="uri">The URI argument. This override does not use it to query data.</param>
+        <param name="projection">The column names argument. This override ignores it.</param>
+        <param name="selection">The selection argument. This override ignores it.</param>
+        <param name="selectionArgs">The selection arguments. This override ignores them.</param>
+        <param name="sortOrder">The sort order argument. This override ignores it.</param>
+        <summary>Returns <see langword="null" /> without querying data.</summary>
+        <returns>Always <see langword="null" />; no cursor is created.</returns>
+        <remarks>
+          <para>This sealed override does not support cursor queries. It does not apply the projection, selection, or sort order. To obtain slice content, use <see cref="T:Android.App.Slices.SliceManager" /> to bind a slice instead.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/app/slice/SliceProvider.java">Android source for the five-argument SliceProvider.query overload</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Query">
@@ -896,15 +911,18 @@
         <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="projection">To be added.</param>
-        <param name="selection">To be added.</param>
-        <param name="selectionArgs">To be added.</param>
-        <param name="sortOrder">To be added.</param>
-        <param name="cancellationSignal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="uri">The URI argument. This override does not use it to query data.</param>
+        <param name="projection">The column names argument. This override ignores it.</param>
+        <param name="selection">The selection argument. This override ignores it.</param>
+        <param name="selectionArgs">The selection arguments. This override ignores them.</param>
+        <param name="sortOrder">The sort order argument. This override ignores it.</param>
+        <param name="cancellationSignal">The cancellation signal argument. This override does not check it.</param>
+        <summary>Returns <see langword="null" /> without querying data.</summary>
+        <returns>Always <see langword="null" />; no cursor is created.</returns>
+        <remarks>
+          <para>This sealed override does not support cursor queries. It ignores the query arguments and cancellation signal. To obtain slice content, use <see cref="T:Android.App.Slices.SliceManager" /> to bind a slice instead.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/app/slice/SliceProvider.java">Android source for the six-argument SliceProvider.query overload</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SliceType">
@@ -1060,13 +1078,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="values">To be added.</param>
-        <param name="selection">To be added.</param>
-        <param name="selectionArgs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="uri">The URI argument. This override does not use it to update data.</param>
+        <param name="values">The values argument. This override ignores it.</param>
+        <param name="selection">The selection argument. This override ignores it.</param>
+        <param name="selectionArgs">The selection arguments. This override ignores them.</param>
+        <summary>Returns zero without updating data.</summary>
+        <returns>Always zero.</returns>
+        <remarks>
+          <para>This sealed override does not support data updates. It does not apply the values or selection, or change slice content.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/app/slice/SliceProvider.java">Android source for SliceProvider.update</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

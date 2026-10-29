@@ -175,8 +175,11 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Initializes a new instance of the wallet service.</summary>
+        <remarks>
+          <para>Called by constructors of derived services. Implement the wallet request, selection, and dismissal callbacks in the derived class.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/core/java/android/service/quickaccesswallet/QuickAccessWalletService.java">Android 16 service declaration</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -315,7 +318,7 @@
       </ReturnValue>
       <Docs>
         <summary>Specify a <c>PendingIntent</c> to be launched on user gesture.</summary>
-        <value>To be added.</value>
+        <value>The activity pending intent for a wallet gesture, or <see langword="null" /> to use <see cref="P:Android.Service.QuickAccessWallet.QuickAccessWalletService.TargetActivityPendingIntent" />. If both properties return null, the system uses its card switcher. The base implementation returns null.</value>
         <remarks>
           <para>Specify a <c>PendingIntent</c> to be launched on user gesture.</para>
           <para>The pending intent will be sent when the user performs a gesture to open Wallet.
@@ -400,10 +403,15 @@
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="intent">The binding intent. Its action must be <see cref="F:Android.Service.QuickAccessWallet.QuickAccessWalletService.ServiceInterface" />.</param>
+        <summary>Return the communication channel to the service.</summary>
+        <returns>The wallet service communication interface when the intent action matches <see cref="F:Android.Service.QuickAccessWallet.QuickAccessWalletService.ServiceInterface" />; otherwise, <see langword="null" />.</returns>
+        <remarks>
+          <para>Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.</para>
+          <para>Note that unlike other application components, calls on to the IBinder interface returned here may not happen on the main thread of the process. More information about the main thread can be found in Processes and Threads.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/quickaccesswallet/QuickAccessWalletService#onBind(android.content.Intent)" title="Reference documentation">Android reference for <code>android.service.quickaccesswallet.QuickAccessWalletService.onBind</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnWalletCardSelected">
@@ -433,7 +441,7 @@
         <Parameter Name="request" Type="Android.Service.QuickAccessWallet.SelectWalletCardRequest" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
+        <param name="request">The request that identifies the selected card. Selection does not mean that the user tapped the card.</param>
         <summary>A wallet card was selected.</summary>
         <remarks>
           <para>A wallet card was selected. Sent when the user selects a wallet card from the list of cards.
@@ -485,8 +493,8 @@
         <Parameter Name="callback" Type="Android.Service.QuickAccessWallet.IGetWalletCardsCallback" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="callback">To be added.</param>
+        <param name="request">The requested image dimensions, icon size, and maximum card count.</param>
+        <param name="callback">The callback to receive the response or error. Call either success or failure once for each request, as soon as possible. The callback can be called from any thread.</param>
         <summary>Called when the user requests the service to provide wallet cards.</summary>
         <remarks>
           <para>Called when the user requests the service to provide wallet cards.</para>
@@ -576,7 +584,7 @@
         <Parameter Name="serviceEvent" Type="Android.Service.QuickAccessWallet.WalletServiceEvent" />
       </Parameters>
       <Docs>
-        <param name="serviceEvent">To be added.</param>
+        <param name="serviceEvent">The event to send to the system wallet, for example to report that an NFC payment has started.</param>
         <summary>Send a <c>WalletServiceEvent</c> to the Quick Access Wallet.</summary>
         <remarks>
           <para>Send a <c>WalletServiceEvent</c> to the Quick Access Wallet.</para>
@@ -721,7 +729,7 @@
       </ReturnValue>
       <Docs>
         <summary>Specify a <c>PendingIntent</c> to be launched as the "Quick Access" activity.</summary>
-        <value>To be added.</value>
+        <value>The pending intent for an activity to use instead of the system card switcher, or <see langword="null" /> to use the system card switcher. The base implementation returns null.</value>
         <remarks>
           <para>Specify a <c>PendingIntent</c> to be launched as the "Quick Access" activity.
             

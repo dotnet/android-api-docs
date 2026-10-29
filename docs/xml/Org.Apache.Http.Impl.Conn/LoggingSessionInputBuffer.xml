@@ -45,6 +45,7 @@
   <Docs>
     <summary>Logs all data read to the wire log.</summary>
     <remarks>
+      <para>The member descriptions are based on the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/conn/LoggingSessionInputBuffer.java">Android input logging implementation</a></format>. Read results and line handling are delegated to the wrapped session buffer.</para>
       <para>
         <format type="text/html">
           <a href="https://android.googlesource.com/platform/external/apache-http/+/android-4.4.4_r1/src/org/apache/http/impl/conn/LoggingSessionInputBuffer.java" title="Android Open Source Project source documentation">AOSP source documentation for <code>LoggingSessionInputBuffer</code>.</a>
@@ -75,9 +76,9 @@
         <Parameter Name="wire" Type="Org.Apache.Http.Impl.Conn.Wire" />
       </Parameters>
       <Docs>
-        <param name="in">To be added.</param>
-        <param name="wire">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="in">The session input buffer to wrap.</param>
+        <param name="wire">The wire logger used for received data.</param>
+        <summary>Creates a session input buffer that delegates reads to the supplied buffer and logs received data when wire logging is enabled.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -132,9 +133,9 @@
         <Parameter Name="timeout" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="timeout">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="timeout">The wait timeout in milliseconds, passed to the wrapped buffer.</param>
+        <summary>Asks the wrapped input buffer whether data is available.</summary>
+        <returns>The availability result from the wrapped buffer: <see langword="true" /> if data is available; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -229,8 +230,8 @@
         <ReturnType>Org.Apache.Http.IO.IHttpTransportMetrics</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the transport metrics of the wrapped input buffer.</summary>
+        <value>The metrics returned by the wrapped buffer, without a separate logging counter.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -260,8 +261,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Reads one byte through the wrapped buffer. Logs the result only when logging is enabled and the byte value is greater than zero.</summary>
+        <returns>The byte value from 0 through 255, or -1 at the end of input, as returned by the wrapped buffer.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -293,9 +294,9 @@
         <Parameter Name="b" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="b">The array that receives the bytes.</param>
+        <summary>Reads bytes into an array through the wrapped buffer and logs only the bytes actually read when logging is enabled.</summary>
+        <returns>The number of bytes read, or -1 at the end of input, as returned by the wrapped buffer.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -329,11 +330,11 @@
         <Parameter Name="len" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <param name="off">To be added.</param>
-        <param name="len">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="b">The array that receives the bytes.</param>
+        <param name="off">The starting index in <paramref name="b" />.</param>
+        <param name="len">The maximum number of bytes to read.</param>
+        <summary>Reads into the specified array range through the wrapped buffer and logs only the returned positive byte count when logging is enabled.</summary>
+        <returns>The number of bytes read, which can be less than <paramref name="len" />, or -1 at the end of input.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -363,8 +364,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Reads a line through the wrapped buffer and logs a non-null result with an <c>[EOL]</c> marker when logging is enabled.</summary>
+        <returns>The line without its line terminator, or <see langword="null" /> at the end of input, as returned by the wrapped buffer.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -396,9 +397,9 @@
         <Parameter Name="buffer" Type="Org.Apache.Http.Util.CharArrayBuffer" />
       </Parameters>
       <Docs>
-        <param name="buffer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="buffer">The character buffer to which the line is appended.</param>
+        <summary>Appends a line through the wrapped buffer. When the returned length is positive and logging is enabled, logs that many characters from the end of the buffer with an <c>[EOL]</c> marker.</summary>
+        <returns>The line length reported by the wrapped buffer, excluding the line terminator, or -1 at the end of input. This is not the total length of <paramref name="buffer" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

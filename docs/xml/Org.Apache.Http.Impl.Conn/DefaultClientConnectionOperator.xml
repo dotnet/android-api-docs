@@ -45,6 +45,7 @@
   <Docs>
     <summary>Default implementation of a <c>ClientConnectionOperator</c>.</summary>
     <remarks>
+      <para>The member descriptions are based on the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/conn/DefaultClientConnectionOperator.java">Android connection operator implementation</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://android.googlesource.com/platform/external/apache-http/+/android-4.4.4_r1/src/org/apache/http/impl/conn/DefaultClientConnectionOperator.java" title="Android Open Source Project source documentation">AOSP source documentation for <code>DefaultClientConnectionOperator</code>.</a>
@@ -74,8 +75,8 @@
         <Parameter Name="schemes" Type="Org.Apache.Http.Conn.Schemes.SchemeRegistry" />
       </Parameters>
       <Docs>
-        <param name="schemes">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="schemes">The non-null registry used to find socket factories for target schemes.</param>
+        <summary>Creates a connection operator that uses the supplied scheme registry.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -128,8 +129,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Creates a client connection without opening it.</summary>
+        <returns>A new <see cref="T:Org.Apache.Http.Impl.Conn.DefaultClientConnection" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -231,12 +232,12 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="conn">To be added.</param>
-        <param name="target">To be added.</param>
-        <param name="local">To be added.</param>
-        <param name="context">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="conn">The non-null connection, which must not already be open.</param>
+        <param name="target">The non-null host to connect to, including its scheme and port.</param>
+        <param name="local">The local address to bind, or <see langword="null" /> to let the socket select it.</param>
+        <param name="context">The context for connection setup.</param>
+        <param name="params">The non-null socket and connection parameters.</param>
+        <summary>Opens a connection using the target's registered socket factory. Tries the target's resolved addresses in order after socket connection failures or connection timeouts, and adds a socket layer when required by the scheme.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -267,10 +268,10 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="sock">To be added.</param>
-        <param name="context">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="sock">The socket to configure.</param>
+        <param name="context">The connection context, available to overrides and not used by the default implementation.</param>
+        <param name="params">The parameters that supply TCP no-delay, read timeout, and linger settings.</param>
+        <summary>Applies TCP no-delay and read timeout settings to the socket, and applies linger settings when the configured linger value is nonnegative.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -296,8 +297,8 @@
         <ReturnType>Org.Apache.Http.Conn.Schemes.SchemeRegistry</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the registry used to find socket factories.</summary>
+        <value>The scheme registry used for opening and updating connections.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -402,11 +403,11 @@
         <Parameter Name="params" Type="Org.Apache.Http.Params.IHttpParams" />
       </Parameters>
       <Docs>
-        <param name="conn">To be added.</param>
-        <param name="target">To be added.</param>
-        <param name="context">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="conn">The non-null, already open connection to update.</param>
+        <param name="target">The non-null target whose scheme must provide a layered socket factory.</param>
+        <param name="context">The context for socket preparation.</param>
+        <param name="params">The non-null socket and connection parameters.</param>
+        <summary>Creates and prepares a layered socket over an open connection, then updates the connection with that socket and the security status reported by its factory.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

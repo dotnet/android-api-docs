@@ -11,8 +11,12 @@
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Specifies the word-based line-break rules used by a line-break configuration.</summary>
+    <remarks>
+      <para><see cref="F:Android.Graphics.Text.LineBreakWordStyle.Phrase" /> requests phrase-based wrapping where the locale supports it. <see cref="F:Android.Graphics.Text.LineBreakWordStyle.Auto" /> lets the platform use locale and line-count rules; it does not guarantee phrase-based wrapping.</para>
+      <para><see cref="F:Android.Graphics.Text.LineBreakWordStyle.Unspecified" /> preserves the existing value during a merge. It is not the same as explicitly selecting <see cref="F:Android.Graphics.Text.LineBreakWordStyle.Auto" />.</para>
+      <para>This enum exposes the <c>LINE_BREAK_WORD_STYLE_*</c> constants from <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/99b01a65cc4c104933788b3143285ab6bae65827/graphics/java/android/graphics/text/LineBreakConfig.java">Android 16 LineBreakConfig</a></format>.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="Auto">
@@ -40,7 +44,14 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>A special value for the line breaking word style option.</para>
+          <para>The auto option for the line break word style does some heuristics based on locales and line count.</para>
+          <para>In the API Build.VERSION_CODES.VANILLA_ICE_CREAM, auto option does followings: - If at least one locale in the locale list contains Korean script, this option is equivalent to LINE_BREAK_WORD_STYLE_PHRASE. - If not, then if at least one locale in the locale list contains Japanese script, this option is equivalent to LINE_BREAK_WORD_STYLE_PHRASE if the result of its line count is less than 5 lines. - Otherwise, this option is equivalent to LINE_BREAK_WORD_STYLE_NONE.</para>
+          <para>Note: future versions may have special line breaking word style rules for other locales.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_WORD_STYLE_AUTO" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_WORD_STYLE_AUTO</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="None">
@@ -68,7 +79,11 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>No line-break word style is used for line breaking.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_WORD_STYLE_NONE" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_WORD_STYLE_NONE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Phrase">
@@ -96,7 +111,12 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>Line breaking is based on phrases, which results in text wrapping only on meaningful words.</para>
+          <para>Support for this line-break word style depends on locale. If the current locale does not support phrase-based text wrapping, this setting has no effect.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_WORD_STYLE_PHRASE" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
     <Member MemberName="Unspecified">
@@ -124,7 +144,21 @@
       </ReturnValue>
       <MemberValue>-1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>
+          <para>No line break word style is specified. This is a special value of line break word style indicating no style value is specified. When overriding a LineBreakConfig with another LineBreakConfig with Builder.merge(LineBreakConfig) function, the line break word style of overridden config will be kept if the line break word style of overriding config is LINE_BREAK_WORD_STYLE_UNSPECIFIED.</para>
+          <code lang="text/java">    val override = LineBreakConfig.Builder()
+         .setLineBreakStyle(LineBreakConfig.LINE_BREAK_STYLE_STRICT)
+         .build();  // UNSPECIFIED if no setLineBreakWordStyle is called.
+    val config = LineBreakConfig.Builder()
+         .setLineBreakWordStyle(LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE)
+         .merge(override)
+         .build()
+    // Here, config has LINE_BREAK_STYLE_STRICT for line break config and
+    // LINE_BREAK_WORD_STYLE_PHRASE for line break word style.</code>
+          <para>This value is resolved to LINE_BREAK_WORD_STYLE_NONE if the target SDK version is API Build.VERSION_CODES.UPSIDE_DOWN_CAKE or before and this value is used for text layout/rendering. This value is resolved to LINE_BREAK_WORD_STYLE_AUTO if the target SDK version is API Build.VERSION_CODES.VANILLA_ICE_CREAM or after and this value is used for text layout/rendering.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/text/LineBreakConfig#LINE_BREAK_WORD_STYLE_UNSPECIFIED" title="Reference documentation">Android reference for <code>android.graphics.text.LineBreakConfig.LINE_BREAK_WORD_STYLE_UNSPECIFIED</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </summary>
       </Docs>
     </Member>
   </Members>

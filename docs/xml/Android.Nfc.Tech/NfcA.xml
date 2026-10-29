@@ -36,6 +36,7 @@
   <Docs since="10">
     <summary>Provides access to NFC-A (ISO 14443-3A) properties and I/O operations on a <c>Tag</c>.</summary>
     <remarks>
+      <para>The task-based method uses <c>Task.Run</c>, as shown by <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">Java.Interop's pinned async-wrapper generator</a></format>. Its I/O behavior follows the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Nfc/+/refs/tags/android-16.0.0_r1/framework/java/android/nfc/tech/NfcA.java">Android 16 implementation</a></format>.</para>
       <para>Provides access to NFC-A (ISO 14443-3A) properties and I/O operations on a <c>Tag</c>.</para>
       <para>Acquire a <c>NfcA</c> object using <c>#get</c>.</para>
       <para>The primary NFC-A I/O operation is <c>#transceive</c>. Applications must
@@ -648,10 +649,12 @@
         <Parameter Name="data" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="data">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="data">The complete NFC-A command bytes to send, without the CRC. The length must not exceed <see cref="P:Android.Nfc.Tech.NfcA.MaxTransceiveLength" />.</param>
+        <summary>Sends NFC-A commands to the tag and receives its response on a thread-pool thread.</summary>
+        <returns>A task whose result contains the response bytes.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.NfcA.Transceive(System.Byte[])" />. Connect first and await the task before starting another operation. Android calculates the CRC. Commands must contain complete bytes; a partial-byte command such as SENS_REQ is not supported.</para>
+          <para>The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.NfcA.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

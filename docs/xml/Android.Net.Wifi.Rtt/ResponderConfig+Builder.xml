@@ -251,9 +251,12 @@
       </Parameters>
       <Docs>
         <param name="supports80211mc">the ability to support the Wi-Fi RTT protocol</param>
-        <summary>To be added.</summary>
+        <summary>Sets whether the responder supports IEEE 802.11mc ranging.</summary>
         <returns>the builder to facilitate chaining builder.setXXX(..).setXXX(..). This value cannot be null.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>This setting controls IEEE 802.11mc support. IEEE 802.11az non-trigger-based support is configured separately. A value of <see langword="false" /> does not rule out IEEE 802.11az ranging.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Wifi/+/67beff9acf0e91046d2a9a36a68cb06ef263d1f1/framework/java/android/net/wifi/rtt/ResponderConfig.java">Android 17 responder builder source.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetCenterFreq0Mhz">
@@ -359,10 +362,13 @@
         <Parameter Name="channelWidth" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="channelWidth">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="channelWidth">A channel-width code from the Android <c>ScanResult.CHANNEL_WIDTH_*</c> constants, not a numeric width in MHz.</param>
+        <summary>Sets the responder's channel-width code.</summary>
         <returns>the builder to facilitate chaining builder.setXXX(..).setXXX(..). This value cannot be null.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The argument uses the encoded <c>ScanResult.CHANNEL_WIDTH_*</c> values for 20, 40, 80, 160, 80+80, or 320 MHz channels. Do not pass a width such as <c>80</c> as a numeric MHz value.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Wifi/+/67beff9acf0e91046d2a9a36a68cb06ef263d1f1/framework/java/android/net/wifi/rtt/ResponderConfig.java">Android 17 channel-width translation and builder source.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetFrequencyMhz">
@@ -441,7 +447,8 @@
         <summary>Sets the Responder MAC Address.</summary>
         <returns>the builder to facilitate chaining builder.setXXX(..).setXXX(..). This value cannot be null.</returns>
         <remarks>
-          <para>To be added.</para>
+          <para>This method sets the MAC address; it does not clear a previously set Wi-Fi Aware peer handle. A responder can instead be identified by a Wi-Fi Aware peer handle or, for proximity detection, a peer ID obtained through Wi-Fi unassociated service discovery (USD). The builder checks the configured identifiers when <c>Build</c> is called.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Wifi/+/67beff9acf0e91046d2a9a36a68cb06ef263d1f1/framework/java/android/net/wifi/rtt/ResponderConfig.java">Android 17 responder identification and validation source.</a></format></para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/rtt/ResponderConfig.Builder#setMacAddress(android.net.MacAddress)" title="Reference documentation">Android reference for <code>android.net.wifi.rtt.ResponderConfig.Builder.setMacAddress</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -566,7 +573,7 @@
       </Parameters>
       <Docs>
         <param name="responderType">the type of the responder, if not set defaults to ResponderConfig.RESPONDER_AP Value is one of the following: ResponderConfig.RESPONDER_AP; ResponderConfig.RESPONDER_STA</param>
-        <summary>To be added.</summary>
+        <summary>Sets the responder's device role.</summary>
         <returns>the builder to facilitate chaining builder.setXXX(..).setXXX(..). This value cannot be null.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/rtt/ResponderConfig.Builder#setResponderType(int)" title="Reference documentation">Android reference for <code>android.net.wifi.rtt.ResponderConfig.Builder.setResponderType</code>.</a></format></para>

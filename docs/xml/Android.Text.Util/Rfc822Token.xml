@@ -29,6 +29,7 @@
     <summary>This class stores an RFC 822-like name, address, and comment,
             and provides methods to convert them to quoted strings.</summary>
     <remarks>
+      <para>The stored parts can be null. The quoting methods require non-null input. Their escaping rules follow the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/core/java/android/text/util/Rfc822Token.java">Android 16 implementation</a></format>.</para>
       <para>This class stores an RFC 822-like name, address, and comment,
             and provides methods to convert them to quoted strings.</para>
       <para>
@@ -90,9 +91,9 @@
         <Parameter Name="comment" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="address">To be added.</param>
-        <param name="comment">To be added.</param>
+        <param name="name">The display name, or <see langword="null" /> if no name is supplied.</param>
+        <param name="address">The address, or <see langword="null" /> if no address is supplied.</param>
+        <param name="comment">The comment, or <see langword="null" /> if no comment is supplied.</param>
         <summary>Creates a new Rfc822Token with the specified name, address,
             and comment.</summary>
         <remarks>
@@ -137,7 +138,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the address part. -or- Changes the address to the specified address.</summary>
-        <value>To be added.</value>
+        <value>The address stored in this token, or <see langword="null" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the address part.</para>
@@ -187,7 +188,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the comment part. -or- Changes the comment to the specified comment.</summary>
-        <value>To be added.</value>
+        <value>The comment stored in this token, or <see langword="null" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the comment part.</para>
@@ -276,7 +277,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the name part. -or- Changes the name to the specified name.</summary>
-        <value>To be added.</value>
+        <value>The display name stored in this token, or <see langword="null" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the name part.</para>
@@ -324,10 +325,10 @@
         <Parameter Name="comment" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="comment">To be added.</param>
+        <param name="comment">The non-null comment text to escape.</param>
         <summary>Returns the comment, with internal backslashes and parentheses
             preceded by backslashes.</summary>
-        <returns>To be added.</returns>
+        <returns>The comment with a backslash inserted before each backslash and parenthesis. Outer parentheses are not added.</returns>
         <remarks>
           <para>Returns the comment, with internal backslashes and parentheses
             preceded by backslashes.  The outer parentheses themselves are
@@ -369,10 +370,10 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The non-null name text to escape.</param>
         <summary>Returns the name, with internal backslashes and quotation marks
             preceded by backslashes.</summary>
-        <returns>To be added.</returns>
+        <returns>The name with a backslash inserted before each backslash and double quotation mark. Outer quotation marks are not added.</returns>
         <remarks>
           <para>Returns the name, with internal backslashes and quotation marks
             preceded by backslashes.  The outer quote marks themselves are not
@@ -414,11 +415,11 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
+        <param name="name">The non-null name text to quote if necessary.</param>
         <summary>Returns the name, conservatively quoting it if there are any
             characters that are likely to cause trouble outside of a
             quoted string, or returning it literally if it seems safe.</summary>
-        <returns>To be added.</returns>
+        <returns>The original name if it contains only ASCII letters, digits, and spaces; otherwise, the escaped name enclosed in double quotation marks.</returns>
         <remarks>
           <para>Returns the name, conservatively quoting it if there are any
             characters that are likely to cause trouble outside of a

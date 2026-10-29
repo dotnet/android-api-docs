@@ -45,6 +45,7 @@
   <Docs since="1">
     <summary>Maintains a map of HTTP request handlers keyed by a request URI pattern.</summary>
     <remarks>
+      <para>Registry behavior is described from the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/protocol/HttpRequestHandlerRegistry.java">Android implementation</a></format> and its <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/protocol/UriPatternMatcher.java">URI matcher</a></format>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/org/apache/http/protocol/HttpRequestHandlerRegistry" title="Reference documentation">Android platform documentation</a>
@@ -191,10 +192,10 @@
         <Parameter Name="requestURI" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="requestURI">To be added.</param>
+        <param name="requestURI">The request URI to look up. This must not be <see langword="null" />. The query string, starting at the first <c>?</c>, is removed before matching.</param>
         <summary>
         </summary>
-        <returns>To be added.</returns>
+        <returns>The handler registered for an exact match, or for the longest matching wildcard pattern. For equal-length wildcard matches, a pattern ending in <c>*</c> takes priority. Returns <see langword="null" /> if no match is found.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -233,11 +234,11 @@
         <Parameter Name="requestUri" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="requestUri">To be added.</param>
+        <param name="pattern">The wildcard pattern: <c>*</c>, a suffix preceded by <c>*</c>, or a prefix followed by <c>*</c>.</param>
+        <param name="requestUri">The request URI to compare. This method does not remove its query string.</param>
         <summary>
         </summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the pattern is <c>*</c> or its prefix or suffix matches the request URI; otherwise, <see langword="false" />. A pattern without a wildcard does not match in this method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -272,8 +273,8 @@
         <Parameter Name="handler" Type="Org.Apache.Http.Protocol.IHttpRequestHandler" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
-        <param name="handler">To be added.</param>
+        <param name="pattern">The exact URI or wildcard pattern to register. This must not be <see langword="null" />.</param>
+        <param name="handler">The request handler associated with the pattern. This must not be <see langword="null" />. It replaces any handler registered for the same pattern.</param>
         <summary>
         </summary>
         <remarks>
@@ -309,7 +310,7 @@
         <Parameter Name="map" Type="System.Collections.IDictionary" />
       </Parameters>
       <Docs>
-        <param name="map">To be added.</param>
+        <param name="map">The map of URI patterns to request handlers to copy into this registry after removing all existing entries. This must not be <see langword="null" />.</param>
         <summary>
         </summary>
         <remarks>
@@ -407,7 +408,7 @@
         <Parameter Name="pattern" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pattern">To be added.</param>
+        <param name="pattern">The registered pattern to remove. A <see langword="null" /> or unregistered pattern has no effect.</param>
         <summary>
         </summary>
         <remarks>

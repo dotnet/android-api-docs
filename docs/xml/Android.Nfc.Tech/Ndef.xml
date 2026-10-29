@@ -44,6 +44,7 @@
   <Docs since="10">
     <summary>Provides access to NDEF content and operations on a <c>Tag</c>.</summary>
     <remarks>
+      <para>The task-based methods use <c>Task.Run</c>, as shown by <format type="text/html"><a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/MethodAsyncWrapper.cs">Java.Interop's pinned async-wrapper generator</a></format>. Their I/O behavior and read-only result follow the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Nfc/+/refs/tags/android-16.0.0_r1/framework/java/android/nfc/tech/Ndef.java">Android 16 implementation</a></format>.</para>
       <para>Provides access to NDEF content and operations on a <c>Tag</c>.</para>
       <para>Acquire a <c>Ndef</c> object using <c>#get</c>.</para>
       <para>NDEF is an NFC Forum data format. The data formats are implemented in
@@ -496,9 +497,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Makes the tag read-only on a thread-pool thread.</summary>
+        <returns>A task whose result is <see langword="true" /> if the tag was made read-only; otherwise, <see langword="false" /> if the operation could not make it read-only.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.Ndef.MakeReadOnly" />. Connect first and await the task before starting another operation. The operation marks the tag read-only and, where possible, sets permanent lock bits. This change cannot be reversed. A <see langword="false" /> result is not a guarantee that a retry will succeed; the Android implementation also returns <see langword="false" /> when the NFC service is unavailable.</para>
+          <para>The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.Ndef.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1016,10 +1019,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="msg">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="msg">The non-null NDEF message to write.</param>
+        <summary>Replaces the tag's NDEF message on a thread-pool thread.</summary>
+        <returns>A task that represents the call to <see cref="M:Android.Nfc.Tech.Ndef.WriteNdefMessage(Android.Nfc.NdefMessage)" />.</returns>
         <remarks>
+          <para>This managed wrapper uses <c>Task.Run</c> to call <see cref="M:Android.Nfc.Tech.Ndef.WriteNdefMessage(Android.Nfc.NdefMessage)" />. Connect first. The tag must be writable and the message must fit its NDEF capacity. Await the task before starting another operation.</para>
+          <para>If the NFC service dies during the call, the pinned Android implementation logs the <c>RemoteException</c> and returns without throwing it. Task completion alone does not confirm that the message was written in this case.</para>
+          <para>The method has no cancellation-token parameter. Calling <see cref="M:Android.Nfc.Tech.Ndef.Close" /> from another thread cancels blocked I/O with <see cref="T:Java.IO.IOException" />. Exceptions from the synchronous call are reported through the task. The NFC permission is required.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>

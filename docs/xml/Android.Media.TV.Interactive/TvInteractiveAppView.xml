@@ -70,9 +70,12 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="context">The context used to create the view and access its resources and system services.</param>
+        <summary>Creates a TV interactive app view with the supplied context.</summary>
+        <remarks>
+          <para>Creates the view without an XML attribute set or a default style attribute. Prepare an interactive app separately to create its session.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppView.java">Android 16 view implementation</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -107,10 +110,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="attrs">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="context">The context used to create the view and access its resources and system services.</param>
+        <param name="attrs">The XML attributes for the view, or <see langword="null" /> when no attribute set is supplied.</param>
+        <summary>Creates a TV interactive app view with the supplied context and XML attributes.</summary>
+        <remarks>
+          <para>This overload uses zero for the default style attribute. Prepare an interactive app separately to create its session.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppView.java">Android 16 view implementation</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -169,11 +175,14 @@
         <Parameter Name="defStyleAttr" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="attrs">To be added.</param>
-        <param name="defStyleAttr">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="context">The context used to create the view and access its resources and system services.</param>
+        <param name="attrs">The XML attributes for the view, or <see langword="null" /> when no attribute set is supplied.</param>
+        <param name="defStyleAttr">The theme attribute that supplies the view's default style, or zero to omit a default style attribute.</param>
+        <summary>Creates a TV interactive app view with XML attributes and a default style attribute.</summary>
+        <remarks>
+          <para>The view uses these arguments when it creates its child surface view. Prepare an interactive app separately to create its session.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppView.java">Android 16 view implementation</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="BiInteractiveAppKeyAlias">
@@ -593,8 +602,7 @@
         <Parameter Name="e" Type="Android.Views.InputEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
-        <param name="event">The input event.</param>
+        <param name="e">The input event.</param>
         <summary>Dispatches an unhandled input event to the next receiver.</summary>
         <returns>
           <c>true</c> if the event was handled by the view, <c>false</c> otherwise.</returns>
@@ -1230,8 +1238,14 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>This is called when the view is attached to a window.</summary>
+        <remarks>
+          <para>This is called when the view is attached to a window. At this point it has a Surface and will start drawing. Note that this function is guaranteed to be called before onDraw(android.graphics.Canvas), however it may be called any time before the first onDraw -- including before or after onMeasure(int, int). If you override this method you must call through to the superclass implementation.</para>
+          <para>In Android 16, this implementation calls the base method, then requests the session media view if a session is available and the media view has not been created.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppView.java">Android 16 view implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#onAttachedToWindow()" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.onAttachedToWindow</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnDetachedFromWindow">
@@ -1259,8 +1273,14 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>This is called when the view is detached from a window.</summary>
+        <remarks>
+          <para>This is called when the view is detached from a window. At this point it no longer has a surface for drawing. If you override this method you must call through to the superclass implementation.</para>
+          <para>In Android 16, this implementation requests removal of the session media view, if one was created, before it calls the base method.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppView.java">Android 16 view implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#onDetachedFromWindow()" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.onDetachedFromWindow</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnLayout">
@@ -1294,13 +1314,19 @@
         <Parameter Name="bottom" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="changed">To be added.</param>
-        <param name="left">To be added.</param>
-        <param name="top">To be added.</param>
-        <param name="right">To be added.</param>
-        <param name="bottom">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="changed">This is a new size or position for this view</param>
+        <param name="left">Left position, relative to parent</param>
+        <param name="top">Top position, relative to parent</param>
+        <param name="right">Right position, relative to parent</param>
+        <param name="bottom">Bottom position, relative to parent</param>
+        <summary>Called from layout when this view should assign a size and position to each of its children.</summary>
+        <remarks>
+          <para>Called from layout when this view should assign a size and position to each of its children. Derived classes with children should override this method and call layout on each of their children.</para>
+          <para>In Android 16, this implementation lays out its child <see cref="T:Android.Views.SurfaceView" /> with the surface bounds requested by the session, if present. Otherwise, it uses bounds from <c>(0, 0)</c> to <c>(right - left, bottom - top)</c>.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppView.java">Android 16 view implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#onLayout(boolean,%20int,%20int,%20int,%20int)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.onLayout</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnMeasure">
@@ -1331,10 +1357,19 @@
         <Parameter Name="heightMeasureSpec" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="widthMeasureSpec">To be added.</param>
-        <param name="heightMeasureSpec">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="widthMeasureSpec">horizontal space requirements as imposed by the parent. The requirements are encoded with View.MeasureSpec.</param>
+        <param name="heightMeasureSpec">vertical space requirements as imposed by the parent. The requirements are encoded with View.MeasureSpec.</param>
+        <summary>Measure the view and its content to determine the measured width and the measured height.</summary>
+        <remarks>
+          <para>Measure the view and its content to determine the measured width and the measured height. This method is invoked by measure(int, int) and should be overridden by subclasses to provide accurate and efficient measurement of their contents.</para>
+          <para>CONTRACT: When overriding this method, you must call setMeasuredDimension(int, int) to store the measured width and height of this view. Failure to do so will trigger an IllegalStateException, thrown by measure(int, int). Calling the superclass' onMeasure(int, int) is a valid use.</para>
+          <para>The base class implementation of measure defaults to the background size, unless a larger size is allowed by the MeasureSpec. Subclasses should override onMeasure(int, int) to provide better measurements of their content.</para>
+          <para>The preceding default-size description applies to the generic <see cref="T:Android.Views.View" /> implementation. In Android 16, this override measures its child <see cref="T:Android.Views.SurfaceView" /> with <paramref name="widthMeasureSpec" /> and <paramref name="heightMeasureSpec" />, then resolves this view's dimensions from the child's measured size and state.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppView.java">Android 16 view implementation</a></format>.</para>
+          <para>If this method is overridden, it is the subclass's responsibility to make sure the measured height and width are at least the view's minimum height and width (getSuggestedMinimumHeight() and getSuggestedMinimumWidth()).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#onMeasure(int,%20int)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.onMeasure</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnUnhandledInputEvent">
@@ -1364,8 +1399,7 @@
         <Parameter Name="e" Type="Android.Views.InputEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
-        <param name="event">The input event.</param>
+        <param name="e">The input event.</param>
         <summary>Called when an unhandled input event also has not been handled by the user provided
             callback.</summary>
         <returns>If you handled the event, return <c>true</c>. If you want to allow the event to be
@@ -1419,9 +1453,14 @@
         <ReturnType>Android.Media.TV.Interactive.TvInteractiveAppView+IOnUnhandledInputEventListener</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the OnUnhandledInputEventListener.</summary>
+        <value>The current unhandled-input listener, or <see langword="null" /> if no listener is set or the listener was cleared.</value>
+        <remarks>
+          <para>Gets the OnUnhandledInputEventListener.</para>
+          <para>Returns null if the listener is not set or is cleared.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#getOnUnhandledInputEventListener()" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.getOnUnhandledInputEventListener</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnVisibilityChanged">
@@ -1459,10 +1498,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="changedView">To be added.</param>
-        <param name="visibility">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="changedView">The view whose visibility changed; this can be the interactive app view or one of its ancestors.</param>
+        <param name="visibility">The new visibility, one of View.VISIBLE, View.INVISIBLE or View.GONE. Value is one of the following: View.VISIBLE; View.INVISIBLE; View.GONE</param>
+        <summary>Called when the visibility of the view or an ancestor of the view has changed.</summary>
+        <remarks>
+          <para>Called when the visibility of the view or an ancestor of the view has changed.</para>
+          <para>In Android 16, this implementation forwards <paramref name="visibility" /> to its child <see cref="T:Android.Views.SurfaceView" />. It requests a session media view when visible and attached to a window with a session, and requests removal for other visibility states.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppView.java">Android 16 view implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#onVisibilityChanged(android.view.View,%20int)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.onVisibilityChanged</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="PrepareInteractiveApp">
@@ -1729,7 +1774,7 @@
         <Parameter Name="lcn" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="lcn">To be added.</param>
+        <param name="lcn">The logical channel number of the current channel.</param>
         <summary>Sends current channel logical channel number (LCN) to related TV interactive app.</summary>
         <remarks>
           <para>Sends current channel logical channel number (LCN) to related TV interactive app.</para>
@@ -2124,7 +2169,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="tracks">To be added.</param>
+        <param name="tracks">The current track information to send to the interactive app session. This argument can be <see langword="null" />.</param>
         <summary>Sends track info list to related TV interactive app.</summary>
         <remarks>
           <para>Sends track info list to related TV interactive app.</para>
@@ -2262,10 +2307,14 @@
         <Parameter Name="callback" Type="Android.Media.TV.Interactive.TvInteractiveAppView+TvInteractiveAppCallback" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">the callback to receive events. MUST NOT be null.</param>
+        <summary>Sets the callback to be invoked when an event is dispatched to this TvInteractiveAppView.</summary>
+        <remarks>
+          <para>Sets the callback to be invoked when an event is dispatched to this TvInteractiveAppView.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#setCallback(java.util.concurrent.Executor,%20android.media.tv.interactive.TvInteractiveAppView.TvInteractiveAppCallback)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.setCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetOnUnhandledInputEventListener">
@@ -2296,10 +2345,15 @@
         <Parameter Name="listener" Type="Android.Media.TV.Interactive.TvInteractiveAppView+IOnUnhandledInputEventListener" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">The required executor argument. The Android 16 implementation does not use this argument to dispatch unhandled input events.</param>
+        <param name="listener">The callback to be invoked when the unhandled input event is received. This value cannot be null.</param>
+        <summary>Sets a listener to be invoked when an input event is not handled by the TV Interactive App.</summary>
+        <remarks>
+          <para>The listener gets input events that the interactive app did not handle. In Android 16, <see cref="M:Android.Media.TV.Interactive.TvInteractiveAppView.DispatchUnhandledInputEvent(Android.Views.InputEvent)" /> calls the listener directly; this method does not schedule it on <paramref name="executor" />.</para>
+          <para>Based on the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r1/media/java/android/media/tv/interactive/TvInteractiveAppView.java">Android 16 view implementation</a></format>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/tv/interactive/TvInteractiveAppView#setOnUnhandledInputEventListener(java.util.concurrent.Executor,%20android.media.tv.interactive.TvInteractiveAppView.OnUnhandledInputEventListener)" title="Reference documentation">Android reference for <code>android.media.tv.interactive.TvInteractiveAppView.setOnUnhandledInputEventListener</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetTeletextAppEnabled">
