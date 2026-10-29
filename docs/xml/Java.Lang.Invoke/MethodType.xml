@@ -1207,11 +1207,14 @@
         <Parameter Name="paramType" Type="Java.Lang.Object" Index="1" FrameworkAlternate="net-android-35.0" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="paramType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="index">The zero-based index of the parameter type to replace. It must be less than <see cref="M:Java.Lang.Invoke.MethodType.ParameterCount" />.</param>
+        <param name="paramType">A non-null <see cref="T:Java.Lang.Class" /> that describes the replacement parameter type. It must not represent Java <c>void</c>.</param>
+        <summary>Returns a method type with one parameter type replaced through the method descriptor interface.</summary>
+        <returns>A <see cref="T:Java.Lang.Invoke.MethodType" /> with the selected parameter type replaced and all other parameter types and the return type unchanged.</returns>
+        <remarks>
+          <para>This explicit interface implementation calls <see cref="M:Java.Lang.Invoke.MethodType.ChangeParameterType(System.Int32,Java.Lang.Class)" />. The index must be non-negative and less than the parameter count. The original method type is unchanged; the result can be the same instance if the parameter type is unchanged.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/ojluni/src/main/java/java/lang/invoke/MethodType.java#378">Android 16 implementation</a> and <a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/GenericExplicitInterfaceImplementationMethod.cs">.NET interface adapter generator</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Lang.Invoke.ITypeDescriptor+IOfMethod.ChangeReturnType" ExplicitInterfaceMemberName="Java.Lang.Invoke.ITypeDescriptor.IOfMethod.ChangeReturnType">
@@ -1234,10 +1237,13 @@
         <Parameter Name="newReturn" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="newReturn">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="newReturn">A non-null <see cref="T:Java.Lang.Class" /> that describes the replacement return type. It can represent Java <c>void</c>.</param>
+        <summary>Returns a method type with a replaced return type through the method descriptor interface.</summary>
+        <returns>A <see cref="T:Java.Lang.Invoke.MethodType" /> with the specified return type and the same parameter types.</returns>
+        <remarks>
+          <para>This explicit interface implementation calls <see cref="M:Java.Lang.Invoke.MethodType.ChangeReturnType(Java.Lang.Class)" />. The original method type is unchanged; the result can be the same instance if the return type is unchanged.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/ojluni/src/main/java/java/lang/invoke/MethodType.java#612">Android 16 implementation</a> and <a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/GenericExplicitInterfaceImplementationMethod.cs">.NET interface adapter generator</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Lang.Invoke.ITypeDescriptor+IOfMethod.DropParameterTypes" ExplicitInterfaceMemberName="Java.Lang.Invoke.ITypeDescriptor.IOfMethod.DropParameterTypes">
@@ -1261,11 +1267,14 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="start">The zero-based index of the first parameter type to remove, inclusive.</param>
+        <param name="end">The zero-based index after the last parameter type to remove, exclusive.</param>
+        <summary>Returns a method type with a range of parameter types removed through the method descriptor interface.</summary>
+        <returns>A <see cref="T:Java.Lang.Invoke.MethodType" /> without the selected parameter types and with the same return type.</returns>
+        <remarks>
+          <para>This explicit interface implementation calls <see cref="M:Java.Lang.Invoke.MethodType.DropParameterTypes(System.Int32,System.Int32)" />. The bounds must satisfy <c>0 &lt;= start &lt;= end &lt;= ParameterCount()</c>. Equal bounds remove no parameters and return this instance. Otherwise, the remaining parameters keep their order. The original method type is unchanged.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/ojluni/src/main/java/java/lang/invoke/MethodType.java#575">Android 16 implementation</a> and <a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/GenericExplicitInterfaceImplementationMethod.cs">.NET interface adapter generator</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Lang.Invoke.ITypeDescriptor+IOfMethod.InsertParameterTypes" ExplicitInterfaceMemberName="Java.Lang.Invoke.ITypeDescriptor.IOfMethod.InsertParameterTypes">
@@ -1300,11 +1309,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="pos">To be added.</param>
-        <param name="paramTypes">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="pos">The zero-based insertion position, from zero through <see cref="M:Java.Lang.Invoke.MethodType.ParameterCount" />, inclusive. The parameter count inserts at the end.</param>
+        <param name="paramTypes">An array of non-null <see cref="T:Java.Lang.Class" /> objects that describe the parameter types to insert in order. Neither the array nor its elements can be null, and no element can represent Java <c>void</c>.</param>
+        <summary>Returns a method type with parameter types inserted through the method descriptor interface.</summary>
+        <returns>A <see cref="T:Java.Lang.Invoke.MethodType" /> with the supplied parameter types inserted at the specified position and the same return type.</returns>
+        <remarks>
+          <para>This explicit interface implementation calls <see cref="M:Java.Lang.Invoke.MethodType.InsertParameterTypes(System.Int32,Java.Lang.Class[])" />. The original method type is unchanged. An empty array returns this instance. The result must not exceed 255 parameter slots; Java <c>long</c> and <c>double</c> each use two slots, and each other parameter uses one slot.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/ojluni/src/main/java/java/lang/invoke/MethodType.java#398">Android 16 implementation</a> and <a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/GenericExplicitInterfaceImplementationMethod.cs">.NET interface adapter generator</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Lang.Invoke.ITypeDescriptor+IOfMethod.ParameterArray" ExplicitInterfaceMemberName="Java.Lang.Invoke.ITypeDescriptor.IOfMethod.ParameterArray">
@@ -1331,9 +1343,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns the parameter types as an array through the method descriptor interface.</summary>
+        <returns>An array of <see cref="T:Java.Lang.Class" /> objects in parameter order, or an empty array if this method type has no parameters.</returns>
+        <remarks>
+          <para>This explicit interface implementation calls <see cref="M:Java.Lang.Invoke.MethodType.ParameterArray" />. Changes to the returned array do not change this method type.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/ojluni/src/main/java/java/lang/invoke/MethodType.java#785">Android 16 implementation</a> and <a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/GenericExplicitInterfaceImplementationMethod.cs">.NET interface adapter generator</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Lang.Invoke.ITypeDescriptor+IOfMethod.ParameterList" ExplicitInterfaceMemberName="Java.Lang.Invoke.ITypeDescriptor.IOfMethod.ParameterList">
@@ -1354,9 +1369,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns the parameter types as a read-only list through the method descriptor interface.</summary>
+        <returns>A read-only list of <see cref="T:Java.Lang.Class" /> objects in parameter order, or an empty list if this method type has no parameters.</returns>
+        <remarks>
+          <para>This explicit interface implementation calls <see cref="M:Java.Lang.Invoke.MethodType.ParameterList" />. The returned list does not permit changes to its elements, size, or order.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/ojluni/src/main/java/java/lang/invoke/MethodType.java#757">Android 16 implementation</a> and <a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/GenericExplicitInterfaceImplementationMethod.cs">.NET interface adapter generator</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Lang.Invoke.ITypeDescriptor+IOfMethod.ParameterType" ExplicitInterfaceMemberName="Java.Lang.Invoke.ITypeDescriptor.IOfMethod.ParameterType">
@@ -1379,10 +1397,13 @@
         <Parameter Name="i" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="i">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="i">The non-negative, zero-based parameter index. It must be less than <see cref="M:Java.Lang.Invoke.MethodType.ParameterCount" />.</param>
+        <summary>Returns one parameter type through the method descriptor interface.</summary>
+        <returns>The <see cref="T:Java.Lang.Class" /> that describes the parameter type at the specified index.</returns>
+        <remarks>
+          <para>This explicit interface implementation calls <see cref="M:Java.Lang.Invoke.MethodType.ParameterType(System.Int32)" />. An index outside the parameter list causes an <see cref="T:Java.Lang.IndexOutOfBoundsException" />.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/ojluni/src/main/java/java/lang/invoke/MethodType.java#730">Android 16 implementation</a> and <a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/GenericExplicitInterfaceImplementationMethod.cs">.NET interface adapter generator</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Lang.Invoke.ITypeDescriptor+IOfMethod.ReturnType" ExplicitInterfaceMemberName="Java.Lang.Invoke.ITypeDescriptor.IOfMethod.ReturnType">
@@ -1403,9 +1424,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns the return type through the method descriptor interface.</summary>
+        <returns>The <see cref="T:Java.Lang.Class" /> that describes the return type, including Java <c>void</c> for a method type with no return value.</returns>
+        <remarks>
+          <para>This explicit interface implementation calls <see cref="M:Java.Lang.Invoke.MethodType.ReturnType" />. The result describes only the return type; it does not include any parameter types.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/ojluni/src/main/java/java/lang/invoke/MethodType.java#747">Android 16 implementation</a> and <a href="https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/GenericExplicitInterfaceImplementationMethod.cs">.NET interface adapter generator</a>.</format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
