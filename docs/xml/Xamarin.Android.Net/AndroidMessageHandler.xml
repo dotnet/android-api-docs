@@ -71,8 +71,8 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Initializes a new Android HTTP message handler.</summary>
+        <remarks><para>The handler starts with cookies, proxy use, and automatic redirects enabled. Pre-authentication is disabled. Read and connect timeouts are each 24 hours.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="AllowAutoRedirect">
@@ -115,8 +115,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Checks whether the handler has been disposed.</summary>
+        <remarks><para>Throws <see cref="T:System.ObjectDisposedException" /> if the handler has been disposed. Otherwise, this method returns without changing the handler.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="AutomaticDecompression">
@@ -137,7 +137,7 @@
             Gets or sets the type of decompression method used by the handler for automatic
             decompression of the HTTP content response.
             </summary>
-        <value>To be added.</value>
+        <value>The decompression flags used to configure the Accept-Encoding request header. Supported flags are GZip, Deflate, and Brotli; assigning None requests the identity encoding.</value>
         <remarks>
             Supported methods are <see cref="F:System.Net.DecompressionMethods.GZip" />,
             <see cref="F:System.Net.DecompressionMethods.Deflate" />, and <see cref="F:System.Net.DecompressionMethods.Brotli" />.
@@ -163,8 +163,8 @@
             Gets or sets a value that indicates whether the certificate revocation list is checked during
             validation. The default value is <see langword="false" />.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The stored revocation-check preference. The default is <see langword="false" />.</value>
+        <remarks><para>This implementation stores the value but does not read it when it configures certificate validation. Setting it does not enable or disable revocation checks. The custom certificate validator separately creates a chain with online revocation mode; this property does not control that chain.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="ClientCertificateOptions">
@@ -185,8 +185,8 @@
             Gets or sets a value that indicates how client certificates are provided. The default value is
             <see cref="F:System.Net.Http.ClientCertificateOption.Manual" />.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The client certificate selection option. The default is <see cref="F:System.Net.Http.ClientCertificateOption.Manual" />.</value>
+        <remarks><para>The client certificate collection can be read only in Manual mode. TLS setup also requires Manual mode when that collection contains certificates. Setting another option does not select client certificates automatically in this implementation.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="ClientCertificates">
@@ -220,8 +220,8 @@
         <summary>
             Gets or sets the collection of client certificates used by the handler to authenticate the client.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The client certificate collection. In Manual mode, the getter creates an empty collection if none has been assigned.</value>
+        <remarks><para>The getter throws when ClientCertificateOptions is not Manual; the setter only stores the supplied collection, including <see langword="null" />. During TLS setup, a nonempty collection requires Manual mode. Certificates without a supported private key are not added as key entries.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
         <exception cref="T:System.InvalidOperationException">
           <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.ClientCertificateOptions" /> is not set to <see cref="F:System.Net.Http.ClientCertificateOption.Manual" />.
             </exception>
@@ -260,7 +260,7 @@
             operation of the returned socket factory.
             </summary>
         <returns>Instance of SSLSocketFactory ready to use with the HTTPS connection.</returns>
-        <remarks>To be added.</remarks>
+        <remarks><para>The default implementation returns <see langword="null" />. A non-null override result is assigned to the HTTPS connection and ends the handler's socket-factory setup. That path skips key-store, key-manager, trust-manager, client-certificate, and custom certificate callback setup by the handler.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="ConfigureKeyManagerFactory">
@@ -295,7 +295,7 @@
             mechanism of key management.
             </summary>
         <returns>The key manager factory or <c>null</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks><para>The default implementation checks that the handler has not been disposed, then returns <see langword="null" />. If client certificates are present and the override returns null, the caller creates a PKIX key manager factory and initializes it with the configured key store.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="ConfigureKeyStore">
@@ -328,7 +328,7 @@
             property. AndroidMessageHandler implementation simply returns the instance passed in the <paramref name="keyStore" /> parameter
             </summary>
         <returns>The key store.</returns>
-        <remarks>To be added.</remarks>
+        <remarks><para>The default implementation checks that the handler has not been disposed and returns the supplied store unchanged. The caller first loads trusted certificates and supported client private keys into the store. Although this method accepts and can return null, the TLS setup caller rejects a null result with <see cref="T:System.InvalidOperationException" />.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="ConfigureTrustManagerFactory">
@@ -364,7 +364,7 @@
             trust manager will be created since that would make all the HTTPS requests fail.
             </summary>
         <returns>The trust manager factory.</returns>
-        <remarks>To be added.</remarks>
+        <remarks><para>The default implementation checks that the handler has not been disposed, then returns <see langword="null" />. If TLS customization is needed and the result is null, the caller creates the default trust manager factory. It uses the configured key store when trusted certificates are present, and the platform trust store otherwise.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="ConnectTimeout">
@@ -394,8 +394,8 @@
             The default value is <c>24</c> hours, same as <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.ReadTimeout" />.
             </para>
         </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The native connection timeout. The default is 24 hours; zero leaves the native connection's default unchanged.</value>
+        <remarks><para>A nonzero value is converted to a checked 32-bit millisecond count during request setup. Values outside that range cause <see cref="T:System.OverflowException" />. Java rejects negative timeout counts; Timeout.InfiniteTimeSpan is not converted to Java's zero value for an infinite timeout. Zero skips the native setter, whose default is an infinite timeout.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="CookieContainer">
@@ -415,8 +415,8 @@
         <summary>
             Gets or sets the cookie container used to store server cookies.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The cookie container. The getter creates an empty container when none has been assigned.</value>
+        <remarks><para>The setter rejects <see langword="null" />. The handler reads and updates this container only when UseCookies is enabled. Replacing the container does not copy cookies from the previous container.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
         <exception cref="T:System.ArgumentNullException">The value specified is <see langword="null" />.</exception>
       </Docs>
     </Member>
@@ -451,8 +451,8 @@
         <summary>
             Gets or sets authentication information used by this handler.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The server authentication credentials, or <see langword="null" /> if none have been supplied.</value>
+        <remarks><para>Pre-authentication passes these credentials to the selected authentication module for a server challenge. Proxy pre-authentication instead uses Proxy.Credentials. When the Negotiate authentication feature is enabled, its server authentication path also uses this property.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="DefaultProxyCredentials">
@@ -486,8 +486,8 @@
         <summary>
             Gets or sets the credentials to use when authenticating with the proxy.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The stored default proxy credentials, or <see langword="null" /> if none have been assigned.</value>
+        <remarks><para>This implementation does not read this property when it authenticates a proxy request. Both the pre-authentication path and the optional Negotiate authentication path use Proxy.Credentials instead.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -507,9 +507,9 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="disposing"><see langword="true" /> when called to release managed resources; <see langword="false" /> when called from finalization.</param>
+        <summary>Marks the handler as disposed and calls the base disposal method.</summary>
+        <remarks><para>The disposed flag is set for either value of disposing. Later operations that call AssertSelf throw <see cref="T:System.ObjectDisposedException" />. This override does not dispose responses or the collections assigned to the handler.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="GetJavaProxy">
@@ -542,11 +542,11 @@
         <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <param name="cancellationToken">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="destination">The destination URI used to query the configured managed proxy.</param>
+        <param name="cancellationToken">The token passed to the task that creates the Java proxy address and proxy object.</param>
+        <summary>Converts the configured managed proxy address to a Java HTTP proxy.</summary>
+        <returns>A task whose result is a Java HTTP proxy, or Java.Net.Proxy.NoProxy if the destination, managed proxy, or proxy URI is null.</returns>
+        <remarks><para>The default implementation calls Proxy.GetProxy and creates a Java HTTP proxy from the returned host and port on a task. It does not call Proxy.IsBypassed. When UseProxy is enabled, the send path treats NoProxy as a request to use the system proxy settings by opening the URL without an explicit proxy argument. When UseProxy is disabled, that path bypasses this method and explicitly opens the connection with NoProxy.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSSLHostnameVerifier">
@@ -580,7 +580,7 @@
             not set the <see cref="m:HttpsURLConnection.HostnameVerifier" /> property directly on the passed
             <paramref name="connection" /></summary>
         <returns>Instance of IHostnameVerifier to be used for this HTTPS connection</returns>
-        <remarks>To be added.</remarks>
+        <remarks><para>The default implementation returns the hostname verifier from the custom server certificate validator when a validation callback is configured, or <see langword="null" /> otherwise. The callback path checks the hostname in the trust manager before its verifier accepts the connection. The send path assigns a non-null result to the HTTPS connection.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="MaxAutomaticRedirections">
@@ -600,8 +600,8 @@
         <summary>
             Gets or sets the maximum number of allowed HTTP redirects. The default value is 50.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The positive redirect-count threshold. The default is 50.</value>
+        <remarks><para>The setter rejects values less than or equal to zero. During automatic redirect handling, the handler increments its counter after it finds a nonempty Location header and throws <see cref="T:System.Net.Http.HttpRequestException" /> when the counter reaches this value. A value of 1 therefore rejects the first such redirect.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
         <exception cref="T:System.ArgumentOutOfRangeException">
             The specified value is less than or equal to 0.
             </exception>
@@ -625,8 +625,8 @@
             Gets or sets the maximum number of concurrent connections allowed per server. The default value
             is <see cref="F:System.Int32.MaxValue" />.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The stored per-server connection limit. The default is <see cref="F:System.Int32.MaxValue" />.</value>
+        <remarks><para>This implementation stores the value but does not use it to configure the Java connection or to limit concurrent requests. Assigning this property does not enforce a per-server connection limit.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="MaxResponseHeadersLength">
@@ -647,8 +647,8 @@
             Gets or sets the maximum length, in kilobytes (1024 bytes), of the response headers. The default
             value is 64 KB.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The stored response-header length limit, in units of 1024 bytes. The default is 64.</value>
+        <remarks><para>This implementation stores the value but does not use it while it receives or copies response headers. Assigning this property does not enforce a response-header length limit.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="PreAuthenticate">
@@ -669,8 +669,8 @@
             Gets or sets a value that indicates whether the handler sends an Authorization header with the
             request. The default value is <see langword="false" />.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> to attempt authentication with PreAuthenticationData before sending a request; otherwise, <see langword="false" />. The default is false.</value>
+        <remarks><para>Enabling this property alone does not create an authorization header. PreAuthenticationData, the appropriate server or proxy credentials, and a matching authentication module must also be available. The module must return an authorization value before the handler sets the header.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="PreAuthenticationData">
@@ -714,7 +714,7 @@
             </para>
         </summary>
         <value>The pre authentication data.</value>
-        <remarks>To be added.</remarks>
+        <remarks><para>Assigning a non-null value initializes the built-in Basic and Digest authentication modules when needed. The handler uses this data only when PreAuthenticate is enabled. For an unsupported scheme, it uses the AuthModule supplied in the data. Server credentials come from Credentials; proxy credentials come from Proxy.Credentials.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="Properties">
@@ -741,8 +741,8 @@
             Gets or sets a custom property collection for the handler. This can be used to pass
             additional metadata or configuration to the underlying transport.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The application-supplied property dictionary, or <see langword="null" /> by default.</value>
+        <remarks><para>This implementation only stores the dictionary reference. It does not create a dictionary or read entries to configure the Java transport.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="Proxy">
@@ -776,8 +776,8 @@
         <summary>
             Gets or sets the proxy information used by the handler.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The managed proxy used to obtain a proxy URI, or <see langword="null" /> to use system proxy settings when UseProxy is enabled.</value>
+        <remarks><para>The default GetJavaProxy implementation calls GetProxy on this object and converts the returned host and port to a Java HTTP proxy. It does not call IsBypassed. Proxy authentication uses this object's Credentials property. UseProxy set to false bypasses both the managed and system proxies.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="ProxyAuthenticationRequested">
@@ -799,8 +799,8 @@
             All the instances of <see cref="T:Xamarin.Android.Net.AuthenticationData" /> stored in the <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.RequestedAuthentication" /> property will
             have their <see cref="P:Xamarin.Android.Net.AuthenticationData.UseProxyAuthentication" /> preset to the same value as this property.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The proxy-authentication flag for the collected authentication data. The initial value is <see langword="false" />.</value>
+        <remarks><para>The flag is reset before each request attempt is processed and is copied into each collected AuthenticationData object's UseProxyAuthentication property. It describes the handler's current authentication state, not an independent history of responses.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="ReadTimeout">
@@ -830,8 +830,8 @@
             NSUrlSessionHandler.
             </para>
         </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The native read timeout. The default is 24 hours; zero leaves the native connection's default unchanged.</value>
+        <remarks><para>This timeout applies to native input-stream reads, not to the total request duration. During request setup, a nonzero value is converted to a checked 32-bit millisecond count. Values outside that range cause <see cref="T:System.OverflowException" />. Java rejects negative counts, so Timeout.InfiniteTimeSpan is not a supported infinite-timeout sentinel. Zero skips the native setter, whose default is an infinite timeout.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestedAuthentication">
@@ -864,8 +864,8 @@
             set to <c>AuthenticationScheme.Unsupported</c> and the application will be responsible for providing an
             instance of <see cref="T:Xamarin.Android.Net.IAndroidAuthenticationModule" /> which handles this kind of authorization scheme
             (<see cref="P:Xamarin.Android.Net.AuthenticationData.AuthModule" /></summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The read-only list of collected authentication challenges, or <see langword="null" /> before challenges have been collected.</value>
+        <remarks><para>The handler clears this property before each request attempt is processed. When it collects challenges from an authorization response, it creates one AuthenticationData object per challenge and shares the list with the AndroidHttpResponseMessage. The list is read-only, but its data objects have writable authentication settings.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestNeedsAuthorization">
@@ -895,8 +895,8 @@
         <summary>
             If <c>true</c> then the server requested authorization and the application must use information
             found in <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.RequestedAuthentication" /> to set the value of <see cref="P:Xamarin.Android.Net.AndroidMessageHandler.PreAuthenticationData" /></summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> when RequestedAuthentication contains at least one entry; otherwise, <see langword="false" />.</value>
+        <remarks><para>This property is computed from the current challenge list. It does not test the HTTP status code directly or indicate whether credentials have already been supplied.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SendAsync">
@@ -923,7 +923,7 @@
             Creates, configures and processes an asynchronous request to the indicated resource.
             </summary>
         <returns>Task in which the request is executed</returns>
-        <remarks>To be added.</remarks>
+        <remarks><para>The request must be non-null and have an absolute RequestUri. The handler checks disposal before processing the request. It returns an AndroidHttpResponseMessage, including for HTTP error status codes, and exposes collected authentication challenges on that response.</para><para>The cancellation token is used during proxy creation, connection, upload, and response-code retrieval. Cancellation requests disconnect the native connection during connection and upload work. Response-body reads use the token supplied to the read operation and can also be interrupted by disposing the response.</para><para>Connection failures are reported as HttpRequestException. Java socket-timeout, service, security, and I/O failures caught by the send loop are wrapped in HttpRequestException with a WebException inner exception. Other connection failures can retain the original exception directly as the inner exception. Cancellation is reported as OperationCanceledException on the supported cancellation paths. With the Negotiate authentication feature enabled, the handler can perform additional authentication requests.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="ServerCertificateCustomValidationCallback">
@@ -950,8 +950,8 @@
             Gets or sets a callback to validate the server certificate. When set, the callback is invoked
             during the TLS handshake to perform custom certificate validation.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>A callback that receives the request, server certificate, certificate chain, and policy errors, and returns true to accept the certificate or false to reject it; or <see langword="null" /> for no custom callback.</value>
+        <remarks><para>The custom trust manager reports platform chain-validation errors and hostname errors to the callback. It supplies a new X509Chain with the presented certificates in ExtraStore and online revocation mode, but does not call Build on that chain before invoking the callback. Returning false causes certificate validation to fail. Setting the property to null removes the custom validator. An override that returns a custom SSL socket factory bypasses this trust-manager setup.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SetupRequest">
@@ -980,8 +980,8 @@
             the request headers set, pre-authentication performed (if applicable) but before the request body is set
             (e.g. for POST requests). The default implementation in AndroidMessageHandler does nothing.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A task that completes when the additional connection setup is finished. The default implementation returns Task.CompletedTask.</returns>
+        <remarks><para>The default implementation first checks that the handler has not been disposed and can throw <see cref="T:System.ObjectDisposedException" />. The caller awaits this method after headers and pre-authentication are configured, and before it configures the request body or connects to the server.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SslProtocols">
@@ -1003,7 +1003,7 @@
             <see cref="F:System.Security.Authentication.SslProtocols.Tls13" /> | <see cref="F:System.Security.Authentication.SslProtocols.Tls12" /> on Android API 29+,
             or <see cref="F:System.Security.Authentication.SslProtocols.Tls12" /> on earlier versions.
             </summary>
-        <value>To be added.</value>
+        <value>The stored protocol flags. The default is TLS 1.2 and TLS 1.3 on Android API 29 or later, and TLS 1.2 on earlier versions. This implementation does not read these flags when it configures the SSL context or socket factory.</value>
         <remarks>
             See the <see href="https://developer.android.com/reference/javax/net/ssl/SSLSocket#protocols">
             Android SSLSocket documentation</see> for details on supported protocols by API level.
@@ -1028,8 +1028,8 @@
             Gets a value indicating whether the handler supports automatic response content decompression.
             Always returns <see langword="true" /> for <see cref="T:Xamarin.Android.Net.AndroidMessageHandler" />.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" />.</value>
+        <remarks><para>This property always returns true. Use AutomaticDecompression to configure the handler's Accept-Encoding header and response decompression.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SupportsProxy">
@@ -1050,8 +1050,8 @@
             Gets a value indicating whether the handler supports proxy settings.
             Always returns <see langword="true" /> for <see cref="T:Xamarin.Android.Net.AndroidMessageHandler" />.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" />.</value>
+        <remarks><para>This property always returns true. Use UseProxy and Proxy to choose whether the handler uses system proxy settings, a configured managed proxy, or a direct connection.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="SupportsRedirectConfiguration">
@@ -1113,7 +1113,7 @@
             instead</para>
         </summary>
         <value>The trusted certs.</value>
-        <remarks>To be added.</remarks>
+        <remarks><para>The default value is null. When this list is nonempty, TLS setup adds its certificates to a new key store. If no custom trust manager factory is returned, the default trust manager factory uses that store instead of the platform trust store. A custom SSL socket factory bypasses this setup.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="UseCookies">
@@ -1135,8 +1135,8 @@
             property to store server cookies and uses these cookies when sending requests. The default value
             is <see langword="true" />.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> to use CookieContainer for request and response cookies; otherwise, <see langword="false" />. The default is true.</value>
+        <remarks><para>When enabled, request setup obtains the Cookie header from CookieContainer, and response cookie processing stores Set-Cookie values in it. Disabling this property skips those container operations; it does not remove a Cookie header explicitly supplied on the request.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="UseProxy">
@@ -1157,8 +1157,8 @@
             Gets or sets a value that indicates whether the handler uses a proxy for requests. The default
             value is <see langword="true" />.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> to use proxy resolution; <see langword="false" /> to bypass proxies. The default is true.</value>
+        <remarks><para>When enabled, the handler calls GetJavaProxy. With no managed proxy configured, its default result causes the Java URL to be opened with system proxy settings. When disabled, the handler explicitly passes Java.Net.Proxy.NoProxy to OpenConnection, which bypasses system proxy settings.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteRequestContentToOutput">
@@ -1186,12 +1186,12 @@
         <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="httpConnection">To be added.</param>
-        <param name="cancellationToken">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="request">The request whose content is to be copied.</param>
+        <param name="httpConnection">The connected native HTTP connection whose output stream receives the content.</param>
+        <param name="cancellationToken">The token passed to the asynchronous content copy.</param>
+        <summary>Copies the request content to the native connection's output stream.</summary>
+        <returns>A task that completes when the upload and any stream rewind have finished. If the request has no content, no data is written.</returns>
+        <remarks><para>The default implementation obtains the content stream and copies it with a 4096-byte buffer and the supplied token. It attempts to rewind a seekable content stream to position zero in a finally block so the content can be used again for a redirect or retry. It does not dispose that stream.</para><para>If upload fails and rewind also fails, the rewind failure is logged without replacing the upload failure. A rewind failure after a successful copy is propagated. Supported transport failures during cancellation are converted to OperationCanceledException; other managed I/O failures are wrapped in HttpRequestException with a WebException inner exception.</para><para>Implementation source: <see href="https://github.com/dotnet/android/blob/608c74d49c0f449aa42b357191c94d0ada55cb9e/src/Mono.Android/Xamarin.Android.Net/AndroidMessageHandler.cs">dotnet/android</see>.</para></remarks>
       </Docs>
     </Member>
   </Members>
