@@ -333,9 +333,9 @@
         <Parameter Name="metaData" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="metaData">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="metaData"><see langword="true" /> to require both file content and metadata changes to be written to storage; <see langword="false" /> to require only content changes. The effect of this argument depends on the operating system.</param>
+        <summary>Runs the synchronous force operation in a task to write file updates to the storage device.</summary>
+        <returns>A task that completes when the force operation finishes.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1187,9 +1187,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dst">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="dst">The destination buffer. Its position advances by the number of bytes read; its limit is unchanged.</param>
+        <summary>Runs a synchronous read in a task, starting at this channel's current file position and advancing that position by the number of bytes read.</summary>
+        <returns>A task whose result is the number of bytes read, possibly zero, or -1 at the end of the file. The read need not fill the buffer.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1225,9 +1225,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dsts">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="dsts">The destination buffers in array order. Each buffer's position advances by the bytes placed in it; buffer limits are unchanged.</param>
+        <summary>Runs a synchronous scattering read into all supplied buffers in a task, advancing this channel's file position by the number of bytes read.</summary>
+        <returns>A task whose result is the total number of bytes read, possibly zero, or -1 at the end of the file. The read need not fill all buffers.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1264,10 +1264,10 @@
         <Parameter Name="position" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="dst">To be added.</param>
-        <param name="position">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="dst">The destination buffer. Its position advances by the number of bytes read; its limit is unchanged.</param>
+        <param name="position">The non-negative byte offset in the file at which to start reading.</param>
+        <summary>Runs a synchronous read in a task at the specified file offset without changing this channel's current file position.</summary>
+        <returns>A task whose result is the number of bytes read, possibly zero, or -1 if the specified offset is at or beyond the end of the file. The read need not fill the buffer.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1305,11 +1305,11 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="dsts">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="dsts">The destination buffer array. Selected buffers are filled in array order, advancing their positions without changing their limits.</param>
+        <param name="offset">The index of the first destination buffer, from zero through the array length.</param>
+        <param name="length">The number of destination buffers to use, from zero through the array length minus <paramref name="offset" />.</param>
+        <summary>Runs a synchronous scattering read into the selected buffers in a task, advancing this channel's file position by the number of bytes read.</summary>
+        <returns>A task whose result is the total number of bytes read, possibly zero, or -1 at the end of the file. The read need not fill all selected buffers.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1541,11 +1541,11 @@
         <Parameter Name="count" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
-        <param name="position">To be added.</param>
-        <param name="count">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="src">The channel from which bytes are read. If it has a position, that position advances by the number of bytes read.</param>
+        <param name="position">The non-negative byte offset in this file at which to start writing. No bytes are transferred if this offset exceeds the current file size.</param>
+        <param name="count">The maximum number of bytes to transfer. Must be non-negative.</param>
+        <summary>Runs a synchronous transfer from the source channel into this file in a task without changing this channel's current file position.</summary>
+        <returns>A task whose result is the number of bytes transferred, possibly zero and possibly less than <paramref name="count" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1661,11 +1661,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="position">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="target">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="position">The non-negative byte offset in this file at which to start reading. No bytes are transferred if this offset exceeds the current file size.</param>
+        <param name="count">The maximum number of bytes to transfer. Must be non-negative.</param>
+        <param name="target">The channel to which bytes are written. If it has a position, that position advances by the number of bytes written.</param>
+        <summary>Runs a synchronous transfer from this file to the target channel in a task without changing this channel's current file position.</summary>
+        <returns>A task whose result is the number of bytes transferred, possibly zero and possibly less than <paramref name="count" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1745,9 +1745,9 @@
         <Parameter Name="size" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="size">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="size">The non-negative size in bytes. A smaller value discards bytes beyond that size; a value at least as large as the current size does not grow the file. A file position greater than this value is reduced to it.</param>
+        <summary>Runs the synchronous file truncate operation in a task.</summary>
+        <returns>A task whose result is this file channel.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2187,9 +2187,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="src">The source buffer. Its position advances by the number of bytes written; its limit is unchanged.</param>
+        <summary>Runs a synchronous write in a task at this channel's file position, or at the end of the file in append mode, advancing the file position by the number of bytes written.</summary>
+        <returns>A task whose result is the number of bytes written, possibly zero. The result gives the actual count of bytes written from the buffer.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2225,9 +2225,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="srcs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="srcs">The source buffers in array order. Each buffer's position advances by the bytes taken from it; buffer limits are unchanged.</param>
+        <summary>Runs a synchronous gathering write from all supplied buffers in a task at the file position, or at the end of the file in append mode, advancing the file position by the number of bytes written.</summary>
+        <returns>A task whose result is the total number of bytes written, possibly zero. The result gives the actual count of bytes written from the buffers.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2264,10 +2264,10 @@
         <Parameter Name="position" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
-        <param name="position">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="src">The source buffer. Its position advances by the number of bytes written; its limit is unchanged.</param>
+        <param name="position">The non-negative byte offset in the file at which to start writing. The file grows if needed; bytes in any gap before the written data have unspecified values.</param>
+        <summary>Runs a synchronous write in a task at the specified file offset without changing this channel's current file position.</summary>
+        <returns>A task whose result is the number of bytes written, possibly zero. The result gives the actual count of bytes written from the buffer.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2305,11 +2305,11 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="srcs">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="srcs">The source buffer array. Selected buffers are read in array order, advancing their positions without changing their limits.</param>
+        <param name="offset">The index of the first source buffer, from zero through the array length.</param>
+        <param name="length">The number of source buffers to use, from zero through the array length minus <paramref name="offset" />.</param>
+        <summary>Runs a synchronous gathering write from the selected buffers in a task at the file position, or at the end of the file in append mode, advancing the file position by the number of bytes written.</summary>
+        <returns>A task whose result is the total number of bytes written, possibly zero. The result gives the actual count of bytes written from the selected buffers.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
