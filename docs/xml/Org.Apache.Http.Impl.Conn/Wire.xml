@@ -32,6 +32,7 @@
   <Docs>
     <summary>Logs data to the wire log.</summary>
     <remarks>
+      <para>The member descriptions are based on the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/conn/Wire.java">Android wire logger implementation</a></format>. Input and output methods format log messages; they do not perform network communication. Callers can check <c>Enabled</c> before calling them.</para>
       <para>
         <format type="text/html">
           <a href="https://android.googlesource.com/platform/external/apache-http/+/android-4.4.4_r1/src/org/apache/http/impl/conn/Wire.java" title="Android Open Source Project source documentation">AOSP source documentation for <code>Wire</code>.</a>
@@ -61,8 +62,8 @@
         <Parameter Name="log" Type="Org.Apache.Commons.Logging.ILog" />
       </Parameters>
       <Docs>
-        <param name="log">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="log">The logger that receives debug-level wire messages.</param>
+        <summary>Creates a wire logger that formats input and output data as debug messages.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -112,8 +113,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Checks whether debug logging is enabled on the supplied logger.</summary>
+        <returns><see langword="true" /> if debug logging is enabled; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -142,8 +143,8 @@
         <Parameter Name="b" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="b">The non-null byte array to format.</param>
+        <summary>Formats the entire array as received data and sends it to the debug logger with an input-direction prefix.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -172,8 +173,8 @@
         <Parameter Name="b" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="b">The value whose low eight bits are formatted as one received byte.</param>
+        <summary>Formats one byte as received data and sends it to the debug logger.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -202,8 +203,8 @@
         <Parameter Name="instream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="instream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="instream">The non-null readable stream to consume. The method reads to the end and does not close the stream.</param>
+        <summary>Consumes the stream and logs its bytes as received data. Escapes carriage returns, line feeds, and bytes outside the printable range used by the wire formatter.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -232,8 +233,8 @@
         <Parameter Name="s" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="s">The non-null string to encode with the Java platform's default character set.</param>
+        <summary>Encodes the string as bytes and logs them as received data. Does not read from a network connection.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -264,10 +265,10 @@
         <Parameter Name="len" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <param name="off">To be added.</param>
-        <param name="len">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="b">The non-null byte array containing received data.</param>
+        <param name="off">The starting offset in <paramref name="b" />.</param>
+        <param name="len">The number of bytes to include from that offset.</param>
+        <summary>Formats the specified array range as received data and sends it to the debug logger.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -335,8 +336,8 @@
         <Parameter Name="b" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="b">The non-null byte array to format.</param>
+        <summary>Formats the entire array as sent data and sends it to the debug logger with an output-direction prefix.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -365,8 +366,8 @@
         <Parameter Name="b" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="b">The value whose low eight bits are formatted as one sent byte.</param>
+        <summary>Formats one byte as sent data and sends it to the debug logger.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -395,8 +396,8 @@
         <Parameter Name="outstream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="outstream">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="outstream">The non-null readable stream to consume. Despite its name, this parameter is read, not written. The method does not close it.</param>
+        <summary>Reads the stream to its end and logs its bytes as sent data. Does not send the data over a network connection.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -425,8 +426,8 @@
         <Parameter Name="s" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="s">The non-null string to encode with the Java platform's default character set.</param>
+        <summary>Encodes the string as bytes and logs them as sent data. Does not send the data over a network connection.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -457,10 +458,10 @@
         <Parameter Name="len" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="b">To be added.</param>
-        <param name="off">To be added.</param>
-        <param name="len">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="b">The non-null byte array containing sent data.</param>
+        <param name="off">The starting offset in <paramref name="b" />.</param>
+        <param name="len">The number of bytes to include from that offset.</param>
+        <summary>Formats the specified array range as sent data and sends it to the debug logger.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

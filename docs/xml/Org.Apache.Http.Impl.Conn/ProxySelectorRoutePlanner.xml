@@ -45,6 +45,7 @@
   <Docs>
     <summary>Default implementation of an <c>HttpRoutePlanner</c> based on <c>ProxySelector</c>.</summary>
     <remarks>
+      <para>The member descriptions are based on the <format type="text/html"><a href="https://android.googlesource.com/platform/external/apache-http/+/d42abb2fd917184764daf22f5f299e848b8701d7/src/org/apache/http/impl/conn/ProxySelectorRoutePlanner.java">Android proxy route planner implementation</a></format>. In this Android implementation, explicit request proxy settings take precedence over the proxy selector.</para>
       <para>
         <format type="text/html">
           <a href="https://android.googlesource.com/platform/external/apache-http/+/android-4.4.4_r1/src/org/apache/http/impl/conn/ProxySelectorRoutePlanner.java" title="Android Open Source Project source documentation">AOSP source documentation for <code>ProxySelectorRoutePlanner</code>.</a>
@@ -75,9 +76,9 @@
         <Parameter Name="prosel" Type="Java.Net.ProxySelector" />
       </Parameters>
       <Docs>
-        <param name="schreg">To be added.</param>
-        <param name="prosel">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="schreg">The non-null registry used to look up target schemes.</param>
+        <param name="prosel">The proxy selector, or <see langword="null" /> to use the system default.</param>
+        <summary>Creates a route planner that uses a proxy selector when request parameters do not explicitly select or disable a proxy.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -139,12 +140,12 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="proxies">To be added.</param>
-        <param name="target">To be added.</param>
-        <param name="request">To be added.</param>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="proxies">The non-null, nonempty list of proxy choices, in preference order.</param>
+        <param name="target">The planned target host, available to overrides.</param>
+        <param name="request">The request to be sent, available to overrides.</param>
+        <param name="context">The execution context, or <see langword="null" />, available to overrides.</param>
+        <summary>Selects the first DIRECT or HTTP entry in the list, ignoring SOCKS entries at the route-planning level.</summary>
+        <returns>The first DIRECT or HTTP proxy, or the direct-connection proxy if all entries are SOCKS proxies. Never <see langword="null" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -175,11 +176,11 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="request">To be added.</param>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="target">The non-null target host whose URI is passed to the proxy selector.</param>
+        <param name="request">The non-null request, passed to proxy selection overrides.</param>
+        <param name="context">The execution context, or <see langword="null" />.</param>
+        <summary>Uses the configured or system-default proxy selector and converts the selected HTTP proxy's internet socket address to an HTTP host.</summary>
+        <returns>The HTTP proxy host, or <see langword="null" /> for a direct route or when no selector exists.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -213,11 +214,11 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="request">To be added.</param>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="target">The target host; required unless the request supplies a forced route.</param>
+        <param name="request">The non-null request containing route, local-address, and explicit proxy parameters.</param>
+        <param name="context">The execution context passed to proxy selection.</param>
+        <summary>Returns a forced route if present. Otherwise, prefers an explicit proxy setting, including an explicit no-proxy value, over the proxy selector and treats layered target schemes as secure.</summary>
+        <returns>The forced route or the computed direct or proxy route.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -246,9 +247,9 @@
         <Parameter Name="isa" Type="Java.Net.InetSocketAddress" />
       </Parameters>
       <Docs>
-        <param name="isa">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="isa">The internet socket address from which to obtain a host.</param>
+        <summary>Gets the host name of an unresolved address or the numeric IP address of a resolved address.</summary>
+        <returns>The unresolved host name or resolved numeric address string.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -344,8 +345,8 @@
         <ReturnType>Java.Net.ProxySelector</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the proxy selector used when planning a route.</summary>
+        <value>The configured selector, or <see langword="null" /> to use the current system default.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -371,8 +372,8 @@
         <ReturnType>Org.Apache.Http.Conn.Schemes.SchemeRegistry</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the registry used to look up the target scheme.</summary>
+        <value>The scheme registry used to determine route security.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
