@@ -58,6 +58,71 @@ protected content, and byte-identical repeat runs without network access.
 
 ## Android and Java reference import
 
+### Repeated Parcelable and Java enum members
+
+Use `--repeated-only` to fill verified `Creator`, `WriteToParcel`,
+`DescribeContents`, Java enum `Values`/`ValueOf`, and projected Parcelable
+constant channels without repairs or refreshes of existing documentation.
+This mode is separate from `--managed-only`. It does not include builders,
+constructors, collection `Values` properties, or text `ValueOf` factories.
+
+```powershell
+dotnet run tools\importer.cs -- --repeated-only --self-test
+dotnet run tools\importer.cs -- --repeated-only --path docs\xml\Android.Graphics\Bitmap+Config.xml --member Values --max-changes 10 --cache C:\temp\android-doc-cache --report C:\temp\enum-preview
+```
+
+Review both reports before each scoped `--apply` run. Keep each apply at ten
+changes or fewer. Use the same cache with `--offline` for repeat runs.
+
+Each rule checks the assembly, type and member DocIds, JNI registration,
+managed signature, return type, and ordered parameters. Parcelable methods
+must also implement the exact interface member. Their own declared Android
+documentation remains the source for flags, serialization details, and
+content bits; no shared zero-return or flags contract is substituted.
+When a declared writer has no usable destination description, only the
+destination's role can come from the exact official
+`Parcelable.writeToParcel` parameter contract. This does not add a native
+nullability promise or copy the interface's flags description.
+
+A `Creator` fallback requires a declared public static final
+`Parcelable.Creator<T>` or `ClassLoaderCreator<T>` field whose generic
+argument names the exact registered class. The class must implement
+Parcelable directly or through a verified registered base-type chain.
+The official `Parcelable.Creator` contract must also match before the
+importer can describe creation of that class from a Parcel. Raw creators,
+unrelated generic arguments, missing declarations, and changed contracts
+are reported and preserved. Managed nullable annotations do not prove a
+native null contract.
+
+Java enum rules require both the managed `Java.Lang.Enum` base and the
+official enum declaration, plus the exact static factory signature.
+Complete method documentation is preferred. For undocumented implicit
+methods, the importer verifies the two method contracts in
+[JLS 8.9.3](https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.9.3).
+`Values` returns constants in declaration order. The name-matching,
+unknown-name and null-name rules for `ValueOf` additionally require the
+official Java 21 `Enum.valueOf` contract. These rules do not infer enum
+behavior from a method name.
+
+For `InterfaceConsts`, the importer checks the exact generated field and
+registered Parcelable sibling. The official sibling page must identify
+that field as inherited from `android.os.Parcelable`, with no shadowing
+declaration, and the Parcelable page must declare that exact constant.
+The projection follows the pinned
+[InterfaceConsts generator](https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/InterfaceConstsClass.cs).
+Matching field names or values alone are insufficient.
+
+Only unique direct plain-text placeholders can change. Existing prose,
+nested placeholders, mixed content, duplicate channels, comments, CDATA,
+processing instructions and channel attributes remain unchanged.
+Source links and attribution are inserted only inside a newly filled
+remarks channel. Reports identify each exact source and any shared
+contract used. The focused offline tests exercise all seven member names,
+changed bindings and source declarations, one-change budgets, protected
+content, BOM/newline preservation, and byte-identical repeat runs.
+
+### Exact reference matching
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.

@@ -550,7 +550,8 @@ static partial class ImporterProgram
         }
 
         if (options.SelfTest)
-            return options.ManagedOnly ? RunManagedSelfTest(repositoryRoot) : RunSelfTest(repositoryRoot);
+            return options.ManagedOnly ? RunManagedSelfTest(repositoryRoot) :
+                options.RepeatedOnly ? RunRepeatedSelfTest(repositoryRoot) : RunSelfTest(repositoryRoot);
 
         var report = new ImportReport
         {
@@ -576,6 +577,24 @@ static partial class ImporterProgram
                     if (!MatchesNamespace(file.Root, options.Namespace))
                         continue;
                     file.SelectOwners(options.Member, interfaceMemberResolver, options.ApiSince);
+                    if (options.RepeatedOnly)
+                    {
+                        file.Owners.RemoveAll(owner => !IsRepeatedMember(owner));
+                        for (var index = 0; index < file.Owners.Count; index++)
+                        {
+                            var owner = file.Owners[index] with
+                            {
+                                Placeholders = file.Owners[index].Placeholders
+                                    .Where(placeholder => !placeholder.IsImporterMetadataRepair).ToList(),
+                            };
+                            file.Owners[index] = owner;
+                            if (ProjectedParcelableType(file, owner) is { } declaringType)
+                                file.Owners[index] = owner with
+                                {
+                                    SourceRequest = SourceRequest.Create(Registration.Type(declaringType)),
+                                };
+                        }
+                    }
                     loadedFiles.Add(file);
                 }
                 catch (Exception error) when (error is XmlException or IOException or UnauthorizedAccessException)
@@ -587,10 +606,15 @@ static partial class ImporterProgram
 
             var sourceRequests = loadedFiles
                 .SelectMany(file => file.Owners.Select(owner => (File: file, Owner: owner)))
-                .Where(item => !options.ManagedOnly && RequiresSourceLoad(item.File, item.Owner))
+                .Where(item => !options.ManagedOnly && (options.RepeatedOnly
+                    ? item.Owner.Placeholders.Count > 0
+                    : RequiresSourceLoad(item.File, item.Owner)))
                 .Select(item => item.Owner.SourceRequest)
                 .Where(request => request is not null)
                 .Cast<SourceRequest>()
+                .Concat(options.RepeatedOnly
+                    ? RepeatedContractRequests(loadedFiles.SelectMany(file => file.Owners))
+                    : [])
                 .DistinctBy(request => request.Url, StringComparer.Ordinal)
                 .OrderBy(request => request.Url, StringComparer.Ordinal)
                 .ToList();
@@ -646,6 +670,13 @@ static partial class ImporterProgram
                         text = updated;
                         continue;
                     }
+                    if (options.RepeatedOnly)
+                    {
+                        var updated = FillRepeatedPlaceholders(file, owner, text, pages, report, ref remaining);
+                        fileChanged |= !updated.Equals(text, StringComparison.Ordinal);
+                        text = updated;
+                        continue;
+                    }
                     var ownerChanged = false;
                     var importedSourceChannel = false;
                     var replacedRemarksPlaceholder = false;
@@ -685,7 +716,7 @@ static partial class ImporterProgram
                                     mapping.SourceUrl));
                                 continue;
                             }
-                            if (!TryReplaceQualityFirstFillPlaceholder(
+                            if (!TryReplaceDirectSourcePlaceholder(
                                     text, file.DocsBlocks[owner.Order], placeholder,
                                     replacement, mapping.Docs, out var updated, out var error))
                             {
@@ -5359,6 +5390,838 @@ static partial class ImporterProgram
         };
     }
 
+    const string ParcelableJavaPath = "android/os/Parcelable";
+    const string CreatorContractText =
+        "Interface that must be implemented and provided as a public CREATOR field that generates instances of your Parcelable class from a Parcel.";
+    const string EnumSpecificationUrl = "https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html";
+    const string EnumValuesSpecification =
+        "An implicitly declared method public static E[] values(), which returns an array containing the enum constants of E, in the same order as they appear in the body of the declaration of E.";
+    const string EnumValueOfSpecification =
+        "An implicitly declared method public static E valueOf(String name), which returns the enum constant of E with the specified name.";
+
+    static bool IsRepeatedMember(DocsOwner owner) =>
+        (string?)owner.Member?.Attribute("MemberName") is
+            "Creator" or "WriteToParcel" or "DescribeContents" or "Values" or "ValueOf" or
+            "ContentsFileDescriptor" or "ParcelableWriteReturnValue";
+
+    static IEnumerable<SourceRequest> RepeatedContractRequests(IEnumerable<DocsOwner> owners)
+    {
+        var candidates = owners.Where(owner => owner.Placeholders.Count > 0).ToArray();
+        var names = candidates.Select(owner => (string?)owner.Member?.Attribute("MemberName"))
+            .ToHashSet(StringComparer.Ordinal);
+        var paths = new List<string>();
+        if (names.Contains("WriteToParcel") || names.Contains("ContentsFileDescriptor") ||
+            names.Contains("ParcelableWriteReturnValue"))
+            paths.Add(ParcelableJavaPath);
+        if (names.Contains("Creator"))
+            paths.Add(ParcelableJavaPath + "$Creator");
+        if (candidates.Any(owner => owner.Member?.Element("ReturnValue")?.Element("ReturnType")?.Value ==
+                "Android.OS.IParcelableClassLoaderCreator"))
+            paths.Add(ParcelableJavaPath + "$ClassLoaderCreator");
+        foreach (var path in paths)
+            yield return SourceRequest.Create(path) ??
+                throw new InvalidOperationException("The Parcelable contract has no official source route.");
+        if (names.Contains("Values") || names.Contains("ValueOf"))
+            yield return new SourceRequest("Java Language Specification 8.9.3", EnumSpecificationUrl, "enum-specification");
+        if (names.Contains("ValueOf"))
+            yield return SourceRequest.Create("java/lang/Enum") ??
+                throw new InvalidOperationException("The Java Enum contract has no official source route.");
+    }
+
+    static bool HasSingleSignature(XElement element, string elementName, string language, string value) =>
+        element.Elements(elementName).Where(signature =>
+            (string?)signature.Attribute("Language") == language)
+            .Select(signature => (string?)signature.Attribute("Value"))
+            .SequenceEqual([value]);
+
+    static bool IsMonoAndroidDeclaration(XElement element) =>
+        element.Elements("AssemblyInfo").Count() == 1 &&
+        element.Element("AssemblyInfo")?.Elements("AssemblyName")
+            .Select(name => name.Value).SequenceEqual(["Mono.Android"]) == true;
+
+    static bool HasSingleAndroidRegistration(XElement element)
+    {
+        var attributes = element.Element("Attributes")?.Elements("Attribute").Elements("AttributeName")
+            .Where(attribute => attribute.Value.Contains("Register(", StringComparison.Ordinal)).ToArray() ?? [];
+        var csharp = attributes.Where(attribute => (string?)attribute.Attribute("Language") == "C#").ToArray();
+        return element.Elements("Attributes").Count() == 1 && csharp.Length == 1 &&
+            csharp[0].Value.StartsWith("[Android.Runtime.Register(", StringComparison.Ordinal) &&
+            attributes.Length <= 2 && attributes.All(attribute =>
+                ReferenceEquals(attribute, csharp[0]) ||
+                (string?)attribute.Attribute("Language") == "F#" &&
+                attribute.Value.Replace("[<", "[", StringComparison.Ordinal)
+                    .Replace(">]", "]", StringComparison.Ordinal) == csharp[0].Value);
+    }
+
+    static bool IsParcelableType(XElement root, string sourcePath)
+    {
+        var docsRoot = Path.GetDirectoryName(Path.GetDirectoryName(sourcePath));
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        while (IsMonoAndroidDeclaration(root) && HasSingleAndroidRegistration(root) &&
+            Registration.Type(root)?.StartsWith("android/", StringComparison.Ordinal) == true)
+        {
+            if (root.Element("Interfaces")?.Elements("Interface").Elements("InterfaceName")
+                .Any(name => name.Value == "Android.OS.IParcelable") == true)
+                return true;
+            var baseType = root.Element("Base")?.Element("BaseTypeName")?.Value;
+            if (docsRoot is null || baseType is null || !visited.Add(baseType) ||
+                !Regex.IsMatch(baseType, @"^Android(?:\.[A-Za-z_]\w*)+(?:\+[A-Za-z_]\w*)*$",
+                    RegexOptions.CultureInvariant))
+                return false;
+            var dot = baseType.LastIndexOf('.');
+            var path = Path.Combine(docsRoot, baseType[..dot], baseType[(dot + 1)..] + ".xml");
+            if (!File.Exists(path))
+                return false;
+            root = XElement.Load(path);
+            if ((string?)root.Attribute("FullName") != baseType ||
+                !HasSingleSignature(root, "TypeSignature", "DocId", $"T:{baseType.Replace('+', '.')}"))
+                return false;
+        }
+        return false;
+    }
+
+    static XElement? ProjectedParcelableType(LoadedFile file, DocsOwner owner)
+    {
+        if (owner.Member is not { } member ||
+            (string?)file.Root.Attribute("FullName") is not { } fullName ||
+            !fullName.EndsWith("+InterfaceConsts", StringComparison.Ordinal) ||
+            !IsMonoAndroidDeclaration(file.Root) || !IsMonoAndroidDeclaration(member) ||
+            Registration.Type(file.Root) is not null ||
+            file.Root.Element("Base")?.Element("BaseTypeName")?.Value != "System.Object" ||
+            !HasSingleSignature(file.Root, "TypeSignature", "C#",
+                $"public static class {((string?)file.Root.Attribute("Name"))?.Replace('+', '.')}"))
+            return null;
+
+        var typeName = fullName.Replace('+', '.');
+        var name = (string?)member.Attribute("MemberName");
+        var flag = name == "ParcelableWriteReturnValue";
+        if (name != "ContentsFileDescriptor" && !flag ||
+            member.Element("MemberType")?.Value != "Field" ||
+            member.Element("Parameters")?.Elements().Any() == true ||
+            member.Element("MemberValue")?.Value != "1" ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value !=
+                (flag ? "Android.OS.ParcelableWriteFlags" : "System.Int32") ||
+            Registration.Member(member) != new MemberRegistration(
+                flag ? "PARCELABLE_WRITE_RETURN_VALUE" : "CONTENTS_FILE_DESCRIPTOR", null, true) ||
+            !HasSingleAndroidRegistration(member) ||
+            Registration.JniField(member) is not null ||
+            !HasSingleSignature(member, "MemberSignature", "C#",
+                $"public const {(flag ? "Android.OS.ParcelableWriteFlags" : "int")} {name} = 1;") ||
+            !HasSingleSignature(member, "MemberSignature", "DocId", $"F:{typeName}.{name}"))
+            return null;
+
+        var outerFullName = fullName[..^"+InterfaceConsts".Length];
+        var outerName = ((string?)file.Root.Attribute("Name"))?[..^"+InterfaceConsts".Length];
+        if (outerName is null)
+            return null;
+        var path = Path.Combine(Path.GetDirectoryName(file.Path) ??
+            throw new InvalidOperationException("A loaded XML file has no directory."), outerName + ".xml");
+        if (!File.Exists(path))
+            return null;
+        var outer = XElement.Load(path);
+        return (string?)outer.Attribute("FullName") == outerFullName &&
+            (string?)outer.Attribute("Name") == outerName &&
+            IsParcelableType(outer, path) &&
+            HasSingleSignature(outer, "TypeSignature", "DocId", $"T:{outerFullName.Replace('+', '.')}")
+            ? outer : null;
+    }
+
+    static MappingResult MapRepeatedOwner(
+        LoadedFile file, DocsOwner owner, IReadOnlyDictionary<string, SourceLoadResult> pages)
+    {
+        MappingResult Skip(string reason, string detail) =>
+            MappingResult.Skip(reason, detail, owner.SourceRequest?.Url ?? "");
+
+        if (owner.Member is not { } member ||
+            !IsMonoAndroidDeclaration(file.Root) || !IsMonoAndroidDeclaration(member))
+            return Skip("repeated_binding_mismatch", "The containing type and member must each belong to Mono.Android.");
+        var name = (string?)member.Attribute("MemberName");
+        var typeName = ((string?)file.Root.Attribute("FullName"))?.Replace('+', '.');
+        var returnType = member.Element("ReturnValue")?.Element("ReturnType")?.Value;
+        var parameters = member.Element("Parameters")?.Elements("Parameter").ToArray() ?? [];
+        var registration = Registration.Member(member);
+        var javaPath = Registration.Type(file.Root);
+        if (name is "ContentsFileDescriptor" or "ParcelableWriteReturnValue")
+        {
+            if (ProjectedParcelableType(file, owner) is null)
+                return Skip("parcelable_projection_mismatch",
+                    "The exact generated InterfaceConsts field, DocId, signature, value and registered Parcelable sibling could not all be verified.");
+            if (owner.SourceRequest is null || !pages.TryGetValue(owner.SourceRequest.Url, out var outerLoad) ||
+                outerLoad.Page is not { } outerPage)
+                return MapOwner(owner, pages);
+            if (registration is null ||
+                !outerPage.InheritedParcelableFields.Contains(registration.Name) ||
+                outerPage.Members.Any(field => field.IsField && field.Name == registration.Name))
+                return Skip("parcelable_field_identity_unverified",
+                    "The official containing class must identify this exact inherited field as android.os.Parcelable's field, without a shadowing declaration.");
+            var parcelablePage = pages.GetValueOrDefault(AndroidReference + ParcelableJavaPath)?.Page;
+            var declaredFields = parcelablePage?.Members.Where(field =>
+                field.IsField && field.Name == registration.Name).ToArray() ?? [];
+            if (declaredFields.Length > 1)
+                return Skip("ambiguous_exact_match", "The official Parcelable page contains duplicate exact field declarations.");
+            if (declaredFields.FirstOrDefault()?.Declaration !=
+                "public static final int " + registration.Name)
+                return Skip("parcelable_field_declaration_unverified",
+                    "The official Parcelable owner must declare this exact public static final int field.");
+            return MapOwner(owner with { SourceRequest = SourceRequest.Create(ParcelableJavaPath) }, pages);
+        }
+
+        if (typeName is null || javaPath is null || owner.SourceRequest is null ||
+            owner.SourceRequest.JavaPath != javaPath || registration is null ||
+            !HasSingleAndroidRegistration(file.Root) || !HasSingleAndroidRegistration(member) ||
+            !HasSingleSignature(file.Root, "TypeSignature", "DocId", $"T:{typeName}"))
+            return Skip("repeated_binding_mismatch",
+                "The registered containing type, canonical source route, member registration and exact type DocId must agree.");
+
+        bool Method(string managedReturn, string descriptor, string signature, string idSuffix) =>
+            member.Element("MemberType")?.Value == "Method" &&
+            returnType?.Replace('+', '.') == managedReturn &&
+            registration == new MemberRegistration(
+                name == "Values" ? "values" : name == "ValueOf" ? "valueOf" :
+                    name == "WriteToParcel" ? "writeToParcel" : "describeContents", descriptor, false) &&
+            HasSingleSignature(member, "MemberSignature", "DocId", $"M:{typeName}.{name}{idSuffix}") &&
+            HasSingleSignature(member, "MemberSignature", "C#", signature);
+
+        if (name is "Values" or "ValueOf")
+        {
+            var values = name == "Values";
+            var parameterName = values ? "" : (string?)parameters.FirstOrDefault()?.Attribute("Name");
+            var factorySignature =
+                $"public static {typeName}{(values ? "[]? Values ();" : "? ValueOf (string? name);")}";
+            if (!HasSingleSignature(member, "MemberSignature", "C#", factorySignature))
+                factorySignature =
+                    $"public static {typeName}{(values ? "[] Values ();" : " ValueOf (string name);")}";
+            if (file.Root.Element("Base")?.Element("BaseTypeName")?.Value != "Java.Lang.Enum" ||
+                (values ? parameters.Length != 0 :
+                    parameters.Length != 1 || parameterName != "name" ||
+                    (string?)parameters[0].Attribute("Type") != "System.String") ||
+                !Method(typeName + (values ? "[]" : ""),
+                    values ? $"()[L{javaPath};" : $"(Ljava/lang/String;)L{javaPath};",
+                    factorySignature,
+                    values ? "" : "(System.String)"))
+                return Skip("java_enum_binding_mismatch",
+                    "Only an exact registered Java.Lang.Enum values() array or valueOf(String) factory is supported; collection/text factories are not enum methods.");
+        }
+        else if (name == "Creator")
+        {
+            var classLoader = returnType == "Android.OS.IParcelableClassLoaderCreator";
+            var expectedReturn = classLoader ? "Android.OS.IParcelableClassLoaderCreator" : "Android.OS.IParcelableCreator";
+            if (!IsParcelableType(file.Root, file.Path) || parameters.Length != 0 ||
+                member.Element("MemberType")?.Value != "Property" || returnType != expectedReturn ||
+                registration != new MemberRegistration("CREATOR", null, true) ||
+                !HasSingleSignature(member, "MemberSignature", "DocId", $"P:{typeName}.Creator") ||
+                !(HasSingleSignature(member, "MemberSignature", "C#",
+                    $"public static {expectedReturn}? Creator {{ get; }}") ||
+                  HasSingleSignature(member, "MemberSignature", "C#",
+                    $"public static {expectedReturn} Creator {{ get; }}")))
+                return Skip("parcelable_creator_binding_mismatch",
+                    "The registered Parcelable type and exact static CREATOR projection, return type, signature and DocId must agree; nullability is not used as a native contract.");
+        }
+        else if (name is "WriteToParcel" or "DescribeContents")
+        {
+            var write = name == "WriteToParcel";
+            var parameterName = (string?)parameters.FirstOrDefault()?.Attribute("Name");
+            var flagsName = (string?)parameters.LastOrDefault()?.Attribute("Name");
+            var csharp = member.Elements("MemberSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "C#")
+                .Select(signature => (string?)signature.Attribute("Value")).ToArray();
+            var body = write
+                ? $"void WriteToParcel (Android.OS.Parcel {parameterName}, Android.OS.ParcelableWriteFlags {flagsName});"
+                : "int DescribeContents ();";
+            var normalizedSignature = csharp.FirstOrDefault()?.Replace(
+                "Android.OS.Parcel?", "Android.OS.Parcel", StringComparison.Ordinal);
+            if (!IsParcelableType(file.Root, file.Path) ||
+                (write ? parameters.Length != 2 ||
+                    (string?)parameters[0].Attribute("Type") != "Android.OS.Parcel" ||
+                    (string?)parameters[1].Attribute("Type") != "Android.OS.ParcelableWriteFlags" ||
+                    string.IsNullOrEmpty(parameterName) || string.IsNullOrEmpty(flagsName)
+                    : parameters.Length != 0) ||
+                csharp.Length != 1 || csharp[0] is not { } signature ||
+                !(normalizedSignature == "public " + body || normalizedSignature == "public virtual " + body ||
+                    normalizedSignature == "public override " + body) ||
+                !Method(write ? "System.Void" : "System.Int32", write ? "(Landroid/os/Parcel;I)V" : "()I",
+                    signature, write ? "(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" : "") ||
+                member.Element("Implements")?.Elements("InterfaceMember").Any(element =>
+                    element.Value == (write
+                        ? "M:Android.OS.IParcelable.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)"
+                        : "M:Android.OS.IParcelable.DescribeContents")) != true)
+                return Skip("parcelable_method_binding_mismatch",
+                    "The exact registered Parcelable implementation, JNI return/arguments, ordered managed parameters, signature, DocId and interface member must agree.");
+        }
+        else
+            return Skip("repeated_member_not_supported", "This member is outside the repeated-family rules.");
+
+        if (!pages.TryGetValue(owner.SourceRequest.Url, out var load) || load.Page is not { } page)
+            return MapOwner(owner, pages);
+        var candidates = page.Members.Where(source => source.Name == registration.Name &&
+            source.IsField == registration.IsField &&
+            (registration.IsField || source.ArgumentDescriptors?.SequenceEqual(
+                Descriptor.ParseArguments(registration.Descriptor ?? "") ?? []) == true)).ToArray();
+        if (candidates.Length != 1)
+            return MapOwner(owner, pages);
+        var source = candidates[0];
+        var javaName = javaPath.Replace('/', '.').Replace('$', '.');
+        var shortName = javaPath.Split('/')[^1].Replace('$', '.');
+        var simpleName = javaPath.Split('/', '$')[^1];
+        var typePattern = $"(?:{Regex.Escape(javaName)}|{Regex.Escape(shortName)}|{Regex.Escape(simpleName)})";
+        var declaration = source.Declaration ?? "";
+        if (name is "Values" or "ValueOf")
+        {
+            if (!Regex.IsMatch(page.TypeDeclaration,
+                    $@"\benum\s+{typePattern}(?:\s|<|$)", RegexOptions.CultureInvariant) ||
+                !Regex.IsMatch(declaration, name == "Values"
+                    ? $@"^public static (?:final )?{typePattern}\[\]\s+values\s*\(\s*\)$"
+                    : $@"^public static (?:final )?{typePattern}\s+valueOf\s*\(\s*(?:java\.lang\.)?String\s+name\s*\)$",
+                    RegexOptions.CultureInvariant))
+                return Skip("java_enum_source_unverified",
+                    "The official enum declaration and exact static factory return/parameter declaration could not be verified.");
+            var mapping = MapOwner(owner, pages);
+            if (mapping.Docs is { } directDocs &&
+                directDocs.Summary.Length > 0 && directDocs.Returns.Length > 0 &&
+                directDocs.Paragraphs.Count > 0 &&
+                (name == "Values" || ChannelValueOrSkip(directDocs.Parameters.GetValueOrDefault("name"),
+                    "param", "source_param_missing").Text is not null))
+                return mapping;
+            if (!pages.TryGetValue(EnumSpecificationUrl, out var specification) ||
+                specification.Page?.HasImplicitEnumContract != true)
+                return Skip("java_enum_specification_unverified",
+                    "The exact JLS 8.9.3 implicit values/valueOf contracts are unavailable or changed.");
+            var values = name == "Values";
+            var enumRequest = SourceRequest.Create("java/lang/Enum") ??
+                throw new InvalidOperationException("The Java Enum contract has no source route.");
+            var enumFactories = pages.GetValueOrDefault(enumRequest.Url)?.Page?.Members
+                .Where(candidate => candidate.Name == "valueOf" &&
+                    candidate.ArgumentDescriptors?.SequenceEqual(["Ljava/lang/Class;", "Ljava/lang/String;"]) == true)
+                .ToArray() ?? [];
+            if (!values && enumFactories.Length > 1)
+                return Skip("ambiguous_exact_match", "The official Enum page contains duplicate exact valueOf contract declarations.");
+            var enumValueOf = enumFactories.FirstOrDefault();
+            if (!values && (enumValueOf?.Docs is not { } enumDocs ||
+                !enumDocs.Paragraphs.Any(paragraph => !paragraph.IsCode &&
+                    paragraph.Text.Contains("The name must match exactly an identifier used to declare an enum constant in this class.", StringComparison.Ordinal) &&
+                    paragraph.Text.Contains("(Extraneous whitespace characters are not permitted.)", StringComparison.Ordinal)) ||
+                !enumDocs.Exceptions.TryGetValue("IllegalArgumentException", out var unknown) ||
+                !unknown.Contains("no constant with the specified name", StringComparison.Ordinal) ||
+                !enumDocs.Exceptions.TryGetValue("NullPointerException", out var nullName) ||
+                !nullName.Contains("name is null", StringComparison.Ordinal)))
+                return Skip("java_enum_name_contract_unverified",
+                    "The official Enum.valueOf exact-name, unknown-name and null-name contracts are unavailable or changed.");
+            var summary = values
+                ? "Returns an array containing the constants of this enum class, in the order they are declared."
+                : "Returns the enum constant of this class with the specified name.";
+            var paragraphs = new List<SourceParagraph> { new(summary, false) };
+            if (!values)
+            {
+                paragraphs.Add(new(
+                    "The name must match exactly an identifier used to declare an enum constant in this class. (Extraneous whitespace characters are not permitted.)", false));
+                paragraphs.Add(new(
+                    "An IllegalArgumentException is thrown if this enum class has no constant with the specified name. A NullPointerException is thrown if name is null.", false));
+            }
+            var sharedDocs = new SourceDocs(summary, paragraphs,
+                values ? new(StringComparer.Ordinal) : new(StringComparer.Ordinal)
+                {
+                    ["name"] = "The name of the constant to return.",
+                },
+                values ? "An array containing the constants of this enum class, in declaration order."
+                    : "The enum constant of this class with the specified name.",
+                new(StringComparer.Ordinal), source.Url, javaName + "." + registration.Name, owner.SourceRequest.Kind,
+                RepeatedContracts: values
+                    ? [new("Java Language Specification 8.9.3", EnumSpecificationUrl + "#jls-8.9.3", "java")]
+                    : [new("Java Language Specification 8.9.3", EnumSpecificationUrl + "#jls-8.9.3", "java"),
+                        enumRequest with { Url = enumValueOf?.Url ?? enumRequest.Url }]);
+            if (mapping.Docs is { } partialDocs)
+            {
+                var parameterDocs = new Dictionary<string, string>(sharedDocs.Parameters, StringComparer.Ordinal);
+                foreach (var parameter in partialDocs.Parameters)
+                    if (ChannelValueOrSkip(parameter.Value, "param", "source_param_missing").Text is not null)
+                        parameterDocs[parameter.Key] = parameter.Value;
+                sharedDocs = sharedDocs with
+                {
+                    Summary = ChannelValueOrSkip(partialDocs.Summary, "summary", "source_summary_missing").Text is not null
+                        ? partialDocs.Summary : sharedDocs.Summary,
+                    Returns = ChannelValueOrSkip(partialDocs.Returns, "returns", "source_return_missing").Text is not null
+                        ? partialDocs.Returns : sharedDocs.Returns,
+                    Paragraphs = partialDocs.Paragraphs.Count > 0 ? partialDocs.Paragraphs : sharedDocs.Paragraphs,
+                    Parameters = parameterDocs,
+                };
+            }
+            return MappingResult.Success(sharedDocs);
+        }
+        else if (name == "Creator")
+        {
+            var creator = returnType == "Android.OS.IParcelableClassLoaderCreator" ? "ClassLoaderCreator" : "Creator";
+            var classLoaderRequest = SourceRequest.Create(ParcelableJavaPath + "$ClassLoaderCreator") ??
+                throw new InvalidOperationException("The ClassLoaderCreator contract has no official source route.");
+            if (!Regex.IsMatch(page.TypeDeclaration,
+                    $@"\b(?:class|enum)\s+{typePattern}(?:\s|<|$)", RegexOptions.CultureInvariant) ||
+                !Regex.IsMatch(declaration,
+                    $@"^public static final (?:(?:android\.os\.)?Parcelable\.)?{creator}\s*<\s*{typePattern}\s*>\s+CREATOR$",
+                    RegexOptions.CultureInvariant) ||
+                (creator == "ClassLoaderCreator" &&
+                    (!pages.TryGetValue(classLoaderRequest.Url, out var specialized) ||
+                        specialized.Page is not { } specialization ||
+                        !Regex.IsMatch(specialization.TypeDeclaration,
+                            @"\b(?:implements|extends)\s+(?:Parcelable\.)?Creator\s*<\s*T\s*>(?:\s|$)",
+                            RegexOptions.CultureInvariant))) ||
+                !pages.TryGetValue(AndroidReference + "android/os/Parcelable.Creator", out var contract) ||
+                contract.Page?.TypeDocs?.Paragraphs.Any(paragraph =>
+                    !paragraph.IsCode && paragraph.Text == CreatorContractText) != true)
+                return Skip("parcelable_creator_source_unverified",
+                    "The official CREATOR generic type must name this exact class and the official Parcelable.Creator generation contract must match; raw or unrelated creators are not guessed.");
+            var creatorDocs = source.Docs ?? new SourceDocs("", [], new(StringComparer.Ordinal), "",
+                new(StringComparer.Ordinal), source.Url, javaName + ".CREATOR", "android");
+            var text = $"A creator that generates instances of {javaName} from a Parcel.";
+            return MappingResult.Success(creatorDocs with
+            {
+                Summary = IsMeaningfulChannel(creatorDocs.Summary, "summary") ? creatorDocs.Summary : text,
+                Paragraphs = creatorDocs.Paragraphs.Count > 0 ? creatorDocs.Paragraphs : [new(text, false)],
+                Returns = text,
+                RepeatedContracts = creator == "ClassLoaderCreator"
+                    ? [new("android.os.Parcelable.Creator",
+                        AndroidReference + "android/os/Parcelable.Creator", "android"), classLoaderRequest]
+                    : [new("android.os.Parcelable.Creator",
+                        AndroidReference + "android/os/Parcelable.Creator", "android")],
+            });
+        }
+        else if (!Regex.IsMatch(declaration, name == "WriteToParcel"
+                ? @"^public (?:final )?void writeToParcel\s*\(\s*(?:android\.os\.)?Parcel\s+\w+\s*,\s*int\s+\w+\s*\)$"
+                : @"^public (?:final )?int describeContents\s*\(\s*\)$", RegexOptions.CultureInvariant))
+            return Skip("parcelable_method_source_unverified",
+                "The exact public declared source return and parameter types could not be verified; no inherited method contract was substituted.");
+        var result = MapOwner(owner, pages);
+        if (name == "WriteToParcel" && result.Docs is { } writeDocs &&
+            (string?)parameters[0].Attribute("Name") is { } destination &&
+            ChannelValueOrSkip(writeDocs.Parameters.GetValueOrDefault(destination), "param", "source_param_missing").Text is null)
+        {
+            var contracts = pages.GetValueOrDefault(AndroidReference + ParcelableJavaPath)?.Page?.Members
+                .Where(candidate => candidate.Name == "writeToParcel" &&
+                    candidate.ArgumentDescriptors?.SequenceEqual(["Landroid/os/Parcel;", "I"]) == true)
+                .ToArray() ?? [];
+            if (contracts.Length > 1)
+            {
+                var unsafeTargets = writeDocs.UnsafeTargets is null
+                    ? new Dictionary<string, string>(StringComparer.Ordinal)
+                    : new Dictionary<string, string>(writeDocs.UnsafeTargets, StringComparer.Ordinal);
+                unsafeTargets["param:" + destination] =
+                    "The official Parcelable page contains duplicate exact destination contract declarations.";
+                return MappingResult.Success(writeDocs with { UnsafeTargets = unsafeTargets });
+            }
+            var contract = contracts.FirstOrDefault();
+            if (contract?.Declaration == "public abstract void writeToParcel (Parcel dest, int flags)" &&
+                RemoveLeadingJavaType(contract.Docs?.Parameters.GetValueOrDefault("dest") ?? "") ==
+                    "The Parcel in which the object should be written. This value cannot be null.")
+            {
+                var parameterDocs = new Dictionary<string, string>(writeDocs.Parameters, StringComparer.Ordinal)
+                {
+                    [destination] = "The Parcel in which the object should be written.",
+                };
+                return MappingResult.Success(writeDocs with
+                {
+                    Parameters = parameterDocs,
+                    RepeatedContracts = [new("android.os.Parcelable.writeToParcel",
+                        contract.Url, "android")],
+                });
+            }
+        }
+        return result;
+    }
+
+    static string FillRepeatedPlaceholders(
+        LoadedFile file, DocsOwner owner, string text, IReadOnlyDictionary<string, SourceLoadResult> pages,
+        ImportReport report, ref int remaining)
+    {
+        if (owner.Placeholders.Count == 0)
+            return text;
+        var mapping = MapRepeatedOwner(file, owner, pages);
+        if (mapping.Docs is not { } docs)
+        {
+            foreach (var placeholder in owner.Placeholders)
+                report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, placeholder.Target,
+                    mapping.ErrorReason ?? "repeated_source_unverified", mapping.Detail, mapping.SourceUrl));
+            return text;
+        }
+        foreach (var placeholder in owner.Placeholders)
+        {
+            var channels = owner.Docs.Elements(placeholder.Name).Where(element =>
+                placeholder.Name != "param" || (string?)element.Attribute("name") == placeholder.Key).ToArray();
+            var plain = channels.Length == 1 && IsPlaceholder(channels[0]) &&
+                placeholder.Name is "summary" or "value" or "returns" or "param" or "remarks" &&
+                channels[0].Attributes().All(attribute =>
+                    placeholder.Name == "param" && attribute.Name == "name");
+            var replacement = plain ? ReplacementFor(placeholder, docs) :
+                Replacement.Skip("repeated_channel_not_plain_placeholder",
+                    "Only one direct plain-text placeholder is eligible; nested, authored or mixed XML is preserved.");
+            if (replacement.Text is null || remaining == 0)
+            {
+                report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, placeholder.Target,
+                    replacement.Text is null ? replacement.Reason ?? "source_channel_missing" : "max_changes_reached",
+                    replacement.Text is null ? replacement.Detail : "The scoped batch change limit was reached.",
+                    mapping.SourceUrl));
+                continue;
+            }
+            if (!TryReplaceDirectSourcePlaceholder(text, file.DocsBlocks[owner.Order], placeholder,
+                    replacement, docs with { QualityFirstFillOnly = true }, out var updated, out var error))
+            {
+                report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, placeholder.Target,
+                    "repeated_channel_layout_preserved", error, mapping.SourceUrl));
+                continue;
+            }
+            text = updated;
+            file.UpdateBlockOffsets(owner.Order, text);
+            remaining--;
+            report.Entries.Add(ReportEntry.Changed("would_apply", file.RelativePath, owner.Id,
+                placeholder.Target, mapping.SourceUrl, "exact_repeated_binding_match",
+                docs.RepeatedContracts is { } contracts
+                    ? "The exact typed declaration and authoritative contracts match: " +
+                        string.Join(", ", contracts.Select(contract => contract.Url)) +
+                        ". No native null contract was inferred from managed annotations."
+                    : "The exact managed and official declared source identities match; only this placeholder channel changes."));
+        }
+        return text;
+    }
+
+    static int RunRepeatedSelfTest(string repositoryRoot)
+    {
+        var directory = Path.Combine(repositoryRoot, "docs", "xml",
+            ".repeated-importer-self-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        var cache = Path.Combine(directory, "cache");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            void Cache(SourceRequest request, string html) => File.WriteAllText(
+                Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"), html);
+            SourceRequest Request(string path) => SourceRequest.Create(path) ??
+                throw new InvalidOperationException("SELF-TEST FIXTURE: Missing official source route.");
+            string AndroidPage(string declarations, string members) =>
+                "<div id=\"jd-content\"><code class=\"api-signature\">" + declarations +
+                "</code><hr><p>Fixture type.</p><div id=\"summary\"></div>" + members;
+            string Field(string declaration) =>
+                "<h3 class=\"api-name\" id=\"CREATOR\">CREATOR</h3>" +
+                "<pre class=\"api-signature\">" + declaration + "</pre>";
+            string Method(string anchor, string name, string declaration, string body) =>
+                $"<h3 class=\"api-name\" id=\"{anchor}\">{name}</h3>" +
+                $"<pre class=\"api-signature\">{declaration}</pre>{body}";
+            var creatorHtml = AndroidPage("public static class ActivityManager.MemoryInfo",
+                Field("public static final Creator&lt;ActivityManager.MemoryInfo&gt; CREATOR") +
+                Method("describeContents()", "describeContents", "public int describeContents ()",
+                    "<p>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation.</p>" +
+                    "<table><tr><th>Returns</th></tr><tr><td>int</td><td>a bitmask indicating the set of special object types marshaled by this Parcelable object instance.</td></tr></table>"));
+            Cache(Request("android/app/ActivityManager$MemoryInfo"), creatorHtml);
+            Cache(Request(ParcelableJavaPath + "$Creator"), AndroidPage("public static interface Parcelable.Creator",
+                "").Replace("<p>Fixture type.</p>", $"<p>{CreatorContractText}</p>", StringComparison.Ordinal));
+            Cache(Request(ParcelableJavaPath + "$ClassLoaderCreator"),
+                AndroidPage("public static interface Parcelable.ClassLoaderCreator implements Creator&lt;T&gt;", ""));
+            Cache(Request("android/app/Fragment$SavedState"),
+                AndroidPage("public static class Fragment.SavedState",
+                    Field("public static final Parcelable.ClassLoaderCreator&lt;Fragment.SavedState&gt; CREATOR")));
+            const string constantsHtml =
+                "<div class=\"expandable jd-inherited-apis\"><span>From interface " +
+                "<a href=\"/reference/android/os/Parcelable\">android.os.Parcelable</a></span> " +
+                "<a href=\"/reference/android/os/Parcelable#CONTENTS_FILE_DESCRIPTOR\">CONTENTS_FILE_DESCRIPTOR</a>" +
+                "<a href=\"/reference/android/os/Parcelable#PARCELABLE_WRITE_RETURN_VALUE\">PARCELABLE_WRITE_RETURN_VALUE</a></div>";
+            Cache(Request("android/os/Bundle"), constantsHtml);
+            Cache(Request(ParcelableJavaPath), """
+                <h3 class="api-name" id="CONTENTS_FILE_DESCRIPTOR">CONTENTS_FILE_DESCRIPTOR</h3>
+                <pre class="api-signature">public static final int CONTENTS_FILE_DESCRIPTOR</pre>
+                <p>Descriptor bit used with describeContents(): indicates that the Parcelable object's flattened representation includes a file descriptor.</p>
+                <h3 class="api-name" id="PARCELABLE_WRITE_RETURN_VALUE">PARCELABLE_WRITE_RETURN_VALUE</h3>
+                <pre class="api-signature">public static final int PARCELABLE_WRITE_RETURN_VALUE</pre>
+                <p>Flag for use with writeToParcel: the object being written is a return value, that is the result of a function such as "Parcelable someFunction()", "void someFunction(out Parcelable)", or "void someFunction(inout Parcelable)".</p>
+                <h3 class="api-name" id="writeToParcel(android.os.Parcel, int)">writeToParcel</h3>
+                <pre class="api-signature">public abstract void writeToParcel (Parcel dest, int flags)</pre>
+                <table><tr><td>dest</td><td>Parcel: The Parcel in which the object should be written. This value cannot be null.</td></tr></table>
+                """);
+            Cache(Request("android/app/Notification"), AndroidPage("public class Notification",
+                Method("writeToParcel(android.os.Parcel, int)", "writeToParcel",
+                    "public void writeToParcel (Parcel parcel, int flags)",
+                    "<p>Flatten this notification into a parcel.</p>" +
+                    "<table><tr><td>parcel</td><td>Parcel</td></tr>" +
+                    "<tr><td>flags</td><td>int: Additional flags about how the object should be written.</td></tr></table>")));
+            var enumHtml = AndroidPage("public static final enum Bitmap.Config extends Enum&lt;Bitmap.Config&gt;",
+                Method("values()", "values", "public static final Config[] values ()", "") +
+                Method("valueOf(java.lang.String)", "valueOf", "public static Bitmap.Config valueOf (String name)",
+                    "<table><tr><td>name</td><td>String</td></tr></table>"));
+            Cache(Request("android/graphics/Bitmap$Config"), enumHtml);
+            Cache(new SourceRequest("", EnumSpecificationUrl, "enum-specification"),
+                "<a name=\"jls-8.9.3\"></a><p>" + EnumValuesSpecification + "</p><p>" +
+                EnumValueOfSpecification + "</p><a name=\"jls-8.10\"></a>");
+            Cache(Request("java/lang/Enum"), """
+                <section class="detail" id="valueOf(java.lang.Class,java.lang.String)">
+                <h3>valueOf</h3>
+                <div class="block">Returns the enum constant of the specified enum class with the specified name. The name must match exactly an identifier used to declare an enum constant in this class. (Extraneous whitespace characters are not permitted.)</div>
+                <dl class="notes"><dt>Throws:</dt>
+                <dd><code>IllegalArgumentException</code> - if the specified enum class has no constant with the specified name, or the specified class object does not represent an enum class</dd>
+                <dd><code>NullPointerException</code> - if enumClass or name is null</dd></dl>
+                </section>
+                """);
+
+            var examples = new[]
+            {
+                ("Android.App", "ActivityManager+MemoryInfo.xml", "Creator", 3),
+                ("Android.App", "Fragment+SavedState.xml", "Creator", 3),
+                ("Android.App", "ActivityManager+MemoryInfo.xml", "DescribeContents", 3),
+                ("Android.App", "Notification.xml", "WriteToParcel", 4),
+                ("Android.Graphics", "Bitmap+Config.xml", "Values", 3),
+                ("Android.Graphics", "Bitmap+Config.xml", "ValueOf", 4),
+                ("Android.OS", "Bundle+InterfaceConsts.xml", "ContentsFileDescriptor", 2),
+                ("Android.OS", "Bundle+InterfaceConsts.xml", "ParcelableWriteReturnValue", 2),
+            };
+            foreach (var (ns, filename, name, count) in examples)
+            {
+                var root = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", ns, filename));
+                var members = root.Element("Members") ??
+                    throw new InvalidOperationException("SELF-TEST FIXTURE: Missing Members.");
+                var selected = new XElement(members.Elements("Member").Single(member =>
+                    (string?)member.Attribute("MemberName") == name));
+                members.ReplaceNodes(selected);
+                var docs = new XElement("Docs", new XElement("summary", "To be added."),
+                    selected.Element("MemberType")?.Value == "Property" ? new XElement("value", "To be added.") : null,
+                    selected.Element("MemberType")?.Value == "Method" &&
+                        selected.Element("ReturnValue")?.Element("ReturnType")?.Value != "System.Void"
+                        ? new XElement("returns", "To be added.") : null,
+                    selected.Element("Parameters")?.Elements("Parameter").Select(parameter =>
+                        new XElement("param", new XAttribute("name", parameter.Attribute("Name")?.Value ??
+                            throw new InvalidOperationException("SELF-TEST FIXTURE: Missing parameter name.")), "To be added.")) ?? [],
+                    new XElement("remarks", "To be added."));
+                selected.Element("Docs")?.ReplaceWith(docs);
+                var path = Path.Combine(directory, filename);
+                if (name is "ContentsFileDescriptor" or "ParcelableWriteReturnValue")
+                    File.Copy(Path.Combine(repositoryRoot, "docs", "xml", ns, "Bundle.xml"),
+                        Path.Combine(directory, "Bundle.xml"), true);
+                var reportPath = Path.Combine(directory, "report.json");
+                JsonElement Run(params string[] extra)
+                {
+                    var output = Console.Out;
+                    using var captured = new StringWriter();
+                    int result;
+                    try
+                    {
+                        Console.SetOut(captured);
+                        result = RunAsync(["--repeated-only", "--path", path, "--member", name,
+                            "--offline", "--cache", cache, "--max-changes", "10",
+                            "--report", reportPath, .. extra]).GetAwaiter().GetResult();
+                    }
+                    finally
+                    {
+                        Console.SetOut(output);
+                    }
+                    Assert(result == 0, "repeated production invocation: " + captured);
+                    using var report = JsonDocument.Parse(File.ReadAllText(reportPath));
+                    return report.RootElement.Clone();
+                }
+                foreach (var newline in new[] { "\n", "\r\n" })
+                foreach (var bom in new[] { false, true })
+                {
+                    var input = root.ToString().ReplaceLineEndings(newline);
+                    File.WriteAllText(path, input, new UTF8Encoding(bom));
+                    var originalBytes = File.ReadAllBytes(path);
+                    var preview = Run();
+                    Assert(preview.GetProperty("wouldApplyCount").GetInt32() == count &&
+                        File.ReadAllBytes(path).SequenceEqual(originalBytes),
+                        $"repeated {name} exact read-only dry run: {preview}");
+                    var bounded = Run("--apply", "--max-changes", "1");
+                    Assert(bounded.GetProperty("appliedCount").GetInt32() == 1,
+                        "repeated production honors a one-channel budget");
+                    var rest = Run("--apply");
+                    Assert(rest.GetProperty("appliedCount").GetInt32() == count - 1,
+                        "repeated production fills only the remaining exact channels");
+                    var after = File.ReadAllBytes(path);
+                    var rendered = File.ReadAllText(path);
+                    if (name == "ValueOf")
+                        Assert(rendered.Contains("<code>java.lang.Enum</code>", StringComparison.Ordinal) &&
+                            !rendered.Contains("<code>java/lang/Enum</code>", StringComparison.Ordinal),
+                            "implicit enum source references use dotted Java display names");
+                    if (filename == "Fragment+SavedState.xml")
+                        Assert(rendered.Contains("<code>android.os.Parcelable.ClassLoaderCreator</code>", StringComparison.Ordinal) &&
+                            !rendered.Contains("<code>android/os/Parcelable$ClassLoaderCreator</code>", StringComparison.Ordinal),
+                            "specialized creator source references use dotted Java display names");
+                    var parsed = XElement.Load(path);
+                    parsed.Element("Members")?.Element("Member")?.Element("Docs")?.ReplaceWith(new XElement(docs));
+                    Assert(XNode.DeepEquals(parsed, root) &&
+                        after.AsSpan().StartsWith(Encoding.UTF8.Preamble) == bom &&
+                        LoadedFile.SelectNewline(File.ReadAllText(path)) == newline,
+                        "repeated imports preserve every API metadata node, encoding and newline convention");
+                    Assert(Run("--apply").GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(after),
+                        "completed repeated channels have a byte-identical persisted zero-write repeat");
+                }
+                foreach (var variant in new[]
+                {
+                    "<summary>Authored <c>summary</c>.</summary>",
+                    "<summary><![CDATA[To be added.]]></summary>",
+                    "<summary><!-- retained -->To be added.</summary>",
+                    "<summary><?retained instruction?>To be added.</summary>",
+                    "<summary custom=\"retained\">To be added.</summary>",
+                    "<summary><para>To be added.</para></summary>",
+                    "<summary>To be added.</summary><summary>To be added.</summary>",
+                })
+                {
+                    var input = root.ToString().Replace("<summary>To be added.</summary>", variant, StringComparison.Ordinal);
+                    File.WriteAllText(path, input);
+                    Run("--apply");
+                    Assert(File.ReadAllText(path).Contains(variant, StringComparison.Ordinal),
+                        "repeated imports preserve authored, mixed, duplicate and nested channels");
+                }
+                foreach (var changed in new[]
+                {
+                    root.ToString().Replace("Mono.Android", "Other.Assembly", StringComparison.Ordinal),
+                    root.ToString().Replace($"Value=\"{selected.Elements("MemberSignature").First(signature =>
+                        (string?)signature.Attribute("Language") == "DocId").Attribute("Value")?.Value}\"",
+                        "Value=\"M:Other.Identity\"", StringComparison.Ordinal),
+                    root.ToString().Replace("Android.Runtime.Register(", "Other.Register(", StringComparison.Ordinal),
+                })
+                {
+                    File.WriteAllText(path, changed);
+                    Assert(Run("--apply").GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllText(path) == changed,
+                        $"repeated {name} rules reject changed assembly, DocId and registration: {changed}");
+                }
+                var alteredReturn = new XElement(root);
+                var returnElement = alteredReturn.Element("Members")?.Element("Member")?
+                    .Element("ReturnValue")?.Element("ReturnType") ??
+                    throw new InvalidOperationException("SELF-TEST FIXTURE: Missing return type.");
+                returnElement.Value = "System.Object";
+                File.WriteAllText(path, alteredReturn.ToString());
+                Assert(Run("--apply").GetProperty("appliedCount").GetInt32() == 0,
+                    "repeated rules reject an altered managed return type");
+                var alteredRegistration = new XElement(root);
+                foreach (var attribute in alteredRegistration.Descendants("AttributeName").Where(attribute =>
+                    (string?)attribute.Attribute("Language") == "F#" &&
+                    attribute.Value.Contains("Android.Runtime.Register(", StringComparison.Ordinal)))
+                    attribute.Value = attribute.Value.Replace("Android.Runtime.Register(", "Other.Register(", StringComparison.Ordinal);
+                File.WriteAllText(path, alteredRegistration.ToString());
+                Assert(Run("--apply").GetProperty("appliedCount").GetInt32() == 0,
+                    "repeated rules reject disagreeing C# and F# registrations");
+
+                var sourceRequest = name is "ContentsFileDescriptor" or "ParcelableWriteReturnValue"
+                    ? Request("android/os/Bundle") : Request(Registration.Type(root) ??
+                        throw new InvalidOperationException("SELF-TEST FIXTURE: Missing type registration."));
+                var sourceCache = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(sourceRequest.Url))).ToLowerInvariant() + ".html");
+                var sourceHtml = File.ReadAllText(sourceCache);
+                var alteredSource = name switch
+                {
+                    "Creator" => sourceHtml.Replace(
+                        filename == "Fragment+SavedState.xml"
+                            ? "ClassLoaderCreator&lt;Fragment.SavedState&gt;" : "Creator&lt;ActivityManager.MemoryInfo&gt;",
+                        "Creator&lt;Notification&gt;", StringComparison.Ordinal),
+                    "Values" => sourceHtml.Replace("Config[] values", "Object[] values", StringComparison.Ordinal),
+                    "ValueOf" => sourceHtml.Replace("Bitmap.Config valueOf", "Object valueOf", StringComparison.Ordinal),
+                    "DescribeContents" => sourceHtml.Replace("public int describeContents",
+                        "public long describeContents", StringComparison.Ordinal),
+                    "WriteToParcel" => sourceHtml.Replace("public void writeToParcel",
+                        "public int writeToParcel", StringComparison.Ordinal),
+                    _ => sourceHtml.Replace("/reference/android/os/Parcelable#" +
+                        (name == "ContentsFileDescriptor" ? "CONTENTS_FILE_DESCRIPTOR" : "PARCELABLE_WRITE_RETURN_VALUE"),
+                        "/reference/android/os/Other#UNRELATED", StringComparison.Ordinal),
+                };
+                Assert(alteredSource != sourceHtml, "source-negative fixture changes the exact declaration/owner");
+                File.WriteAllText(path, root.ToString());
+                File.WriteAllText(sourceCache, alteredSource);
+                Assert(Run("--apply").GetProperty("appliedCount").GetInt32() == 0,
+                    "repeated rules reject altered official generic/return declarations and inherited field owners");
+                var metadataOnly = new XElement(root);
+                metadataOnly.Element("Members")?.Element("Member")?.Element("Docs")?.Element("remarks")?
+                    .ReplaceWith(XElement.Parse("<remarks><para /><para>" + AndroidAttribution + "</para></remarks>"));
+                File.WriteAllText(path, metadataOnly.ToString());
+                var failedMapping = Run("--apply");
+                Assert(failedMapping.GetProperty("appliedCount").GetInt32() == 0 &&
+                    !failedMapping.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("target").GetString() == "remarks"),
+                    "repeated mapping failures do not report metadata-only remarks as a placeholder");
+                File.WriteAllText(sourceCache, sourceHtml);
+                if (name == "ValueOf")
+                {
+                    var partial = sourceHtml.Replace(
+                        "<table><tr><td>name</td><td>String</td></tr></table>",
+                        "<p>Returns the enum constant with the specified name.</p><p>Source-specific explanatory text.</p>" +
+                        "<table><tr><td>name</td><td>String</td></tr></table>" +
+                        "<table><tr><th>Returns</th></tr><tr><td>Bitmap.Config</td><td>The enum constant with the specified name.</td></tr></table>",
+                        StringComparison.Ordinal);
+                    File.WriteAllText(sourceCache, partial);
+                    File.WriteAllText(path, root.ToString());
+                    Assert(Run("--apply").GetProperty("appliedCount").GetInt32() == count &&
+                        File.ReadAllText(path).Contains("Source-specific explanatory text.", StringComparison.Ordinal),
+                        "partial exact enum docs retain source prose while the verified contract fills a missing name parameter");
+                    File.WriteAllText(sourceCache, sourceHtml);
+                }
+                if (name is "ContentsFileDescriptor" or "ParcelableWriteReturnValue")
+                {
+                    var field = name == "ContentsFileDescriptor" ? "CONTENTS_FILE_DESCRIPTOR" : "PARCELABLE_WRITE_RETURN_VALUE";
+                    File.WriteAllText(sourceCache, sourceHtml +
+                        $"<h3 class=\"api-name\" id=\"{field}\">{field}</h3><pre class=\"api-signature\">public static final int {field}</pre>");
+                    File.WriteAllText(path, root.ToString());
+                    Assert(Run("--apply").GetProperty("appliedCount").GetInt32() == 0,
+                        "a class-declared shadow prevents inherited Parcelable constant mapping");
+                    File.WriteAllText(sourceCache, sourceHtml);
+                }
+                if (name != "DescribeContents")
+                {
+                    var contractRequest = name switch
+                    {
+                        "Creator" => Request(ParcelableJavaPath +
+                            (filename == "Fragment+SavedState.xml" ? "$ClassLoaderCreator" : "$Creator")),
+                        "Values" => new SourceRequest("", EnumSpecificationUrl, "enum-specification"),
+                        "ValueOf" => Request("java/lang/Enum"),
+                        _ => Request(ParcelableJavaPath),
+                    };
+                    var contractCache = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                        Encoding.UTF8.GetBytes(contractRequest.Url))).ToLowerInvariant() + ".html");
+                    var contractHtml = File.ReadAllText(contractCache);
+                    var changedContract = name switch
+                    {
+                        "Creator" => contractHtml.Replace("generates", "disables", StringComparison.Ordinal)
+                            .Replace("implements Creator", "implements Other", StringComparison.Ordinal),
+                        "Values" => contractHtml.Replace("same order", "reverse order", StringComparison.Ordinal),
+                        "ValueOf" => contractHtml.Replace("no constant with the specified name",
+                            "a constant with the specified name", StringComparison.Ordinal),
+                        "WriteToParcel" => contractHtml.Replace("The Parcel in which the object should be written.",
+                            "An unverified destination.", StringComparison.Ordinal),
+                        _ => contractHtml.Replace("public static final int", "public static final long", StringComparison.Ordinal),
+                    };
+                    Assert(changedContract != contractHtml, "contract-drift fixture changes its authoritative gate");
+                    File.WriteAllText(contractCache, changedContract);
+                    File.WriteAllText(path, root.ToString());
+                    Assert(Run("--apply").GetProperty("appliedCount").GetInt32() ==
+                        (name == "WriteToParcel" ? count - 1 : 0),
+                        "changed official contracts cannot enable shared-channel fills");
+                    File.WriteAllText(contractCache, contractHtml);
+                    if (name is "ValueOf" or "WriteToParcel" or "ContentsFileDescriptor" or "ParcelableWriteReturnValue")
+                    {
+                        File.WriteAllText(contractCache, contractHtml + contractHtml);
+                        File.WriteAllText(path, root.ToString());
+                        var duplicate = Run("--apply");
+                        Assert(duplicate.GetProperty("appliedCount").GetInt32() ==
+                            (name == "WriteToParcel" ? count - 1 : 0) &&
+                            duplicate.GetProperty("entries").EnumerateArray().Any(entry =>
+                                entry.GetProperty("reason").GetString() is "ambiguous_exact_match" or "source_channel_ambiguous"),
+                            "duplicate official contract declarations report ambiguity without throwing or guessing");
+                        File.WriteAllText(contractCache, contractHtml);
+                    }
+                }
+                if (name is "Creator" or "Values" or "ValueOf")
+                {
+                    var nonNullable = root.ToString().Replace("?", "", StringComparison.Ordinal);
+                    File.WriteAllText(path, nonNullable);
+                    Assert(Run("--apply").GetProperty("appliedCount").GetInt32() == count,
+                        "exact nonnullable generated signatures have the same proven Java contract");
+                }
+            }
+            var spec = SourcePage.Parse(new("", EnumSpecificationUrl, "enum-specification"),
+                "<a name=\"jls-8.9.3\"></a><p>" + EnumValuesSpecification.Replace("same order", "reverse order", StringComparison.Ordinal) +
+                "</p><p>" + EnumValueOfSpecification + "</p><a name=\"jls-8.10\"></a>");
+            Assert(!spec.HasImplicitEnumContract, "changed official enum ordering cannot enable shared semantics");
+            Console.WriteLine("Repeated binding self-tests passed.");
+            return 0;
+        }
+        finally
+        {
+            Directory.Delete(directory, true);
+        }
+    }
+
     const string ManagedBindingSource =
         "https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/" +
         "tests/generator-Tests/expected.xaji/Constructors/Xamarin.Test.SomeObject.cs";
@@ -5895,7 +6758,7 @@ static partial class ImporterProgram
             _ => true,
         };
 
-    static bool TryReplaceQualityFirstFillPlaceholder(
+    static bool TryReplaceDirectSourcePlaceholder(
         string text,
         DocsBlock block,
         Placeholder placeholder,
@@ -5920,7 +6783,7 @@ static partial class ImporterProgram
             !TryGetClosingElementStart(blockText, remarksSpan, out var remarksClose))
         {
             updated = text;
-            error = "Could not locate the newly filled direct Quality remarks for scoped source metadata.";
+            error = "Could not locate the newly filled direct remarks for scoped source metadata.";
             return false;
         }
 
@@ -5932,6 +6795,13 @@ static partial class ImporterProgram
         {
             paragraphIndent + ImporterSourceReference(docs).ToString(SaveOptions.DisableFormatting),
         };
+        foreach (var contract in docs.RepeatedContracts ?? [])
+            additions.Add(paragraphIndent + ImporterSourceReference(docs with
+            {
+                SourceUrl = contract.Url,
+                SourceLabel = contract.JavaPath.Replace('/', '.').Replace('$', '.'),
+                SourceKind = contract.Kind,
+            }).ToString(SaveOptions.DisableFormatting));
         if (docs.SourceKind == "android")
             additions.Add($"{paragraphIndent}<para>{AndroidAttribution}</para>");
         var insertion = multiline
@@ -15699,6 +16569,7 @@ static partial class ImporterProgram
     static int RunSelfTest(string repositoryRoot)
     {
         RunManagedSelfTest(repositoryRoot);
+        RunRepeatedSelfTest(repositoryRoot);
         TestBiometricAllowedAuthenticatorsRemarksGuard(repositoryRoot);
         TestQualityFirstFillGuards(repositoryRoot);
         TestTvAdSourceCorrections(repositoryRoot);
@@ -26352,6 +27223,7 @@ static partial class ImporterProgram
         public bool Offline { get; private set; }
         public bool SelfTest { get; private set; }
         public bool ManagedOnly { get; private set; }
+        public bool RepeatedOnly { get; private set; }
         public bool Help { get; private set; }
         public int MaxChanges { get; private set; } = 25;
         public int Concurrency { get; private set; } = 4;
@@ -26393,6 +27265,9 @@ static partial class ImporterProgram
                     case "--managed-only":
                         options.ManagedOnly = true;
                         break;
+                    case "--repeated-only":
+                        options.RepeatedOnly = true;
+                        break;
                     case "--path":
                         options.Paths.Add(Value());
                         break;
@@ -26428,6 +27303,8 @@ static partial class ImporterProgram
                         throw new ArgumentException($"Unknown argument: {argument}");
                 }
             }
+            if (options.ManagedOnly && options.RepeatedOnly)
+                throw new ArgumentException("--managed-only and --repeated-only are separate modes.");
             return options;
         }
 
@@ -26464,6 +27341,7 @@ static partial class ImporterProgram
               --max-changes <n>      Maximum placeholder elements (default: 25)
               --offline              Read only from cache; never use the network
               --managed-only         Fill exact shared .NET binding placeholders without network access
+              --repeated-only        Fill verified parcelable/Java enum channels; never refresh existing prose
               --cache <directory>    Cache official pages by URL hash
               --report <path>        Write deterministic JSON and adjacent text reports
 
@@ -27533,11 +28411,33 @@ static partial class ImporterProgram
 
         public SourceDocs? TypeDocs { get; init; }
         public List<SourceMember> Members { get; init; } = [];
+        public string TypeDeclaration { get; init; } = "";
+        public HashSet<string> InheritedParcelableFields { get; init; } = new(StringComparer.Ordinal);
+        public bool HasImplicitEnumContract { get; init; }
 
         public static SourcePage Parse(SourceRequest request, string html) =>
-            request.Kind == "android"
+            request.Kind == "enum-specification"
+                ? new SourcePage
+                {
+                    HasImplicitEnumContract = HasEnumSpecification(html),
+                }
+                : request.Kind == "android"
                 ? ParseAndroid(request, html)
                 : ParseJava(request, html);
+
+        static bool HasEnumSpecification(string html)
+        {
+            var start = html.IndexOf("name=\"jls-8.9.3\"", StringComparison.Ordinal);
+            var end = html.IndexOf("name=\"jls-8.10\"", Math.Max(0, start), StringComparison.Ordinal);
+            if (start < 0 || end < start)
+                return false;
+            var paragraphs = Regex.Matches(html[start..end], @"<p\b[^>]*>(?<body>.*?)</p>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
+                .Select(match => HtmlText(match.Groups["body"].Value)
+                    .Replace("E []", "E[]", StringComparison.Ordinal)).ToArray();
+            return paragraphs.Contains(EnumValuesSpecification, StringComparer.Ordinal) &&
+                paragraphs.Contains(EnumValueOfSpecification, StringComparer.Ordinal);
+        }
 
         static SourcePage ParseAndroid(SourceRequest request, string html)
         {
@@ -27595,6 +28495,21 @@ static partial class ImporterProgram
             {
                 TypeDocs = ExtractAndroidTypeDocs(html, request),
                 Members = sections,
+                TypeDeclaration = string.Join(" ", Regex.Matches(html,
+                    @"<code\b[^>]*class=""[^""]*\bapi-signature\b[^""]*""[^>]*>(?<declaration>.*?)</code>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
+                    .Select(match => HtmlText(match.Groups["declaration"].Value))),
+                InheritedParcelableFields = Regex.Matches(html,
+                    @"<div\b[^>]*class=""[^""]*\bjd-inherited-apis\b[^""]*""[^>]*>(?<body>.*?)</div>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
+                    .Select(match => match.Groups["body"].Value)
+                    .Where(body => HtmlText(body).StartsWith(
+                        "From interface android.os.Parcelable ", StringComparison.Ordinal))
+                    .SelectMany(body => Regex.Matches(body,
+                        @"<a href=""/reference/android/os/Parcelable#(?<field>CONTENTS_FILE_DESCRIPTOR|PARCELABLE_WRITE_RETURN_VALUE)"">",
+                        RegexOptions.CultureInvariant))
+                    .Select(match => match.Groups["field"].Value)
+                    .ToHashSet(StringComparer.Ordinal),
             };
         }
 
@@ -28062,12 +28977,18 @@ static partial class ImporterProgram
                     isField,
                     arguments,
                     ExtractJavaDocs(body, request, displayName, url),
-                    url));
+                    url,
+                    HtmlText(Regex.Match(body,
+                        @"<div\b[^>]*class=""[^""]*\bmember-signature\b[^""]*""[^>]*>(?<declaration>.*?)</div>",
+                        RegexOptions.Singleline | RegexOptions.CultureInvariant).Groups["declaration"].Value)));
             }
             return new SourcePage
             {
                 TypeDocs = ExtractJavaTypeDocs(html, request),
                 Members = members,
+                TypeDeclaration = HtmlText(Regex.Match(html,
+                    @"<div\b[^>]*class=""[^""]*\btype-signature\b[^""]*""[^>]*>(?<declaration>.*?)</div>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant).Groups["declaration"].Value),
             };
         }
 
@@ -28827,7 +29748,8 @@ static partial class ImporterProgram
         bool HasRecoveredDeviceBuilderSetUdiPermissionContract = false,
         bool HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract = false,
         bool HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract = false,
-        bool HasBiometricAllowedAuthenticatorsIncompleteDefaultList = false);
+        bool HasBiometricAllowedAuthenticatorsIncompleteDefaultList = false,
+        IReadOnlyList<SourceRequest>? RepeatedContracts = null);
 
     static class Descriptor
     {
