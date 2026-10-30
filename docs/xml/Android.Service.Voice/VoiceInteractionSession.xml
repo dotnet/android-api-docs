@@ -89,9 +89,8 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <summary>
-        </summary>
+        <param name="context">The context used to create the session. A window context can be created from it for the voice interaction window.</param>
+        <summary>Initializes a voice interaction session with a handler on the current thread's looper.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -118,10 +117,9 @@
         <Parameter Name="handler" Type="Android.OS.Handler" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="handler">To be added.</param>
-        <summary>
-        </summary>
+        <param name="context">The context used to create the session. A window context can be created from it for the voice interaction window.</param>
+        <param name="handler">The handler whose looper is used to dispatch session callbacks. The session creates its own callback handler on that looper.</param>
+        <summary>Initializes a voice interaction session using the supplied handler's looper.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -218,8 +216,8 @@
         <ReturnType>Android.Content.Context</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the context used by this session.</summary>
+        <value>The supplied context, or a voice interaction window context created from it when needed.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -260,7 +258,7 @@
         <summary>Equivalent to <c>VoiceInteractionService#getDisabledShowContext
             VoiceInteractionService.getDisabledShowContext</c>. -or- Equivalent to <c>VoiceInteractionService#setDisabledShowContext
             VoiceInteractionService.setDisabledShowContext(int)</c>.</summary>
-        <value>To be added.</value>
+        <value>The assist-data and screenshot flags disabled by the service. A zero value disables neither kind of context data.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Equivalent to <c>VoiceInteractionService#getDisabledShowContext
@@ -651,7 +649,7 @@
       </ReturnValue>
       <Docs>
         <summary>Convenience for inflating views.</summary>
-        <value>To be added.</value>
+        <value>The layout inflater obtained from the session's context when its window is created.</value>
         <remarks>
           <para>Convenience for inflating views.</para>
           <para>
@@ -921,8 +919,8 @@
         <Parameter Name="newConfig" Type="Android.Content.Res.Configuration" />
       </Parameters>
       <Docs>
-        <param name="newConfig">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="newConfig">The new device configuration. This value cannot be null.</param>
+        <summary>Called by the system when the device configuration changes while your component is running.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1037,7 +1035,7 @@
       <Parameters />
       <Docs>
         <summary>Hook in which to create the session's UI.</summary>
-        <returns>To be added.</returns>
+        <returns>The view to use as the session's content, or <c>null</c> if no content view is provided. The default implementation returns <c>null</c>.</returns>
         <remarks>
           <para>Hook in which to create the session's UI.</para>
           <para>
@@ -1121,7 +1119,7 @@
         <Parameter Name="activityId" Type="Android.Service.Voice.VoiceInteractionSession+ActivityId" />
       </Parameters>
       <Docs>
-        <param name="activityId">To be added.</param>
+        <param name="activityId">The identifier of the activity whose direct actions have changed.</param>
         <summary>Called when the direct actions are invalidated.</summary>
         <remarks>
           <para>
@@ -1223,7 +1221,7 @@
         <Parameter Name="state" Type="Android.Service.Voice.VoiceInteractionSession+AssistState" />
       </Parameters>
       <Docs>
-        <param name="state">To be added.</param>
+        <param name="state">The state object capturing the state of an activity. This value cannot be null.</param>
         <summary>Called to receive data from the application that the user was currently viewing when
             -     * an assist session is started.</summary>
         <remarks>
@@ -1415,7 +1413,7 @@
         <Parameter Name="screenshot" Type="Android.Graphics.Bitmap" />
       </Parameters>
       <Docs>
-        <param name="screenshot">To be added.</param>
+        <param name="screenshot">The screenshot of the activity, or <c>null</c> if capture was disabled by the user, policy, or application.</param>
         <summary>Called to receive a screenshot of what the user was currently viewing when an assist
             session is started.</summary>
         <remarks>
@@ -1511,10 +1509,10 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">To be added.</param>
-        <param name="e">To be added.</param>
+        <param name="keyCode">The value in event.getKeyCode().</param>
+        <param name="e">The key event. The default implementation does not handle it and returns <c>false</c>.</param>
         <summary>Called when a key down event has occurred.</summary>
-        <returns>To be added.</returns>
+        <returns>If you handled the event, return true. If you want to allow the event to be handled by the next receiver, return false.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1554,10 +1552,10 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">To be added.</param>
-        <param name="e">To be added.</param>
+        <param name="keyCode">The value in event.getKeyCode().</param>
+        <param name="e">The key event. The default implementation does not handle it and returns <c>false</c>.</param>
         <summary>Called when a long press has occurred.</summary>
-        <returns>To be added.</returns>
+        <returns>If you handled the event, return true. If you want to allow the event to be handled by the next receiver, return false.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1598,12 +1596,12 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="e">To be added.</param>
+        <param name="keyCode">The value in event.getKeyCode().</param>
+        <param name="count">Number of pairs as returned by event.getRepeatCount().</param>
+        <param name="e">The key event. The default implementation does not handle it and returns <c>false</c>.</param>
         <summary>Called when multiple down/up pairs of the same key have occurred
  in a row.</summary>
-        <returns>To be added.</returns>
+        <returns>If you handled the event, return true. If you want to allow the event to be handled by the next receiver, return false.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1643,10 +1641,10 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">To be added.</param>
-        <param name="e">To be added.</param>
+        <param name="keyCode">The value in event.getKeyCode().</param>
+        <param name="e">The key event. The default implementation does not handle it and returns <c>false</c>.</param>
         <summary>Called when a key up event has occurred.</summary>
-        <returns>To be added.</returns>
+        <returns>If you handled the event, return true. If you want to allow the event to be handled by the next receiver, return false.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1721,7 +1719,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>This is called when the overall system is running low on memory, and actively running processes should trim their memory usage.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2232,8 +2230,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="level">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="level">The context of the trim, giving a hint of the amount of trimming the application may like to perform. Value is one of the following: ComponentCallbacks2.TRIM_MEMORY_COMPLETE; ComponentCallbacks2.TRIM_MEMORY_MODERATE; ComponentCallbacks2.TRIM_MEMORY_BACKGROUND; ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN; ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL; ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW; ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE</param>
+        <summary>Called when the operating system has determined that it is a good time for a process to trim unneeded memory from its process.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2347,10 +2345,15 @@
         <Parameter Name="callback" Type="Android.Service.Voice.VoiceInteractionSession+IVisibleActivityCallback" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">The executor which will be used to invoke the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">The callback to receive the response. This value cannot be null.</param>
+        <summary>Registers a callback that will be notified when visible activities have been changed.</summary>
+        <remarks>
+          <para>Registration is posted to the session's handler, and notifications run on the supplied executor. A newly registered callback receives information about currently visible activities. Registering the same callback again does not change its executor or register it twice.</para>
+          <para>Call after <c>OnCreate</c>, when the session token is available. The executor and callback must not be <c>null</c>.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/voice/VoiceInteractionSession#registerVisibleActivityCallback(java.util.concurrent.Executor,%20android.service.voice.VoiceInteractionSession.VisibleActivityCallback)" title="Reference documentation">Android reference for <code>android.service.voice.VoiceInteractionSession.registerVisibleActivityCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestDirectActions">
@@ -2437,9 +2440,8 @@
         <Parameter Name="view" Type="Android.Views.View" />
       </Parameters>
       <Docs>
-        <param name="view">To be added.</param>
-        <summary>
-        </summary>
+        <param name="view">The view that replaces the current content and fills the session's content frame.</param>
+        <summary>Sets the content view of the session's window.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2472,7 +2474,7 @@
         <Parameter Name="keepAwake" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="keepAwake">To be added.</param>
+        <param name="keepAwake"><c>true</c> to hold the wake lock while a voice activity is running; <c>false</c> to release it and allow the CPU to sleep. A new voice activity task acquires the wake lock again.</param>
         <summary>Set whether this session will keep the device awake while it is running a voice
             activity.</summary>
         <remarks>
@@ -2526,7 +2528,7 @@
         <Parameter Name="theme" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="theme">To be added.</param>
+        <param name="theme">The theme resource identifier for the session window. Set it before <c>OnCreate</c>, usually in the constructor; the theme cannot be changed after the window is created.</param>
         <summary>You can call this to customize the theme used by your IME's window.</summary>
         <remarks>
           <para>You can call this to customize the theme used by your IME's window.
@@ -2573,7 +2575,7 @@
         <Parameter Name="enabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="enabled">To be added.</param>
+        <param name="enabled"><c>true</c> to enable the session's window, which is the default; <c>false</c> to disable that window.</param>
         <summary>Control whether the UI layer for this session is enabled.</summary>
         <remarks>
           <para>Control whether the UI layer for this session is enabled.  It is enabled by default.
@@ -2717,7 +2719,7 @@
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">To be added.</param>
+        <param name="intent">The intent used to start the assistant activity. Call after <c>OnCreate</c>, when the session token is available.</param>
         <summary>Ask that a new assistant activity be started.</summary>
         <remarks>
           <para>Ask that a new assistant activity be started.  This will create a new task in the
@@ -2965,9 +2967,13 @@
         <Parameter Name="callback" Type="Android.Service.Voice.VoiceInteractionSession+IVisibleActivityCallback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="callback">The callback to receive the response. This value cannot be null.</param>
+        <summary>Unregisters the callback.</summary>
+        <remarks>
+          <para>Removal of the callback is posted to the session's handler. When no callbacks remain, the session clears its visible activity list and asks the system to stop sending visible activity changes.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/voice/VoiceInteractionSession#unregisterVisibleActivityCallback(android.service.voice.VoiceInteractionSession.VisibleActivityCallback)" title="Reference documentation">Android reference for <code>android.service.voice.VoiceInteractionSession.unregisterVisibleActivityCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="UserDisabledShowContext">
@@ -2996,7 +3002,7 @@
       <Docs>
         <summary>Return which show context flags have been disabled by the user through the system
             settings UI, so the session will never get this data.</summary>
-        <value>To be added.</value>
+        <value>The assist-data and screenshot flags disabled in the user's global settings. This does not include restrictions from the current application or other temporary conditions.</value>
         <remarks>
           <para>Return which show context flags have been disabled by the user through the system
             settings UI, so the session will never get this data.  Returned flags are any combination of
@@ -3043,7 +3049,7 @@
       </ReturnValue>
       <Docs>
         <summary>Retrieve the window being used to show the session's UI.</summary>
-        <value>To be added.</value>
+        <value>The dialog used to display the session's user interface. Access creates the window if needed and requires the session's UI to be enabled.</value>
         <remarks>
           <para>Retrieve the window being used to show the session's UI.</para>
           <para>

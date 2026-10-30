@@ -470,7 +470,7 @@
       </ReturnValue>
       <Docs>
         <summary>Legacy NfcAdapter getter, always use <c>#getDefaultAdapter(Context)</c> instead.</summary>
-        <value>To be added.</value>
+        <value>The legacy default NFC adapter, created without a context. Use <see cref="M:Android.Nfc.NfcAdapter.GetDefaultAdapter(Android.Content.Context)" /> instead; operations that require a context cannot use this adapter.</value>
         <remarks>
           <para>Legacy NfcAdapter getter, always use <c>#getDefaultAdapter(Context)</c> instead.</para>
           <para>This method was deprecated at API level 10 (Gingerbread MR1) because a context is required
@@ -521,7 +521,7 @@
       <Parameters />
       <Docs>
         <summary>Disable NFC hardware.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if NFC is already off or a state transition will be reported; <see langword="false" /> if a problem prevents an attempt to turn NFC off. This call is asynchronous: a successful return does not mean the transition is complete. Listen for <see cref="F:Android.Nfc.NfcAdapter.ActionAdapterStateChanged" /> to track the state.</returns>
         <remarks>
           <para>Disable NFC hardware.</para>
           <para>No NFC features will work after this call, and the hardware
@@ -739,7 +739,7 @@
       <Parameters />
       <Docs>
         <summary>Enable NFC hardware.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if NFC is already on or a state transition will be reported; <see langword="false" /> if a problem prevents an attempt to turn NFC on. This call is asynchronous: a successful return does not mean the transition is complete. Listen for <see cref="F:Android.Nfc.NfcAdapter.ActionAdapterStateChanged" /> to track the state.</returns>
         <remarks>
           <para>Enable NFC hardware.</para>
           <para>This call is asynchronous. Listen for
@@ -2037,8 +2037,11 @@
       </ReturnValue>
       <Docs>
         <summary>Get the AID for Tap to Share functionality.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The application identifier (AID) for Tap to Share, or <see langword="null" /> if no value is returned by the NFC service.</value>
+        <remarks>
+          <para>This getter requires the <c>android.permission.PERFORM_GESTURE_EXCHANGE</c> permission.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/Nfc/+/940212c440f57032a19cf0f90c7faa8eca48d546/framework/java/android/nfc/NfcAdapter.java">Android 17 source for <c>NfcAdapter.getGestureExchangeAid</c>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetDefaultAdapter">
@@ -3650,7 +3653,7 @@
         <Parameter Name="enabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="enabled">To be added.</param>
+        <param name="enabled"><see langword="true" /> to use power-saving mode the next time NFC is disabled; <see langword="false" /> to disable power-saving mode. If the NFC chip is already disabled, the setting takes effect immediately.</param>
         <summary>Sets whether or not the NFC chip should be in power-saving mode next time it is disabled
             with <c>NfcAdapter#disable()</c>.</summary>
         <remarks>
