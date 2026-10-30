@@ -56,8 +56,12 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Initializes a builder with no media selection constraints.</summary>
+        <remarks>
+          <para>Size and resolution limits start at <c>-1</c>, duration limits start at <see langword="null" />, and the MIME type list starts empty. These values mean that the corresponding selection constraints are not set.</para>
+          <para>Size limits use bytes. Resolution limits use total pixels. Duration setters accept <see cref="T:Java.Time.Duration" /> values. Each clear method removes only its corresponding constraint.</para>
+          <para><format type="text/html"><a href="https://android.googlesource.com/platform/packages/providers/MediaProvider/+/refs/heads/android17-release/photopicker/framework/java/android/widget/photopicker/PhotoPickerSelectionParams.java">Android source for selection builder defaults, setters, and clear methods.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -120,7 +124,7 @@
       <Parameters />
       <Docs>
         <summary>Clears the maximum media item resolution constraint.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the maximum media item resolution constraint removed.</returns>
         <remarks>
           <para>Clears the maximum media item resolution constraint.</para>
           <para>On calling this, the PhotoPicker will not enforce an upper limit on the total resolution of individual media items.</para>
@@ -155,7 +159,7 @@
       <Parameters />
       <Docs>
         <summary>Clears the maximum media item size constraint.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the maximum media item size constraint removed.</returns>
         <remarks>
           <para>Clears the maximum media item size constraint.</para>
           <para>On calling this, the PhotoPicker will not enforce an upper limit on the size of individual media items.</para>
@@ -190,7 +194,7 @@
       <Parameters />
       <Docs>
         <summary>Clears the maximum cumulative selection size constraint.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the maximum total selection size constraint removed.</returns>
         <remarks>
           <para>Clears the maximum cumulative selection size constraint.</para>
           <para>On calling this, the PhotoPicker will not enforce a limit on the total aggregate size of the selected media items in a single session.</para>
@@ -225,7 +229,7 @@
       <Parameters />
       <Docs>
         <summary>Clears the maximum video duration constraint.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the maximum video duration constraint removed.</returns>
         <remarks>
           <para>Clears the maximum video duration constraint.</para>
           <para>On calling this, the PhotoPicker will not enforce an upper limit on the duration of video media items.</para>
@@ -260,7 +264,7 @@
       <Parameters />
       <Docs>
         <summary>Clears the MIME type constraint.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the MIME type selection constraint removed.</returns>
         <remarks>
           <para>Clears the MIME type constraint.</para>
           <para>On calling this, the builder will revert to its default state of allowing all supported media MIME types (images and videos) for selection.</para>
@@ -295,7 +299,7 @@
       <Parameters />
       <Docs>
         <summary>Clears the minimum media item resolution constraint.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the minimum media item resolution constraint removed.</returns>
         <remarks>
           <para>Clears the minimum media item resolution constraint.</para>
           <para>On calling this, the PhotoPicker will not enforce a lower limit on the total resolution of individual media items.</para>
@@ -330,7 +334,7 @@
       <Parameters />
       <Docs>
         <summary>Clears the minimum video duration constraint.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the minimum video duration constraint removed.</returns>
         <remarks>
           <para>Clears the minimum video duration constraint.</para>
           <para>On calling this, the PhotoPicker will not enforce a lower limit on the duration of video media items.</para>
@@ -399,7 +403,7 @@
       <Docs>
         <param name="maxMediaItemResolutionInPixels">The maximum media item resolution in pixels</param>
         <summary>Sets the maximum allowed resolution constraint for a media item to be selectable.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the maximum media item resolution configured in total pixels.</returns>
         <remarks>
           <para>Sets the maximum allowed resolution constraint for a media item to be selectable.</para>
           <para>Items exceeding the provided resolution will be disabled for selection.</para>
@@ -439,7 +443,7 @@
       <Docs>
         <param name="maxMediaItemSizeInBytes">The maximum size in bytes.</param>
         <summary>Sets the maximum allowed size, in bytes, for any individual media item to be selectable.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the maximum media item size configured in bytes.</returns>
         <remarks>
           <para>Sets the maximum allowed size, in bytes, for any individual media item to be selectable.</para>
           <para>The calling application can set this to limit the size of media returned by the PhotoPicker. Items exceeding this limit will be disabled for selection.</para>
@@ -478,7 +482,7 @@
       <Docs>
         <param name="maxSelectionBatchSizeInBytes">The maximum batch size in bytes.</param>
         <summary>Sets the maximum allowed cumulative size, in bytes, for the entire batch of selected media items.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the maximum total selection size configured in bytes.</returns>
         <remarks>
           <para>Sets the maximum allowed cumulative size, in bytes, for the entire batch of selected media items.</para>
           <para>This limits the total aggregate size of the media selected by the user. If a new selection causes the total size to exceed this limit, the user will be alerted that they have reached the maximum selection size limit and must deselect items before proceeding.</para>
@@ -517,7 +521,7 @@
       <Docs>
         <param name="maxVideoDuration">The maximum video duration. This value cannot be null.</param>
         <summary>Sets the maximum allowed duration for a video media item to be selectable.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the maximum video duration configured.</returns>
         <remarks>
           <para>Sets the maximum allowed duration for a video media item to be selectable.</para>
           <para>Videos exceeding this duration will be disabled for selection.</para>
@@ -557,7 +561,7 @@
       <Docs>
         <param name="mimeTypes">The list of allowed MIME types. This value cannot be null.</param>
         <summary>Sets the list of MIME types that are allowed for selection.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the allowed MIME types configured.</returns>
         <remarks>
           <para>Sets the list of MIME types that are allowed for selection.</para>
           <para>Media items that violate this constraint will be disabled for selection.</para>
@@ -599,7 +603,7 @@
       <Docs>
         <param name="minMediaItemResolutionInPixels">The minimum allowed resolution in total pixels.</param>
         <summary>Sets the minimum allowed resolution constraint for a media item to be selectable.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the minimum media item resolution configured in total pixels.</returns>
         <remarks>
           <para>Sets the minimum allowed resolution constraint for a media item to be selectable.</para>
           <para>Media items with a resolution lower than the provided threshold will be disabled for selection.</para>
@@ -639,7 +643,7 @@
       <Docs>
         <param name="minVideoDuration">The minimum video duration. This value cannot be null.</param>
         <summary>Sets the minimum allowed duration for a video media item to be selectable.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder with the minimum video duration configured.</returns>
         <remarks>
           <para>Sets the minimum allowed duration for a video media item to be selectable.</para>
           <para>Videos shorter than this duration will be disabled for selection.</para>
