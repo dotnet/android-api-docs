@@ -58,6 +58,54 @@ protected content, and byte-identical repeat runs without network access.
 
 ## Android and Java reference import
 
+### Repeated Parcelable and Java enum members
+
+Use `--repeated-only` for `Creator`, `WriteToParcel`, `DescribeContents`,
+Java enum `Values`/`ValueOf`, and inherited Parcelable constants. It fills
+placeholders without changing existing documentation. It cannot be combined
+with `--managed-only` and excludes builders, constructors, collection
+`Values` properties, and text `ValueOf` factories.
+
+```powershell
+dotnet run tools\importer.cs -- --repeated-only --self-test
+dotnet run tools\importer.cs -- --repeated-only --path docs\xml\Android.Graphics\Bitmap+Config.xml --member Values --max-changes 10 --cache C:\temp\android-doc-cache --report C:\temp\enum-preview
+```
+
+Review both reports before each scoped `--apply` run. Keep each apply at ten
+changes or fewer. Use the same cache with `--offline` for repeat runs.
+
+Rules check the assembly, type and member DocIds, JNI registration, managed
+signature, return type, and ordered parameters. Missing or ambiguous source
+declarations are reported, not filled.
+
+`Creator` requires a public static final `Parcelable.Creator<T>` or
+`ClassLoaderCreator<T>` source field for the registered Parcelable class
+and the official creator contract. Managed nullable annotations do not
+establish native null behavior.
+
+Enums require the managed `Java.Lang.Enum` base, an official enum declaration,
+and matching static method signatures. Missing method documentation can use
+[JLS 8.9.3](https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.9.3).
+The `ValueOf` name-matching and unknown/null-name rules also require the
+Java 21 `Enum.valueOf` contract.
+
+Parcelable methods must implement the matching interface member. Their class
+documentation supplies flags, serialization details, and return bits. Only a
+missing destination description can use `Parcelable.writeToParcel`'s contract;
+its nullability sentence and flags description are not copied.
+
+`InterfaceConsts` requires the generated field and registered Parcelable
+sibling to match. The sibling's source must identify the inherited field
+without a class-declared shadow; Parcelable must declare the constant.
+The projection follows the pinned
+[InterfaceConsts generator](https://github.com/dotnet/java-interop/blob/92b5d471f1e0f6164fc332b1f661b472f5cf3aad/tools/generator/SourceWriters/InterfaceConstsClass.cs).
+
+Only unique direct plain-text placeholders change. Source links and attribution
+are added only inside newly filled remarks. Offline self-tests cover source
+checks, protected text, change limits, BOM/newlines, and zero-write repeat runs.
+
+### Exact reference matching
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.
