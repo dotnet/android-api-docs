@@ -3895,7 +3895,10 @@ static partial class ImporterProgram
         {
             const string detail =
                 "The exact Android prose calls a UnicodeBlock object field an int; no replacement type description was inferred.";
-            targets["summary"] = detail;
+            if (docs.Summary == (ownerId == "P:Android.Icu.Lang.UCharacter.UnicodeBlock.PrivateUse"
+                ? "Same as public static final int PRIVATE_USE_AREA."
+                : "Same as public static final int PRIVATE_USE."))
+                targets["summary"] = detail;
             targets["remarks"] = detail;
             preserveUnsafeRawParagraphs = true;
         }
@@ -6698,22 +6701,32 @@ static partial class ImporterProgram
             XmlSpan replacementSpan;
             if (directPlaceholder is not null)
             {
-                if (!TryFindMarkupEnd(blockText, remarksSpan.Start, out var openingEnd) ||
-                    !TryGetElementSpan(blockText, remarksElement.Elements().First(), out var firstChild))
+                if (directPlaceholder is not IXmlLineInfo lineInfo ||
+                    !lineInfo.HasLineInfo() ||
+                    !TryGetTextOffset(blockText, lineInfo.LineNumber, lineInfo.LinePosition,
+                        out var textStart))
                 {
                     updated = text;
                     error = "Could not locate the direct remarks placeholder without changing retained metadata.";
                     return false;
                 }
-                var directText = blockText[openingEnd..firstChild.Start];
+                var textEnd = blockText.IndexOf('<', textStart);
+                if (textEnd < 0)
+                {
+                    updated = text;
+                    error = "Could not locate the end of the direct remarks placeholder.";
+                    return false;
+                }
+                var directText = blockText[textStart..textEnd];
                 var match = Regex.Match(directText, @"To be added\.?", RegexOptions.CultureInvariant);
-                if (!match.Success || NormalizeText(directText) != NormalizeText(match.Value))
+                if (!match.Success || NormalizeText(directText) != NormalizeText(match.Value) ||
+                    NormalizeText(directText) != NormalizeText(directPlaceholder.Value))
                 {
                     updated = text;
                     error = "The direct remarks placeholder did not match its original text span.";
                     return false;
                 }
-                replacementSpan = new XmlSpan(openingEnd + match.Index, openingEnd + match.Index + match.Length);
+                replacementSpan = new XmlSpan(textStart + match.Index, textStart + match.Index + match.Length);
             }
             else if (!TryGetElementSpan(blockText, emptyParagraph!, out replacementSpan))
             {
@@ -16711,6 +16724,14 @@ static partial class ImporterProgram
                 Assert(WithoutKnownUnsafeAndroidSourceChannels(originalOwner.Id, contextual)
                     .UnsafeTargets?.ContainsKey("remarks") == true,
                     test.Name + " safe context does not hide the original defective paragraph");
+                if (test.Name is "private-use" or "private-use-area")
+                {
+                    var safeSummary = WithoutKnownUnsafeAndroidSourceChannels(originalOwner.Id,
+                        contextual with { Summary = "Additional source context." });
+                    Assert(safeSummary.UnsafeTargets?.ContainsKey("summary") == false &&
+                        safeSummary.UnsafeTargets?.ContainsKey("remarks") == true,
+                        test.Name + " safe summary remains eligible while defective remarks stay withheld");
+                }
             }
 
             var temp = Path.Combine(Path.GetTempPath(), "importer-preservation-" + Guid.NewGuid().ToString("N"));
@@ -16721,7 +16742,7 @@ static partial class ImporterProgram
             File.WriteAllBytes(Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
                 Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"), htmlBytes);
             var ordinal = 0;
-            (int Count, int Writes) Run(bool apply)
+            (int Count, int Writes) Run(bool apply, bool expectExclusion = true)
             {
                 var reportPath = Path.Combine(temp, "report-" + ordinal++);
                 var args = new List<string>
@@ -16737,23 +16758,23 @@ static partial class ImporterProgram
                 var root = report.RootElement;
                 Assert(root.GetProperty("errorCount").GetInt32() == 0,
                     test.Name + " pipeline has no errors");
-                if (isSourceGuard)
+                if (isSourceGuard && expectExclusion)
                     Assert(root.GetProperty("entries").EnumerateArray().Any(entry =>
                             entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
                         test.Name + " exclusion is explicitly reported");
                 return (root.GetProperty(apply ? "appliedCount" : "wouldApplyCount").GetInt32(),
                     root.GetProperty("filesChanged").GetInt32());
             }
-            string ProtectedText(LoadedFile file)
+            string ProtectedText(LoadedFile file, string[]? changedNames = null)
             {
                 file.SelectOwners(originalOwner.Id);
                 var owner = file.Owners.Single(candidate => candidate.Id == originalOwner.Id);
                 var block = file.DocsBlocks[owner.Order];
                 var text = file.Text[block.Start..block.End];
                 var document = XElement.Parse(text, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
-                var names = test.Name == "bssid" ? new[] { "param", "summary", "returns" } :
+                var names = changedNames ?? (test.Name == "bssid" ? new[] { "param", "summary", "returns" } :
                     test.Name is "burn" or "dodge" ? new[] { "summary" } :
-                    test.Expected == 0 ? [] : new[] { "remarks" };
+                    test.Expected == 0 ? [] : new[] { "remarks" });
                 foreach (var name in names)
                 {
                     Assert(TryGetElementSpan(text, document.Element(name)!, out var span),
@@ -16775,6 +16796,10 @@ static partial class ImporterProgram
                             original,
                             original.Replace("<remarks>To be added.", "<remarks><para />", StringComparison.Ordinal),
                             original.Replace("</remarks>", "<!-- retained --><![CDATA[retained data]]><?keep value?></remarks>", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.",
+                                "<remarks><!-- retained --><?keep value?>To be added.", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.", "<remarks>", StringComparison.Ordinal)
+                                .Replace("</remarks>", "To be added.</remarks>", StringComparison.Ordinal),
                         }
                         : [original];
                     foreach (var input in variants)
@@ -16805,29 +16830,54 @@ static partial class ImporterProgram
                                 after.Text.Contains(blockText[span.Start..span.End], StringComparison.Ordinal),
                                 test.Name + " preserves literal source reference and attribution bytes");
                         }
-                        if (test.Name is "hdr" or "paths" or "tag")
-                        {
-                            foreach (var empty in new[]
-                            {
-                                "<para><!-- authored --></para>",
-                                "<para><![CDATA[ ]]></para>",
-                                "<para><?keep value?></para>",
-                                "<para authored=\"true\" />",
-                            })
-                            {
-                                File.WriteAllText(path, source.Text.Replace("<remarks>To be added.", "<remarks>" + empty,
-                                    StringComparison.Ordinal), new UTF8Encoding(false));
-                                var bytes = File.ReadAllBytes(path);
-                                Assert(Run(true).Count == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
-                                    test.Name + " authored empty paragraph is not a replacement placeholder");
-                            }
-                        }
                         var persisted = File.ReadAllBytes(path);
                         var repeat = Run(true);
                         Assert(repeat.Count == 0 && repeat.Writes == 0 &&
                             persisted.SequenceEqual(File.ReadAllBytes(path)),
                             test.Name + " persisted repeat has zero writes");
                     }
+                }
+                if (test.Name is "hdr" or "paths" or "tag")
+                {
+                    foreach (var empty in new[]
+                    {
+                        "<para><!-- authored --></para>",
+                        "<para><![CDATA[ ]]></para>",
+                        "<para><?keep value?></para>",
+                        "<para authored=\"true\" />",
+                    })
+                    {
+                        File.WriteAllText(path, source.Text.Replace("<remarks>To be added.", "<remarks>" + empty,
+                            StringComparison.Ordinal), new UTF8Encoding(false));
+                        var bytes = File.ReadAllBytes(path);
+                        Assert(Run(true).Count == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                            test.Name + " authored empty paragraph is not a replacement placeholder");
+                    }
+                }
+                if (test.Name is "private-use" or "private-use-area")
+                {
+                    const string introduction = "Additional source context.";
+                    var sourceIndex = html.IndexOf("<p>Same as public static final int ", StringComparison.Ordinal);
+                    Assert(sourceIndex >= 0, test.Name + " native defective paragraph is present");
+                    var contextualHtml = html.Insert(sourceIndex, "<p>" + introduction + "</p>");
+                    var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                        Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                    File.WriteAllText(cachePath, contextualHtml, new UTF8Encoding(false));
+                    File.WriteAllText(path, source.Text, new UTF8Encoding(true));
+                    var before = LoadedFile.Load(repositoryRoot, path);
+                    Assert(Run(false, expectExclusion: false).Count == 1 &&
+                        Run(true, expectExclusion: false).Count == 1,
+                        test.Name + " hypothetical contextual source imports its safe summary");
+                    var after = LoadedFile.Load(repositoryRoot, path);
+                    after.SelectOwners(originalOwner.Id);
+                    var current = after.Owners.Single(candidate => candidate.Id == originalOwner.Id).Docs;
+                    Assert(current.Element("summary")!.Value == introduction &&
+                        ProtectedText(before, ["summary"]) == ProtectedText(after, ["summary"]),
+                        test.Name + " contextual source imports only the safe summary");
+                    var bytes = File.ReadAllBytes(path);
+                    var repeat = Run(true, expectExclusion: false);
+                    Assert(repeat.Count == 0 && repeat.Writes == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                        test.Name + " contextual source has a zero-write repeat");
                 }
             }
             finally
@@ -21261,7 +21311,6 @@ static partial class ImporterProgram
             emptyMetadataRepairText.Replace("\n", "\r\n", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace("<para></para>", "<para />", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace("<para></para>", "<para> \t </para>", StringComparison.Ordinal),
-            emptyMetadataRepairText.Replace("<para></para>", "<para data-source=\"importer\">&#x20;</para>", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace("<para></para>", "<!-- retained --><para></para>", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace(
                 "<remarks>\n    <para></para>\n    \n",
