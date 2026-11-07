@@ -691,10 +691,27 @@ source links. Safe separate channels remain eligible. No replacement prose or
 equations are inferred, and existing documentation is not withdrawn.
 Changed or removed defective source text does not enable these exclusions.
 
+Further reviewed exclusions cover exact ICU return and date-format errors, the
+lost `java.text.MessageFormat` link qualification, incomplete Net and Provider
+result lists, conflicting PeopleContract restrictions, the PeopleContract list
+marker, and the WifiNetworkSuggestion priority range. Graphics exclusions hold
+the proven blend and bitmap packing errors, omitted linear-transfer details,
+equation-dependent TransferParameters prose, and the contradictory adaptation
+ID sentence. The two BT.2020/BT.709 summaries that stop at `Rec.` are withheld
+without changing the general summary splitter. Safe sibling channels remain
+eligible, and authored documentation is not repaired or removed.
+The four Java 21 `Spliterators.Abstract*Spliterator.estimateSize()` summaries
+that stop inside `Consumer<?` are also withheld. Their valid remarks and return
+channels remain eligible; no general generic-type or sentence-parser change
+is made.
+
 The focused preservation tests also run in `--self-test`. Their base64 source
 fragments retain exact native declaration bytes, with full-page and fragment
 SHA-256 values in `tools/importer-fixtures/preservation-source-fragments.txt`
-(`name|page hash|fragment hash|base64`). The tests use isolated copies of the
+and `tools/importer-fixtures/reviewed-source-fragments.txt`
+(`name|page hash|fragment hash|base64`). The reviewed-source tests check exact
+registered owners, channel boundaries, changed sources and valid siblings.
+The preservation tests use isolated copies of the
 registered XML inputs, cover LF/CRLF and UTF-8 BOM states, check protected bytes,
 and require zero-write persisted repeats.
 
