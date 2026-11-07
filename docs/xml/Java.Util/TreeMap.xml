@@ -327,15 +327,16 @@
         <Parameter Name="key" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="key">the key</param>
+        <summary>Returns a key-value mapping associated with the least key greater than or equal to the given key, or null if there is no such key.</summary>
+        <returns>an entry with the least key greater than or equal to key, or null if there is no such key</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#ceilingEntry(java.lang.Object)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.ceilingEntry(java.lang.Object)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#ceilingEntry(K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.ceilingEntry</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -370,9 +371,9 @@
         <Parameter Name="key" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">the key</param>
         <summary>Added in 1.</summary>
-        <returns>To be added.</returns>
+        <returns>the least key greater than or equal to key, or null if there is no such key</returns>
         <remarks>
           <para>Added in 1.6.</para>
           <para>
@@ -380,6 +381,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#ceilingKey(K)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.ceilingKey(K)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#ceilingKey(K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.ceilingKey</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -458,8 +460,10 @@
       <Docs>
         <summary>Returns the comparator used to compare keys in this sorted map, or null if the natural
  ordering is in use.</summary>
-        <returns>To be added.</returns>
+        <returns>the comparator used to order the keys in this map, or null if this map uses the natural ordering of its keys</returns>
         <remarks>
+          <para>Returns the comparator used to order the keys in this map, or null if this map uses the natural ordering of its keys.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#comparator()" title="Reference documentation">Java reference for <code>java.util.TreeMap.comparator</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -503,11 +507,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="remappingFunction">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">key with which the specified value is to be associated</param>
+        <param name="remappingFunction">the remapping function to compute a value</param>
+        <summary>Attempts to compute a mapping for the specified key and its current mapped value (or null if there is no current mapping).</summary>
+        <returns>the new value associated with the specified key, or null if none</returns>
+        <remarks>
+          <para>Attempts to compute a mapping for the specified key and its current mapped value (or null if there is no current mapping). For example, to either create or append a String msg to a value mapping:</para>
+          <code lang="text/java"> map.compute(key, (k, v) -&gt; (v == null) ? msg : v.concat(msg))</code>
+          <para>(Method merge() is often simpler to use for such purposes.) If the remapping function returns null, the mapping is removed (or remains absent if initially absent). If the remapping function itself throws an (unchecked) exception, the exception is rethrown, and the current mapping is left unchanged. The remapping function should not modify this map during computation. This method will, on a best-effort basis, throw a ConcurrentModificationException if it is detected that the remapping function modifies this map during computation.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#compute(K,java.util.function.BiFunction)" title="Reference documentation">Java reference for <code>java.util.TreeMap.compute</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ComputeIfAbsent">
@@ -548,11 +557,18 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="mappingFunction">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">key with which the specified value is to be associated</param>
+        <param name="mappingFunction">the mapping function to compute a value</param>
+        <summary>If the specified key is not already associated with a value (or is mapped to null), attempts to compute its value using the given mapping function and enters it into this map unless null.</summary>
+        <returns>the current (existing or computed) value associated with the specified key, or null if the computed value is null</returns>
+        <remarks>
+          <para>If the specified key is not already associated with a value (or is mapped to null), attempts to compute its value using the given mapping function and enters it into this map unless null. If the mapping function returns null, no mapping is recorded. If the mapping function itself throws an (unchecked) exception, the exception is rethrown, and no mapping is recorded. The most common usage is to construct a new object serving as an initial mapped value or memoized result, as in:</para>
+          <code lang="text/java"> map.computeIfAbsent(key, k -&gt; new Value(f(k)));</code>
+          <para>Or to implement a multi-value map, Map&lt;K,Collection&lt;V&gt;&gt;, supporting multiple values per key:</para>
+          <code lang="text/java"> map.computeIfAbsent(key, k -&gt; new HashSet&lt;V&gt;()).add(v);</code>
+          <para>The mapping function should not modify this map during computation. This method will, on a best-effort basis, throw a ConcurrentModificationException if it is detected that the mapping function modifies this map during computation.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#computeIfAbsent(K,java.util.function.Function)" title="Reference documentation">Java reference for <code>java.util.TreeMap.computeIfAbsent</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ComputeIfPresent">
@@ -593,11 +609,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="remappingFunction">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">key with which the specified value is to be associated</param>
+        <param name="remappingFunction">the remapping function to compute a value</param>
+        <summary>If the value for the specified key is present and non-null, attempts to compute a new mapping given the key and its current mapped value.</summary>
+        <returns>the new value associated with the specified key, or null if none</returns>
+        <remarks>
+          <para>If the value for the specified key is present and non-null, attempts to compute a new mapping given the key and its current mapped value. If the remapping function returns null, the mapping is removed. If the remapping function itself throws an (unchecked) exception, the exception is rethrown, and the current mapping is left unchanged. The remapping function should not modify this map during computation. This method will, on a best-effort basis, throw a ConcurrentModificationException if it is detected that the remapping function modifies this map during computation.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#computeIfPresent(K,java.util.function.BiFunction)" title="Reference documentation">Java reference for <code>java.util.TreeMap.computeIfPresent</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DescendingKeySet">
@@ -629,7 +648,7 @@
       <Parameters />
       <Docs>
         <summary>Added in 1.</summary>
-        <returns>To be added.</returns>
+        <returns>a reverse order navigable set view of the keys in this map</returns>
         <remarks>
           <para>Added in 1.6.</para>
           <para>
@@ -637,6 +656,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#descendingKeySet()" title="Reference documentation">Java documentation for <code>java.util.TreeMap.descendingKeySet()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#descendingKeySet()" title="Reference documentation">Java reference for <code>java.util.TreeMap.descendingKeySet</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -675,7 +695,7 @@
       <Parameters />
       <Docs>
         <summary>Added in 1.</summary>
-        <returns>To be added.</returns>
+        <returns>a reverse order view of this map</returns>
         <remarks>
           <para>Added in 1.6.</para>
           <para>
@@ -683,6 +703,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#descendingMap()" title="Reference documentation">Java documentation for <code>java.util.TreeMap.descendingMap()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#descendingMap()" title="Reference documentation">Java reference for <code>java.util.TreeMap.descendingMap</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -721,7 +742,7 @@
       <Parameters />
       <Docs>
         <summary>Returns a <c>Set</c> view of the mappings contained in this map.</summary>
-        <returns>To be added.</returns>
+        <returns>a set view of the mappings contained in this map, sorted in ascending key order</returns>
         <remarks>
           <para>Returns a <c>Set</c> view of the mappings contained in this map.</para>
           <para>The set's iterator returns the entries in ascending key order. The
@@ -746,6 +767,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#entrySet()" title="Reference documentation">Java documentation for <code>java.util.TreeMap.entrySet()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#entrySet()" title="Reference documentation">Java reference for <code>java.util.TreeMap.entrySet</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -781,13 +803,14 @@
       <Docs>
         <summary>Returns a key-value mapping associated with the least
  key in this map, or <c>null</c> if the map is empty.</summary>
-        <returns>To be added.</returns>
+        <returns>an entry with the least key, or null if this map is empty</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#firstEntry()" title="Reference documentation">Java documentation for <code>java.util.TreeMap.firstEntry()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#firstEntry()" title="Reference documentation">Java reference for <code>java.util.TreeMap.firstEntry</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -822,13 +845,14 @@
       <Parameters />
       <Docs>
         <summary>Returns the least key in this sorted map.</summary>
-        <returns>To be added.</returns>
+        <returns>the first (lowest) key currently in this map</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#firstKey()" title="Reference documentation">Java documentation for <code>java.util.TreeMap.firstKey()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#firstKey()" title="Reference documentation">Java reference for <code>java.util.TreeMap.firstKey</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -864,15 +888,16 @@
         <Parameter Name="key" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="key">the key</param>
+        <summary>Returns a key-value mapping associated with the greatest key less than or equal to the given key, or null if there is no such key.</summary>
+        <returns>an entry with the greatest key less than or equal to key, or null if there is no such key</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#floorEntry(java.lang.Object)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.floorEntry(java.lang.Object)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#floorEntry(K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.floorEntry</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -907,9 +932,9 @@
         <Parameter Name="key" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">the key</param>
         <summary>Added in 1.</summary>
-        <returns>To be added.</returns>
+        <returns>the greatest key less than or equal to key, or null if there is no such key</returns>
         <remarks>
           <para>Added in 1.6.</para>
           <para>
@@ -917,6 +942,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#floorKey(K)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.floorKey(K)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#floorKey(K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.floorKey</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1003,15 +1029,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="toKey">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="toKey">high endpoint (exclusive) of the keys in the returned map</param>
+        <summary>Returns a view of the portion of this map whose keys are strictly less than toKey.</summary>
+        <returns>a view of the portion of this map whose keys are strictly less than toKey</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#headMap(K)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.headMap(K)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#headMap(K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.headMap</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1058,10 +1085,10 @@
         <Parameter Name="inclusive" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="toKey">To be added.</param>
-        <param name="inclusive">To be added.</param>
+        <param name="toKey">high endpoint of the keys in the returned map</param>
+        <param name="inclusive">true if the high endpoint is to be included in the returned view</param>
         <summary>Added in 1.</summary>
-        <returns>To be added.</returns>
+        <returns>a view of the portion of this map whose keys are less than (or equal to, if inclusive is true) toKey</returns>
         <remarks>
           <para>Added in 1.6.</para>
           <para>
@@ -1069,6 +1096,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#headMap(K,%20boolean)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.headMap(K, boolean)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#headMap(K,boolean)" title="Reference documentation">Java reference for <code>java.util.TreeMap.headMap</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1103,15 +1131,16 @@
         <Parameter Name="key" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="key">the key</param>
+        <summary>Returns a key-value mapping associated with the least key strictly greater than the given key, or null if there is no such key.</summary>
+        <returns>an entry with the least key greater than key, or null if there is no such key</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#higherEntry(java.lang.Object)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.higherEntry(java.lang.Object)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#higherEntry(K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.higherEntry</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1146,9 +1175,9 @@
         <Parameter Name="key" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">the key</param>
         <summary>Added in 1.</summary>
-        <returns>To be added.</returns>
+        <returns>the least key greater than key, or null if there is no such key</returns>
         <remarks>
           <para>Added in 1.6.</para>
           <para>
@@ -1156,6 +1185,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#higherKey(K)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.higherKey(K)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#higherKey(K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.higherKey</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1256,13 +1286,14 @@
       <Docs>
         <summary>Returns a key-value mapping associated with the greatest
  key in this map, or <c>null</c> if the map is empty.</summary>
-        <returns>To be added.</returns>
+        <returns>an entry with the greatest key, or null if this map is empty</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#lastEntry()" title="Reference documentation">Java documentation for <code>java.util.TreeMap.lastEntry()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#lastEntry()" title="Reference documentation">Java reference for <code>java.util.TreeMap.lastEntry</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1297,13 +1328,14 @@
       <Parameters />
       <Docs>
         <summary>Returns the greatest key in this sorted map.</summary>
-        <returns>To be added.</returns>
+        <returns>the last (highest) key currently in this map</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#lastKey()" title="Reference documentation">Java documentation for <code>java.util.TreeMap.lastKey()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#lastKey()" title="Reference documentation">Java reference for <code>java.util.TreeMap.lastKey</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1339,15 +1371,16 @@
         <Parameter Name="key" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="key">the key</param>
+        <summary>Returns a key-value mapping associated with the greatest key strictly less than the given key, or null if there is no such key.</summary>
+        <returns>an entry with the greatest key less than key, or null if there is no such key</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#lowerEntry(java.lang.Object)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.lowerEntry(java.lang.Object)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#lowerEntry(K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.lowerEntry</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1382,9 +1415,9 @@
         <Parameter Name="key" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">the key</param>
         <summary>Added in 1.</summary>
-        <returns>To be added.</returns>
+        <returns>the greatest key less than key, or null if there is no such key</returns>
         <remarks>
           <para>Added in 1.6.</para>
           <para>
@@ -1392,6 +1425,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#lowerKey(K)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.lowerKey(K)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#lowerKey(K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.lowerKey</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1449,12 +1483,17 @@
         <Parameter Name="remappingFunction" Type="Java.Util.Functions.IBiFunction" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
-        <param name="remappingFunction">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">key with which the resulting value is to be associated</param>
+        <param name="value">the non-null value to be merged with the existing value associated with the key or, if no existing value or a null value is associated with the key, to be associated with the key</param>
+        <param name="remappingFunction">the remapping function to recompute a value if present</param>
+        <summary>If the specified key is not already associated with a value or is associated with null, associates it with the given non-null value.</summary>
+        <returns>the new value associated with the specified key, or null if no value is associated with the key</returns>
+        <remarks>
+          <para>If the specified key is not already associated with a value or is associated with null, associates it with the given non-null value. Otherwise, replaces the associated value with the results of the given remapping function, or removes if the result is null. This method may be of use when combining multiple mapped values for a key. For example, to either create or append a String msg to a value mapping:</para>
+          <code lang="text/java"> map.merge(key, msg, String::concat)</code>
+          <para>If the remapping function returns null, the mapping is removed. If the remapping function itself throws an (unchecked) exception, the exception is rethrown, and the current mapping is left unchanged. The remapping function should not modify this map during computation. This method will, on a best-effort basis, throw a ConcurrentModificationException if it is detected that the remapping function modifies this map during computation.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#merge(K,V,java.util.function.BiFunction)" title="Reference documentation">Java reference for <code>java.util.TreeMap.merge</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="NavigableKeySet">
@@ -1486,7 +1525,7 @@
       <Parameters />
       <Docs>
         <summary>Added in 1.</summary>
-        <returns>To be added.</returns>
+        <returns>a navigable set view of the keys in this map</returns>
         <remarks>
           <para>Added in 1.6.</para>
           <para>
@@ -1494,6 +1533,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#navigableKeySet()" title="Reference documentation">Java documentation for <code>java.util.TreeMap.navigableKeySet()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#navigableKeySet()" title="Reference documentation">Java reference for <code>java.util.TreeMap.navigableKeySet</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1529,13 +1569,14 @@
       <Docs>
         <summary>Removes and returns a key-value mapping associated with
  the least key in this map, or <c>null</c> if the map is empty.</summary>
-        <returns>To be added.</returns>
+        <returns>the removed first entry of this map, or null if this map is empty</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#pollFirstEntry()" title="Reference documentation">Java documentation for <code>java.util.TreeMap.pollFirstEntry()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#pollFirstEntry()" title="Reference documentation">Java reference for <code>java.util.TreeMap.pollFirstEntry</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1571,13 +1612,14 @@
       <Docs>
         <summary>Removes and returns a key-value mapping associated with
  the greatest key in this map, or <c>null</c> if the map is empty.</summary>
-        <returns>To be added.</returns>
+        <returns>the removed last entry of this map, or null if this map is empty</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#pollLastEntry()" title="Reference documentation">Java documentation for <code>java.util.TreeMap.pollLastEntry()</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#pollLastEntry()" title="Reference documentation">Java reference for <code>java.util.TreeMap.pollLastEntry</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1618,10 +1660,10 @@
         <Parameter Name="v" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="k">To be added.</param>
-        <param name="v">To be added.</param>
+        <param name="k">the key</param>
+        <param name="v">the value</param>
         <summary>Throws <c>UnsupportedOperationException</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>the value previously associated with k, or null if none</returns>
         <remarks>
           <para>Throws <c>UnsupportedOperationException</c>. The encounter order induced by this
             map's comparison method determines the position of mappings, so explicit positioning
@@ -1632,6 +1674,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#putFirst(K,%20V)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.putFirst(K, V)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#putFirst(K,V)" title="Reference documentation">Java reference for <code>java.util.TreeMap.putFirst</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1709,10 +1752,10 @@
         <Parameter Name="v" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="k">To be added.</param>
-        <param name="v">To be added.</param>
+        <param name="k">the key</param>
+        <param name="v">the value</param>
         <summary>Throws <c>UnsupportedOperationException</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>the value previously associated with k, or null if none</returns>
         <remarks>
           <para>Throws <c>UnsupportedOperationException</c>. The encounter order induced by this
             map's comparison method determines the position of mappings, so explicit positioning
@@ -1723,6 +1766,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#putLast(K,%20V)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.putLast(K, V)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#putLast(K,V)" title="Reference documentation">Java reference for <code>java.util.TreeMap.putLast</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1887,16 +1931,17 @@
         <Parameter Name="toKey" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="fromKey">To be added.</param>
-        <param name="toKey">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="fromKey">low endpoint (inclusive) of the keys in the returned map</param>
+        <param name="toKey">high endpoint (exclusive) of the keys in the returned map</param>
+        <summary>Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.</summary>
+        <returns>a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#subMap(K,%20K)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.subMap(K, K)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#subMap(K,K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.subMap</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1940,12 +1985,12 @@
         <Parameter Name="toInclusive" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="fromKey">To be added.</param>
-        <param name="fromInclusive">To be added.</param>
-        <param name="toKey">To be added.</param>
-        <param name="toInclusive">To be added.</param>
+        <param name="fromKey">low endpoint of the keys in the returned map</param>
+        <param name="fromInclusive">true if the low endpoint is to be included in the returned view</param>
+        <param name="toKey">high endpoint of the keys in the returned map</param>
+        <param name="toInclusive">true if the high endpoint is to be included in the returned view</param>
         <summary>Added in 1.</summary>
-        <returns>To be added.</returns>
+        <returns>a view of the portion of this map whose keys range from fromKey to toKey</returns>
         <remarks>
           <para>Added in 1.6.</para>
           <para>
@@ -1953,6 +1998,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#subMap(K,%20boolean,%20K,%20boolean)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.subMap(K, boolean, K, boolean)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#subMap(K,boolean,K,boolean)" title="Reference documentation">Java reference for <code>java.util.TreeMap.subMap</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -1998,15 +2044,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="fromKey">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="fromKey">low endpoint (inclusive) of the keys in the returned map</param>
+        <summary>Returns a view of the portion of this map whose keys are greater than or equal to fromKey.</summary>
+        <returns>a view of the portion of this map whose keys are greater than or equal to fromKey</returns>
         <remarks>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/TreeMap#tailMap(K)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.tailMap(K)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#tailMap(K)" title="Reference documentation">Java reference for <code>java.util.TreeMap.tailMap</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
@@ -2053,10 +2100,10 @@
         <Parameter Name="inclusive" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="fromKey">To be added.</param>
-        <param name="inclusive">To be added.</param>
+        <param name="fromKey">low endpoint of the keys in the returned map</param>
+        <param name="inclusive">true if the low endpoint is to be included in the returned view</param>
         <summary>Added in 1.</summary>
-        <returns>To be added.</returns>
+        <returns>a view of the portion of this map whose keys are greater than (or equal to, if inclusive is true) fromKey</returns>
         <remarks>
           <para>Added in 1.6.</para>
           <para>
@@ -2064,6 +2111,7 @@
               <a href="https://developer.android.com/reference/java/util/TreeMap#tailMap(K,%20boolean)" title="Reference documentation">Java documentation for <code>java.util.TreeMap.tailMap(K, boolean)</code>.</a>
             </format>
           </para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html#tailMap(K,boolean)" title="Reference documentation">Java reference for <code>java.util.TreeMap.tailMap</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
                     <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format>
