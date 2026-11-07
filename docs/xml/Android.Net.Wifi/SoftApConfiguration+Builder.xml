@@ -192,9 +192,14 @@
       </Parameters>
       <Docs>
         <param name="bssid">BSSID, or null to have the BSSID chosen by the framework. The caller is responsible for avoiding collisions.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Specifies a BSSID for the AP.</summary>
+        <returns>Builder for chaining.</returns>
+        <remarks>
+          <para>Specifies a BSSID for the AP.</para>
+          <para>Callers without the listed permissions will not be able to start SoftAP with a non-null BSSID. DO and Carrier apps starting SoftAp with TetheringManager.startTethering are exempted from this permission restriction.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/SoftApConfiguration.Builder#setBssid(android.net.MacAddress)" title="Reference documentation">Android reference for <code>android.net.wifi.SoftApConfiguration.Builder.setBssid</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetChannels">
@@ -224,10 +229,17 @@
         <Parameter Name="channels" Type="Android.Util.SparseIntArray" />
       </Parameters>
       <Docs>
-        <param name="channels">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="channels">SparseIntArray (key: BandType, value: channel) consists of BAND_ and corresponding channel. This value cannot be null.</param>
+        <summary>Specifies the channels and associated bands for the APs.</summary>
+        <returns>Builder for chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Specifies the channels and associated bands for the APs.</para>
+          <para>The API contains (band, channel) input since the 6GHz band uses the same channel numbering scheme as is used in the 2.4GHz and 5GHz band. Therefore, both are needed to uniquely identify individual channels.</para>
+          <para>Reference the Wi-Fi channel numbering and the channelization in IEEE 802.11-2016 specifications, section 17.3.8.4.2, 17.3.8.4.3 and Table 15-6.</para>
+          <para>Using the special value 0 which has the framework auto-select a valid channel from the band configured. When more than 1 channel/band is set, this will bring up concurrent APs on the requested channels and bands (if possible). Use WifiManager.isBridgedApConcurrencySupported() to determine whether concurrent APs are supported. If not set, the default value is SoftApConfiguration.BAND_2GHZ with the special channel value 0 which has the framework auto-select from SoftApConfiguration.BAND_2GHZ.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/SoftApConfiguration.Builder#setChannels(android.util.SparseIntArray)" title="Reference documentation">Android reference for <code>android.net.wifi.SoftApConfiguration.Builder.setChannels</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPassphrase">
@@ -265,11 +277,15 @@
         <Parameter Name="securityType" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="passphrase">To be added.</param>
-        <param name="securityType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="passphrase">The passphrase to use for sepcific securityType configuration or null with SoftApConfiguration.SECURITY_TYPE_OPEN, SoftApConfiguration.SECURITY_TYPE_WPA3_OWE_TRANSITION, and SoftApConfiguration.SECURITY_TYPE_WPA3_OWE.</param>
+        <param name="securityType">One of the following security types: SoftApConfiguration.SECURITY_TYPE_OPEN, SoftApConfiguration.SECURITY_TYPE_WPA2_PSK, SoftApConfiguration.SECURITY_TYPE_WPA3_SAE_TRANSITION, SoftApConfiguration.SECURITY_TYPE_WPA3_SAE, SoftApConfiguration.SECURITY_TYPE_WPA3_OWE_TRANSITION, SoftApConfiguration.SECURITY_TYPE_WPA3_OWE. Value is one of the following: SoftApConfiguration.SECURITY_TYPE_OPEN; SoftApConfiguration.SECURITY_TYPE_WPA2_PSK; SoftApConfiguration.SECURITY_TYPE_WPA3_SAE_TRANSITION; SoftApConfiguration.SECURITY_TYPE_WPA3_SAE; SoftApConfiguration.SECURITY_TYPE_WPA3_OWE_TRANSITION; SoftApConfiguration.SECURITY_TYPE_WPA3_OWE</param>
+        <summary>Specifies that this AP should use specific security type with the given ASCII passphrase.</summary>
+        <returns>Builder for chaining. This value cannot be null.</returns>
+        <remarks>
+          <para>Specifies that this AP should use specific security type with the given ASCII passphrase.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/SoftApConfiguration.Builder#setPassphrase(java.lang.String,%20int)" title="Reference documentation">Android reference for <code>android.net.wifi.SoftApConfiguration.Builder.setPassphrase</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetWifiSsid">
@@ -306,10 +322,16 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="wifiSsid">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="wifiSsid">SSID, or null ot have the SSID automatically chosen by the framework.</param>
+        <summary>Specifies an SSID for the AP in the form of WifiSsid.</summary>
+        <returns>Builder for chaining.</returns>
+        <remarks>
+          <para>Specifies an SSID for the AP in the form of WifiSsid.</para>
+          <para>Null SSID only support when configure a local-only hotspot.</para>
+          <para>If not set, defaults to null</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/SoftApConfiguration.Builder#setWifiSsid(android.net.wifi.WifiSsid)" title="Reference documentation">Android reference for <code>android.net.wifi.SoftApConfiguration.Builder.setWifiSsid</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
