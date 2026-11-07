@@ -592,10 +592,15 @@
         <Parameter Name="macRandomizationSetting" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="macRandomizationSetting">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="macRandomizationSetting">- one of RANDOMIZATION_* values. Value is one of the following: WifiNetworkSuggestion.RANDOMIZATION_PERSISTENT; WifiNetworkSuggestion.RANDOMIZATION_NON_PERSISTENT</param>
+        <summary>Specifies the MAC randomization method.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Specifies the MAC randomization method.</para>
+          <para>Suggested networks will never use the device (factory) MAC address to associate to the network - instead they use a locally generated random MAC address. This method controls the strategy for generating the random MAC address. If not set, defaults to WifiNetworkSuggestion.RANDOMIZATION_PERSISTENT.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setMacRandomizationSetting(int)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setMacRandomizationSetting</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPasspointConfig">
@@ -625,10 +630,14 @@
         <Parameter Name="passpointConfig" Type="Android.Net.Wifi.Hotspot2.PasspointConfiguration" />
       </Parameters>
       <Docs>
-        <param name="passpointConfig">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="passpointConfig">Instance of PasspointConfiguration. This value cannot be null.</param>
+        <summary>Set the associated Passpoint configuration for this network.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Set the associated Passpoint configuration for this network. Needed for authenticating to Hotspot 2.0 networks. See PasspointConfiguration for description.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setPasspointConfig(android.net.wifi.hotspot2.PasspointConfiguration)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setPasspointConfig</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPriority">
@@ -658,10 +667,14 @@
         <Parameter Name="priority" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="priority">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="priority">Integer number representing the priority among suggestions by the app. Value is 0 or greater</param>
+        <summary>Specify the priority of this network among other network suggestions provided by the same app and within the same priority group, see setPriorityGroup(int).</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Specify the priority of this network among other network suggestions provided by the same app and within the same priority group, see setPriorityGroup(int). Priorities have no impact on suggestions by other apps or suggestions from the same app using a different priority group. The higher the number, the higher the priority (i.e value of 0 = lowest priority). If not set, defaults to a lower priority than any assigned priority.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setPriority(int)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setPriority</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPriorityGroup">
@@ -691,10 +704,19 @@
         <Parameter Name="priorityGroup" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="priorityGroup">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="priorityGroup">priority group id, if not set default is 0. Value is 0 or greater</param>
+        <summary>Suggested networks are considered as part of a pool of all suggested networks and other networks (e.g. saved networks) - one of which will be selected.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Suggested networks are considered as part of a pool of all suggested networks and other networks (e.g. saved networks) - one of which will be selected.</para>
+          <para>Any app can suggest any number of networks.</para>
+          <para>Priority: only the highest priority (0 being the lowest) currently visible suggested network or networks (multiple suggested networks may have the same priority) are added to the network selection pool.</para>
+          <para>However, this restricts a suggesting app to have a single group of networks which can be prioritized. In some circumstances multiple groups are useful: for instance, suggesting networks for 2 different SIMs - each of which may have its own priority order.</para>
+          <para>Priority group: creates a separate priority group. Only the highest priority, currently visible suggested network or networks, within each priority group are included in the network selection pool.</para>
+          <para>Specify an arbitrary integer only used as the priority group. Use with setPriority(int).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setPriorityGroup(int)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setPriorityGroup</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRestricted">
@@ -724,10 +746,15 @@
         <Parameter Name="isRestricted" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isRestricted">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="isRestricted">Boolean indicating whether the network should be brought up restricted (if true) or unrestricted (if false).</param>
+        <summary>Specifies whether the system will bring up the network (if selected) as restricted.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Specifies whether the system will bring up the network (if selected) as restricted. A restricted network has its NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED capability removed. The Wi-Fi network selection process may use this information to influence priority of the suggested network for Wi-Fi network selection (most likely to reduce it). The connectivity service may use this information to influence the overall network configuration of the device.</para>
+          <para>These suggestions are only considered for network selection if a NetworkRequest without NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED capability is filed; A restricted network's credentials may not be shared with the user using setCredentialSharedWithUser(boolean); If not set, defaults to false (i.e. network is unrestricted).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setRestricted(boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setRestricted</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetSsid">
@@ -757,10 +784,16 @@
         <Parameter Name="ssid" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="ssid">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="ssid">The SSID of the network. It must be valid Unicode. This value cannot be null.</param>
+        <summary>Set the unicode SSID for the network.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Set the unicode SSID for the network.</para>
+          <para>Overrides any previous value set using setSsid(String).</para>
+          <para>Note: use setWifiSsid(WifiSsid) which supports both unicode and non-unicode SSID.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setSsid(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setSsid</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetSubscriptionGroup">
@@ -790,10 +823,14 @@
         <Parameter Name="groupUuid" Type="Android.OS.ParcelUuid" />
       </Parameters>
       <Docs>
-        <param name="groupUuid">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="groupUuid">Subscription group UUID see SubscriptionManager.createSubscriptionGroup(List) This value cannot be null.</param>
+        <summary>Configure the suggestion to only be used with the SIMs that belong to the Subscription Group specified in this method.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure the suggestion to only be used with the SIMs that belong to the Subscription Group specified in this method. The suggested network will only be used by the SIM in this Subscription Group and no other SIMs - even from the same carrier.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setSubscriptionGroup(android.os.ParcelUuid)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setSubscriptionGroup</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetSubscriptionId">
@@ -823,10 +860,14 @@
         <Parameter Name="subscriptionId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="subscriptionId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="subscriptionId">subscription ID see SubscriptionInfo.getSubscriptionId()</param>
+        <summary>Configure the suggestion to only be used with the SIM identified by the subscription ID specified in this method.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Configure the suggestion to only be used with the SIM identified by the subscription ID specified in this method. The suggested network will only be used by that SIM and no other SIM - even from the same carrier.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setSubscriptionId(int)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setSubscriptionId</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetUntrusted">
@@ -856,10 +897,15 @@
         <Parameter Name="isUntrusted" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isUntrusted">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="isUntrusted">Boolean indicating whether the network should be brought up untrusted (if true) or trusted (if false).</param>
+        <summary>Specifies whether the system will bring up the network (if selected) as untrusted.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Specifies whether the system will bring up the network (if selected) as untrusted. An untrusted network has its NetworkCapabilities.NET_CAPABILITY_TRUSTED capability removed. The Wi-Fi network selection process may use this information to influence priority of the suggested network for Wi-Fi network selection (most likely to reduce it). The connectivity service may use this information to influence the overall network configuration of the device.</para>
+          <para>These suggestions are only considered for network selection if a NetworkRequest without NetworkCapabilities.NET_CAPABILITY_TRUSTED capability is filed; An untrusted network's credentials may not be shared with the user using setCredentialSharedWithUser(boolean); If not set, defaults to false (i.e. network is trusted).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setUntrusted(boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setUntrusted</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetWapiEnterpriseConfig">
@@ -889,10 +935,14 @@
         <Parameter Name="enterpriseConfig" Type="Android.Net.Wifi.WifiEnterpriseConfig" />
       </Parameters>
       <Docs>
-        <param name="enterpriseConfig">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="enterpriseConfig">Instance of WifiEnterpriseConfig. This value cannot be null.</param>
+        <summary>Set the associated enterprise configuration for this network.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Set the associated enterprise configuration for this network. Needed for authenticating to WAPI-CERT networks. See WifiEnterpriseConfig for description.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setWapiEnterpriseConfig(android.net.wifi.WifiEnterpriseConfig)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setWapiEnterpriseConfig</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetWapiPassphrase">
@@ -922,10 +972,14 @@
         <Parameter Name="passphrase" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="passphrase">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="passphrase">passphrase of the network. This value cannot be null.</param>
+        <summary>Set the ASCII WAPI passphrase for this network.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Set the ASCII WAPI passphrase for this network. Needed for authenticating to WAPI-PSK networks.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setWapiPassphrase(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setWapiPassphrase</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetWifi7Enabled">
@@ -955,10 +1009,14 @@
         <Parameter Name="enabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="enabled">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="enabled">Enable Wi-Fi 7 if true, otherwise disable Wi-Fi 7</param>
+        <summary>Sets whether Wi-Fi 7 is enabled for this network.</summary>
+        <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
+        <remarks>
+          <para>Sets whether Wi-Fi 7 is enabled for this network.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setWifi7Enabled(boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setWifi7Enabled</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetWifiSsid">
@@ -988,8 +1046,8 @@
         <Parameter Name="wifiSsid" Type="Android.Net.Wifi.WifiSsid" />
       </Parameters>
       <Docs>
-        <param name="wifiSsid">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="wifiSsid">The SSID of the network, in WifiSsid format. This value cannot be null.</param>
+        <summary>Set the SSID for the network.</summary>
         <returns>To be added.</returns>
         <remarks>To be added.</remarks>
       </Docs>
