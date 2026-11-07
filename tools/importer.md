@@ -8,6 +8,7 @@ Run it with the .NET 10 SDK or newer:
 
 ```powershell
 dotnet run tools\importer.cs -- --self-test
+dotnet run tools\importer.cs -- --self-test-preservation
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --report artifacts\argb-import
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace Android.Animation --max-changes 10 --cache C:\temp\android-doc-cache
 dotnet run tools\importer.cs -- --path docs\xml --api-since 37 --max-changes 10 --report artifacts\api-37-import
@@ -674,6 +675,28 @@ retaining its original newline convention and UTF-8 BOM state. Report entries
 remain `would_apply` until the corresponding atomic write succeeds; partial
 failures retain the completed-file count and source counters. Run `git diff
 --check` after a batch.
+
+Remarks refreshes copy the original source-reference and attribution element
+bytes, including nonbreaking spaces. Augmented remarks fills replace only the
+placeholder span; they do not serialize retained metadata or change its newlines.
+Empty paragraphs with attributes, comments, CDATA or processing instructions
+are not replacement placeholders.
+
+Exact source exclusions withhold the unfinished `AudioMetadata.Format.KEY_BIT_RATE`
+summary and remarks, the malformed `BlendMode.COLOR_BURN` and `COLOR_DODGE`
+equation remarks, and the `UnicodeBlock.PRIVATE_USE` / `PRIVATE_USE_AREA` prose
+that calls object fields `int`. The exact `SoftApConfiguration.Builder.setBssid`
+remarks are withheld because they refer to unlisted permissions after unresolved
+source links. Safe separate channels remain eligible. No replacement prose or
+equations are inferred, and existing documentation is not withdrawn.
+Changed or removed defective source text does not enable these exclusions.
+
+The focused preservation tests also run in `--self-test`. Their base64 source
+fragments retain exact native declaration bytes, with full-page and fragment
+SHA-256 values in `tools/importer-fixtures/preservation-source-fragments.txt`
+(`name|page hash|fragment hash|base64`). The tests use isolated copies of the
+registered XML inputs, cover LF/CRLF and UTF-8 BOM states, check protected bytes,
+and require zero-write persisted repeats.
 
 Limitations:
 
