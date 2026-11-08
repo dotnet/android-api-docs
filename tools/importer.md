@@ -704,6 +704,9 @@ The four Java 21 `Spliterators.Abstract*Spliterator.estimateSize()` summaries
 that stop inside `Consumer<?` are also withheld. Their valid remarks and return
 channels remain eligible; no general generic-type or sentence-parser change
 is made.
+The exact `HardwareBufferRenderer.RenderRequest.setColorSpace` remarks are
+withheld when their non-null requirement conflicts with the parameter's
+documented null-to-SRGB behavior. The summary and parameter remain eligible.
 
 The focused preservation tests also run in `--self-test`. Their base64 source
 fragments retain exact native declaration bytes, with full-page and fragment

@@ -3942,6 +3942,14 @@ static partial class ImporterProgram
             docs.Returns == "Value is 0 or greater")
             Hold("value", "The exact getter range excludes the documented default below every assigned priority.");
 
+        if (Matches("M:Android.Graphics.HardwareBufferRenderer.RenderRequest.SetColorSpace(Android.Graphics.ColorSpace)",
+                "android/graphics/HardwareBufferRenderer.RenderRequest", "setColorSpace(android.graphics.ColorSpace)") &&
+            HasParagraph("Configures the color space which the content should be rendered in. This affects how the framework will interpret the color at each pixel. The color space provided here must be non-null, RGB based and leverage an ICC parametric curve. The min/max values of the components should not reduce the numerical range compared to the previously assigned color space. If left unspecified, the default color space of SRGB will be used.") &&
+            docs.Parameters.TryGetValue("colorSpace", out var colorSpace) &&
+            RemoveLeadingJavaType(colorSpace) ==
+                "The color space the content should be rendered in. If null is provided the default of SRGB will be used.")
+            Hold("remarks", "The exact non-null requirement conflicts with the nullable parameter and its documented SRGB reset behavior.");
+
         if (Matches("T:Android.Graphics.ColorSpace+Rgb+TransferParameters",
                 "android/graphics/ColorSpace.Rgb.TransferParameters", "") &&
             docs.Paragraphs.SequenceEqual(new SourceParagraph[]
@@ -16871,6 +16879,7 @@ static partial class ImporterProgram
             ("AbstractDoubleSpliterator", "Java.Util", "Spliterators+AbstractDoubleSpliterator.xml", "EstimateSize", "summary"),
             ("AbstractIntSpliterator", "Java.Util", "Spliterators+AbstractIntSpliterator.xml", "EstimateSize", "summary"),
             ("AbstractLongSpliterator", "Java.Util", "Spliterators+AbstractLongSpliterator.xml", "EstimateSize", "summary"),
+            ("set-color-space", "Android.Graphics", "HardwareBufferRenderer+RenderRequest.xml", "SetColorSpace", "remarks"),
         ];
         foreach (var test in cases)
         {
@@ -16957,7 +16966,29 @@ static partial class ImporterProgram
                         .UnsafeTargets is null,
                     "hypothetical changed MessageFormat link is not treated as the native Java link");
             }
-            if (test.Name is "adapt" or "transfer-type")
+            if (test.Name == "set-color-space")
+            {
+                Assert(owner.MemberRegistration == new MemberRegistration(
+                    "setColorSpace", "(Landroid/graphics/ColorSpace;)Landroid/graphics/HardwareBufferRenderer$RenderRequest;", false) &&
+                    owner.Member!.Element("Parameters")!.Element("Parameter")!.Value.Contains(
+                        "Nullable(2)", StringComparison.Ordinal),
+                    "SetColorSpace uses the exact nullable registered binding");
+                Assert(Guard(raw with
+                {
+                    Parameters = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["colorSpace"] = "Hypothetical changed parameter contract.",
+                    },
+                }).UnsafeTargets is null,
+                    "SetColorSpace requires the exact conflicting parameter contract");
+                var placeholders = XElement.Parse(
+                    "<Docs><param name=\"colorSpace\">To be added.</param><summary>To be added.</summary></Docs>");
+                foreach (var placeholder in placeholders.Elements().Select((element, index) =>
+                    Placeholder.Create(element, index)))
+                    Assert(ReplacementFor(placeholder, guarded).Text is not null,
+                        "SetColorSpace safe summary and parameter remain eligible");
+            }
+            if (test.Name is "adapt" or "transfer-type" or "set-color-space")
             {
                 var directory = Path.Combine(Path.GetTempPath(), "importer-reviewed-" + Guid.NewGuid().ToString("N"));
                 var cache = Path.Combine(directory, "cache");
