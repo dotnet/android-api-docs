@@ -4529,7 +4529,26 @@ static partial class ImporterProgram
             docs.Summary == "Returns an estimate of the number of elements that would be encountered by a Spliterator.forEachRemaining(java.util.function.Consumer<?" &&
             docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text ==
                 "Returns an estimate of the number of elements that would be encountered by a Spliterator.forEachRemaining(java.util.function.Consumer<? super T>) traversal, or returns Long.MAX_VALUE if infinite, unknown, or too expensive to compute. If this Spliterator is Spliterator.SIZED and has not yet been partially traversed or split, or this Spliterator is Spliterator.SUBSIZED and has not yet been partially traversed, this estimate must be an accurate count of elements that would be encountered by a complete traversal. Otherwise, this estimate may be arbitrarily inaccurate, but must decrease as specified across invocations of Spliterator.trySplit().");
-        if (!unsafeZoneTransition && !truncatedEstimate)
+        var unsafeSubSetReturn = docs.SourceKind == "java" &&
+            memberId == "M:Java.Util.TreeSet.SubSet(Java.Lang.Object,System.Boolean,Java.Lang.Object,System.Boolean)" &&
+            docs.SourceUrl == JavaReference + "java.base/java/util/TreeSet.html#subSet(E,boolean,E,boolean)" &&
+            docs.SourceLabel == "java.util.TreeSet.subSet" &&
+            docs.Returns == "a view of the portion of this set whose elements range from fromElement, inclusive, to toElement, exclusive" &&
+            docs.Summary == "Returns a view of the portion of this set whose elements range from fromElement to toElement." &&
+            docs.Parameters.GetValueOrDefault("fromInclusive") ==
+                "true if the low endpoint is to be included in the returned view" &&
+            docs.Parameters.GetValueOrDefault("toInclusive") ==
+                "true if the high endpoint is to be included in the returned view";
+        var unsafeTailSetReturn = docs.SourceKind == "java" &&
+            memberId == "M:Java.Util.TreeSet.TailSet(Java.Lang.Object,System.Boolean)" &&
+            docs.SourceUrl == JavaReference + "java.base/java/util/TreeSet.html#tailSet(E,boolean)" &&
+            docs.SourceLabel == "java.util.TreeSet.tailSet" &&
+            docs.Returns == "a view of the portion of this set whose elements are greater than or equal to fromElement" &&
+            docs.Summary == "Returns a view of the portion of this set whose elements are greater than (or equal to, if inclusive is true) fromElement." &&
+            docs.Parameters.GetValueOrDefault("inclusive") ==
+                "true if the low endpoint is to be included in the returned view";
+        var unsafeTreeSetReturn = unsafeSubSetReturn || unsafeTailSetReturn;
+        if (!unsafeZoneTransition && !truncatedEstimate && !unsafeTreeSetReturn)
             return docs;
 
         var targets = docs.UnsafeTargets is null
@@ -4542,7 +4561,14 @@ static partial class ImporterProgram
         if (truncatedEstimate)
             targets["summary"] =
                 "The exact rendered Java 21 estimate-size summary stops inside a generic type; the parser is unchanged and valid remarks and returns remain eligible.";
-        return docs with { UnsafeTargets = targets, HasRawExclusions = docs.HasRawExclusions || truncatedEstimate };
+        if (unsafeTreeSetReturn)
+            targets["returns"] =
+                "The exact Java 21 return text promises fixed endpoint inclusion despite the method's inclusion flags; no replacement was guessed.";
+        return docs with
+        {
+            UnsafeTargets = targets,
+            HasRawExclusions = docs.HasRawExclusions || truncatedEstimate || unsafeTreeSetReturn,
+        };
     }
 
     static bool HasKnownUnsafeZoneTransitionTimeCandidate(DocsOwner owner) =>
@@ -16886,6 +16912,8 @@ static partial class ImporterProgram
             ("AbstractLongSpliterator", "Java.Util", "Spliterators+AbstractLongSpliterator.xml", "EstimateSize", "summary"),
             ("set-color-space", "Android.Graphics", "HardwareBufferRenderer+RenderRequest.xml", "SetColorSpace", "remarks"),
             ("low-latency", "Android.Net", "WifiMode.xml", "FullLowLatency", "summary"),
+            ("tree-subset", "Java.Util", "TreeSet.xml", "M:Java.Util.TreeSet.SubSet(Java.Lang.Object,System.Boolean,Java.Lang.Object,System.Boolean)", "returns"),
+            ("tree-tailset", "Java.Util", "TreeSet.xml", "M:Java.Util.TreeSet.TailSet(Java.Lang.Object,System.Boolean)", "returns"),
         ];
         foreach (var test in cases)
         {
@@ -17014,6 +17042,36 @@ static partial class ImporterProgram
                 Assert(ReplacementFor(summary, mapping.Docs!).Text is null &&
                     ReplacementFor(summary, raw).Text is not null,
                     "FullLowLatency withholds the enum summary that includes the stale fallback");
+            }
+            if (test.Name is "tree-subset" or "tree-tailset")
+            {
+                var isSubSet = test.Name == "tree-subset";
+                Assert(owner.MemberRegistration == new MemberRegistration(
+                    isSubSet ? "subSet" : "tailSet",
+                    isSubSet ? "(Ljava/lang/Object;ZLjava/lang/Object;Z)Ljava/util/NavigableSet;"
+                        : "(Ljava/lang/Object;Z)Ljava/util/NavigableSet;", false),
+                    test.Name + " uses the exact flag-bearing registered overload");
+                foreach (var parameter in isSubSet ? new[] { "fromInclusive", "toInclusive" } : new[] { "inclusive" })
+                {
+                    var parameters = new Dictionary<string, string>(raw.Parameters, StringComparer.Ordinal)
+                    {
+                        [parameter] = "Hypothetical changed inclusion contract.",
+                    };
+                    Assert(Guard(raw with { Parameters = parameters }).UnsafeTargets is null,
+                        test.Name + " requires the exact inclusion parameter contract");
+                }
+                Assert(Guard(raw with { Returns = raw.Returns + " Changed." }).UnsafeTargets is null,
+                    test.Name + " changed return text is not excluded");
+                var placeholders = XElement.Parse(isSubSet
+                    ? "<Docs><summary>To be added.</summary><remarks>To be added.</remarks><param name=\"fromInclusive\">To be added.</param><param name=\"toInclusive\">To be added.</param></Docs>"
+                    : "<Docs><summary>To be added.</summary><remarks>To be added.</remarks><param name=\"inclusive\">To be added.</param></Docs>");
+                foreach (var placeholder in placeholders.Elements().Select((element, index) =>
+                    Placeholder.Create(element, index)))
+                    Assert(ReplacementFor(placeholder, guarded).Text is not null,
+                        test.Name + " safe summary, remarks and inclusion parameters remain eligible");
+                Assert(ReplacementFor(Placeholder.Create(
+                    XElement.Parse("<returns>To be added.</returns>"), 0), mapping.Docs!).Text is null,
+                    test.Name + " exact return placeholder is withheld");
             }
             if (test.Name is "adapt" or "transfer-type" or "set-color-space")
             {

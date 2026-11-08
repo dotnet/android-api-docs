@@ -710,6 +710,10 @@ documented null-to-SRGB behavior. The summary and parameter remain eligible.
 The exact `WifiMode.FullLowLatency` enum summary is withheld when it includes
 the stale dual-lock background fallback to `WIFI_MODE_FULL_HIGH_PERF`.
 Independent fields remain eligible; no replacement behavior is inferred.
+The Java 21 `TreeSet.subSet(E, boolean, E, boolean)` and
+`tailSet(E, boolean)` return text is withheld when it promises fixed endpoint
+inclusion despite the exact inclusion-flag contracts. Valid summaries,
+parameters and unflagged overloads remain eligible.
 
 The focused preservation tests also run in `--self-test`. Their base64 source
 fragments retain exact native declaration bytes, with full-page and fragment
