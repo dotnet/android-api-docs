@@ -3913,6 +3913,11 @@ static partial class ImporterProgram
             docs.Summary == "Allow all but; Nul ('\\0'); Angle brackets ('<', '>'); Deny script URLs." &&
             HasParagraph(docs.Summary))
             Hold("summary", "The exact field summary denies script URLs although the field value includes SCRIPT_URL_OK.");
+        if (Matches("F:Android.Net.WifiMode.FullLowLatency",
+                "android/net/wifi/WifiManager", "WIFI_MODE_FULL_LOW_LATENCY") &&
+            docs.Summary == "In this Wi-Fi lock mode, Wi-Fi will operate with a priority to achieve low latency." &&
+            HasParagraph("Note: For an app which acquires both WIFI_MODE_FULL_LOW_LATENCY and WIFI_MODE_FULL_HIGH_PERF locks, WIFI_MODE_FULL_LOW_LATENCY lock will be effective when app is running in foreground and screen is on, while the WIFI_MODE_FULL_HIGH_PERF lock will take effect otherwise."))
+            Hold("summary", "The exact enum summary includes a stale background fallback to WIFI_MODE_FULL_HIGH_PERF; no replacement was guessed.");
         if (Matches("M:Android.Net.SocketKeepalive.Callback.OnError(Android.Net.ErrorCode)",
                 "android/net/SocketKeepalive.Callback", "onError(int)") &&
             docs.Parameters.TryGetValue("error", out var error) &&
@@ -16880,6 +16885,7 @@ static partial class ImporterProgram
             ("AbstractIntSpliterator", "Java.Util", "Spliterators+AbstractIntSpliterator.xml", "EstimateSize", "summary"),
             ("AbstractLongSpliterator", "Java.Util", "Spliterators+AbstractLongSpliterator.xml", "EstimateSize", "summary"),
             ("set-color-space", "Android.Graphics", "HardwareBufferRenderer+RenderRequest.xml", "SetColorSpace", "remarks"),
+            ("low-latency", "Android.Net", "WifiMode.xml", "FullLowLatency", "summary"),
         ];
         foreach (var test in cases)
         {
@@ -16987,6 +16993,27 @@ static partial class ImporterProgram
                     Placeholder.Create(element, index)))
                     Assert(ReplacementFor(placeholder, guarded).Text is not null,
                         "SetColorSpace safe summary and parameter remain eligible");
+            }
+            if (test.Name == "low-latency")
+            {
+                Assert(owner.Member!.Element("MemberValue")!.Value == "4" &&
+                    owner.Member.Element("ReturnValue")!.Element("ReturnType")!.Value == "Android.Net.WifiMode" &&
+                    owner.Member.Element("Attributes")!.Value.Contains(
+                        "JniField=\"android/net/wifi/WifiManager.WIFI_MODE_FULL_LOW_LATENCY\"",
+                        StringComparison.Ordinal),
+                    "FullLowLatency uses the exact registered enum field");
+                Assert(Guard(raw with
+                {
+                    Paragraphs = raw.Paragraphs.Select(paragraph => paragraph with
+                        { IsCode = true }).ToList(),
+                }).UnsafeTargets is null,
+                    "FullLowLatency requires the exact non-code fallback paragraph");
+                Assert(Guard(raw, "F:Android.Net.WifiMode.FullHighPerf").UnsafeTargets is null,
+                    "FullLowLatency does not block the independent high-performance field");
+                var summary = Placeholder.Create(XElement.Parse("<summary>To be added.</summary>"), 0);
+                Assert(ReplacementFor(summary, mapping.Docs!).Text is null &&
+                    ReplacementFor(summary, raw).Text is not null,
+                    "FullLowLatency withholds the enum summary that includes the stale fallback");
             }
             if (test.Name is "adapt" or "transfer-type" or "set-color-space")
             {
