@@ -3907,6 +3907,18 @@ static partial class ImporterProgram
                 "android/icu/text/TimeZoneFormat.Style", "ISO_EXTENDED_LOCAL_FIXED") &&
             HasParagraph("Fixed width ISO 8601 local time difference (extended format). For example, \"-05:00\" and \"+05:30\". This style is equivalent to the LDML date format pattern \"xxx\" and \"ZZZZZ\"."))
             Hold("remarks", "The exact fixed-local-time paragraph incorrectly equates xxx with ZZZZZ; no date pattern was rewritten.");
+        if (Matches("P:Android.Icu.Text.MessageFormat.Field.Argument",
+                "android/icu/text/MessageFormat.Field", "ARGUMENT") &&
+            docs.Summary == "Constant identifying a portion of a message that was generated from an argument passed into formatToCharacterIterator." &&
+            HasParagraph("Constant identifying a portion of a message that was generated from an argument passed into formatToCharacterIterator. The value associated with the key will be an Integer indicating the index in the arguments array of the argument from which the text was generated."))
+            Hold("remarks", "The exact argument-attribute prose promises an Integer array index although Map arguments use String names.");
+        foreach (var day in new[] { "Friday", "Monday", "Saturday", "Sunday", "Thursday", "Tuesday", "Wednesday" })
+        {
+            if (Matches($"P:Android.Icu.Text.RelativeDateTimeFormatter.RelativeDateTimeUnit.{day}",
+                    "android/icu/text/RelativeDateTimeFormatter.RelativeDateTimeUnit", day.ToUpperInvariant()))
+                HoldProse($"Specifies that relative unit is {day}, e.g. \"last {day}\", \"this {day}\", \"next {day}\", \"in 5 {day}s\".",
+                    "The exact weekday example uses a numeric offset rejected by the shipped formatter; no replacement example was inferred.");
+        }
 
         if (Matches("F:Android.Net.IllegalCharacterFlags.AllButNulAndAngleBracketsLegal",
                 "android/net/UrlQuerySanitizer.IllegalCharacterValueSanitizer", "ALL_BUT_NUL_AND_ANGLE_BRACKETS_LEGAL") &&
@@ -16914,6 +16926,14 @@ static partial class ImporterProgram
             ("low-latency", "Android.Net", "WifiMode.xml", "FullLowLatency", "summary"),
             ("tree-subset", "Java.Util", "TreeSet.xml", "M:Java.Util.TreeSet.SubSet(Java.Lang.Object,System.Boolean,Java.Lang.Object,System.Boolean)", "returns"),
             ("tree-tailset", "Java.Util", "TreeSet.xml", "M:Java.Util.TreeSet.TailSet(Java.Lang.Object,System.Boolean)", "returns"),
+            ("argument", "Android.Icu.Text", "MessageFormat+Field.xml", "Argument", "remarks"),
+            ("weekday-friday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Friday", "summary,remarks"),
+            ("weekday-monday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Monday", "summary,remarks"),
+            ("weekday-saturday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Saturday", "summary,remarks"),
+            ("weekday-sunday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Sunday", "summary,remarks"),
+            ("weekday-thursday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Thursday", "summary,remarks"),
+            ("weekday-tuesday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Tuesday", "summary,remarks"),
+            ("weekday-wednesday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Wednesday", "summary,remarks"),
         ];
         foreach (var test in cases)
         {
@@ -16999,6 +17019,30 @@ static partial class ImporterProgram
                 Assert(WithoutReviewedAndroidSourceChannels(owner.Id, otherPage.Members.Single().Docs!)
                         .UnsafeTargets is null,
                     "hypothetical changed MessageFormat link is not treated as the native Java link");
+            }
+            if (test.Name == "argument")
+            {
+                Assert(ReplacementFor(Placeholder.Create(
+                    XElement.Parse("<summary>To be added.</summary>"), 0), mapping.Docs!).Text == raw.Summary,
+                    "Argument retains its safe independent summary");
+                Assert(Guard(raw with
+                {
+                    Paragraphs = [new SourceParagraph(raw.Summary, false)],
+                }).UnsafeTargets is null,
+                    "Argument without the Integer-only claim is not excluded");
+            }
+            if (test.Name.StartsWith("weekday-", StringComparison.Ordinal))
+            {
+                var qualitative = raw.Summary.Replace($", \"in 5 {test.Member}s\"", "", StringComparison.Ordinal);
+                Assert(Guard(raw with
+                {
+                    Summary = qualitative,
+                    Paragraphs = [new SourceParagraph(qualitative, false)],
+                }).UnsafeTargets is null,
+                    test.Name + " retained qualitative prose is not excluded");
+                Assert(Guard(raw, "P:Android.Icu.Text.RelativeDateTimeFormatter.RelativeDateTimeUnit.Day")
+                        .UnsafeTargets is null,
+                    test.Name + " does not exclude numeric day units");
             }
             if (test.Name == "set-color-space")
             {

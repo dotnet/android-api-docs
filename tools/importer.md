@@ -714,6 +714,12 @@ The Java 21 `TreeSet.subSet(E, boolean, E, boolean)` and
 `tailSet(E, boolean)` return text is withheld when it promises fixed endpoint
 inclusion despite the exact inclusion-flag contracts. Valid summaries,
 parameters and unflagged overloads remain eligible.
+The exact `MessageFormat.Field.ARGUMENT` remarks that promise only an Integer
+array index are withheld because Map arguments use String names. Its safe
+summary remains eligible. The seven `RelativeDateTimeUnit` weekday summary
+and remarks channels are withheld only for the complete numeric-offset examples
+rejected by the shipped formatter. Retained qualitative text is not replaced,
+and numeric day units remain eligible.
 
 The focused preservation tests also run in `--self-test`. Their base64 source
 fragments retain exact native declaration bytes, with full-page and fragment
