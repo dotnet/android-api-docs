@@ -6942,15 +6942,20 @@ static partial class ImporterProgram
                     return false;
                 }
                 var directText = blockText[textStart..textEnd];
-                var match = Regex.Match(directText, @"To be added\.?", RegexOptions.CultureInvariant);
-                if (!match.Success || NormalizeText(directText) != NormalizeText(match.Value) ||
-                    NormalizeText(directText) != NormalizeText(directPlaceholder.Value))
+                var decodedText = XElement.Parse("<text>" + directText + "</text>",
+                    LoadOptions.PreserveWhitespace).Value;
+                var normalizedText = NormalizeText(decodedText);
+                if (normalizedText is not ("To be added" or "To be added.") ||
+                    normalizedText != NormalizeText(directPlaceholder.Value))
                 {
                     updated = text;
                     error = "The direct remarks placeholder did not match its original text span.";
                     return false;
                 }
-                replacementSpan = new XmlSpan(textStart + match.Index, textStart + match.Index + match.Length);
+                var contentTokens = Regex.Matches(directText, @"&[^;]+;|.", RegexOptions.Singleline)
+                    .Where(token => NormalizeText(token.Value).Length > 0).ToList();
+                replacementSpan = new XmlSpan(textStart + contentTokens[0].Index,
+                    textStart + contentTokens[^1].Index + contentTokens[^1].Length);
             }
             else if (!TryGetElementSpan(blockText, emptyParagraph!, out replacementSpan))
             {
@@ -17307,6 +17312,11 @@ static partial class ImporterProgram
                                 "<remarks><!-- retained --><?keep value?>To be added.", StringComparison.Ordinal),
                             original.Replace("<remarks>To be added.", "<remarks>", StringComparison.Ordinal)
                                 .Replace("</remarks>", "To be added.</remarks>", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.", "<remarks> \tTo  be added. \t", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.", "<remarks> \tTo" + newline + "be added. \t", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.", "<remarks>&#32;To&#32;be added.&#x20;", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.",
+                                "<remarks><!-- retained --><?keep value?> \tTo&#x20;be  added \t", StringComparison.Ordinal),
                         }
                         : [original];
                     foreach (var input in variants)
@@ -17330,6 +17340,19 @@ static partial class ImporterProgram
                         var owner = before.Owners.Single(candidate => candidate.Id == originalOwner.Id);
                         var block = before.DocsBlocks[owner.Order];
                         var blockText = before.Text[block.Start..block.End];
+                        if (test.Name is "hdr" or "paths" or "tag")
+                        {
+                            var start = blockText.IndexOf("<remarks>", StringComparison.Ordinal);
+                            var end = blockText.IndexOf("</remarks>", start, StringComparison.Ordinal);
+                            var rawPlaceholder = Regex.Match(blockText[start..end],
+                                @"To(?: |&#32;|&#x20;|\r|\n)+be +added\.?", RegexOptions.CultureInvariant);
+                            if (rawPlaceholder.Success)
+                                Assert(after.Text.StartsWith(input[..(block.Start + start + rawPlaceholder.Index)],
+                                        StringComparison.Ordinal) &&
+                                    after.Text.EndsWith(input[(block.Start + start + rawPlaceholder.Index + rawPlaceholder.Length)..],
+                                        StringComparison.Ordinal),
+                                    test.Name + " normalized placeholder preserves surrounding raw whitespace and metadata");
+                        }
                         var beforeDocs = XElement.Parse(blockText, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
                         foreach (var metadata in beforeDocs.Element("remarks")!.Elements().Where(IsImporterMetadataParagraph))
                         {

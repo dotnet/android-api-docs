@@ -721,6 +721,11 @@ and remarks channels are withheld only for the complete numeric-offset examples
 rejected by the shipped formatter. Retained qualitative text is not replaced,
 and numeric day units remain eligible.
 
+Direct remarks placeholders use the same XML decoding and whitespace
+normalization during selection and replacement. Repeated spaces, inter-word
+newlines and numeric character references are accepted. Surrounding whitespace
+and adjacent metadata retain their original bytes.
+
 The focused preservation tests also run in `--self-test`. Their base64 source
 fragments retain exact native declaration bytes, with full-page and fragment
 SHA-256 values in `tools/importer-fixtures/preservation-source-fragments.txt`
