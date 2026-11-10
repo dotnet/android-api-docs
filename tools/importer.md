@@ -707,6 +707,27 @@ from the complete ordered visible source paragraphs and code blocks, rather than
 having text appended. Nested Android code-container markup for one physical
 sample is coalesced, while separate repeated visible blocks remain in order.
 
+For `FormattedNumber.appendTo(A)` and `FormattedNumberRange.appendTo(A)`, the
+Android anchor uses a type variable rather than its erased JNI type. A narrow
+mapping requires the exact managed signature, JNI `Appendable` descriptor,
+`A extends java.lang.Appendable` binding metadata, canonical source identity,
+and `public A appendTo (A appendable)` source declaration. No general type-variable
+guessing is added.
+
+Three ICU Number channels are withheld for exact known source defects:
+`getIdentityResult()` names the nonexistent `RangeIdentityType` in its value
+description and mistakes endpoint equality for proof that a display fallback
+was used; `UnitWidth.ISO_CODE` calls the alphabetic currency code three-digit;
+and `RangeIdentityFallback.APPROXIMATELY` contradicts its approximation pattern
+with an always-use-range instruction. Safe sibling channels remain eligible.
+These guards preserve authored text and accept future corrected source; they
+do not derive replacement prose from implementation code.
+The registered self-tests use hashed native declaration fragments in
+`tools/importer-fixtures/icu-number-source-fragments.txt`. They cover mapping
+and provenance nonmatches, corrected source, contextual contradictions,
+authored content, dry runs, bounded offline applies, byte preservation and
+zero-write repeats.
+
 Official pages are cached by URL hash. Network requests use a clear user agent,
 bounded concurrency, a size limit, and deterministic retry/backoff. `--offline`
 only reads the cache. `--report path` writes a deterministic JSON report and an
