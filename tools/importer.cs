@@ -11466,9 +11466,11 @@ static partial class ImporterProgram
                 "\r\n",
                 "        ",
                 "          ").Replace(
-                    "start(); // note\nfinish();",
+                    "start(); // note\r\nfinish();",
                     "start(); // note finish();",
                     StringComparison.Ordinal);
+            Assert(legacyCodeRemarks.Contains("start(); // note finish();", StringComparison.Ordinal),
+                "old-layout code negative changes the rendered CRLF comment boundary");
             var legacyCodeText = LegacyDocument(legacyCodeRemarks);
             File.WriteAllText(path, legacyCodeText, new UTF8Encoding(true));
             File.WriteAllText(cachePath, codeSource, new UTF8Encoding(false));
@@ -17194,6 +17196,43 @@ static partial class ImporterProgram
             source.SelectOwners(test.Member);
             var originalOwner = source.Owners.Single(owner =>
                 (string?)owner.Member?.Attribute("MemberName") == test.Member);
+            var sourceBlock = source.DocsBlocks[originalOwner.Order];
+            var fixtureDocs = source.Text[sourceBlock.Start..sourceBlock.End];
+            var fixtureDocument = XElement.Parse(fixtureDocs, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            string[] fixtureChannels = test.Name switch
+            {
+                "callable" or "contactables" => [],
+                "bssid" => ["param", "summary", "returns", "remarks"],
+                "burn" or "dodge" or "private-use" or "private-use-area" => ["summary", "remarks"],
+                _ => ["remarks"],
+            };
+            var fixtureEdits = new List<XmlSpanEdit>();
+            foreach (var element in fixtureDocument.Elements().Where(element =>
+                fixtureChannels.Contains(element.Name.LocalName, StringComparer.Ordinal)))
+            {
+                Assert(TryGetElementSpan(fixtureDocs, element, out var span),
+                    test.Name + " fixture channel span is unambiguous");
+                var replacement = new XElement(element.Name, element.Attributes(), "To be added.")
+                    .ToString(SaveOptions.DisableFormatting);
+                if (element.Name.LocalName == "remarks")
+                {
+                    var metadata = new StringBuilder();
+                    foreach (var paragraph in element.Elements().Where(IsImporterMetadataParagraph))
+                    {
+                        Assert(TryGetElementSpan(fixtureDocs, paragraph, out var metadataSpan),
+                            test.Name + " fixture metadata span is unambiguous");
+                        var metadataStart = metadataSpan.Start;
+                        while (metadataStart > span.Start && char.IsWhiteSpace(fixtureDocs[metadataStart - 1]))
+                            metadataStart--;
+                        metadata.Append(fixtureDocs[metadataStart..metadataSpan.End]);
+                    }
+                    replacement = "<remarks>To be added." + metadata + "</remarks>";
+                }
+                fixtureEdits.Add(new XmlSpanEdit(span, replacement));
+            }
+            foreach (var edit in fixtureEdits.OrderByDescending(edit => edit.Span.Start))
+                fixtureDocs = fixtureDocs[..edit.Span.Start] + edit.Replacement + fixtureDocs[edit.Span.End..];
+            var fixtureText = source.Text[..sourceBlock.Start] + fixtureDocs + source.Text[sourceBlock.End..];
             var request = originalOwner.SourceRequest!;
             var fixture = fragments[test.Name];
             var htmlBytes = Convert.FromBase64String(fixture[3]);
@@ -17301,7 +17340,7 @@ static partial class ImporterProgram
                 foreach (var newline in new[] { "\n", "\r\n" })
                 foreach (var bom in new[] { false, true })
                 {
-                    var original = NormalizeXmlNewlines(source.Text).Replace("\n", newline, StringComparison.Ordinal);
+                    var original = NormalizeXmlNewlines(fixtureText).Replace("\n", newline, StringComparison.Ordinal);
                     var variants = test.Name is "hdr" or "paths" or "tag"
                         ? new[]
                         {
@@ -17377,7 +17416,7 @@ static partial class ImporterProgram
                         "<para authored=\"true\" />",
                     })
                     {
-                        File.WriteAllText(path, source.Text.Replace("<remarks>To be added.", "<remarks>" + empty,
+                        File.WriteAllText(path, fixtureText.Replace("<remarks>To be added.", "<remarks>" + empty,
                             StringComparison.Ordinal), new UTF8Encoding(false));
                         var bytes = File.ReadAllBytes(path);
                         Assert(Run(true).Count == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
@@ -17393,7 +17432,7 @@ static partial class ImporterProgram
                     var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
                         Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
                     File.WriteAllText(cachePath, contextualHtml, new UTF8Encoding(false));
-                    File.WriteAllText(path, source.Text, new UTF8Encoding(true));
+                    File.WriteAllText(path, fixtureText, new UTF8Encoding(true));
                     var before = LoadedFile.Load(repositoryRoot, path);
                     Assert(Run(false, expectExclusion: false).Count == 1 &&
                         Run(true, expectExclusion: false).Count == 1,
