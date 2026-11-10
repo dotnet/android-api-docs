@@ -18497,6 +18497,42 @@ static partial class ImporterProgram
                 new Placeholder(0, "summary", "", "summary"),
                 malformedFetchUriDocs).Reason == "source_documentation_malformed",
             "malformed FetchAndJoinCustomAudienceRequest fetch URI source skip");
+        const string fetchUriReference =
+            """<p>See <code translate="no" dir="ltr"><a href="/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest#getFetchUri()">FetchAndJoinCustomAudienceRequest.getFetchUri()</a></code> ()} for details.</p>""";
+        var linkedFetchUriHtml = androidHtml.Replace(
+            "<p>See FetchAndJoinCustomAudienceRequest.getFetchUri() ()} for details.</p>",
+            fetchUriReference,
+            StringComparison.Ordinal);
+        var recoveredFetchUriDocs = SourcePage.Parse(fetchUriRequest, linkedFetchUriHtml)
+            .Members.Single(member => member.Name == "setFetchUri").Docs!;
+        Assert(
+            !recoveredFetchUriDocs.HasMalformedSourceMarkup &&
+            recoveredFetchUriDocs.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(
+                [
+                    "Sets the Uri from which the custom audience is to be fetched.",
+                    "See FetchAndJoinCustomAudienceRequest.getFetchUri() for details.",
+                ]) &&
+            ReplacementFor(
+                new Placeholder(0, "remarks", "", "remarks"), recoveredFetchUriDocs).Text is not null,
+            "exact linked fetch URI reference removes only the malformed trailing Javadoc token");
+        foreach (var changedHtml in new[]
+        {
+            linkedFetchUriHtml.Replace("#getFetchUri()", "#getName()", StringComparison.Ordinal),
+            linkedFetchUriHtml.Replace("for details.</p>", "for other details.</p>", StringComparison.Ordinal),
+        })
+        {
+            var changedDocs = SourcePage.Parse(fetchUriRequest, changedHtml)
+                .Members.Single(member => member.Name == "setFetchUri").Docs!;
+            Assert(
+                changedDocs.HasMalformedSourceMarkup &&
+                ReplacementFor(new Placeholder(0, "remarks", "", "remarks"), changedDocs).Text is null,
+                "changed fetch URI link or paragraph remains withheld");
+        }
+        var differentOwnerDocs = SourcePage.Parse(request, linkedFetchUriHtml)
+            .Members.Single(member => member.Name == "setFetchUri").Docs!;
+        Assert(
+            differentOwnerDocs.HasMalformedSourceMarkup,
+            "fetch URI reference recovery requires the exact source owner and URL");
         var correctedFetchUriDocs = SourcePage.Parse(
             fetchUriRequest,
             androidHtml.Replace(" ()}", "", StringComparison.Ordinal))
@@ -29519,6 +29555,18 @@ static partial class ImporterProgram
                         "View.onWindowFocusChangedNotLocked(boolean)",
                         "View.onWindowFocusChanged(boolean)",
                         StringComparison.Ordinal),
+                    StringComparison.Ordinal);
+            }
+            if (request.JavaPath ==
+                    "android/adservices/customaudience/FetchAndJoinCustomAudienceRequest$Builder" &&
+                url == AndroidReference +
+                    "android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder#setFetchUri(android.net.Uri)")
+            {
+                const string malformedReference =
+                    """<p>See <code translate="no" dir="ltr"><a href="/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest#getFetchUri()">FetchAndJoinCustomAudienceRequest.getFetchUri()</a></code> ()} for details.</p>""";
+                prose = prose.Replace(
+                    malformedReference,
+                    malformedReference.Replace(" ()}", "", StringComparison.Ordinal),
                     StringComparison.Ordinal);
             }
             var paragraphs = ExtractParagraphs(prose, IsGestureCloneSourceUrl(url), url);

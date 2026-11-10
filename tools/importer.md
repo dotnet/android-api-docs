@@ -606,6 +606,12 @@ enrichment, or repair can write, preserving existing authored and prior imported
 Docs unchanged. No replacement listener prose is inferred. Corrected or removed
 stale descriptions remain eligible, and unrelated Chooser members are unaffected.
 
+The `FetchAndJoinCustomAudienceRequest.Builder.setFetchUri(Uri)` reference has
+an extra `()}` after its correctly linked `getFetchUri()` label. Only the exact
+official owner, member URL, hyperlink, label and complete paragraph permit
+removal of that trailing token. Other malformed or changed references remain
+withheld. This rendering fix does not infer missing parameter or return prose.
+
 The `IkeProtocolErrorType.NoAdditionalSas` enum summary is skipped when its exact
 managed field, canonical `IkeProtocolException.ERROR_TYPE_NO_ADDITIONAL_SAS`
 Android URL, and complete source prose match `No additional SAa are acceptable`.
