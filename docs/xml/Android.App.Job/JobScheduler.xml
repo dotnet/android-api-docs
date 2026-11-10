@@ -325,7 +325,7 @@
         <summary>Returns <c>true</c> if the calling app currently holds the
             <c>android.Manifest.permission#RUN_USER_INITIATED_JOBS</c> permission, allowing it to run
             user-initiated jobs.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the calling app holds the permission to run user-initiated jobs; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns <c>true</c> if the calling app currently holds the
             <c>android.Manifest.permission#RUN_USER_INITIATED_JOBS</c> permission, allowing it to run
@@ -458,9 +458,9 @@
         <Parameter Name="namespace" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="namespace">To be added.</param>
+        <param name="namespace">The job namespace to use. Leading and trailing whitespace is removed; the resulting name must not be empty.</param>
         <summary>Get a JobScheduler instance that is dedicated to a specific namespace.</summary>
-        <returns>To be added.</returns>
+        <returns>A scheduler instance whose job operations use the specified namespace unless an operation explicitly states otherwise.</returns>
         <remarks>
           <para>Get a JobScheduler instance that is dedicated to a specific namespace. Any API calls using
             this instance will interact with jobs in that namespace, unless the API documentation says
@@ -513,7 +513,7 @@
         <Parameter Name="jobId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="jobId">To be added.</param>
+        <param name="jobId">The identifier of the job to look up in this scheduler's namespace.</param>
         <summary>Look up the description of a scheduled job.</summary>
         <returns>The <c>JobInfo</c> description of the given scheduled job, or <c>null</c>
                 if the supplied job ID does not correspond to any job.</returns>
@@ -565,7 +565,7 @@
         <Parameter Name="jobId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="jobId">To be added.</param>
+        <param name="jobId">The identifier of the job to inspect in this scheduler's namespace.</param>
         <summary>Returns a reason why the job is pending and not currently executing.</summary>
         <returns>Value is one of the following: PENDING_JOB_REASON_UNDEFINED; PENDING_JOB_REASON_APP; PENDING_JOB_REASON_APP_STANDBY; PENDING_JOB_REASON_BACKGROUND_RESTRICTION; PENDING_JOB_REASON_CONSTRAINT_BATTERY_NOT_LOW; PENDING_JOB_REASON_CONSTRAINT_CHARGING; PENDING_JOB_REASON_CONSTRAINT_CONNECTIVITY; PENDING_JOB_REASON_CONSTRAINT_CONTENT_TRIGGER; PENDING_JOB_REASON_CONSTRAINT_DEVICE_IDLE; PENDING_JOB_REASON_CONSTRAINT_MINIMUM_LATENCY; PENDING_JOB_REASON_CONSTRAINT_PREFETCH; PENDING_JOB_REASON_CONSTRAINT_STORAGE_NOT_LOW; PENDING_JOB_REASON_DEVICE_STATE; PENDING_JOB_REASON_EXECUTING; PENDING_JOB_REASON_INVALID_JOB_ID; PENDING_JOB_REASON_JOB_SCHEDULER_OPTIMIZATION; PENDING_JOB_REASON_QUOTA; PENDING_JOB_REASON_USER; PENDING_JOB_REASON_CONSTRAINT_DEADLINE</returns>
         <remarks>
@@ -611,7 +611,7 @@
         <Parameter Name="jobId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="jobId">To be added.</param>
+        <param name="jobId">The identifier of the job to inspect in this scheduler's namespace.</param>
         <summary>Returns potential reasons why the job with the given <c>jobId</c> may be pending
             and not currently executing.</summary>
         <returns>This value cannot be null. Value is one of the following: PENDING_JOB_REASON_UNDEFINED; PENDING_JOB_REASON_APP; PENDING_JOB_REASON_APP_STANDBY; PENDING_JOB_REASON_BACKGROUND_RESTRICTION; PENDING_JOB_REASON_CONSTRAINT_BATTERY_NOT_LOW; PENDING_JOB_REASON_CONSTRAINT_CHARGING; PENDING_JOB_REASON_CONSTRAINT_CONNECTIVITY; PENDING_JOB_REASON_CONSTRAINT_CONTENT_TRIGGER; PENDING_JOB_REASON_CONSTRAINT_DEVICE_IDLE; PENDING_JOB_REASON_CONSTRAINT_MINIMUM_LATENCY; PENDING_JOB_REASON_CONSTRAINT_PREFETCH; PENDING_JOB_REASON_CONSTRAINT_STORAGE_NOT_LOW; PENDING_JOB_REASON_DEVICE_STATE; PENDING_JOB_REASON_EXECUTING; PENDING_JOB_REASON_INVALID_JOB_ID; PENDING_JOB_REASON_JOB_SCHEDULER_OPTIMIZATION; PENDING_JOB_REASON_QUOTA; PENDING_JOB_REASON_USER; PENDING_JOB_REASON_CONSTRAINT_DEADLINE</returns>
@@ -662,10 +662,10 @@
         <Parameter Name="jobId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="jobId">To be added.</param>
+        <param name="jobId">The identifier of the job whose pending-reason history to retrieve from this scheduler's namespace.</param>
         <summary>For the given <c>jobId</c>, returns a limited historical view of why the job may have
             been pending execution.</summary>
-        <returns>To be added.</returns>
+        <returns>The available history entries, each pairing an epoch timestamp with pending-reason codes. The history is limited and is not retained across device restarts.</returns>
         <remarks>
           <para>For the given <c>jobId</c>, returns a limited historical view of why the job may have
             been pending execution. The returned list is composed of <c>PendingJobReasonsInfo</c>
@@ -801,7 +801,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the namespace this JobScheduler instance is operating in.</summary>
-        <value>To be added.</value>
+        <value>The namespace used by this scheduler, or <see langword="null" /> for the default namespace.</value>
         <remarks>
           <para>Get the namespace this JobScheduler instance is operating in. A <c>null</c> value means
             that the app has not specified a namespace for this instance, and it is therefore using the

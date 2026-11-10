@@ -832,7 +832,7 @@
       <Docs>
         <summary>Returns an <c>Intent</c> that can be used for credential
             installation.</summary>
-        <returns>To be added.</returns>
+        <returns>An intent that opens the system credential installer. Certificate or key-store data can be supplied as intent extras; without extras, the user selects the data to install.</returns>
         <remarks>
           <para>Returns an <c>Intent</c> that can be used for credential
             installation. The intent may be used without any extras, in
@@ -896,7 +896,7 @@
                           certificate pair should be used for authentication.</param>
         <summary>Returns an <c>Intent</c> that should be used by an app to request to manage the user's
             credentials.</summary>
-        <returns>To be added.</returns>
+        <returns>An intent that asks the user to approve this application as the credential management app, with the supplied authentication policy.</returns>
         <remarks>
           <para>Returns an <c>Intent</c> that should be used by an app to request to manage the user's
             credentials. This is limited to unmanaged devices. The authentication policy must be
@@ -1166,13 +1166,13 @@
         <Parameter Name="alias" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
+        <param name="context">The context used to connect to the KeyChain service. A long-lived application context avoids dependence on an activity or service lifetime.</param>
         <param name="alias">The alias of the desired certificate chain, typically
             returned via <c>KeyChainAliasCallback#alias</c>.</param>
         <summary>Returns the <c>X509Certificate</c> chain for the requested alias, or null if the alias
             does not exist or the caller has no permission to access it (see note on exceptions
             in <c>#getPrivateKey</c>).</summary>
-        <returns>To be added.</returns>
+        <returns>The certificate chain for <paramref name="alias" />, starting with the client certificate, or <see langword="null" /> if the alias does not exist or the caller cannot access it.</returns>
         <remarks>
           <para>Returns the <c>X509Certificate</c> chain for the requested alias, or null if the alias
             does not exist or the caller has no permission to access it (see note on exceptions
@@ -1234,7 +1234,7 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
+        <param name="context">The calling application's context, used to connect to the KeyChain service.</param>
         <summary>Called by the credential management app to get the authentication policy
             <c>AppUriAuthenticationPolicy</c>.</summary>
         <returns>the credential management app's authentication policy.</returns>
@@ -1284,12 +1284,12 @@
         <Parameter Name="alias" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
+        <param name="context">The context used to connect to the KeyChain service. A long-lived application context avoids dependence on an activity or service lifetime.</param>
         <param name="alias">The alias of the desired private key, typically returned via
                          <c>KeyChainAliasCallback#alias</c>.</param>
         <summary>Returns the <c>PrivateKey</c> for the requested alias, or null if the alias does not exist
             or the caller has no permission to access it (see note on exceptions below).</summary>
-        <returns>To be added.</returns>
+        <returns>The private key identified by <paramref name="alias" />, or <see langword="null" /> if the alias does not exist or the caller cannot access it. Before Android 10 (API level 29), an unavailable key causes a <see cref="T:Android.Security.KeyChainException" /> instead.</returns>
         <remarks>
           <para>Returns the <c>PrivateKey</c> for the requested alias, or null if the alias does not exist
             or the caller has no permission to access it (see note on exceptions below).</para>
@@ -1391,11 +1391,11 @@
         <Parameter Name="algorithm" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="algorithm">To be added.</param>
+        <param name="algorithm">The key algorithm name for the legacy hardware-support check, such as <c>RSA</c>.</param>
         <summary>Returns <c>true</c> if the current device's <c>KeyChain</c> binds any
             <c>PrivateKey</c> of the given <c>algorithm</c> to the device once
             imported or generated.</summary>
-        <returns>To be added.</returns>
+        <returns>A legacy indication of hardware support for the algorithm. This result does not determine whether an individual key is hardware-backed; inspect that key's <see cref="T:Android.Security.Keystore.KeyInfo" /> instead.</returns>
         <remarks>
           <para>Returns <c>true</c> if the current device's <c>KeyChain</c> binds any
             <c>PrivateKey</c> of the given <c>algorithm</c> to the device once
@@ -1452,7 +1452,7 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
+        <param name="context">The application's context, used both to connect to KeyChain and to identify the calling package.</param>
         <summary>Check whether the caller is the credential management app <c>CredentialManagementApp</c>.</summary>
         <returns>
           <c>true</c> if the caller is the credential management app.</returns>
@@ -1500,10 +1500,10 @@
         <Parameter Name="algorithm" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="algorithm">To be added.</param>
+        <param name="algorithm">The key algorithm name to test, such as <c>RSA</c> or <c>EC</c>.</param>
         <summary>Returns <c>true</c> if the current device's <c>KeyChain</c> supports a
             specific <c>PrivateKey</c> type indicated by <c>algorithm</c> (e.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if KeyChain supports the specified key algorithm on this device; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns <c>true</c> if the current device's <c>KeyChain</c> supports a
             specific <c>PrivateKey</c> type indicated by <c>algorithm</c> (e.g.,
@@ -1632,7 +1632,7 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
+        <param name="context">The calling application's context, used to connect to the KeyChain service that removes the credential management app.</param>
         <summary>Called by the credential management app <c>CredentialManagementApp</c> to unregister as
             the credential management app and stop managing the user's credentials.</summary>
         <returns>

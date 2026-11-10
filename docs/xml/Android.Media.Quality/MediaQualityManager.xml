@@ -77,7 +77,7 @@
       </Parameters>
       <Docs>
         <param name="executor">Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread. This value cannot be null.</param>
-        <param name="listener">To be added.</param>
+        <param name="listener">The consumer that receives the list of active processing pictures for non-global content. Notifications run on <paramref name="executor" />.</param>
         <summary>Adds an active picture listener for the contents owner by the caller.</summary>
         <remarks>
           <para>Adds an active picture listener for the contents owner by the caller.</para>
@@ -129,7 +129,7 @@
         <param name="enabled">
           <c>true</c> to enable, <c>false</c> to disable.</param>
         <summary>Returns <c>true</c> if ambient backlight is enabled; <c>false</c> otherwise. -or- Enables or disables the ambient backlight detection.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if ambient backlight detection is enabled; otherwise, <see langword="false" />. Set this property to enable or disable detection.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns <c>true</c> if ambient backlight is enabled; <c>false</c> otherwise.</para>
@@ -324,7 +324,7 @@
       <Docs>
         <param name="options">the options of the query. null if default options are used.</param>
         <summary>Gets profiles that available to the caller.</summary>
-        <returns>To be added.</returns>
+        <returns>The collection of picture profiles available to the calling package. The collection is empty when no profiles are available.</returns>
         <remarks>
           <para>Gets profiles that available to the caller.</para>
           <para>If ProfileQueryParams.areParametersIncluded() is false, PictureProfile.getParameters() of the returned profiles are empty bundles.</para>
@@ -369,7 +369,7 @@
       <Docs>
         <param name="options">the options of the query. null if default options are used.</param>
         <summary>Gets profiles that available to the caller package.</summary>
-        <returns>To be added.</returns>
+        <returns>The collection of sound profiles available to the calling package. The collection is empty when no profiles are available.</returns>
         <remarks>
           <para>Gets profiles that available to the caller package.</para>
           <para>If ProfileQueryParams.areParametersIncluded() is false, SoundProfile.getParameters() of the returned profiles are empty bundles.</para>
@@ -408,7 +408,7 @@
         <param name="names">the parameter names. Commonly used names can be found in
             <c>MediaQualityContract</c>. Vendor-defined names are also permitted.</param>
         <summary>Gets capability information of the given parameters.</summary>
-        <returns>To be added.</returns>
+        <returns>The capability records returned for the requested parameter names.</returns>
         <remarks>
           <para>Gets capability information of the given parameters.</para>
           <para>If a name isn't found, a corresponding <c>ParameterCapability</c> instance is in the
@@ -571,7 +571,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns <c>true</c> if auto picture quality is enabled; <c>false</c> otherwise.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if automatic picture quality adjustment is enabled; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns <c>true</c> if auto picture quality is enabled; <c>false</c> otherwise.</para>
           <para>
@@ -612,7 +612,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns <c>true</c> if auto sound quality is enabled; <c>false</c> otherwise.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if automatic sound quality adjustment is enabled; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns <c>true</c> if auto sound quality is enabled; <c>false</c> otherwise.</para>
           <para>
@@ -653,7 +653,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns <c>true</c> if super resolution is enabled; <c>false</c> otherwise.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if super resolution is enabled; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns <c>true</c> if super resolution is enabled; <c>false</c> otherwise.</para>
           <para>
@@ -729,7 +729,7 @@
       </Parameters>
       <Docs>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="callback">To be added.</param>
+        <param name="callback">The callback to receive ambient backlight events on <paramref name="executor" />.</param>
         <summary>Registers a AmbientBacklightCallback.</summary>
         <remarks>
           <para>Registers a AmbientBacklightCallback.</para>
@@ -767,7 +767,7 @@
       </Parameters>
       <Docs>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="callback">To be added.</param>
+        <param name="callback">The callback to receive picture profile notifications on <paramref name="executor" />.</param>
         <summary>Registers a PictureProfileCallback.</summary>
         <remarks>
           <para>Registers a PictureProfileCallback.</para>
@@ -805,7 +805,7 @@
       </Parameters>
       <Docs>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="callback">To be added.</param>
+        <param name="callback">The callback to receive sound profile notifications on <paramref name="executor" />.</param>
         <summary>Registers a SoundProfileCallback.</summary>
         <remarks>
           <para>Registers a SoundProfileCallback.</para>
@@ -841,7 +841,7 @@
         <Parameter Name="listener" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
+        <param name="listener">The same consumer instance that was passed when the active-picture listener was added.</param>
         <summary>Removes an active picture listener for the contents.</summary>
         <remarks>
           <para>Removes an active picture listener for the contents.</para>
@@ -1153,7 +1153,7 @@
         <Parameter Name="callback" Type="Android.Media.Quality.MediaQualityManager+IAmbientBacklightCallback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
+        <param name="callback">The same callback instance that was passed to register ambient backlight notifications.</param>
         <summary>Unregisters the existing AmbientBacklightCallback.</summary>
         <remarks>
           <para>Unregisters the existing AmbientBacklightCallback.</para>
@@ -1189,7 +1189,7 @@
         <Parameter Name="callback" Type="Android.Media.Quality.MediaQualityManager+PictureProfileCallback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
+        <param name="callback">The same callback instance that was passed to register picture profile notifications.</param>
         <summary>Unregisters the existing PictureProfileCallback.</summary>
         <remarks>
           <para>Unregisters the existing PictureProfileCallback.</para>
@@ -1225,7 +1225,7 @@
         <Parameter Name="callback" Type="Android.Media.Quality.MediaQualityManager+SoundProfileCallback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
+        <param name="callback">The same callback instance that was passed to register sound profile notifications.</param>
         <summary>Unregisters the existing SoundProfileCallback.</summary>
         <remarks>
           <para>Unregisters the existing SoundProfileCallback.</para>
