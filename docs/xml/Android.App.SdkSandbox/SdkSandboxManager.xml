@@ -87,10 +87,14 @@
         <Parameter Name="callback" Type="Android.App.SdkSandbox.SdkSandboxManager+ISdkSandboxProcessDeathCallback" />
       </Parameters>
       <Docs>
-        <param name="callbackExecutor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="callbackExecutor">the Executor on which to invoke the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="callback">the SdkSandboxProcessDeathCallback which will receive SDK sandbox lifecycle events. This value cannot be null.</param>
+        <summary>Adds a callback which gets registered for SDK sandbox lifecycle events, such as SDK sandbox death.</summary>
+        <remarks>
+          <para>Adds a callback which gets registered for SDK sandbox lifecycle events, such as SDK sandbox death. If the sandbox has not yet been created when this is called, the request will be stored until a sandbox is created, at which point it is activated for that sandbox. Multiple callbacks can be added to detect death and will not be removed when the sandbox dies.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#addSdkSandboxProcessDeathCallback(java.util.concurrent.Executor,%20android.app.sdksandbox.SdkSandboxManager.SdkSandboxProcessDeathCallback)" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.addSdkSandboxProcessDeathCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AddSyncedSharedPreferencesKeys">
@@ -124,9 +128,17 @@
         <Parameter Name="keys" Type="System.Collections.Generic.ICollection&lt;System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="keys">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="keys">set of keys that will be synced to Sandbox. This value cannot be null.</param>
+        <summary>Adds keys to set of keys being synced from app's default SharedPreferences to the SDK sandbox.</summary>
+        <remarks>
+          <para>Adds keys to set of keys being synced from app's default SharedPreferences to the SDK sandbox.</para>
+          <para>Synced data will be available for SDKs to read using the SdkSandboxController.getClientSharedPreferences() API.</para>
+          <para>To stop syncing any key that has been added using this API, use removeSyncedSharedPreferencesKeys(Set).</para>
+          <para>The sync breaks if the app restarts and user must call this API again to rebuild the pool of keys for syncing.</para>
+          <para>Note: This class does not support use across multiple processes.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#addSyncedSharedPreferencesKeys(java.util.Set&lt;java.lang.String&gt;)" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.addSyncedSharedPreferencesKeys</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AppOwnedSdkSandboxInterfaces">
@@ -157,9 +169,13 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.App.SdkSandbox.AppOwnedSdkSandboxInterface&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Fetches a list of AppOwnedSdkSandboxInterface registered for an app</summary>
+        <value>empty list if callingInfo not found in map otherwise a list of AppOwnedSdkSandboxInterface This value cannot be null.</value>
+        <remarks>
+          <para>Fetches a list of AppOwnedSdkSandboxInterface registered for an app</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#getAppOwnedSdkSandboxInterfaces()" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.getAppOwnedSdkSandboxInterfaces</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraDisplayId">
@@ -254,8 +270,13 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>The name of key to be used in the Bundle fields of requestSurfacePackage(String,Bundle,Executor,OutcomeReceiver), its value should present the token returned by SurfaceView.getHostToken() once the SurfaceView has been added to the view hierarchy.</summary>
+        <remarks>
+          <para>This constant was deprecated in API level 35. Parameter for requestSurfacePackage(String,Bundle,Executor,OutcomeReceiver) which is getting deprecated.</para>
+          <para>The name of key to be used in the Bundle fields of requestSurfacePackage(String,Bundle,Executor,OutcomeReceiver), its value should present the token returned by SurfaceView.getHostToken() once the SurfaceView has been added to the view hierarchy. Only a non-null value is accepted to enable ANR reporting.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#EXTRA_HOST_TOKEN" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.EXTRA_HOST_TOKEN</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraSurfacePackage">
@@ -387,12 +408,20 @@
         <Parameter Name="receiver" Type="Android.OS.IOutcomeReceiver" />
       </Parameters>
       <Docs>
-        <param name="sdkName">To be added.</param>
-        <param name="params">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="receiver">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="sdkName">name of the SDK to be loaded. This value cannot be null.</param>
+        <param name="params">additional parameters to be passed to the SDK in the form of a Bundle as agreed between the client and the SDK. This value cannot be null.</param>
+        <param name="executor">the Executor on which to invoke the receiver. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="receiver">This either receives a SandboxedSdk on a successful run, or LoadSdkException. This value cannot be null.</param>
+        <summary>Loads SDK in an SDK sandbox java process.</summary>
+        <remarks>
+          <para>Loads SDK in an SDK sandbox java process.</para>
+          <para>Loads SDK library with sdkName to an SDK sandbox process asynchronously. The caller will be notified through the receiver.</para>
+          <para>The caller should already declare SDKs it depends on in its manifest using &lt;uses-sdk-library&gt; tag. The caller may only load SDKs it depends on into the SDK sandbox.</para>
+          <para>When the client application loads the first SDK, a new SDK sandbox process will be created. If a sandbox has already been created for the client application, additional SDKs will be loaded into the same sandbox.</para>
+          <para>This API may only be called while the caller is running in the foreground. Calls from the background will result in returning LoadSdkException in the receiver.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#loadSdk(java.lang.String,%20android.os.Bundle,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver&lt;android.app.sdksandbox.SandboxedSdk,android.app.sdksandbox.LoadSdkException&gt;)" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.loadSdk</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="LoadSdkAlreadyLoaded">
@@ -661,9 +690,15 @@
         <Parameter Name="appOwnedSdkSandboxInterface" Type="Android.App.SdkSandbox.AppOwnedSdkSandboxInterface" />
       </Parameters>
       <Docs>
-        <param name="appOwnedSdkSandboxInterface">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="appOwnedSdkSandboxInterface">the AppOwnedSdkSandboxInterface to be registered. This value cannot be null.</param>
+        <summary>Registers AppOwnedSdkSandboxInterface for an app process.</summary>
+        <remarks>
+          <para>Registers AppOwnedSdkSandboxInterface for an app process.</para>
+          <para>Registering an AppOwnedSdkSandboxInterface that has same name as a previously registered interface will result in IllegalStateException.</para>
+          <para>AppOwnedSdkSandboxInterface.getName() refers to the name of the interface.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#registerAppOwnedSdkSandboxInterface(android.app.sdksandbox.AppOwnedSdkSandboxInterface)" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.registerAppOwnedSdkSandboxInterface</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveSdkSandboxProcessDeathCallback">
@@ -697,9 +732,13 @@
         <Parameter Name="callback" Type="Android.App.SdkSandbox.SdkSandboxManager+ISdkSandboxProcessDeathCallback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="callback">the SdkSandboxProcessDeathCallback which was previously added using SdkSandboxManager.addSdkSandboxProcessDeathCallback(Executor,SdkSandboxProcessDeathCallback) This value cannot be null.</param>
+        <summary>Removes an SdkSandboxProcessDeathCallback that was previously added using SdkSandboxManager.addSdkSandboxProcessDeathCallback(Executor,SdkSandboxProcessDeathCallback)</summary>
+        <remarks>
+          <para>Removes an SdkSandboxProcessDeathCallback that was previously added using SdkSandboxManager.addSdkSandboxProcessDeathCallback(Executor,SdkSandboxProcessDeathCallback)</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#removeSdkSandboxProcessDeathCallback(android.app.sdksandbox.SdkSandboxManager.SdkSandboxProcessDeathCallback)" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.removeSdkSandboxProcessDeathCallback</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoveSyncedSharedPreferencesKeys">
@@ -733,9 +772,14 @@
         <Parameter Name="keys" Type="System.Collections.Generic.ICollection&lt;System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="keys">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="keys">set of key names that should no longer be synced to Sandbox. This value cannot be null.</param>
+        <summary>Removes keys from set of keys that have been added using addSyncedSharedPreferencesKeys(Set)</summary>
+        <remarks>
+          <para>Removes keys from set of keys that have been added using addSyncedSharedPreferencesKeys(Set)</para>
+          <para>Removed keys will be erased from the SDK sandbox if they have been synced already.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#removeSyncedSharedPreferencesKeys(java.util.Set&lt;java.lang.String&gt;)" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.removeSyncedSharedPreferencesKeys</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RequestSurfacePackage">
@@ -902,9 +946,13 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.App.SdkSandbox.SandboxedSdk&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Fetches information about SDKs that are loaded in the sandbox.</summary>
+        <value>List of SandboxedSdk containing all currently loaded SDKs. This value cannot be null.</value>
+        <remarks>
+          <para>Fetches information about SDKs that are loaded in the sandbox.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#getSandboxedSdks()" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.getSandboxedSdks</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SdkSandboxProcessNotAvailable">
@@ -982,8 +1030,12 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Use with Context.getSystemService(String) to retrieve an SdkSandboxManager for interacting with the SDKs belonging to this client application.</summary>
+        <remarks>
+          <para>Use with Context.getSystemService(String) to retrieve an SdkSandboxManager for interacting with the SDKs belonging to this client application.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#SDK_SANDBOX_SERVICE" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.SDK_SANDBOX_SERVICE</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SdkSandboxState">
@@ -1015,7 +1067,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the current state of the availability of the SDK sandbox feature.</summary>
-        <value>To be added.</value>
+        <value>Value is one of the following: SDK_SANDBOX_STATE_DISABLED; SDK_SANDBOX_STATE_ENABLED_PROCESS_ISOLATION</value>
         <remarks>
           <para>Returns the current state of the availability of the SDK sandbox feature.</para>
           <para>
@@ -1157,10 +1209,16 @@
         <Parameter Name="sdkActivityToken" Type="Android.OS.IBinder" />
       </Parameters>
       <Docs>
-        <param name="fromActivity">To be added.</param>
-        <param name="sdkActivityToken">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="fromActivity">the Activity will be used to start the new sandbox Activity by calling Activity.startActivity(Intent) against it. This value cannot be null.</param>
+        <param name="sdkActivityToken">the identifier that is shared by the SDK which requests the Activity. This value cannot be null.</param>
+        <summary>Starts an Activity in the SDK sandbox.</summary>
+        <remarks>
+          <para>Starts an Activity in the SDK sandbox.</para>
+          <para>This function will start a new Activity in the same task of the passed fromActivity and pass it to the SDK that shared the passed sdkActivityToken that identifies a request from that SDK to start this Activity.</para>
+          <para>The Activity will not start in the following cases: The App calling this API is in the background; The passed sdkActivityToken does not map to a request for an Activity from the SDK that shared it with the caller app; The SDK that shared the passed sdkActivityToken removed its request for this Activity; The sandbox Activity is already created.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#startSdkSandboxActivity(android.app.Activity,%20android.os.IBinder)" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.startSdkSandboxActivity</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SyncedSharedPreferencesKeys">
@@ -1191,9 +1249,13 @@
         <ReturnType>System.Collections.Generic.ICollection&lt;System.String&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Returns the set keys that are being synced from app's default SharedPreferences to the SDK sandbox.</summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Returns the set keys that are being synced from app's default SharedPreferences to the SDK sandbox.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#getSyncedSharedPreferencesKeys()" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.getSyncedSharedPreferencesKeys</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -1289,9 +1351,15 @@
         <Parameter Name="sdkName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="sdkName">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="sdkName">name of the SDK to be unloaded. This value cannot be null.</param>
+        <summary>Unloads an SDK that has been previously loaded by the caller.</summary>
+        <remarks>
+          <para>Unloads an SDK that has been previously loaded by the caller.</para>
+          <para>It is not guaranteed that the memory allocated for this SDK will be freed immediately. All subsequent calls to requestSurfacePackage(String,Bundle,Executor,OutcomeReceiver) for the given sdkName will fail.</para>
+          <para>This API may only be called while the caller is running in the foreground. Calls from the background will result in a SecurityException being thrown.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#unloadSdk(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.unloadSdk</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="UnregisterAppOwnedSdkSandboxInterface">
@@ -1325,9 +1393,13 @@
         <Parameter Name="name" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="name">the name under which AppOwnedSdkSandboxInterface was registered. This value cannot be null.</param>
+        <summary>Unregisters AppOwnedSdkSandboxInterfaces for an app process.</summary>
+        <remarks>
+          <para>Unregisters AppOwnedSdkSandboxInterfaces for an app process.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/sdksandbox/SdkSandboxManager#unregisterAppOwnedSdkSandboxInterface(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.sdksandbox.SdkSandboxManager.unregisterAppOwnedSdkSandboxInterface</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
