@@ -13,6 +13,14 @@ return await ImporterProgram.RunAsync(args);
 static partial class ImporterProgram
 {
     const string AndroidReference = "https://developer.android.com/reference/";
+    const string AudioBitRateIncompleteSummary =
+        "A key representing the bitrate of the encoded stream used in If the stream is variable bitrate, this is the average bitrate of the stream.";
+    const string AudioBitRateIncompleteParagraph =
+        AudioBitRateIncompleteSummary + " The unit is bits per second. An Integer value.";
+    const string BlendColorBurnInvalidEquation =
+        @"\begin{equation} C_{out} = \begin{cases} C_{dst} + C_{src}*(1 - \alpha_{dst}) & C_{dst} = \alpha_{dst} \\ C_{dst}*(1 - \alpha_{src}) & C_{src} = 0 \\ \alpha_{src}*(\alpha_{dst} - min(\alpha_{dst}, (\alpha_{dst} - C_{dst})*\alpha_{src}/C_{src})) + C_{src} * (1 - \alpha_{dst}) + \C{dst}*(1-\alpha_{src}) & otherwise \end{cases} \end{equation}";
+    const string BlendColorDodgeInvalidEquation =
+        @"\begin{equation} C_{out} = \begin{cases} C_{src} * (1 - \alpha_{dst}) & C_{dst} = 0 \\ C_{src} + \C_{dst}*(1 - \alpha_{src}) & C_{src} = \alpha_{src} \\ \alpha_{src} * min(\alpha_{dst}, C_{dst} * \alpha_{src}/(\alpha_{src} - C_{src})) + C_{src} *(1 - \alpha_{dst} + \C_{dst}*(1 - \alpha_{src}) & otherwise \end{cases} \end{equation}";
     const string DreamFocusSourceUrl =
         AndroidReference + "android/service/dreams/DreamService#onWindowFocusChanged(boolean)";
     const string DreamFocusMemberId =
@@ -549,6 +557,13 @@ static partial class ImporterProgram
             return 2;
         }
 
+        if (options.PreservationSelfTest)
+        {
+            TestPreservedRemarksAndSourceGuards(repositoryRoot);
+            TestReviewedSourceGuards(repositoryRoot);
+            Console.WriteLine("Preservation and source guard self-tests passed.");
+            return 0;
+        }
         if (options.SelfTest)
             return options.ManagedOnly ? RunManagedSelfTest(repositoryRoot) :
                 options.RepeatedOnly ? RunRepeatedSelfTest(repositoryRoot) : RunSelfTest(repositoryRoot);
@@ -1680,7 +1695,9 @@ static partial class ImporterProgram
                     var remarksWithheld = mapping.Docs!.WithheldRemarks is not null;
                     var augmentedRemarksCandidate = HasAugmentedRemarksPlaceholder(file, owner);
                     var codeExampleCandidate = HasIncompleteCodeExampleRemarks(file, owner);
-                    if (remarksWithheld && (augmentedRemarksCandidate || codeExampleCandidate) &&
+                    if (remarksWithheld &&
+                        (augmentedRemarksCandidate || codeExampleCandidate ||
+                         mapping.Docs.HasRawExclusions && HasMetadataOnlyRemarks(file, owner)) &&
                         !report.Entries.Any(entry =>
                             entry.Member == owner.Id && entry.Target == "remarks" &&
                             entry.Reason == "source_channel_ambiguous"))
@@ -2102,7 +2119,8 @@ static partial class ImporterProgram
                     "The official page did not contain a usable declared-type description.",
                     owner.SourceRequest.Url);
             return MappingResult.Success(
-                WithoutUnsafeTrustPairingCallbackTypeRemarks(owner, page.TypeDocs));
+                WithoutReviewedAndroidSourceChannels(owner.Id,
+                    WithoutUnsafeTrustPairingCallbackTypeRemarks(owner, page.TypeDocs)));
         }
 
         var registration = owner.MemberRegistration ??
@@ -2137,6 +2155,7 @@ static partial class ImporterProgram
                     fields[0].Url);
             fieldDocs = WithoutKnownMalformedConversationAnniversary(owner, registration, fieldDocs);
             fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
+            fieldDocs = WithoutReviewedAndroidSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeOobSecuritySource(owner, fieldDocs);
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
@@ -2242,6 +2261,7 @@ static partial class ImporterProgram
         docs = WithKnownTvAdSourceCorrections(owner, docs);
         docs = WithoutKnownUnsafeQualityChannels(owner, exact[0], docs);
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
+        docs = WithoutReviewedAndroidSourceChannels(owner.Id, docs);
         docs = WithoutKnownUnsafeProtoTokenRemark(owner, docs);
         docs = WithoutKnownUnsafeSliceProviderChannels(owner, docs);
         docs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, docs);
@@ -3840,6 +3860,184 @@ static partial class ImporterProgram
                         .SequenceEqual(RangeTemplateUnsafeSplitParagraphs));
     }
 
+    static SourceDocs WithoutReviewedAndroidSourceChannels(string ownerId, SourceDocs docs)
+    {
+        if (docs.SourceKind != "android")
+            return docs;
+
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        var changed = false;
+        bool Matches(string owner, string path, string anchor) =>
+            ownerId == owner &&
+            docs.SourceUrl == AndroidReference + path + (anchor.Length == 0 ? "" : "#" + anchor) &&
+            docs.SourceLabel == path.Replace('/', '.') +
+                (anchor.Length == 0 ? "" : "." + anchor.Split('(', 2)[0]);
+        bool HasParagraph(string text, bool isCode = false) =>
+            docs.Paragraphs.Any(paragraph => paragraph.IsCode == isCode && paragraph.Text == text);
+        void Hold(string target, string detail)
+        {
+            targets[target] = detail;
+            changed = true;
+        }
+        void HoldProse(string text, string detail)
+        {
+            if (HasParagraph(text))
+            {
+                if (docs.Summary == text)
+                    Hold("summary", detail);
+                Hold("remarks", detail);
+            }
+        }
+
+        foreach (var type in new[] { "GrammaticalCase", "NounClass" })
+        {
+            if (Matches($"M:Android.Icu.Text.DisplayOptions.{type}.FromIdentifier(System.String)",
+                    $"android/icu/text/DisplayOptions.{type}", "fromIdentifier(java.lang.String)") &&
+                docs.Returns == "the plural category corresponding to the identifier, or UNDEFINED")
+                Hold("returns", "The exact return text names a plural category instead of the declared ICU type; no replacement was guessed.");
+        }
+        if (Matches("P:Android.Icu.Text.MessagePattern.ApostropheMode.DoubleRequired",
+                "android/icu/text/MessagePattern.ApostropheMode", "DOUBLE_REQUIRED") &&
+            docs.HasJavaTextMessageFormatLink &&
+            HasParagraph("This is the behavior of ICU 4.6 and earlier, and of MessageFormat."))
+            Hold("remarks", "The exact source link identifies java.text.MessageFormat, but the rendered paragraph loses that qualification.");
+        if (Matches("P:Android.Icu.Text.TimeZoneFormat.Style.IsoExtendedLocalFixed",
+                "android/icu/text/TimeZoneFormat.Style", "ISO_EXTENDED_LOCAL_FIXED") &&
+            HasParagraph("Fixed width ISO 8601 local time difference (extended format). For example, \"-05:00\" and \"+05:30\". This style is equivalent to the LDML date format pattern \"xxx\" and \"ZZZZZ\"."))
+            Hold("remarks", "The exact fixed-local-time paragraph incorrectly equates xxx with ZZZZZ; no date pattern was rewritten.");
+        if (Matches("P:Android.Icu.Text.MessageFormat.Field.Argument",
+                "android/icu/text/MessageFormat.Field", "ARGUMENT") &&
+            docs.Summary == "Constant identifying a portion of a message that was generated from an argument passed into formatToCharacterIterator." &&
+            HasParagraph("Constant identifying a portion of a message that was generated from an argument passed into formatToCharacterIterator. The value associated with the key will be an Integer indicating the index in the arguments array of the argument from which the text was generated."))
+            Hold("remarks", "The exact argument-attribute prose promises an Integer array index although Map arguments use String names.");
+        foreach (var day in new[] { "Friday", "Monday", "Saturday", "Sunday", "Thursday", "Tuesday", "Wednesday" })
+        {
+            if (Matches($"P:Android.Icu.Text.RelativeDateTimeFormatter.RelativeDateTimeUnit.{day}",
+                    "android/icu/text/RelativeDateTimeFormatter.RelativeDateTimeUnit", day.ToUpperInvariant()))
+                HoldProse($"Specifies that relative unit is {day}, e.g. \"last {day}\", \"this {day}\", \"next {day}\", \"in 5 {day}s\".",
+                    "The exact weekday example uses a numeric offset rejected by the shipped formatter; no replacement example was inferred.");
+        }
+
+        if (Matches("F:Android.Net.IllegalCharacterFlags.AllButNulAndAngleBracketsLegal",
+                "android/net/UrlQuerySanitizer.IllegalCharacterValueSanitizer", "ALL_BUT_NUL_AND_ANGLE_BRACKETS_LEGAL") &&
+            docs.Summary == "Allow all but; Nul ('\\0'); Angle brackets ('<', '>'); Deny script URLs." &&
+            HasParagraph(docs.Summary))
+            Hold("summary", "The exact field summary denies script URLs although the field value includes SCRIPT_URL_OK.");
+        if (Matches("F:Android.Net.WifiMode.FullLowLatency",
+                "android/net/wifi/WifiManager", "WIFI_MODE_FULL_LOW_LATENCY") &&
+            docs.Summary == "In this Wi-Fi lock mode, Wi-Fi will operate with a priority to achieve low latency." &&
+            HasParagraph("Note: For an app which acquires both WIFI_MODE_FULL_LOW_LATENCY and WIFI_MODE_FULL_HIGH_PERF locks, WIFI_MODE_FULL_LOW_LATENCY lock will be effective when app is running in foreground and screen is on, while the WIFI_MODE_FULL_HIGH_PERF lock will take effect otherwise."))
+            Hold("summary", "The exact enum summary includes a stale background fallback to WIFI_MODE_FULL_HIGH_PERF; no replacement was guessed.");
+        if (Matches("M:Android.Net.SocketKeepalive.Callback.OnError(Android.Net.ErrorCode)",
+                "android/net/SocketKeepalive.Callback", "onError(int)") &&
+            docs.Parameters.TryGetValue("error", out var error) &&
+            RemoveLeadingJavaType(error) == "Value is one of the following: SocketKeepalive.ERROR_INVALID_NETWORK; SocketKeepalive.ERROR_INVALID_IP_ADDRESS; SocketKeepalive.ERROR_INVALID_PORT; SocketKeepalive.ERROR_INVALID_LENGTH; SocketKeepalive.ERROR_INVALID_INTERVAL; SocketKeepalive.ERROR_INVALID_SOCKET; SocketKeepalive.ERROR_SOCKET_NOT_IDLE")
+            Hold("param:error", "The exact callback code list omits the documented ERROR_UNSUPPORTED result.");
+
+        if (Matches("P:Android.Provider.FontsContract.FontFamilyResult.StatusCode",
+                "android/provider/FontsContract.FontFamilyResult", "getStatusCode()") &&
+            docs.Returns == "Value is one of the following: STATUS_OK; STATUS_WRONG_CERTIFICATES; STATUS_UNEXPECTED_DATA_PROVIDED")
+            Hold("value", "The exact status-code list omits the documented STATUS_REJECTED result.");
+        if (Matches("F:Android.Provider.PeopleContract.Persons.PhotoUri",
+                "android/provider/PeopleContract.Persons", "PHOTO_URI") &&
+            HasParagraph("People Directory applications are responsible for hosting photo URIs. Due to performance reasons, using content:// URIs is not allowed; standard web URLs (such as https://) are strongly recommended instead. The Android system does not guarantee access to content:// URIs."))
+            Hold("remarks", "The exact photo-URI restriction conflicts with the retained authored content-URI contract.");
+        if (Matches("M:Android.Provider.PeopleContract.CreatePeopleInteractionRequest(Android.Content.ContentResolver,System.String,Android.OS.Bundle)",
+                "android/provider/PeopleContract", "createPeopleInteractionRequest(android.content.ContentResolver,%20java.lang.String,%20android.os.Bundle)") &&
+            HasParagraph("For client applications: Clients invoke this method with the desired interaction type and a queryArgs bundle identifying the target person or group. The queryArgs bundle must be constructed using Persons.Query.Builder and contain exactly one target sub-query targeting a single People Directory application. Clients can identify targets using:"))
+            Hold("remarks", "The exact remarks require Persons.Query.Builder while the retained parameter contract also permits Groups.Query.Builder.");
+        if (Matches("T:Android.Provider.PeopleContract", "android/provider/PeopleContract", "") &&
+            docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text.Contains(
+                SourcePage.ImplicitAndroidListIntroductionMarker +
+                "Note: An application may register at most one People Directory. Packages declaring multiple directory providers are ignored by the system;",
+                StringComparison.Ordinal)))
+            Hold("remarks", "The exact PeopleContract type remarks contain an internal list marker; the renderer is not changed by this guard.");
+        if (Matches("P:Android.Net.Wifi.WifiNetworkSuggestion.Priority",
+                "android/net/wifi/WifiNetworkSuggestion", "getPriority()") &&
+            docs.Returns == "Value is 0 or greater")
+            Hold("value", "The exact getter range excludes the documented default below every assigned priority.");
+
+        if (Matches("M:Android.Graphics.HardwareBufferRenderer.RenderRequest.SetColorSpace(Android.Graphics.ColorSpace)",
+                "android/graphics/HardwareBufferRenderer.RenderRequest", "setColorSpace(android.graphics.ColorSpace)") &&
+            HasParagraph("Configures the color space which the content should be rendered in. This affects how the framework will interpret the color at each pixel. The color space provided here must be non-null, RGB based and leverage an ICC parametric curve. The min/max values of the components should not reduce the numerical range compared to the previously assigned color space. If left unspecified, the default color space of SRGB will be used.") &&
+            docs.Parameters.TryGetValue("colorSpace", out var colorSpace) &&
+            RemoveLeadingJavaType(colorSpace) ==
+                "The color space the content should be rendered in. If null is provided the default of SRGB will be used.")
+            Hold("remarks", "The exact non-null requirement conflicts with the nullable parameter and its documented SRGB reset behavior.");
+
+        if (Matches("T:Android.Graphics.ColorSpace+Rgb+TransferParameters",
+                "android/graphics/ColorSpace.Rgb.TransferParameters", "") &&
+            docs.Paragraphs.SequenceEqual(new SourceParagraph[]
+            {
+                new("Defines the parameters for the ICC parametric curve type 4, as defined in ICC.1:2004-10, section 10.15.", false),
+                new("The corresponding OETF is simply the inverse function.", false),
+                new("The parameters defined by this class form a valid transfer function only if all the following conditions are met: No parameter is a Not-a-Number; \\(d\\) is in the range \\([0..1]\\); The function is not constant; The function is positive and increasing", false),
+            }))
+            Hold("remarks", "The exact rendered type remarks refer to an inverse function but omit the EOTF equation.");
+        foreach (var field in new[] { "A", "B", "C", "D", "E", "F", "G" })
+        {
+            var variable = field.ToLowerInvariant();
+            if (Matches($"P:Android.Graphics.ColorSpace.Rgb.TransferParameters.{field}",
+                    "android/graphics/ColorSpace.Rgb.TransferParameters", variable))
+                HoldProse($"Variable \\({variable}\\) in the equation of the EOTF described above.",
+                    "The exact parameter prose depends on an EOTF equation that is absent from the rendered type documentation.");
+        }
+        foreach (var rule in new[]
+        {
+            (Member: "Rgb565", Field: "RGB_565", Code: "short color = (R & 0x1f) << 11 | (G & 0x3f) << 5 | (B & 0x1f);"),
+            (Member: "RgbaF16", Field: "RGBA_F16", Code: "long color = (A & 0xffff) << 48 | (B & 0xffff) << 32 | (G & 0xffff) << 16 | (R & 0xffff);"),
+        })
+        {
+            if (Matches($"P:Android.Graphics.Bitmap.Config.{rule.Member}",
+                    "android/graphics/Bitmap.Config", rule.Field) && HasParagraph(rule.Code, isCode: true))
+                Hold("remarks", "The exact Java packing example has invalid narrowing or int-width shifts; no code replacement was inferred.");
+        }
+        if (Matches("P:Android.Graphics.ColorSpace.Named.LinearSrgb", "android/graphics/ColorSpace.Named", "LINEAR_SRGB"))
+            HoldProse("RGB color space sRGB standardized as IEC 61966-2.1:1999.",
+                "The exact rendered LINEAR_SRGB prose omits its linear transfer details.");
+        foreach (var rule in new[]
+        {
+            (Member: "Bt2020", Field: "BT2020", Standard: "ITU-R BT.2020-1"),
+            (Member: "Bt709", Field: "BT709", Standard: "ITU-R BT.709-5"),
+        })
+        {
+            var prefix = $"RGB color space BT.{rule.Field[2..]} standardized as Rec.";
+            if (Matches($"P:Android.Graphics.ColorSpace.Named.{rule.Member}",
+                    "android/graphics/ColorSpace.Named", rule.Field) &&
+                docs.Summary == prefix && HasParagraph(prefix + " " + rule.Standard + "."))
+                Hold("summary", "The exact rendered summary stops at Rec. and omits the standard identifier; the general summary splitter is unchanged.");
+        }
+        if (Matches("M:Android.Graphics.ColorSpace.Adapt(Android.Graphics.ColorSpace,System.Single[],Android.Graphics.ColorSpace.Adaptation)",
+                "android/graphics/ColorSpace", "adapt(android.graphics.ColorSpace,%20float[],%20android.graphics.ColorSpace.Adaptation)") &&
+            HasParagraph("The color space returned by this method always has an ID of MIN_ID."))
+            Hold("remarks", "The exact unconditional MIN_ID sentence conflicts with the documented unchanged non-RGB return.");
+        foreach (var rule in new[]
+        {
+            (Member: "Darken", Field: "DARKEN", Text: @"\(C_{out} = (1 - \alpha_{dst}) * C_{src} + (1 - \alpha_{src}) * C_{dst} + min(C_{src}, C_{dst})\)"),
+            (Member: "Lighten", Field: "LIGHTEN", Text: @"\(C_{out} = (1 - \alpha_{dst}) * C_{src} + (1 - \alpha_{src}) * C_{dst} + max(C_{src}, C_{dst})\)"),
+            (Member: "HardLight", Field: "HARD_LIGHT", Text: @"\begin{equation} C_{out} = \begin{cases} 2*C_{src}*C_{dst} & C_{src}*(1-\alpha_{dst}) + C_{dst}*(1-\alpha_{src}) + 2*C_{src} \leq \alpha_{src} \\ \alpha_{src}*\alpha_{dst}- 2*(\alpha_{dst} - C_{dst})*(\alpha_{src} - C_{src}) & otherwise \end{cases} \end{equation}"),
+            (Member: "Overlay", Field: "OVERLAY", Text: @"\(\begin{equation} C_{out} = \begin{cases} 2 * C_{src} * C_{dst} & 2 * C_{dst} \lt \alpha_{dst} \\ \alpha_{src} * \alpha_{dst} - 2 (\alpha_{dst} - C_{src}) (\alpha_{src} - C_{dst}) & otherwise \end{cases} \end{equation}\)"),
+            (Member: "SoftLight", Field: "SOFT_LIGHT", Text: @"\begin{equation} \alpha_{out} = \alpha_{src} + \alpha_{dst} - \alpha_{src} * \alpha_{dst} \end{equation} \begin{equation} C_{out} = C_{src} / \alpha_{dst} + C_{dst} / \alpha_{src} + f \end{equation}"),
+        })
+        {
+            if (Matches($"P:Android.Graphics.BlendMode.{rule.Member}", "android/graphics/BlendMode", rule.Field) &&
+                HasParagraph(rule.Text))
+                Hold("remarks", "The exact blend equation fails the supplied premultiplied-color check; no equation was rewritten.");
+        }
+        if (Matches("P:Android.Graphics.BlendMode.Saturation", "android/graphics/BlendMode", "SATURATION"))
+            HoldProse("Replaces saturation of destination saturation hue of source, leaving hue and luminosity unchanged.",
+                "The exact saturation prose has a garbled source/destination description.");
+
+        return !changed ? docs : docs with
+        {
+            UnsafeTargets = targets,
+            HasRawExclusions = true,
+            WithheldRemarks = targets.ContainsKey("remarks") ? docs.Paragraphs : docs.WithheldRemarks,
+        };
+    }
+
     static SourceDocs WithoutKnownUnsafeAndroidSourceChannels(string ownerId, SourceDocs docs)
     {
         var sourceText = string.Join(
@@ -3849,6 +4047,75 @@ static partial class ImporterProgram
                 .Concat(docs.Parameters.Values));
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
         var preserveUnsafeRawParagraphs = false;
+
+        if (docs.SourceKind == "android" &&
+            ownerId == "M:Android.Net.Wifi.SoftApConfiguration.Builder.SetBssid(Android.Net.MacAddress)" &&
+            docs.SourceUrl == AndroidReference + "android/net/wifi/SoftApConfiguration.Builder#setBssid(android.net.MacAddress)" &&
+            docs.SourceLabel == "android.net.wifi.SoftApConfiguration.Builder.setBssid" &&
+            docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text ==
+                "Callers without the listed permissions will not be able to start SoftAP with a non-null BSSID. " +
+                "DO and Carrier apps starting SoftAp with TetheringManager.startTethering " +
+                "are exempted from this permission restriction."))
+        {
+            targets["remarks"] =
+                "The exact Android BSSID remarks refer to unlisted permissions after unresolved source links; no missing permissions or conditions were guessed.";
+            preserveUnsafeRawParagraphs = true;
+        }
+
+        if (docs.SourceKind == "android" && new[]
+            {
+                (Member: "PrivateUse", Field: "PRIVATE_USE", Other: "PRIVATE_USE_AREA"),
+                (Member: "PrivateUseArea", Field: "PRIVATE_USE_AREA", Other: "PRIVATE_USE"),
+            }.Any(rule =>
+                ownerId == $"P:Android.Icu.Lang.UCharacter.UnicodeBlock.{rule.Member}" &&
+                docs.SourceUrl == AndroidReference + $"android/icu/lang/UCharacter.UnicodeBlock#{rule.Field}" &&
+                docs.SourceLabel == $"android.icu.lang.UCharacter.UnicodeBlock.{rule.Field}" &&
+                docs.Paragraphs.Any(paragraph => !paragraph.IsCode &&
+                    paragraph.Text == $"Same as public static final int {rule.Other}. " +
+                        "Until Unicode 3.1.1; the corresponding block name was \"Private Use\"; " +
+                        "and multiple code point ranges had this block. " +
+                        "Unicode 3.2 renames the block for the BMP PUA to \"Private Use Area\" " +
+                        "and adds separate blocks for the supplementary PUAs.")))
+        {
+            const string detail =
+                "The exact Android prose calls a UnicodeBlock object field an int; no replacement type description was inferred.";
+            if (docs.Summary == (ownerId == "P:Android.Icu.Lang.UCharacter.UnicodeBlock.PrivateUse"
+                ? "Same as public static final int PRIVATE_USE_AREA."
+                : "Same as public static final int PRIVATE_USE."))
+                targets["summary"] = detail;
+            targets["remarks"] = detail;
+            preserveUnsafeRawParagraphs = true;
+        }
+
+        if (docs.SourceKind == "android" &&
+            ownerId == "P:Android.Media.AudioMetadata.Format.KeyBitRate" &&
+            docs.SourceUrl == AndroidReference + "android/media/AudioMetadata.Format#KEY_BIT_RATE" &&
+            docs.SourceLabel == "android.media.AudioMetadata.Format.KEY_BIT_RATE" &&
+            docs.Paragraphs.Any(paragraph => !paragraph.IsCode &&
+                paragraph.Text == AudioBitRateIncompleteParagraph))
+        {
+            const string detail =
+                "The exact Android bitrate paragraph ends its opening clause at 'used in'; no missing text was guessed.";
+            if (docs.Summary == AudioBitRateIncompleteSummary)
+                targets["summary"] = detail;
+            targets["remarks"] = detail;
+            preserveUnsafeRawParagraphs = true;
+        }
+
+        if (docs.SourceKind == "android" && new[]
+            {
+                (Member: "ColorBurn", Field: "COLOR_BURN", Text: BlendColorBurnInvalidEquation),
+                (Member: "ColorDodge", Field: "COLOR_DODGE", Text: BlendColorDodgeInvalidEquation),
+            }.Any(rule =>
+                ownerId == $"P:Android.Graphics.BlendMode.{rule.Member}" &&
+                docs.SourceUrl == AndroidReference + $"android/graphics/BlendMode#{rule.Field}" &&
+                docs.SourceLabel == $"android.graphics.BlendMode.{rule.Field}" &&
+                docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text == rule.Text)))
+        {
+            targets["remarks"] =
+                "The exact Android blend equation contains undefined notation or an unmatched parenthesis; no replacement equation was inferred.";
+            preserveUnsafeRawParagraphs = true;
+        }
 
         if (docs.SourceKind == "android" && KnownUnsafeRawRates.Any(rate =>
             ownerId == $"F:Android.Ranging.Raw.RangingDeviceUpdateRate.{rate.Name}" &&
@@ -4264,16 +4531,56 @@ static partial class ImporterProgram
 
     static SourceDocs WithoutKnownUnsafeJavaSourceChannels(string memberId, SourceDocs docs)
     {
-        if (!IsKnownUnsafeZoneTransitionTime(memberId, docs))
+        var unsafeZoneTransition = IsKnownUnsafeZoneTransitionTime(memberId, docs);
+        var truncatedEstimate = docs.SourceKind == "java" &&
+            new[] { "AbstractSpliterator", "AbstractDoubleSpliterator", "AbstractIntSpliterator", "AbstractLongSpliterator" }
+                .Any(type =>
+                    memberId == $"M:Java.Util.Spliterators.{type}.EstimateSize" &&
+                    docs.SourceUrl == JavaReference + $"java.base/java/util/Spliterators.{type}.html#estimateSize()" &&
+                    docs.SourceLabel == $"java.util.Spliterators.{type}.estimateSize") &&
+            docs.Summary == "Returns an estimate of the number of elements that would be encountered by a Spliterator.forEachRemaining(java.util.function.Consumer<?" &&
+            docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text ==
+                "Returns an estimate of the number of elements that would be encountered by a Spliterator.forEachRemaining(java.util.function.Consumer<? super T>) traversal, or returns Long.MAX_VALUE if infinite, unknown, or too expensive to compute. If this Spliterator is Spliterator.SIZED and has not yet been partially traversed or split, or this Spliterator is Spliterator.SUBSIZED and has not yet been partially traversed, this estimate must be an accurate count of elements that would be encountered by a complete traversal. Otherwise, this estimate may be arbitrarily inaccurate, but must decrease as specified across invocations of Spliterator.trySplit().");
+        var unsafeSubSetReturn = docs.SourceKind == "java" &&
+            memberId == "M:Java.Util.TreeSet.SubSet(Java.Lang.Object,System.Boolean,Java.Lang.Object,System.Boolean)" &&
+            docs.SourceUrl == JavaReference + "java.base/java/util/TreeSet.html#subSet(E,boolean,E,boolean)" &&
+            docs.SourceLabel == "java.util.TreeSet.subSet" &&
+            docs.Returns == "a view of the portion of this set whose elements range from fromElement, inclusive, to toElement, exclusive" &&
+            docs.Summary == "Returns a view of the portion of this set whose elements range from fromElement to toElement." &&
+            docs.Parameters.GetValueOrDefault("fromInclusive") ==
+                "true if the low endpoint is to be included in the returned view" &&
+            docs.Parameters.GetValueOrDefault("toInclusive") ==
+                "true if the high endpoint is to be included in the returned view";
+        var unsafeTailSetReturn = docs.SourceKind == "java" &&
+            memberId == "M:Java.Util.TreeSet.TailSet(Java.Lang.Object,System.Boolean)" &&
+            docs.SourceUrl == JavaReference + "java.base/java/util/TreeSet.html#tailSet(E,boolean)" &&
+            docs.SourceLabel == "java.util.TreeSet.tailSet" &&
+            docs.Returns == "a view of the portion of this set whose elements are greater than or equal to fromElement" &&
+            docs.Summary == "Returns a view of the portion of this set whose elements are greater than (or equal to, if inclusive is true) fromElement." &&
+            docs.Parameters.GetValueOrDefault("inclusive") ==
+                "true if the low endpoint is to be included in the returned view";
+        var unsafeTreeSetReturn = unsafeSubSetReturn || unsafeTailSetReturn;
+        if (!unsafeZoneTransition && !truncatedEstimate && !unsafeTreeSetReturn)
             return docs;
 
         var targets = docs.UnsafeTargets is null
             ? new Dictionary<string, string>(StringComparer.Ordinal)
             : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
-        targets["param:time"] =
-            "The exact Java 21 source describes the cutover time as relative to the before offset, " +
-            "but that interpretation applies only to WALL; UTC and STANDARD use their respective time bases.";
-        return docs with { UnsafeTargets = targets };
+        if (unsafeZoneTransition)
+            targets["param:time"] =
+                "The exact Java 21 source describes the cutover time as relative to the before offset, " +
+                "but that interpretation applies only to WALL; UTC and STANDARD use their respective time bases.";
+        if (truncatedEstimate)
+            targets["summary"] =
+                "The exact rendered Java 21 estimate-size summary stops inside a generic type; the parser is unchanged and valid remarks and returns remain eligible.";
+        if (unsafeTreeSetReturn)
+            targets["returns"] =
+                "The exact Java 21 return text promises fixed endpoint inclusion despite the method's inclusion flags; no replacement was guessed.";
+        return docs with
+        {
+            UnsafeTargets = targets,
+            HasRawExclusions = docs.HasRawExclusions || truncatedEstimate || unsafeTreeSetReturn,
+        };
     }
 
     static bool HasKnownUnsafeZoneTransitionTimeCandidate(DocsOwner owner) =>
@@ -6595,8 +6902,8 @@ static partial class ImporterProgram
                     NormalizeText(node.Value) is "To be added" or "To be added.");
             var emptyParagraphs = directPlaceholder is null
                 ? remarksElement.Elements("para")
-                    .Where(paragraph => !paragraph.HasElements &&
-                        NormalizeText(paragraph.Value).Length == 0)
+                    .Where(paragraph => !paragraph.HasAttributes &&
+                        SignificantNodes(paragraph).Count == 0)
                     .ToList()
                 : [];
             var emptyParagraph = emptyParagraphs.Count == 1
@@ -6609,35 +6916,65 @@ static partial class ImporterProgram
                 return false;
             }
 
+            var newline = LoadedFile.SelectNewline(text);
+            var rendered = remarksReplacement is null
+                ? $"<para>{XmlEscape(replacement)}</para>"
+                : string.Join(newline, remarksReplacement.Select(paragraph =>
+                    NormalizeXmlNewlines(RenderDocumentationParagraph(paragraph, ""))
+                        .Replace("\n", newline, StringComparison.Ordinal)));
+            XmlSpan replacementSpan;
             if (directPlaceholder is not null)
             {
-                directPlaceholder.ReplaceWith(remarksReplacement is null
-                    ? new[] { new XElement("para", replacement) }
-                    : remarksReplacement.Select(DocumentationElement).ToArray());
+                if (directPlaceholder is not IXmlLineInfo lineInfo ||
+                    !lineInfo.HasLineInfo() ||
+                    !TryGetTextOffset(blockText, lineInfo.LineNumber, lineInfo.LinePosition,
+                        out var textStart))
+                {
+                    updated = text;
+                    error = "Could not locate the direct remarks placeholder without changing retained metadata.";
+                    return false;
+                }
+                var textEnd = blockText.IndexOf('<', textStart);
+                if (textEnd < 0)
+                {
+                    updated = text;
+                    error = "Could not locate the end of the direct remarks placeholder.";
+                    return false;
+                }
+                var directText = blockText[textStart..textEnd];
+                var decodedText = XElement.Parse("<text>" + directText + "</text>",
+                    LoadOptions.PreserveWhitespace).Value;
+                var normalizedText = NormalizeText(decodedText);
+                if (normalizedText is not ("To be added" or "To be added.") ||
+                    normalizedText != NormalizeText(directPlaceholder.Value))
+                {
+                    updated = text;
+                    error = "The direct remarks placeholder did not match its original text span.";
+                    return false;
+                }
+                var contentTokens = Regex.Matches(directText, @"&[^;]+;|.", RegexOptions.Singleline)
+                    .Where(token => NormalizeText(token.Value).Length > 0).ToList();
+                replacementSpan = new XmlSpan(textStart + contentTokens[0].Index,
+                    textStart + contentTokens[^1].Index + contentTokens[^1].Length);
             }
-            else if (remarksReplacement is not null)
+            else if (!TryGetElementSpan(blockText, emptyParagraph!, out replacementSpan))
             {
-                emptyParagraph!.ReplaceWith(
-                    remarksReplacement.Select(DocumentationElement).ToArray());
+                updated = text;
+                error = "Could not locate the empty remarks paragraph without changing retained metadata.";
+                return false;
             }
-            else
-                emptyParagraph!.Value = replacement;
-            var repairedRemarks = remarksElement.ToString(SaveOptions.DisableFormatting);
-            if (blockText[remarksSpan.Start..remarksSpan.End].Contains(
-                    "\r\n",
-                    StringComparison.Ordinal))
-            {
-                repairedRemarks = repairedRemarks.Replace("\n", "\r\n", StringComparison.Ordinal);
-            }
+            var repairedBlock = blockText[..replacementSpan.Start] + rendered +
+                blockText[replacementSpan.End..];
+            var remarksIndex = document.Elements("remarks")
+                .TakeWhile(element => !ReferenceEquals(element, remarksElement)).Count();
             if (LoadedFile.IsImporterAugmentedRemarksPlaceholder(
-                    XElement.Parse(repairedRemarks, LoadOptions.PreserveWhitespace)))
+                    XElement.Parse(repairedBlock, LoadOptions.PreserveWhitespace).Elements("remarks")
+                        .ElementAt(remarksIndex)))
             {
                 updated = text;
                 error = "Importer metadata remarks repair remained a candidate after replacement.";
                 return false;
             }
-            var repairedBlock = blockText[..remarksSpan.Start] + repairedRemarks +
-                blockText[remarksSpan.End..];
             updated = text[..block.Start] + repairedBlock + text[block.End..];
             error = "";
             return true;
@@ -7251,18 +7588,20 @@ static partial class ImporterProgram
             newline,
             remarksIndent,
             paragraphIndent);
-        if (isLegacyGestureClone)
+        if (!TryGetElementSpan(blockText, existing[sourceReferenceIndex], out var referenceSpan) ||
+            (docs.SourceKind == "android" &&
+                !TryGetElementSpan(blockText, existing[^1], out _)))
         {
-            if (!TryGetElementSpan(blockText, existing[sourceReferenceIndex], out var referenceSpan) ||
-                !TryGetElementSpan(blockText, existing[^1], out var attributionSpan))
-            {
-                return new RemarksRefreshResult(text, "existing_remarks_not_importer_owned",
-                    "The exact gesture clone metadata could not be located unambiguously.");
-            }
-            replacement = replacement.Replace(
-                expectedSourceReference.ToString(SaveOptions.DisableFormatting),
-                blockText[referenceSpan.Start..referenceSpan.End],
-                StringComparison.Ordinal);
+            return new RemarksRefreshResult(text, "existing_remarks_not_importer_owned",
+                "The original source reference or attribution could not be located unambiguously.");
+        }
+        replacement = replacement.Replace(
+            expectedSourceReference.ToString(SaveOptions.DisableFormatting),
+            blockText[referenceSpan.Start..referenceSpan.End],
+            StringComparison.Ordinal);
+        if (docs.SourceKind == "android")
+        {
+            TryGetElementSpan(blockText, existing[^1], out var attributionSpan);
             replacement = replacement.Replace(
                 $"<para>{AndroidAttribution}</para>",
                 blockText[attributionSpan.Start..attributionSpan.End],
@@ -7468,7 +7807,8 @@ static partial class ImporterProgram
         if (docs.UnsafeTargets?.ContainsKey("remarks") == true && docs.Paragraphs.Count > 0)
             throw new InvalidOperationException("An unsafe source remarks channel cannot be rendered.");
         var paragraphs = sourceParagraphs
-            .Select(paragraph => RenderDocumentationParagraph(paragraph, paragraphIndent))
+            .Select(paragraph => NormalizeXmlNewlines(RenderDocumentationParagraph(paragraph, paragraphIndent))
+                .Replace("\n", newline, StringComparison.Ordinal))
             .ToList();
         paragraphs.Add(
             $"{paragraphIndent}{ImporterSourceReference(docs).ToString(SaveOptions.DisableFormatting)}");
@@ -11126,9 +11466,11 @@ static partial class ImporterProgram
                 "\r\n",
                 "        ",
                 "          ").Replace(
-                    "start(); // note\nfinish();",
+                    "start(); // note\r\nfinish();",
                     "start(); // note finish();",
                     StringComparison.Ordinal);
+            Assert(legacyCodeRemarks.Contains("start(); // note finish();", StringComparison.Ordinal),
+                "old-layout code negative changes the rendered CRLF comment boundary");
             var legacyCodeText = LegacyDocument(legacyCodeRemarks);
             File.WriteAllText(path, legacyCodeText, new UTF8Encoding(true));
             File.WriteAllText(cachePath, codeSource, new UTF8Encoding(false));
@@ -16545,8 +16887,581 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestReviewedSourceGuards(string repositoryRoot)
+    {
+        var fragments = File.ReadAllLines(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+                "reviewed-source-fragments.txt"))
+            .Select(line => line.Split('|')).ToDictionary(parts => parts[0], StringComparer.Ordinal);
+        (string Name, string Namespace, string File, string Member, string Targets)[] cases =
+        [
+            ("grammatical-case", "Android.Icu.Text", "DisplayOptions+GrammaticalCase.xml", "FromIdentifier", "returns"),
+            ("noun-class", "Android.Icu.Text", "DisplayOptions+NounClass.xml", "FromIdentifier", "returns"),
+            ("apostrophe", "Android.Icu.Text", "MessagePattern+ApostropheMode.xml", "DoubleRequired", "remarks"),
+            ("iso-local", "Android.Icu.Text", "TimeZoneFormat+Style.xml", "IsoExtendedLocalFixed", "remarks"),
+            ("sanitizer", "Android.Net", "IllegalCharacterFlags.xml", "AllButNulAndAngleBracketsLegal", "summary"),
+            ("keepalive", "Android.Net", "SocketKeepalive+Callback.xml", "OnError", "param:error"),
+            ("font-status", "Android.Provider", "FontsContract+FontFamilyResult.xml", "StatusCode", "value"),
+            ("photo-uri", "Android.Provider", "PeopleContract+Persons.xml", "PhotoUri", "remarks"),
+            ("interaction", "Android.Provider", "PeopleContract.xml", "CreatePeopleInteractionRequest", "remarks"),
+            ("people-type", "Android.Provider", "PeopleContract.xml", "T:Android.Provider.PeopleContract", "remarks"),
+            ("priority", "Android.Net.Wifi", "WifiNetworkSuggestion.xml", "Priority", "value"),
+            ("transfer-type", "Android.Graphics", "ColorSpace+Rgb+TransferParameters.xml", "T:Android.Graphics.ColorSpace+Rgb+TransferParameters", "remarks"),
+            ("rgb565", "Android.Graphics", "Bitmap+Config.xml", "Rgb565", "remarks"),
+            ("rgba-f16", "Android.Graphics", "Bitmap+Config.xml", "RgbaF16", "remarks"),
+            ("linear-srgb", "Android.Graphics", "ColorSpace+Named.xml", "LinearSrgb", "summary,remarks"),
+            ("bt2020", "Android.Graphics", "ColorSpace+Named.xml", "Bt2020", "summary"),
+            ("bt709", "Android.Graphics", "ColorSpace+Named.xml", "Bt709", "summary"),
+            ("adapt", "Android.Graphics", "ColorSpace.xml", "M:Android.Graphics.ColorSpace.Adapt(Android.Graphics.ColorSpace,System.Single[],Android.Graphics.ColorSpace.Adaptation)", "remarks"),
+            ("darken", "Android.Graphics", "BlendMode.xml", "Darken", "remarks"),
+            ("lighten", "Android.Graphics", "BlendMode.xml", "Lighten", "remarks"),
+            ("hard-light", "Android.Graphics", "BlendMode.xml", "HardLight", "remarks"),
+            ("overlay", "Android.Graphics", "BlendMode.xml", "Overlay", "remarks"),
+            ("soft-light", "Android.Graphics", "BlendMode.xml", "SoftLight", "remarks"),
+            ("saturation", "Android.Graphics", "BlendMode.xml", "Saturation", "summary,remarks"),
+            ("transfer-a", "Android.Graphics", "ColorSpace+Rgb+TransferParameters.xml", "A", "summary,remarks"),
+            ("transfer-b", "Android.Graphics", "ColorSpace+Rgb+TransferParameters.xml", "B", "summary,remarks"),
+            ("transfer-c", "Android.Graphics", "ColorSpace+Rgb+TransferParameters.xml", "C", "summary,remarks"),
+            ("transfer-d", "Android.Graphics", "ColorSpace+Rgb+TransferParameters.xml", "D", "summary,remarks"),
+            ("transfer-e", "Android.Graphics", "ColorSpace+Rgb+TransferParameters.xml", "E", "summary,remarks"),
+            ("transfer-f", "Android.Graphics", "ColorSpace+Rgb+TransferParameters.xml", "F", "summary,remarks"),
+            ("transfer-g", "Android.Graphics", "ColorSpace+Rgb+TransferParameters.xml", "G", "summary,remarks"),
+            ("AbstractSpliterator", "Java.Util", "Spliterators+AbstractSpliterator.xml", "EstimateSize", "summary"),
+            ("AbstractDoubleSpliterator", "Java.Util", "Spliterators+AbstractDoubleSpliterator.xml", "EstimateSize", "summary"),
+            ("AbstractIntSpliterator", "Java.Util", "Spliterators+AbstractIntSpliterator.xml", "EstimateSize", "summary"),
+            ("AbstractLongSpliterator", "Java.Util", "Spliterators+AbstractLongSpliterator.xml", "EstimateSize", "summary"),
+            ("set-color-space", "Android.Graphics", "HardwareBufferRenderer+RenderRequest.xml", "SetColorSpace", "remarks"),
+            ("low-latency", "Android.Net", "WifiMode.xml", "FullLowLatency", "summary"),
+            ("tree-subset", "Java.Util", "TreeSet.xml", "M:Java.Util.TreeSet.SubSet(Java.Lang.Object,System.Boolean,Java.Lang.Object,System.Boolean)", "returns"),
+            ("tree-tailset", "Java.Util", "TreeSet.xml", "M:Java.Util.TreeSet.TailSet(Java.Lang.Object,System.Boolean)", "returns"),
+            ("argument", "Android.Icu.Text", "MessageFormat+Field.xml", "Argument", "remarks"),
+            ("weekday-friday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Friday", "summary,remarks"),
+            ("weekday-monday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Monday", "summary,remarks"),
+            ("weekday-saturday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Saturday", "summary,remarks"),
+            ("weekday-sunday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Sunday", "summary,remarks"),
+            ("weekday-thursday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Thursday", "summary,remarks"),
+            ("weekday-tuesday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Tuesday", "summary,remarks"),
+            ("weekday-wednesday", "Android.Icu.Text", "RelativeDateTimeFormatter+RelativeDateTimeUnit.xml", "Wednesday", "summary,remarks"),
+        ];
+        foreach (var test in cases)
+        {
+            var source = LoadedFile.Load(repositoryRoot,
+                Path.Combine(repositoryRoot, "docs", "xml", test.Namespace, test.File));
+            source.SelectOwners(test.Member);
+            var owner = source.Owners.Single(candidate =>
+                candidate.Id == test.Member ||
+                (string?)candidate.Member?.Attribute("MemberName") == test.Member);
+            var request = owner.SourceRequest!;
+            var fixture = fragments[test.Name];
+            var bytes = Convert.FromBase64String(fixture[3]);
+            Assert(Convert.ToHexString(SHA256.HashData(bytes)).Equals(fixture[2], StringComparison.OrdinalIgnoreCase),
+                test.Name + " reviewed native fragment hash");
+            var html = Encoding.UTF8.GetString(bytes);
+            var page = SourcePage.Parse(request, html);
+            var raw = owner.Member is null ? page.TypeDocs! : page.Members.Single().Docs!;
+            var expected = test.Targets.Split(',');
+            SourceDocs Guard(SourceDocs docs, string? id = null) =>
+                test.Namespace == "Java.Util"
+                    ? WithoutKnownUnsafeJavaSourceChannels(id ?? owner.Id, docs)
+                    : WithoutReviewedAndroidSourceChannels(id ?? owner.Id, docs);
+            var guarded = Guard(raw);
+            Assert(guarded.UnsafeTargets is not null &&
+                guarded.UnsafeTargets.Keys.Order(StringComparer.Ordinal)
+                    .SequenceEqual(expected.Order(StringComparer.Ordinal)),
+                test.Name + " withholds only the reviewed channels");
+            Assert(guarded.Summary == raw.Summary && guarded.Returns == raw.Returns &&
+                guarded.Parameters.SequenceEqual(raw.Parameters) &&
+                guarded.Paragraphs.SequenceEqual(raw.Paragraphs),
+                test.Name + " source and sibling channels are not rewritten");
+            var mapping = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+            {
+                [request.Url] = SourceLoadResult.Success(page),
+            });
+            Assert(mapping.Docs is not null &&
+                expected.All(target => mapping.Docs.UnsafeTargets?.ContainsKey(target) == true),
+                test.Name + " exact registered production owner reaches the guard");
+            foreach (var other in new[]
+            {
+                raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                raw with { SourceKind = raw.SourceKind == "java" ? "android" : "java" },
+                raw with
+                {
+                    Summary = raw.Summary + " Changed.",
+                    Paragraphs = raw.Paragraphs.Select(paragraph => paragraph with
+                    {
+                        Text = paragraph.Text.Replace(SourcePage.ImplicitAndroidListIntroductionMarker, "",
+                            StringComparison.Ordinal) + " Changed.",
+                    }).ToList(),
+                    Returns = raw.Returns + " Changed.",
+                    Parameters = raw.Parameters.ToDictionary(pair => pair.Key, pair => pair.Value + " Changed.",
+                        StringComparer.Ordinal),
+                },
+            })
+                Assert(Guard(other).UnsafeTargets is null,
+                    test.Name + " changed or unrelated source is not excluded");
+            Assert(Guard(raw, owner.Id + ".Other").UnsafeTargets is null,
+                test.Name + " unrelated managed owner is not excluded");
+            if (expected.Contains("remarks"))
+            {
+                var other = raw with
+                {
+                    Paragraphs = raw.Paragraphs.Select(paragraph => paragraph with
+                        { IsCode = !paragraph.IsCode }).ToList(),
+                };
+                Assert(Guard(other).UnsafeTargets is null,
+                    test.Name + " changed code/prose structure is not excluded");
+            }
+            if (expected.Contains("summary"))
+            {
+                var contextual = raw with { Summary = "Hypothetical safe introduction." };
+                Assert(Guard(contextual)
+                        .UnsafeTargets?.ContainsKey("summary") != true,
+                    test.Name + " a safe separate summary remains eligible");
+            }
+            if (test.Name == "apostrophe")
+            {
+                var otherPage = SourcePage.Parse(request, html.Replace(
+                    "/reference/java/text/MessageFormat", "/reference/android/icu/text/MessageFormat",
+                    StringComparison.Ordinal));
+                Assert(WithoutReviewedAndroidSourceChannels(owner.Id, otherPage.Members.Single().Docs!)
+                        .UnsafeTargets is null,
+                    "hypothetical changed MessageFormat link is not treated as the native Java link");
+            }
+            if (test.Name == "argument")
+            {
+                Assert(ReplacementFor(Placeholder.Create(
+                    XElement.Parse("<summary>To be added.</summary>"), 0), mapping.Docs!).Text == raw.Summary,
+                    "Argument retains its safe independent summary");
+                Assert(Guard(raw with
+                {
+                    Paragraphs = [new SourceParagraph(raw.Summary, false)],
+                }).UnsafeTargets is null,
+                    "Argument without the Integer-only claim is not excluded");
+            }
+            if (test.Name.StartsWith("weekday-", StringComparison.Ordinal))
+            {
+                var qualitative = raw.Summary.Replace($", \"in 5 {test.Member}s\"", "", StringComparison.Ordinal);
+                Assert(Guard(raw with
+                {
+                    Summary = qualitative,
+                    Paragraphs = [new SourceParagraph(qualitative, false)],
+                }).UnsafeTargets is null,
+                    test.Name + " retained qualitative prose is not excluded");
+                Assert(Guard(raw, "P:Android.Icu.Text.RelativeDateTimeFormatter.RelativeDateTimeUnit.Day")
+                        .UnsafeTargets is null,
+                    test.Name + " does not exclude numeric day units");
+            }
+            if (test.Name == "set-color-space")
+            {
+                Assert(owner.MemberRegistration == new MemberRegistration(
+                    "setColorSpace", "(Landroid/graphics/ColorSpace;)Landroid/graphics/HardwareBufferRenderer$RenderRequest;", false) &&
+                    owner.Member!.Element("Parameters")!.Element("Parameter")!.Value.Contains(
+                        "Nullable(2)", StringComparison.Ordinal),
+                    "SetColorSpace uses the exact nullable registered binding");
+                Assert(Guard(raw with
+                {
+                    Parameters = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["colorSpace"] = "Hypothetical changed parameter contract.",
+                    },
+                }).UnsafeTargets is null,
+                    "SetColorSpace requires the exact conflicting parameter contract");
+                var placeholders = XElement.Parse(
+                    "<Docs><param name=\"colorSpace\">To be added.</param><summary>To be added.</summary></Docs>");
+                foreach (var placeholder in placeholders.Elements().Select((element, index) =>
+                    Placeholder.Create(element, index)))
+                    Assert(ReplacementFor(placeholder, guarded).Text is not null,
+                        "SetColorSpace safe summary and parameter remain eligible");
+            }
+            if (test.Name == "low-latency")
+            {
+                Assert(owner.Member!.Element("MemberValue")!.Value == "4" &&
+                    owner.Member.Element("ReturnValue")!.Element("ReturnType")!.Value == "Android.Net.WifiMode" &&
+                    owner.Member.Element("Attributes")!.Value.Contains(
+                        "JniField=\"android/net/wifi/WifiManager.WIFI_MODE_FULL_LOW_LATENCY\"",
+                        StringComparison.Ordinal),
+                    "FullLowLatency uses the exact registered enum field");
+                Assert(Guard(raw with
+                {
+                    Paragraphs = raw.Paragraphs.Select(paragraph => paragraph with
+                        { IsCode = true }).ToList(),
+                }).UnsafeTargets is null,
+                    "FullLowLatency requires the exact non-code fallback paragraph");
+                Assert(Guard(raw, "F:Android.Net.WifiMode.FullHighPerf").UnsafeTargets is null,
+                    "FullLowLatency does not block the independent high-performance field");
+                var summary = Placeholder.Create(XElement.Parse("<summary>To be added.</summary>"), 0);
+                Assert(ReplacementFor(summary, mapping.Docs!).Text is null &&
+                    ReplacementFor(summary, raw).Text is not null,
+                    "FullLowLatency withholds the enum summary that includes the stale fallback");
+            }
+            if (test.Name is "tree-subset" or "tree-tailset")
+            {
+                var isSubSet = test.Name == "tree-subset";
+                Assert(owner.MemberRegistration == new MemberRegistration(
+                    isSubSet ? "subSet" : "tailSet",
+                    isSubSet ? "(Ljava/lang/Object;ZLjava/lang/Object;Z)Ljava/util/NavigableSet;"
+                        : "(Ljava/lang/Object;Z)Ljava/util/NavigableSet;", false),
+                    test.Name + " uses the exact flag-bearing registered overload");
+                foreach (var parameter in isSubSet ? new[] { "fromInclusive", "toInclusive" } : new[] { "inclusive" })
+                {
+                    var parameters = new Dictionary<string, string>(raw.Parameters, StringComparer.Ordinal)
+                    {
+                        [parameter] = "Hypothetical changed inclusion contract.",
+                    };
+                    Assert(Guard(raw with { Parameters = parameters }).UnsafeTargets is null,
+                        test.Name + " requires the exact inclusion parameter contract");
+                }
+                Assert(Guard(raw with { Returns = raw.Returns + " Changed." }).UnsafeTargets is null,
+                    test.Name + " changed return text is not excluded");
+                var placeholders = XElement.Parse(isSubSet
+                    ? "<Docs><summary>To be added.</summary><remarks>To be added.</remarks><param name=\"fromInclusive\">To be added.</param><param name=\"toInclusive\">To be added.</param></Docs>"
+                    : "<Docs><summary>To be added.</summary><remarks>To be added.</remarks><param name=\"inclusive\">To be added.</param></Docs>");
+                foreach (var placeholder in placeholders.Elements().Select((element, index) =>
+                    Placeholder.Create(element, index)))
+                    Assert(ReplacementFor(placeholder, guarded).Text is not null,
+                        test.Name + " safe summary, remarks and inclusion parameters remain eligible");
+                Assert(ReplacementFor(Placeholder.Create(
+                    XElement.Parse("<returns>To be added.</returns>"), 0), mapping.Docs!).Text is null,
+                    test.Name + " exact return placeholder is withheld");
+            }
+            if (test.Name is "adapt" or "transfer-type" or "set-color-space")
+            {
+                var directory = Path.Combine(Path.GetTempPath(), "importer-reviewed-" + Guid.NewGuid().ToString("N"));
+                var cache = Path.Combine(directory, "cache");
+                Directory.CreateDirectory(cache);
+                var path = Path.Combine(repositoryRoot, "docs", "xml", test.Namespace,
+                    test.Name + ".reviewed-test-" + Guid.NewGuid().ToString("N") + ".xml");
+                File.Copy(Path.Combine(repositoryRoot, "docs", "xml", test.Namespace, test.File), path);
+                File.WriteAllBytes(Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"), bytes);
+                var original = File.ReadAllBytes(path);
+                try
+                {
+                    foreach (var apply in new[] { false, true })
+                    {
+                        var reportPath = Path.Combine(directory, apply ? "apply" : "preview");
+                        var arguments = new List<string>
+                        {
+                            "--path", path, "--namespace", test.Namespace, "--member", owner.Id,
+                            "--max-changes", "10", "--offline", "--cache", cache, "--report", reportPath,
+                        };
+                        if (apply)
+                            arguments.Add("--apply");
+                        Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                            test.Name + " metadata-only guarded pipeline succeeds");
+                        using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                        var result = report.RootElement;
+                        Assert(result.GetProperty(apply ? "appliedCount" : "wouldApplyCount").GetInt32() == 0 &&
+                            result.GetProperty("filesChanged").GetInt32() == 0 &&
+                            result.GetProperty("entries").EnumerateArray().Count(entry =>
+                                entry.GetProperty("target").GetString() == "remarks" &&
+                                entry.GetProperty("reason").GetString() == "source_channel_ambiguous") == 1 &&
+                            File.ReadAllBytes(path).SequenceEqual(original),
+                            test.Name + " held metadata enrichment is reported once without changing bytes");
+                    }
+                }
+                finally
+                {
+                    File.Delete(path);
+                    Directory.Delete(directory, recursive: true);
+                }
+            }
+        }
+        Console.WriteLine($"Reviewed source guards passed: {cases.Length} exact owners.");
+    }
+
+    static void TestPreservedRemarksAndSourceGuards(string repositoryRoot)
+    {
+        var fragments = File.ReadAllLines(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+                "preservation-source-fragments.txt"))
+            .Select(line => line.Split('|')).ToDictionary(parts => parts[0], StringComparer.Ordinal);
+        (string Name, string Namespace, string File, string Member, int Expected)[] cases =
+        {
+            (Name: "callable", Namespace: "Android.Provider", File: "ContactsContract+CommonDataKinds+Callable.xml", Member: "ExtraAddressBookIndex", Expected: 1),
+            ("contactables", "Android.Provider", "ContactsContract+CommonDataKinds+Contactables.xml", "ExtraAddressBookIndex", 1),
+            ("hdr", "Android.Media", "ApplicationMediaCapabilities+Builder.xml", "AddUnsupportedHdrType", 1),
+            ("bitrate", "Android.Media", "AudioMetadata+Format.xml", "KeyBitRate", 0),
+            ("paths", "Android.App.AppSearch", "SearchSpec+Builder.xml", "AddFilterPropertyPaths", 1),
+            ("tag", "Android.App.AppSearch", "SearchSpec+Builder.xml", "SetSearchSourceLogTag", 1),
+            ("burn", "Android.Graphics", "BlendMode.xml", "ColorBurn", 1),
+            ("dodge", "Android.Graphics", "BlendMode.xml", "ColorDodge", 1),
+            ("private-use", "Android.Icu.Lang", "UCharacter+UnicodeBlock.xml", "PrivateUse", 0),
+            ("private-use-area", "Android.Icu.Lang", "UCharacter+UnicodeBlock.xml", "PrivateUseArea", 0),
+            ("bssid", "Android.Net.Wifi", "SoftApConfiguration+Builder.xml", "SetBssid", 3),
+        };
+        foreach (var test in cases)
+        {
+            var originalPath = Path.Combine(repositoryRoot, "docs", "xml", test.Namespace, test.File);
+            var source = LoadedFile.Load(repositoryRoot, originalPath);
+            source.SelectOwners(test.Member);
+            var originalOwner = source.Owners.Single(owner =>
+                (string?)owner.Member?.Attribute("MemberName") == test.Member);
+            var sourceBlock = source.DocsBlocks[originalOwner.Order];
+            var fixtureDocs = source.Text[sourceBlock.Start..sourceBlock.End];
+            var fixtureDocument = XElement.Parse(fixtureDocs, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            string[] fixtureChannels = test.Name switch
+            {
+                "callable" or "contactables" => [],
+                "bssid" => ["param", "summary", "returns", "remarks"],
+                "burn" or "dodge" or "private-use" or "private-use-area" => ["summary", "remarks"],
+                _ => ["remarks"],
+            };
+            var fixtureEdits = new List<XmlSpanEdit>();
+            foreach (var element in fixtureDocument.Elements().Where(element =>
+                fixtureChannels.Contains(element.Name.LocalName, StringComparer.Ordinal)))
+            {
+                Assert(TryGetElementSpan(fixtureDocs, element, out var span),
+                    test.Name + " fixture channel span is unambiguous");
+                var replacement = new XElement(element.Name, element.Attributes(), "To be added.")
+                    .ToString(SaveOptions.DisableFormatting);
+                if (element.Name.LocalName == "remarks")
+                {
+                    var metadata = new StringBuilder();
+                    foreach (var paragraph in element.Elements().Where(IsImporterMetadataParagraph))
+                    {
+                        Assert(TryGetElementSpan(fixtureDocs, paragraph, out var metadataSpan),
+                            test.Name + " fixture metadata span is unambiguous");
+                        var metadataStart = metadataSpan.Start;
+                        while (metadataStart > span.Start && char.IsWhiteSpace(fixtureDocs[metadataStart - 1]))
+                            metadataStart--;
+                        metadata.Append(fixtureDocs[metadataStart..metadataSpan.End]);
+                    }
+                    replacement = "<remarks>To be added." + metadata + "</remarks>";
+                }
+                fixtureEdits.Add(new XmlSpanEdit(span, replacement));
+            }
+            foreach (var edit in fixtureEdits.OrderByDescending(edit => edit.Span.Start))
+                fixtureDocs = fixtureDocs[..edit.Span.Start] + edit.Replacement + fixtureDocs[edit.Span.End..];
+            var fixtureText = source.Text[..sourceBlock.Start] + fixtureDocs + source.Text[sourceBlock.End..];
+            var request = originalOwner.SourceRequest!;
+            var fixture = fragments[test.Name];
+            var htmlBytes = Convert.FromBase64String(fixture[3]);
+            Assert(Convert.ToHexString(SHA256.HashData(htmlBytes)).Equals(fixture[2], StringComparison.OrdinalIgnoreCase),
+                test.Name + " native source fragment hash");
+            var html = Encoding.UTF8.GetString(htmlBytes);
+            var page = SourcePage.Parse(request, html);
+            var raw = page.Members.Single(member => member.Name == originalOwner.MemberRegistration!.Name).Docs!;
+            var mapping = MapOwner(originalOwner, new Dictionary<string, SourceLoadResult>
+            {
+                [request.Url] = SourceLoadResult.Success(page),
+            });
+            Assert(mapping.Docs is not null, test.Name + " exact original binding maps to native source");
+            var guarded = mapping.Docs!;
+            var isSourceGuard = test.Name is "bitrate" or "burn" or "dodge" or "private-use" or "private-use-area" or "bssid";
+            if (isSourceGuard)
+            {
+                Assert(guarded.UnsafeTargets?.ContainsKey("remarks") == true && guarded.HasRawExclusions,
+                    test.Name + " exact malformed non-code source is withheld");
+                foreach (var changed in new[]
+                {
+                    raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                    raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                    raw with { SourceKind = "java" },
+                    raw with { Paragraphs = raw.Paragraphs.Select(paragraph => paragraph with { IsCode = true }).ToList() },
+                    raw with { Paragraphs = [] },
+                    raw with { Paragraphs = raw.Paragraphs.Select(paragraph => paragraph with { Text = paragraph.Text + " Changed." }).ToList() },
+                })
+                {
+                    Assert(!WithoutKnownUnsafeAndroidSourceChannels(originalOwner.Id, changed).HasRawExclusions,
+                        test.Name + " changed, removed, code-only or unrelated source does not enable exclusion");
+                }
+                Assert(!WithoutKnownUnsafeAndroidSourceChannels(originalOwner.Id + ".Other", raw).HasRawExclusions,
+                    test.Name + " other managed identity is not excluded");
+                var contextual = raw with
+                {
+                    Paragraphs = [new("Additional source context.", false), .. raw.Paragraphs,
+                        new("Additional trailing source context.", false)],
+                };
+                Assert(WithoutKnownUnsafeAndroidSourceChannels(originalOwner.Id, contextual)
+                    .UnsafeTargets?.ContainsKey("remarks") == true,
+                    test.Name + " safe context does not hide the original defective paragraph");
+                if (test.Name is "private-use" or "private-use-area")
+                {
+                    var safeSummary = WithoutKnownUnsafeAndroidSourceChannels(originalOwner.Id,
+                        contextual with { Summary = "Additional source context." });
+                    Assert(safeSummary.UnsafeTargets?.ContainsKey("summary") == false &&
+                        safeSummary.UnsafeTargets?.ContainsKey("remarks") == true,
+                        test.Name + " safe summary remains eligible while defective remarks stay withheld");
+                }
+            }
+
+            var temp = Path.Combine(Path.GetTempPath(), "importer-preservation-" + Guid.NewGuid().ToString("N"));
+            var cache = Path.Combine(temp, "cache");
+            Directory.CreateDirectory(cache);
+            var path = Path.Combine(Path.GetDirectoryName(originalPath)!,
+                test.Name + ".importer-preservation-" + Guid.NewGuid().ToString("N") + ".xml");
+            File.WriteAllBytes(Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"), htmlBytes);
+            var ordinal = 0;
+            (int Count, int Writes) Run(bool apply, bool expectExclusion = true)
+            {
+                var reportPath = Path.Combine(temp, "report-" + ordinal++);
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", test.Namespace, "--member", originalOwner.Id,
+                    "--offline", "--cache", cache, "--max-changes", "10", "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    test.Name + " bounded offline pipeline succeeds");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                var root = report.RootElement;
+                Assert(root.GetProperty("errorCount").GetInt32() == 0,
+                    test.Name + " pipeline has no errors");
+                if (isSourceGuard && expectExclusion)
+                    Assert(root.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                        test.Name + " exclusion is explicitly reported");
+                return (root.GetProperty(apply ? "appliedCount" : "wouldApplyCount").GetInt32(),
+                    root.GetProperty("filesChanged").GetInt32());
+            }
+            string ProtectedText(LoadedFile file, string[]? changedNames = null)
+            {
+                file.SelectOwners(originalOwner.Id);
+                var owner = file.Owners.Single(candidate => candidate.Id == originalOwner.Id);
+                var block = file.DocsBlocks[owner.Order];
+                var text = file.Text[block.Start..block.End];
+                var document = XElement.Parse(text, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                var names = changedNames ?? (test.Name == "bssid" ? new[] { "param", "summary", "returns" } :
+                    test.Name is "burn" or "dodge" ? new[] { "summary" } :
+                    test.Expected == 0 ? [] : new[] { "remarks" });
+                foreach (var name in names)
+                {
+                    Assert(TryGetElementSpan(text, document.Element(name)!, out var span),
+                        test.Name + " changed channel span is unambiguous");
+                    text = text[..span.Start] + $"<{name}/>" + text[span.End..];
+                    document = XElement.Parse(text, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                }
+                return file.Text[..block.Start] + text + file.Text[block.End..];
+            }
+            try
+            {
+                foreach (var newline in new[] { "\n", "\r\n" })
+                foreach (var bom in new[] { false, true })
+                {
+                    var original = NormalizeXmlNewlines(fixtureText).Replace("\n", newline, StringComparison.Ordinal);
+                    var variants = test.Name is "hdr" or "paths" or "tag"
+                        ? new[]
+                        {
+                            original,
+                            original.Replace("<remarks>To be added.", "<remarks><para />", StringComparison.Ordinal),
+                            original.Replace("</remarks>", "<!-- retained --><![CDATA[retained data]]><?keep value?></remarks>", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.",
+                                "<remarks><!-- retained --><?keep value?>To be added.", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.", "<remarks>", StringComparison.Ordinal)
+                                .Replace("</remarks>", "To be added.</remarks>", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.", "<remarks> \tTo  be added. \t", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.", "<remarks> \tTo" + newline + "be added. \t", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.", "<remarks>&#32;To&#32;be added.&#x20;", StringComparison.Ordinal),
+                            original.Replace("<remarks>To be added.",
+                                "<remarks><!-- retained --><?keep value?> \tTo&#x20;be  added \t", StringComparison.Ordinal),
+                        }
+                        : [original];
+                    foreach (var input in variants)
+                    {
+                        File.WriteAllText(path, input, new UTF8Encoding(bom));
+                        var beforeBytes = File.ReadAllBytes(path);
+                        var before = LoadedFile.Load(repositoryRoot, path);
+                        Assert(Run(false).Count == test.Expected &&
+                            beforeBytes.SequenceEqual(File.ReadAllBytes(path)),
+                            test.Name + " preview count and byte preservation");
+                        Assert(Run(true).Count == test.Expected, test.Name + " bounded apply count");
+                        var after = LoadedFile.Load(repositoryRoot, path);
+                        Assert(after.HasUtf8Bom == bom && after.Newline == newline &&
+                            !after.Text.Contains("\r\r\n", StringComparison.Ordinal) &&
+                            (newline == "\n" ? !after.Text.Contains('\r') :
+                                !Regex.IsMatch(after.Text, @"(?<!\r)\n")),
+                            test.Name + " preserves BOM and newline convention");
+                        Assert(ProtectedText(before) == ProtectedText(after),
+                            test.Name + " preserves every byte outside the allowed channel");
+                        before.SelectOwners(originalOwner.Id);
+                        var owner = before.Owners.Single(candidate => candidate.Id == originalOwner.Id);
+                        var block = before.DocsBlocks[owner.Order];
+                        var blockText = before.Text[block.Start..block.End];
+                        if (test.Name is "hdr" or "paths" or "tag")
+                        {
+                            var start = blockText.IndexOf("<remarks>", StringComparison.Ordinal);
+                            var end = blockText.IndexOf("</remarks>", start, StringComparison.Ordinal);
+                            var rawPlaceholder = Regex.Match(blockText[start..end],
+                                @"To(?: |&#32;|&#x20;|\r|\n)+be +added\.?", RegexOptions.CultureInvariant);
+                            if (rawPlaceholder.Success)
+                                Assert(after.Text.StartsWith(input[..(block.Start + start + rawPlaceholder.Index)],
+                                        StringComparison.Ordinal) &&
+                                    after.Text.EndsWith(input[(block.Start + start + rawPlaceholder.Index + rawPlaceholder.Length)..],
+                                        StringComparison.Ordinal),
+                                    test.Name + " normalized placeholder preserves surrounding raw whitespace and metadata");
+                        }
+                        var beforeDocs = XElement.Parse(blockText, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                        foreach (var metadata in beforeDocs.Element("remarks")!.Elements().Where(IsImporterMetadataParagraph))
+                        {
+                            Assert(TryGetElementSpan(blockText, metadata, out var span) &&
+                                after.Text.Contains(blockText[span.Start..span.End], StringComparison.Ordinal),
+                                test.Name + " preserves literal source reference and attribution bytes");
+                        }
+                        var persisted = File.ReadAllBytes(path);
+                        var repeat = Run(true);
+                        Assert(repeat.Count == 0 && repeat.Writes == 0 &&
+                            persisted.SequenceEqual(File.ReadAllBytes(path)),
+                            test.Name + " persisted repeat has zero writes");
+                    }
+                }
+                if (test.Name is "hdr" or "paths" or "tag")
+                {
+                    foreach (var empty in new[]
+                    {
+                        "<para><!-- authored --></para>",
+                        "<para><![CDATA[ ]]></para>",
+                        "<para><?keep value?></para>",
+                        "<para authored=\"true\" />",
+                    })
+                    {
+                        File.WriteAllText(path, fixtureText.Replace("<remarks>To be added.", "<remarks>" + empty,
+                            StringComparison.Ordinal), new UTF8Encoding(false));
+                        var bytes = File.ReadAllBytes(path);
+                        Assert(Run(true).Count == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                            test.Name + " authored empty paragraph is not a replacement placeholder");
+                    }
+                }
+                if (test.Name is "private-use" or "private-use-area")
+                {
+                    const string introduction = "Additional source context.";
+                    var sourceIndex = html.IndexOf("<p>Same as public static final int ", StringComparison.Ordinal);
+                    Assert(sourceIndex >= 0, test.Name + " native defective paragraph is present");
+                    var contextualHtml = html.Insert(sourceIndex, "<p>" + introduction + "</p>");
+                    var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                        Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                    File.WriteAllText(cachePath, contextualHtml, new UTF8Encoding(false));
+                    File.WriteAllText(path, fixtureText, new UTF8Encoding(true));
+                    var before = LoadedFile.Load(repositoryRoot, path);
+                    Assert(Run(false, expectExclusion: false).Count == 1 &&
+                        Run(true, expectExclusion: false).Count == 1,
+                        test.Name + " hypothetical contextual source imports its safe summary");
+                    var after = LoadedFile.Load(repositoryRoot, path);
+                    after.SelectOwners(originalOwner.Id);
+                    var current = after.Owners.Single(candidate => candidate.Id == originalOwner.Id).Docs;
+                    Assert(current.Element("summary")!.Value == introduction &&
+                        ProtectedText(before, ["summary"]) == ProtectedText(after, ["summary"]),
+                        test.Name + " contextual source imports only the safe summary");
+                    var bytes = File.ReadAllBytes(path);
+                    var repeat = Run(true, expectExclusion: false);
+                    Assert(repeat.Count == 0 && repeat.Writes == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                        test.Name + " contextual source has a zero-write repeat");
+                }
+            }
+            finally
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+                Directory.Delete(temp, recursive: true);
+            }
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
+        TestPreservedRemarksAndSourceGuards(repositoryRoot);
+        TestReviewedSourceGuards(repositoryRoot);
         RunManagedSelfTest(repositoryRoot);
         RunRepeatedSelfTest(repositoryRoot);
         TestBiometricAllowedAuthenticatorsRemarksGuard(repositoryRoot);
@@ -20966,7 +21881,6 @@ static partial class ImporterProgram
             emptyMetadataRepairText.Replace("\n", "\r\n", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace("<para></para>", "<para />", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace("<para></para>", "<para> \t </para>", StringComparison.Ordinal),
-            emptyMetadataRepairText.Replace("<para></para>", "<para data-source=\"importer\">&#x20;</para>", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace("<para></para>", "<!-- retained --><para></para>", StringComparison.Ordinal),
             emptyMetadataRepairText.Replace(
                 "<remarks>\n    <para></para>\n    \n",
@@ -27201,6 +28115,7 @@ static partial class ImporterProgram
         public bool Apply { get; private set; }
         public bool Offline { get; private set; }
         public bool SelfTest { get; private set; }
+        public bool PreservationSelfTest { get; private set; }
         public bool ManagedOnly { get; private set; }
         public bool RepeatedOnly { get; private set; }
         public bool Help { get; private set; }
@@ -27240,6 +28155,9 @@ static partial class ImporterProgram
                         break;
                     case "--self-test":
                         options.SelfTest = true;
+                        break;
+                    case "--self-test-preservation":
+                        options.PreservationSelfTest = true;
                         break;
                     case "--managed-only":
                         options.ManagedOnly = true;
@@ -27330,6 +28248,7 @@ static partial class ImporterProgram
 
             Validation:
               --self-test            Run local fixture tests; add --managed-only for the .NET rules
+              --self-test-preservation Run focused metadata, newline and source exclusion tests
               -h, --help             Show help
             """);
     }
@@ -27514,7 +28433,7 @@ static partial class ImporterProgram
                     .Where(node => node is not XCData)
                     .Select(node => node.Value)));
             var emptyParagraphs = paragraphs
-                .Where(paragraph => !paragraph.HasElements && NormalizeText(paragraph.Value).Length == 0)
+                .Where(paragraph => !paragraph.HasAttributes && SignificantNodes(paragraph).Count == 0)
                 .ToList();
             if (!hasDirectPlaceholder && emptyParagraphs.Count != 1)
                 return false;
@@ -28637,6 +29556,9 @@ static partial class ImporterProgram
                 HasBiometricAllowedAuthenticatorsIncompleteDefaultList:
                     HasIncompleteBiometricAllowedAuthenticatorsDefaultList(
                         request, title, paragraphs, legacyFlattenedParagraphs),
+                HasJavaTextMessageFormatLink:
+                    url == AndroidReference + "android/icu/text/MessagePattern.ApostropheMode#DOUBLE_REQUIRED" &&
+                    fragment.Contains("<a href=\"/reference/java/text/MessageFormat\">MessageFormat</a>", StringComparison.Ordinal),
                 LegacyFlattenedParagraphs:
                     legacyFlattenedParagraphs.SequenceEqual(paragraphs)
                         ? null
@@ -29728,7 +30650,8 @@ static partial class ImporterProgram
         bool HasRecoveredImageDecoderDecodeDrawableWorkerThreadContract = false,
         bool HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract = false,
         bool HasBiometricAllowedAuthenticatorsIncompleteDefaultList = false,
-        IReadOnlyList<SourceRequest>? RepeatedContracts = null);
+        IReadOnlyList<SourceRequest>? RepeatedContracts = null,
+        bool HasJavaTextMessageFormatLink = false);
 
     static class Descriptor
     {
