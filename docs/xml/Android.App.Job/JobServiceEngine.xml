@@ -154,7 +154,7 @@
       <Docs>
         <summary>Retrieve the engine's IPC interface that should be returned by
             <c>Service#onBind(Intent)</c>.</summary>
-        <value>To be added.</value>
+        <value>The engine's Binder interface for returning from the service's bind callback.</value>
         <remarks>
           <para>Retrieve the engine's IPC interface that should be returned by
             <c>Service#onBind(Intent)</c>.</para>
@@ -234,8 +234,8 @@
         <Parameter Name="needsReschedule" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
-        <param name="needsReschedule">To be added.</param>
+        <param name="params">The parameters identifying the job whose work has finished.</param>
+        <param name="needsReschedule"><see langword="true" /> to request another attempt using the job's retry policy; <see langword="false" /> otherwise. Periodic jobs retain their periodic schedule. A user-initiated job stopped by the user cannot be rescheduled this way.</param>
         <summary>Call in to engine to report that a job has finished executing.</summary>
         <remarks>
           <para>Call in to engine to report that a job has finished executing.  See
@@ -280,7 +280,7 @@
         <Parameter Name="params" Type="Android.App.Job.JobParameters" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameters identifying the running job, updated to contain its new network.</param>
         <summary>Engine's report that the network for the job has changed.</summary>
         <remarks>
           <para>Engine's report that the network for the job has changed.</para>
@@ -328,9 +328,9 @@
         <Parameter Name="params" Type="Android.App.Job.JobParameters" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameters for this execution, including the job's extras and the identity used to report completion.</param>
         <summary>Engine's report that a job has started.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if work will continue after this callback; <see langword="false" /> if the work is already complete. Continuing work must later report completion unless the job is stopped.</returns>
         <remarks>
           <para>Engine's report that a job has started.  See
             <c>JobService#onStartJob(JobParameters) JobService.onStartJob</c> for more information.</para>
@@ -378,9 +378,9 @@
         <Parameter Name="params" Type="Android.App.Job.JobParameters" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
+        <param name="params">The parameters identifying the execution being stopped, including its stop reason.</param>
         <summary>Engine's report that a job has stopped.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> to request a retry using the job's retry policy; <see langword="false" /> otherwise. Periodic jobs retain their periodic schedule. A user-initiated job stopped by the user cannot be retried this way. Work must stop regardless of the return value.</returns>
         <remarks>
           <para>Engine's report that a job has stopped.  See
             <c>JobService#onStopJob(JobParameters) JobService.onStopJob</c> for more information.</para>
@@ -434,9 +434,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
-        <param name="notificationId">To be added.</param>
-        <param name="notification">To be added.</param>
+        <param name="params">The parameters identifying the running job to associate with the notification.</param>
+        <param name="notificationId">The identifier used to post this job's notification.</param>
+        <param name="notification">The notification to display for this job.</param>
         <param name="jobEndNotificationPolicy">Value is one of the following: JobService.JOB_END_NOTIFICATION_POLICY_DETACH; JobService.JOB_END_NOTIFICATION_POLICY_REMOVE</param>
         <summary>Give JobScheduler a notification to tie to this job's lifecycle.</summary>
         <remarks>
@@ -553,8 +553,8 @@
         <Parameter Name="uploadBytes" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
-        <param name="item">To be added.</param>
+        <param name="params">The parameters identifying the running job whose transfer estimate is being updated.</param>
+        <param name="item">The work item whose estimate is being updated, or <see langword="null" /> to update the estimate for the job itself.</param>
         <param name="downloadBytes">Value is a non-negative number of bytes.</param>
         <param name="uploadBytes">Value is a non-negative number of bytes.</param>
         <summary>Call in to engine to report data transfer progress.</summary>
@@ -610,8 +610,8 @@
         <Parameter Name="uploadBytes" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="params">To be added.</param>
-        <param name="item">To be added.</param>
+        <param name="params">The parameters identifying the running job whose transferred bytes are being reported.</param>
+        <param name="item">The work item whose transferred bytes are being reported, or <see langword="null" /> to report them for the job itself.</param>
         <param name="downloadBytes">Value is a non-negative number of bytes.</param>
         <param name="uploadBytes">Value is a non-negative number of bytes.</param>
         <summary>Call in to engine to report data transfer progress.</summary>
