@@ -2159,6 +2159,7 @@ static partial class ImporterProgram
             fieldDocs = WithoutKnownUnsafeOobSecuritySource(owner, fieldDocs);
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
+            fieldDocs = WithoutUnsafeIcuNumberChannels(owner, fieldDocs);
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
                 WithKnownNfcContractSafety(owner, WithKnownAndroidTextCorrections(owner.Id, fieldDocs))));
         }
@@ -2178,7 +2179,8 @@ static partial class ImporterProgram
             .ToList();
         var exact = named
             .Where(member => member.ArgumentDescriptors is not null)
-            .Where(member => member.ArgumentDescriptors!.SequenceEqual(expectedArguments, StringComparer.Ordinal))
+            .Where(member => member.ArgumentDescriptors!.SequenceEqual(expectedArguments, StringComparer.Ordinal) ||
+                MatchesBoundedIcuAppendTo(owner, registration, member))
             .ToList();
 
         if (exact.Count > 1)
@@ -2278,7 +2280,102 @@ static partial class ImporterProgram
         docs = WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs);
         docs = WithoutUnsafeVibrationEffectAddEventsRemarks(owner, docs);
         docs = WithoutIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs);
+        docs = WithoutUnsafeIcuNumberChannels(owner, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    static bool MatchesBoundedIcuAppendTo(
+        DocsOwner owner, MemberRegistration registration, SourceMember source)
+    {
+        var type = owner.SourceRequest?.JavaPath.Split('/').Last();
+        return type is "FormattedNumber" or "FormattedNumberRange" &&
+            owner.SourceRequest?.JavaPath == "android/icu/number/" + type &&
+            owner.Id == $"M:Android.Icu.Number.{type}.AppendTo(Java.Lang.Object)" &&
+            registration is { Name: "appendTo", Descriptor: "(Ljava/lang/Appendable;)Ljava/lang/Appendable;", IsField: false } &&
+            owner.Member is { } member &&
+            member.Ancestors("Type").SingleOrDefault() is { } declaringType &&
+            Registration.Type(declaringType) == "android/icu/number/" + type &&
+            member.Element("MemberType")?.Value == "Method" &&
+            member.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "C#" &&
+                (string?)signature.Attribute("Value") == "public virtual Java.Lang.Object? AppendTo (Java.Lang.Object? appendable);") &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.Object" &&
+            member.Element("Parameters")?.Elements("Parameter").ToList() is [var parameter] &&
+            (string?)parameter.Attribute("Name") == "appendable" &&
+            (string?)parameter.Attribute("Type") == "Java.Lang.Object" &&
+            member.Descendants("AttributeName").Any(attribute =>
+                (string?)attribute.Attribute("Language") == "C#" &&
+                attribute.Value == "[Java.Interop.JavaTypeParameters(new System.String[] { \"A extends java.lang.Appendable\" })]") &&
+            source is { Name: "appendTo", IsConstructor: false, IsField: false } &&
+            source.ArgumentDescriptors?.SequenceEqual(["Ljava/lang/Object;"]) == true &&
+            source.Declaration == "public A appendTo (A appendable)" &&
+            source.Docs is { SourceKind: "android" } docs &&
+            docs.SourceUrl == $"https://developer.android.com/reference/android/icu/number/{type}#appendTo(A)" &&
+            docs.SourceLabel == $"android.icu.number.{type}.appendTo";
+    }
+
+    static SourceDocs WithoutUnsafeIcuNumberChannels(DocsOwner owner, SourceDocs docs)
+    {
+        if (docs.SourceKind != "android" || owner.Member is not { } member ||
+            owner.SourceRequest is not { } request ||
+            member.Ancestors("Type").SingleOrDefault() is not { } declaringType ||
+            Registration.Type(declaringType) != request.JavaPath)
+            return docs;
+
+        string[] targets;
+        string detail;
+        if (owner.Id == "P:Android.Icu.Number.FormattedNumberRange.IdentityResult" &&
+            owner.MemberRegistration is { Name: "getIdentityResult", Descriptor: "()Landroid/icu/number/NumberRangeFormatter$RangeIdentityResult;", IsField: false } &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Android.Icu.Number.NumberRangeFormatter+RangeIdentityResult" &&
+            docs.SourceUrl == "https://developer.android.com/reference/android/icu/number/FormattedNumberRange#getIdentityResult()" &&
+            docs.SourceLabel == "android.icu.number.FormattedNumberRange.getIdentityResult")
+        {
+            targets = docs.Returns == "A RangeIdentityType indicating the resulting identity situation in the formatted number range."
+                ? ["value"] : [];
+            if (docs.Paragraphs.Any(paragraph => paragraph is { IsCode: false,
+                Text: "Returns whether the pair of numbers was successfully formatted as a range or whether an identity fallback was used. For example, if the first and second number were the same either before or after rounding occurred, an identity fallback was used." }))
+                targets = [.. targets, "summary", "remarks"];
+            if (targets.Length == 0)
+                return docs;
+            detail = "The exact ICU description confuses endpoint equality with the selected display fallback, and its original return names RangeIdentityType instead of RangeIdentityResult; no replacement contract was inferred.";
+        }
+        else if (owner.Id == "P:Android.Icu.Number.NumberFormatter.UnitWidth.IsoCode" &&
+            owner.MemberRegistration is { Name: "ISO_CODE", IsField: true } &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Android.Icu.Number.NumberFormatter+UnitWidth" &&
+            docs.SourceUrl == "https://developer.android.com/reference/android/icu/number/NumberFormatter.UnitWidth#ISO_CODE" &&
+            docs.SourceLabel == "android.icu.number.NumberFormatter.UnitWidth.ISO_CODE" &&
+            docs.Paragraphs.Any(paragraph => paragraph is { IsCode: false,
+                Text: "Use the three-digit ISO XXX code in place of the symbol for displaying currencies." }))
+        {
+            targets = ["summary", "remarks"];
+            detail = "The exact ICU description calls the alphabetic currency code three-digit; numeric ISO codes are a separate representation.";
+        }
+        else if (owner.Id == "P:Android.Icu.Number.NumberRangeFormatter.RangeIdentityFallback.Approximately" &&
+            owner.MemberRegistration is { Name: "APPROXIMATELY", IsField: true } &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Android.Icu.Number.NumberRangeFormatter+RangeIdentityFallback" &&
+            docs.SourceUrl == "https://developer.android.com/reference/android/icu/number/NumberRangeFormatter.RangeIdentityFallback#APPROXIMATELY" &&
+            docs.SourceLabel == "android.icu.number.NumberRangeFormatter.RangeIdentityFallback.APPROXIMATELY" &&
+            docs.Paragraphs.Any(paragraph => paragraph is { IsCode: false,
+                Text: "Show the number using a locale-sensitive approximation pattern. Use the range pattern always, even if the inputs are the same. Example: \"~$5\"" }))
+        {
+            targets = ["summary", "remarks"];
+            detail = "The exact ICU approximation description contradicts itself by requiring the range pattern for equal inputs; no corrected contract was inferred.";
+        }
+        else
+        {
+            return docs;
+        }
+
+        var unsafeTargets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        foreach (var target in targets)
+            unsafeTargets[target] = detail;
+        return docs with
+        {
+            UnsafeTargets = unsafeTargets,
+            WithheldRemarks = targets.Contains("remarks") ? docs.Paragraphs : docs.WithheldRemarks,
+        };
     }
 
     static SourceDocs WithoutIncompleteBiometricAllowedAuthenticatorsRemarks(
@@ -17458,8 +17555,161 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestIcuNumberContracts(string repositoryRoot)
+    {
+        var fragments = File.ReadAllLines(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "icu-number-source-fragments.txt")).Select(line => line.Split('|'))
+            .ToDictionary(parts => parts[0], parts =>
+            {
+                var bytes = Convert.FromBase64String(parts[2]);
+                Assert(Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant() == parts[1],
+                    "ICU native declaration fixture hash");
+                return Encoding.UTF8.GetString(bytes);
+            }, StringComparer.Ordinal);
+        var directory = Path.Combine(repositoryRoot, "docs", "xml", "Android.Icu.Number",
+            "importer-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        try
+        {
+            foreach (var test in new[]
+            {
+                (File: "FormattedNumber", Member: "AppendTo", Fragment: "FormattedNumber", Changes: 4, Unsafe: 0),
+                (File: "FormattedNumberRange", Member: "AppendTo", Fragment: "FormattedNumberRange-append", Changes: 4, Unsafe: 0),
+                (File: "FormattedNumberRange", Member: "IdentityResult", Fragment: "FormattedNumberRange", Changes: 0, Unsafe: 3),
+                (File: "NumberFormatter+UnitWidth", Member: "IsoCode", Fragment: "NumberFormatter.UnitWidth", Changes: 0, Unsafe: 2),
+                (File: "NumberRangeFormatter+RangeIdentityFallback", Member: "Approximately", Fragment: "NumberRangeFormatter.RangeIdentityFallback", Changes: 0, Unsafe: 2),
+            })
+            {
+                var root = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Android.Icu.Number",
+                    test.File + ".xml"), LoadOptions.PreserveWhitespace);
+                var member = new XElement(root.Element("Members")!.Elements("Member")
+                    .Single(item => (string?)item.Attribute("MemberName") == test.Member));
+                root.Element("Members")!.ReplaceNodes(member);
+                var channels = new List<XElement> { new("summary", "To be added.") };
+                channels.AddRange(member.Element("Parameters")?.Elements("Parameter").Select(parameter =>
+                    new XElement("param", new XAttribute("name", parameter.Attribute("Name")!.Value),
+                        "To be added.")) ?? []);
+                channels.Add(new XElement(test.Member == "AppendTo" ? "returns" : "value", "To be added."));
+                channels.Add(new XElement("remarks", new XElement("para", "To be added.")));
+                member.Element("Docs")!.ReplaceNodes(channels);
+                var path = Path.Combine(directory, test.File + ".xml");
+                File.WriteAllText(path, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(test.Member);
+                var owner = file.Owners.Single();
+                var request = owner.SourceRequest!;
+                var html = fragments[test.Fragment];
+                var page = SourcePage.Parse(request, html);
+                var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                };
+                var mapping = MapOwner(owner, pages);
+                Assert(mapping.Docs is not null &&
+                    (mapping.Docs.UnsafeTargets?.Count ?? 0) == test.Unsafe,
+                    "ICU exact native source maps and excludes only the defective channels");
+                if (test.Member == "AppendTo")
+                {
+                    Assert(mapping.Docs!.Returns == "The same Appendable, for chaining." &&
+                        mapping.Docs.Parameters["appendable"].Contains(
+                            "The Appendable to which to append the string output.", StringComparison.Ordinal),
+                        "ICU bounded append mapping retains official parameter and return text");
+                    var changedRoot = new XElement(member.Ancestors("Type").Single());
+                    var changed = changedRoot.Element("Members")!.Elements("Member").Single();
+                    var bound = changed.Descendants("AttributeName").Single(attribute =>
+                        (string?)attribute.Attribute("Language") == "C#" &&
+                        attribute.Value.Contains("A extends java.lang.Appendable", StringComparison.Ordinal));
+                    bound.Value = bound.Value.Replace("java.lang.Appendable", "java.lang.Object", StringComparison.Ordinal);
+                    Assert(MapOwner(owner with { Member = changed }, pages).ErrorReason == "overload_signature_mismatch",
+                        "ICU append rejects changed bound metadata");
+                    Assert(!MatchesBoundedIcuAppendTo(owner, owner.MemberRegistration!, page.Members.Single() with
+                        { Declaration = "public A appendTo (A different)" }),
+                        "ICU append rejects changed official declaration");
+                    Assert(MapOwner(owner with { Id = owner.Id + ".Other" }, pages).ErrorReason == "overload_signature_mismatch",
+                        "ICU append is not a name-based mapping");
+                }
+                else
+                {
+                    var raw = page.Members.Single().Docs!;
+                    Assert(WithoutUnsafeIcuNumberChannels(owner with { Id = owner.Id + ".Other" }, raw).UnsafeTargets is null &&
+                        WithoutUnsafeIcuNumberChannels(owner, raw with { SourceUrl = request.Url + "#other" }).UnsafeTargets is null &&
+                        WithoutUnsafeIcuNumberChannels(owner, raw with { SourceKind = "java" }).UnsafeTargets is null,
+                        "ICU exclusions require exact managed and source identities");
+                    var corrected = raw with
+                    {
+                        Returns = "The identity result.",
+                        Summary = "Corrected official description.",
+                        Paragraphs = [new("Corrected official description.", false)],
+                    };
+                    Assert(WithoutUnsafeIcuNumberChannels(owner, corrected).UnsafeTargets is null,
+                        "ICU corrected future source remains eligible");
+                    {
+                        var contextual = raw with
+                        {
+                            Summary = "Additional safe context.",
+                            Paragraphs = [new("Additional safe context.", false), .. raw.Paragraphs],
+                        };
+                        Assert(WithoutUnsafeIcuNumberChannels(owner, contextual).UnsafeTargets?.Count == test.Unsafe,
+                            "ICU added safe context cannot hide a contradictory paragraph");
+                        Assert(WithoutUnsafeIcuNumberChannels(owner, raw with
+                        {
+                            Paragraphs = raw.Paragraphs.Select(paragraph => paragraph with { IsCode = true }).ToList(),
+                        }).UnsafeTargets?.Count == (test.Member == "IdentityResult" ? 1 : null),
+                            "ICU code-only lookalikes are not excluded as prose");
+                    }
+                }
+                var cachePath = Path.Combine(directory, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                var report = Path.Combine(directory, "report");
+                int Run(bool apply) => RunAsync([
+                    "--path", path, "--member", owner.Id, "--cache", directory, "--offline",
+                    "--max-changes", "10", "--report", report,
+                    .. (apply ? new[] { "--apply" } : Array.Empty<string>()),
+                ]).GetAwaiter().GetResult();
+                int Count(string name)
+                {
+                    using var document = JsonDocument.Parse(File.ReadAllText(report + ".json"));
+                    Assert(document.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "ICU production report has no errors");
+                    return document.RootElement.GetProperty(name).GetInt32();
+                }
+                var before = File.ReadAllBytes(path);
+                Assert(Run(false) == 0 && Count("wouldApplyCount") == test.Changes &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), "ICU dry run has exact count and no writes");
+                Assert(Run(true) == 0 && Count("appliedCount") == test.Changes,
+                    "ICU scoped production apply has exact count");
+                var after = LoadedFile.Load(repositoryRoot, path);
+                string OutsideDocs(LoadedFile loaded)
+                {
+                    loaded.SelectOwners(test.Member);
+                    var block = loaded.DocsBlocks[loaded.Owners.Single().Order];
+                    return loaded.Text[..block.Start] + loaded.Text[block.End..];
+                }
+                Assert(after.HasUtf8Bom && OutsideDocs(file) == OutsideDocs(after),
+                    "ICU production apply preserves every byte outside the selected Docs and the BOM");
+                var bytes = File.ReadAllBytes(path);
+                Assert(Run(true) == 0 && Count("appliedCount") == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "ICU production repeat has zero writes");
+                member.Element("Docs")!.ReplaceNodes(new XElement("summary", new XElement("c", "Authored summary")),
+                    new XElement("remarks", "Authored details."), new XElement("value", "Authored value."),
+                    new XElement("returns", "Authored return."), new XElement("param",
+                        new XAttribute("name", "appendable"), "Authored parameter."));
+                File.WriteAllText(path, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                before = File.ReadAllBytes(path);
+                Assert(Run(true) == 0 && Count("appliedCount") == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), "ICU authored documentation is byte-preserved");
+            }
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
+        TestIcuNumberContracts(repositoryRoot);
         TestPreservedRemarksAndSourceGuards(repositoryRoot);
         TestReviewedSourceGuards(repositoryRoot);
         RunManagedSelfTest(repositoryRoot);
