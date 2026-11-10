@@ -18844,6 +18844,84 @@ static partial class ImporterProgram
                     "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;" &&
                 textSelectionExtension.SourceRequest.JavaPath == "android/view/textclassifier/TextClassifier",
             "TextClassifier selection extension resolves to the receiver's exact CharSequence member");
+        foreach (var (fileName, property) in new[]
+        {
+            ("ConversationAction.xml", "TextReply"),
+            ("ConversationActions+Message.xml", "Text"),
+            ("TextClassification.xml", "Label"),
+            ("TextClassification+Request.xml", "Text"),
+            ("TextLanguage+Request.xml", "Text"),
+            ("TextLinks.xml", "Text"),
+            ("TextLinks+Request.xml", "Text"),
+            ("TextSelection+Request.xml", "Text"),
+        })
+        {
+            var root = XElement.Load(Path.Combine(docsRoot, "Android.Views.TextClassifiers", fileName));
+            var members = root.Element("Members")!.Elements("Member").ToList();
+            var alias = members.Single(member => (string?)member.Attribute("MemberName") == property);
+            var formatted = members.Single(member =>
+                (string?)member.Attribute("MemberName") == property + "Formatted");
+            var id = alias.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "DocId").Attribute("Value")!.Value;
+            var aliasMapping = SourceVerifiedMemberMappings.Resolve(id, root, alias);
+            Assert(alias.Element("ReturnValue")?.Element("ReturnType")?.Value == "System.String" &&
+                formatted.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.ICharSequence" &&
+                Registration.Member(alias) is null &&
+                aliasMapping?.Registration == Registration.Member(formatted) &&
+                aliasMapping?.Registration.Descriptor == "()Ljava/lang/CharSequence;" &&
+                aliasMapping.SourceRequest == SourceRequest.Create(Registration.Type(root)) &&
+                SourceVerifiedMemberMappings.Resolve(id + "Other") is null,
+                "TextClassifier String property maps only to its registered Formatted getter: " + id);
+            var changedType = new XElement(alias);
+            changedType.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32";
+            var changedRoot = new XElement(root);
+            changedRoot.Element("Attributes")!.Remove();
+            var changedSiblingRoot = new XElement(root);
+            changedSiblingRoot.Element("Members")!.Elements("Member").Single(member =>
+                (string?)member.Attribute("MemberName") == property + "Formatted")
+                .Element("Attributes")!.Remove();
+            Assert(SourceVerifiedMemberMappings.Resolve(id, root, changedType) is null &&
+                SourceVerifiedMemberMappings.Resolve(id, changedRoot, alias) is null &&
+                SourceVerifiedMemberMappings.Resolve(id, changedSiblingRoot, alias) is null,
+                "TextClassifier String mapping rejects changed return, owner and sibling registration: " + id);
+        }
+        var legacyClassifier = XElement.Load(Path.Combine(
+            docsRoot, "Android.Views.TextClassifiers", "TextClassifier.xml"));
+        var classifierInterface = XElement.Load(Path.Combine(
+            docsRoot, "Android.Views.TextClassifiers", "ITextClassifier.xml"));
+        foreach (var name in new[]
+        {
+            "ExtraClassificationTimeoutMs", "ExtraOtpTrustedPackages",
+            "TimeoutNoTimeout", "TypeSmsWebOtp", "NoOp",
+        })
+        {
+            var legacy = legacyClassifier.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == name);
+            var canonical = classifierInterface.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == name);
+            var id = legacy.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "DocId").Attribute("Value")!.Value;
+            Assert(Registration.Member(legacy) is { IsField: true } registration &&
+                registration == Registration.Member(canonical) &&
+                SourceVerifiedMemberMappings.ResolveSourceOverride(id, legacyClassifier, legacy) ==
+                    SourceRequest.Create(Registration.Type(classifierInterface)) &&
+                SourceVerifiedMemberMappings.ResolveSourceOverride(id + "Other") is null,
+                "Legacy TextClassifier source override matches the canonical interface field: " + id);
+            var changedOwner = new XElement(legacyClassifier);
+            changedOwner.Element("Attributes")!.Remove();
+            var changedRegistration = new XElement(legacy);
+            changedRegistration.Element("Attributes")!.Remove();
+            var changedReturn = new XElement(legacy);
+            changedReturn.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32";
+            var changedSignature = new XElement(legacy);
+            changedSignature.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public int Other;");
+            Assert(SourceVerifiedMemberMappings.ResolveSourceOverride(id, changedOwner, legacy) is null &&
+                SourceVerifiedMemberMappings.ResolveSourceOverride(id, legacyClassifier, changedRegistration) is null &&
+                SourceVerifiedMemberMappings.ResolveSourceOverride(id, legacyClassifier, changedReturn) is null &&
+                SourceVerifiedMemberMappings.ResolveSourceOverride(id, legacyClassifier, changedSignature) is null,
+                "Legacy TextClassifier source override rejects changed owner, registration, return and signature: " + id);
+        }
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
@@ -28348,12 +28426,12 @@ static partial class ImporterProgram
                     : null;
                 memberRegistration ??= interfaceMember?.Registration;
                 var sourceVerifiedMember = memberRegistration is null && member is not null
-                    ? SourceVerifiedMemberMappings.Resolve(id)
+                    ? SourceVerifiedMemberMappings.Resolve(id, Root, member!)
                     : null;
                 memberRegistration ??= sourceVerifiedMember?.Registration;
                 var sourceOverride = member is null
                     ? null
-                    : SourceVerifiedMemberMappings.ResolveSourceOverride(id);
+                    : SourceVerifiedMemberMappings.ResolveSourceOverride(id, Root, member);
                 var request = member is null
                     ? typeRequest
                     : sourceOverride ??
@@ -28805,6 +28883,16 @@ static partial class ImporterProgram
         static readonly IReadOnlyDictionary<string, SourceRequest> SourceOverrides =
             new Dictionary<string, SourceRequest>(StringComparer.Ordinal)
             {
+                ["F:Android.Views.TextClassifiers.TextClassifier.ExtraClassificationTimeoutMs"] =
+                    TextClassifierRequest(),
+                ["F:Android.Views.TextClassifiers.TextClassifier.ExtraOtpTrustedPackages"] =
+                    TextClassifierRequest(),
+                ["F:Android.Views.TextClassifiers.TextClassifier.TimeoutNoTimeout"] =
+                    TextClassifierRequest(),
+                ["F:Android.Views.TextClassifiers.TextClassifier.TypeSmsWebOtp"] =
+                    TextClassifierRequest(),
+                ["P:Android.Views.TextClassifiers.TextClassifier.NoOp"] =
+                    TextClassifierRequest(),
                 ["F:Java.Util.Regex.RegexOptions.UnicodeCharacterClass"] =
                     SourceRequest.CreateAndroid("java/util/regex/Pattern") ??
                         throw new InvalidOperationException(
@@ -28988,6 +29076,22 @@ static partial class ImporterProgram
                     Mapping("android/view/textclassifier/TextClassifier", "classifyText", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextClassification;"),
                 ["M:Android.Views.TextClassifiers.ITextClassifierExtensions.SuggestSelection(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)"] =
                     Mapping("android/view/textclassifier/TextClassifier", "suggestSelection", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;"),
+                ["P:Android.Views.TextClassifiers.ConversationAction.TextReply"] =
+                    Mapping("android/view/textclassifier/ConversationAction", "getTextReply", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.ConversationActions.Message.Text"] =
+                    Mapping("android/view/textclassifier/ConversationActions$Message", "getText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextClassification.Label"] =
+                    Mapping("android/view/textclassifier/TextClassification", "getLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextClassification.Request.Text"] =
+                    Mapping("android/view/textclassifier/TextClassification$Request", "getText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextLanguage.Request.Text"] =
+                    Mapping("android/view/textclassifier/TextLanguage$Request", "getText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextLinks.Text"] =
+                    Mapping("android/view/textclassifier/TextLinks", "getText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextLinks.Request.Text"] =
+                    Mapping("android/view/textclassifier/TextLinks$Request", "getText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextSelection.Request.Text"] =
+                    Mapping("android/view/textclassifier/TextSelection$Request", "getText", "()Ljava/lang/CharSequence;"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
@@ -29009,8 +29113,76 @@ static partial class ImporterProgram
         public static InterfaceMemberMapping? Resolve(string memberId) =>
             Mappings.GetValueOrDefault(memberId);
 
+        public static InterfaceMemberMapping? Resolve(string memberId, XElement root, XElement member)
+        {
+            var mapping = Resolve(memberId);
+            if (mapping is null ||
+                !memberId.StartsWith("P:Android.Views.TextClassifiers.", StringComparison.Ordinal))
+                return mapping;
+
+            var name = (string?)member.Attribute("MemberName");
+            var formatted = root.Element("Members")?.Elements("Member")
+                .Where(candidate => (string?)candidate.Attribute("MemberName") == name + "Formatted")
+                .ToList();
+            return root.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+                SourceRequest.Create(Registration.Type(root)) == mapping.SourceRequest &&
+                member.Element("MemberType")?.Value == "Property" &&
+                member.Element("ReturnValue")?.Element("ReturnType")?.Value == "System.String" &&
+                member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "C#" &&
+                    (string?)signature.Attribute("Value") is var value &&
+                    (value == $"public string {name} {{ get; }}" ||
+                     value == $"public string? {name} {{ get; }}")) &&
+                formatted is [var getter] &&
+                getter.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.ICharSequence" &&
+                Registration.Member(getter) == mapping.Registration
+                    ? mapping : null;
+        }
+
+        static SourceRequest TextClassifierRequest() =>
+            SourceRequest.Create("android/view/textclassifier/TextClassifier") ??
+                throw new InvalidOperationException("Could not create the Android TextClassifier source request.");
+
         public static SourceRequest? ResolveSourceOverride(string memberId) =>
             SourceOverrides.GetValueOrDefault(memberId);
+
+        public static SourceRequest? ResolveSourceOverride(string memberId, XElement root, XElement member)
+        {
+            var request = ResolveSourceOverride(memberId);
+            if (request?.JavaPath != "android/view/textclassifier/TextClassifier")
+                return request;
+
+            var name = (string?)member.Attribute("MemberName");
+            var expected = name switch
+            {
+                "ExtraClassificationTimeoutMs" =>
+                    ("EXTRA_CLASSIFICATION_TIMEOUT_MS", "System.String", "public const string ExtraClassificationTimeoutMs;"),
+                "ExtraOtpTrustedPackages" =>
+                    ("EXTRA_OTP_TRUSTED_PACKAGES", "System.String", "public const string ExtraOtpTrustedPackages;"),
+                "TimeoutNoTimeout" =>
+                    ("TIMEOUT_NO_TIMEOUT", "System.Int64", "public const long TimeoutNoTimeout = 0;"),
+                "TypeSmsWebOtp" =>
+                    ("TYPE_SMS_WEB_OTP", "System.String", "public const string TypeSmsWebOtp;"),
+                "NoOp" =>
+                    ("NO_OP", "Android.Views.TextClassifiers.ITextClassifier",
+                        "public static Android.Views.TextClassifiers.ITextClassifier? NoOp { get; }"),
+                _ => ("", "", ""),
+            };
+            return (string?)root.Attribute("FullName") == "Android.Views.TextClassifiers.TextClassifier" &&
+                Registration.Type(root) == "mono/internal/android/view/textclassifier/TextClassifier" &&
+                root.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+                member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+                memberId == (name == "NoOp" ? "P:" : "F:") +
+                    "Android.Views.TextClassifiers.TextClassifier." + name &&
+                member.Element("MemberType")?.Value == (name == "NoOp" ? "Property" : "Field") &&
+                Registration.Member(member) == new MemberRegistration(expected.Item1, null, true) &&
+                member.Element("ReturnValue")?.Element("ReturnType")?.Value == expected.Item2 &&
+                member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "C#" &&
+                    (string?)signature.Attribute("Value") == expected.Item3) &&
+                (name != "TimeoutNoTimeout" || member.Element("MemberValue")?.Value == "0")
+                    ? request : null;
+        }
 
         static InterfaceMemberMapping Mapping(
             string javaPath,

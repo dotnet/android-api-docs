@@ -113,6 +113,16 @@ and `JniField` owner metadata for projected constants. It also recognizes scalar
 Narrow source-verified mappings cover Java.Interop runtime members whose upstream
 implementation embeds an exact JNI member identifier and whose identity is also
 confirmed by sibling generated binding metadata.
+Eight TextClassifiers string properties map to their registered `Formatted`
+getters, following the pinned
+[string-property generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundPropertyStringVariant.cs).
+Five legacy `TextClassifier` fields use the official `TextClassifier` interface
+page rather than the managed compatibility class's internal Java registration.
+Focused self-tests compare every mapping with its canonical sibling registration
+and reject unlisted member identities. Runtime checks require the exact owner,
+assembly, managed signature, return type, and field or sibling getter registration;
+negative tests exercise changed metadata. These mappings do not supply missing prose
+or infer return documentation from a signature.
 Array-rank `JniTypeSignature` metadata is not mapped to its element type because
 Java API pages do not declare array wrapper types. It skips members with missing
 registrations, unknown type descriptors, overload mismatches, ambiguous matches,
