@@ -17621,13 +17621,20 @@ static partial class ImporterProgram
                     corrected.Paragraphs.SequenceEqual(source.Paragraphs) &&
                     corrected.Parameters.OrderBy(pair => pair.Key).SequenceEqual(source.Parameters.OrderBy(pair => pair.Key)),
                     "SdkSandbox future corrected source needs no recovery");
-                var mismatched = new XElement(owner.Member!);
+                var clonedType = new XElement(owner.Member!.Parent!.Parent!);
+                var mismatched = clonedType.Element("Members")!.Elements("Member").Single(member =>
+                    (string?)member.Attribute("MemberName") == managedName);
+                var clonedOwner = owner with { Member = mismatched, Docs = mismatched.Element("Docs")! };
+                var sourcePages = new Dictionary<string, SourceLoadResult>
+                    { [request.Url] = SourceLoadResult.Success(page) };
+                Assert(MatchesSdkSandboxSurfaceBinding(clonedOwner, owner.MemberRegistration!, source) &&
+                    MapOwner(clonedOwner, sourcePages).Docs?.HasRecoveredSdkSandboxSurfaceLink == true,
+                    "SdkSandbox attached clone is accepted before its signature changes");
                 mismatched.Elements("MemberSignature").Single(signature =>
                     (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public int Other;");
-                Assert(!MatchesSdkSandboxSurfaceBinding(owner with { Member = mismatched },
+                Assert(!MatchesSdkSandboxSurfaceBinding(clonedOwner,
                     owner.MemberRegistration!, source), "SdkSandbox changed managed signature rejects recovered source");
-                Assert(MapOwner(owner with { Member = mismatched }, new Dictionary<string, SourceLoadResult>
-                    { [request.Url] = SourceLoadResult.Success(page) }).Docs is null,
+                Assert(MapOwner(clonedOwner, sourcePages).Docs is null,
                     "SdkSandbox real mapping rejects a mismatched recovery instead of importing sibling channels");
 
                 var document = new XDocument(loaded.Root.Document!);
