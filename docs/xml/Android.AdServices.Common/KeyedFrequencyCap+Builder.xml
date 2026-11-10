@@ -76,11 +76,11 @@
         <Parameter Name="interval" Type="Java.Time.Duration" />
       </Parameters>
       <Docs>
-        <param name="adCounterKey">To be added.</param>
-        <param name="maxCount">To be added.</param>
-        <param name="interval">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="adCounterKey">The numeric counter key to which the cap applies.</param>
+        <param name="maxCount">The event count limit, which must be greater than zero.</param>
+        <param name="interval">The non-null counting interval. Its whole-second value must be greater than zero and at most 100 days.</param>
+        <summary>Creates a builder with the counter key, count limit, and counting interval.</summary>
+        <remarks>The constructor validates the count and interval before storing them. A duration whose whole-second value is zero is not accepted. See the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/AdServices/+/593832a5beabbc740974dc6c07f3294cd8a3bc6d/adservices/framework/java/android/adservices/common/KeyedFrequencyCap.java#228">constructor implementation</a></format>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -113,7 +113,7 @@
       <Parameters />
       <Docs>
         <summary>Builds and returns a <c>KeyedFrequencyCap</c> instance.</summary>
-        <returns>To be added.</returns>
+        <returns>A new keyed frequency cap with this builder's settings.</returns>
         <remarks>
           <para>Builds and returns a <c>KeyedFrequencyCap</c> instance.</para>
           <para>
@@ -191,9 +191,9 @@
         <Parameter Name="adCounterKey" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="adCounterKey">To be added.</param>
+        <param name="adCounterKey">The numeric counter key to which the cap applies.</param>
         <summary>Sets the ad counter key the frequency cap applies to.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the counter key assigned.</returns>
         <remarks>
           <para>Sets the ad counter key the frequency cap applies to.</para>
           <para>See KeyedFrequencyCap.getAdCounterKey() for more information.</para>
@@ -233,9 +233,9 @@
         <Parameter Name="interval" Type="Java.Time.Duration" />
       </Parameters>
       <Docs>
-        <param name="interval">To be added.</param>
+        <param name="interval">The non-null counting interval. Its whole-second value must be greater than zero and at most 100 days.</param>
         <summary>Sets the interval, as a Duration which will be truncated to the nearest second, over which the frequency cap is calculated.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the counting interval assigned.</returns>
         <remarks>
           <para>Sets the interval, as a Duration which will be truncated to the nearest second, over which the frequency cap is calculated.</para>
           <para>See KeyedFrequencyCap.getInterval() for more information.</para>
@@ -275,9 +275,9 @@
         <Parameter Name="maxCount" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="maxCount">To be added.</param>
+        <param name="maxCount">The event count limit, which must be greater than zero.</param>
         <summary>Sets the maximum count within the time interval for the frequency cap.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the count limit assigned.</returns>
         <remarks>
           <para>Sets the maximum count within the time interval for the frequency cap.</para>
           <para>See KeyedFrequencyCap.getMaxCount() for more information.</para>

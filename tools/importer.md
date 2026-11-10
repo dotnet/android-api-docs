@@ -119,12 +119,36 @@ binding metadata, code-only copies, and missing corroboration do not enable the
 repair. Existing authored documentation is preserved. Registered tests exercise
 bounded offline applies and byte-identical persisted repeats.
 
+Seven exact `SdkSandboxManager` source declarations contain the broken
+`ERROR(/SurfacePackage)` link label. The importer can recover only that label,
+including its occurrence in the request's receiver parameter, when the complete
+native HTML fragment matches its pinned SHA-256 and the managed/JNI binding
+matches. The Android 16 implementation imports
+`android.view.SurfaceControlViewHost.SurfacePackage`; no behavior is inferred
+from the broken site-root link. The fixtures in
+`tools/importer-fixtures/sdksandbox-source-fragments.txt` retain the complete
+native fragments as base64 with their hashes, from page SHA-256
+`d4773b93a9924e9a23be63232207d9345d123cbaed3240c395f037843d5910a5`.
+Changed declarations or provenance do not enable recovery, and future corrected
+reference text follows ordinary parsing. Registered offline tests cover bounded
+imports, parameter/prose separation, authored content, and persisted repeats.
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.
 Narrow source-verified mappings cover Java.Interop runtime members whose upstream
 implementation embeds an exact JNI member identifier and whose identity is also
 confirmed by sibling generated binding metadata.
+Eight TextClassifiers string properties map to their registered `Formatted`
+getters, following the pinned
+[string-property generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundPropertyStringVariant.cs).
+Five legacy `TextClassifier` fields use the official `TextClassifier` interface
+page rather than the managed compatibility class's internal Java registration.
+Focused self-tests compare every mapping with its canonical sibling registration
+and reject unlisted member identities. Runtime checks require the exact owner,
+assembly, managed signature, return type, and field or sibling getter registration;
+negative tests exercise changed metadata. These mappings do not supply missing prose
+or infer return documentation from a signature.
 Array-rank `JniTypeSignature` metadata is not mapped to its element type because
 Java API pages do not declare array wrapper types. It skips members with missing
 registrations, unknown type descriptors, overload mismatches, ambiguous matches,
@@ -617,6 +641,12 @@ parameter contract. It rejects the entire ambiguous mapping before any first-fil
 enrichment, or repair can write, preserving existing authored and prior imported
 Docs unchanged. No replacement listener prose is inferred. Corrected or removed
 stale descriptions remain eligible, and unrelated Chooser members are unaffected.
+
+The `FetchAndJoinCustomAudienceRequest.Builder.setFetchUri(Uri)` reference has
+an extra `()}` after its correctly linked `getFetchUri()` label. Only the exact
+official owner, member URL, hyperlink, label and complete paragraph permit
+removal of that trailing token. Other malformed or changed references remain
+withheld. This rendering fix does not infer missing parameter or return prose.
 
 The `IkeProtocolErrorType.NoAdditionalSas` enum summary is skipped when its exact
 managed field, canonical `IkeProtocolException.ERROR_TYPE_NO_ADDITIONAL_SAS`
