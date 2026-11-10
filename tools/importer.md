@@ -107,6 +107,20 @@ checks, protected text, change limits, BOM/newlines, and zero-write repeat runs.
 
 ### Exact reference matching
 
+Seven exact `SdkSandboxManager` source declarations contain the broken
+`ERROR(/SurfacePackage)` link label. The importer can recover only that label,
+including its occurrence in the request's receiver parameter, when the complete
+native HTML fragment matches its pinned SHA-256 and the managed/JNI binding
+matches. The Android 16 implementation imports
+`android.view.SurfaceControlViewHost.SurfacePackage`; no behavior is inferred
+from the broken site-root link. The fixtures in
+`tools/importer-fixtures/sdksandbox-source-fragments.txt` retain the complete
+native fragments as base64 with their hashes, from page SHA-256
+`d4773b93a9924e9a23be63232207d9345d123cbaed3240c395f037843d5910a5`.
+Changed declarations or provenance do not enable recovery, and future corrected
+reference text follows ordinary parsing. Registered offline tests cover bounded
+imports, parameter/prose separation, authored content, and persisted repeats.
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.
