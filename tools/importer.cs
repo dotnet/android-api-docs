@@ -13,6 +13,21 @@ return await ImporterProgram.RunAsync(args);
 static partial class ImporterProgram
 {
     const string AndroidReference = "https://developer.android.com/reference/";
+    const string AppFunctionMetadataJavaPath = "android/app/appfunctions/AppFunctionMetadata";
+    const string AppFunctionMetadataSourceUrl = AndroidReference + AppFunctionMetadataJavaPath;
+    static readonly (string Field, string Declaration, string Original, string Token, string Replacement)[] AppFunctionAccessLevelMarkup =
+    [
+        ("ACCESS_LEVEL_SYSTEM", "public static final int ACCESS_LEVEL_SYSTEM",
+            "A constant indicating that the app function is accessible by holders of the ERROR(/android.Manifest.permission#EXECUTE_APP_FUNCTIONS_SYSTEM) permission.",
+            "ERROR(/android.Manifest.permission#EXECUTE_APP_FUNCTIONS_SYSTEM)",
+            "android.Manifest.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"),
+        ("PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED", "public static final String PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED",
+            "Property value for ERROR(/#PROPERTY_REQUIRED_ACCESS_LEVEL) representing that the function is accessible by any caller certified by Android that holds the Manifest.permission.EXECUTE_APP_FUNCTIONS permission.",
+            "ERROR(/#PROPERTY_REQUIRED_ACCESS_LEVEL)", "PROPERTY_ACCESS_LEVEL"),
+        ("PROPERTY_VALUE_ACCESS_LEVEL_SYSTEM", "public static final String PROPERTY_VALUE_ACCESS_LEVEL_SYSTEM",
+            "Property value for ERROR(/#PROPERTY_REQUIRED_ACCESS_LEVEL) representing that the function is accessible by holders of the \"android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM\" permission.",
+            "ERROR(/#PROPERTY_REQUIRED_ACCESS_LEVEL)", "PROPERTY_ACCESS_LEVEL"),
+    ];
     const string AudioBitRateIncompleteSummary =
         "A key representing the bitrate of the encoded stream used in If the stream is variable bitrate, this is the average bitrate of the stream.";
     const string AudioBitRateIncompleteParagraph =
@@ -2090,6 +2105,42 @@ static partial class ImporterProgram
             fullName.StartsWith(filter + "+", StringComparison.Ordinal);
     }
 
+    static bool MatchesAppFunctionAccessLevelBinding(DocsOwner owner, MemberRegistration registration)
+    {
+        if (owner.SourceRequest?.JavaPath != AppFunctionMetadataJavaPath ||
+            owner.SourceRequest.Url != AppFunctionMetadataSourceUrl ||
+            owner.Member is not { } member || !registration.IsField ||
+            member.Element("MemberType")?.Value != "Field" ||
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android")
+            return false;
+        (string id, string signature, string returnType, string? value) = registration.Name switch
+        {
+            "ACCESS_LEVEL_SYSTEM" when owner.IsEnumField =>
+                ("F:Android.App.AppFunctions.AppFunctionMetadataAccessLevel.System", "System",
+                    "Android.App.AppFunctions.AppFunctionMetadataAccessLevel", "200"),
+            "ACCESS_LEVEL_SYSTEM" =>
+                ("F:Android.App.AppFunctions.AppFunctionMetadata.AccessLevelSystem",
+                    "public const Android.App.AppFunctions.AppFunctionMetadataAccessLevel AccessLevelSystem = 200;",
+                    "Android.App.AppFunctions.AppFunctionMetadataAccessLevel", "200"),
+            "PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED" when !owner.IsEnumField =>
+                ("F:Android.App.AppFunctions.AppFunctionMetadata.PropertyValueAccessLevelAndroidTrusted",
+                    "public const string PropertyValueAccessLevelAndroidTrusted;",
+                    "System.String", null),
+            "PROPERTY_VALUE_ACCESS_LEVEL_SYSTEM" when !owner.IsEnumField =>
+                ("F:Android.App.AppFunctions.AppFunctionMetadata.PropertyValueAccessLevelSystem",
+                    "public const string PropertyValueAccessLevelSystem;",
+                    "System.String", null),
+            _ => ("", "", "", ""),
+        };
+        return id.Length > 0 && owner.Id == id &&
+            member.Elements("MemberSignature").SingleOrDefault(element =>
+                (string?)element.Attribute("Language") == "C#")?.Attribute("Value")?.Value == signature &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == returnType &&
+            member.Element("MemberValue")?.Value == value &&
+            (!owner.IsEnumField || Registration.JniField(member) ==
+                new JniFieldRegistration(AppFunctionMetadataJavaPath, "ACCESS_LEVEL_SYSTEM"));
+    }
+
     static MappingResult MapOwner(
         DocsOwner owner,
         IReadOnlyDictionary<string, SourceLoadResult> pages)
@@ -2152,6 +2203,12 @@ static partial class ImporterProgram
                 return MappingResult.Skip(
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
+                    fields[0].Url);
+            if (fieldDocs.HasRecoveredAppFunctionAccessLevelMarkup &&
+                !MatchesAppFunctionAccessLevelBinding(owner, registration))
+                return MappingResult.Skip(
+                    "source_channel_ambiguous",
+                    "The recovered AppFunction access-level reference did not match the exact managed/JNI field contract.",
                     fields[0].Url);
             if (fieldDocs.HasRecoveredSdkSandboxSurfaceLink &&
                 !MatchesSdkSandboxSurfaceBinding(owner, registration, fieldDocs))
@@ -17553,6 +17610,133 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestAppFunctionAccessLevelMarkup(string repositoryRoot)
+    {
+        const string corroboration = """
+            <h3 class="api-name" id="PROPERTY_ACCESS_LEVEL">PROPERTY_ACCESS_LEVEL</h3>
+            <pre class="api-signature">public static final String PROPERTY_ACCESS_LEVEL</pre>
+            <p>Property name for the XML tag that defines the value of <a href="#getAccessLevel()">getAccessLevel()</a>.</p>
+            <h3 class="api-name" id="PROPERTY_VALUE_ACCESS_LEVEL_SELF">PROPERTY_VALUE_ACCESS_LEVEL_SELF</h3>
+            <pre class="api-signature">public static final String PROPERTY_VALUE_ACCESS_LEVEL_SELF</pre>
+            <p>Property value for <a href="/reference/android/app/appfunctions/AppFunctionMetadata#PROPERTY_ACCESS_LEVEL">PROPERTY_ACCESS_LEVEL</a> representing that the function is strictly restricted to the app itself.</p>
+            """;
+        var request = SourceRequest.Create(AppFunctionMetadataJavaPath)!;
+        var token = "appfunctions-markup-" + Guid.NewGuid().ToString("N");
+        var temp = Path.Combine(repositoryRoot, "artifacts", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.App.AppFunctions", token + ".xml");
+        Directory.CreateDirectory(temp);
+        try
+        {
+            foreach (var (fileName, memberName, ruleIndex) in new[]
+            {
+                ("AppFunctionMetadata.xml", "AccessLevelSystem", 0),
+                ("AppFunctionMetadata.xml", "PropertyValueAccessLevelAndroidTrusted", 1),
+                ("AppFunctionMetadata.xml", "PropertyValueAccessLevelSystem", 2),
+                ("AppFunctionMetadataAccessLevel.xml", "System", 0),
+            })
+            {
+                var rule = AppFunctionAccessLevelMarkup[ruleIndex];
+                var document = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml",
+                    "Android.App.AppFunctions", fileName));
+                var member = document.Element("Members")!.Elements("Member").Single(item =>
+                    (string?)item.Attribute("MemberName") == memberName);
+                document.Element("Members")!.ReplaceNodes(new XElement(member));
+                member = document.Element("Members")!.Element("Member")!;
+                var enumField = fileName.Contains("AccessLevel.xml", StringComparison.Ordinal);
+                member.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                    new XElement("summary", "To be added."),
+                    enumField ? null : new XElement("remarks", "To be added.")));
+                var html = $"""
+                    <h3 class="api-name" id="{rule.Field}">{rule.Field}</h3>
+                    <pre class="api-signature">{rule.Declaration}</pre>
+                    <p>{WebUtility.HtmlEncode(rule.Original)}</p>
+                    <p>Includes access for: ACCESS_LEVEL_SELF.</p>
+                    {corroboration}
+                    <h2 class="api-section" id="summary"></h2>
+                    """;
+                void Write(XElement input) => File.WriteAllText(path,
+                    input.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                Write(document);
+                var loaded = LoadedFile.Load(repositoryRoot, path);
+                loaded.SelectOwners(null);
+                var owner = loaded.Owners.Single(item => item.Member is not null);
+                MappingResult Map(DocsOwner candidate, string source) => MapOwner(candidate,
+                    new Dictionary<string, SourceLoadResult>
+                    {
+                        [candidate.SourceRequest!.Url] = SourceLoadResult.Success(
+                            SourcePage.Parse(candidate.SourceRequest, source)),
+                    });
+                var mapped = Map(owner, html);
+                Assert(mapped.Docs is { HasRecoveredAppFunctionAccessLevelMarkup: true } &&
+                    mapped.Docs.Paragraphs[0].Text ==
+                        rule.Original.Replace(rule.Token, rule.Replacement, StringComparison.Ordinal) &&
+                    mapped.Docs.Paragraphs[1].Text == "Includes access for: ACCESS_LEVEL_SELF.",
+                    "exact AppFunction field recovery retains the complete lead and following paragraph: " +
+                    memberName + " " + mapped.ErrorReason + " " +
+                    string.Join(" | ", mapped.Docs?.Paragraphs.Select(paragraph => paragraph.Text) ?? []));
+                foreach (var changed in new[]
+                {
+                    owner with { Id = owner.Id + ".Other" },
+                    owner with { SourceRequest = SourceRequest.Create("android/app/appfunctions/OtherMetadata")! },
+                    owner with { MemberRegistration = owner.MemberRegistration! with { Name = "OTHER_FIELD" } },
+                })
+                {
+                    Assert(Map(changed, html).Docs?.HasRecoveredAppFunctionAccessLevelMarkup != true,
+                        "AppFunction recovery rejects other managed/JNI owners and fields");
+                }
+                var wrongType = new XElement(owner.Member!);
+                wrongType.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object";
+                Assert(Map(owner with { Member = wrongType }, html).Docs is null,
+                    "AppFunction recovered prose requires the exact managed return type");
+                foreach (var changed in new[]
+                {
+                    html.Replace(rule.Declaration, rule.Declaration + "Changed", StringComparison.Ordinal),
+                    html.Replace("accessible", "available", StringComparison.Ordinal),
+                    html.Replace(corroboration, "", StringComparison.Ordinal),
+                    html.Replace($"<p>{WebUtility.HtmlEncode(rule.Original)}</p>",
+                        $"<pre>{WebUtility.HtmlEncode(rule.Original)}</pre>", StringComparison.Ordinal),
+                })
+                {
+                    Assert(Map(owner, changed).Docs?.HasRecoveredAppFunctionAccessLevelMarkup != true,
+                        "AppFunction recovery does not rewrite changed, uncorroborated or code-only source");
+                }
+                var corrected = html.Replace(rule.Token, rule.Replacement, StringComparison.Ordinal);
+                Assert(Map(owner, corrected).Docs is { HasRecoveredAppFunctionAccessLevelMarkup: false },
+                    "future corrected AppFunction source remains eligible without recovery");
+                var cache = Path.Combine(temp, Convert.ToHexString(
+                    SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                File.WriteAllText(cache, html);
+                var reportPath = Path.Combine(temp, "report");
+                int Apply() => RunAsync(["--path", path, "--namespace", "Android.App.AppFunctions",
+                    "--member", memberName, "--offline", "--cache", temp, "--max-changes", "2",
+                    "--apply", "--report", reportPath]).GetAwaiter().GetResult();
+                Assert(Apply() == 0, "bounded AppFunction production apply succeeds");
+                using (var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json")))
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == (enumField ? 1 : 2),
+                        "AppFunction apply fills only the selected field channels");
+                var applied = File.ReadAllBytes(path);
+                Assert(!File.ReadAllText(path).Contains("ERROR(", StringComparison.Ordinal),
+                    "AppFunction production output contains no malformed references");
+                Assert(Apply() == 0 && File.ReadAllBytes(path).SequenceEqual(applied),
+                    "persisted AppFunction repeat is byte-identical");
+                var authored = new XElement(document);
+                authored.Element("Members")!.Element("Member")!.Element("Docs")!.ReplaceNodes(
+                    new XElement("summary", new XElement("c", "Authored summary.")),
+                    new XElement("remarks", new XElement("para", "Authored remarks.")));
+                Write(authored);
+                var protectedBytes = File.ReadAllBytes(path);
+                Assert(Apply() == 0 && File.ReadAllBytes(path).SequenceEqual(protectedBytes),
+                    "AppFunction recovery preserves authored mixed documentation");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temp, recursive: true);
+        }
+    }
+
     static void TestSdkSandboxSurfaceLinks(string repositoryRoot)
     {
         var fixturePath = Path.Combine(repositoryRoot, "tools", "importer-fixtures", "sdksandbox-source-fragments.txt");
@@ -17701,6 +17885,7 @@ static partial class ImporterProgram
 
     static int RunSelfTest(string repositoryRoot)
     {
+        TestAppFunctionAccessLevelMarkup(repositoryRoot);
         TestPreservedRemarksAndSourceGuards(repositoryRoot);
         TestReviewedSourceGuards(repositoryRoot);
         RunManagedSelfTest(repositoryRoot);
@@ -29827,16 +30012,29 @@ static partial class ImporterProgram
                 var constructorName = request.JavaPath.Split('/', '$').Last();
                 var isConstructor = name.Equals(constructorName, StringComparison.Ordinal);
                 var url = request.Url + "#" + anchor.Replace(" ", "%20", StringComparison.Ordinal);
+                var declaration = HtmlText(Regex.Match(fragment,
+                    @"<pre\b[^>]*class=""[^""]*\bapi-signature\b[^""]*""[^>]*>(?<declaration>.*?)</pre>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant).Groups["declaration"].Value);
+                var recoveredAccessLevel = false;
+                if (request.JavaPath == AppFunctionMetadataJavaPath &&
+                    request.Url == AppFunctionMetadataSourceUrl &&
+                    AppFunctionAccessLevelMarkup.SingleOrDefault(rule => rule.Field == name) is var rule &&
+                    rule.Field is not null && declaration == rule.Declaration &&
+                    HasAppFunctionAccessLevelCorroboration(html))
+                {
+                    fragment = RecoverAppFunctionAccessLevelMarkup(fragment, rule, out recoveredAccessLevel);
+                }
+                var docs = ExtractAndroidDocs(fragment, request, heading.Title, url);
+                if (docs is not null && recoveredAccessLevel)
+                    docs = docs with { HasRecoveredAppFunctionAccessLevelMarkup = true };
                 sections.Add(new SourceMember(
                     name,
                     isConstructor,
                     isField,
                     arguments,
-                    ExtractAndroidDocs(fragment, request, heading.Title, url),
+                    docs,
                     url,
-                    HtmlText(Regex.Match(fragment,
-                        @"<pre\b[^>]*class=""[^""]*\bapi-signature\b[^""]*""[^>]*>(?<declaration>.*?)</pre>",
-                        RegexOptions.Singleline | RegexOptions.CultureInvariant).Groups["declaration"].Value)));
+                    declaration));
             }
 
             return new SourcePage
@@ -29859,6 +30057,44 @@ static partial class ImporterProgram
                     .Select(match => match.Groups["field"].Value)
                     .ToHashSet(StringComparer.Ordinal),
             };
+        }
+
+        static bool HasAppFunctionAccessLevelCorroboration(string html)
+        {
+            string Section(string field) => Regex.Match(html,
+                @"<h3\b[^>]*id=""" + field + @"""[^>]*>.*?(?=<h3\b|<h2\b|$)",
+                RegexOptions.Singleline | RegexOptions.CultureInvariant).Value;
+            var property = Section("PROPERTY_ACCESS_LEVEL");
+            var self = Section("PROPERTY_VALUE_ACCESS_LEVEL_SELF");
+            return HtmlText(property).Contains(
+                    "Property name for the XML tag that defines the value of getAccessLevel().",
+                    StringComparison.Ordinal) &&
+                property.Contains("#getAccessLevel()", StringComparison.Ordinal) &&
+                HtmlText(self).Contains(
+                    "Property value for PROPERTY_ACCESS_LEVEL representing that the function is strictly restricted to the app itself.",
+                    StringComparison.Ordinal) &&
+                self.Contains("/reference/android/app/appfunctions/AppFunctionMetadata#PROPERTY_ACCESS_LEVEL", StringComparison.Ordinal);
+        }
+
+        static string RecoverAppFunctionAccessLevelMarkup(
+            string fragment,
+            (string Field, string Declaration, string Original, string Token, string Replacement) rule,
+            out bool recovered)
+        {
+            var candidates = Regex.Matches(fragment,
+                    @"<p\b[^>]*>(?<body>(?:(?!<p\b|</p\b).)*)(?=<p\b|</p\b)",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
+                .Where(match => !IsInsidePreformattedBlock(fragment, match.Index) &&
+                    HtmlText(match.Groups["body"].Value) == CleanSourceText(rule.Original) &&
+                    CountOccurrences(match.Groups["body"].Value, rule.Token) == 1)
+                .ToArray();
+            recovered = candidates.Length == 1;
+            if (!recovered)
+                return fragment;
+            var body = candidates[0].Groups["body"];
+            return fragment[..body.Index] +
+                body.Value.Replace(rule.Token, rule.Replacement, StringComparison.Ordinal) +
+                fragment[(body.Index + body.Length)..];
         }
 
         static SourceDocs? ExtractAndroidTypeDocs(string html, SourceRequest request)
@@ -31116,6 +31352,7 @@ static partial class ImporterProgram
         bool HasBiometricAllowedAuthenticatorsIncompleteDefaultList = false,
         IReadOnlyList<SourceRequest>? RepeatedContracts = null,
         bool HasJavaTextMessageFormatLink = false,
+        bool HasRecoveredAppFunctionAccessLevelMarkup = false,
         bool HasRecoveredSdkSandboxSurfaceLink = false);
 
     static class Descriptor

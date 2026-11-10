@@ -107,6 +107,18 @@ checks, protected text, change limits, BOM/newlines, and zero-write repeat runs.
 
 ### Exact reference matching
 
+The three `AppFunctionMetadata` access-level fields with malformed `ERROR(...)`
+links have a narrow reference repair. It requires the complete original lead
+paragraph, exact Java field declaration and canonical page, and the page's
+independent `PROPERTY_ACCESS_LEVEL` and `PROPERTY_VALUE_ACCESS_LEVEL_SELF`
+contracts. These establish the XML property link; the system value's literal
+permission identifies the malformed permission reference. The recovered text
+is used only for the exact registered managed fields and the matching projected
+`AppFunctionMetadataAccessLevel.System` enum value. Changed declarations, text,
+binding metadata, code-only copies, and missing corroboration do not enable the
+repair. Existing authored documentation is preserved. Registered tests exercise
+bounded offline applies and byte-identical persisted repeats.
+
 Seven exact `SdkSandboxManager` source declarations contain the broken
 `ERROR(/SurfacePackage)` link label. The importer can recover only that label,
 including its occurrence in the request's receiver parameter, when the complete
