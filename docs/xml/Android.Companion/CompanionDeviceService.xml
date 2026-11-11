@@ -111,8 +111,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates a companion device service.</summary>
+        <remarks>This class is abstract. Create a subclass, and declare it in the app manifest with the <c>android.permission.BIND_COMPANION_DEVICE_SERVICE</c> permission and an intent filter for the <see cref="F:Android.Companion.CompanionDeviceService.ServiceInterface" /> action. See the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/companion/CompanionDeviceService.java#L38">service documentation</a></format>.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -360,10 +360,15 @@
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="intent">The intent that was used to bind to this service.</param>
+        <summary>Returns the communication channel that the system uses to call this service.</summary>
+        <returns>The binder that the system uses to call this service, or <see langword="null" /> if the intent action is not <see cref="F:Android.Companion.CompanionDeviceService.ServiceInterface" />.</returns>
+        <remarks>
+          <para>This method is sealed. If the intent action is <see cref="F:Android.Companion.CompanionDeviceService.ServiceInterface" />, the method returns the binder that the system uses to call the service. For other actions, the method logs a warning and returns <see langword="null" />. See the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/companion/CompanionDeviceService.java#L312">service implementation</a></format>.</para>
+          <para>Note that unlike other application components, calls on to the IBinder interface returned here may not happen on the main thread of the process. More information about the main thread can be found in Processes and Threads.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/companion/CompanionDeviceService#onBind(android.content.Intent)" title="Reference documentation">Android reference for <code>android.companion.CompanionDeviceService.onBind</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnDeviceAppeared">
@@ -590,7 +595,7 @@
         <Parameter Name="e" Type="Android.Companion.DevicePresenceEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
+        <param name="e">The event that describes the presence change of the associated device.</param>
         <summary>Called by the system when an associated device's presence state changes.</summary>
         <remarks>
           <para>Called by the system when an associated device's presence state changes.</para>
