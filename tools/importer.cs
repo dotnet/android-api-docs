@@ -13,6 +13,16 @@ return await ImporterProgram.RunAsync(args);
 static partial class ImporterProgram
 {
     const string AndroidReference = "https://developer.android.com/reference/";
+    const string OdpInferenceParamsBuilderTypeId =
+        "T:Android.AdServices.OnDevicePersonalization.InferenceInput+Params+Builder";
+    const string OdpInferenceParamsBuilderJavaPath =
+        "android/adservices/ondevicepersonalization/InferenceInput$Params$Builder";
+    const string OdpInferenceParamsBuilderSourceUrl =
+        AndroidReference + "android/adservices/ondevicepersonalization/InferenceInput.Params.Builder";
+    const string OdpInferenceParamsBuilderDeprecation =
+        "This class was deprecated in API level 37. The ODP APIs are deprecated and will not be supported in future Android releases. " +
+        "There is no direct replacement API available. Developers currently integrated with these APIs must cease further integration efforts. " +
+        "For comprehensive details regarding this deprecation and the future roadmap of Privacy Sandbox on Android, please consult the official Privacy Sandbox developer documentation and announcements: https://privacysandbox.google.com";
     const string AppFunctionMetadataJavaPath = "android/app/appfunctions/AppFunctionMetadata";
     const string AppFunctionMetadataSourceUrl = AndroidReference + AppFunctionMetadataJavaPath;
     const string SslDNameJavaPath = "android/net/http/SslCertificate$DName";
@@ -2211,9 +2221,9 @@ static partial class ImporterProgram
                     "type_documentation_missing",
                     "The official page did not contain a usable declared-type description.",
                     owner.SourceRequest.Url);
-            return MappingResult.Success(
-                WithoutReviewedAndroidSourceChannels(owner.Id,
-                    WithoutUnsafeTrustPairingCallbackTypeRemarks(owner, page.TypeDocs)));
+            var typeDocs = WithoutReviewedAndroidSourceChannels(owner.Id,
+                WithoutUnsafeTrustPairingCallbackTypeRemarks(owner, page.TypeDocs));
+            return MappingResult.Success(WithVerifiedOdpInferenceParamsBuilderSummary(owner, page, typeDocs));
         }
 
         var registration = owner.MemberRegistration ??
@@ -2403,6 +2413,49 @@ static partial class ImporterProgram
         docs = WithoutUnsafeIcuNumberChannels(owner, docs);
         docs = WithVerifiedDevicePresenceEventParameterName(owner, registration, exact[0], docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    static SourceDocs WithVerifiedOdpInferenceParamsBuilderSummary(
+        DocsOwner owner, SourcePage page, SourceDocs docs)
+    {
+        var root = owner.Docs.Parent;
+        if (owner.Id != OdpInferenceParamsBuilderTypeId ||
+            owner.Member is not null || owner.IsEnumField ||
+            root is null || root.Name != "Type" ||
+            (string?)root.Attribute("Name") != "InferenceInput+Params+Builder" ||
+            (string?)root.Attribute("FullName") !=
+                "Android.AdServices.OnDevicePersonalization.InferenceInput+Params+Builder" ||
+            !IsMonoAndroidDeclaration(root) || !HasSingleAndroidRegistration(root) ||
+            Registration.Type(root) != OdpInferenceParamsBuilderJavaPath ||
+            root.Element("Base")?.Element("BaseTypeName")?.Value != "Java.Lang.Object" ||
+            !HasSingleSignature(root, "TypeSignature", "C#",
+                "public sealed class InferenceInput.Params.Builder : Java.Lang.Object") ||
+            !HasSingleSignature(root, "TypeSignature", "DocId",
+                "T:Android.AdServices.OnDevicePersonalization.InferenceInput.Params.Builder") ||
+            owner.SourceRequest is not
+            {
+                JavaPath: OdpInferenceParamsBuilderJavaPath,
+                Url: OdpInferenceParamsBuilderSourceUrl,
+                Kind: "android",
+            } ||
+            NormalizeText(page.TypeDeclaration) !=
+                "public static final class InferenceInput.Params.Builder extends Object" ||
+            docs.SourceKind != "android" || docs.SourceUrl != OdpInferenceParamsBuilderSourceUrl ||
+            docs.SourceLabel != "android.adservices.ondevicepersonalization.InferenceInput.Params.Builder" ||
+            docs.Summary != "This class was deprecated in API level 37." ||
+            docs.Paragraphs is not
+            [
+                { Text: OdpInferenceParamsBuilderDeprecation, IsCode: false },
+                { Text: "A builder for Params", IsCode: false },
+            ] ||
+            docs.Parameters.Count != 0 || docs.Returns.Length != 0 || docs.Exceptions.Count != 0 ||
+            docs.HasMalformedSourceMarkup || docs.UnsafeTargets is { Count: > 0 } ||
+            docs.WithheldRemarks is not null)
+        {
+            return docs;
+        }
+
+        return WithSemanticSummaryIfNecessary(docs);
     }
 
     // The binding generator renames the Java keyword parameter `event` to `e`.
@@ -13058,6 +13111,230 @@ static partial class ImporterProgram
             "Device.Builder.setUdi recovers only the verified prose paragraph when identical malformed text also appears in a parameter table");
     }
 
+    static void TestOdpInferenceParamsBuilderTypeSummary(string repositoryRoot, string fixtureRoot)
+    {
+        var fixture = File.ReadAllText(Path.Combine(
+            fixtureRoot, "odp-inference-params-builder-type.xml")).ReplaceLineEndings("\n");
+        var source = File.ReadAllText(Path.Combine(
+            fixtureRoot, "odp-inference-params-builder-android-reference.html")).ReplaceLineEndings("\n");
+        var request = SourceRequest.Create(OdpInferenceParamsBuilderJavaPath) ??
+            throw new InvalidOperationException("SELF-TEST FIXTURE: Missing ODP builder source route.");
+        const string placeholder = "<summary>To be added.</summary>";
+        const string description =
+            "<p>A builder for <code translate=\"no\" dir=\"ltr\"><a href=\"/reference/android/adservices/ondevicepersonalization/InferenceInput.Params\">Params</a></code></p>";
+        var directory = Path.Combine(repositoryRoot, "docs", "xml",
+            ".odp-type-summary-self-test-" + Guid.NewGuid().ToString("N"));
+        var cache = Path.Combine(directory, "cache");
+        var path = Path.Combine(directory, "InferenceInput+Params+Builder.xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            string ReplaceOne(string text, string original, string replacement)
+            {
+                var index = text.IndexOf(original, StringComparison.Ordinal);
+                Assert(index >= 0 && index == text.LastIndexOf(original, StringComparison.Ordinal),
+                    "ODP type-summary fixture mutation is unique");
+                return text.Replace(original, replacement, StringComparison.Ordinal);
+            }
+
+            void WriteFixture(string text, bool bom = false) =>
+                File.WriteAllText(path, text, new UTF8Encoding(bom));
+
+            void WriteSource(SourceRequest sourceRequest, string html) =>
+                File.WriteAllText(Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(sourceRequest.Url))).ToLowerInvariant() + ".html"),
+                    html, new UTF8Encoding(false));
+
+            JsonElement Run(bool apply, bool expectLayoutError = false)
+            {
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.AdServices.OnDevicePersonalization",
+                    "--member", OdpInferenceParamsBuilderTypeId, "--offline", "--cache", cache,
+                    "--max-changes", "1", "--report", Path.Combine(directory, "report"),
+                };
+                if (apply)
+                    args.Add("--apply");
+                var output = Console.Out;
+                using var captured = new StringWriter();
+                int exitCode;
+                try
+                {
+                    Console.SetOut(captured);
+                    exitCode = RunAsync(args.ToArray()).GetAwaiter().GetResult();
+                }
+                finally
+                {
+                    Console.SetOut(output);
+                }
+                var expectedErrors = expectLayoutError ? 1 : 0;
+                Assert(exitCode == expectedErrors, "ODP type-summary production invocation: " + captured);
+                using var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "report.json")));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == expectedErrors &&
+                    report.RootElement.GetProperty("sourcesFetched").GetInt32() == 0,
+                    "ODP type-summary production run is offline and reports the expected errors");
+                return report.RootElement.Clone();
+            }
+
+            JsonElement SummaryEntry(JsonElement report) =>
+                report.GetProperty("entries").EnumerateArray().Single(entry =>
+                    entry.GetProperty("target").GetString() == "summary");
+
+            WriteSource(request, source);
+            WriteFixture(fixture);
+            var file = LoadedFile.Load(repositoryRoot, path);
+            file.SelectOwners(OdpInferenceParamsBuilderTypeId);
+            var owner = file.Owners.Single();
+            var page = SourcePage.Parse(request, source);
+            var raw = page.TypeDocs ??
+                throw new InvalidOperationException("SELF-TEST FIXTURE: Missing ODP builder type docs.");
+            var mapping = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+            {
+                [request.Url] = SourceLoadResult.Success(page),
+            });
+            Assert(mapping.Docs?.Summary == "A builder for Params",
+                "ODP type-summary mapping selects the exact semantic source paragraph");
+            foreach (var target in new[] { "summary", "remarks" })
+            {
+                var withheld = raw with
+                {
+                    UnsafeTargets = new Dictionary<string, string> { [target] = "held" },
+                };
+                Assert(ReferenceEquals(WithVerifiedOdpInferenceParamsBuilderSummary(owner, page, withheld), withheld),
+                    "ODP type-summary selection preserves unsafe source channels");
+            }
+            var withheldRemarks = raw with { WithheldRemarks = raw.Paragraphs };
+            Assert(ReferenceEquals(
+                WithVerifiedOdpInferenceParamsBuilderSummary(owner, page, withheldRemarks), withheldRemarks),
+                "ODP type-summary selection preserves withheld remarks");
+
+            foreach (var newline in new[] { "\n", "\r\n" })
+            foreach (var bom in new[] { false, true })
+            {
+                var input = fixture.ReplaceLineEndings(newline);
+                WriteFixture(input, bom);
+                var before = File.ReadAllBytes(path);
+                var preview = Run(false);
+                var previewSummary = SummaryEntry(preview);
+                Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                    preview.GetProperty("sourcesFromCache").GetInt32() == 1 &&
+                    previewSummary.GetProperty("status").GetString() == "would_apply" &&
+                    previewSummary.GetProperty("reason").GetString() == "exact_structural_match" &&
+                    File.ReadAllBytes(path).SequenceEqual(before),
+                    "ODP type-summary preview selects one exact channel without writing");
+
+                var applied = Run(true);
+                var expected = ReplaceOne(input, placeholder, "<summary>A builder for Params</summary>");
+                var encoding = new UTF8Encoding(bom);
+                Assert(applied.GetProperty("appliedCount").GetInt32() == 1 &&
+                    SummaryEntry(applied).GetProperty("status").GetString() == "applied" &&
+                    File.ReadAllBytes(path).SequenceEqual(
+                        encoding.GetPreamble().Concat(encoding.GetBytes(expected))),
+                    "ODP type-summary bounded apply changes only the placeholder bytes");
+                var originalRemarks = XDocument.Parse(input, LoadOptions.PreserveWhitespace)
+                    .Root!.Element("Docs")!.Element("remarks")!;
+                _ = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+
+                var refreshed = Run(true);
+                var persisted = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+                var refreshedRemarks = persisted.Root!.Element("Docs")!.Element("remarks")!;
+                Assert(refreshed.GetProperty("appliedCount").GetInt32() == 1 &&
+                    originalRemarks.Elements().All(original =>
+                        refreshedRemarks.Elements().Any(current => XNode.DeepEquals(original, current))),
+                    "ODP type-summary deferred remarks refresh preserves original prose and metadata");
+                var refreshedBytes = File.ReadAllBytes(path);
+                var repeated = Run(true);
+                Assert(repeated.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(refreshedBytes),
+                    "ODP type-summary persisted repeat writes no bytes");
+            }
+
+            var protectedFixture = Regex.Replace(fixture, @"<remarks>.*?</remarks>",
+                "<remarks>Authored remarks.</remarks>", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+            Assert(protectedFixture != fixture && source.Contains(description, StringComparison.Ordinal),
+                "ODP type-summary fixtures retain the original placeholder and source paragraph");
+
+            void Reject(string name, string xml, string html, SourceRequest sourceRequest)
+            {
+                WriteFixture(xml);
+                WriteSource(sourceRequest, html);
+                var before = File.ReadAllBytes(path);
+                var report = Run(true);
+                var summary = SummaryEntry(report);
+                Assert(report.GetProperty("sourcesFromCache").GetInt32() == 1 &&
+                    report.GetProperty("appliedCount").GetInt32() == 0 &&
+                    summary.GetProperty("status").GetString() == "skipped" &&
+                    summary.GetProperty("reason").GetString() == "source_channel_not_meaningful" &&
+                    File.ReadAllBytes(path).SequenceEqual(before),
+                    $"ODP type-summary guard rejects {name} after loading its source");
+            }
+
+            Reject("a changed owner name", ReplaceOne(protectedFixture,
+                "Name=\"InferenceInput+Params+Builder\"", "Name=\"InferenceInput+Params+OtherBuilder\""),
+                source, request);
+            Reject("a changed managed signature", ReplaceOne(protectedFixture,
+                "public sealed class InferenceInput.Params.Builder : Java.Lang.Object",
+                "public class InferenceInput.Params.Builder : Java.Lang.Object"), source, request);
+            Reject("a changed DocId", ReplaceOne(protectedFixture,
+                "T:Android.AdServices.OnDevicePersonalization.InferenceInput.Params.Builder",
+                "T:Android.AdServices.OnDevicePersonalization.InferenceInput.Params.OtherBuilder"), source, request);
+            Reject("a changed assembly", ReplaceOne(protectedFixture,
+                "<AssemblyName>Mono.Android</AssemblyName>", "<AssemblyName>Other.Assembly</AssemblyName>"),
+                source, request);
+            Reject("a changed base type", ReplaceOne(protectedFixture,
+                "<BaseTypeName>Java.Lang.Object</BaseTypeName>",
+                "<BaseTypeName>Java.Lang.Throwable</BaseTypeName>"), source, request);
+
+            const string otherJavaPath =
+                "android/adservices/ondevicepersonalization/InferenceInput$Params$OtherBuilder";
+            var otherRequest = SourceRequest.Create(otherJavaPath) ??
+                throw new InvalidOperationException("SELF-TEST FIXTURE: Missing alternate ODP source route.");
+            var otherRegistration = protectedFixture.Replace(
+                OdpInferenceParamsBuilderJavaPath, otherJavaPath, StringComparison.Ordinal);
+            Assert(otherRegistration != protectedFixture, "ODP alternate registration mutation exists");
+            Reject("a changed registration", otherRegistration, source, otherRequest);
+
+            Reject("a changed source declaration", protectedFixture, ReplaceOne(source,
+                "\n  InferenceInput.Params.Builder\n", "\n  InferenceInput.Params.OtherBuilder\n"), request);
+            Reject("a changed deprecation paragraph", protectedFixture, ReplaceOne(source,
+                "future Android\n releases.", "future Android\n versions."), request);
+            Reject("a changed source description", protectedFixture, ReplaceOne(source,
+                "A builder for", "A different builder for"), request);
+            Reject("a deprecation-only source", protectedFixture,
+                ReplaceOne(source, description, ""), request);
+            Reject("a code-only description", protectedFixture,
+                ReplaceOne(source, description, "<pre>A builder for Params</pre>"), request);
+
+            WriteSource(request, source);
+            foreach (var (summary, expectLayoutError) in new[]
+            {
+                ("<summary>Authored summary.</summary>", false),
+                ("<summary data-authored=\"true\">Authored summary.</summary>", false),
+                ("<summary><![CDATA[To be added.]]></summary>", true),
+                ("<summary><!-- retained -->To be added.</summary>", true),
+            })
+            {
+                WriteFixture(ReplaceOne(protectedFixture, placeholder, summary));
+                var before = File.ReadAllBytes(path);
+                var report = Run(true, expectLayoutError);
+                Assert(report.GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(path).SequenceEqual(before),
+                    "ODP type-summary production path preserves authored and protected summaries");
+                if (expectLayoutError)
+                {
+                    var entry = SummaryEntry(report);
+                    Assert(entry.GetProperty("status").GetString() == "error" &&
+                        entry.GetProperty("reason").GetString() == "source_xml_layout_mismatch",
+                        "ODP type-summary production path reports protected XML layout");
+                }
+            }
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     static void TestTrustPairingCallbackTypeRemarks()
     {
         var request = SourceRequest.Create(TrustPairingCallbackJavaPath) ??
@@ -19382,6 +19659,7 @@ static partial class ImporterProgram
         TestMultisensoryDragTokenMarkup();
         TestImageDecoderDecodeDrawableWorkerThreadRecovery();
         TestDeviceBuilderSetUdiPermissionMarkup();
+        TestOdpInferenceParamsBuilderTypeSummary(repositoryRoot, fixtureRoot);
         TestTrustPairingCallbackTypeRemarks();
         TestTrustPairingCallbackWithdrawal(repositoryRoot);
         TestAuthenticationPolicyTrustPairingRemarks();
