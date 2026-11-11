@@ -67,9 +67,13 @@
         <ReturnType>Android.Icu.Number.NumberRangeFormatter+RangeIdentityFallback</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the fallback setting that uses an approximation for equal range endpoints.</summary>
+        <value>The approximation fallback, whether the endpoints were equal before rounding or became equal after rounding.</value>
+        <remarks>
+          <para>When both endpoints use the same formatter and have matching formatting fields, equal values use one number with the locale's approximation format. This includes inputs that were already equal before rounding. Unequal values still use a range.</para>
+          <para>If separate endpoint formatters are used, or their formatting fields do not match, the result remains a range.</para>
+          <para>These conditions follow the <format type="text/html"><a href="https://github.com/unicode-org/icu/blob/ba177f104da42d8a44b20d59e99d0c4b0073c789/icu4j/main/core/src/main/java/com/ibm/icu/number/NumberRangeFormatterImpl.java#L204-L288">ICU range-formatting implementation</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ApproximatelyOrSingleValue">
@@ -97,7 +101,7 @@
       </ReturnValue>
       <Docs>
         <summary>Show the number using a locale-sensitive approximation pattern.</summary>
-        <value>To be added.</value>
+        <value>The fallback choice that uses a single value for inputs equal before rounding, or an approximation for inputs equal only after rounding.</value>
         <remarks>
           <para>Show the number using a locale-sensitive approximation pattern. If the numbers were the same before rounding, show the single value. Example: "~$5" or "$5"</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/number/NumberRangeFormatter.RangeIdentityFallback#APPROXIMATELY_OR_SINGLE_VALUE" title="Reference documentation">Android reference for <code>android.icu.number.NumberRangeFormatter.RangeIdentityFallback.APPROXIMATELY_OR_SINGLE_VALUE</code>.</a></format></para>
@@ -169,7 +173,7 @@
       </ReturnValue>
       <Docs>
         <summary>Show the number as the range of two equal values.</summary>
-        <value>To be added.</value>
+        <value>The setting that retains both range endpoints even when their values are equal.</value>
         <remarks>
           <para>Show the number as the range of two equal values. Use the range pattern always, even if the inputs are the same. Example (with RangeCollapse.NONE): "$5 – $5"</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/number/NumberRangeFormatter.RangeIdentityFallback#RANGE" title="Reference documentation">Android reference for <code>android.icu.number.NumberRangeFormatter.RangeIdentityFallback.RANGE</code>.</a></format></para>
@@ -202,7 +206,7 @@
       </ReturnValue>
       <Docs>
         <summary>Show the number as a single value rather than a range.</summary>
-        <value>To be added.</value>
+        <value>The fallback choice that uses one value when the endpoints are equal after formatting.</value>
         <remarks>
           <para>Show the number as a single value rather than a range. Example: "$5"</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/number/NumberRangeFormatter.RangeIdentityFallback#SINGLE_VALUE" title="Reference documentation">Android reference for <code>android.icu.number.NumberRangeFormatter.RangeIdentityFallback.SINGLE_VALUE</code>.</a></format></para>

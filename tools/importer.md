@@ -107,12 +107,48 @@ checks, protected text, change limits, BOM/newlines, and zero-write repeat runs.
 
 ### Exact reference matching
 
+The three `AppFunctionMetadata` access-level fields with malformed `ERROR(...)`
+links have a narrow reference repair. It requires the complete original lead
+paragraph, exact Java field declaration and canonical page, and the page's
+independent `PROPERTY_ACCESS_LEVEL` and `PROPERTY_VALUE_ACCESS_LEVEL_SELF`
+contracts. These establish the XML property link; the system value's literal
+permission identifies the malformed permission reference. The recovered text
+is used only for the exact registered managed fields and the matching projected
+`AppFunctionMetadataAccessLevel.System` enum value. Changed declarations, text,
+binding metadata, code-only copies, and missing corroboration do not enable the
+repair. Existing authored documentation is preserved. Registered tests exercise
+bounded offline applies and byte-identical persisted repeats.
+
+Seven exact `SdkSandboxManager` source declarations contain the broken
+`ERROR(/SurfacePackage)` link label. The importer can recover only that label,
+including its occurrence in the request's receiver parameter, when the complete
+native HTML fragment matches its pinned SHA-256 and the managed/JNI binding
+matches. The Android 16 implementation imports
+`android.view.SurfaceControlViewHost.SurfacePackage`; no behavior is inferred
+from the broken site-root link. The fixtures in
+`tools/importer-fixtures/sdksandbox-source-fragments.txt` retain the complete
+native fragments as base64 with their hashes, from page SHA-256
+`d4773b93a9924e9a23be63232207d9345d123cbaed3240c395f037843d5910a5`.
+Changed declarations or provenance do not enable recovery, and future corrected
+reference text follows ordinary parsing. Registered offline tests cover bounded
+imports, parameter/prose separation, authored content, and persisted repeats.
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.
 Narrow source-verified mappings cover Java.Interop runtime members whose upstream
 implementation embeds an exact JNI member identifier and whose identity is also
 confirmed by sibling generated binding metadata.
+Eight TextClassifiers string properties map to their registered `Formatted`
+getters, following the pinned
+[string-property generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundPropertyStringVariant.cs).
+Five legacy `TextClassifier` fields use the official `TextClassifier` interface
+page rather than the managed compatibility class's internal Java registration.
+Focused self-tests compare every mapping with its canonical sibling registration
+and reject unlisted member identities. Runtime checks require the exact owner,
+assembly, managed signature, return type, and field or sibling getter registration;
+negative tests exercise changed metadata. These mappings do not supply missing prose
+or infer return documentation from a signature.
 Array-rank `JniTypeSignature` metadata is not mapped to its element type because
 Java API pages do not declare array wrapper types. It skips members with missing
 registrations, unknown type descriptors, overload mismatches, ambiguous matches,
@@ -606,6 +642,12 @@ enrichment, or repair can write, preserving existing authored and prior imported
 Docs unchanged. No replacement listener prose is inferred. Corrected or removed
 stale descriptions remain eligible, and unrelated Chooser members are unaffected.
 
+The `FetchAndJoinCustomAudienceRequest.Builder.setFetchUri(Uri)` reference has
+an extra `()}` after its correctly linked `getFetchUri()` label. Only the exact
+official owner, member URL, hyperlink, label and complete paragraph permit
+removal of that trailing token. Other malformed or changed references remain
+withheld. This rendering fix does not infer missing parameter or return prose.
+
 The `IkeProtocolErrorType.NoAdditionalSas` enum summary is skipped when its exact
 managed field, canonical `IkeProtocolException.ERROR_TYPE_NO_ADDITIONAL_SAS`
 Android URL, and complete source prose match `No additional SAa are acceptable`.
@@ -664,6 +706,27 @@ out-of-order content preserves the remarks verbatim. Eligible remarks are rebuil
 from the complete ordered visible source paragraphs and code blocks, rather than
 having text appended. Nested Android code-container markup for one physical
 sample is coalesced, while separate repeated visible blocks remain in order.
+
+For `FormattedNumber.appendTo(A)` and `FormattedNumberRange.appendTo(A)`, the
+Android anchor uses a type variable rather than its erased JNI type. A narrow
+mapping requires the exact managed signature, JNI `Appendable` descriptor,
+`A extends java.lang.Appendable` binding metadata, canonical source identity,
+and `public A appendTo (A appendable)` source declaration. No general type-variable
+guessing is added.
+
+Three ICU Number channels are withheld for exact known source defects:
+`getIdentityResult()` names the nonexistent `RangeIdentityType` in its value
+description and mistakes endpoint equality for proof that a display fallback
+was used; `UnitWidth.ISO_CODE` calls the alphabetic currency code three-digit;
+and `RangeIdentityFallback.APPROXIMATELY` contradicts its approximation pattern
+with an always-use-range instruction. Safe sibling channels remain eligible.
+These guards preserve authored text and accept future corrected source; they
+do not derive replacement prose from implementation code.
+The registered self-tests use hashed native declaration fragments in
+`tools/importer-fixtures/icu-number-source-fragments.txt`. They cover mapping
+and provenance nonmatches, corrected source, contextual contradictions,
+authored content, dry runs, bounded offline applies, byte preservation and
+zero-write repeats.
 
 Official pages are cached by URL hash. Network requests use a clear user agent,
 bounded concurrency, a size limit, and deterministic retry/backoff. `--offline`

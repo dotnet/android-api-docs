@@ -13,6 +13,21 @@ return await ImporterProgram.RunAsync(args);
 static partial class ImporterProgram
 {
     const string AndroidReference = "https://developer.android.com/reference/";
+    const string AppFunctionMetadataJavaPath = "android/app/appfunctions/AppFunctionMetadata";
+    const string AppFunctionMetadataSourceUrl = AndroidReference + AppFunctionMetadataJavaPath;
+    static readonly (string Field, string Declaration, string Original, string Token, string Replacement)[] AppFunctionAccessLevelMarkup =
+    [
+        ("ACCESS_LEVEL_SYSTEM", "public static final int ACCESS_LEVEL_SYSTEM",
+            "A constant indicating that the app function is accessible by holders of the ERROR(/android.Manifest.permission#EXECUTE_APP_FUNCTIONS_SYSTEM) permission.",
+            "ERROR(/android.Manifest.permission#EXECUTE_APP_FUNCTIONS_SYSTEM)",
+            "android.Manifest.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"),
+        ("PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED", "public static final String PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED",
+            "Property value for ERROR(/#PROPERTY_REQUIRED_ACCESS_LEVEL) representing that the function is accessible by any caller certified by Android that holds the Manifest.permission.EXECUTE_APP_FUNCTIONS permission.",
+            "ERROR(/#PROPERTY_REQUIRED_ACCESS_LEVEL)", "PROPERTY_ACCESS_LEVEL"),
+        ("PROPERTY_VALUE_ACCESS_LEVEL_SYSTEM", "public static final String PROPERTY_VALUE_ACCESS_LEVEL_SYSTEM",
+            "Property value for ERROR(/#PROPERTY_REQUIRED_ACCESS_LEVEL) representing that the function is accessible by holders of the \"android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM\" permission.",
+            "ERROR(/#PROPERTY_REQUIRED_ACCESS_LEVEL)", "PROPERTY_ACCESS_LEVEL"),
+    ];
     const string AudioBitRateIncompleteSummary =
         "A key representing the bitrate of the encoded stream used in If the stream is variable bitrate, this is the average bitrate of the stream.";
     const string AudioBitRateIncompleteParagraph =
@@ -2090,6 +2105,42 @@ static partial class ImporterProgram
             fullName.StartsWith(filter + "+", StringComparison.Ordinal);
     }
 
+    static bool MatchesAppFunctionAccessLevelBinding(DocsOwner owner, MemberRegistration registration)
+    {
+        if (owner.SourceRequest?.JavaPath != AppFunctionMetadataJavaPath ||
+            owner.SourceRequest.Url != AppFunctionMetadataSourceUrl ||
+            owner.Member is not { } member || !registration.IsField ||
+            member.Element("MemberType")?.Value != "Field" ||
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android")
+            return false;
+        (string id, string signature, string returnType, string? value) = registration.Name switch
+        {
+            "ACCESS_LEVEL_SYSTEM" when owner.IsEnumField =>
+                ("F:Android.App.AppFunctions.AppFunctionMetadataAccessLevel.System", "System",
+                    "Android.App.AppFunctions.AppFunctionMetadataAccessLevel", "200"),
+            "ACCESS_LEVEL_SYSTEM" =>
+                ("F:Android.App.AppFunctions.AppFunctionMetadata.AccessLevelSystem",
+                    "public const Android.App.AppFunctions.AppFunctionMetadataAccessLevel AccessLevelSystem = 200;",
+                    "Android.App.AppFunctions.AppFunctionMetadataAccessLevel", "200"),
+            "PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED" when !owner.IsEnumField =>
+                ("F:Android.App.AppFunctions.AppFunctionMetadata.PropertyValueAccessLevelAndroidTrusted",
+                    "public const string PropertyValueAccessLevelAndroidTrusted;",
+                    "System.String", null),
+            "PROPERTY_VALUE_ACCESS_LEVEL_SYSTEM" when !owner.IsEnumField =>
+                ("F:Android.App.AppFunctions.AppFunctionMetadata.PropertyValueAccessLevelSystem",
+                    "public const string PropertyValueAccessLevelSystem;",
+                    "System.String", null),
+            _ => ("", "", "", ""),
+        };
+        return id.Length > 0 && owner.Id == id &&
+            member.Elements("MemberSignature").SingleOrDefault(element =>
+                (string?)element.Attribute("Language") == "C#")?.Attribute("Value")?.Value == signature &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == returnType &&
+            member.Element("MemberValue")?.Value == value &&
+            (!owner.IsEnumField || Registration.JniField(member) ==
+                new JniFieldRegistration(AppFunctionMetadataJavaPath, "ACCESS_LEVEL_SYSTEM"));
+    }
+
     static MappingResult MapOwner(
         DocsOwner owner,
         IReadOnlyDictionary<string, SourceLoadResult> pages)
@@ -2153,12 +2204,24 @@ static partial class ImporterProgram
                     "source_documentation_empty",
                     "The exact source field had no usable prose.",
                     fields[0].Url);
+            if (fieldDocs.HasRecoveredAppFunctionAccessLevelMarkup &&
+                !MatchesAppFunctionAccessLevelBinding(owner, registration))
+                return MappingResult.Skip(
+                    "source_channel_ambiguous",
+                    "The recovered AppFunction access-level reference did not match the exact managed/JNI field contract.",
+                    fields[0].Url);
+            if (fieldDocs.HasRecoveredSdkSandboxSurfaceLink &&
+                !MatchesSdkSandboxSurfaceBinding(owner, registration, fieldDocs))
+                return MappingResult.Skip("source_channel_ambiguous",
+                    "The recovered SurfacePackage link did not match its verified SdkSandbox binding.",
+                    fieldDocs.SourceUrl);
             fieldDocs = WithoutKnownMalformedConversationAnniversary(owner, registration, fieldDocs);
             fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutReviewedAndroidSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeOobSecuritySource(owner, fieldDocs);
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
+            fieldDocs = WithoutUnsafeIcuNumberChannels(owner, fieldDocs);
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
                 WithKnownNfcContractSafety(owner, WithKnownAndroidTextCorrections(owner.Id, fieldDocs))));
         }
@@ -2178,7 +2241,8 @@ static partial class ImporterProgram
             .ToList();
         var exact = named
             .Where(member => member.ArgumentDescriptors is not null)
-            .Where(member => member.ArgumentDescriptors!.SequenceEqual(expectedArguments, StringComparer.Ordinal))
+            .Where(member => member.ArgumentDescriptors!.SequenceEqual(expectedArguments, StringComparer.Ordinal) ||
+                MatchesBoundedIcuAppendTo(owner, registration, member))
             .ToList();
 
         if (exact.Count > 1)
@@ -2203,6 +2267,11 @@ static partial class ImporterProgram
                 "source_documentation_empty",
                 "The exact source member had no usable prose.",
                 exact[0].Url);
+        if (docs.HasRecoveredSdkSandboxSurfaceLink &&
+            !MatchesSdkSandboxSurfaceBinding(owner, registration, docs))
+            return MappingResult.Skip("source_channel_ambiguous",
+                "The recovered SurfacePackage link did not match its verified SdkSandbox binding.",
+                docs.SourceUrl);
         if (docs.HasBiometricAllowedAuthenticatorsIncompleteDefaultList &&
             !MatchesIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs))
         {
@@ -2278,7 +2347,187 @@ static partial class ImporterProgram
         docs = WithoutUnsafeAuthenticationPolicyTrustPairingRemarks(owner, docs);
         docs = WithoutUnsafeVibrationEffectAddEventsRemarks(owner, docs);
         docs = WithoutIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs);
+        docs = WithoutUnsafeIcuNumberChannels(owner, docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    static bool MatchesBoundedIcuAppendTo(
+        DocsOwner owner, MemberRegistration registration, SourceMember source)
+    {
+        var type = owner.SourceRequest?.JavaPath.Split('/').Last();
+        return type is "FormattedNumber" or "FormattedNumberRange" &&
+            owner.SourceRequest?.JavaPath == "android/icu/number/" + type &&
+            owner.Id == $"M:Android.Icu.Number.{type}.AppendTo(Java.Lang.Object)" &&
+            registration is { Name: "appendTo", Descriptor: "(Ljava/lang/Appendable;)Ljava/lang/Appendable;", IsField: false } &&
+            owner.Member is { } member &&
+            member.Ancestors("Type").SingleOrDefault() is { } declaringType &&
+            Registration.Type(declaringType) == "android/icu/number/" + type &&
+            member.Element("MemberType")?.Value == "Method" &&
+            member.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "C#" &&
+                (string?)signature.Attribute("Value") == "public virtual Java.Lang.Object? AppendTo (Java.Lang.Object? appendable);") &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.Object" &&
+            member.Element("Parameters")?.Elements("Parameter").ToList() is [var parameter] &&
+            (string?)parameter.Attribute("Name") == "appendable" &&
+            (string?)parameter.Attribute("Type") == "Java.Lang.Object" &&
+            member.Descendants("AttributeName").Any(attribute =>
+                (string?)attribute.Attribute("Language") == "C#" &&
+                attribute.Value == "[Java.Interop.JavaTypeParameters(new System.String[] { \"A extends java.lang.Appendable\" })]") &&
+            source is { Name: "appendTo", IsConstructor: false, IsField: false } &&
+            source.ArgumentDescriptors?.SequenceEqual(["Ljava/lang/Object;"]) == true &&
+            source.Declaration == "public A appendTo (A appendable)" &&
+            source.Docs is { SourceKind: "android" } docs &&
+            docs.SourceUrl == $"https://developer.android.com/reference/android/icu/number/{type}#appendTo(A)" &&
+            docs.SourceLabel == $"android.icu.number.{type}.appendTo";
+    }
+
+    static SourceDocs WithoutUnsafeIcuNumberChannels(DocsOwner owner, SourceDocs docs)
+    {
+        if (docs.SourceKind != "android" || owner.Member is not { } member ||
+            owner.SourceRequest is not { } request ||
+            member.Ancestors("Type").SingleOrDefault() is not { } declaringType ||
+            Registration.Type(declaringType) != request.JavaPath)
+            return docs;
+
+        string[] targets;
+        string detail;
+        if (owner.Id == "P:Android.Icu.Number.FormattedNumberRange.IdentityResult" &&
+            owner.MemberRegistration is { Name: "getIdentityResult", Descriptor: "()Landroid/icu/number/NumberRangeFormatter$RangeIdentityResult;", IsField: false } &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Android.Icu.Number.NumberRangeFormatter+RangeIdentityResult" &&
+            docs.SourceUrl == "https://developer.android.com/reference/android/icu/number/FormattedNumberRange#getIdentityResult()" &&
+            docs.SourceLabel == "android.icu.number.FormattedNumberRange.getIdentityResult")
+        {
+            targets = docs.Returns == "A RangeIdentityType indicating the resulting identity situation in the formatted number range."
+                ? ["value"] : [];
+            if (docs.Paragraphs.Any(paragraph => paragraph is { IsCode: false,
+                Text: "Returns whether the pair of numbers was successfully formatted as a range or whether an identity fallback was used. For example, if the first and second number were the same either before or after rounding occurred, an identity fallback was used." }))
+                targets = [.. targets, "summary", "remarks"];
+            if (targets.Length == 0)
+                return docs;
+            detail = "The exact ICU description confuses endpoint equality with the selected display fallback, and its original return names RangeIdentityType instead of RangeIdentityResult; no replacement contract was inferred.";
+        }
+        else if (owner.Id == "P:Android.Icu.Number.NumberFormatter.UnitWidth.IsoCode" &&
+            owner.MemberRegistration is { Name: "ISO_CODE", IsField: true } &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Android.Icu.Number.NumberFormatter+UnitWidth" &&
+            docs.SourceUrl == "https://developer.android.com/reference/android/icu/number/NumberFormatter.UnitWidth#ISO_CODE" &&
+            docs.SourceLabel == "android.icu.number.NumberFormatter.UnitWidth.ISO_CODE" &&
+            docs.Paragraphs.Any(paragraph => paragraph is { IsCode: false,
+                Text: "Use the three-digit ISO XXX code in place of the symbol for displaying currencies." }))
+        {
+            targets = ["summary", "remarks"];
+            detail = "The exact ICU description calls the alphabetic currency code three-digit; numeric ISO codes are a separate representation.";
+        }
+        else if (owner.Id == "P:Android.Icu.Number.NumberRangeFormatter.RangeIdentityFallback.Approximately" &&
+            owner.MemberRegistration is { Name: "APPROXIMATELY", IsField: true } &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Android.Icu.Number.NumberRangeFormatter+RangeIdentityFallback" &&
+            docs.SourceUrl == "https://developer.android.com/reference/android/icu/number/NumberRangeFormatter.RangeIdentityFallback#APPROXIMATELY" &&
+            docs.SourceLabel == "android.icu.number.NumberRangeFormatter.RangeIdentityFallback.APPROXIMATELY" &&
+            docs.Paragraphs.Any(paragraph => paragraph is { IsCode: false,
+                Text: "Show the number using a locale-sensitive approximation pattern. Use the range pattern always, even if the inputs are the same. Example: \"~$5\"" }))
+        {
+            targets = ["summary", "remarks"];
+            detail = "The exact ICU approximation description contradicts itself by requiring the range pattern for equal inputs; no corrected contract was inferred.";
+        }
+        else
+        {
+            return docs;
+        }
+
+        var unsafeTargets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        foreach (var target in targets)
+            unsafeTargets[target] = detail;
+        return docs with
+        {
+            UnsafeTargets = unsafeTargets,
+            WithheldRemarks = targets.Contains("remarks") ? docs.Paragraphs : docs.WithheldRemarks,
+        };
+    }
+
+    const string SdkSandboxManagerJavaPath = "android/app/sdksandbox/SdkSandboxManager";
+    const string SdkSandboxSurfaceError = "ERROR(/SurfacePackage)";
+    static readonly Dictionary<string, string> SdkSandboxSurfaceFragmentHashes = new(StringComparer.Ordinal)
+    {
+        ["EXTRA_DISPLAY_ID"] = "41f88a00add4747f95ec62bd2b4a56d4016c123a4cd746d0e587794c638a766e",
+        ["EXTRA_HEIGHT_IN_PIXELS"] = "2c4a7e96ae72febd3cf3a9503dcd3d2c49f70fd9a6b61466b38a5fd772135f0f",
+        ["EXTRA_SURFACE_PACKAGE"] = "c50cb4f444f2736dfb0bd398ee863524ba9861ad4f23c0d40ee1a72a72c62eb2",
+        ["EXTRA_WIDTH_IN_PIXELS"] = "2804609d63fb186cfcc676eced457f762355701469a717bcd2aef1a62a335ba4",
+        ["REQUEST_SURFACE_PACKAGE_INTERNAL_ERROR"] = "467e773c0e9f618be32bc4feadd7184c1a2b44ce6761aaf63a0326869599f544",
+        ["REQUEST_SURFACE_PACKAGE_SDK_NOT_LOADED"] = "e2e8fbdab108bcd5ce101e64a5dd815c8f5432e09f17865765910bc5d20ac861",
+        ["requestSurfacePackage"] = "3d202b17b83f19419df04dbb223c80f0db43f113ab6031b21b1501307c4ddc99",
+    };
+
+    static string RecoverSdkSandboxSurfaceLink(
+        string fragment, SourceRequest request, string title, out bool recovered)
+    {
+        recovered = request.Kind == "android" &&
+            request.JavaPath == SdkSandboxManagerJavaPath &&
+            request.Url == AndroidReference + SdkSandboxManagerJavaPath &&
+            SdkSandboxSurfaceFragmentHashes.TryGetValue(title, out var expectedHash) &&
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(fragment)))
+                .Equals(expectedHash, StringComparison.OrdinalIgnoreCase);
+        // Android 16 imports SurfaceControlViewHost.SurfacePackage; the reference lost only its link.
+        return recovered
+            ? fragment.Replace(SdkSandboxSurfaceError, "SurfacePackage", StringComparison.Ordinal)
+            : fragment;
+    }
+
+    static bool MatchesSdkSandboxSurfaceBinding(
+        DocsOwner owner, MemberRegistration registration, SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        if (member is null || type is null ||
+            type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            owner.SourceRequest?.JavaPath != SdkSandboxManagerJavaPath ||
+            docs.SourceKind != "android" ||
+            docs.SourceLabel != "android.app.sdksandbox.SdkSandboxManager." + registration.Name)
+            return false;
+        if (registration.Name == "requestSurfacePackage")
+        {
+            return registration == new MemberRegistration("requestSurfacePackage",
+                    "(Ljava/lang/String;Landroid/os/Bundle;Ljava/util/concurrent/Executor;Landroid/os/OutcomeReceiver;)V", false) &&
+                (string?)type.Attribute("FullName") == "Android.App.SdkSandbox.SdkSandboxManager" &&
+                member.Element("MemberType")?.Value == "Method" &&
+                owner.Id == "M:Android.App.SdkSandbox.SdkSandboxManager.RequestSurfacePackage(System.String,Android.OS.Bundle,Java.Util.Concurrent.IExecutor,Android.OS.IOutcomeReceiver)" &&
+                docs.SourceUrl == AndroidReference + SdkSandboxManagerJavaPath +
+                    "#requestSurfacePackage(java.lang.String,%20android.os.Bundle,%20java.util.concurrent.Executor,%20android.os.OutcomeReceiver<android.os.Bundle,android.app.sdksandbox.RequestSurfacePackageException>)" &&
+                HasSingleSignature(member, "MemberSignature", "C#",
+                    "public void RequestSurfacePackage (string sdkName, Android.OS.Bundle params, Java.Util.Concurrent.IExecutor callbackExecutor, Android.OS.IOutcomeReceiver receiver);") &&
+                member.Element("ReturnValue")?.Element("ReturnType")?.Value == "System.Void" &&
+                (member.Element("Parameters")?.Elements("Parameter") ?? []).Select(parameter =>
+                    ((string?)parameter.Attribute("Name"), (string?)parameter.Attribute("Type"))).SequenceEqual(
+                    [("sdkName", "System.String"), ("params", "Android.OS.Bundle"),
+                        ("callbackExecutor", "Java.Util.Concurrent.IExecutor"), ("receiver", "Android.OS.IOutcomeReceiver")]);
+        }
+        if (!registration.IsField || docs.SourceUrl != AndroidReference + SdkSandboxManagerJavaPath + "#" + registration.Name)
+            return false;
+        var name = registration.Name switch
+        {
+            "EXTRA_DISPLAY_ID" => "ExtraDisplayId",
+            "EXTRA_HEIGHT_IN_PIXELS" => "ExtraHeightInPixels",
+            "EXTRA_SURFACE_PACKAGE" => "ExtraSurfacePackage",
+            "EXTRA_WIDTH_IN_PIXELS" => "ExtraWidthInPixels",
+            "REQUEST_SURFACE_PACKAGE_INTERNAL_ERROR" => owner.IsEnumField ? "InternalError" : "RequestSurfacePackageInternalError",
+            "REQUEST_SURFACE_PACKAGE_SDK_NOT_LOADED" => owner.IsEnumField ? "SdkNotLoaded" : "RequestSurfacePackageSdkNotLoaded",
+            _ => "",
+        };
+        var error = registration.Name.StartsWith("REQUEST_", StringComparison.Ordinal);
+        var containingType = owner.IsEnumField
+            ? "Android.App.SdkSandbox.RequestSurfacePackageErrorCode"
+            : "Android.App.SdkSandbox.SdkSandboxManager";
+        var value = registration.Name == "REQUEST_SURFACE_PACKAGE_INTERNAL_ERROR" ? "700" : "701";
+        var returnType = error ? "Android.App.SdkSandbox.RequestSurfacePackageErrorCode" : "System.String";
+        return name.Length > 0 &&
+            (string?)type.Attribute("FullName") == containingType &&
+            member.Element("MemberType")?.Value == "Field" &&
+            owner.Id == $"F:{containingType}.{name}" &&
+            HasSingleSignature(member, "MemberSignature", "C#", owner.IsEnumField
+                ? name : error ? $"public const {returnType} {name} = {value};" : $"public const string {name};") &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == returnType &&
+            (!error || member.Element("MemberValue")?.Value == value);
     }
 
     static SourceDocs WithoutIncompleteBiometricAllowedAuthenticatorsRemarks(
@@ -17458,8 +17707,435 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestIcuNumberContracts(string repositoryRoot)
+    {
+        var fragments = File.ReadAllLines(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "icu-number-source-fragments.txt")).Select(line => line.Split('|'))
+            .ToDictionary(parts => parts[0], parts =>
+            {
+                var bytes = Convert.FromBase64String(parts[2]);
+                Assert(Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant() == parts[1],
+                    "ICU native declaration fixture hash");
+                return Encoding.UTF8.GetString(bytes);
+            }, StringComparer.Ordinal);
+        var directory = Path.Combine(repositoryRoot, "docs", "xml", "Android.Icu.Number",
+            "importer-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        try
+        {
+            foreach (var test in new[]
+            {
+                (File: "FormattedNumber", Member: "AppendTo", Fragment: "FormattedNumber", Changes: 4, Unsafe: 0),
+                (File: "FormattedNumberRange", Member: "AppendTo", Fragment: "FormattedNumberRange-append", Changes: 4, Unsafe: 0),
+                (File: "FormattedNumberRange", Member: "IdentityResult", Fragment: "FormattedNumberRange", Changes: 0, Unsafe: 3),
+                (File: "NumberFormatter+UnitWidth", Member: "IsoCode", Fragment: "NumberFormatter.UnitWidth", Changes: 0, Unsafe: 2),
+                (File: "NumberRangeFormatter+RangeIdentityFallback", Member: "Approximately", Fragment: "NumberRangeFormatter.RangeIdentityFallback", Changes: 0, Unsafe: 2),
+            })
+            {
+                var root = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Android.Icu.Number",
+                    test.File + ".xml"), LoadOptions.PreserveWhitespace);
+                var member = new XElement(root.Element("Members")!.Elements("Member")
+                    .Single(item => (string?)item.Attribute("MemberName") == test.Member));
+                root.Element("Members")!.ReplaceNodes(member);
+                var channels = new List<XElement> { new("summary", "To be added.") };
+                channels.AddRange(member.Element("Parameters")?.Elements("Parameter").Select(parameter =>
+                    new XElement("param", new XAttribute("name", parameter.Attribute("Name")!.Value),
+                        "To be added.")) ?? []);
+                channels.Add(new XElement(test.Member == "AppendTo" ? "returns" : "value", "To be added."));
+                channels.Add(new XElement("remarks", new XElement("para", "To be added.")));
+                member.Element("Docs")!.ReplaceNodes(channels);
+                var path = Path.Combine(directory, test.File + ".xml");
+                File.WriteAllText(path, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(test.Member);
+                var owner = file.Owners.Single();
+                var request = owner.SourceRequest!;
+                var html = fragments[test.Fragment];
+                var page = SourcePage.Parse(request, html);
+                var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                };
+                var mapping = MapOwner(owner, pages);
+                Assert(mapping.Docs is not null &&
+                    (mapping.Docs.UnsafeTargets?.Count ?? 0) == test.Unsafe,
+                    "ICU exact native source maps and excludes only the defective channels");
+                if (test.Member == "AppendTo")
+                {
+                    Assert(mapping.Docs!.Returns == "The same Appendable, for chaining." &&
+                        mapping.Docs.Parameters["appendable"].Contains(
+                            "The Appendable to which to append the string output.", StringComparison.Ordinal),
+                        "ICU bounded append mapping retains official parameter and return text");
+                    var changedRoot = new XElement(member.Ancestors("Type").Single());
+                    var changed = changedRoot.Element("Members")!.Elements("Member").Single();
+                    var bound = changed.Descendants("AttributeName").Single(attribute =>
+                        (string?)attribute.Attribute("Language") == "C#" &&
+                        attribute.Value.Contains("A extends java.lang.Appendable", StringComparison.Ordinal));
+                    bound.Value = bound.Value.Replace("java.lang.Appendable", "java.lang.Object", StringComparison.Ordinal);
+                    Assert(MapOwner(owner with { Member = changed }, pages).ErrorReason == "overload_signature_mismatch",
+                        "ICU append rejects changed bound metadata");
+                    Assert(!MatchesBoundedIcuAppendTo(owner, owner.MemberRegistration!, page.Members.Single() with
+                        { Declaration = "public A appendTo (A different)" }),
+                        "ICU append rejects changed official declaration");
+                    Assert(MapOwner(owner with { Id = owner.Id + ".Other" }, pages).ErrorReason == "overload_signature_mismatch",
+                        "ICU append is not a name-based mapping");
+                }
+                else
+                {
+                    var raw = page.Members.Single().Docs!;
+                    Assert(WithoutUnsafeIcuNumberChannels(owner with { Id = owner.Id + ".Other" }, raw).UnsafeTargets is null &&
+                        WithoutUnsafeIcuNumberChannels(owner, raw with { SourceUrl = request.Url + "#other" }).UnsafeTargets is null &&
+                        WithoutUnsafeIcuNumberChannels(owner, raw with { SourceKind = "java" }).UnsafeTargets is null,
+                        "ICU exclusions require exact managed and source identities");
+                    var corrected = raw with
+                    {
+                        Returns = "The identity result.",
+                        Summary = "Corrected official description.",
+                        Paragraphs = [new("Corrected official description.", false)],
+                    };
+                    Assert(WithoutUnsafeIcuNumberChannels(owner, corrected).UnsafeTargets is null,
+                        "ICU corrected future source remains eligible");
+                    {
+                        var contextual = raw with
+                        {
+                            Summary = "Additional safe context.",
+                            Paragraphs = [new("Additional safe context.", false), .. raw.Paragraphs],
+                        };
+                        Assert(WithoutUnsafeIcuNumberChannels(owner, contextual).UnsafeTargets?.Count == test.Unsafe,
+                            "ICU added safe context cannot hide a contradictory paragraph");
+                        Assert(WithoutUnsafeIcuNumberChannels(owner, raw with
+                        {
+                            Paragraphs = raw.Paragraphs.Select(paragraph => paragraph with { IsCode = true }).ToList(),
+                        }).UnsafeTargets?.Count == (test.Member == "IdentityResult" ? 1 : null),
+                            "ICU code-only lookalikes are not excluded as prose");
+                    }
+                }
+                var cachePath = Path.Combine(directory, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                var report = Path.Combine(directory, "report");
+                int Run(bool apply) => RunAsync([
+                    "--path", path, "--member", owner.Id, "--cache", directory, "--offline",
+                    "--max-changes", "10", "--report", report,
+                    .. (apply ? new[] { "--apply" } : Array.Empty<string>()),
+                ]).GetAwaiter().GetResult();
+                int Count(string name)
+                {
+                    using var document = JsonDocument.Parse(File.ReadAllText(report + ".json"));
+                    Assert(document.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "ICU production report has no errors");
+                    return document.RootElement.GetProperty(name).GetInt32();
+                }
+                var before = File.ReadAllBytes(path);
+                Assert(Run(false) == 0 && Count("wouldApplyCount") == test.Changes &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), "ICU dry run has exact count and no writes");
+                Assert(Run(true) == 0 && Count("appliedCount") == test.Changes,
+                    "ICU scoped production apply has exact count");
+                var after = LoadedFile.Load(repositoryRoot, path);
+                string OutsideDocs(LoadedFile loaded)
+                {
+                    loaded.SelectOwners(test.Member);
+                    var block = loaded.DocsBlocks[loaded.Owners.Single().Order];
+                    return loaded.Text[..block.Start] + loaded.Text[block.End..];
+                }
+                Assert(after.HasUtf8Bom && OutsideDocs(file) == OutsideDocs(after),
+                    "ICU production apply preserves every byte outside the selected Docs and the BOM");
+                var bytes = File.ReadAllBytes(path);
+                Assert(Run(true) == 0 && Count("appliedCount") == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "ICU production repeat has zero writes");
+                member.Element("Docs")!.ReplaceNodes(new XElement("summary", new XElement("c", "Authored summary")),
+                    new XElement("remarks", "Authored details."), new XElement("value", "Authored value."),
+                    new XElement("returns", "Authored return."), new XElement("param",
+                        new XAttribute("name", "appendable"), "Authored parameter."));
+                File.WriteAllText(path, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                before = File.ReadAllBytes(path);
+                Assert(Run(true) == 0 && Count("appliedCount") == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), "ICU authored documentation is byte-preserved");
+            }
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    static void TestAppFunctionAccessLevelMarkup(string repositoryRoot)
+    {
+        const string corroboration = """
+            <h3 class="api-name" id="PROPERTY_ACCESS_LEVEL">PROPERTY_ACCESS_LEVEL</h3>
+            <pre class="api-signature">public static final String PROPERTY_ACCESS_LEVEL</pre>
+            <p>Property name for the XML tag that defines the value of <a href="#getAccessLevel()">getAccessLevel()</a>.</p>
+            <h3 class="api-name" id="PROPERTY_VALUE_ACCESS_LEVEL_SELF">PROPERTY_VALUE_ACCESS_LEVEL_SELF</h3>
+            <pre class="api-signature">public static final String PROPERTY_VALUE_ACCESS_LEVEL_SELF</pre>
+            <p>Property value for <a href="/reference/android/app/appfunctions/AppFunctionMetadata#PROPERTY_ACCESS_LEVEL">PROPERTY_ACCESS_LEVEL</a> representing that the function is strictly restricted to the app itself.</p>
+            """;
+        var request = SourceRequest.Create(AppFunctionMetadataJavaPath)!;
+        var token = "appfunctions-markup-" + Guid.NewGuid().ToString("N");
+        var temp = Path.Combine(repositoryRoot, "artifacts", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.App.AppFunctions", token + ".xml");
+        Directory.CreateDirectory(temp);
+        try
+        {
+            foreach (var (fileName, memberName, ruleIndex) in new[]
+            {
+                ("AppFunctionMetadata.xml", "AccessLevelSystem", 0),
+                ("AppFunctionMetadata.xml", "PropertyValueAccessLevelAndroidTrusted", 1),
+                ("AppFunctionMetadata.xml", "PropertyValueAccessLevelSystem", 2),
+                ("AppFunctionMetadataAccessLevel.xml", "System", 0),
+            })
+            {
+                var rule = AppFunctionAccessLevelMarkup[ruleIndex];
+                var document = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml",
+                    "Android.App.AppFunctions", fileName));
+                var member = document.Element("Members")!.Elements("Member").Single(item =>
+                    (string?)item.Attribute("MemberName") == memberName);
+                document.Element("Members")!.ReplaceNodes(new XElement(member));
+                member = document.Element("Members")!.Element("Member")!;
+                var enumField = fileName.Contains("AccessLevel.xml", StringComparison.Ordinal);
+                member.Element("Docs")!.ReplaceWith(new XElement("Docs",
+                    new XElement("summary", "To be added."),
+                    enumField ? null : new XElement("remarks", "To be added.")));
+                var html = $"""
+                    <h3 class="api-name" id="{rule.Field}">{rule.Field}</h3>
+                    <pre class="api-signature">{rule.Declaration}</pre>
+                    <p>{WebUtility.HtmlEncode(rule.Original)}</p>
+                    <p>Includes access for: ACCESS_LEVEL_SELF.</p>
+                    {corroboration}
+                    <h2 class="api-section" id="summary"></h2>
+                    """;
+                void Write(XElement input) => File.WriteAllText(path,
+                    input.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                Write(document);
+                var loaded = LoadedFile.Load(repositoryRoot, path);
+                loaded.SelectOwners(null);
+                var owner = loaded.Owners.Single(item => item.Member is not null);
+                MappingResult Map(DocsOwner candidate, string source) => MapOwner(candidate,
+                    new Dictionary<string, SourceLoadResult>
+                    {
+                        [candidate.SourceRequest!.Url] = SourceLoadResult.Success(
+                            SourcePage.Parse(candidate.SourceRequest, source)),
+                    });
+                var mapped = Map(owner, html);
+                Assert(mapped.Docs is { HasRecoveredAppFunctionAccessLevelMarkup: true } &&
+                    mapped.Docs.Paragraphs[0].Text ==
+                        rule.Original.Replace(rule.Token, rule.Replacement, StringComparison.Ordinal) &&
+                    mapped.Docs.Paragraphs[1].Text == "Includes access for: ACCESS_LEVEL_SELF.",
+                    "exact AppFunction field recovery retains the complete lead and following paragraph: " +
+                    memberName + " " + mapped.ErrorReason + " " +
+                    string.Join(" | ", mapped.Docs?.Paragraphs.Select(paragraph => paragraph.Text) ?? []));
+                foreach (var changed in new[]
+                {
+                    owner with { Id = owner.Id + ".Other" },
+                    owner with { SourceRequest = SourceRequest.Create("android/app/appfunctions/OtherMetadata")! },
+                    owner with { MemberRegistration = owner.MemberRegistration! with { Name = "OTHER_FIELD" } },
+                })
+                {
+                    Assert(Map(changed, html).Docs?.HasRecoveredAppFunctionAccessLevelMarkup != true,
+                        "AppFunction recovery rejects other managed/JNI owners and fields");
+                }
+                var wrongType = new XElement(owner.Member!);
+                wrongType.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object";
+                Assert(Map(owner with { Member = wrongType }, html).Docs is null,
+                    "AppFunction recovered prose requires the exact managed return type");
+                foreach (var changed in new[]
+                {
+                    html.Replace(rule.Declaration, rule.Declaration + "Changed", StringComparison.Ordinal),
+                    html.Replace("accessible", "available", StringComparison.Ordinal),
+                    html.Replace(corroboration, "", StringComparison.Ordinal),
+                    html.Replace($"<p>{WebUtility.HtmlEncode(rule.Original)}</p>",
+                        $"<pre>{WebUtility.HtmlEncode(rule.Original)}</pre>", StringComparison.Ordinal),
+                })
+                {
+                    Assert(Map(owner, changed).Docs?.HasRecoveredAppFunctionAccessLevelMarkup != true,
+                        "AppFunction recovery does not rewrite changed, uncorroborated or code-only source");
+                }
+                var corrected = html.Replace(rule.Token, rule.Replacement, StringComparison.Ordinal);
+                Assert(Map(owner, corrected).Docs is { HasRecoveredAppFunctionAccessLevelMarkup: false },
+                    "future corrected AppFunction source remains eligible without recovery");
+                var cache = Path.Combine(temp, Convert.ToHexString(
+                    SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                File.WriteAllText(cache, html);
+                var reportPath = Path.Combine(temp, "report");
+                int Apply() => RunAsync(["--path", path, "--namespace", "Android.App.AppFunctions",
+                    "--member", memberName, "--offline", "--cache", temp, "--max-changes", "2",
+                    "--apply", "--report", reportPath]).GetAwaiter().GetResult();
+                Assert(Apply() == 0, "bounded AppFunction production apply succeeds");
+                using (var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json")))
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == (enumField ? 1 : 2),
+                        "AppFunction apply fills only the selected field channels");
+                var applied = File.ReadAllBytes(path);
+                Assert(!File.ReadAllText(path).Contains("ERROR(", StringComparison.Ordinal),
+                    "AppFunction production output contains no malformed references");
+                Assert(Apply() == 0 && File.ReadAllBytes(path).SequenceEqual(applied),
+                    "persisted AppFunction repeat is byte-identical");
+                var authored = new XElement(document);
+                authored.Element("Members")!.Element("Member")!.Element("Docs")!.ReplaceNodes(
+                    new XElement("summary", new XElement("c", "Authored summary.")),
+                    new XElement("remarks", new XElement("para", "Authored remarks.")));
+                Write(authored);
+                var protectedBytes = File.ReadAllBytes(path);
+                Assert(Apply() == 0 && File.ReadAllBytes(path).SequenceEqual(protectedBytes),
+                    "AppFunction recovery preserves authored mixed documentation");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temp, recursive: true);
+        }
+    }
+
+    static void TestSdkSandboxSurfaceLinks(string repositoryRoot)
+    {
+        var fixturePath = Path.Combine(repositoryRoot, "tools", "importer-fixtures", "sdksandbox-source-fragments.txt");
+        var temp = Path.Combine(Path.GetTempPath(), $"sdksandbox-source-{Guid.NewGuid():N}");
+        var cache = Path.Combine(temp, "cache");
+        Directory.CreateDirectory(cache);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.App.SdkSandbox",
+            $"sdksandbox-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}.xml");
+        try
+        {
+            foreach (var line in File.ReadLines(fixturePath))
+            {
+                var parts = line.Split('|');
+                var html = Encoding.UTF8.GetString(Convert.FromBase64String(parts[2]));
+                Assert(Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(html)))
+                    .Equals(parts[1], StringComparison.OrdinalIgnoreCase), "SdkSandbox native fixture hash");
+                var error = parts[0].StartsWith("REQUEST_", StringComparison.Ordinal);
+                var managedName = parts[0] switch
+                {
+                    "EXTRA_DISPLAY_ID" => "ExtraDisplayId",
+                    "EXTRA_HEIGHT_IN_PIXELS" => "ExtraHeightInPixels",
+                    "EXTRA_SURFACE_PACKAGE" => "ExtraSurfacePackage",
+                    "EXTRA_WIDTH_IN_PIXELS" => "ExtraWidthInPixels",
+                    "REQUEST_SURFACE_PACKAGE_INTERNAL_ERROR" => "InternalError",
+                    "REQUEST_SURFACE_PACKAGE_SDK_NOT_LOADED" => "SdkNotLoaded",
+                    _ => "RequestSurfacePackage",
+                };
+                var loaded = LoadedFile.Load(repositoryRoot, Path.Combine(repositoryRoot, "docs", "xml",
+                    "Android.App.SdkSandbox", error ? "RequestSurfacePackageErrorCode.xml" : "SdkSandboxManager.xml"));
+                loaded.SelectOwners(managedName);
+                var owner = loaded.Owners.Single(candidate =>
+                    (string?)candidate.Member?.Attribute("MemberName") == managedName);
+                var request = owner.SourceRequest!;
+                var page = SourcePage.Parse(request, html);
+                var source = page.Members.Single().Docs!;
+                Assert(source.HasRecoveredSdkSandboxSurfaceLink &&
+                    MatchesSdkSandboxSurfaceBinding(owner, owner.MemberRegistration!, source),
+                    "SdkSandbox exact native fragment and actual registered binding recover the link");
+                Assert(!string.Join(" ", source.Paragraphs.Select(paragraph => paragraph.Text)
+                    .Concat(source.Parameters.Values)).Contains("ERROR(", StringComparison.Ordinal),
+                    "SdkSandbox recovery includes parameter channels, not only prose");
+                if (managedName == "RequestSurfacePackage")
+                {
+                    Assert(source.Paragraphs.Any(paragraph => paragraph.Text.Contains(
+                        "associated value is the requested SurfacePackage.", StringComparison.Ordinal)) &&
+                        source.Paragraphs.Any(paragraph => paragraph.Text.Contains(
+                            "SdkSandboxManager.EXTRA_HOST_TOKEN", StringComparison.Ordinal)) &&
+                        source.Parameters["receiver"].Contains("SurfacePackage value", StringComparison.Ordinal),
+                        "SdkSandbox retains success delivery, all required keys and receiver contract");
+                }
+                foreach (var changed in new[]
+                {
+                    html + "\n",
+                    html.Replace("public ", "private ", StringComparison.Ordinal),
+                })
+                {
+                    Assert(SourcePage.Parse(request, changed).Members.Single().Docs?
+                        .HasRecoveredSdkSandboxSurfaceLink != true, "SdkSandbox changed native declaration is not recovered");
+                }
+                Assert(SourcePage.Parse(request with { Url = request.Url + ".Other" }, html)
+                    .Members.Single().Docs?.HasRecoveredSdkSandboxSurfaceLink != true,
+                    "SdkSandbox recovery requires canonical source provenance");
+                var corrected = SourcePage.Parse(request,
+                    html.Replace(SdkSandboxSurfaceError, "SurfacePackage", StringComparison.Ordinal)).Members.Single().Docs!;
+                Assert(!corrected.HasRecoveredSdkSandboxSurfaceLink &&
+                    corrected.Paragraphs.SequenceEqual(source.Paragraphs) &&
+                    corrected.Parameters.OrderBy(pair => pair.Key).SequenceEqual(source.Parameters.OrderBy(pair => pair.Key)),
+                    "SdkSandbox future corrected source needs no recovery");
+                var clonedType = new XElement(owner.Member!.Parent!.Parent!);
+                var mismatched = clonedType.Element("Members")!.Elements("Member").Single(member =>
+                    (string?)member.Attribute("MemberName") == managedName);
+                var clonedOwner = owner with { Member = mismatched, Docs = mismatched.Element("Docs")! };
+                var sourcePages = new Dictionary<string, SourceLoadResult>
+                    { [request.Url] = SourceLoadResult.Success(page) };
+                Assert(MatchesSdkSandboxSurfaceBinding(clonedOwner, owner.MemberRegistration!, source) &&
+                    MapOwner(clonedOwner, sourcePages).Docs?.HasRecoveredSdkSandboxSurfaceLink == true,
+                    "SdkSandbox attached clone is accepted before its signature changes");
+                mismatched.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public int Other;");
+                Assert(!MatchesSdkSandboxSurfaceBinding(clonedOwner,
+                    owner.MemberRegistration!, source), "SdkSandbox changed managed signature rejects recovered source");
+                Assert(MapOwner(clonedOwner, sourcePages).Docs is null,
+                    "SdkSandbox real mapping rejects a mismatched recovery instead of importing sibling channels");
+
+                var document = new XDocument(loaded.Root.Document!);
+                document.Root!.Element("Members")!.ReplaceNodes(new XElement(owner.Member!));
+                var docs = document.Root.Element("Members")!.Element("Member")!.Element("Docs")!;
+                docs.ReplaceNodes(owner.Docs.Elements().Where(element =>
+                    element.Name.LocalName is "param" or "summary" or "remarks").Select(element =>
+                    new XElement(element.Name, element.Attributes(), "To be added.")));
+                document.Root.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored type text."));
+                var original = document.ToString(SaveOptions.DisableFormatting);
+                File.WriteAllText(path, original, new UTF8Encoding(true));
+                File.WriteAllText(Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"), html, new UTF8Encoding(false));
+                var ordinal = 0;
+                int Run(bool apply)
+                {
+                    var reportPath = Path.Combine(temp, $"report-{ordinal++}");
+                    var arguments = new List<string>
+                    {
+                        "--path", path, "--namespace", "Android.App.SdkSandbox", "--member", managedName,
+                        "--offline", "--cache", cache, "--max-changes", "1", "--report", reportPath,
+                    };
+                    if (apply)
+                        arguments.Add("--apply");
+                    Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                        "SdkSandbox bounded production run");
+                    using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "SdkSandbox production run has no errors");
+                    return report.RootElement.GetProperty(apply ? "appliedCount" : "wouldApplyCount").GetInt32();
+                }
+                var before = File.ReadAllBytes(path);
+                Assert(Run(false) == 1 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "SdkSandbox preview does not write");
+                var changes = 0;
+                for (var batch = 0; batch <= docs.Elements().Count(); batch++)
+                {
+                    var count = Run(true);
+                    changes += count;
+                    if (count == 0)
+                        break;
+                }
+                Assert(changes == docs.Elements().Count() &&
+                    !XElement.Load(path).Element("Members")!.Value.Contains("To be added", StringComparison.Ordinal),
+                    "SdkSandbox source fills every direct channel in bounded batches");
+                before = File.ReadAllBytes(path);
+                Assert(Run(true) == 0 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "SdkSandbox persisted repeat is byte-identical");
+                docs.Elements().First().ReplaceNodes(new XElement("c", "Authored member text."));
+                File.WriteAllText(path, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                Run(true);
+                Assert(XElement.Load(path).Element("Members")!.Element("Member")!.Element("Docs")!
+                    .Elements().First().Element("c")?.Value == "Authored member text.",
+                    "SdkSandbox imports preserve authored mixed content");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temp, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
+        TestIcuNumberContracts(repositoryRoot);
+        TestAppFunctionAccessLevelMarkup(repositoryRoot);
         TestPreservedRemarksAndSourceGuards(repositoryRoot);
         TestReviewedSourceGuards(repositoryRoot);
         RunManagedSelfTest(repositoryRoot);
@@ -17476,6 +18152,7 @@ static partial class ImporterProgram
         TestKnownEapChannelCorrections(repositoryRoot);
         TestChangeLogDataOriginChannel(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
+        TestSdkSandboxSurfaceLinks(repositoryRoot);
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestBlobParcelTextCorrection(repositoryRoot, fixtureRoot);
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
@@ -18497,6 +19174,42 @@ static partial class ImporterProgram
                 new Placeholder(0, "summary", "", "summary"),
                 malformedFetchUriDocs).Reason == "source_documentation_malformed",
             "malformed FetchAndJoinCustomAudienceRequest fetch URI source skip");
+        const string fetchUriReference =
+            """<p>See <code translate="no" dir="ltr"><a href="/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest#getFetchUri()">FetchAndJoinCustomAudienceRequest.getFetchUri()</a></code> ()} for details.</p>""";
+        var linkedFetchUriHtml = androidHtml.Replace(
+            "<p>See FetchAndJoinCustomAudienceRequest.getFetchUri() ()} for details.</p>",
+            fetchUriReference,
+            StringComparison.Ordinal);
+        var recoveredFetchUriDocs = SourcePage.Parse(fetchUriRequest, linkedFetchUriHtml)
+            .Members.Single(member => member.Name == "setFetchUri").Docs!;
+        Assert(
+            !recoveredFetchUriDocs.HasMalformedSourceMarkup &&
+            recoveredFetchUriDocs.Paragraphs.Select(paragraph => paragraph.Text).SequenceEqual(
+                [
+                    "Sets the Uri from which the custom audience is to be fetched.",
+                    "See FetchAndJoinCustomAudienceRequest.getFetchUri() for details.",
+                ]) &&
+            ReplacementFor(
+                new Placeholder(0, "remarks", "", "remarks"), recoveredFetchUriDocs).Text is not null,
+            "exact linked fetch URI reference removes only the malformed trailing Javadoc token");
+        foreach (var changedHtml in new[]
+        {
+            linkedFetchUriHtml.Replace("#getFetchUri()", "#getName()", StringComparison.Ordinal),
+            linkedFetchUriHtml.Replace("for details.</p>", "for other details.</p>", StringComparison.Ordinal),
+        })
+        {
+            var changedDocs = SourcePage.Parse(fetchUriRequest, changedHtml)
+                .Members.Single(member => member.Name == "setFetchUri").Docs!;
+            Assert(
+                changedDocs.HasMalformedSourceMarkup &&
+                ReplacementFor(new Placeholder(0, "remarks", "", "remarks"), changedDocs).Text is null,
+                "changed fetch URI link or paragraph remains withheld");
+        }
+        var differentOwnerDocs = SourcePage.Parse(request, linkedFetchUriHtml)
+            .Members.Single(member => member.Name == "setFetchUri").Docs!;
+        Assert(
+            differentOwnerDocs.HasMalformedSourceMarkup,
+            "fetch URI reference recovery requires the exact source owner and URL");
         var correctedFetchUriDocs = SourcePage.Parse(
             fetchUriRequest,
             androidHtml.Replace(" ()}", "", StringComparison.Ordinal))
@@ -18844,6 +19557,84 @@ static partial class ImporterProgram
                     "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;" &&
                 textSelectionExtension.SourceRequest.JavaPath == "android/view/textclassifier/TextClassifier",
             "TextClassifier selection extension resolves to the receiver's exact CharSequence member");
+        foreach (var (fileName, property) in new[]
+        {
+            ("ConversationAction.xml", "TextReply"),
+            ("ConversationActions+Message.xml", "Text"),
+            ("TextClassification.xml", "Label"),
+            ("TextClassification+Request.xml", "Text"),
+            ("TextLanguage+Request.xml", "Text"),
+            ("TextLinks.xml", "Text"),
+            ("TextLinks+Request.xml", "Text"),
+            ("TextSelection+Request.xml", "Text"),
+        })
+        {
+            var root = XElement.Load(Path.Combine(docsRoot, "Android.Views.TextClassifiers", fileName));
+            var members = root.Element("Members")!.Elements("Member").ToList();
+            var alias = members.Single(member => (string?)member.Attribute("MemberName") == property);
+            var formatted = members.Single(member =>
+                (string?)member.Attribute("MemberName") == property + "Formatted");
+            var id = alias.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "DocId").Attribute("Value")!.Value;
+            var aliasMapping = SourceVerifiedMemberMappings.Resolve(id, root, alias);
+            Assert(alias.Element("ReturnValue")?.Element("ReturnType")?.Value == "System.String" &&
+                formatted.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.ICharSequence" &&
+                Registration.Member(alias) is null &&
+                aliasMapping?.Registration == Registration.Member(formatted) &&
+                aliasMapping?.Registration.Descriptor == "()Ljava/lang/CharSequence;" &&
+                aliasMapping.SourceRequest == SourceRequest.Create(Registration.Type(root)) &&
+                SourceVerifiedMemberMappings.Resolve(id + "Other") is null,
+                "TextClassifier String property maps only to its registered Formatted getter: " + id);
+            var changedType = new XElement(alias);
+            changedType.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32";
+            var changedRoot = new XElement(root);
+            changedRoot.Element("Attributes")!.Remove();
+            var changedSiblingRoot = new XElement(root);
+            changedSiblingRoot.Element("Members")!.Elements("Member").Single(member =>
+                (string?)member.Attribute("MemberName") == property + "Formatted")
+                .Element("Attributes")!.Remove();
+            Assert(SourceVerifiedMemberMappings.Resolve(id, root, changedType) is null &&
+                SourceVerifiedMemberMappings.Resolve(id, changedRoot, alias) is null &&
+                SourceVerifiedMemberMappings.Resolve(id, changedSiblingRoot, alias) is null,
+                "TextClassifier String mapping rejects changed return, owner and sibling registration: " + id);
+        }
+        var legacyClassifier = XElement.Load(Path.Combine(
+            docsRoot, "Android.Views.TextClassifiers", "TextClassifier.xml"));
+        var classifierInterface = XElement.Load(Path.Combine(
+            docsRoot, "Android.Views.TextClassifiers", "ITextClassifier.xml"));
+        foreach (var name in new[]
+        {
+            "ExtraClassificationTimeoutMs", "ExtraOtpTrustedPackages",
+            "TimeoutNoTimeout", "TypeSmsWebOtp", "NoOp",
+        })
+        {
+            var legacy = legacyClassifier.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == name);
+            var canonical = classifierInterface.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == name);
+            var id = legacy.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "DocId").Attribute("Value")!.Value;
+            Assert(Registration.Member(legacy) is { IsField: true } registration &&
+                registration == Registration.Member(canonical) &&
+                SourceVerifiedMemberMappings.ResolveSourceOverride(id, legacyClassifier, legacy) ==
+                    SourceRequest.Create(Registration.Type(classifierInterface)) &&
+                SourceVerifiedMemberMappings.ResolveSourceOverride(id + "Other") is null,
+                "Legacy TextClassifier source override matches the canonical interface field: " + id);
+            var changedOwner = new XElement(legacyClassifier);
+            changedOwner.Element("Attributes")!.Remove();
+            var changedRegistration = new XElement(legacy);
+            changedRegistration.Element("Attributes")!.Remove();
+            var changedReturn = new XElement(legacy);
+            changedReturn.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32";
+            var changedSignature = new XElement(legacy);
+            changedSignature.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public int Other;");
+            Assert(SourceVerifiedMemberMappings.ResolveSourceOverride(id, changedOwner, legacy) is null &&
+                SourceVerifiedMemberMappings.ResolveSourceOverride(id, legacyClassifier, changedRegistration) is null &&
+                SourceVerifiedMemberMappings.ResolveSourceOverride(id, legacyClassifier, changedReturn) is null &&
+                SourceVerifiedMemberMappings.ResolveSourceOverride(id, legacyClassifier, changedSignature) is null,
+                "Legacy TextClassifier source override rejects changed owner, registration, return and signature: " + id);
+        }
         var mapped = MapOwner(setTitle, pages);
         var mappedDocs = mapped.Docs ?? throw new InvalidOperationException(
             "SELF-TEST FAIL: exact Android JNI match");
@@ -28348,12 +29139,12 @@ static partial class ImporterProgram
                     : null;
                 memberRegistration ??= interfaceMember?.Registration;
                 var sourceVerifiedMember = memberRegistration is null && member is not null
-                    ? SourceVerifiedMemberMappings.Resolve(id)
+                    ? SourceVerifiedMemberMappings.Resolve(id, Root, member!)
                     : null;
                 memberRegistration ??= sourceVerifiedMember?.Registration;
                 var sourceOverride = member is null
                     ? null
-                    : SourceVerifiedMemberMappings.ResolveSourceOverride(id);
+                    : SourceVerifiedMemberMappings.ResolveSourceOverride(id, Root, member);
                 var request = member is null
                     ? typeRequest
                     : sourceOverride ??
@@ -28805,6 +29596,16 @@ static partial class ImporterProgram
         static readonly IReadOnlyDictionary<string, SourceRequest> SourceOverrides =
             new Dictionary<string, SourceRequest>(StringComparer.Ordinal)
             {
+                ["F:Android.Views.TextClassifiers.TextClassifier.ExtraClassificationTimeoutMs"] =
+                    TextClassifierRequest(),
+                ["F:Android.Views.TextClassifiers.TextClassifier.ExtraOtpTrustedPackages"] =
+                    TextClassifierRequest(),
+                ["F:Android.Views.TextClassifiers.TextClassifier.TimeoutNoTimeout"] =
+                    TextClassifierRequest(),
+                ["F:Android.Views.TextClassifiers.TextClassifier.TypeSmsWebOtp"] =
+                    TextClassifierRequest(),
+                ["P:Android.Views.TextClassifiers.TextClassifier.NoOp"] =
+                    TextClassifierRequest(),
                 ["F:Java.Util.Regex.RegexOptions.UnicodeCharacterClass"] =
                     SourceRequest.CreateAndroid("java/util/regex/Pattern") ??
                         throw new InvalidOperationException(
@@ -28988,6 +29789,22 @@ static partial class ImporterProgram
                     Mapping("android/view/textclassifier/TextClassifier", "classifyText", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextClassification;"),
                 ["M:Android.Views.TextClassifiers.ITextClassifierExtensions.SuggestSelection(Android.Views.TextClassifiers.ITextClassifier,System.String,System.Int32,System.Int32,Android.OS.LocaleList)"] =
                     Mapping("android/view/textclassifier/TextClassifier", "suggestSelection", "(Ljava/lang/CharSequence;IILandroid/os/LocaleList;)Landroid/view/textclassifier/TextSelection;"),
+                ["P:Android.Views.TextClassifiers.ConversationAction.TextReply"] =
+                    Mapping("android/view/textclassifier/ConversationAction", "getTextReply", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.ConversationActions.Message.Text"] =
+                    Mapping("android/view/textclassifier/ConversationActions$Message", "getText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextClassification.Label"] =
+                    Mapping("android/view/textclassifier/TextClassification", "getLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextClassification.Request.Text"] =
+                    Mapping("android/view/textclassifier/TextClassification$Request", "getText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextLanguage.Request.Text"] =
+                    Mapping("android/view/textclassifier/TextLanguage$Request", "getText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextLinks.Text"] =
+                    Mapping("android/view/textclassifier/TextLinks", "getText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextLinks.Request.Text"] =
+                    Mapping("android/view/textclassifier/TextLinks$Request", "getText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Views.TextClassifiers.TextSelection.Request.Text"] =
+                    Mapping("android/view/textclassifier/TextSelection$Request", "getText", "()Ljava/lang/CharSequence;"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32)"] =
                     Mapping("android/view/inputmethod/InputConnection", "commitText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.CommitText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
@@ -29009,8 +29826,76 @@ static partial class ImporterProgram
         public static InterfaceMemberMapping? Resolve(string memberId) =>
             Mappings.GetValueOrDefault(memberId);
 
+        public static InterfaceMemberMapping? Resolve(string memberId, XElement root, XElement member)
+        {
+            var mapping = Resolve(memberId);
+            if (mapping is null ||
+                !memberId.StartsWith("P:Android.Views.TextClassifiers.", StringComparison.Ordinal))
+                return mapping;
+
+            var name = (string?)member.Attribute("MemberName");
+            var formatted = root.Element("Members")?.Elements("Member")
+                .Where(candidate => (string?)candidate.Attribute("MemberName") == name + "Formatted")
+                .ToList();
+            return root.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+                SourceRequest.Create(Registration.Type(root)) == mapping.SourceRequest &&
+                member.Element("MemberType")?.Value == "Property" &&
+                member.Element("ReturnValue")?.Element("ReturnType")?.Value == "System.String" &&
+                member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "C#" &&
+                    (string?)signature.Attribute("Value") is var value &&
+                    (value == $"public string {name} {{ get; }}" ||
+                     value == $"public string? {name} {{ get; }}")) &&
+                formatted is [var getter] &&
+                getter.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.ICharSequence" &&
+                Registration.Member(getter) == mapping.Registration
+                    ? mapping : null;
+        }
+
+        static SourceRequest TextClassifierRequest() =>
+            SourceRequest.Create("android/view/textclassifier/TextClassifier") ??
+                throw new InvalidOperationException("Could not create the Android TextClassifier source request.");
+
         public static SourceRequest? ResolveSourceOverride(string memberId) =>
             SourceOverrides.GetValueOrDefault(memberId);
+
+        public static SourceRequest? ResolveSourceOverride(string memberId, XElement root, XElement member)
+        {
+            var request = ResolveSourceOverride(memberId);
+            if (request?.JavaPath != "android/view/textclassifier/TextClassifier")
+                return request;
+
+            var name = (string?)member.Attribute("MemberName");
+            var expected = name switch
+            {
+                "ExtraClassificationTimeoutMs" =>
+                    ("EXTRA_CLASSIFICATION_TIMEOUT_MS", "System.String", "public const string ExtraClassificationTimeoutMs;"),
+                "ExtraOtpTrustedPackages" =>
+                    ("EXTRA_OTP_TRUSTED_PACKAGES", "System.String", "public const string ExtraOtpTrustedPackages;"),
+                "TimeoutNoTimeout" =>
+                    ("TIMEOUT_NO_TIMEOUT", "System.Int64", "public const long TimeoutNoTimeout = 0;"),
+                "TypeSmsWebOtp" =>
+                    ("TYPE_SMS_WEB_OTP", "System.String", "public const string TypeSmsWebOtp;"),
+                "NoOp" =>
+                    ("NO_OP", "Android.Views.TextClassifiers.ITextClassifier",
+                        "public static Android.Views.TextClassifiers.ITextClassifier? NoOp { get; }"),
+                _ => ("", "", ""),
+            };
+            return (string?)root.Attribute("FullName") == "Android.Views.TextClassifiers.TextClassifier" &&
+                Registration.Type(root) == "mono/internal/android/view/textclassifier/TextClassifier" &&
+                root.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+                member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+                memberId == (name == "NoOp" ? "P:" : "F:") +
+                    "Android.Views.TextClassifiers.TextClassifier." + name &&
+                member.Element("MemberType")?.Value == (name == "NoOp" ? "Property" : "Field") &&
+                Registration.Member(member) == new MemberRegistration(expected.Item1, null, true) &&
+                member.Element("ReturnValue")?.Element("ReturnType")?.Value == expected.Item2 &&
+                member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "C#" &&
+                    (string?)signature.Attribute("Value") == expected.Item3) &&
+                (name != "TimeoutNoTimeout" || member.Element("MemberValue")?.Value == "0")
+                    ? request : null;
+        }
 
         static InterfaceMemberMapping Mapping(
             string javaPath,
@@ -29377,16 +30262,29 @@ static partial class ImporterProgram
                 var constructorName = request.JavaPath.Split('/', '$').Last();
                 var isConstructor = name.Equals(constructorName, StringComparison.Ordinal);
                 var url = request.Url + "#" + anchor.Replace(" ", "%20", StringComparison.Ordinal);
+                var declaration = HtmlText(Regex.Match(fragment,
+                    @"<pre\b[^>]*class=""[^""]*\bapi-signature\b[^""]*""[^>]*>(?<declaration>.*?)</pre>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant).Groups["declaration"].Value);
+                var recoveredAccessLevel = false;
+                if (request.JavaPath == AppFunctionMetadataJavaPath &&
+                    request.Url == AppFunctionMetadataSourceUrl &&
+                    AppFunctionAccessLevelMarkup.SingleOrDefault(rule => rule.Field == name) is var rule &&
+                    rule.Field is not null && declaration == rule.Declaration &&
+                    HasAppFunctionAccessLevelCorroboration(html))
+                {
+                    fragment = RecoverAppFunctionAccessLevelMarkup(fragment, rule, out recoveredAccessLevel);
+                }
+                var docs = ExtractAndroidDocs(fragment, request, heading.Title, url);
+                if (docs is not null && recoveredAccessLevel)
+                    docs = docs with { HasRecoveredAppFunctionAccessLevelMarkup = true };
                 sections.Add(new SourceMember(
                     name,
                     isConstructor,
                     isField,
                     arguments,
-                    ExtractAndroidDocs(fragment, request, heading.Title, url),
+                    docs,
                     url,
-                    HtmlText(Regex.Match(fragment,
-                        @"<pre\b[^>]*class=""[^""]*\bapi-signature\b[^""]*""[^>]*>(?<declaration>.*?)</pre>",
-                        RegexOptions.Singleline | RegexOptions.CultureInvariant).Groups["declaration"].Value)));
+                    declaration));
             }
 
             return new SourcePage
@@ -29409,6 +30307,44 @@ static partial class ImporterProgram
                     .Select(match => match.Groups["field"].Value)
                     .ToHashSet(StringComparer.Ordinal),
             };
+        }
+
+        static bool HasAppFunctionAccessLevelCorroboration(string html)
+        {
+            string Section(string field) => Regex.Match(html,
+                @"<h3\b[^>]*id=""" + field + @"""[^>]*>.*?(?=<h3\b|<h2\b|$)",
+                RegexOptions.Singleline | RegexOptions.CultureInvariant).Value;
+            var property = Section("PROPERTY_ACCESS_LEVEL");
+            var self = Section("PROPERTY_VALUE_ACCESS_LEVEL_SELF");
+            return HtmlText(property).Contains(
+                    "Property name for the XML tag that defines the value of getAccessLevel().",
+                    StringComparison.Ordinal) &&
+                property.Contains("#getAccessLevel()", StringComparison.Ordinal) &&
+                HtmlText(self).Contains(
+                    "Property value for PROPERTY_ACCESS_LEVEL representing that the function is strictly restricted to the app itself.",
+                    StringComparison.Ordinal) &&
+                self.Contains("/reference/android/app/appfunctions/AppFunctionMetadata#PROPERTY_ACCESS_LEVEL", StringComparison.Ordinal);
+        }
+
+        static string RecoverAppFunctionAccessLevelMarkup(
+            string fragment,
+            (string Field, string Declaration, string Original, string Token, string Replacement) rule,
+            out bool recovered)
+        {
+            var candidates = Regex.Matches(fragment,
+                    @"<p\b[^>]*>(?<body>(?:(?!<p\b|</p\b).)*)(?=<p\b|</p\b)",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant)
+                .Where(match => !IsInsidePreformattedBlock(fragment, match.Index) &&
+                    HtmlText(match.Groups["body"].Value) == CleanSourceText(rule.Original) &&
+                    CountOccurrences(match.Groups["body"].Value, rule.Token) == 1)
+                .ToArray();
+            recovered = candidates.Length == 1;
+            if (!recovered)
+                return fragment;
+            var body = candidates[0].Groups["body"];
+            return fragment[..body.Index] +
+                body.Value.Replace(rule.Token, rule.Replacement, StringComparison.Ordinal) +
+                fragment[(body.Index + body.Length)..];
         }
 
         static SourceDocs? ExtractAndroidTypeDocs(string html, SourceRequest request)
@@ -29477,6 +30413,7 @@ static partial class ImporterProgram
             string title,
             string url)
         {
+            fragment = RecoverSdkSandboxSurfaceLink(fragment, request, title, out var recoveredSdkSandboxSurfaceLink);
             var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (Match row in Regex.Matches(
                 fragment,
@@ -29521,6 +30458,18 @@ static partial class ImporterProgram
                         StringComparison.Ordinal),
                     StringComparison.Ordinal);
             }
+            if (request.JavaPath ==
+                    "android/adservices/customaudience/FetchAndJoinCustomAudienceRequest$Builder" &&
+                url == AndroidReference +
+                    "android/adservices/customaudience/FetchAndJoinCustomAudienceRequest.Builder#setFetchUri(android.net.Uri)")
+            {
+                const string malformedReference =
+                    """<p>See <code translate="no" dir="ltr"><a href="/reference/android/adservices/customaudience/FetchAndJoinCustomAudienceRequest#getFetchUri()">FetchAndJoinCustomAudienceRequest.getFetchUri()</a></code> ()} for details.</p>""";
+                prose = prose.Replace(
+                    malformedReference,
+                    malformedReference.Replace(" ()}", "", StringComparison.Ordinal),
+                    StringComparison.Ordinal);
+            }
             var paragraphs = ExtractParagraphs(prose, IsGestureCloneSourceUrl(url), url);
             var intermediateImplicitListParagraphs = ExtractParagraphs(
                 prose,
@@ -29559,6 +30508,7 @@ static partial class ImporterProgram
                 HasJavaTextMessageFormatLink:
                     url == AndroidReference + "android/icu/text/MessagePattern.ApostropheMode#DOUBLE_REQUIRED" &&
                     fragment.Contains("<a href=\"/reference/java/text/MessageFormat\">MessageFormat</a>", StringComparison.Ordinal),
+                HasRecoveredSdkSandboxSurfaceLink: recoveredSdkSandboxSurfaceLink,
                 LegacyFlattenedParagraphs:
                     legacyFlattenedParagraphs.SequenceEqual(paragraphs)
                         ? null
@@ -30651,7 +31601,9 @@ static partial class ImporterProgram
         bool HasIncompleteImageDecoderDecodeDrawableWorkerThreadContract = false,
         bool HasBiometricAllowedAuthenticatorsIncompleteDefaultList = false,
         IReadOnlyList<SourceRequest>? RepeatedContracts = null,
-        bool HasJavaTextMessageFormatLink = false);
+        bool HasJavaTextMessageFormatLink = false,
+        bool HasRecoveredAppFunctionAccessLevelMarkup = false,
+        bool HasRecoveredSdkSandboxSurfaceLink = false);
 
     static class Descriptor
     {
