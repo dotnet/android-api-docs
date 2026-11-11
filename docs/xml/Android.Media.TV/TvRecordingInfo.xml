@@ -119,22 +119,22 @@
         <Parameter Name="recordingDuration" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="recordingId">To be added.</param>
-        <param name="startPadding">To be added.</param>
-        <param name="endPadding">To be added.</param>
-        <param name="repeatDays">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="description">To be added.</param>
-        <param name="scheduledStartTime">To be added.</param>
-        <param name="scheduledDuration">To be added.</param>
-        <param name="channelUri">To be added.</param>
-        <param name="programUri">To be added.</param>
-        <param name="contentRatings">To be added.</param>
-        <param name="recordingUri">To be added.</param>
-        <param name="recordingStartTime">To be added.</param>
-        <param name="recordingDuration">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="recordingId">The recording identifier to store.</param>
+        <param name="startPadding">The start-padding duration, in milliseconds.</param>
+        <param name="endPadding">The end-padding duration, in milliseconds.</param>
+        <param name="repeatDays">The repeat-day bitfield; zero specifies no repetition.</param>
+        <param name="name">The recording name to store.</param>
+        <param name="description">The recording description to store.</param>
+        <param name="scheduledStartTime">The scheduled start time, in milliseconds since the epoch.</param>
+        <param name="scheduledDuration">The scheduled recording duration, in milliseconds.</param>
+        <param name="channelUri">The URI identifying the recording's broadcast channel.</param>
+        <param name="programUri">The program or series URI, or null if no specific program is required.</param>
+        <param name="contentRatings">The content ratings associated with the recording's programs.</param>
+        <param name="recordingUri">The local recording URI, which may be null before completion.</param>
+        <param name="recordingStartTime">The actual start time in epoch milliseconds, or -1 if recording has not started.</param>
+        <param name="recordingDuration">The actual duration in milliseconds, including padding, or -1 if recording has not started.</param>
+        <summary>Creates recording metadata from the supplied identifiers, schedule, padding, ratings, and recording details.</summary>
+        <remarks>The supplied values are stored directly; this constructor does not start or schedule a recording.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ChannelUri">
@@ -162,7 +162,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the uri of the broadcast channel where the recording will take place.</summary>
-        <value>To be added.</value>
+        <value>The stored broadcast-channel URI.</value>
         <remarks>
           <para>Returns the uri of the broadcast channel where the recording will take place.</para>
           <para>
@@ -203,7 +203,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns a list of content ratings for the program(s) in this recording.</summary>
-        <value>To be added.</value>
+        <value>The stored list of ratings for the recorded programs.</value>
         <remarks>
           <para>Returns a list of content ratings for the program(s) in this recording.</para>
           <para>Returns an empty list if no content rating information is available.</para>
@@ -324,7 +324,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the description of the scheduled recording. -or- Sets the description of the scheduled recording.</summary>
-        <value>To be added.</value>
+        <value>The stored description of the scheduled recording.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the description of the scheduled recording.</para>
@@ -377,7 +377,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the ending padding duration of this recording in milliseconds since the epoch.</summary>
-        <value>To be added.</value>
+        <value>The stored end-padding duration, in milliseconds.</value>
         <remarks>
           <para>Returns the ending padding duration of this recording in milliseconds since the epoch.</para>
           <para>A positive value should cause the recording to end later than the specified time.
@@ -429,8 +429,8 @@
       </ReturnValue>
       <MemberValue>32</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Repeat-day bit for Friday (32).</summary>
+        <remarks>Combine this bit with other repeat-day bits using bitwise OR.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -523,8 +523,8 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Repeat-day bit for Monday (2).</summary>
+        <remarks>Combine this bit with other repeat-day bits using bitwise OR.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Name">
@@ -560,7 +560,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the name of the scheduled recording. -or- Sets the name of the scheduled recording.</summary>
-        <value>To be added.</value>
+        <value>The stored name of the scheduled recording.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the name of the scheduled recording.</para>
@@ -621,7 +621,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the uri of the scheduled program or series.</summary>
-        <value>To be added.</value>
+        <value>The stored program or series URI, or null when no specific program is required.</value>
         <remarks>
           <para>Returns the uri of the scheduled program or series.</para>
           <para>For recordings scheduled using scheduleRecording, this value may be null. A non-null
@@ -673,8 +673,8 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Selects all recordings when requesting recording information.</summary>
+        <remarks>This recording-list selector has the value 3.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RecordingDurationMillis">
@@ -746,7 +746,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the ID of this recording.</summary>
-        <value>To be added.</value>
+        <value>The stored recording identifier maintained by the TV app.</value>
         <remarks>
           <para>Returns the ID of this recording. This ID is created and maintained by the TV app.</para>
           <para>
@@ -794,8 +794,8 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Selects recordings currently in progress when requesting recording information.</summary>
+        <remarks>This recording-list selector has the value 2.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RecordingScheduled">
@@ -830,8 +830,8 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Selects scheduled recordings when requesting recording information.</summary>
+        <remarks>This recording-list selector has the value 1.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RecordingStartTimeMillis">
@@ -911,7 +911,7 @@
       </ReturnValue>
       <Docs>
         <summary>The uri of the recording in local storage.</summary>
-        <value>To be added.</value>
+        <value>The stored local recording URI, which may be null before completion.</value>
         <remarks>
           <para>The uri of the recording in local storage.</para>
           <para>Could be null in the event that the recording has not been completed.</para>
@@ -1018,8 +1018,8 @@
       </ReturnValue>
       <MemberValue>64</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Repeat-day bit for Saturday (64).</summary>
+        <remarks>Combine this bit with other repeat-day bits using bitwise OR.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ScheduledDurationMillis">
@@ -1129,7 +1129,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the start padding duration of this recording in milliseconds since the epoch.</summary>
-        <value>To be added.</value>
+        <value>The stored start-padding duration, in milliseconds.</value>
         <remarks>
           <para>Returns the start padding duration of this recording in milliseconds since the epoch.</para>
           <para>A positive value should cause the recording to start earlier than the specified time.
@@ -1181,8 +1181,8 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Repeat-day bit for Sunday (1).</summary>
+        <remarks>Combine this bit with other repeat-day bits using bitwise OR.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -1279,8 +1279,8 @@
       </ReturnValue>
       <MemberValue>16</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Repeat-day bit for Thursday (16).</summary>
+        <remarks>Combine this bit with other repeat-day bits using bitwise OR.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Tuesday">
@@ -1315,8 +1315,8 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Repeat-day bit for Tuesday (4).</summary>
+        <remarks>Combine this bit with other repeat-day bits using bitwise OR.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Wednesday">
@@ -1351,8 +1351,8 @@
       </ReturnValue>
       <MemberValue>8</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Repeat-day bit for Wednesday (8).</summary>
+        <remarks>Combine this bit with other repeat-day bits using bitwise OR.</remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteToParcel">
