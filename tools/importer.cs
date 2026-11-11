@@ -303,6 +303,36 @@ static partial class ImporterProgram
     static readonly KnownAndroidTextRepair[] KnownAndroidTextRepairs =
     [
         new(
+            AndroidReference + "android/companion/CompanionDeviceManager#FLAG_CALL_METADATA",
+            "F:Android.Companion.SystemDataSyncFlags.CallMetadata",
+            "summary",
+            "Used by enableSystemDataSyncForTypes(int, int)}. Sync call metadata like muting, ending and silencing a call. Enabled by default.",
+            "Used by enableSystemDataSyncForTypes(int, int). Sync call metadata like muting, ending and silencing a call. Enabled by default."),
+        new(
+            AndroidReference + "android/companion/BluetoothLeDeviceFilter.Builder#setRenameFromName(java.lang.String,%20java.lang.String,%20int,%20int)",
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromName(System.String,System.String,System.Int32,System.Int32)",
+            "param:prefix",
+            "to be displayed before the byte data. This value cannot be null.",
+            "to be displayed before the selected display name characters. This value cannot be null."),
+        new(
+            AndroidReference + "android/companion/BluetoothLeDeviceFilter.Builder#setRenameFromName(java.lang.String,%20java.lang.String,%20int,%20int)",
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromName(System.String,System.String,System.Int32,System.Int32)",
+            "param:suffix",
+            "to be displayed after the byte data. This value cannot be null.",
+            "to be displayed after the selected display name characters. This value cannot be null."),
+        new(
+            AndroidReference + "android/companion/BluetoothLeDeviceFilter.Builder#setRenameFromName(java.lang.String,%20java.lang.String,%20int,%20int)",
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromName(System.String,System.String,System.Int32,System.Int32)",
+            "summary",
+            "Rename the devices shown in the list, using specific characters from the advertised name, as well as a custom prefix/suffix around them Note that the prefix length is limited to BluetoothLeDeviceFilter.getRenamePrefixLengthLimit() characters to ensure that there's enough space to display the byte data The range of name characters to be displayed cannot be empty",
+            "Rename the devices shown in the list, using specific characters from the device's display name, as well as a custom prefix/suffix around them Note that the prefix length is limited to BluetoothLeDeviceFilter.getRenamePrefixLengthLimit() characters to ensure that there's enough space to display the name characters The range of name characters to be displayed cannot be empty"),
+        new(
+            AndroidReference + "android/companion/BluetoothLeDeviceFilter.Builder#setRenameFromName(java.lang.String,%20java.lang.String,%20int,%20int)",
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromName(System.String,System.String,System.Int32,System.Int32)",
+            "remarks",
+            "Rename the devices shown in the list, using specific characters from the advertised name, as well as a custom prefix/suffix around them Note that the prefix length is limited to BluetoothLeDeviceFilter.getRenamePrefixLengthLimit() characters to ensure that there's enough space to display the byte data The range of name characters to be displayed cannot be empty",
+            "Rename the devices shown in the list, using specific characters from the device's display name, as well as a custom prefix/suffix around them Note that the prefix length is limited to BluetoothLeDeviceFilter.getRenamePrefixLengthLimit() characters to ensure that there's enough space to display the name characters The range of name characters to be displayed cannot be empty"),
+        new(
             AndroidReference + "android/service/quicksettings/Tile#writeToParcel(android.os.Parcel,%20int)",
             "M:Android.Service.QuickSettings.Tile.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
             "summary",
@@ -18946,6 +18976,8 @@ static partial class ImporterProgram
         TestAdminRestrictionRenderedRepair(repositoryRoot);
         TestAdminResetPasswordFields(repositoryRoot);
         TestKnownAndroidTextRepairs();
+        TestCompanionCallMetadataTextCorrection(repositoryRoot);
+        TestCompanionRenameFromNameTextCorrection(repositoryRoot);
         TestControlsTemplatesRangeSource(repositoryRoot);
         TestDevicePresenceEventKeywordParameter(repositoryRoot);
         TestQuickSettingsSources(repositoryRoot);
@@ -29545,9 +29577,380 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestCompanionCallMetadataTextCorrection(string repositoryRoot)
+    {
+        const string memberId = "F:Android.Companion.SystemDataSyncFlags.CallMetadata";
+        const string incorrect =
+            "Used by enableSystemDataSyncForTypes(int, int)}. Sync call metadata like muting, ending and silencing a call. Enabled by default.";
+        const string correct =
+            "Used by enableSystemDataSyncForTypes(int, int). Sync call metadata like muting, ending and silencing a call. Enabled by default.";
+        var source = LoadedFile.Load(repositoryRoot, Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Companion", "SystemDataSyncFlags.xml"));
+        source.SelectOwners(memberId);
+        var owner = source.Owners.Single();
+        var request = owner.SourceRequest!;
+        var html = File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "android-companion-callmetadata.html"));
+        var page = SourcePage.Parse(request, html);
+        var raw = page.Members.Single(member => member.Name == "FLAG_CALL_METADATA").Docs
+            ?? throw new InvalidOperationException("CallMetadata source fixture has no documentation.");
+        Assert(raw.Paragraphs.Single().Text == incorrect,
+            "CallMetadata fixture retains the exact official source defect");
+        var pages = new Dictionary<string, SourceLoadResult> { [request.Url] = SourceLoadResult.Success(page) };
+        var mapped = MapOwner(owner, pages);
+        Assert(mapped.Docs?.Paragraphs.Single().Text == correct,
+            "the actual CallMetadata enum registration maps to the corrected source paragraph");
+        Assert(MapOwner(owner with { Id = memberId + ".Other" }, pages).Docs?.Paragraphs.Single().Text == incorrect &&
+            WithKnownAndroidTextCorrections(memberId, raw with { SourceUrl = raw.SourceUrl + ".Other" })
+                .Paragraphs.Single().Text == incorrect &&
+            WithKnownAndroidTextCorrections(memberId, raw with { SourceKind = "java" })
+                .Paragraphs.Single().Text == incorrect,
+            "CallMetadata correction requires the exact managed member and Android source URL");
+
+        var document = new XDocument(source.Root.Document!);
+        var member = document.Root!.Element("Members")!.Elements("Member").Single(element =>
+            element.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "DocId" &&
+                (string?)signature.Attribute("Value") == memberId));
+        member.Element("Docs")!.Element("summary")!.ReplaceNodes(new XText("To be added."));
+        var directory = Path.Combine(Path.GetTempPath(), "companion-callmetadata-" + Guid.NewGuid().ToString("N"));
+        var cache = Path.Combine(directory, "cache");
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Companion",
+            "SystemDataSyncFlags.importer-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        Directory.CreateDirectory(cache);
+        var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+            Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+        var ordinal = 0;
+        int RunPipeline()
+        {
+            var reportPath = Path.Combine(directory, $"report-{ordinal++}");
+            var exit = RunAsync(
+            [
+                "--path", path, "--namespace", "Android.Companion", "--member", memberId,
+                "--cache", cache, "--offline", "--apply", "--max-changes", "1", "--report", reportPath,
+            ]).GetAwaiter().GetResult();
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(exit == 0 && report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                "CallMetadata production pipeline succeeds");
+            return report.RootElement.GetProperty("appliedCount").GetInt32();
+        }
+        void Write(XDocument value) =>
+            File.WriteAllText(path, value.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+        XElement CurrentDocs() => XDocument.Load(path, LoadOptions.PreserveWhitespace)
+            .Root!.Element("Members")!.Elements("Member").Single(element =>
+                element.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == memberId)).Element("Docs")!;
+        string MaskSummary()
+        {
+            var current = LoadedFile.Load(repositoryRoot, path);
+            current.SelectOwners(memberId);
+            var currentOwner = current.Owners.Single();
+            var block = current.DocsBlocks[currentOwner.Order];
+            var blockText = current.Text[block.Start..block.End];
+            Assert(TryParseDocsBlock(blockText, out var docs),
+                "CallMetadata Docs block is parseable");
+            Assert(TryGetElementSpan(blockText, docs.Element("summary")!, out var span),
+                "CallMetadata summary has an exact lexical span");
+            return current.Text[..(block.Start + span.Start)] + "<summary />" +
+                current.Text[(block.Start + span.End)..];
+        }
+        void AssertRepeat()
+        {
+            var bytes = File.ReadAllBytes(path);
+            Assert(RunPipeline() == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                "CallMetadata persisted repeat makes no writes");
+        }
+        try
+        {
+            Write(document);
+            var outsideSummary = MaskSummary();
+            Assert(RunPipeline() == 1, "CallMetadata first fill respects the one-change budget");
+            var filled = CurrentDocs();
+            Assert(filled.Element("summary")!.Elements("para").First().Value == correct &&
+                HasExactImporterSourceReference(filled, mapped.Docs!) &&
+                IsImporterAttributionParagraph(filled.Element("summary")!.Elements("para").Last()) &&
+                MaskSummary() == outsideSummary &&
+                File.ReadAllBytes(path).AsSpan().StartsWith(Encoding.UTF8.Preamble),
+                "CallMetadata first fill preserves all bytes outside the summary and retains provenance and BOM");
+            AssertRepeat();
+
+            var priorOwned = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+            var priorDocs = priorOwned.Root!.Element("Members")!.Elements("Member").Single(element =>
+                (string?)element.Attribute("MemberName") == "CallMetadata").Element("Docs")!;
+            priorDocs.Element("summary")!.Elements("para").First().Value = incorrect;
+            Write(priorOwned);
+            outsideSummary = MaskSummary();
+            Assert(RunPipeline() == 1 &&
+                CurrentDocs().Element("summary")!.Elements("para").First().Value == correct &&
+                MaskSummary() == outsideSummary,
+                "the complete prior importer-owned CallMetadata paragraph is repaired without unrelated edits");
+            AssertRepeat();
+
+            var authored = new XDocument(priorOwned);
+            authored.Root!.Element("Members")!.Elements("Member").Single(element =>
+                (string?)element.Attribute("MemberName") == "CallMetadata")
+                .Element("Docs")!.Element("summary")!.Elements("para").First()
+                .Add(new XComment("Authored guidance"));
+            Write(authored);
+            AssertRepeat();
+
+            File.WriteAllText(cachePath,
+                html.Replace("</a></code>}.", "</a></code>.", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            Write(document);
+            Assert(RunPipeline() == 1 &&
+                CurrentDocs().Element("summary")!.Elements("para").First().Value == correct,
+                "future corrected official CallMetadata source remains eligible");
+            AssertRepeat();
+
+            File.WriteAllText(cachePath,
+                html.Replace("Enabled by default.</p>", "Enabled by default in this example.</p>",
+                    StringComparison.Ordinal), new UTF8Encoding(false));
+            Write(document);
+            Assert(RunPipeline() == 1 &&
+                CurrentDocs().Element("summary")!.Elements("para").First().Value ==
+                    incorrect.Replace("Enabled by default.", "Enabled by default in this example.", StringComparison.Ordinal),
+                "changed official CallMetadata prose is not normalized by the exact correction");
+            AssertRepeat();
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    static void TestCompanionRenameFromNameTextCorrection(string repositoryRoot)
+    {
+        const string memberId =
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromName(System.String,System.String,System.Int32,System.Int32)";
+        const string byteMemberId =
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromBytes(System.String,System.String,System.Int32,System.Int32,Java.Nio.ByteOrder)";
+        const string incorrectPrefix = "to be displayed before the byte data. This value cannot be null.";
+        const string incorrectSuffix = "to be displayed after the byte data. This value cannot be null.";
+        const string correctPrefix = "to be displayed before the selected display name characters. This value cannot be null.";
+        const string correctSuffix = "to be displayed after the selected display name characters. This value cannot be null.";
+        var sourcePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Companion",
+            "BluetoothLeDeviceFilter+Builder.xml");
+        var source = LoadedFile.Load(repositoryRoot, sourcePath);
+        source.SelectOwners(memberId);
+        var owner = source.Owners.Single();
+        var byteSource = LoadedFile.Load(repositoryRoot, sourcePath);
+        byteSource.SelectOwners(byteMemberId);
+        var byteOwner = byteSource.Owners.Single();
+        var request = owner.SourceRequest!;
+        var html = File.ReadAllText(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "android-companion-rename-from-name.html"));
+        var page = SourcePage.Parse(request, html);
+        var raw = page.Members.Single(member => member.Name == "setRenameFromName").Docs
+            ?? throw new InvalidOperationException("SetRenameFromName source fixture has no documentation.");
+        var byteRaw = page.Members.Single(member => member.Name == "setRenameFromBytes").Docs
+            ?? throw new InvalidOperationException("SetRenameFromBytes source fixture has no documentation.");
+        Assert(RemoveLeadingJavaType(raw.Parameters["prefix"]) == incorrectPrefix &&
+            RemoveLeadingJavaType(raw.Parameters["suffix"]) == incorrectSuffix &&
+            raw.Summary.Contains("advertised name", StringComparison.Ordinal) &&
+            raw.Summary.Contains("byte data", StringComparison.Ordinal),
+            "the name-based rename fixture retains the exact official source defects");
+        var pages = new Dictionary<string, SourceLoadResult> { [request.Url] = SourceLoadResult.Success(page) };
+        var mapping = MapOwner(owner, pages);
+        var corrected = mapping.Docs ?? throw new InvalidOperationException("SetRenameFromName did not map.");
+        Assert(corrected.Parameters["prefix"] == correctPrefix &&
+            corrected.Parameters["suffix"] == correctSuffix &&
+            corrected.Summary.Contains("device's display name", StringComparison.Ordinal) &&
+            corrected.Summary.Contains("display the name characters", StringComparison.Ordinal) &&
+            corrected.Paragraphs.Single().Text == corrected.Summary,
+            "the registered name-based binding maps each exact corrected source channel");
+        Assert(MapOwner(owner with { Id = memberId + ".Other" }, pages).Docs?.Summary == raw.Summary &&
+            WithKnownAndroidTextCorrections(memberId, raw with { SourceUrl = raw.SourceUrl + ".Other" })
+                .Summary == raw.Summary &&
+            WithKnownAndroidTextCorrections(memberId, raw with { SourceKind = "java" })
+                .Summary == raw.Summary,
+            "name-based correction requires the exact managed member and Android source URL");
+        Assert(MapOwner(owner with
+        {
+            MemberRegistration = owner.MemberRegistration! with { Descriptor = "(Ljava/lang/String;Ljava/lang/String;IJ)Landroid/companion/BluetoothLeDeviceFilter$Builder;" },
+        }, pages).Docs is null,
+            "the name-based correction does not map a different JNI overload");
+        var byteMapping = MapOwner(byteOwner, pages).Docs
+            ?? throw new InvalidOperationException("SetRenameFromBytes did not map.");
+        Assert(RemoveLeadingJavaType(byteMapping.Parameters["prefix"]) == incorrectPrefix &&
+            byteMapping.Summary == byteRaw.Summary,
+            "the neighboring byte-based overload retains its byte-data source text");
+
+        XDocument NewDocument(DocsOwner selected)
+        {
+            var document = new XDocument(source.Root.Document!);
+            document.Root!.Element("Members")!.ReplaceNodes(new XElement(selected.Member!));
+            return document;
+        }
+        static XElement DocumentDocs(XDocument document) =>
+            document.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+        static XElement Parameter(XElement docs, string name) =>
+            docs.Elements("param").Single(parameter => (string?)parameter.Attribute("name") == name);
+        var document = NewDocument(owner);
+        var initialDocs = DocumentDocs(document);
+        Parameter(initialDocs, "prefix").Value = "To be added.";
+        Parameter(initialDocs, "suffix").Value = "To be added.";
+        initialDocs.Element("summary")!.Value = "To be added.";
+        initialDocs.Element("remarks")!.Elements("para").First().ReplaceNodes(new XText("To be added."));
+
+        var directory = Path.Combine(Path.GetTempPath(), "companion-rename-name-" + Guid.NewGuid().ToString("N"));
+        var cache = Path.Combine(directory, "cache");
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Companion",
+            "BluetoothLeDeviceFilter.importer-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        Directory.CreateDirectory(cache);
+        var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+            Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+        var ordinal = 0;
+        int RunPipeline(string target = memberId, int limit = 1)
+        {
+            var reportPath = Path.Combine(directory, $"report-{ordinal++}");
+            var exit = RunAsync(
+            [
+                "--path", path, "--namespace", "Android.Companion", "--member", target,
+                "--cache", cache, "--offline", "--apply", "--max-changes",
+                limit.ToString(System.Globalization.CultureInfo.InvariantCulture), "--report", reportPath,
+            ]).GetAwaiter().GetResult();
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(exit == 0 && report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                "name-based rename production pipeline succeeds");
+            return report.RootElement.GetProperty("appliedCount").GetInt32();
+        }
+        void Write(XDocument value) =>
+            File.WriteAllText(path, value.ToString(SaveOptions.DisableFormatting)
+                .Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+        XElement CurrentDocs() => DocumentDocs(XDocument.Load(path, LoadOptions.PreserveWhitespace));
+        string MaskApprovedSpans()
+        {
+            var current = LoadedFile.Load(repositoryRoot, path);
+            current.SelectOwners(memberId);
+            var currentOwner = current.Owners.Single();
+            var block = current.DocsBlocks[currentOwner.Order];
+            var blockText = current.Text[block.Start..block.End];
+            Assert(TryParseDocsBlock(blockText, out var docs), "name-based rename Docs parses");
+            var elements = new[]
+            {
+                Parameter(docs, "prefix"),
+                Parameter(docs, "suffix"),
+                docs.Element("summary")!,
+                docs.Element("remarks")!.Elements("para").First(),
+            };
+            var spans = new List<XmlSpan>();
+            foreach (var element in elements)
+            {
+                Assert(TryGetElementSpan(blockText, element, out var span),
+                    $"the approved rename {element.Name} channel has an exact lexical span");
+                spans.Add(span);
+            }
+            foreach (var span in spans.OrderByDescending(span => span.Start))
+                blockText = blockText[..span.Start] + "<approved />" + blockText[span.End..];
+            return current.Text[..block.Start] + blockText + current.Text[block.End..];
+        }
+        void AssertRepeat(string target = memberId)
+        {
+            var bytes = File.ReadAllBytes(path);
+            Assert(RunPipeline(target) == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                "the persisted rename repeat makes no writes");
+        }
+        try
+        {
+            Write(document);
+            var outsideSpans = MaskApprovedSpans();
+            for (var batch = 0; batch < 4; batch++)
+                Assert(RunPipeline() == 1, "each rename first-fill respects the one-change budget");
+            var filled = CurrentDocs();
+            Assert(Parameter(filled, "prefix").Value == correctPrefix &&
+                Parameter(filled, "suffix").Value == correctSuffix &&
+                filled.Element("summary")!.Value == corrected.Summary &&
+                filled.Element("remarks")!.Elements("para").First().Value == corrected.Summary &&
+                HasExactImporterSourceReference(filled, corrected) &&
+                IsImporterAttributionParagraph(filled.Element("remarks")!.Elements("para").Last()) &&
+                MaskApprovedSpans() == outsideSpans &&
+                File.ReadAllBytes(path).AsSpan().StartsWith(Encoding.UTF8.Preamble),
+                "the name-based first-fill corrects four channels and preserves all other bytes and provenance");
+            AssertRepeat();
+
+            var priorOwned = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+            var priorDocs = DocumentDocs(priorOwned);
+            Parameter(priorDocs, "prefix").Value = incorrectPrefix;
+            Parameter(priorDocs, "suffix").Value = incorrectSuffix;
+            priorDocs.Element("summary")!.Value = raw.Summary;
+            priorDocs.Element("remarks")!.Elements("para").First().Value = raw.Summary;
+            Write(priorOwned);
+            outsideSpans = MaskApprovedSpans();
+            var beforeBoundedRepair = File.ReadAllBytes(path);
+            Assert(RunPipeline(limit: 1) == 0 &&
+                beforeBoundedRepair.SequenceEqual(File.ReadAllBytes(path)),
+                "an insufficient change budget preserves the complete prior name-based description");
+            Assert(RunPipeline(limit: 4) == 4 &&
+                Parameter(CurrentDocs(), "prefix").Value == correctPrefix &&
+                Parameter(CurrentDocs(), "suffix").Value == correctSuffix &&
+                CurrentDocs().Element("summary")!.Value == corrected.Summary &&
+                CurrentDocs().Element("remarks")!.Elements("para").First().Value == corrected.Summary &&
+                MaskApprovedSpans() == outsideSpans,
+                "a complete prior importer-owned name-based description is corrected only in its four spans");
+            AssertRepeat();
+
+            var authored = new XDocument(priorOwned);
+            DocumentDocs(authored).Element("remarks")!.AddFirst(new XElement("para", "Authored guidance."));
+            Write(authored);
+            AssertRepeat();
+
+            File.WriteAllText(cachePath, html.Replace(
+                "as well as a custom prefix/suffix around them",
+                "as well as a separately supplied prefix/suffix around them", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            var changedSummaryDocument = NewDocument(owner);
+            DocumentDocs(changedSummaryDocument).Element("summary")!.Value = "To be added.";
+            Write(changedSummaryDocument);
+            Assert(RunPipeline() == 1 &&
+                CurrentDocs().Element("summary")!.Value == raw.Summary.Replace(
+                    "as well as a custom prefix/suffix around them",
+                    "as well as a separately supplied prefix/suffix around them", StringComparison.Ordinal),
+                "changed official summary text is not rewritten by the exact source correction");
+            AssertRepeat();
+
+            File.WriteAllText(cachePath, html.Replace(
+                "to be displayed before the byte data.",
+                "to be displayed before the selected sequence.", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            var changedSourceDocument = NewDocument(owner);
+            Parameter(DocumentDocs(changedSourceDocument), "prefix").Value = "To be added.";
+            Write(changedSourceDocument);
+            Assert(RunPipeline() == 1 &&
+                Parameter(CurrentDocs(), "prefix").Value ==
+                    "to be displayed before the selected sequence. This value cannot be null.",
+                "changed official parameter text is imported unchanged rather than broadly normalized");
+            AssertRepeat();
+
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            var byteDocument = NewDocument(byteOwner);
+            Parameter(DocumentDocs(byteDocument), "prefix").Value = "To be added.";
+            Write(byteDocument);
+            Assert(RunPipeline(byteMemberId) == 1 &&
+                Parameter(CurrentDocs(), "prefix").Value == incorrectPrefix &&
+                CurrentDocs().Element("summary")!.Value == byteRaw.Summary,
+                "the registered neighboring byte overload still imports its correct byte-data contract");
+            AssertRepeat(byteMemberId);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     static void TestKnownAndroidTextRepairs()
     {
-        foreach (var group in KnownAndroidTextRepairs.GroupBy(repair => repair.MemberId))
+        foreach (var group in KnownAndroidTextRepairs.GroupBy(repair => (
+            repair.MemberId,
+            Channel: repair.Target.StartsWith("param:", StringComparison.Ordinal) ? repair.Target : "prose")))
         {
             var repair = group.First();
             var parameterName = repair.Target.StartsWith("param:", StringComparison.Ordinal)

@@ -426,6 +426,17 @@ Registered production-path tests cover bounded first-fill, strict prior-owned
 repair, provenance and JNI mismatches, authored markup, future corrected source,
 and persisted zero-write repeats.
 The same exact-text allow-list corrects `Tile.writeToParcel`'s `in to` typo.
+For `SystemDataSyncFlags.CallMetadata`, it also removes the stray `}` after the
+method reference in the exact Android `FLAG_CALL_METADATA` paragraph. The
+managed field, canonical source URL, and complete original paragraph must all
+match; changed or corrected source remains eligible without a general punctuation
+repair. Only an exact prior importer-owned paragraph can be repaired.
+The exact `BluetoothLeDeviceFilter.Builder.SetRenameFromName` source mistakenly
+describes byte data and an advertised name. The
+[pinned implementation](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/companion/BluetoothLeDeviceFilter.java#143)
+instead selects characters from the device's display name. Exact source-text
+corrections cover its prefix, suffix, summary and remarks; the byte-based
+overload, changed source text, and authored content are not rewritten.
 For QuickSettings, the exact inherited `TileService.onBind` intent parameter is
 withheld because its claim that extras are invisible contradicts the framework
 binder extras. The nullable-binder prose and return channel remain eligible:
