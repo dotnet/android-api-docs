@@ -123,7 +123,7 @@
             Gets the number of completed CoreCLR or NativeAOT GC bridge processing cycles.
             </summary>
         <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <remarks>The runtime reads this counter by using <c>Volatile.Read</c> and increments it by using <c>Interlocked.Increment</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CallBooleanMethod">
@@ -3481,10 +3481,10 @@
         <Parameter Name="dest" Type="System.UInt32[]" />
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
-        <param name="dest">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="src">A valid JNI reference to a Java <c>int[]</c>, or <see cref="F:System.IntPtr.Zero" />.</param>
+        <param name="dest">An unsigned integer array that receives the copied elements. It must not be <see langword="null" /> when <paramref name="src" /> is nonzero.</param>
+        <summary>Copies elements from a Java <c>int[]</c> into a managed <c>uint[]</c>.</summary>
+        <remarks>If <paramref name="src" /> is zero, the method returns without copying. Otherwise, it requests as many elements as the destination length, starting at index zero. It passes the pinned destination storage to JNI as a pointer to signed 32-bit integers; it performs no managed numeric conversion.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CopyArray">
