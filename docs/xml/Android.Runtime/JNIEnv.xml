@@ -12,7 +12,7 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides methods and properties for working with JNI in the Android runtime.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -35,9 +35,9 @@
         <Parameter Name="jclass" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jclass">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jclass">A live JNI class reference for an allocatable class in the current VM. It must remain usable on the calling thread during the call.</param>
+        <summary>Creates a Java object but does not call its constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if allocation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -66,9 +66,9 @@
         <Parameter Name="jniClassName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniClassName">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jniClassName">The JNI name used to find the class to allocate.</param>
+        <summary>Creates a Java object but does not call its constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if allocation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -97,9 +97,9 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The managed type used to find the Java class to allocate.</param>
+        <summary>Creates a Java object but does not call its constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if allocation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -122,7 +122,7 @@
         <summary>
             Gets the number of completed CoreCLR or NativeAOT GC bridge processing cycles.
             </summary>
-        <value>To be added.</value>
+        <value>The runtime's bridge processing generation counter.</value>
         <remarks>The runtime reads this counter by using <c>Volatile.Read</c> and increments it by using <c>Interlocked.Increment</c>.</remarks>
       </Docs>
     </Member>
@@ -144,10 +144,10 @@
         <Parameter Name="jmethod" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must take no arguments and return a boolean. Keep its declaring class live.</param>
+        <summary>Calls a Java instance method that returns a boolean.</summary>
+        <returns>The boolean returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -172,11 +172,11 @@
         <Parameter Name="parms" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a boolean. Keep its declaring class live.</param>
+        <param name="parms">Arguments in JNI order and types. The pointer must be readable for the argument count. Do not change the storage during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a boolean.</summary>
+        <returns>The boolean returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -208,11 +208,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a boolean. Keep its declaring class live.</param>
+        <param name="parms">All arguments in JNI order and types. Do not change the array during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a boolean.</summary>
+        <returns>The boolean returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -236,10 +236,10 @@
         <Parameter Name="jmethod" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must take no arguments and return a Java byte. Keep its declaring class live.</param>
+        <summary>Calls a Java instance method that returns a byte.</summary>
+        <returns>The signed byte returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -264,11 +264,11 @@
         <Parameter Name="parms" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java byte. Keep its declaring class live.</param>
+        <param name="parms">Arguments in JNI order and types. The pointer must be readable for the argument count. Do not change the storage during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a byte.</summary>
+        <returns>The signed byte returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -300,11 +300,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java byte. Keep its declaring class live.</param>
+        <param name="parms">All arguments in JNI order and types. Do not change the array during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a byte.</summary>
+        <returns>The signed byte returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -328,10 +328,10 @@
         <Parameter Name="jmethod" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must take no arguments and return a Java character. Keep its declaring class live.</param>
+        <summary>Calls a Java instance method that returns a character.</summary>
+        <returns>The character returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -356,11 +356,11 @@
         <Parameter Name="parms" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java character. Keep its declaring class live.</param>
+        <param name="parms">Arguments in JNI order and types. The pointer must be readable for the argument count. Do not change the storage during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a character.</summary>
+        <returns>The character returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -392,11 +392,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java character. Keep its declaring class live.</param>
+        <param name="parms">All arguments in JNI order and types. Do not change the array during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a character.</summary>
+        <returns>The character returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -420,10 +420,10 @@
         <Parameter Name="jmethod" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must take no arguments and return a Java double. Keep its declaring class live.</param>
+        <summary>Calls a Java instance method that returns a double-precision floating-point value.</summary>
+        <returns>The value returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -448,11 +448,11 @@
         <Parameter Name="parms" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java double. Keep its declaring class live.</param>
+        <param name="parms">Arguments in JNI order and types. The pointer must be readable for the argument count. Do not change the storage during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a double-precision floating-point value.</summary>
+        <returns>The value returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -484,11 +484,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java double. Keep its declaring class live.</param>
+        <param name="parms">All arguments in JNI order and types. Do not change the array during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a double-precision floating-point value.</summary>
+        <returns>The value returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -512,10 +512,10 @@
         <Parameter Name="jmethod" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must take no arguments and return a Java float. Keep its declaring class live.</param>
+        <summary>Calls a Java instance method that returns a single-precision floating-point value.</summary>
+        <returns>The value returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -540,11 +540,11 @@
         <Parameter Name="parms" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java float. Keep its declaring class live.</param>
+        <param name="parms">Arguments in JNI order and types. The pointer must be readable for the argument count. Do not change the storage during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a single-precision floating-point value.</summary>
+        <returns>The value returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -576,11 +576,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java float. Keep its declaring class live.</param>
+        <param name="parms">All arguments in JNI order and types. Do not change the array during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a single-precision floating-point value.</summary>
+        <returns>The value returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -604,10 +604,10 @@
         <Parameter Name="jmethod" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must take no arguments and return a Java int. Keep its declaring class live.</param>
+        <summary>Calls a Java instance method that returns an integer.</summary>
+        <returns>The integer returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -632,11 +632,11 @@
         <Parameter Name="parms" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java int. Keep its declaring class live.</param>
+        <param name="parms">Arguments in JNI order and types. The pointer must be readable for the argument count. Do not change the storage during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns an integer.</summary>
+        <returns>The integer returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -668,11 +668,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java int. Keep its declaring class live.</param>
+        <param name="parms">All arguments in JNI order and types. Do not change the array during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns an integer.</summary>
+        <returns>The integer returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -696,10 +696,10 @@
         <Parameter Name="jmethod" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must take no arguments and return a Java long. Keep its declaring class live.</param>
+        <summary>Calls a Java instance method that returns a 64-bit integer.</summary>
+        <returns>The integer returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -724,11 +724,11 @@
         <Parameter Name="parms" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java long. Keep its declaring class live.</param>
+        <param name="parms">Arguments in JNI order and types. The pointer must be readable for the argument count. Do not change the storage during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a 64-bit integer.</summary>
+        <returns>The integer returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -760,11 +760,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java long. Keep its declaring class live.</param>
+        <param name="parms">All arguments in JNI order and types. Do not change the array during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a 64-bit integer.</summary>
+        <returns>The integer returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1857,10 +1857,10 @@
         <Parameter Name="jmethod" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must take no arguments and return a Java short. Keep its declaring class live.</param>
+        <summary>Calls a Java instance method that returns a 16-bit integer.</summary>
+        <returns>The integer returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1885,11 +1885,11 @@
         <Parameter Name="parms" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java short. Keep its declaring class live.</param>
+        <param name="parms">Arguments in JNI order and types. The pointer must be readable for the argument count. Do not change the storage during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a 16-bit integer.</summary>
+        <returns>The integer returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1921,11 +1921,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return a Java short. Keep its declaring class live.</param>
+        <param name="parms">All arguments in JNI order and types. Do not change the array during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that returns a 16-bit integer.</summary>
+        <returns>The integer returned by the Java method.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2866,9 +2866,9 @@
         <Parameter Name="jmethod" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must take no arguments and return void. Keep its declaring class live.</param>
+        <summary>Calls a Java instance method that does not return a value.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2893,10 +2893,10 @@
         <Parameter Name="parms" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return void. Keep its declaring class live.</param>
+        <param name="parms">Arguments in JNI order and types. The pointer must be readable for the argument count. Do not change the storage during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that does not return a value.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2928,10 +2928,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <param name="jmethod">To be added.</param>
-        <param name="parms">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="jobject">A live JNI object reference from the current VM, usable on the calling thread until the call returns or throws.</param>
+        <param name="jmethod">A live instance method ID applicable to <paramref name="jobject" />. Its JNI signature must match the arguments and return void. Keep its declaring class live.</param>
+        <param name="parms">All arguments in JNI order and types. Do not change the array during the call, and keep referenced objects live.</param>
+        <summary>Calls a Java instance method that does not return a value.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2954,8 +2954,8 @@
         <Parameter Name="jnienv" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jnienv">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="jnienv">A live JNI environment pointer for the calling thread and current runtime. Its matching JNI function table must be readable, and the pointer and its VM must remain usable until the method returns or throws.</param>
+        <summary>Records the JNI environment pointer for the calling thread.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3852,11 +3852,11 @@
         <Parameter Name="constructorParameters" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jniClass">To be added.</param>
-        <param name="signature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jniClass">A live JNI class reference that is not an array class. It must remain usable on the calling thread during the call.</param>
+        <param name="signature">The JNI signature of a void-returning constructor that matches the arguments.</param>
+        <param name="constructorParameters">A pointer to the constructor arguments in JNI order and types. The storage and referenced objects must remain valid during the call.</param>
+        <summary>Creates a Java object and calls the selected constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if creation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3894,11 +3894,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jniClass">To be added.</param>
-        <param name="signature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jniClass">A live JNI class reference that is not an array class. It must remain usable on the calling thread during the call.</param>
+        <param name="signature">The JNI signature of a void-returning constructor that matches the arguments.</param>
+        <param name="constructorParameters">The constructor arguments in JNI order and types. Referenced objects must remain valid during the call.</param>
+        <summary>Creates a Java object and calls the selected constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if creation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3936,11 +3936,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jniClassName">To be added.</param>
-        <param name="signature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jniClassName">The JNI name used to find the class to create. The class must not be an array class.</param>
+        <param name="signature">The JNI signature of a void-returning constructor that matches the arguments.</param>
+        <param name="constructorParameters">A pointer to the constructor arguments in JNI order and types. The storage and referenced objects must remain valid during the call.</param>
+        <summary>Creates a Java object and calls the selected constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if creation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3978,11 +3978,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jniClassName">To be added.</param>
-        <param name="signature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jniClassName">The JNI name used to find the class to create. The class must not be an array class.</param>
+        <param name="signature">The JNI signature of a void-returning constructor that matches the arguments.</param>
+        <param name="constructorParameters">The constructor arguments in JNI order and types. Referenced objects must remain valid during the call.</param>
+        <summary>Creates a Java object and calls the selected constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if creation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4020,11 +4020,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="signature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The managed type used to find the Java class to create. The Java class must not be an array class.</param>
+        <param name="signature">The JNI signature of a void-returning constructor that matches the arguments.</param>
+        <param name="constructorParameters">A pointer to the constructor arguments in JNI order and types. The storage and referenced objects must remain valid during the call.</param>
+        <summary>Creates a Java object and calls the selected constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if creation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4062,11 +4062,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="signature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The managed type used to find the Java class to create. The Java class must not be an array class.</param>
+        <param name="signature">The JNI signature of a void-returning constructor that matches the arguments.</param>
+        <param name="constructorParameters">The constructor arguments in JNI order and types. Referenced objects must remain valid during the call.</param>
+        <summary>Creates a Java object and calls the selected constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if creation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4089,8 +4089,8 @@
         <Parameter Name="jobject" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="jobject">An owned, live global JNI reference, or <see cref="F:System.IntPtr.Zero" />. Do not access the reference concurrently or use it after the call.</param>
+        <summary>Deletes a global JNI reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4113,8 +4113,8 @@
         <Parameter Name="jobject" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="jobject">An owned, live local JNI reference for the calling thread, or <see cref="F:System.IntPtr.Zero" />. Do not access the reference concurrently or use it after the call.</param>
+        <summary>Deletes a local JNI reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4137,8 +4137,8 @@
         <Parameter Name="jobject" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="jobject">An owned, live weak global JNI reference, or <see cref="F:System.IntPtr.Zero" />. Do not access the reference concurrently or use it after the call.</param>
+        <summary>Deletes a weak global JNI reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4161,8 +4161,8 @@
         <Parameter Name="capacity" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="capacity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="capacity">The minimum number of local references to reserve. It must not be negative.</param>
+        <summary>Requests capacity for local JNI references on the calling thread.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4183,7 +4183,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Clears the pending Java exception on the calling thread, if any.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4204,7 +4204,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Reports a pending Java exception and its stack trace to a system error channel and clears the exception.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4353,10 +4353,10 @@
         <Parameter Name="constructorParameters" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <param name="jniCtorSignature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="instance">A live JNI reference to the allocated object, usable on the calling thread during the call.</param>
+        <param name="jniCtorSignature">The JNI signature of a void-returning constructor that matches the arguments.</param>
+        <param name="constructorParameters">A pointer to the constructor arguments in JNI order and types. The storage and referenced objects must remain valid during the call.</param>
+        <summary>Invokes the selected Java constructor on the allocated object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4394,10 +4394,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <param name="jniCtorSignature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="instance">A live JNI reference to the allocated object, usable on the calling thread during the call.</param>
+        <param name="jniCtorSignature">The JNI signature of a void-returning constructor that matches the arguments.</param>
+        <param name="constructorParameters">The constructor arguments in JNI order and types. Referenced objects must remain valid during the call.</param>
+        <summary>Invokes the selected Java constructor on the allocated object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4423,11 +4423,11 @@
         <Parameter Name="constructorParameters" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <param name="jclass">To be added.</param>
-        <param name="constructorId">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="instance">A live JNI reference to the allocated object, usable on the calling thread during the call.</param>
+        <param name="jclass">A live JNI class reference for the constructor, usable on the calling thread during the call.</param>
+        <param name="constructorId">A live instance constructor ID for <paramref name="jclass" /> with a void return type and a signature that matches the arguments.</param>
+        <param name="constructorParameters">A pointer to the constructor arguments in JNI order and types. The storage and referenced objects must remain valid during the call.</param>
+        <summary>Invokes the selected Java constructor on the allocated object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4466,11 +4466,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <param name="jclass">To be added.</param>
-        <param name="constructorId">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="instance">A live JNI reference to the allocated object, usable on the calling thread during the call.</param>
+        <param name="jclass">A live JNI class reference for the constructor, usable on the calling thread during the call.</param>
+        <param name="constructorId">A live instance constructor ID for <paramref name="jclass" /> with a void return type and a signature that matches the arguments.</param>
+        <param name="constructorParameters">The constructor arguments in JNI order and types. Referenced objects must remain valid during the call.</param>
+        <summary>Invokes the selected Java constructor on the allocated object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4595,10 +4595,10 @@
         <Parameter Name="array_ptr" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <param name="array_ptr">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <typeparam name="T">The managed element type.</typeparam>
+        <param name="array_ptr">A live JNI array reference usable on the calling thread, or <see cref="F:System.IntPtr.Zero" />.</param>
+        <summary>Copies a Java array into a new managed array.</summary>
+        <returns>A managed array containing the converted elements, or <see langword="null" /> if <paramref name="array_ptr" /> is <see cref="F:System.IntPtr.Zero" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4665,9 +4665,9 @@
         <Parameter Name="array_ptr" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="array_ptr">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="array_ptr">A live JNI array reference from the current VM, usable on the calling thread, or <see cref="F:System.IntPtr.Zero" />.</param>
+        <summary>Gets the length of a Java array.</summary>
+        <returns>The number of elements, or zero when <paramref name="array_ptr" /> is <see cref="F:System.IntPtr.Zero" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5001,9 +5001,9 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The managed type to look up.</param>
+        <summary>Gets the JNI name for a managed type.</summary>
+        <returns>The JNI name for <paramref name="type" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5055,11 +5055,11 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="kls">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="kls">A live JNI class or interface reference from the current VM, usable on the calling thread.</param>
+        <param name="name">The Java method name, or <c>&lt;init&gt;</c> for a constructor.</param>
+        <param name="signature">The JNI method descriptor. For a constructor, use <c>V</c> as its return type.</param>
+        <summary>Looks up an instance method or constructor by name and JNI signature.</summary>
+        <returns>The JNI method ID. Keep its declaring class live while using the ID.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5447,11 +5447,11 @@
         <Parameter Name="sig" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jclass">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="sig">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jclass">A live JNI class reference from the current VM, usable on the calling thread.</param>
+        <param name="name">The Java static method name.</param>
+        <param name="sig">The JNI method descriptor.</param>
+        <summary>Looks up a static method by name and JNI signature.</summary>
+        <returns>The JNI method ID. Keep its declaring class live while using the ID.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5535,10 +5535,10 @@
         <Parameter Name="transfer" Type="Android.Runtime.JniHandleOwnership" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">A live JNI string reference from the current VM, usable on the calling thread, or <see cref="F:System.IntPtr.Zero" />.</param>
+        <param name="transfer">How to handle ownership of <paramref name="value" /> after successful conversion.</param>
+        <summary>Converts a Java string to a managed string.</summary>
+        <returns>The converted string, or <see langword="null" /> when <paramref name="value" /> is <see cref="F:System.IntPtr.Zero" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5583,8 +5583,8 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI environment pointer for the current thread.</summary>
+        <value>The current thread's JNI environment pointer.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5616,10 +5616,10 @@
         <Parameter Name="constructorParameters" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <param name="jniCtorSignature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="instance">A live JNI reference to the allocated object, usable on the calling thread during the call.</param>
+        <param name="jniCtorSignature">The JNI signature of a void-returning constructor that matches the arguments.</param>
+        <param name="constructorParameters">A pointer to the constructor arguments in JNI order and types. The storage and referenced objects must remain valid during the call.</param>
+        <summary>Invokes the selected Java constructor on the allocated object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5657,10 +5657,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <param name="jniCtorSignature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="instance">A live JNI reference to the allocated object, usable on the calling thread during the call.</param>
+        <param name="jniCtorSignature">The JNI signature of a void-returning constructor that matches the arguments.</param>
+        <param name="constructorParameters">The constructor arguments in JNI order and types. Referenced objects must remain valid during the call.</param>
+        <summary>Invokes the selected Java constructor on the allocated object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5738,10 +5738,10 @@
         <Parameter Name="ref2" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="ref1">To be added.</param>
-        <param name="ref2">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="ref1">A live JNI object reference from the current VM, usable on the calling thread, or <see cref="F:System.IntPtr.Zero" />.</param>
+        <param name="ref2">A live JNI object reference from the current VM, usable on the calling thread, or <see cref="F:System.IntPtr.Zero" />.</param>
+        <summary>Compares the Java objects referenced by two JNI handles.</summary>
+        <returns><see langword="true" /> if the references identify the same object or both identify null; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6230,9 +6230,9 @@
         <Parameter Name="jobject" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jobject">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jobject">A live JNI reference from the current VM, usable on the calling thread, or <see cref="F:System.IntPtr.Zero" />.</param>
+        <summary>Creates a global JNI reference to the same object.</summary>
+        <returns>A global reference that the caller must release with <see cref="M:Android.Runtime.JNIEnv.DeleteGlobalRef(System.IntPtr)" />, or <see cref="F:System.IntPtr.Zero" /> if no reference is obtained.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6544,9 +6544,9 @@
         <Parameter Name="result" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="result">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="result">A live JNI reference usable on the calling thread, or <see cref="F:System.IntPtr.Zero" /> when no reference is needed in the previous frame.</param>
+        <summary>Pops the current local reference frame and frees its local references.</summary>
+        <returns>A local reference to <paramref name="result" /> in the previous frame, or <see cref="F:System.IntPtr.Zero" /> if no reference is obtained.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6569,8 +6569,8 @@
         <Parameter Name="capacity" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="capacity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="capacity">The minimum number of local references to reserve. It must be greater than zero.</param>
+        <summary>Pushes a local reference frame for the calling thread.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7172,11 +7172,11 @@
         <Parameter Name="constructorParameters" Type="Android.Runtime.JValue*" />
       </Parameters>
       <Docs>
-        <param name="jclass">To be added.</param>
-        <param name="constructorId">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jclass">A live JNI class reference for an allocatable class in the current VM. It must remain usable on the calling thread during the call.</param>
+        <param name="constructorId">A constructor ID. It is not read during allocation.</param>
+        <param name="constructorParameters">A pointer to constructor arguments. The arguments are not read during allocation.</param>
+        <summary>Creates a Java object but does not call its constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if allocation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7214,11 +7214,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jclass">To be added.</param>
-        <param name="constructorId">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jclass">A live JNI class reference for an allocatable class in the current VM. It must remain usable on the calling thread during the call.</param>
+        <param name="constructorId">A constructor ID. It is not read during allocation.</param>
+        <param name="constructorParameters">Constructor arguments. The argument values are not read during allocation.</param>
+        <summary>Creates a Java object but does not call its constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if allocation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7256,11 +7256,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jniClassName">To be added.</param>
-        <param name="jniCtorSignature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jniClassName">The JNI name used to find the class to allocate.</param>
+        <param name="jniCtorSignature">A constructor signature. It is not read during allocation.</param>
+        <param name="constructorParameters">A pointer to constructor arguments. The arguments are not read during allocation.</param>
+        <summary>Creates a Java object but does not call its constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if allocation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7298,11 +7298,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jniClassName">To be added.</param>
-        <param name="jniCtorSignature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jniClassName">The JNI name used to find the class to allocate.</param>
+        <param name="jniCtorSignature">A constructor signature. It is not read during allocation.</param>
+        <param name="constructorParameters">Constructor arguments. The argument values are not read during allocation.</param>
+        <summary>Creates a Java object but does not call its constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if allocation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7340,11 +7340,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="jniCtorSignature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The managed type used to find the Java class to allocate.</param>
+        <param name="jniCtorSignature">A constructor signature. It is not read during allocation.</param>
+        <param name="constructorParameters">A pointer to constructor arguments. The arguments are not read during allocation.</param>
+        <summary>Creates a Java object but does not call its constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if allocation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7382,11 +7382,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="jniCtorSignature">To be added.</param>
-        <param name="constructorParameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The managed type used to find the Java class to allocate.</param>
+        <param name="jniCtorSignature">A constructor signature. It is not read during allocation.</param>
+        <param name="constructorParameters">Constructor arguments. The argument values are not read during allocation.</param>
+        <summary>Creates a Java object but does not call its constructor.</summary>
+        <returns>A local JNI reference to the object, or <see cref="F:System.IntPtr.Zero" /> if allocation returns null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7409,8 +7409,8 @@
         <Parameter Name="obj" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="obj">A live JNI reference to a Java throwable from the current VM, usable on the calling thread.</param>
+        <summary>Passes the throwable to the JNI throw operation.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7440,9 +7440,9 @@
         <Parameter Name="message" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="clazz">To be added.</param>
-        <param name="message">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="clazz">A live JNI class reference for a Java throwable type with a string constructor, usable on the calling thread.</param>
+        <param name="message">The message for the new throwable.</param>
+        <summary>Requests a new Java throwable through JNI.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7471,9 +7471,9 @@
         <Parameter Name="value" Type="Android.Runtime.IJavaObject" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The managed Java peer, or <see langword="null" />.</param>
+        <summary>Gets the peer's existing JNI handle.</summary>
+        <returns>The peer's handle, or <see cref="F:System.IntPtr.Zero" /> when <paramref name="value" /> is null. The handle is not a new local reference.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7577,7 +7577,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Waits for garbage-collection bridge processing when required by the runtime value manager.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
