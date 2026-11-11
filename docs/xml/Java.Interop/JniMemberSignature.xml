@@ -29,8 +29,8 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Stores a Java member name and its JNI signature.</summary>
+    <remarks>Equality compares both stored strings. Creating a value checks that the strings are not null or empty, but does not parse the JNI signature.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -48,10 +48,10 @@
         <Parameter Name="memberSignature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="memberName">To be added.</param>
-        <param name="memberSignature">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="memberName">The non-null, non-empty Java member name.</param>
+        <param name="memberSignature">The non-null, non-empty JNI member signature.</param>
+        <summary>Creates a value with the specified member name and JNI signature.</summary>
+        <remarks>A null or empty argument causes an <see cref="T:System.ArgumentNullException" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Empty">
@@ -68,8 +68,8 @@
         <ReturnType>Java.Interop.JniMemberSignature</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>An uninitialized member signature.</summary>
+        <remarks>Reading <see cref="P:Java.Interop.JniMemberSignature.MemberName" /> or <see cref="P:Java.Interop.JniMemberSignature.MemberSignature" /> on this value causes an <see cref="T:System.InvalidOperationException" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Equals">
@@ -92,10 +92,10 @@
         <Parameter Name="other" Type="Java.Interop.JniMemberSignature" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="other">The member signature to compare with this value.</param>
+        <summary>Determines whether two member signatures contain the same name and signature.</summary>
+        <returns><see langword="true" /> if both stored strings match; otherwise, <see langword="false" />.</returns>
+        <remarks>The comparison uses the stored strings directly, so two uninitialized values are equal.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Equals">
@@ -121,10 +121,10 @@
         <Parameter Name="obj" Type="System.Object" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="obj">The object to compare with this value.</param>
+        <summary>Determines whether an object is an equal member signature.</summary>
+        <returns><see langword="true" /> if <paramref name="obj" /> is a <see cref="T:Java.Interop.JniMemberSignature" /> with matching stored strings; otherwise, <see langword="false" />.</returns>
+        <remarks>A null value or an object of another type is not equal to this value.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetHashCode">
@@ -142,9 +142,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Gets a hash code from the stored member name and signature.</summary>
+        <returns>The exclusive OR of the two string hash codes, using zero for each null string.</returns>
+        <remarks>The uninitialized value has a hash code of zero.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetParameterCountFromMethodSignature">
@@ -164,10 +164,10 @@
         <Parameter Name="jniMethodSignature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniMethodSignature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniMethodSignature">The JNI method descriptor whose parameter types are to be counted.</param>
+        <summary>Counts the parameter type descriptors in a JNI method signature.</summary>
+        <returns>The number of parameter descriptors before the closing parenthesis.</returns>
+        <remarks>An array descriptor counts as one parameter regardless of rank. The return type is not counted.</remarks>
       </Docs>
     </Member>
     <Member MemberName="MemberName">
@@ -184,9 +184,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the stored Java member name.</summary>
+        <value>The member name supplied to the constructor.</value>
+        <remarks>An uninitialized value causes an <see cref="T:System.InvalidOperationException" /> when this property is read.</remarks>
       </Docs>
     </Member>
     <Member MemberName="MemberSignature">
@@ -203,9 +203,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the stored JNI member signature.</summary>
+        <value>The signature supplied to the constructor.</value>
+        <remarks>An uninitialized value causes an <see cref="T:System.InvalidOperationException" /> when this property is read.</remarks>
       </Docs>
     </Member>
     <Member MemberName="op_Equality">
@@ -226,11 +226,11 @@
         <Parameter Name="b" Type="Java.Interop.JniMemberSignature" />
       </Parameters>
       <Docs>
-        <param name="a">To be added.</param>
-        <param name="b">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="a">The first member signature to compare.</param>
+        <param name="b">The second member signature to compare.</param>
+        <summary>Determines whether two member signatures are equal.</summary>
+        <returns><see langword="true" /> if both stored names and signatures match; otherwise, <see langword="false" />.</returns>
+        <remarks>This operator uses the same component comparison as <see cref="M:Java.Interop.JniMemberSignature.Equals(Java.Interop.JniMemberSignature)" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="op_Inequality">
@@ -251,11 +251,11 @@
         <Parameter Name="b" Type="Java.Interop.JniMemberSignature" />
       </Parameters>
       <Docs>
-        <param name="a">To be added.</param>
-        <param name="b">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="a">The first member signature to compare.</param>
+        <param name="b">The second member signature to compare.</param>
+        <summary>Determines whether two member signatures differ.</summary>
+        <returns><see langword="true" /> if the stored names or signatures differ; otherwise, <see langword="false" />.</returns>
+        <remarks>This operator returns the inverse of <see cref="M:Java.Interop.JniMemberSignature.Equals(Java.Interop.JniMemberSignature)" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -273,9 +273,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns a diagnostic description of the stored name and signature.</summary>
+        <returns>A string containing the member name and JNI signature, with <c>null</c> for an uninitialized component.</returns>
+        <remarks>This method reads the backing fields, so it can describe an uninitialized value without accessing the throwing properties.</remarks>
       </Docs>
     </Member>
   </Members>

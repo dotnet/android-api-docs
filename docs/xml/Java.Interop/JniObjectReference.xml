@@ -20,7 +20,7 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Stores a JNI object handle and reference type without creating a new JNI reference.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -41,9 +41,9 @@
         <Parameter Name="type" Type="Java.Interop.JniObjectReferenceType" />
       </Parameters>
       <Docs>
-        <param name="handle">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="handle">The JNI reference handle to store. This constructor does not copy the reference.</param>
+        <param name="type">The reference type to store. The default is <see cref="F:Java.Interop.JniObjectReferenceType.Invalid" />.</param>
+        <summary>Wraps an existing JNI reference handle with its reference type.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -66,8 +66,8 @@
         <Parameter Name="reference" Type="Java.Interop.JniObjectReference" RefType="ref" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="reference">The reference to release and invalidate. A zero handle requires no action.</param>
+        <summary>Releases a JNI reference according to its stored type and clears its handle.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -91,9 +91,9 @@
         <Parameter Name="options" Type="Java.Interop.JniObjectReferenceOptions" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="reference">The reference to release if <paramref name="options" /> requests source disposal.</param>
+        <param name="options">Reference transfer options. <see cref="F:Java.Interop.JniObjectReferenceOptions.CopyAndDispose" /> requests disposal; <see cref="F:Java.Interop.JniObjectReferenceOptions.None" />, <see cref="F:Java.Interop.JniObjectReferenceOptions.Copy" />, and <see cref="F:Java.Interop.JniObjectReferenceOptions.CopyAndDoNotRegister" /> leave the reference unchanged.</param>
+        <summary>Disposes the reference only when the options include source disposal.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -119,9 +119,9 @@
         <Parameter Name="other" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="other">The reference whose handle is to be compared.</param>
+        <summary>Determines whether two reference values contain the same handle.</summary>
+        <returns><see langword="true" /> if the handle values match, regardless of reference type; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -150,9 +150,9 @@
         <Parameter Name="obj" Type="System.Object" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="obj">The object to compare with this reference value.</param>
+        <summary>Determines whether an object is a reference value with the same handle.</summary>
+        <returns><see langword="true" /> if <paramref name="obj" /> is a <see cref="T:Java.Interop.JniObjectReference" /> with the same handle; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -173,8 +173,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Gets the hash code of the stored JNI handle.</summary>
+        <returns>The hash code returned by <see cref="P:Java.Interop.JniObjectReference.Handle" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -200,8 +200,8 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the stored JNI reference handle.</summary>
+        <value>The reference handle, or <see cref="F:System.IntPtr.Zero" /> for a null or disposed reference.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -221,8 +221,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets whether the stored handle is nonzero.</summary>
+        <value><see langword="true" /> if <see cref="P:Java.Interop.JniObjectReference.Handle" /> is not <see cref="F:System.IntPtr.Zero" />; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -243,8 +243,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Creates a global reference through the runtime's object reference manager.</summary>
+        <returns>A global reference to the same Java object, or an invalid reference for a zero handle.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -265,8 +265,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Creates a local reference through the runtime's object reference manager.</summary>
+        <returns>A local reference to the same Java object, or an invalid reference for a zero handle.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -287,8 +287,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Creates a weak global reference through the runtime's object reference manager.</summary>
+        <returns>A weak global reference to the same Java object, or an invalid reference for a zero handle.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -312,10 +312,10 @@
         <Parameter Name="rhs" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="lhs">To be added.</param>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="lhs">The first reference value to compare.</param>
+        <param name="rhs">The second reference value to compare.</param>
+        <summary>Determines whether two reference values have equal handles.</summary>
+        <returns><see langword="true" /> if the handles match, regardless of reference type; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -339,10 +339,10 @@
         <Parameter Name="rhs" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="lhs">To be added.</param>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="lhs">The first reference value to compare.</param>
+        <param name="rhs">The second reference value to compare.</param>
+        <summary>Determines whether two reference values have different handles.</summary>
+        <returns><see langword="true" /> if the handles differ; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -369,8 +369,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns a diagnostic description of the handle and reference type.</summary>
+        <returns>The hexadecimal handle followed by a slash and the reference type marker.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -390,8 +390,8 @@
         <ReturnType>Java.Interop.JniObjectReferenceType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the stored JNI reference type.</summary>
+        <value>The local, global, weak global, or invalid reference type stored with the handle.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
