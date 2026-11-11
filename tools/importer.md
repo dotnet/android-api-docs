@@ -133,6 +133,17 @@ Changed declarations or provenance do not enable recovery, and future corrected
 reference text follows ordinary parsing. Registered offline tests cover bounded
 imports, parameter/prose separation, authored content, and persisted repeats.
 
+The exact `EmbeddedBiometricPrompt.AuthenticationCallback.onAuthenticationError`
+and `onAuthenticationHelp` declarations contain broken links to Android's
+`BiometricConstants.Errors`, `BiometricFaceConstants.FaceAcquired`, and
+`BiometricFingerprintConstants.FingerprintAcquired` annotations. The importer
+retains those source names as plain text only for the two complete native
+fragments in `tools/importer-fixtures/biometric-callback-source-fragments.txt`
+and their exact managed/JNI bindings. The annotation declarations are verified
+against the pinned Android 17 implementation; no equivalence to the complete
+managed enum is inferred. Changed source or binding metadata does not enable
+the recovery. Existing authored channels remain protected.
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.
