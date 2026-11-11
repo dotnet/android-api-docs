@@ -22,7 +22,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Creates Java strings, copies their UTF-16 content, and manages native character access.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -46,10 +46,10 @@
         <Parameter Name="isCopy" Type="System.Boolean*" />
       </Parameters>
       <Docs>
-        <param name="stringInstance">To be added.</param>
-        <param name="isCopy">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="stringInstance">A valid JNI reference to the Java string.</param>
+        <param name="isCopy">An optional output pointer that receives <see langword="true" /> when JNI returns a copied buffer, or <see langword="false" /> for direct access.</param>
+        <summary>Acquires read access to a Java string's UTF-16 code units.</summary>
+        <returns>The character pointer to release with <c>ReleaseStringChars</c>, or a null pointer if JNI cannot provide access.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -72,9 +72,9 @@
         <Parameter Name="stringInstance" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="stringInstance">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="stringInstance">A valid JNI reference to the Java string.</param>
+        <summary>Gets the Java string length in UTF-16 code units.</summary>
+        <returns>The number of UTF-16 code units, not the number of encoded bytes.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -103,9 +103,9 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The managed string to copy, or <see langword="null" /> for a null Java reference.</param>
+        <summary>Creates a Java string from a managed string.</summary>
+        <returns>A new local Java string reference, or an invalid reference when <paramref name="value" /> is <see langword="null" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -129,10 +129,10 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="unicodeChars">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="unicodeChars">A pointer to the UTF-16 code units to copy.</param>
+        <param name="length">The number of UTF-16 code units to copy.</param>
+        <summary>Creates a Java string from a native UTF-16 buffer.</summary>
+        <returns>The local JNI reference returned by string creation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -156,9 +156,9 @@
         <Parameter Name="chars" Type="System.Char*" />
       </Parameters>
       <Docs>
-        <param name="stringInstance">To be added.</param>
-        <param name="chars">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="stringInstance">The same Java string reference used to acquire <paramref name="chars" />.</param>
+        <param name="chars">The character pointer returned by <c>GetStringChars</c> for that string.</param>
+        <summary>Ends native access to an acquired Java string character buffer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -187,9 +187,9 @@
         <Parameter Name="value" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The Java string reference. This overload does not dispose it.</param>
+        <summary>Copies a Java string into a managed string without consuming the reference.</summary>
+        <returns>The copied managed string, or <see langword="null" /> if <paramref name="value" /> has a zero handle.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -218,9 +218,9 @@
         <Parameter Name="reference" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The Java string handle. This overload does not delete the reference.</param>
+        <summary>Copies a Java string handle's content into a managed string.</summary>
+        <returns>The copied managed string, or <see langword="null" /> for a zero handle.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -250,10 +250,10 @@
         <Parameter Name="transfer" Type="Java.Interop.JniObjectReferenceOptions" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The Java string reference to copy and optionally dispose.</param>
+        <param name="transfer">Reference transfer options. <see cref="F:Java.Interop.JniObjectReferenceOptions.CopyAndDispose" /> deletes and invalidates <paramref name="value" /> after character access is released; the other named options preserve it.</param>
+        <summary>Copies a Java string into managed memory and applies the requested source disposal.</summary>
+        <returns>The copied managed string, or <see langword="null" /> if <paramref name="value" /> has a zero handle.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
