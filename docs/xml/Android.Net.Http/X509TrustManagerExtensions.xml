@@ -226,8 +226,8 @@
       </Parameters>
       <Docs>
         <param name="chain">The certificate chain provided by the peer.</param>
-        <param name="ocspData">To be added.</param>
-        <param name="tlsSctData">To be added.</param>
+        <param name="ocspData">The OCSP response data, or <c>null</c>.</param>
+        <param name="tlsSctData">The SCT data from the TLS extension, or <c>null</c>.</param>
         <param name="authType">The algorithm used for key exchange.</param>
         <param name="host">The server host name.</param>
         <summary>Verifies the given certificate chain.</summary>
@@ -238,8 +238,10 @@
             description of the chain and authType parameters. The final parameter, host, should be the
             hostname of the server.</para>
           <para>ocspData and tlsSctData may be provided to verify any Signed Certificate Timestamp (SCT)
-            attached to the connection. These are ASN.1 octet strings (SignedCertificateTimestampList)
-            as described in RFC 6962, Section 3.3. Note that SCTs embedded in the certificate chain
+            attached to the connection. With the platform Conscrypt trust manager, ocspData is an OCSP
+            response as described in RFC 6960, and tlsSctData is the contents of the TLS
+            signed_certificate_timestamp extension (SignedCertificateTimestampList) as described in
+            RFC 6962, Section 3.3.1. Note that SCTs embedded in the certificate chain
             will automatically be processed.</para>
           <para>
             <format type="text/html">
