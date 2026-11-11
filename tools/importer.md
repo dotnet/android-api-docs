@@ -155,8 +155,18 @@ registrations, unknown type descriptors, overload mismatches, ambiguous matches,
 inherited-only detail, missing documentation channels, or source text that contains
 only a Java type, nullability marker, cross-reference heading, or standalone
 deprecation boilerplate. Android page license/trademark footers and update timestamps
-are filtered, and literal Unicode escapes are decoded before XML escaping. Source
-prose is not imported for the exact `SaProposal.PSEUDORANDOM_FUNCTION_SHA2_512` field
+are filtered, and literal Unicode escapes are decoded before XML escaping.
+
+The exact `DevicePresenceEvent` constructor maps the Java parameter `event` to
+the managed parameter `e`. The mapping requires the matching managed owner and
+assembly, constructor and JNI signatures, ordered parameters, and canonical
+Android source. Duplicate or conflicting managed metadata prevents the mapping.
+It reads only the Parameters table; duplicate, malformed, reordered or
+conflicting parameter rows are reported as ambiguous rather than selected.
+Missing parameter rows are reported as missing. Other members do not use this
+mapping.
+
+Source prose is not imported for the exact `SaProposal.PSEUDORANDOM_FUNCTION_SHA2_512` field
 when its complete Android description incorrectly names HMAC-SHA2-384. That channel
 is reported as ambiguous instead of inventing replacement prose; existing authored
 or imported documentation is preserved.
