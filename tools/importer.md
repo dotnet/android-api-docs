@@ -220,6 +220,17 @@ managed/JNI binding or canonical source identity is rejected before any writer.
 The existing importer-owned remarks remain untouched and the report records
 `source_channel_ambiguous`; a future source paragraph that preserves both
 defaults remains eligible for an existing remarks placeholder.
+The exact `BiometricManager.Strings.getPromptMessage()` and `getSettingName()`
+return descriptions repeat the button-label text despite describing different
+getter purposes. The [pinned framework declarations](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/hardware/biometrics/BiometricManager.java)
+and [service implementation](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/services/core/java/com/android/server/biometrics/AuthService.java)
+confirm distinct getter paths. The importer withholds only the exact copied
+`value` text for the verified string aliases and registered `Formatted`
+properties, reports `source_channel_ambiguous`, and does not infer a replacement.
+If the copied value has mismatched binding or source provenance, the entire
+mapping is withheld rather than writing any channels.
+Other channels, the button-label getter, existing documentation, and future
+corrected source remain eligible or preserved.
 Repair of the known `Control.StatefulBuilder.setControlTemplate` paragraph boundary
 is restricted to its exact Android member URL and verified lead-in/description,
 preserving the source's blank line as two paragraphs without inventing punctuation.
