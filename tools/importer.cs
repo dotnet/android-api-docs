@@ -18269,20 +18269,106 @@ static partial class ImporterProgram
                     !docs.Paragraphs.Any(paragraph => paragraph.Text.Contains("Constant Value", StringComparison.Ordinal) ||
                         paragraph.Text.Contains("See also", StringComparison.Ordinal)),
                     $"SecurityLog {parts[0]} recovers only for its exact SecurityLogTags binding");
+                var correctedFragment = RecoverSecurityLogImplicitList(fragment, request, parts[0], out var recovered);
+                var corrected = SourcePage.Parse(request, correctedFragment).Members.Single().Docs;
+                Assert(recovered && corrected is { HasRecoveredSecurityLogImplicitList: false } &&
+                    corrected.Paragraphs.SequenceEqual(docs!.Paragraphs),
+                    $"SecurityLog {parts[0]} correctly closed source follows ordinary parsing");
+                if (parts[0] == "TAG_BACKUP_SERVICE_TOGGLED")
+                {
+                    var sourceMember = page.Members.Single(member => member.Name == parts[0]);
+                    foreach (var changed in new[]
+                    {
+                        docs! with { SourceKind = "java" },
+                        docs! with { SourceUrl = docs.SourceUrl + ".Other" },
+                        docs! with { SourceLabel = docs.SourceLabel + ".Other" },
+                    })
+                    {
+                        var provenancePage = new SourcePage { Members = [sourceMember with { Docs = changed }] };
+                        var provenancePages = new Dictionary<string, SourceLoadResult>
+                            { [request.Url] = SourceLoadResult.Success(provenancePage) };
+                        Assert(MapOwner(owner, provenancePages).ErrorReason == "source_channel_ambiguous",
+                            "SecurityLog rejects changed recovered source provenance");
+                    }
+                    var changedRequest = request with { JavaPath = "android/app/admin/Other" };
+                    Assert(MapOwner(owner with { SourceRequest = changedRequest }, pages).ErrorReason ==
+                        "source_channel_ambiguous", "SecurityLog rejects a changed source Java path");
+                }
                 var clonedType = new XElement(owner.Member!.Parent!.Parent!);
                 var clone = clonedType.Element("Members")!.Elements("Member")
                     .Single(member => (string?)member.Attribute("MemberName") == parts[1]);
-                clone.Element("MemberValue")!.Value = "1";
-                Assert(MapOwner(owner with { Member = clone, Docs = clone.Element("Docs")! }, pages).ErrorReason ==
-                    "source_channel_ambiguous", $"SecurityLog {parts[0]} rejects a changed managed value");
-                var jniClone = new XElement(owner.Member!.Parent!.Parent!).Element("Members")!.Elements("Member")
-                    .Single(member => (string?)member.Attribute("MemberName") == parts[1]);
-                foreach (var jniAttribute in jniClone.Descendants("AttributeName")
-                    .Where(name => name.Value.Contains("JniField=", StringComparison.Ordinal)))
-                    jniAttribute.Value = jniAttribute.Value.Replace("SecurityLog." + parts[0] + "\"",
-                        "SecurityLog.TAG_OTHER\"", StringComparison.Ordinal);
-                Assert(MapOwner(owner with { Member = jniClone, Docs = jniClone.Element("Docs")! }, pages).ErrorReason ==
-                    "source_channel_ambiguous", $"SecurityLog {parts[0]} rejects a changed JNI field");
+                DocsOwner SelectedClone() => owner with
+                {
+                    Member = clone,
+                    Docs = clone.Element("Docs")!,
+                    MemberRegistration = Registration.Member(clone),
+                    SourceRequest = SourceRequest.Create(Registration.JniField(clone)?.Owner),
+                };
+                Assert(MapOwner(SelectedClone(), pages).Docs is { HasRecoveredSecurityLogImplicitList: true },
+                    $"SecurityLog {parts[0]} attached clone reaches the recovery guard");
+                var memberValue = clone.Element("MemberValue")!;
+                var originalValue = memberValue.Value;
+                memberValue.Value = "1";
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed managed value");
+                memberValue.Value = originalValue;
+                clone.SetAttributeValue("MemberName", parts[1] + "Changed");
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed member name");
+                clone.SetAttributeValue("MemberName", parts[1]);
+                var docId = clone.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId");
+                docId.SetAttributeValue("Value", owner.Id + "Changed");
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed DocId");
+                docId.SetAttributeValue("Value", owner.Id);
+                var csharp = clone.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#");
+                csharp.SetAttributeValue("Value", parts[1] + "Changed");
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed C# signature");
+                csharp.SetAttributeValue("Value", parts[1]);
+                var returnType = clone.Element("ReturnValue")!.Element("ReturnType")!;
+                var originalReturnType = returnType.Value;
+                returnType.Value = "System.Int32";
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed return type");
+                returnType.Value = originalReturnType;
+                var memberType = clone.Element("MemberType")!;
+                memberType.Value = "Property";
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed member type");
+                memberType.Value = "Field";
+                foreach (var assembly in new[]
+                {
+                    clonedType.Element("AssemblyInfo")!.Element("AssemblyName")!,
+                    clone.Element("AssemblyInfo")!.Element("AssemblyName")!,
+                })
+                {
+                    assembly.Value = "Other.Assembly";
+                    Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                        $"SecurityLog {parts[0]} rejects a changed assembly");
+                    assembly.Value = "Mono.Android";
+                }
+                var jniAttributes = clone.Descendants("AttributeName")
+                    .Where(name => name.Value.Contains("JniField=", StringComparison.Ordinal)).ToList();
+                Assert(jniAttributes.Count > 0 && jniAttributes.All(attribute =>
+                    attribute.Value.Contains(SecurityLogJavaPath + "." + parts[0] + "\"", StringComparison.Ordinal)),
+                    $"SecurityLog {parts[0]} clone has the expected JNI field");
+                foreach (var attribute in jniAttributes)
+                    attribute.Value = attribute.Value.Replace(SecurityLogJavaPath + "." + parts[0] + "\"",
+                        "android/app/admin/Other." + parts[0] + "\"", StringComparison.Ordinal);
+                var changedOwner = SelectedClone();
+                Assert(changedOwner.MemberRegistration == owner.MemberRegistration &&
+                    changedOwner.SourceRequest?.JavaPath == "android/app/admin/Other",
+                    $"SecurityLog {parts[0]} changed JNI owner is routed to its own page");
+                var changedPage = SourcePage.Parse(changedOwner.SourceRequest!, fragment);
+                var changedPages = new Dictionary<string, SourceLoadResult>
+                    { [changedOwner.SourceRequest!.Url] = SourceLoadResult.Success(changedPage) };
+                Assert(MapOwner(changedOwner, changedPages).ErrorReason == "source_documentation_empty" &&
+                    !MatchesSecurityLogImplicitListBinding(changedOwner with { SourceRequest = request },
+                        owner.MemberRegistration!, docs!),
+                    $"SecurityLog {parts[0]} rejects a changed JNI owner");
             }
             else if (parts[0].StartsWith("TAG_KEY_", StringComparison.Ordinal))
                 Assert(docs is { HasRecoveredSecurityLogImplicitList: false } && mapped.Docs is not null,
@@ -18300,6 +18386,26 @@ static partial class ImporterProgram
                 "Indicates that a new root certificate has been installed into system's trusted credential storage. The log entry contains the following information about the event, encapsulated in an Object array and accessible via SecurityEvent.getData(): [0] result (Integer, 0 if operation failed, 1 if succeeded); [1] subject of the certificate (String); [2] which user the certificate is installed for (Integer), only available from version Build.VERSION_CODES.R.",
                 "If security logging is enabled on organization-owned managed profile devices, only events happening inside the managed profile will be visible.",
             ]), "SecurityLog recovered list ends before its nested paragraph");
+        var fieldSource = page.Members.Single(member => member.Name == "TAG_BACKUP_SERVICE_TOGGLED");
+        var methodOwner = tags.Owners.Single(owner =>
+            (string?)owner.Member?.Attribute("MemberName") == "BackupServiceToggled") with
+        {
+            MemberRegistration = new MemberRegistration(fieldSource.Name, "()V", false),
+            IsEnumField = false,
+        };
+        var methodSource = fieldSource with { IsField = false, ArgumentDescriptors = [] };
+        var methodPages = new Dictionary<string, SourceLoadResult>
+        {
+            [request.Url] = SourceLoadResult.Success(new SourcePage { Members = [methodSource] }),
+        };
+        Assert(MapOwner(methodOwner, methodPages).ErrorReason == "source_channel_ambiguous",
+            "SecurityLog recovered fields cannot be mapped as methods");
+        methodPages[request.Url] = SourceLoadResult.Success(new SourcePage
+        {
+            Members = [methodSource with { Docs = methodSource.Docs! with { HasRecoveredSecurityLogImplicitList = false } }],
+        });
+        Assert(MapOwner(methodOwner, methodPages).Docs is not null,
+            "SecurityLog unflagged control reaches the method mapping");
 
         var constants = LoadedFile.Load(repositoryRoot,
             Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Admin", "SecurityLog.xml"));
@@ -18311,33 +18417,132 @@ static partial class ImporterProgram
         var temp = Path.Combine(Path.GetTempPath(), $"securitylog-source-{Guid.NewGuid():N}");
         var cache = Path.Combine(temp, "cache");
         Directory.CreateDirectory(cache);
-        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Admin",
-            $"securitylog-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}.xml");
+        var path = Path.Combine(repositoryRoot, "docs", "xml",
+            $".securitylog-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}.xml");
         try
         {
-            File.Copy(tagsPath, path);
+            var names = SecurityLogImplicitListFields.Values.Select(field => field.ManagedName)
+                .ToHashSet(StringComparer.Ordinal);
+            var document = XDocument.Load(tagsPath, LoadOptions.PreserveWhitespace);
+            void PrepareFixture(XDocument input)
+            {
+                var members = input.Root!.Element("Members")!.Elements("Member")
+                    .Where(member => names.Contains((string?)member.Attribute("MemberName") ?? "")).ToList();
+                Assert(members.Count == names.Count, "SecurityLog fixture has every recovered binding");
+                // The checked-in summaries may already be filled when this test runs.
+                foreach (var member in members)
+                {
+                    var summary = member.Element("Docs")!.Elements("summary").Single();
+                    summary.RemoveAttributes();
+                    summary.ReplaceNodes("To be added.");
+                }
+            }
+            PrepareFixture(document);
+            void WriteFixture(XDocument input) => File.WriteAllText(path,
+                input.ToString(SaveOptions.DisableFormatting).ReplaceLineEndings("\r\n"), new UTF8Encoding(true));
+            WriteFixture(document);
+            Assert(!SelectFiles(repositoryRoot, Path.Combine(repositoryRoot, "docs", "xml"),
+                    Options.Parse(["--path", Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Admin")]))
+                .Contains(path, StringComparer.Ordinal), "SecurityLog fixture is outside namespace path scans");
             File.WriteAllText(Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
                 Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"), html, new UTF8Encoding(false));
-            var unchangedNames = fixture.Where(parts => !SecurityLogImplicitListFields.ContainsKey(parts[0]))
-                .Select(parts => parts[1]).ToHashSet(StringComparer.Ordinal);
-            List<string> Unchanged() => XElement.Load(path).Element("Members")!.Elements("Member")
-                .Where(member => unchangedNames.Contains((string?)member.Attribute("MemberName") ?? ""))
-                .Select(member => member.ToString()).ToList();
-            var unchanged = Unchanged();
-            var reportPath = Path.Combine(temp, "report");
-            Assert(RunAsync(["--path", path, "--namespace", "Android.App.Admin", "--offline", "--cache", cache,
-                "--max-changes", "30", "--report", reportPath, "--apply"]).GetAwaiter().GetResult() == 0,
-                "SecurityLog bounded production run");
-            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
-            var applied = report.RootElement.GetProperty("entries").EnumerateArray()
-                .Where(entry => entry.GetProperty("status").GetString() == "applied")
-                .Select(entry => entry.GetProperty("member").GetString() + "/" + entry.GetProperty("target").GetString())
-                .Order(StringComparer.Ordinal).ToList();
-            Assert(applied.SequenceEqual(SecurityLogImplicitListFields.Values
+            var ordinal = 0;
+            JsonElement Run(bool apply)
+            {
+                var reportPath = Path.Combine(temp, $"report-{ordinal++}");
+                var arguments = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.App.Admin", "--offline", "--cache", cache,
+                    "--max-changes", "10", "--report", reportPath,
+                };
+                if (apply)
+                    arguments.Add("--apply");
+                Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                    "SecurityLog bounded production run");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "SecurityLog production report has no errors");
+                return report.RootElement.Clone();
+            }
+            string MaskSummaries(string text)
+            {
+                var parsed = XDocument.Parse(text, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                var summaries = parsed.Root!.Element("Members")!.Elements("Member")
+                    .Where(member => names.Contains((string?)member.Attribute("MemberName") ?? ""))
+                    .Select(member => member.Element("Docs")!.Elements("summary").Single()).ToList();
+                Assert(summaries.Count == names.Count, "SecurityLog locates every recovered summary");
+                var spans = summaries.Select(summary =>
+                {
+                    Assert(TryGetElementSpan(text, summary, out var span), "SecurityLog locates a raw summary span");
+                    return span;
+                }).OrderByDescending(span => span.Start).ToList();
+                foreach (var span in spans)
+                    text = text[..span.Start] + "<summary />" + text[span.End..];
+                return text;
+            }
+            string RawSummary(string text, string name)
+            {
+                var parsed = XDocument.Parse(text, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                var summary = parsed.Root!.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == name)
+                    .Element("Docs")!.Elements("summary").Single();
+                Assert(TryGetElementSpan(text, summary, out var span), "SecurityLog locates an authored summary");
+                return text[span.Start..span.End];
+            }
+            var before = File.ReadAllBytes(path);
+            var beforeText = File.ReadAllText(path);
+            var strictUtf8 = new UTF8Encoding(false, true);
+            Assert(before.AsSpan().StartsWith(Encoding.UTF8.Preamble) &&
+                before.AsSpan(Encoding.UTF8.Preamble.Length).SequenceEqual(strictUtf8.GetBytes(beforeText)),
+                "SecurityLog fixture is exact UTF-8 with a BOM");
+            var preview = Run(false);
+            Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 10 &&
+                File.ReadAllBytes(path).SequenceEqual(before),
+                "SecurityLog bounded preview does not write");
+            var applied = new List<string>();
+            for (var batch = 0; batch < 3; batch++)
+            {
+                var report = Run(true);
+                var entries = report.GetProperty("entries").EnumerateArray()
+                    .Where(entry => entry.GetProperty("status").GetString() == "applied")
+                    .Select(entry => entry.GetProperty("member").GetString() + "/" + entry.GetProperty("target").GetString())
+                    .ToList();
+                Assert(entries.Count == report.GetProperty("appliedCount").GetInt32() &&
+                    entries.Count is > 0 and <= 10, "SecurityLog each apply respects the ten-change limit");
+                applied.AddRange(entries);
+            }
+            Assert(applied.Order(StringComparer.Ordinal).SequenceEqual(SecurityLogImplicitListFields.Values
                     .Select(field => $"F:Android.App.Admin.SecurityLogTags.{field.ManagedName}/summary")
-                    .Order(StringComparer.Ordinal)) &&
-                unchanged.Count == unchangedNames.Count && Unchanged().SequenceEqual(unchanged),
-                "SecurityLog production run fills only recovered enum fields and keeps existing text");
+                    .Order(StringComparer.Ordinal)),
+                "SecurityLog production runs fill exactly the 24 recovered enum summaries");
+            var after = File.ReadAllBytes(path);
+            var afterText = File.ReadAllText(path);
+            Assert(after.AsSpan().StartsWith(Encoding.UTF8.Preamble) &&
+                after.AsSpan(Encoding.UTF8.Preamble.Length).SequenceEqual(strictUtf8.GetBytes(afterText)) &&
+                MaskSummaries(beforeText) == MaskSummaries(afterText),
+                "SecurityLog preserves every byte outside the recovered summary spans, including the BOM");
+            var populatedDocument = XDocument.Parse(afterText, LoadOptions.PreserveWhitespace);
+            PrepareFixture(populatedDocument);
+            Assert(populatedDocument.ToString(SaveOptions.DisableFormatting).ReplaceLineEndings("\r\n") == beforeText,
+                "SecurityLog fixture can be rebuilt after all summaries are filled");
+            Assert(Run(true).GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllBytes(path).SequenceEqual(after),
+                "SecurityLog persisted repeat is a byte-identical zero-write");
+
+            var authoredDocument = new XDocument(document);
+            var authoredSummary = authoredDocument.Root!.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "BackupServiceToggled")
+                .Element("Docs")!.Element("summary")!;
+            authoredSummary.ReplaceNodes("Retained ", new XElement("c", "authored"), " text.");
+            WriteFixture(authoredDocument);
+            var authoredBefore = RawSummary(File.ReadAllText(path), "BackupServiceToggled");
+            var authoredReport = Run(true);
+            Assert(authoredReport.GetProperty("appliedCount").GetInt32() == 10 &&
+                !authoredReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("status").GetString() == "applied" &&
+                    entry.GetProperty("member").GetString() == "F:Android.App.Admin.SecurityLogTags.BackupServiceToggled") &&
+                RawSummary(File.ReadAllText(path), "BackupServiceToggled") == authoredBefore,
+                "SecurityLog preserves authored mixed content while applying sibling fields");
         }
         finally
         {

@@ -146,6 +146,9 @@ binding, JNI field, and constant value match. Other `SecurityLog` sections,
 `tools/importer-fixtures/securitylog-source-fragments.txt` retain recovered,
 withheld, and already parsed fragments as base64 with their hashes, from page
 SHA-256 `4d645108a71f16aa4bd9a646b1d66d9ec072ef52a8f679ca9cff85e1c0c807b8`.
+Offline tests create their own placeholders, check bounded applies, preserve
+authored text and all bytes outside replaced summaries, and require a
+byte-identical zero-write repeat.
 
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
