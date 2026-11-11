@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides JNI callback invocation helpers and recursive value comparison.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -56,10 +56,10 @@
         <Parameter Name="objB" Type="System.Object" />
       </Parameters>
       <Docs>
-        <param name="objA">To be added.</param>
-        <param name="objB">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="objA">The first value to compare.</param>
+        <param name="objB">The second value to compare.</param>
+        <summary>Compares values and recursively compares elements of enumerable sequences.</summary>
+        <returns><see langword="true" /> if the values are equal, or if both enumerable sequences have recursively equal elements in the same order and length; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -94,11 +94,11 @@
         <Parameter Name="action" Type="delegate*&lt;System.IntPtr, System.IntPtr, System.Void&gt;" />
       </Parameters>
       <Docs>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0&gt;">
@@ -144,13 +144,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1&gt;">
@@ -205,15 +205,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2&gt;">
@@ -277,17 +277,17 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3&gt;">
@@ -360,19 +360,19 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4&gt;">
@@ -454,21 +454,21 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5&gt;">
@@ -559,23 +559,23 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5,T6&gt;">
@@ -675,25 +675,25 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5,T6,T7&gt;">
@@ -802,27 +802,27 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8&gt;">
@@ -940,29 +940,29 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9&gt;">
@@ -1089,31 +1089,31 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10&gt;">
@@ -1249,33 +1249,33 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11&gt;">
@@ -1420,35 +1420,35 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="T11">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="p11">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="T11">The type of the extra callback argument <paramref name="p11" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="p11">The twelfth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12&gt;">
@@ -1602,37 +1602,37 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="T11">To be added.</typeparam>
-        <typeparam name="T12">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="p11">To be added.</param>
-        <param name="p12">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="T11">The type of the extra callback argument <paramref name="p11" />.</typeparam>
+        <typeparam name="T12">The type of the extra callback argument <paramref name="p12" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="p11">The twelfth extra argument, passed unchanged to the callback.</param>
+        <param name="p12">The thirteenth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13&gt;">
@@ -1795,39 +1795,39 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="T11">To be added.</typeparam>
-        <typeparam name="T12">To be added.</typeparam>
-        <typeparam name="T13">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="p11">To be added.</param>
-        <param name="p12">To be added.</param>
-        <param name="p13">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="T11">The type of the extra callback argument <paramref name="p11" />.</typeparam>
+        <typeparam name="T12">The type of the extra callback argument <paramref name="p12" />.</typeparam>
+        <typeparam name="T13">The type of the extra callback argument <paramref name="p13" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="p11">The twelfth extra argument, passed unchanged to the callback.</param>
+        <param name="p12">The thirteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p13">The fourteenth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14&gt;">
@@ -1999,41 +1999,41 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="T11">To be added.</typeparam>
-        <typeparam name="T12">To be added.</typeparam>
-        <typeparam name="T13">To be added.</typeparam>
-        <typeparam name="T14">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="p11">To be added.</param>
-        <param name="p12">To be added.</param>
-        <param name="p13">To be added.</param>
-        <param name="p14">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="T11">The type of the extra callback argument <paramref name="p11" />.</typeparam>
+        <typeparam name="T12">The type of the extra callback argument <paramref name="p12" />.</typeparam>
+        <typeparam name="T13">The type of the extra callback argument <paramref name="p13" />.</typeparam>
+        <typeparam name="T14">The type of the extra callback argument <paramref name="p14" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="p11">The twelfth extra argument, passed unchanged to the callback.</param>
+        <param name="p12">The thirteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p13">The fourteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p14">The fifteenth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeAction&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15&gt;">
@@ -2214,43 +2214,43 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="T11">To be added.</typeparam>
-        <typeparam name="T12">To be added.</typeparam>
-        <typeparam name="T13">To be added.</typeparam>
-        <typeparam name="T14">To be added.</typeparam>
-        <typeparam name="T15">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="p11">To be added.</param>
-        <param name="p12">To be added.</param>
-        <param name="p13">To be added.</param>
-        <param name="p14">To be added.</param>
-        <param name="p15">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="T11">The type of the extra callback argument <paramref name="p11" />.</typeparam>
+        <typeparam name="T12">The type of the extra callback argument <paramref name="p12" />.</typeparam>
+        <typeparam name="T13">The type of the extra callback argument <paramref name="p13" />.</typeparam>
+        <typeparam name="T14">The type of the extra callback argument <paramref name="p14" />.</typeparam>
+        <typeparam name="T15">The type of the extra callback argument <paramref name="p15" />.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="p11">The twelfth extra argument, passed unchanged to the callback.</param>
+        <param name="p12">The thirteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p13">The fourteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p14">The fifteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p15">The sixteenth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a managed callback within a JNI marshaling transition.</summary>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;TResult&gt;">
@@ -2301,13 +2301,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,TResult&gt;">
@@ -2367,15 +2367,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,TResult&gt;">
@@ -2444,17 +2444,17 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,TResult&gt;">
@@ -2532,19 +2532,19 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,TResult&gt;">
@@ -2631,21 +2631,21 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,TResult&gt;">
@@ -2741,23 +2741,23 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,TResult&gt;">
@@ -2862,25 +2862,25 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,T6,TResult&gt;">
@@ -2994,27 +2994,27 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,T6,T7,TResult&gt;">
@@ -3137,29 +3137,29 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,TResult&gt;">
@@ -3291,31 +3291,31 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,TResult&gt;">
@@ -3456,33 +3456,33 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,TResult&gt;">
@@ -3632,35 +3632,35 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,TResult&gt;">
@@ -3819,37 +3819,37 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="T11">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="p11">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="T11">The type of the extra callback argument <paramref name="p11" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="p11">The twelfth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,TResult&gt;">
@@ -4017,39 +4017,39 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="T11">To be added.</typeparam>
-        <typeparam name="T12">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="p11">To be added.</param>
-        <param name="p12">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="T11">The type of the extra callback argument <paramref name="p11" />.</typeparam>
+        <typeparam name="T12">The type of the extra callback argument <paramref name="p12" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="p11">The twelfth extra argument, passed unchanged to the callback.</param>
+        <param name="p12">The thirteenth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,TResult&gt;">
@@ -4226,41 +4226,41 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="T11">To be added.</typeparam>
-        <typeparam name="T12">To be added.</typeparam>
-        <typeparam name="T13">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="p11">To be added.</param>
-        <param name="p12">To be added.</param>
-        <param name="p13">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="T11">The type of the extra callback argument <paramref name="p11" />.</typeparam>
+        <typeparam name="T12">The type of the extra callback argument <paramref name="p12" />.</typeparam>
+        <typeparam name="T13">The type of the extra callback argument <paramref name="p13" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="p11">The twelfth extra argument, passed unchanged to the callback.</param>
+        <param name="p12">The thirteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p13">The fourteenth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,TResult&gt;">
@@ -4446,43 +4446,43 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="T11">To be added.</typeparam>
-        <typeparam name="T12">To be added.</typeparam>
-        <typeparam name="T13">To be added.</typeparam>
-        <typeparam name="T14">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="p11">To be added.</param>
-        <param name="p12">To be added.</param>
-        <param name="p13">To be added.</param>
-        <param name="p14">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="T11">The type of the extra callback argument <paramref name="p11" />.</typeparam>
+        <typeparam name="T12">The type of the extra callback argument <paramref name="p12" />.</typeparam>
+        <typeparam name="T13">The type of the extra callback argument <paramref name="p13" />.</typeparam>
+        <typeparam name="T14">The type of the extra callback argument <paramref name="p14" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="p11">The twelfth extra argument, passed unchanged to the callback.</param>
+        <param name="p12">The thirteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p13">The fourteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p14">The fifteenth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SafeInvokeFunc&lt;T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,TResult&gt;">
@@ -4677,45 +4677,45 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T0">To be added.</typeparam>
-        <typeparam name="T1">To be added.</typeparam>
-        <typeparam name="T2">To be added.</typeparam>
-        <typeparam name="T3">To be added.</typeparam>
-        <typeparam name="T4">To be added.</typeparam>
-        <typeparam name="T5">To be added.</typeparam>
-        <typeparam name="T6">To be added.</typeparam>
-        <typeparam name="T7">To be added.</typeparam>
-        <typeparam name="T8">To be added.</typeparam>
-        <typeparam name="T9">To be added.</typeparam>
-        <typeparam name="T10">To be added.</typeparam>
-        <typeparam name="T11">To be added.</typeparam>
-        <typeparam name="T12">To be added.</typeparam>
-        <typeparam name="T13">To be added.</typeparam>
-        <typeparam name="T14">To be added.</typeparam>
-        <typeparam name="T15">To be added.</typeparam>
-        <typeparam name="TResult">To be added.</typeparam>
-        <param name="jnienv">To be added.</param>
-        <param name="self">To be added.</param>
-        <param name="p0">To be added.</param>
-        <param name="p1">To be added.</param>
-        <param name="p2">To be added.</param>
-        <param name="p3">To be added.</param>
-        <param name="p4">To be added.</param>
-        <param name="p5">To be added.</param>
-        <param name="p6">To be added.</param>
-        <param name="p7">To be added.</param>
-        <param name="p8">To be added.</param>
-        <param name="p9">To be added.</param>
-        <param name="p10">To be added.</param>
-        <param name="p11">To be added.</param>
-        <param name="p12">To be added.</param>
-        <param name="p13">To be added.</param>
-        <param name="p14">To be added.</param>
-        <param name="p15">To be added.</param>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T0">The type of the extra callback argument <paramref name="p0" />.</typeparam>
+        <typeparam name="T1">The type of the extra callback argument <paramref name="p1" />.</typeparam>
+        <typeparam name="T2">The type of the extra callback argument <paramref name="p2" />.</typeparam>
+        <typeparam name="T3">The type of the extra callback argument <paramref name="p3" />.</typeparam>
+        <typeparam name="T4">The type of the extra callback argument <paramref name="p4" />.</typeparam>
+        <typeparam name="T5">The type of the extra callback argument <paramref name="p5" />.</typeparam>
+        <typeparam name="T6">The type of the extra callback argument <paramref name="p6" />.</typeparam>
+        <typeparam name="T7">The type of the extra callback argument <paramref name="p7" />.</typeparam>
+        <typeparam name="T8">The type of the extra callback argument <paramref name="p8" />.</typeparam>
+        <typeparam name="T9">The type of the extra callback argument <paramref name="p9" />.</typeparam>
+        <typeparam name="T10">The type of the extra callback argument <paramref name="p10" />.</typeparam>
+        <typeparam name="T11">The type of the extra callback argument <paramref name="p11" />.</typeparam>
+        <typeparam name="T12">The type of the extra callback argument <paramref name="p12" />.</typeparam>
+        <typeparam name="T13">The type of the extra callback argument <paramref name="p13" />.</typeparam>
+        <typeparam name="T14">The type of the extra callback argument <paramref name="p14" />.</typeparam>
+        <typeparam name="T15">The type of the extra callback argument <paramref name="p15" />.</typeparam>
+        <typeparam name="TResult">The callback's result type.</typeparam>
+        <param name="jnienv">The JNI environment pointer used for the transition and passed to the callback.</param>
+        <param name="self">The second pointer argument, passed unchanged to the callback.</param>
+        <param name="p0">The first extra argument, passed unchanged to the callback.</param>
+        <param name="p1">The second extra argument, passed unchanged to the callback.</param>
+        <param name="p2">The third extra argument, passed unchanged to the callback.</param>
+        <param name="p3">The fourth extra argument, passed unchanged to the callback.</param>
+        <param name="p4">The fifth extra argument, passed unchanged to the callback.</param>
+        <param name="p5">The sixth extra argument, passed unchanged to the callback.</param>
+        <param name="p6">The seventh extra argument, passed unchanged to the callback.</param>
+        <param name="p7">The eighth extra argument, passed unchanged to the callback.</param>
+        <param name="p8">The ninth extra argument, passed unchanged to the callback.</param>
+        <param name="p9">The tenth extra argument, passed unchanged to the callback.</param>
+        <param name="p10">The eleventh extra argument, passed unchanged to the callback.</param>
+        <param name="p11">The twelfth extra argument, passed unchanged to the callback.</param>
+        <param name="p12">The thirteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p13">The fourteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p14">The fifteenth extra argument, passed unchanged to the callback.</param>
+        <param name="p15">The sixteenth extra argument, passed unchanged to the callback.</param>
+        <param name="action">The managed function pointer to invoke synchronously.</param>
+        <summary>Invokes a result-producing managed callback within a JNI marshaling transition.</summary>
+        <returns>The callback result, or <c>default(TResult)</c> if entry fails or the runtime handles a callback exception and returns.</returns>
+        <remarks>A failed transition prevents invocation. Callback exceptions are passed to the runtime's <c>OnUserUnhandledException</c> hook. After successful entry, <c>EndMarshalMethod</c> runs in a <see langword="finally" /> block. Runtime hooks can still throw.</remarks>
       </Docs>
     </Member>
   </Members>
