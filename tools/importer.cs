@@ -14981,6 +14981,162 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestBiometricsStringAliases(string repositoryRoot)
+    {
+        var biometricsDocs = Path.Combine(repositoryRoot, "docs", "xml", "Android.Hardware.Biometrics");
+        static string DocId(XElement member) => member.Elements("MemberSignature").Single(signature =>
+            (string?)signature.Attribute("Language") == "DocId").Attribute("Value")!.Value;
+        var verified = 0;
+        foreach (var path in Directory.GetFiles(biometricsDocs, "*.xml"))
+        {
+            var root = XElement.Load(path);
+            var members = root.Element("Members")?.Elements("Member").ToList() ?? [];
+            foreach (var alias in members)
+            {
+                var id = DocId(alias);
+                if (!id.StartsWith("M:Android.Hardware.Biometrics.", StringComparison.Ordinal) &&
+                    !id.StartsWith("P:Android.Hardware.Biometrics.", StringComparison.Ordinal) ||
+                    SourceVerifiedMemberMappings.Resolve(id) is not { } mapping)
+                    continue;
+                var isProperty = id.StartsWith("P:", StringComparison.Ordinal);
+                var siblingId = isProperty
+                    ? id + "Formatted"
+                    : id.Replace("System.String", "Java.Lang.ICharSequence", StringComparison.Ordinal);
+                var sibling = members.Single(member => DocId(member) == siblingId);
+                Assert(Registration.Member(alias) is null &&
+                    Registration.Member(sibling) is { } registration &&
+                    mapping.Registration == registration &&
+                    registration.Descriptor!.Contains("Ljava/lang/CharSequence;", StringComparison.Ordinal) &&
+                    mapping.SourceRequest == SourceRequest.Create(Registration.Type(root)) &&
+                    SourceVerifiedMemberMappings.Resolve(id, root, alias) == mapping &&
+                    SourceVerifiedMemberMappings.Resolve(id + "Other") is null,
+                    "Biometrics String alias maps only to its registered CharSequence sibling: " + id);
+
+                XElement Changed(Action<XElement, XElement> change)
+                {
+                    var changedRoot = new XElement(root);
+                    change(changedRoot, changedRoot.Element("Members")!.Elements("Member")
+                        .Single(member => DocId(member) == id));
+                    return changedRoot;
+                }
+                bool Rejects(XElement changedRoot) =>
+                    SourceVerifiedMemberMappings.Resolve(id, changedRoot,
+                        changedRoot.Element("Members")!.Elements("Member").Single(member => DocId(member) == id)) is null;
+                XElement ChangedSibling(XElement changedRoot) =>
+                    changedRoot.Element("Members")!.Elements("Member").Single(member => DocId(member) == siblingId);
+                Assert(Rejects(Changed((changedRoot, _) => changedRoot.Element("Attributes")!.Remove())) &&
+                    Rejects(Changed((changedRoot, _) => changedRoot.Element("AssemblyInfo")!.Remove())) &&
+                    Rejects(Changed((changedRoot, _) => ChangedSibling(changedRoot).Element("Attributes")!.Remove())) &&
+                    Rejects(Changed((changedRoot, _) =>
+                        changedRoot.Element("Members")!.Add(new XElement(ChangedSibling(changedRoot))))) &&
+                    Rejects(Changed((_, changedAlias) => changedAlias.Element("ReturnValue")!
+                        .Element("ReturnType")!.Value = "System.Int32")),
+                    "Biometrics String alias rejects changed owner, assembly, sibling registration, duplicate sibling and return: " + id);
+                if (!isProperty)
+                {
+                    Assert(Rejects(Changed((_, changedAlias) => changedAlias.Element("Parameters")!
+                            .Elements("Parameter").First(parameter => (string?)parameter.Attribute("Type") == "System.String")
+                            .SetAttributeValue("Name", "other"))) &&
+                        Rejects(Changed((_, changedAlias) => changedAlias.Element("Parameters")!
+                            .Elements("Parameter").Last().SetAttributeValue("Type", "System.Object"))) &&
+                        Rejects(Changed((_, changedAlias) => changedAlias.Element("Attributes")!.Add(
+                            new XElement(sibling.Element("Attributes")!.Elements("Attribute").First())))),
+                        "Biometrics String overload rejects changed parameter name, parameter type and own registration: " + id);
+                }
+                verified++;
+            }
+        }
+        Assert(verified == 24, "Biometrics String alias mappings cover the 24 reviewed members exactly");
+
+        var token = $"biometrics-string-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var tempDirectory = Path.Combine(Path.GetTempPath(), token);
+        var pipelinePath = Path.Combine(biometricsDocs, token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var request = SourceRequest.Create("android/hardware/biometrics/BiometricPrompt$Builder")!;
+            File.WriteAllText(
+                Path.Combine(tempDirectory, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                "<div id=\"jd-content\"><div id=\"summary\"></div>" +
+                "<h3 class=\"api-name\" id=\"setTitle(java.lang.CharSequence)\">setTitle</h3>" +
+                "<pre class=\"api-signature\">public BiometricPrompt.Builder setTitle (CharSequence title)</pre>" +
+                "<p>Fixture title setter summary.</p>" +
+                "<table><tr><th colspan=\"2\">Parameters</th></tr><tr><td>title</td><td>Fixture title parameter.</td></tr></table>" +
+                "<table><tr><th colspan=\"2\">Returns</th></tr><tr><td>BiometricPrompt.Builder</td><td>Fixture builder return.</td></tr></table></div>",
+                new UTF8Encoding(false));
+            const string registeredDescriptor = "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;";
+            string Fixture(string siblingDescriptor) =>
+                $"""
+                <Type Name="BiometricPrompt+Builder" FullName="Android.Hardware.Biometrics.BiometricPrompt+Builder">
+                  <TypeSignature Language="C#" Value="public sealed class BiometricPrompt.Builder" />
+                  <AssemblyInfo><AssemblyName>Mono.Android</AssemblyName></AssemblyInfo>
+                  <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("android/hardware/biometrics/BiometricPrompt$Builder", DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
+                  <Docs><summary>Authored type summary.</summary><remarks>Authored type remarks.</remarks></Docs>
+                  <Members>
+                    <Member MemberName="SetTitle">
+                      <MemberSignature Language="DocId" Value="M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetTitle(Java.Lang.ICharSequence)" />
+                      <MemberType>Method</MemberType>
+                      <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("setTitle", "{siblingDescriptor}", "GetSetTitle_Ljava_lang_CharSequence_Handler")]</AttributeName></Attribute></Attributes>
+                      <ReturnValue><ReturnType>Android.Hardware.Biometrics.BiometricPrompt+Builder</ReturnType></ReturnValue>
+                      <Parameters><Parameter Name="title" Type="Java.Lang.ICharSequence" /></Parameters>
+                      <Docs><param name="title">Authored sibling parameter.</param><summary>Authored sibling summary.</summary><returns>Authored sibling return.</returns><remarks>Authored sibling remarks.</remarks></Docs>
+                    </Member>
+                    <Member MemberName="SetTitle">
+                      <MemberSignature Language="DocId" Value="M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetTitle(System.String)" />
+                      <MemberType>Method</MemberType>
+                      <ReturnValue><ReturnType>Android.Hardware.Biometrics.BiometricPrompt+Builder</ReturnType></ReturnValue>
+                      <Parameters><Parameter Name="title" Type="System.String" /></Parameters>
+                      <Docs><param name="title">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>Authored alias remarks.</remarks></Docs>
+                    </Member>
+                  </Members>
+                </Type>
+                """;
+            JsonDocument RunPipeline()
+            {
+                var reportPath = Path.Combine(tempDirectory, "report");
+                Assert(RunAsync([
+                    "--path", pipelinePath, "--namespace", "Android.Hardware.Biometrics", "--offline",
+                    "--cache", tempDirectory, "--max-changes", "10", "--apply", "--report", reportPath,
+                ]).GetAwaiter().GetResult() == 0, "Biometrics String alias pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Biometrics String alias pipeline has zero errors");
+                return report;
+            }
+
+            File.WriteAllText(pipelinePath,
+                Fixture(registeredDescriptor.Replace("CharSequence", "String", StringComparison.Ordinal)),
+                new UTF8Encoding(true));
+            var unchanged = File.ReadAllBytes(pipelinePath);
+            using (var rejected = RunPipeline())
+                Assert(rejected.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    rejected.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "missing_member_registration") &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(unchanged),
+                    "actual Biometrics String alias pipeline rejects a sibling with a different JNI registration");
+
+            File.WriteAllText(pipelinePath, Fixture(registeredDescriptor), new UTF8Encoding(true));
+            using (var applied = RunPipeline())
+                Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 3,
+                    "actual Biometrics String alias pipeline fills summary, parameter and return");
+            var docs = XElement.Load(pipelinePath).Element("Members")!.Elements("Member")
+                .Single(member => DocId(member).EndsWith("(System.String)", StringComparison.Ordinal)).Element("Docs")!;
+            Assert(docs.Element("summary")!.Value == "Fixture title setter summary." &&
+                docs.Element("param")!.Value == "Fixture title parameter." &&
+                docs.Element("returns")!.Value == "Fixture builder return." &&
+                docs.Element("remarks")!.Value.StartsWith("Authored alias remarks.", StringComparison.Ordinal) &&
+                docs.Element("remarks")!.ToString().Contains(
+                    "BiometricPrompt.Builder#setTitle(java.lang.CharSequence)", StringComparison.Ordinal),
+                "actual Biometrics String alias imports the CharSequence source and preserves authored remarks");
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
     static readonly KnownAndroidRemarksRepair[] KnownAndroidRemarksRepairs =
     [
         new(
@@ -18175,6 +18331,7 @@ static partial class ImporterProgram
         TestRawSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSupportedWriters(repositoryRoot, fixtureRoot);
         TestGestureCloneIntroductions(repositoryRoot);
+        TestBiometricsStringAliases(repositoryRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
         Assert(
@@ -29821,6 +29978,54 @@ static partial class ImporterProgram
                     Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.SetComposingText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
                     Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["P:Android.Hardware.Biometrics.BiometricManager.Strings.ButtonLabel"] =
+                    Mapping("android/hardware/biometrics/BiometricManager$Strings", "getButtonLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricManager.Strings.PromptMessage"] =
+                    Mapping("android/hardware/biometrics/BiometricManager$Strings", "getPromptMessage", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricManager.Strings.SettingName"] =
+                    Mapping("android/hardware/biometrics/BiometricManager$Strings", "getSettingName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.Description"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.NegativeButtonText"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getNegativeButtonText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.Subtitle"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getSubtitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.Title"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getTitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Description"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.NegativeButtonText"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getNegativeButtonText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Subtitle"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getSubtitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Title"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getTitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.FallbackOption.Text"] =
+                    Mapping("android/hardware/biometrics/FallbackOption", "getText", "()Ljava/lang/CharSequence;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.AddFallbackOption(System.String,System.Int32,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "addFallbackOption", "(Ljava/lang/CharSequence;ILjava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetDescription(System.String)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setDescription", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetNegativeButton(System.String,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setNegativeButton", "(Ljava/lang/CharSequence;Ljava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetSubtitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setSubtitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetTitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setTitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.AuthenticationCallback.OnAuthenticationError(Android.Hardware.Biometrics.BiometricErrorCode,System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$AuthenticationCallback", "onAuthenticationError", "(ILjava/lang/CharSequence;)V"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.AuthenticationCallback.OnAuthenticationHelp(System.Int32,System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$AuthenticationCallback", "onAuthenticationHelp", "(ILjava/lang/CharSequence;)V"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.AddFallbackOption(System.String,Android.Hardware.Biometrics.BiometricManagerIconType,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "addFallbackOption", "(Ljava/lang/CharSequence;ILjava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetDescription(System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setDescription", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetNegativeButton(System.String,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setNegativeButton", "(Ljava/lang/CharSequence;Ljava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetSubtitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setSubtitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetTitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setTitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
@@ -29829,8 +30034,12 @@ static partial class ImporterProgram
         public static InterfaceMemberMapping? Resolve(string memberId, XElement root, XElement member)
         {
             var mapping = Resolve(memberId);
+            if (mapping is not null &&
+                memberId.StartsWith("M:Android.Hardware.Biometrics.", StringComparison.Ordinal))
+                return HasRegisteredCharSequenceOverload(root, member, mapping) ? mapping : null;
             if (mapping is null ||
-                !memberId.StartsWith("P:Android.Views.TextClassifiers.", StringComparison.Ordinal))
+                !(memberId.StartsWith("P:Android.Views.TextClassifiers.", StringComparison.Ordinal) ||
+                  memberId.StartsWith("P:Android.Hardware.Biometrics.", StringComparison.Ordinal)))
                 return mapping;
 
             var name = (string?)member.Attribute("MemberName");
@@ -29850,6 +30059,42 @@ static partial class ImporterProgram
                 getter.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.ICharSequence" &&
                 Registration.Member(getter) == mapping.Registration
                     ? mapping : null;
+        }
+
+        // A generated String overload is accepted only when its single sibling has the same
+        // name, return and parameter names, uses ICharSequence for every String parameter, and
+        // carries exactly the mapped JNI registration.
+        static bool HasRegisteredCharSequenceOverload(
+            XElement root,
+            XElement member,
+            InterfaceMemberMapping mapping)
+        {
+            static List<(string? Name, string? Type)> Parameters(XElement candidate) =>
+                candidate.Element("Parameters")?.Elements("Parameter")
+                    .Select(parameter => ((string?)parameter.Attribute("Name"), (string?)parameter.Attribute("Type")))
+                    .ToList() ?? [];
+
+            var name = (string?)member.Attribute("MemberName");
+            var returnType = member.Element("ReturnValue")?.Element("ReturnType")?.Value;
+            var parameters = Parameters(member);
+            if (root.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+                SourceRequest.Create(Registration.Type(root)) != mapping.SourceRequest ||
+                member.Element("MemberType")?.Value != "Method" ||
+                Registration.Member(member) is not null ||
+                !parameters.Any(parameter => parameter.Type == "System.String"))
+                return false;
+            var expected = parameters
+                .Select(parameter => (parameter.Name,
+                    parameter.Type == "System.String" ? "Java.Lang.ICharSequence" : parameter.Type))
+                .ToList();
+            var siblings = root.Element("Members")?.Elements("Member")
+                .Where(candidate =>
+                    (string?)candidate.Attribute("MemberName") == name &&
+                    candidate.Element("MemberType")?.Value == "Method" &&
+                    candidate.Element("ReturnValue")?.Element("ReturnType")?.Value == returnType &&
+                    Parameters(candidate).SequenceEqual(expected))
+                .ToList();
+            return siblings is [var sibling] && Registration.Member(sibling) == mapping.Registration;
         }
 
         static SourceRequest TextClassifierRequest() =>

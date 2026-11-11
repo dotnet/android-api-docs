@@ -142,6 +142,14 @@ confirmed by sibling generated binding metadata.
 Eight TextClassifiers string properties map to their registered `Formatted`
 getters, following the pinned
 [string-property generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundPropertyStringVariant.cs).
+Twelve Biometrics string properties map in the same way. Twelve unregistered
+Biometrics `System.String` method overloads map to the registered
+`Java.Lang.ICharSequence` sibling that the pinned
+[string-overload generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundMethodStringOverload.cs)
+calls. At runtime, the overload must have exactly one sibling with the same
+name, return type and parameter names, where only each `System.String`
+parameter changes to `Java.Lang.ICharSequence`, and that sibling must carry the
+listed JNI registration.
 Five legacy `TextClassifier` fields use the official `TextClassifier` interface
 page rather than the managed compatibility class's internal Java registration.
 Focused self-tests compare every mapping with its canonical sibling registration
