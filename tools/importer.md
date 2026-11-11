@@ -139,6 +139,11 @@ and `JniField` owner metadata for projected constants. It also recognizes scalar
 Narrow source-verified mappings cover Java.Interop runtime members whose upstream
 implementation embeds an exact JNI member identifier and whose identity is also
 confirmed by sibling generated binding metadata.
+The exact `SslCertificate.DName` constructor maps its JNI-only enclosing instance
+separately from the explicit Java `String` parameter. This exception requires the
+verified managed declaration, ordered parameters, JNI registration, and canonical
+Android constructor declaration; it does not apply to other inner constructors or
+infer text for the enclosing instance.
 Eight TextClassifiers string properties map to their registered `Formatted`
 getters, following the pinned
 [string-property generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundPropertyStringVariant.cs).
