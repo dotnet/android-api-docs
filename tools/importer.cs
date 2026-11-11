@@ -148,6 +148,13 @@ static partial class ImporterProgram
         "The calling package needs to declare " + DeviceBuilderSetUdiPermission +
         " in manifest to be able to set UDI for any record. SecurityException is thrown when " +
         "upserting a record with UDI without the permission.";
+    const string DevicePresenceEventConstructorMemberId =
+        "M:Android.Companion.DevicePresenceEvent.#ctor(System.Int32,Android.Companion.DevicePresenceEventType,Android.OS.ParcelUuid)";
+    const string DevicePresenceEventConstructorDescriptor = "(IILandroid/os/ParcelUuid;)V";
+    const string DevicePresenceEventConstructorSourceUrl =
+        AndroidReference + "android/companion/DevicePresenceEvent#DevicePresenceEvent(int,%20int,%20android.os.ParcelUuid)";
+    const string DevicePresenceEventConstructorDeclaration =
+        "public DevicePresenceEvent (int associationId, int event, ParcelUuid uuid)";
     const string ImageDecoderDecodeDrawableSourceMemberId =
         "M:Android.Graphics.ImageDecoder.DecodeDrawable(Android.Graphics.ImageDecoder.Source)";
     const string ImageDecoderDecodeDrawableSourceUrl =
@@ -2348,7 +2355,79 @@ static partial class ImporterProgram
         docs = WithoutUnsafeVibrationEffectAddEventsRemarks(owner, docs);
         docs = WithoutIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs);
         docs = WithoutUnsafeIcuNumberChannels(owner, docs);
+        docs = WithVerifiedDevicePresenceEventParameterName(owner, registration, exact[0], docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    // The binding generator renames the Java keyword parameter `event` to `e`.
+    static SourceDocs WithVerifiedDevicePresenceEventParameterName(
+        DocsOwner owner,
+        MemberRegistration registration,
+        SourceMember source,
+        SourceDocs docs)
+    {
+        if (!owner.Id.Equals(DevicePresenceEventConstructorMemberId, StringComparison.Ordinal) ||
+            registration is not
+            {
+                Name: ".ctor",
+                Descriptor: DevicePresenceEventConstructorDescriptor,
+                IsField: false,
+            } ||
+            owner.SourceRequest is not
+            {
+                Kind: "android",
+                JavaPath: "android/companion/DevicePresenceEvent",
+            } ||
+            owner.SourceRequest.Url != AndroidReference + "android/companion/DevicePresenceEvent" ||
+            owner.Member is not { } member ||
+            member.Element("MemberType")?.Value != "Constructor" ||
+            !member.Elements("AssemblyInfo")
+                .Select(info => info.Element("AssemblyName")?.Value)
+                .SequenceEqual(["Mono.Android"]) ||
+            !member.Elements("MemberSignature")
+                .Where(signature => (string?)signature.Attribute("Language") == "C#")
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual(
+                    ["public DevicePresenceEvent (int associationId, Android.Companion.DevicePresenceEventType e, Android.OS.ParcelUuid? uuid);"]) ||
+            member.Element("Parameters")?.Elements("Parameter").ToList() is not
+            [var associationId, var e, var uuid] ||
+            (string?)associationId.Attribute("Name") != "associationId" ||
+            (string?)associationId.Attribute("Type") != "System.Int32" ||
+            (string?)e.Attribute("Name") != "e" ||
+            (string?)e.Attribute("Type") != "Android.Companion.DevicePresenceEventType" ||
+            !e.Descendants("AttributeName").Any(name =>
+                (string?)name.Attribute("Language") == "C#" &&
+                name.Value == "[Android.Runtime.GeneratedEnum]") ||
+            (string?)uuid.Attribute("Name") != "uuid" ||
+            (string?)uuid.Attribute("Type") != "Android.OS.ParcelUuid" ||
+            source is not
+            {
+                IsConstructor: true,
+                IsField: false,
+                Url: DevicePresenceEventConstructorSourceUrl,
+                Declaration: DevicePresenceEventConstructorDeclaration,
+            } ||
+            source.ArgumentDescriptors?.SequenceEqual(
+                ["I", "I", "Landroid/os/ParcelUuid;"], StringComparer.Ordinal) != true ||
+            docs.SourceKind != "android" ||
+            docs.SourceUrl != DevicePresenceEventConstructorSourceUrl ||
+            docs.Parameters.Count != 3 ||
+            !docs.Parameters.TryGetValue("associationId", out var associationIdText) ||
+            !docs.Parameters.TryGetValue("event", out var eventText) ||
+            !docs.Parameters.TryGetValue("uuid", out var uuidText))
+        {
+            return docs;
+        }
+
+        return docs with
+        {
+            Parameters = new Dictionary<string, string>(docs.Parameters.Comparer)
+            {
+                ["associationId"] = associationIdText,
+                ["e"] = eventText,
+                ["uuid"] = uuidText,
+            },
+        };
     }
 
     static bool MatchesBoundedIcuAppendTo(
@@ -11782,6 +11861,238 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestDevicePresenceEventKeywordParameter(string repositoryRoot)
+    {
+        const string memberId = DevicePresenceEventConstructorMemberId;
+        var original = File.ReadAllText(Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Companion", "DevicePresenceEvent.xml"));
+        var constants = new[]
+        {
+            "EVENT_BLE_APPEARED", "EVENT_BLE_DISAPPEARED", "EVENT_BT_CONNECTED", "EVENT_BT_DISCONNECTED",
+            "EVENT_SELF_MANAGED_APPEARED", "EVENT_SELF_MANAGED_DISAPPEARED", "EVENT_ASSOCIATION_REMOVED",
+            "EVENT_SELF_MANAGED_NEARBY", "EVENT_SELF_MANAGED_NOT_NEARBY",
+        };
+        var fixture = $$"""
+            <h2 class="api-section" id="public-constructors_1">Public constructors</h2>
+            <div data-version-added="36">
+                <h3 class="api-name" id="DevicePresenceEvent(int,%20int,%20android.os.ParcelUuid)" data-text="DevicePresenceEvent">DevicePresenceEvent</h3>
+            <devsite-code><pre class="api-signature no-pretty-print" translate="no" dir="ltr">
+            public DevicePresenceEvent (int associationId,
+                            int event,
+                            <a href="/reference/android/os/ParcelUuid">ParcelUuid</a> uuid)</pre></devsite-code>
+                <p>
+              <p class="caution"><strong>
+                  This constructor is deprecated.</strong><br/>
+                Third party apps should not construct this API.
+              </p>
+              <p>Create a new DevicePresenceEvent.</p></p>
+                <table class="responsive">
+                <tr><th colspan=2>Parameters</th></tr>
+                  <tr>
+                    <td><code translate="no" dir="ltr">associationId</code></td>
+                    <td width="100%">
+                      <code translate="no" dir="ltr">int</code> <!-- no parameter comment --></p></td>
+                  </tr>
+                  <tr>
+                    <td><code translate="no" dir="ltr">event</code></td>
+                    <td width="100%">
+                      <code translate="no" dir="ltr">int</code>: Value is one of the following:
+            <ul>
+            {{string.Join("\n", constants.Select(constant =>
+                $"  <li><code translate=\"no\" dir=\"ltr\"><a href=\"/reference/android/companion/DevicePresenceEvent#{constant}\">{constant}</a></code></li>"))}}
+            <ul></p></td>
+                  </tr>
+                  <tr>
+                    <td><code translate="no" dir="ltr">uuid</code></td>
+                    <td width="100%">
+                      <code translate="no" dir="ltr">ParcelUuid</code>: This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+                  </tr>
+                </table>
+            </div>
+            <h2 class="api-section" id="public-methods_1">Public methods</h2>
+            """;
+        var directory = Path.Combine(Path.GetTempPath(), "device-presence-importer-" + Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Companion",
+            "DevicePresenceEvent.importer-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var cache = Path.Combine(directory, "cache");
+            Directory.CreateDirectory(cache);
+            string Placeholders(Action<XElement>? change = null)
+            {
+                var document = XDocument.Parse(original, LoadOptions.PreserveWhitespace);
+                var member = document.Root!.Element("Members")!.Elements("Member").Single(element =>
+                    element.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == memberId));
+                foreach (var element in member.Element("Docs")!.Elements())
+                    element.Value = "To be added.";
+                change?.Invoke(member);
+                return document.ToString(SaveOptions.DisableFormatting);
+            }
+            File.WriteAllText(path, Placeholders(), new UTF8Encoding(false));
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners(memberId);
+            var owner = loaded.Owners.Single();
+            var registration = owner.MemberRegistration!;
+            var request = owner.SourceRequest!;
+            File.WriteAllText(Path.Combine(cache, Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                fixture, new UTF8Encoding(false));
+            var source = SourcePage.Parse(request, fixture).Members.Single();
+            var rawDocs = source.Docs!;
+            Assert(
+                source.Declaration == DevicePresenceEventConstructorDeclaration &&
+                rawDocs.Parameters.Keys.Order(StringComparer.Ordinal)
+                    .SequenceEqual(["associationId", "event", "uuid"]),
+                "DevicePresenceEvent source keeps the Java parameter name event: " + source.Declaration);
+            var mapped = WithVerifiedDevicePresenceEventParameterName(owner, registration, source, rawDocs);
+            Assert(
+                mapped.Parameters.Keys.Order(StringComparer.Ordinal)
+                    .SequenceEqual(["associationId", "e", "uuid"]) &&
+                mapped.Parameters["e"] == rawDocs.Parameters["event"] &&
+                mapped.Parameters["associationId"] == rawDocs.Parameters["associationId"] &&
+                mapped.Parameters["uuid"] == rawDocs.Parameters["uuid"],
+                "DevicePresenceEvent constructor maps the Java keyword parameter event to managed e");
+
+            JsonElement RunPipeline(string label)
+            {
+                var reportPath = Path.Combine(directory, label);
+                var exit = RunAsync(
+                    [
+                        "--path", path,
+                        "--namespace", "Android.Companion",
+                        "--member", memberId,
+                        "--offline", "--cache", cache,
+                        "--max-changes", "10", "--apply",
+                        "--report", reportPath,
+                    ]).GetAwaiter().GetResult();
+                Assert(exit == 0, "DevicePresenceEvent complete offline pipeline succeeds");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "DevicePresenceEvent complete pipeline reports no errors");
+                return report.RootElement.Clone();
+            }
+            string? Reason(JsonElement report, string target) => report.GetProperty("entries").EnumerateArray()
+                .Where(entry => entry.GetProperty("target").GetString() == target)
+                .Select(entry => entry.GetProperty("reason").GetString())
+                .SingleOrDefault();
+            string Parameter(string name) => XDocument.Load(path).Descendants("param")
+                .Single(param => (string?)param.Attribute("name") == name).Value;
+
+            var firstReport = RunPipeline("first-fill");
+            var imported = Parameter("e");
+            var positions = constants.Select(constant => imported.IndexOf(constant, StringComparison.Ordinal)).ToList();
+            Assert(
+                firstReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("target").GetString() == "param:e" &&
+                    entry.GetProperty("status").GetString() == "applied") &&
+                imported.StartsWith("Value is one of the following", StringComparison.Ordinal) &&
+                positions.All(position => position >= 0) &&
+                positions.SequenceEqual(positions.Order()) &&
+                Reason(firstReport, "param:associationId") == "source_channel_not_meaningful" &&
+                Reason(firstReport, "param:uuid") == "source_channel_not_meaningful" &&
+                Parameter("associationId") == "To be added." &&
+                Parameter("uuid") == "To be added.",
+                "DevicePresenceEvent pipeline imports the ordered official event constants into param e only: " + imported);
+            var applied = File.ReadAllText(path);
+            var repeat = RunPipeline("repeat");
+            Assert(
+                repeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllText(path) == applied,
+                "DevicePresenceEvent repeated complete import is byte-identical");
+
+            File.WriteAllText(path, Placeholders(member =>
+                member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Android"),
+                new UTF8Encoding(false));
+            var otherAssembly = RunPipeline("other-assembly");
+            Assert(
+                Reason(otherAssembly, "param:e") == "source_parameter_missing" &&
+                Parameter("e") == "To be added.",
+                "DevicePresenceEvent pipeline keeps param e when the owner assembly differs");
+
+            XElement Changed(Action<XElement> change)
+            {
+                var member = new XElement(owner.Member!);
+                change(member);
+                return member;
+            }
+            XElement ManagedParameter(XElement member, string name) => member.Element("Parameters")!
+                .Elements("Parameter").Single(parameter => (string?)parameter.Attribute("Name") == name);
+            var otherRequest = SourceRequest.Create("android/companion/CompanionDeviceService")!;
+            var negatives = new (string Name, DocsOwner Owner, MemberRegistration Registration, SourceMember Source, SourceDocs Docs)[]
+            {
+                ("DocId", owner with
+                {
+                    Id = "M:Android.Companion.CompanionDeviceService.OnDevicePresenceEvent(Android.Companion.DevicePresenceEvent)",
+                }, registration, source, rawDocs),
+                ("JNI name", owner, registration with { Name = "onDevicePresenceEvent" }, source, rawDocs),
+                ("JNI descriptor", owner, registration with { Descriptor = "(IIILandroid/os/ParcelUuid;)V" }, source, rawDocs),
+                ("source request", owner with { SourceRequest = otherRequest }, registration, source, rawDocs),
+                ("source kind", owner with { SourceRequest = request with { Kind = "java" } }, registration, source, rawDocs),
+                ("assembly", owner with
+                {
+                    Member = Changed(member => member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other"),
+                }, registration, source, rawDocs),
+                ("managed order", owner with
+                {
+                    Member = Changed(member =>
+                    {
+                        var uuid = ManagedParameter(member, "uuid");
+                        uuid.Remove();
+                        ManagedParameter(member, "e").AddBeforeSelf(uuid);
+                    }),
+                }, registration, source, rawDocs),
+                ("managed type", owner with
+                {
+                    Member = Changed(member => ManagedParameter(member, "e").SetAttributeValue("Type", "System.Int32")),
+                }, registration, source, rawDocs),
+                ("generated enum", owner with
+                {
+                    Member = Changed(member => ManagedParameter(member, "e").Element("Attributes")!.Remove()),
+                }, registration, source, rawDocs),
+                ("Java order", owner, registration, source with
+                {
+                    Declaration = "public DevicePresenceEvent (int event, int associationId, ParcelUuid uuid)",
+                }, rawDocs),
+                ("Java name", owner, registration, source with
+                {
+                    Declaration = "public DevicePresenceEvent (int associationId, int e, ParcelUuid uuid)",
+                }, rawDocs),
+                ("Java arguments", owner, registration, source with { ArgumentDescriptors = ["I", "J", "Landroid/os/ParcelUuid;"] }, rawDocs),
+                ("source member URL", owner, registration, source with { Url = source.Url + "x" }, rawDocs),
+                ("source docs URL", owner, registration, source, rawDocs with { SourceUrl = rawDocs.SourceUrl + "x" }),
+                ("source docs kind", owner, registration, source, rawDocs with { SourceKind = "java" }),
+                ("source e", owner, registration, source, rawDocs with
+                {
+                    Parameters = new(rawDocs.Parameters) { ["e"] = "Other." },
+                }),
+                ("source event missing", owner, registration, source, rawDocs with
+                {
+                    Parameters = rawDocs.Parameters.ToDictionary(
+                        pair => pair.Key == "event" ? "presenceEvent" : pair.Key,
+                        pair => pair.Value),
+                }),
+            };
+            foreach (var negative in negatives)
+            {
+                Assert(
+                    ReferenceEquals(
+                        WithVerifiedDevicePresenceEventParameterName(
+                            negative.Owner, negative.Registration, negative.Source, negative.Docs),
+                        negative.Docs),
+                    "DevicePresenceEvent event-to-e mapping rejects a changed " + negative.Name);
+            }
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     static void TestMultisensoryDragTokenMarkup()
     {
         var request = SourceRequest.Create("android/os/multisensory/MultisensoryManager") ??
@@ -18148,6 +18459,7 @@ static partial class ImporterProgram
         TestAdminResetPasswordFields(repositoryRoot);
         TestKnownAndroidTextRepairs();
         TestControlsTemplatesRangeSource(repositoryRoot);
+        TestDevicePresenceEventKeywordParameter(repositoryRoot);
         TestQuickSettingsSources(repositoryRoot);
         TestKnownEapChannelCorrections(repositoryRoot);
         TestChangeLogDataOriginChannel(repositoryRoot);
