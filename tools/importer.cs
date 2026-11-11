@@ -2500,7 +2500,7 @@ static partial class ImporterProgram
 
         var registrations = attributes.Elements("Attribute")
             .SelectMany(attribute => attribute.Elements("AttributeName"))
-            .Where(name => name.Value.Contains("Register(", StringComparison.Ordinal) ||
+            .Where(name => name.Value.Contains("Register", StringComparison.Ordinal) ||
                 name.Value.Contains("JniTypeSignature", StringComparison.Ordinal) ||
                 name.Value.Contains("JniConstructorSignature", StringComparison.Ordinal))
             .Select(name => ((string?)name.Attribute("Language"), name.Value));
@@ -12202,6 +12202,12 @@ static partial class ImporterProgram
                     """[Android.Runtime.Register("android/companion/Other", ApiSince=36)]""")),
                 ("duplicate-member-registration", member => AddRegistration(member,
                     """[Android.Runtime.Register(".ctor", "(I)V", "", ApiSince=36)]""")),
+                ("spaced-type-registration", member => AddRegistration(member.Parent!.Parent!,
+                    """[Android.Runtime.Register ("android/companion/Other", ApiSince=36)]""")),
+                ("spaced-member-registration", member => AddRegistration(member,
+                    """[Android.Runtime.Register (".ctor", "(I)V", "", ApiSince=36)]""")),
+                ("suffixed-member-registration", member => AddRegistration(member,
+                    """[Android.Runtime.RegisterAttribute(".ctor", "(I)V", "", ApiSince=36)]""")),
                 ("duplicate-type-attributes", member => member.Parent!.Parent!.Add(new XElement("Attributes"))),
                 ("duplicate-member-attributes", member => member.Add(new XElement("Attributes"))),
                 ("duplicate-enum-attributes", member => ManagedParameter(member, "e").Add(new XElement("Attributes"))),
