@@ -133,6 +133,20 @@ Changed declarations or provenance do not enable recovery, and future corrected
 reference text follows ordinary parsing. Registered offline tests cover bounded
 imports, parameter/prose separation, authored content, and persisted repeats.
 
+Twenty-four exact `SecurityLog` `TAG_*` field sections leave bare `<li>` items
+open inside one paragraph, so the last item absorbs the rest of the section and
+the field has no usable prose. The importer closes only that last item, at the
+paragraph end or before a nested paragraph, when the complete native HTML
+fragment matches its pinned SHA-256 and the `SecurityLogTags` enum field
+binding, JNI field, and constant value match. Other `SecurityLog` sections,
+`SecurityLog` constants, and other pages follow ordinary parsing.
+`TAG_APP_PROCESS_START` (no sentence boundary before a nested sentence),
+`TAG_REMOTE_LOCK` (trailing comma before the list separator), and
+`TAG_OS_STARTUP` (nested list) stay withheld. The fixtures in
+`tools/importer-fixtures/securitylog-source-fragments.txt` retain recovered,
+withheld, and already parsed fragments as base64 with their hashes, from page
+SHA-256 `4d645108a71f16aa4bd9a646b1d66d9ec072ef52a8f679ca9cff85e1c0c807b8`.
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.

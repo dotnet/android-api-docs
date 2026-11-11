@@ -2215,6 +2215,11 @@ static partial class ImporterProgram
                 return MappingResult.Skip("source_channel_ambiguous",
                     "The recovered SurfacePackage link did not match its verified SdkSandbox binding.",
                     fieldDocs.SourceUrl);
+            if (fieldDocs.HasRecoveredSecurityLogImplicitList &&
+                !MatchesSecurityLogImplicitListBinding(owner, registration, fieldDocs))
+                return MappingResult.Skip("source_channel_ambiguous",
+                    "The recovered SecurityLog list did not match its verified SecurityLogTags binding.",
+                    fieldDocs.SourceUrl);
             fieldDocs = WithoutKnownMalformedConversationAnniversary(owner, registration, fieldDocs);
             fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutReviewedAndroidSourceChannels(owner.Id, fieldDocs);
@@ -2271,6 +2276,10 @@ static partial class ImporterProgram
             !MatchesSdkSandboxSurfaceBinding(owner, registration, docs))
             return MappingResult.Skip("source_channel_ambiguous",
                 "The recovered SurfacePackage link did not match its verified SdkSandbox binding.",
+                docs.SourceUrl);
+        if (docs.HasRecoveredSecurityLogImplicitList)
+            return MappingResult.Skip("source_channel_ambiguous",
+                "The recovered SecurityLog list is bound only to SecurityLogTags fields.",
                 docs.SourceUrl);
         if (docs.HasBiometricAllowedAuthenticatorsIncompleteDefaultList &&
             !MatchesIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs))
@@ -2528,6 +2537,82 @@ static partial class ImporterProgram
                 ? name : error ? $"public const {returnType} {name} = {value};" : $"public const string {name};") &&
             member.Element("ReturnValue")?.Element("ReturnType")?.Value == returnType &&
             (!error || member.Element("MemberValue")?.Value == value);
+    }
+
+    const string SecurityLogJavaPath = "android/app/admin/SecurityLog";
+    static readonly Dictionary<string, (string ManagedName, string Value, string FragmentHash)> SecurityLogImplicitListFields =
+        new(StringComparer.Ordinal)
+    {
+        ["TAG_BACKUP_SERVICE_TOGGLED"] = ("BackupServiceToggled", "210044", "84d268d41cdfd37fb0b899eb781a67edf28622df21450d33032b3f7a4d6b03e1"),
+        ["TAG_BLUETOOTH_CONNECTION"] = ("BluetoothConnection", "210039", "0009d54c9d3b9fe8bd8cc39f2a35830ca66d508fe5ba20e587ac8e4e6fbb5585"),
+        ["TAG_BLUETOOTH_DISCONNECTION"] = ("BluetoothDisconnection", "210040", "1fe20a9a11b4975f8b31771eb561fa56bc9bc4ef18985203aa33373bd70f5ad3"),
+        ["TAG_CAMERA_POLICY_SET"] = ("CameraPolicySet", "210034", "44e2fecd51f686084cfb41363e7c09a0b4eff4e6f9b3dec1f40d71d90eff21c1"),
+        ["TAG_CERT_AUTHORITY_INSTALLED"] = ("CertAuthorityInstalled", "210029", "5e9b032735d0a0759a71905b054a2160e0adc96fa81204b6f62750c3315df550"),
+        ["TAG_CERT_AUTHORITY_REMOVED"] = ("CertAuthorityRemoved", "210030", "5a40add366a7c0a9360abeb63839807ba976c19cce97b986f756ad9bf27020d3"),
+        ["TAG_KEYGUARD_DISABLED_FEATURES_SET"] = ("KeyguardDisabledFeaturesSet", "210021", "47c33377b9a7dd73352dbe4c80938b1931e17f79d5f63bdc1825fff431414611"),
+        ["TAG_KEYGUARD_DISMISS_AUTH_ATTEMPT"] = ("KeyguardDismissAuthAttempt", "210007", "d6c76f14455d615d8088cc03b3b296aa092e72aa232b8970e0ac19b217ce0c36"),
+        ["TAG_MAX_PASSWORD_ATTEMPTS_SET"] = ("MaxPasswordAttemptsSet", "210020", "a2e299076a42a71fa591af18787def2527c4593d3a5961ef80651eeb05ccc0c2"),
+        ["TAG_MAX_SCREEN_LOCK_TIMEOUT_SET"] = ("MaxScreenLockTimeoutSet", "210019", "0639be1cfa17449ebac3390f1d1814503440566d0057703c652764ee74fedf23"),
+        ["TAG_MEDIA_MOUNT"] = ("MediaMount", "210013", "8f5721aa84bb95f3be577cc33e245fd848919493ee290c9f4bedaa5b096e1dea"),
+        ["TAG_MEDIA_UNMOUNT"] = ("MediaUnmount", "210014", "e92c85fbd57afeb41d1ad748371faf2df2dc39eaf271ec6bf94d28b3d962f251"),
+        ["TAG_PACKAGE_INSTALLED"] = ("PackageInstalled", "210041", "5508dda1e3bd83dbc14f37114fafb334eba98b31aaabbcbe11757f2e77e06308"),
+        ["TAG_PACKAGE_UNINSTALLED"] = ("PackageUninstalled", "210043", "4fa5e39f69c7f2eeca46d349637ade9e05633343933aa7b0e7a61ec72511f6d9"),
+        ["TAG_PACKAGE_UPDATED"] = ("PackageUpdated", "210042", "3dc211f66502742da34eb4a7470e51f5a625a63a25a47f17410a6bb3eaea3378"),
+        ["TAG_PASSWORD_CHANGED"] = ("PasswordChanged", "210036", "ac7df83c609ed9b8e0d99513b317e20b50c1e6e38a2cbae8be3fe5a1437d5b1f"),
+        ["TAG_PASSWORD_COMPLEXITY_REQUIRED"] = ("PasswordComplexityRequired", "210035", "d730a4e166db11b8eb22a113ce5cdd59e2f2452189201234b00938935f452997"),
+        ["TAG_PASSWORD_COMPLEXITY_SET"] = ("PasswordComplexitySet", "210017", "c3fda457bd31a601a5c6613323efad1d87dd7267b0f51bb6704ef9c56f9118d4"),
+        ["TAG_PASSWORD_EXPIRATION_SET"] = ("PasswordExpirationSet", "210016", "1615d3e30a7ffa8b75424cd6ecf738bd49be9ff25d745ebadc8f860a8a4b5eae"),
+        ["TAG_PASSWORD_HISTORY_LENGTH_SET"] = ("PasswordHistoryLengthSet", "210018", "2afbbdfea0e34d61c6a98d2ae65674542685e68257c988e8898049bb63e50e70"),
+        ["TAG_USER_RESTRICTION_ADDED"] = ("UserRestrictionAdded", "210027", "6447863289436a033052e1bef9f17897c427a4425d46d79ce847e42c22b74224"),
+        ["TAG_USER_RESTRICTION_REMOVED"] = ("UserRestrictionRemoved", "210028", "1624e71a1bc0a652fe36d8488532def684833ba7b56621ffc957988e241537e8"),
+        ["TAG_WIFI_CONNECTION"] = ("WifiConnection", "210037", "0cc32e41629bed4489a8ed330aff120bb4d44551ff28cd6ddebc8fda00e6cc34"),
+        ["TAG_WIFI_DISCONNECTION"] = ("WifiDisconnection", "210038", "6d8db55d087982aa5c121296bb97af3ed37ee48a3696150cf86349d5284a67f1"),
+    };
+
+    static string RecoverSecurityLogImplicitList(
+        string fragment, SourceRequest request, string title, out bool recovered)
+    {
+        recovered = false;
+        if (request.Kind != "android" ||
+            request.JavaPath != SecurityLogJavaPath ||
+            request.Url != AndroidReference + SecurityLogJavaPath ||
+            !SecurityLogImplicitListFields.TryGetValue(title, out var field) ||
+            !Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(fragment)))
+                .Equals(field.FragmentHash, StringComparison.OrdinalIgnoreCase))
+            return fragment;
+        // These official sections leave bare <li> items open inside one <p>, so the last item
+        // would absorb the rest of the section. Close that item where its paragraph ends or
+        // where the nested paragraph that follows it starts.
+        var firstItem = fragment.IndexOf("<li>", StringComparison.Ordinal);
+        var paragraphEnd = fragment.IndexOf("</p>", firstItem, StringComparison.Ordinal);
+        var nestedParagraph = fragment.IndexOf("<p>", firstItem, StringComparison.Ordinal);
+        recovered = true;
+        return fragment.Insert(nestedParagraph >= 0 && nestedParagraph < paragraphEnd ? nestedParagraph : paragraphEnd, "</li>");
+    }
+
+    static bool MatchesSecurityLogImplicitListBinding(
+        DocsOwner owner, MemberRegistration registration, SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        return member is not null && type is not null && owner.IsEnumField &&
+            SecurityLogImplicitListFields.TryGetValue(registration.Name, out var field) &&
+            registration == new MemberRegistration(registration.Name, null, true) &&
+            owner.SourceRequest?.JavaPath == SecurityLogJavaPath &&
+            docs.SourceKind == "android" &&
+            docs.SourceUrl == AndroidReference + SecurityLogJavaPath + "#" + registration.Name &&
+            docs.SourceLabel == "android.app.admin.SecurityLog." + registration.Name &&
+            type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+            (string?)type.Attribute("FullName") == "Android.App.Admin.SecurityLogTags" &&
+            member.Element("MemberType")?.Value == "Field" &&
+            (string?)member.Attribute("MemberName") == field.ManagedName &&
+            owner.Id == "F:Android.App.Admin.SecurityLogTags." + field.ManagedName &&
+            HasSingleSignature(member, "MemberSignature", "DocId", owner.Id) &&
+            HasSingleSignature(member, "MemberSignature", "C#", field.ManagedName) &&
+            Registration.JniField(member) == new JniFieldRegistration(SecurityLogJavaPath, registration.Name) &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Android.App.Admin.SecurityLogTags" &&
+            member.Element("MemberValue")?.Value == field.Value;
     }
 
     static SourceDocs WithoutIncompleteBiometricAllowedAuthenticatorsRemarks(
@@ -18132,6 +18217,136 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestSecurityLogImplicitLists(string repositoryRoot)
+    {
+        var fixture = File.ReadLines(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "securitylog-source-fragments.txt")).Select(line => line.Split('|')).ToList();
+        Assert(SecurityLogImplicitListFields.Keys.All(key => fixture.Count(parts => parts[0] == key) == 1) &&
+            fixture.Count(parts => parts[0].StartsWith("TAG_KEY_", StringComparison.Ordinal)) == 4,
+            "SecurityLog fixture covers every recovered and already parsed field");
+        var tagsPath = Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Admin", "SecurityLogTags.xml");
+        var tags = LoadedFile.Load(repositoryRoot, tagsPath);
+        tags.SelectOwners(null);
+        var request = tags.Owners.First(owner => owner.IsEnumField).SourceRequest!;
+        Assert(request.Url == AndroidReference + SecurityLogJavaPath, "SecurityLog enum request is canonical");
+        var html = string.Concat(fixture.Select(parts =>
+        {
+            var fragment = Encoding.UTF8.GetString(Convert.FromBase64String(parts[3]));
+            Assert(Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(fragment)))
+                .Equals(parts[2], StringComparison.OrdinalIgnoreCase), "SecurityLog fixture hash");
+            return fragment;
+        }));
+        var page = SourcePage.Parse(request, html);
+        var pages = new Dictionary<string, SourceLoadResult> { [request.Url] = SourceLoadResult.Success(page) };
+        var unrelated = request with
+        {
+            JavaPath = "android/app/admin/NetworkEvent",
+            Url = AndroidReference + "android/app/admin/NetworkEvent",
+        };
+        foreach (var parts in fixture)
+        {
+            var fragment = Encoding.UTF8.GetString(Convert.FromBase64String(parts[3]));
+            var owner = tags.Owners.Single(candidate => (string?)candidate.Member?.Attribute("MemberName") == parts[1]);
+            var docs = page.Members.Single(member => member.Name == parts[0]).Docs;
+            var mapped = MapOwner(owner, pages);
+            foreach (var other in new[]
+            {
+                SourcePage.Parse(request with { Url = request.Url + ".Other" }, fragment),
+                SourcePage.Parse(unrelated, fragment),
+                SourcePage.Parse(request, fragment + "\n"),
+            })
+            {
+                var otherDocs = other.Members.Single().Docs;
+                Assert(otherDocs?.HasRecoveredSecurityLogImplicitList != true &&
+                    (otherDocs is null) == !parts[0].StartsWith("TAG_KEY_", StringComparison.Ordinal),
+                    $"SecurityLog {parts[0]} unrelated or changed source keeps the existing parse");
+            }
+            if (SecurityLogImplicitListFields.ContainsKey(parts[0]))
+            {
+                Assert(docs is { HasRecoveredSecurityLogImplicitList: true } &&
+                    MatchesSecurityLogImplicitListBinding(owner, owner.MemberRegistration!, docs) &&
+                    mapped.Docs is { HasRecoveredSecurityLogImplicitList: true } &&
+                    !docs.Paragraphs.Any(paragraph => paragraph.Text.Contains("Constant Value", StringComparison.Ordinal) ||
+                        paragraph.Text.Contains("See also", StringComparison.Ordinal)),
+                    $"SecurityLog {parts[0]} recovers only for its exact SecurityLogTags binding");
+                var clonedType = new XElement(owner.Member!.Parent!.Parent!);
+                var clone = clonedType.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == parts[1]);
+                clone.Element("MemberValue")!.Value = "1";
+                Assert(MapOwner(owner with { Member = clone, Docs = clone.Element("Docs")! }, pages).ErrorReason ==
+                    "source_channel_ambiguous", $"SecurityLog {parts[0]} rejects a changed managed value");
+                var jniClone = new XElement(owner.Member!.Parent!.Parent!).Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == parts[1]);
+                foreach (var jniAttribute in jniClone.Descendants("AttributeName")
+                    .Where(name => name.Value.Contains("JniField=", StringComparison.Ordinal)))
+                    jniAttribute.Value = jniAttribute.Value.Replace("SecurityLog." + parts[0] + "\"",
+                        "SecurityLog.TAG_OTHER\"", StringComparison.Ordinal);
+                Assert(MapOwner(owner with { Member = jniClone, Docs = jniClone.Element("Docs")! }, pages).ErrorReason ==
+                    "source_channel_ambiguous", $"SecurityLog {parts[0]} rejects a changed JNI field");
+            }
+            else if (parts[0].StartsWith("TAG_KEY_", StringComparison.Ordinal))
+                Assert(docs is { HasRecoveredSecurityLogImplicitList: false } && mapped.Docs is not null,
+                    "SecurityLog already parsed field is not recovered");
+            else
+                Assert(docs is null && mapped.ErrorReason == "source_documentation_empty",
+                    $"SecurityLog withheld {parts[0]} stays unparsed");
+        }
+        Assert(page.Members.Single(member => member.Name == "TAG_BACKUP_SERVICE_TOGGLED").Docs!.Paragraphs
+            .Select(paragraph => paragraph.Text).SequenceEqual([
+                "Indicates that an admin has enabled or disabled backup service. The log entry contains the following information about the event encapsulated in an Object array, accessible via SecurityEvent.getData(): [0] admin package name (String); [1] admin user ID (Integer); [2] backup service state (Integer, 1 for enabled, 0 for disabled)",
+            ]), "SecurityLog recovered list ends at its paragraph");
+        Assert(page.Members.Single(member => member.Name == "TAG_CERT_AUTHORITY_INSTALLED").Docs!.Paragraphs
+            .Select(paragraph => paragraph.Text).SequenceEqual([
+                "Indicates that a new root certificate has been installed into system's trusted credential storage. The log entry contains the following information about the event, encapsulated in an Object array and accessible via SecurityEvent.getData(): [0] result (Integer, 0 if operation failed, 1 if succeeded); [1] subject of the certificate (String); [2] which user the certificate is installed for (Integer), only available from version Build.VERSION_CODES.R.",
+                "If security logging is enabled on organization-owned managed profile devices, only events happening inside the managed profile will be visible.",
+            ]), "SecurityLog recovered list ends before its nested paragraph");
+
+        var constants = LoadedFile.Load(repositoryRoot,
+            Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Admin", "SecurityLog.xml"));
+        constants.SelectOwners("TagBackupServiceToggled");
+        var constant = constants.Owners.Single(owner => (string?)owner.Member?.Attribute("MemberName") == "TagBackupServiceToggled");
+        Assert(MapOwner(constant, pages).ErrorReason == "source_channel_ambiguous",
+            "SecurityLog recovered list does not bind to SecurityLog constants");
+
+        var temp = Path.Combine(Path.GetTempPath(), $"securitylog-source-{Guid.NewGuid():N}");
+        var cache = Path.Combine(temp, "cache");
+        Directory.CreateDirectory(cache);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Admin",
+            $"securitylog-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}.xml");
+        try
+        {
+            File.Copy(tagsPath, path);
+            File.WriteAllText(Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"), html, new UTF8Encoding(false));
+            var unchangedNames = fixture.Where(parts => !SecurityLogImplicitListFields.ContainsKey(parts[0]))
+                .Select(parts => parts[1]).ToHashSet(StringComparer.Ordinal);
+            List<string> Unchanged() => XElement.Load(path).Element("Members")!.Elements("Member")
+                .Where(member => unchangedNames.Contains((string?)member.Attribute("MemberName") ?? ""))
+                .Select(member => member.ToString()).ToList();
+            var unchanged = Unchanged();
+            var reportPath = Path.Combine(temp, "report");
+            Assert(RunAsync(["--path", path, "--namespace", "Android.App.Admin", "--offline", "--cache", cache,
+                "--max-changes", "30", "--report", reportPath, "--apply"]).GetAwaiter().GetResult() == 0,
+                "SecurityLog bounded production run");
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            var applied = report.RootElement.GetProperty("entries").EnumerateArray()
+                .Where(entry => entry.GetProperty("status").GetString() == "applied")
+                .Select(entry => entry.GetProperty("member").GetString() + "/" + entry.GetProperty("target").GetString())
+                .Order(StringComparer.Ordinal).ToList();
+            Assert(applied.SequenceEqual(SecurityLogImplicitListFields.Values
+                    .Select(field => $"F:Android.App.Admin.SecurityLogTags.{field.ManagedName}/summary")
+                    .Order(StringComparer.Ordinal)) &&
+                unchanged.Count == unchangedNames.Count && Unchanged().SequenceEqual(unchanged),
+                "SecurityLog production run fills only recovered enum fields and keeps existing text");
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temp, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
         TestIcuNumberContracts(repositoryRoot);
@@ -18153,6 +18368,7 @@ static partial class ImporterProgram
         TestChangeLogDataOriginChannel(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
         TestSdkSandboxSurfaceLinks(repositoryRoot);
+        TestSecurityLogImplicitLists(repositoryRoot);
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestBlobParcelTextCorrection(repositoryRoot, fixtureRoot);
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
@@ -30414,6 +30630,7 @@ static partial class ImporterProgram
             string url)
         {
             fragment = RecoverSdkSandboxSurfaceLink(fragment, request, title, out var recoveredSdkSandboxSurfaceLink);
+            fragment = RecoverSecurityLogImplicitList(fragment, request, title, out var recoveredSecurityLogImplicitList);
             var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (Match row in Regex.Matches(
                 fragment,
@@ -30509,6 +30726,7 @@ static partial class ImporterProgram
                     url == AndroidReference + "android/icu/text/MessagePattern.ApostropheMode#DOUBLE_REQUIRED" &&
                     fragment.Contains("<a href=\"/reference/java/text/MessageFormat\">MessageFormat</a>", StringComparison.Ordinal),
                 HasRecoveredSdkSandboxSurfaceLink: recoveredSdkSandboxSurfaceLink,
+                HasRecoveredSecurityLogImplicitList: recoveredSecurityLogImplicitList,
                 LegacyFlattenedParagraphs:
                     legacyFlattenedParagraphs.SequenceEqual(paragraphs)
                         ? null
@@ -31603,7 +31821,8 @@ static partial class ImporterProgram
         IReadOnlyList<SourceRequest>? RepeatedContracts = null,
         bool HasJavaTextMessageFormatLink = false,
         bool HasRecoveredAppFunctionAccessLevelMarkup = false,
-        bool HasRecoveredSdkSandboxSurfaceLink = false);
+        bool HasRecoveredSdkSandboxSurfaceLink = false,
+        bool HasRecoveredSecurityLogImplicitList = false);
 
     static class Descriptor
     {
