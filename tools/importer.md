@@ -192,6 +192,17 @@ Source prose is not imported for the exact `SaProposal.PSEUDORANDOM_FUNCTION_SHA
 when its complete Android description incorrectly names HMAC-SHA2-384. That channel
 is reported as ambiguous instead of inventing replacement prose; existing authored
 or imported documentation is preserved.
+
+The `InferenceInput.Params.Builder` type summary can use the official paragraph
+after its deprecation notice only when the managed type, registration, Android
+declaration, source identity, and both source paragraphs match exactly. Withheld
+or ambiguous source channels do not enable this selection. The XML type fixture
+comes from the original placeholder snapshot; the HTML fixture retains the
+relevant Android reference fragment from page SHA-256
+`5118f5c33eee5d78e0ffa5265b9b14e525fcd254d6a7f0aab3941071da40e5e4`.
+Offline production-path tests cover altered identities and source, authored
+content, bounded writes, and byte-identical repeat runs.
+
 Three further exact IKE channels are withheld rather than importing contradicted
 contracts: the IPv6 requested-prefix getter's `-1` sentinel, the IKE-SA DH list
 advertising `DH_GROUP_NONE`, and the Child-SA encryption list advertising 3DES.

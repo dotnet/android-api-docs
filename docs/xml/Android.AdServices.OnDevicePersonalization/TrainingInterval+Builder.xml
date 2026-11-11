@@ -71,8 +71,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates a builder with the default scheduling mode and minimum interval.</summary>
+        <remarks>The scheduling mode is one time, and the minimum interval is zero until you set them. See the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/OnDevicePersonalization/+/cc93f1e4164d0a4bb76dd277abc221f4eaf32efb/framework/java/android/adservices/ondevicepersonalization/TrainingInterval.java#L204">builder</a></format>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -105,7 +105,7 @@
       <Parameters />
       <Docs>
         <summary>Builds the instance.</summary>
-        <returns>To be added.</returns>
+        <returns>A new training interval with this builder's settings.</returns>
         <remarks>
           <para>Builds the instance. This builder should not be touched after calling this!</para>
           <para>
@@ -183,11 +183,13 @@
         <Parameter Name="value" Type="Java.Time.Duration" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
+        <param name="value">The minimum time between task runs. It must be positive and is used only for recurrent tasks.</param>
         <summary>Sets the minimum time interval between two training runs.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the minimum interval assigned.</returns>
         <remarks>
           <para>Sets the minimum time interval between two training runs.</para>
+          <para>This field will only be used when the scheduling mode is TrainingInterval.SCHEDULING_MODE_RECURRENT. Only positive values are accepted, zero or negative values will result in IllegalArgumentException.</para>
+          <para>Please also note this value is advisory, which does not guarantee the job will be run immediately after the interval expired. Federated compute will still enforce a minimum required interval and training constraints to ensure system health. The current training constraints are device on unmetered network, idle and battery not low.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/TrainingInterval.Builder#setMinimumInterval(java.time.Duration)" title="Reference documentation">Android reference for <code>android.adservices.ondevicepersonalization.TrainingInterval.Builder.setMinimumInterval</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -226,7 +228,7 @@
       <Docs>
         <param name="value">Value is one of the following: TrainingInterval.SCHEDULING_MODE_ONE_TIME; TrainingInterval.SCHEDULING_MODE_RECURRENT</param>
         <summary>The scheduling mode for this task, either TrainingInterval.SCHEDULING_MODE_ONE_TIME or TrainingInterval.SCHEDULING_MODE_RECURRENT.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the scheduling mode assigned.</returns>
         <remarks>
           <para>The scheduling mode for this task, either TrainingInterval.SCHEDULING_MODE_ONE_TIME or TrainingInterval.SCHEDULING_MODE_RECURRENT. The default scheduling mode is TrainingInterval.SCHEDULING_MODE_ONE_TIME if unspecified.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/TrainingInterval.Builder#setSchedulingMode(int)" title="Reference documentation">Android reference for <code>android.adservices.ondevicepersonalization.TrainingInterval.Builder.setSchedulingMode</code>.</a></format></para>
