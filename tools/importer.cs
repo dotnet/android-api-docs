@@ -153,6 +153,13 @@ static partial class ImporterProgram
         "The calling package needs to declare " + DeviceBuilderSetUdiPermission +
         " in manifest to be able to set UDI for any record. SecurityException is thrown when " +
         "upserting a record with UDI without the permission.";
+    const string DevicePresenceEventConstructorMemberId =
+        "M:Android.Companion.DevicePresenceEvent.#ctor(System.Int32,Android.Companion.DevicePresenceEventType,Android.OS.ParcelUuid)";
+    const string DevicePresenceEventConstructorDescriptor = "(IILandroid/os/ParcelUuid;)V";
+    const string DevicePresenceEventConstructorSourceUrl =
+        AndroidReference + "android/companion/DevicePresenceEvent#DevicePresenceEvent(int,%20int,%20android.os.ParcelUuid)";
+    const string DevicePresenceEventConstructorDeclaration =
+        "public DevicePresenceEvent (int associationId, int event, ParcelUuid uuid)";
     const string ImageDecoderDecodeDrawableSourceMemberId =
         "M:Android.Graphics.ImageDecoder.DecodeDrawable(Android.Graphics.ImageDecoder.Source)";
     const string ImageDecoderDecodeDrawableSourceUrl =
@@ -300,6 +307,36 @@ static partial class ImporterProgram
     ];
     static readonly KnownAndroidTextRepair[] KnownAndroidTextRepairs =
     [
+        new(
+            AndroidReference + "android/companion/CompanionDeviceManager#FLAG_CALL_METADATA",
+            "F:Android.Companion.SystemDataSyncFlags.CallMetadata",
+            "summary",
+            "Used by enableSystemDataSyncForTypes(int, int)}. Sync call metadata like muting, ending and silencing a call. Enabled by default.",
+            "Used by enableSystemDataSyncForTypes(int, int). Sync call metadata like muting, ending and silencing a call. Enabled by default."),
+        new(
+            AndroidReference + "android/companion/BluetoothLeDeviceFilter.Builder#setRenameFromName(java.lang.String,%20java.lang.String,%20int,%20int)",
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromName(System.String,System.String,System.Int32,System.Int32)",
+            "param:prefix",
+            "to be displayed before the byte data. This value cannot be null.",
+            "to be displayed before the selected display name characters. This value cannot be null."),
+        new(
+            AndroidReference + "android/companion/BluetoothLeDeviceFilter.Builder#setRenameFromName(java.lang.String,%20java.lang.String,%20int,%20int)",
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromName(System.String,System.String,System.Int32,System.Int32)",
+            "param:suffix",
+            "to be displayed after the byte data. This value cannot be null.",
+            "to be displayed after the selected display name characters. This value cannot be null."),
+        new(
+            AndroidReference + "android/companion/BluetoothLeDeviceFilter.Builder#setRenameFromName(java.lang.String,%20java.lang.String,%20int,%20int)",
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromName(System.String,System.String,System.Int32,System.Int32)",
+            "summary",
+            "Rename the devices shown in the list, using specific characters from the advertised name, as well as a custom prefix/suffix around them Note that the prefix length is limited to BluetoothLeDeviceFilter.getRenamePrefixLengthLimit() characters to ensure that there's enough space to display the byte data The range of name characters to be displayed cannot be empty",
+            "Rename the devices shown in the list, using specific characters from the device's display name, as well as a custom prefix/suffix around them Note that the prefix length is limited to BluetoothLeDeviceFilter.getRenamePrefixLengthLimit() characters to ensure that there's enough space to display the name characters The range of name characters to be displayed cannot be empty"),
+        new(
+            AndroidReference + "android/companion/BluetoothLeDeviceFilter.Builder#setRenameFromName(java.lang.String,%20java.lang.String,%20int,%20int)",
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromName(System.String,System.String,System.Int32,System.Int32)",
+            "remarks",
+            "Rename the devices shown in the list, using specific characters from the advertised name, as well as a custom prefix/suffix around them Note that the prefix length is limited to BluetoothLeDeviceFilter.getRenamePrefixLengthLimit() characters to ensure that there's enough space to display the byte data The range of name characters to be displayed cannot be empty",
+            "Rename the devices shown in the list, using specific characters from the device's display name, as well as a custom prefix/suffix around them Note that the prefix length is limited to BluetoothLeDeviceFilter.getRenamePrefixLengthLimit() characters to ensure that there's enough space to display the name characters The range of name characters to be displayed cannot be empty"),
         new(
             AndroidReference + "android/service/quicksettings/Tile#writeToParcel(android.os.Parcel,%20int)",
             "M:Android.Service.QuickSettings.Tile.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)",
@@ -2383,6 +2420,7 @@ static partial class ImporterProgram
         docs = WithoutUnsafeVibrationEffectAddEventsRemarks(owner, docs);
         docs = WithoutIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs);
         docs = WithoutUnsafeIcuNumberChannels(owner, docs);
+        docs = WithVerifiedDevicePresenceEventParameterName(owner, registration, exact[0], docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
     }
 
@@ -2474,6 +2512,167 @@ static partial class ImporterProgram
             HasSignature(formatted, "C#",
                 $"public virtual Java.Lang.ICharSequence? {property}Formatted {{ get; }}") &&
             Registration.Member(formatted) == registration;
+    }
+
+    // The binding generator renames the Java keyword parameter `event` to `e`.
+    static SourceDocs WithVerifiedDevicePresenceEventParameterName(
+        DocsOwner owner,
+        MemberRegistration registration,
+        SourceMember source,
+        SourceDocs docs)
+    {
+        if (owner.Id != DevicePresenceEventConstructorMemberId &&
+            source.Url != DevicePresenceEventConstructorSourceUrl &&
+            docs.SourceUrl != DevicePresenceEventConstructorSourceUrl)
+            return docs;
+
+        if (owner.Id != DevicePresenceEventConstructorMemberId ||
+            registration is not
+            {
+                Name: ".ctor",
+                Descriptor: DevicePresenceEventConstructorDescriptor,
+                IsField: false,
+            } ||
+            owner.SourceRequest is not
+            {
+                Kind: "android",
+                JavaPath: "android/companion/DevicePresenceEvent",
+            } ||
+            owner.SourceRequest.Url != AndroidReference + "android/companion/DevicePresenceEvent" ||
+            owner.Member is not { } member ||
+            (string?)member.Attribute("MemberName") != ".ctor" ||
+            !member.Elements("MemberType").Select(type => type.Value).SequenceEqual(["Constructor"]) ||
+            member.Elements("ReturnValue").Any() ||
+            member.Parent?.Name != "Members" ||
+            member.Parent?.Parent is not { } declaringType ||
+            declaringType.Name != "Type" ||
+            (string?)declaringType.Attribute("Name") != "DevicePresenceEvent" ||
+            (string?)declaringType.Attribute("FullName") != "Android.Companion.DevicePresenceEvent" ||
+            !declaringType.Elements("TypeSignature")
+                .Where(signature => (string?)signature.Attribute("Language") == "DocId")
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual(["T:Android.Companion.DevicePresenceEvent"]) ||
+            declaringType.Elements("AssemblyInfo").ToList() is not [var typeAssembly] ||
+            !typeAssembly.Elements("AssemblyName").Select(name => name.Value).SequenceEqual(["Mono.Android"]) ||
+            Registration.Type(declaringType) != "android/companion/DevicePresenceEvent" ||
+            !HasExactDevicePresenceRegistration(declaringType,
+                """[Android.Runtime.Register("android/companion/DevicePresenceEvent", ApiSince=36, DoNotGenerateAcw=true)]""") ||
+            member.Elements("AssemblyInfo").ToList() is not [var memberAssembly] ||
+            !memberAssembly.Elements("AssemblyName").Select(name => name.Value).SequenceEqual(["Mono.Android"]) ||
+            !HasExactDevicePresenceRegistration(member,
+                """[Android.Runtime.Register(".ctor", "(IILandroid/os/ParcelUuid;)V", "", ApiSince=36)]""") ||
+            !member.Elements("MemberSignature")
+                .Where(signature => (string?)signature.Attribute("Language") == "DocId")
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual([DevicePresenceEventConstructorMemberId]) ||
+            !member.Elements("MemberSignature")
+                .Where(signature => (string?)signature.Attribute("Language") == "C#")
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual(
+                    ["public DevicePresenceEvent (int associationId, Android.Companion.DevicePresenceEventType e, Android.OS.ParcelUuid? uuid);"]) ||
+            member.Elements("Parameters").ToList() is not [var parameters] ||
+            parameters.Elements().ToList() is not [var associationId, var e, var uuid] ||
+            associationId.Name != "Parameter" ||
+            (string?)associationId.Attribute("Name") != "associationId" ||
+            (string?)associationId.Attribute("Type") != "System.Int32" ||
+            e.Name != "Parameter" ||
+            (string?)e.Attribute("Name") != "e" ||
+            (string?)e.Attribute("Type") != "Android.Companion.DevicePresenceEventType" ||
+            e.Elements("Attributes").ToList() is not [var enumAttributes] ||
+            enumAttributes.Elements("Attribute").ToList() is not [var enumAttribute] ||
+            !enumAttribute.Elements("AttributeName")
+                .Select(name => ((string?)name.Attribute("Language"), name.Value))
+                .SequenceEqual([
+                    ("C#", "[Android.Runtime.GeneratedEnum]"),
+                    ("F#", "[<Android.Runtime.GeneratedEnum>]"),
+                ]) ||
+            uuid.Name != "Parameter" ||
+            (string?)uuid.Attribute("Name") != "uuid" ||
+            (string?)uuid.Attribute("Type") != "Android.OS.ParcelUuid" ||
+            source is not
+            {
+                IsConstructor: true,
+                IsField: false,
+                Url: DevicePresenceEventConstructorSourceUrl,
+            } ||
+            source.ArgumentDescriptors?.SequenceEqual(
+                ["I", "I", "Landroid/os/ParcelUuid;"], StringComparer.Ordinal) != true ||
+            docs.SourceKind != "android" ||
+            docs.SourceUrl != DevicePresenceEventConstructorSourceUrl)
+        {
+            return docs.Parameters.ContainsKey("e")
+                ? WithAmbiguousDevicePresenceParameter(docs)
+                : docs;
+        }
+
+        var table = docs.DevicePresenceParameters;
+        if (table is null || !table.IsWellFormed)
+            return WithAmbiguousDevicePresenceParameter(docs);
+
+        var missingEventInOrder = table.Names is
+            [] or ["associationId"] or ["uuid"] or ["associationId", "uuid"];
+        if (source.Declaration ==
+            "public DevicePresenceEvent (int associationId, int e, ParcelUuid uuid)")
+        {
+            return table.Names.SequenceEqual(["associationId", "e", "uuid"], StringComparer.Ordinal) ||
+                missingEventInOrder
+                ? docs with { Parameters = table.Parameters }
+                : WithAmbiguousDevicePresenceParameter(docs);
+        }
+
+        if (source.Declaration != DevicePresenceEventConstructorDeclaration)
+        {
+            return docs.Parameters.ContainsKey("e")
+                ? WithAmbiguousDevicePresenceParameter(docs)
+                : docs;
+        }
+
+        if (!table.Names.SequenceEqual(["associationId", "event", "uuid"], StringComparer.Ordinal))
+        {
+            return missingEventInOrder
+                ? docs with { Parameters = table.Parameters }
+                : WithAmbiguousDevicePresenceParameter(docs);
+        }
+
+        if (docs.UnsafeTargets?.TryGetValue("param:event", out var unsafeDetail) == true)
+            return WithAmbiguousDevicePresenceParameter(docs, unsafeDetail);
+
+        return docs with
+        {
+            Parameters = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["associationId"] = table.Parameters["associationId"],
+                ["e"] = table.Parameters["event"],
+                ["uuid"] = table.Parameters["uuid"],
+            },
+        };
+    }
+
+    static bool HasExactDevicePresenceRegistration(XElement element, string csharpRegistration)
+    {
+        if (element.Elements("Attributes").ToList() is not [var attributes])
+            return false;
+
+        var registrations = attributes.Elements("Attribute")
+            .SelectMany(attribute => attribute.Elements("AttributeName"))
+            .Where(name => name.Value.Contains("Register", StringComparison.Ordinal) ||
+                name.Value.Contains("JniTypeSignature", StringComparison.Ordinal) ||
+                name.Value.Contains("JniConstructorSignature", StringComparison.Ordinal))
+            .Select(name => ((string?)name.Attribute("Language"), name.Value));
+        return registrations.SequenceEqual([
+            ("C#", csharpRegistration),
+            ("F#", "[<" + csharpRegistration[1..^1] + ">]"),
+        ]);
+    }
+
+    static SourceDocs WithAmbiguousDevicePresenceParameter(SourceDocs docs, string? detail = null)
+    {
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets.TryAdd("param:e", detail ??
+            "The Android constructor parameter table does not match its declared parameters unambiguously.");
+        return docs with { UnsafeTargets = targets };
     }
 
     static bool IsSslDNameConstructorCandidate(
@@ -12067,6 +12266,636 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestDevicePresenceEventKeywordParameter(string repositoryRoot)
+    {
+        const string memberId = DevicePresenceEventConstructorMemberId;
+        var original = File.ReadAllText(Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Companion", "DevicePresenceEvent.xml"));
+        var constants = new[]
+        {
+            "EVENT_BLE_APPEARED", "EVENT_BLE_DISAPPEARED", "EVENT_BT_CONNECTED", "EVENT_BT_DISCONNECTED",
+            "EVENT_SELF_MANAGED_APPEARED", "EVENT_SELF_MANAGED_DISAPPEARED", "EVENT_ASSOCIATION_REMOVED",
+            "EVENT_SELF_MANAGED_NEARBY", "EVENT_SELF_MANAGED_NOT_NEARBY",
+        };
+        var fixture = $$"""
+            <h2 class="api-section" id="public-constructors_1">Public constructors</h2>
+            <div data-version-added="36">
+                <h3 class="api-name" id="DevicePresenceEvent(int,%20int,%20android.os.ParcelUuid)" data-text="DevicePresenceEvent">DevicePresenceEvent</h3>
+            <devsite-code><pre class="api-signature no-pretty-print" translate="no" dir="ltr">
+            public DevicePresenceEvent (int associationId,
+                            int event,
+                            <a href="/reference/android/os/ParcelUuid">ParcelUuid</a> uuid)</pre></devsite-code>
+                <p>
+              <p class="caution"><strong>
+                  This constructor is deprecated.</strong><br/>
+                Third party apps should not construct this API.
+              </p>
+              <p>Create a new DevicePresenceEvent.</p></p>
+                <table class="responsive">
+                <tr><th colspan=2>Parameters</th></tr>
+                  <tr>
+                    <td><code translate="no" dir="ltr">associationId</code></td>
+                    <td width="100%">
+                      <code translate="no" dir="ltr">int</code> <!-- no parameter comment --></p></td>
+                  </tr>
+                  <tr>
+                    <td><code translate="no" dir="ltr">event</code></td>
+                    <td width="100%">
+                      <code translate="no" dir="ltr">int</code>: Value is one of the following:
+            <ul>
+            {{string.Join("\n", constants.Select(constant =>
+                $"  <li><code translate=\"no\" dir=\"ltr\"><a href=\"/reference/android/companion/DevicePresenceEvent#{constant}\">{constant}</a></code></li>"))}}
+            <ul></p></td>
+                  </tr>
+                  <tr>
+                    <td><code translate="no" dir="ltr">uuid</code></td>
+                    <td width="100%">
+                      <code translate="no" dir="ltr">ParcelUuid</code>: This value may be <code translate="no" dir="ltr">null</code>.</p></td>
+                  </tr>
+                </table>
+            </div>
+            <h2 class="api-section" id="public-methods_1">Public methods</h2>
+            """;
+        var directory = Path.Combine(Path.GetTempPath(), "device-presence-importer-" + Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Companion",
+            "DevicePresenceEvent.importer-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        var servicePath = Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Companion",
+            "CompanionDeviceService.importer-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var cache = Path.Combine(directory, "cache");
+            Directory.CreateDirectory(cache);
+            string Placeholders(Action<XElement>? change = null)
+            {
+                var document = XDocument.Parse(original, LoadOptions.PreserveWhitespace);
+                var member = document.Root!.Element("Members")!.Elements("Member").Single(element =>
+                    element.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == memberId));
+                foreach (var element in member.Element("Docs")!.Elements())
+                    element.Value = "To be added.";
+                change?.Invoke(member);
+                return document.ToString(SaveOptions.DisableFormatting);
+            }
+            string OnlyEventPlaceholder(Action<XElement>? change = null) =>
+                Placeholders(member =>
+                {
+                    var docs = member.Element("Docs")!;
+                    foreach (var channel in docs.Elements().Where(channel =>
+                        channel.Name != "param" || (string?)channel.Attribute("name") != "e"))
+                        channel.Value = "Authored channel.";
+                    docs.Elements("param").Single(parameter =>
+                        (string?)parameter.Attribute("name") == "associationId")
+                        .ReplaceNodes(new XText("Authored "), new XElement("c", "value"), new XText("."));
+                    docs.Element("remarks")!.ReplaceNodes(
+                        new XElement("para", "Authored remarks."),
+                        XElement.Parse(
+                            $"""<para><format type="text/html"><a href="{DevicePresenceEventConstructorSourceUrl}" title="Reference documentation">Android reference for <code>android.companion.DevicePresenceEvent.DevicePresenceEvent</code>.</a></format></para>"""),
+                        XElement.Parse("<para>" + AndroidAttribution + "</para>"));
+                    change?.Invoke(member);
+                });
+            File.WriteAllText(path, Placeholders(), new UTF8Encoding(false));
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners(memberId);
+            var owner = loaded.Owners.Single();
+            var registration = owner.MemberRegistration!;
+            var request = owner.SourceRequest!;
+            var cachePath = Path.Combine(cache, Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, fixture, new UTF8Encoding(false));
+            var source = SourcePage.Parse(request, fixture).Members.Single();
+            var rawDocs = source.Docs!;
+            Assert(
+                source.Declaration == DevicePresenceEventConstructorDeclaration &&
+                rawDocs.Parameters.Keys.Order(StringComparer.Ordinal)
+                    .SequenceEqual(["associationId", "event", "uuid"]),
+                "DevicePresenceEvent source keeps the Java parameter name event: " + source.Declaration);
+            var mapped = WithVerifiedDevicePresenceEventParameterName(owner, registration, source, rawDocs);
+            Assert(
+                mapped.Parameters.Keys.Order(StringComparer.Ordinal)
+                    .SequenceEqual(["associationId", "e", "uuid"]) &&
+                mapped.Parameters["e"] == rawDocs.Parameters["event"] &&
+                mapped.Parameters["associationId"] == rawDocs.Parameters["associationId"] &&
+                mapped.Parameters["uuid"] == rawDocs.Parameters["uuid"],
+                "DevicePresenceEvent constructor maps the Java keyword parameter event to managed e");
+
+            JsonElement RunPipeline(string label, int maxChanges = 10, string selectedMember = memberId)
+            {
+                var reportPath = Path.Combine(directory, label);
+                var exit = RunAsync(
+                    [
+                        "--path", path,
+                        "--namespace", "Android.Companion",
+                        "--member", selectedMember,
+                        "--offline", "--cache", cache,
+                        "--max-changes", maxChanges.ToString(), "--apply",
+                        "--report", reportPath,
+                    ]).GetAwaiter().GetResult();
+                Assert(exit == 0, "DevicePresenceEvent complete offline pipeline succeeds");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "DevicePresenceEvent complete pipeline reports no errors");
+                return report.RootElement.Clone();
+            }
+            string? Reason(JsonElement report, string target) => report.GetProperty("entries").EnumerateArray()
+                .Where(entry => entry.GetProperty("target").GetString() == target)
+                .Select(entry => entry.GetProperty("reason").GetString())
+                .SingleOrDefault();
+            string Parameter(string name) => XDocument.Load(path).Descendants("param")
+                .Single(param => (string?)param.Attribute("name") == name).Value;
+
+            var firstReport = RunPipeline("first-fill");
+            var imported = Parameter("e");
+            var positions = constants.Select(constant => imported.IndexOf(constant, StringComparison.Ordinal)).ToList();
+            Assert(
+                firstReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("target").GetString() == "param:e" &&
+                    entry.GetProperty("status").GetString() == "applied") &&
+                imported.StartsWith("Value is one of the following", StringComparison.Ordinal) &&
+                positions.All(position => position >= 0) &&
+                positions.SequenceEqual(positions.Order()) &&
+                Reason(firstReport, "param:associationId") == "source_channel_not_meaningful" &&
+                Reason(firstReport, "param:uuid") == "source_channel_not_meaningful" &&
+                Parameter("associationId") == "To be added." &&
+                Parameter("uuid") == "To be added.",
+                "DevicePresenceEvent pipeline imports the ordered official event constants into param e only: " + imported);
+            var applied = File.ReadAllText(path);
+            var repeat = RunPipeline("repeat");
+            Assert(
+                repeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllText(path) == applied,
+                "DevicePresenceEvent repeated complete import is byte-identical");
+
+            File.WriteAllText(path, OnlyEventPlaceholder(member =>
+                member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Android"),
+                new UTF8Encoding(false));
+            var otherAssemblyBytes = File.ReadAllBytes(path);
+            var otherAssembly = RunPipeline("other-assembly");
+            Assert(
+                otherAssembly.GetProperty("appliedCount").GetInt32() == 0 &&
+                Reason(otherAssembly, "param:e") == "source_parameter_missing" &&
+                File.ReadAllBytes(path).SequenceEqual(otherAssemblyBytes),
+                "DevicePresenceEvent pipeline keeps param e when the owner assembly differs");
+
+            const string placeholder = "<param name=\"e\">To be added.</param>";
+            var authored = OnlyEventPlaceholder()
+                .Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace("\n", "\r\n", StringComparison.Ordinal);
+            Assert(authored.Split(placeholder, StringSplitOptions.None).Length == 2,
+                "DevicePresenceEvent authored fixture has exactly one event placeholder");
+            File.WriteAllText(path, authored, new UTF8Encoding(true));
+            var expected = authored.Replace(
+                placeholder,
+                new XElement("param", new XAttribute("name", "e"), imported)
+                    .ToString(SaveOptions.DisableFormatting),
+                StringComparison.Ordinal);
+            var expectedBytes = new UTF8Encoding(true).GetPreamble()
+                .Concat(Encoding.UTF8.GetBytes(expected)).ToArray();
+            var authoredReport = RunPipeline("authored", 1);
+            Assert(
+                authoredReport.GetProperty("appliedCount").GetInt32() == 1 &&
+                File.ReadAllBytes(path).SequenceEqual(expectedBytes),
+                "DevicePresenceEvent bounded import preserves authored channels, markup, BOM, and CRLF bytes");
+            var authoredRepeat = RunPipeline("authored-repeat", 1);
+            Assert(
+                authoredRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllBytes(path).SequenceEqual(expectedBytes),
+                "DevicePresenceEvent authored-content repeat makes no writes");
+
+            var authoredEvent = OnlyEventPlaceholder(member =>
+                member.Element("Docs")!.Elements("param").Single(parameter =>
+                    (string?)parameter.Attribute("name") == "e").Value = "An authored event description.");
+            File.WriteAllText(path, authoredEvent, new UTF8Encoding(true));
+            var authoredEventBytes = File.ReadAllBytes(path);
+            var authoredEventReport = RunPipeline("authored-event", 1);
+            Assert(
+                authoredEventReport.GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllBytes(path).SequenceEqual(authoredEventBytes),
+                "DevicePresenceEvent import preserves an already-authored event parameter");
+
+            var bounded = OnlyEventPlaceholder(member =>
+                member.Element("Docs")!.Element("summary")!.Value = "To be added.");
+            File.WriteAllText(path, bounded, new UTF8Encoding(false));
+            var boundedReport = RunPipeline("bounded", 1);
+            var boundedDocument = XDocument.Load(path);
+            var boundedDocs = boundedDocument.Root!.Element("Members")!.Elements("Member").Single(member =>
+                member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == memberId)).Element("Docs")!;
+            Assert(
+                boundedReport.GetProperty("appliedCount").GetInt32() == 1 &&
+                Parameter("e") == imported &&
+                boundedDocs.Element("summary")!.Value == "To be added.",
+                "DevicePresenceEvent event import respects a one-change budget with another eligible channel");
+
+            XElement ManagedParameter(XElement member, string name) => member.Element("Parameters")!
+                .Elements("Parameter").Single(parameter => (string?)parameter.Attribute("Name") == name);
+            void AddRegistration(XElement element, string value) =>
+                element.Element("Attributes")!.Add(new XElement("Attribute",
+                    new XElement("AttributeName", new XAttribute("Language", "C#"), value)));
+            var managedNegatives = new (string Name, Action<XElement> Change)[]
+            {
+                ("owner", member => member.Parent!.Parent!.SetAttributeValue(
+                    "FullName", "Android.Companion.NotDevicePresenceEvent")),
+                ("type-assembly", member => member.Parent!.Parent!.Element("AssemblyInfo")!
+                    .Element("AssemblyName")!.Value = "Other.Android"),
+                ("duplicate-type-assembly-name", member => member.Parent!.Parent!.Element("AssemblyInfo")!
+                    .Add(new XElement("AssemblyName", "Other.Android"))),
+                ("duplicate-member-assembly-name", member => member.Element("AssemblyInfo")!
+                    .Add(new XElement("AssemblyName", "Other.Android"))),
+                ("duplicate-parameters", member => member.Add(new XElement("Parameters",
+                    new XElement("Parameter", new XAttribute("Name", "e"), new XAttribute("Type", "System.String"))))),
+                ("unexpected-parameter-element", member => member.Element("Parameters")!
+                    .Add(new XElement("Unexpected"))),
+                ("duplicate-member-type", member => member.Add(new XElement("MemberType", "Method"))),
+                ("constructor-return", member => member.Add(
+                    new XElement("ReturnValue", new XElement("ReturnType", "System.Int32")))),
+                ("duplicate-type-registration", member => AddRegistration(member.Parent!.Parent!,
+                    """[Android.Runtime.Register("android/companion/Other", ApiSince=36)]""")),
+                ("duplicate-member-registration", member => AddRegistration(member,
+                    """[Android.Runtime.Register(".ctor", "(I)V", "", ApiSince=36)]""")),
+                ("spaced-type-registration", member => AddRegistration(member.Parent!.Parent!,
+                    """[Android.Runtime.Register ("android/companion/Other", ApiSince=36)]""")),
+                ("spaced-member-registration", member => AddRegistration(member,
+                    """[Android.Runtime.Register (".ctor", "(I)V", "", ApiSince=36)]""")),
+                ("suffixed-member-registration", member => AddRegistration(member,
+                    """[Android.Runtime.RegisterAttribute(".ctor", "(I)V", "", ApiSince=36)]""")),
+                ("duplicate-type-attributes", member => member.Parent!.Parent!.Add(new XElement("Attributes"))),
+                ("duplicate-member-attributes", member => member.Add(new XElement("Attributes"))),
+                ("duplicate-enum-attributes", member => ManagedParameter(member, "e").Add(new XElement("Attributes"))),
+                ("parameter-order", member =>
+                {
+                    var uuid = ManagedParameter(member, "uuid");
+                    uuid.Remove();
+                    ManagedParameter(member, "e").AddBeforeSelf(uuid);
+                }),
+                ("generated-enum", member =>
+                    ManagedParameter(member, "e").Element("Attributes")!.Remove()),
+                ("duplicate-member-docid", member =>
+                {
+                    var signature = member.Elements("MemberSignature").Single(element =>
+                        (string?)element.Attribute("Language") == "DocId");
+                    var duplicate = new XElement(signature);
+                    duplicate.SetAttributeValue("Value", "M:Android.Companion.Other.#ctor");
+                    signature.AddAfterSelf(duplicate);
+                }),
+                ("duplicate-type-docid", member =>
+                {
+                    var signature = member.Parent!.Parent!.Elements("TypeSignature").Single(element =>
+                        (string?)element.Attribute("Language") == "DocId");
+                    var duplicate = new XElement(signature);
+                    duplicate.SetAttributeValue("Value", "T:Android.Companion.Other");
+                    signature.AddAfterSelf(duplicate);
+                }),
+            };
+            foreach (var negative in managedNegatives)
+            {
+                File.WriteAllText(path, OnlyEventPlaceholder(negative.Change), new UTF8Encoding(true));
+                var before = File.ReadAllBytes(path);
+                var result = RunPipeline("managed-" + negative.Name, 1);
+                Assert(
+                    result.GetProperty("appliedCount").GetInt32() == 0 &&
+                    Reason(result, "param:e") == "source_parameter_missing" &&
+                    File.ReadAllBytes(path).SequenceEqual(before),
+                    "DevicePresenceEvent pipeline rejects changed " + negative.Name);
+            }
+
+            var eventCell = fixture.IndexOf(
+                "<td><code translate=\"no\" dir=\"ltr\">event</code></td>",
+                StringComparison.Ordinal);
+            Assert(eventCell >= 0, "DevicePresenceEvent source event cell exists");
+            var rowStart = fixture.LastIndexOf("<tr>", eventCell, StringComparison.Ordinal);
+            Assert(rowStart >= 0, "DevicePresenceEvent source event row exists");
+            string ExtraRow(string name) =>
+                $"<tr><td><code>{name}</code></td><td>int: Conflicting test-only text.</td></tr>\n";
+            var duplicateSource = fixture.Insert(rowStart, ExtraRow("event"));
+            var conflictingSource = fixture.Insert(rowStart, ExtraRow("e"));
+            var renamedDeclaration = fixture.Replace("int event,", "int presenceEvent,",
+                StringComparison.Ordinal);
+            var correctedSource = fixture
+                .Replace("int event,", "int e,", StringComparison.Ordinal)
+                .Replace(
+                    "<td><code translate=\"no\" dir=\"ltr\">event</code></td>",
+                    "<td><code translate=\"no\" dir=\"ltr\">e</code></td>",
+                    StringComparison.Ordinal);
+            var correctedCell = correctedSource.IndexOf(
+                "<td><code translate=\"no\" dir=\"ltr\">e</code></td>", StringComparison.Ordinal);
+            Assert(correctedCell >= 0, "DevicePresenceEvent corrected source event cell exists");
+            var duplicateCorrected = correctedSource.Insert(
+                correctedSource.LastIndexOf("<tr>", correctedCell, StringComparison.Ordinal), ExtraRow("e"));
+            string ParameterRow(string name)
+            {
+                var cell = fixture.IndexOf(
+                    $"<td><code translate=\"no\" dir=\"ltr\">{name}</code></td>",
+                    StringComparison.Ordinal);
+                Assert(cell >= 0, "DevicePresenceEvent source parameter cell exists: " + name);
+                var start = fixture.LastIndexOf("<tr>", cell, StringComparison.Ordinal);
+                var end = fixture.IndexOf("</tr>", cell, StringComparison.Ordinal);
+                Assert(start >= 0 && end > start, "DevicePresenceEvent source parameter row exists: " + name);
+                return fixture[start..(end + "</tr>".Length)];
+            }
+            var associationRow = ParameterRow("associationId");
+            var eventRow = ParameterRow("event");
+            var uuidRow = ParameterRow("uuid");
+            const string rowMarker = "DEVICE_PRESENCE_TEST_ROW";
+            var reorderedSource = fixture.Replace(associationRow, rowMarker, StringComparison.Ordinal)
+                .Replace(eventRow, associationRow, StringComparison.Ordinal)
+                .Replace(rowMarker, eventRow, StringComparison.Ordinal);
+            var missingSource = fixture.Replace(eventRow, "", StringComparison.Ordinal);
+            var missingAndReordered = missingSource.Replace(associationRow, rowMarker, StringComparison.Ordinal)
+                .Replace(uuidRow, associationRow, StringComparison.Ordinal)
+                .Replace(rowMarker, uuidRow, StringComparison.Ordinal);
+            var malformedSource = fixture.Insert(rowStart,
+                "<tr><td><code>event:</code></td><td>int: Test-only text.</td></tr>\n");
+            const string eventCellText = "<td><code translate=\"no\" dir=\"ltr\">event</code></td>";
+            const string headingRow = "<tr><th colspan=2>Parameters</th></tr>";
+            var tableStart = fixture.IndexOf("<table class=\"responsive\">", StringComparison.Ordinal);
+            var tableEnd = fixture.IndexOf("</table>", tableStart, StringComparison.Ordinal);
+            Assert(tableStart >= 0 && tableEnd > tableStart && missingAndReordered != missingSource,
+                "DevicePresenceEvent malformed and reordered source fixtures differ");
+            var noTable = fixture.Remove(tableStart, tableEnd + "</table>".Length - tableStart);
+            var unrelatedTable = "<table><tr><th>Returns</th></tr>" +
+                "<tr><td>event</td><td>int: Unrelated test-only text.</td></tr></table>\n";
+            Assert(renamedDeclaration != fixture &&
+                !SourcePage.Parse(request, duplicateSource).Members.Single().Docs!.DevicePresenceParameters!.IsWellFormed &&
+                SourcePage.Parse(request, conflictingSource).Members.Single().Docs!
+                    .DevicePresenceParameters!.Parameters.ContainsKey("e"),
+                "DevicePresenceEvent source fixtures expose duplicate and conflicting parameter rows");
+            File.WriteAllText(cachePath, conflictingSource, new UTF8Encoding(false));
+            foreach (var negative in managedNegatives)
+            {
+                File.WriteAllText(path, OnlyEventPlaceholder(negative.Change), new UTF8Encoding(true));
+                var before = File.ReadAllBytes(path);
+                var result = RunPipeline("managed-conflicting-" + negative.Name, 1);
+                Assert(
+                    result.GetProperty("appliedCount").GetInt32() == 0 &&
+                    Reason(result, "param:e") == "source_channel_ambiguous" &&
+                    File.ReadAllBytes(path).SequenceEqual(before),
+                    "DevicePresenceEvent generic fallback rejects conflicting source with changed " + negative.Name);
+            }
+            const string otherMemberId = "M:Android.Companion.Other.#ctor";
+            foreach (var negative in new (string Name, Action<XElement> Change)[]
+            {
+                ("changed", member => member.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", otherMemberId)),
+                ("preceding", member =>
+                {
+                    var signature = member.Elements("MemberSignature").Single(element =>
+                        (string?)element.Attribute("Language") == "DocId");
+                    var duplicate = new XElement(signature);
+                    duplicate.SetAttributeValue("Value", otherMemberId);
+                    signature.AddBeforeSelf(duplicate);
+                }),
+            })
+            {
+                File.WriteAllText(path, OnlyEventPlaceholder(negative.Change), new UTF8Encoding(true));
+                var before = File.ReadAllBytes(path);
+                var result = RunPipeline("managed-" + negative.Name + "-docid", 1, otherMemberId);
+                Assert(
+                    result.GetProperty("appliedCount").GetInt32() == 0 &&
+                    Reason(result, "param:e") == "source_channel_ambiguous" &&
+                    File.ReadAllBytes(path).SequenceEqual(before),
+                    "DevicePresenceEvent conflicting source rejects a " + negative.Name + " DocId");
+            }
+            foreach (var negative in new[]
+            {
+                (Name: "duplicate", Html: duplicateSource, Reason: "source_channel_ambiguous"),
+                (Name: "conflicting-e", Html: conflictingSource, Reason: "source_channel_ambiguous"),
+                (Name: "declaration", Html: renamedDeclaration, Reason: "source_parameter_missing"),
+                (Name: "declaration-conflicting-e",
+                    Html: conflictingSource.Replace("int event,", "int presenceEvent,", StringComparison.Ordinal),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "declaration-e-with-event",
+                    Html: fixture.Replace("int event,", "int e,", StringComparison.Ordinal),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "duplicate-corrected", Html: duplicateCorrected, Reason: "source_channel_ambiguous"),
+                (Name: "reordered", Html: reorderedSource, Reason: "source_channel_ambiguous"),
+                (Name: "extra", Html: fixture.Insert(rowStart, ExtraRow("other")), Reason: "source_channel_ambiguous"),
+                (Name: "malformed", Html: malformedSource, Reason: "source_channel_ambiguous"),
+                (Name: "unclosed-th", Html: fixture.Replace(eventCellText, eventCellText + "<th>", StringComparison.Ordinal),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "unmatched-th-end", Html: fixture.Replace(eventCellText, eventCellText + "</th>", StringComparison.Ordinal),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "unclosed-header-td", Html: fixture.Replace(headingRow,
+                    "<tr><th colspan=2>Parameters</th><td></tr>", StringComparison.Ordinal),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "nested-header-th", Html: fixture.Replace(headingRow,
+                    "<tr><th><th colspan=2>Parameters</th></tr>", StringComparison.Ordinal),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "orphan-row-text", Html: fixture.Replace(eventCellText, eventCellText + "unscoped text", StringComparison.Ordinal),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "orphan-table-text", Html: fixture.Insert(rowStart, "unscoped text"),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "nested-table", Html: fixture.Replace(eventCellText, eventCellText + "<table>", StringComparison.Ordinal),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "unclosed-table", Html: fixture.Replace("</table>", "", StringComparison.Ordinal),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "malformed-header", Html: fixture.Replace(headingRow,
+                    "<tr><td colspan=2>Parameters</td></tr>", StringComparison.Ordinal),
+                    Reason: "source_channel_ambiguous"),
+                (Name: "missing-reordered", Html: missingAndReordered, Reason: "source_channel_ambiguous"),
+                (Name: "corrected-missing-reordered", Html: missingAndReordered.Replace(
+                    "int event,", "int e,", StringComparison.Ordinal), Reason: "source_channel_ambiguous"),
+                (Name: "missing", Html: missingSource, Reason: "source_parameter_missing"),
+                (Name: "no-parameter-table", Html: noTable, Reason: "source_parameter_missing"),
+                (Name: "unrelated-table-only", Html: noTable.Insert(tableStart, unrelatedTable),
+                    Reason: "source_parameter_missing"),
+            })
+            {
+                File.WriteAllText(cachePath, negative.Html, new UTF8Encoding(false));
+                File.WriteAllText(path, OnlyEventPlaceholder(), new UTF8Encoding(true));
+                var before = File.ReadAllBytes(path);
+                var result = RunPipeline("source-" + negative.Name, 1);
+                Assert(
+                    result.GetProperty("appliedCount").GetInt32() == 0 &&
+                    Reason(result, "param:e") == negative.Reason &&
+                    File.ReadAllBytes(path).SequenceEqual(before),
+                    "DevicePresenceEvent pipeline preserves an ambiguous or changed source: " + negative.Name);
+                if (negative.Name is "duplicate" or "conflicting-e")
+                {
+                    var sourceRepeat = RunPipeline("source-" + negative.Name + "-repeat", 1);
+                    Assert(
+                        sourceRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(before),
+                        "DevicePresenceEvent source negative has a zero-write repeat: " + negative.Name);
+                }
+            }
+            File.WriteAllText(cachePath, correctedSource, new UTF8Encoding(false));
+            File.WriteAllText(path, OnlyEventPlaceholder(), new UTF8Encoding(false));
+            var correctedReport = RunPipeline("source-corrected", 1);
+            Assert(
+                correctedReport.GetProperty("appliedCount").GetInt32() == 1 &&
+                Parameter("e") == imported,
+                "DevicePresenceEvent source with a consistently renamed Java parameter uses ordinary matching");
+            var mixedTables = fixture.Replace(
+                "<table class=\"responsive\">",
+                unrelatedTable + "<table class=\"responsive\">",
+                StringComparison.Ordinal);
+            Assert(mixedTables != fixture, "DevicePresenceEvent unrelated-table fixture differs");
+            File.WriteAllText(cachePath, mixedTables, new UTF8Encoding(false));
+            File.WriteAllText(path, OnlyEventPlaceholder(), new UTF8Encoding(false));
+            var mixedTablesReport = RunPipeline("source-unrelated-table", 1);
+            Assert(
+                mixedTablesReport.GetProperty("appliedCount").GetInt32() == 1 &&
+                Parameter("e") == imported,
+                "DevicePresenceEvent reads event prose only from the Parameters table");
+
+            const string serviceId =
+                "M:Android.Companion.CompanionDeviceService.OnDevicePresenceEvent(Android.Companion.DevicePresenceEvent)";
+            var service = XDocument.Load(Path.Combine(
+                repositoryRoot, "docs", "xml", "Android.Companion", "CompanionDeviceService.xml"),
+                LoadOptions.PreserveWhitespace);
+            var serviceMember = service.Root!.Element("Members")!.Elements("Member").Single(element =>
+                element.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == serviceId));
+            foreach (var channel in serviceMember.Element("Docs")!.Elements())
+                channel.Value = channel.Name == "param" && (string?)channel.Attribute("name") == "e"
+                    ? "To be added." : "Authored channel.";
+            File.WriteAllText(servicePath, service.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+            var serviceRequest = SourceRequest.Create("android/companion/CompanionDeviceService")!;
+            var serviceFixture = """
+                <h3 class="api-name" id="onDevicePresenceEvent(android.companion.DevicePresenceEvent)">onDevicePresenceEvent</h3>
+                <pre class="api-signature">public void onDevicePresenceEvent (DevicePresenceEvent event)</pre>
+                <p>Called by the system when an associated device's presence state changes.</p>
+                <table><tr><th colspan="2">Parameters</th></tr>
+                <tr><td><code>event</code></td><td><code>DevicePresenceEvent</code>: This value cannot be <code>null</code>.</td></tr>
+                </table>
+                <h2 class="api-section" id="next">Next</h2>
+                """;
+            var serviceDocs = SourcePage.Parse(serviceRequest, serviceFixture).Members.Single().Docs!;
+            Assert(
+                ChannelValueOrSkip(serviceDocs.Parameters["event"], "param", "source_parameter_missing")
+                    .Reason == "source_channel_not_meaningful",
+                "CompanionDeviceService source event contains only a nullability marker");
+            File.WriteAllText(Path.Combine(cache, Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(serviceRequest.Url))).ToLowerInvariant() + ".html"),
+                serviceFixture, new UTF8Encoding(false));
+            var serviceBefore = File.ReadAllBytes(servicePath);
+            var serviceReportPath = Path.Combine(directory, "service");
+            var serviceExit = RunAsync(
+                [
+                    "--path", servicePath, "--namespace", "Android.Companion",
+                    "--member", serviceId, "--offline", "--cache", cache,
+                    "--max-changes", "1", "--apply", "--report", serviceReportPath,
+                ]).GetAwaiter().GetResult();
+            using (var report = JsonDocument.Parse(File.ReadAllText(serviceReportPath + ".json")))
+            {
+                Assert(
+                    serviceExit == 0 &&
+                    report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    Reason(report.RootElement, "param:e") == "source_parameter_missing" &&
+                    File.ReadAllBytes(servicePath).SequenceEqual(serviceBefore),
+                    "CompanionDeviceService callback is not covered by the constructor parameter mapping");
+            }
+
+            XElement Changed(Action<XElement> change)
+            {
+                var root = new XElement(owner.Member!.Parent!.Parent!);
+                var member = root.Element("Members")!.Elements("Member").Single(element =>
+                    element.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == memberId));
+                change(member);
+                return member;
+            }
+            var otherRequest = SourceRequest.Create("android/companion/CompanionDeviceService")!;
+            var negatives = new (string Name, DocsOwner Owner, MemberRegistration Registration, SourceMember Source, SourceDocs Docs)[]
+            {
+                ("DocId", owner with
+                {
+                    Id = "M:Android.Companion.CompanionDeviceService.OnDevicePresenceEvent(Android.Companion.DevicePresenceEvent)",
+                }, registration, source, rawDocs),
+                ("JNI name", owner, registration with { Name = "onDevicePresenceEvent" }, source, rawDocs),
+                ("JNI descriptor", owner, registration with { Descriptor = "(IIILandroid/os/ParcelUuid;)V" }, source, rawDocs),
+                ("source request", owner with { SourceRequest = otherRequest }, registration, source, rawDocs),
+                ("source kind", owner with { SourceRequest = request with { Kind = "java" } }, registration, source, rawDocs),
+                ("assembly", owner with
+                {
+                    Member = Changed(member => member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other"),
+                }, registration, source, rawDocs),
+                ("containing owner", owner with
+                {
+                    Member = Changed(member => member.Parent!.Parent!.SetAttributeValue(
+                        "FullName", "Android.Companion.NotDevicePresenceEvent")),
+                }, registration, source, rawDocs),
+                ("containing assembly", owner with
+                {
+                    Member = Changed(member => member.Parent!.Parent!.Element("AssemblyInfo")!
+                        .Element("AssemblyName")!.Value = "Other"),
+                }, registration, source, rawDocs),
+                ("containing DocId", owner with
+                {
+                    Member = Changed(member => member.Parent!.Parent!.Elements("TypeSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId")
+                        .SetAttributeValue("Value", "T:Android.Companion.Other")),
+                }, registration, source, rawDocs),
+                ("member DocId", owner with
+                {
+                    Member = Changed(member => member.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId")
+                        .SetAttributeValue("Value", "M:Android.Companion.Other.#ctor")),
+                }, registration, source, rawDocs),
+                ("managed order", owner with
+                {
+                    Member = Changed(member =>
+                    {
+                        var uuid = ManagedParameter(member, "uuid");
+                        uuid.Remove();
+                        ManagedParameter(member, "e").AddBeforeSelf(uuid);
+                    }),
+                }, registration, source, rawDocs),
+                ("managed type", owner with
+                {
+                    Member = Changed(member => ManagedParameter(member, "e").SetAttributeValue("Type", "System.Int32")),
+                }, registration, source, rawDocs),
+                ("generated enum", owner with
+                {
+                    Member = Changed(member => ManagedParameter(member, "e").Element("Attributes")!.Remove()),
+                }, registration, source, rawDocs),
+                ("Java order", owner, registration, source with
+                {
+                    Declaration = "public DevicePresenceEvent (int event, int associationId, ParcelUuid uuid)",
+                }, rawDocs),
+                ("Java arguments", owner, registration, source with { ArgumentDescriptors = ["I", "J", "Landroid/os/ParcelUuid;"] }, rawDocs),
+                ("source member URL", owner, registration, source with { Url = source.Url + "x" }, rawDocs),
+                ("source docs URL", owner, registration, source, rawDocs with { SourceUrl = rawDocs.SourceUrl + "x" }),
+                ("source docs kind", owner, registration, source, rawDocs with { SourceKind = "java" }),
+            };
+            foreach (var negative in negatives)
+            {
+                Assert(
+                    ReferenceEquals(
+                        WithVerifiedDevicePresenceEventParameterName(
+                            negative.Owner, negative.Registration, negative.Source, negative.Docs),
+                        negative.Docs),
+                    "DevicePresenceEvent event-to-e mapping rejects a changed " + negative.Name);
+            }
+        }
+        finally
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            finally
+            {
+                try
+                {
+                    File.Delete(servicePath);
+                }
+                finally
+                {
+                    Directory.Delete(directory, recursive: true);
+                }
+            }
+        }
+    }
+
     static void TestMultisensoryDragTokenMarkup()
     {
         var request = SourceRequest.Create("android/os/multisensory/MultisensoryManager") ??
@@ -19541,7 +20370,10 @@ static partial class ImporterProgram
         TestAdminRestrictionRenderedRepair(repositoryRoot);
         TestAdminResetPasswordFields(repositoryRoot);
         TestKnownAndroidTextRepairs();
+        TestCompanionCallMetadataTextCorrection(repositoryRoot);
+        TestCompanionRenameFromNameTextCorrection(repositoryRoot);
         TestControlsTemplatesRangeSource(repositoryRoot);
+        TestDevicePresenceEventKeywordParameter(repositoryRoot);
         TestQuickSettingsSources(repositoryRoot);
         TestKnownEapChannelCorrections(repositoryRoot);
         TestChangeLogDataOriginChannel(repositoryRoot);
@@ -30141,9 +30973,380 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestCompanionCallMetadataTextCorrection(string repositoryRoot)
+    {
+        const string memberId = "F:Android.Companion.SystemDataSyncFlags.CallMetadata";
+        const string incorrect =
+            "Used by enableSystemDataSyncForTypes(int, int)}. Sync call metadata like muting, ending and silencing a call. Enabled by default.";
+        const string correct =
+            "Used by enableSystemDataSyncForTypes(int, int). Sync call metadata like muting, ending and silencing a call. Enabled by default.";
+        var source = LoadedFile.Load(repositoryRoot, Path.Combine(
+            repositoryRoot, "docs", "xml", "Android.Companion", "SystemDataSyncFlags.xml"));
+        source.SelectOwners(memberId);
+        var owner = source.Owners.Single();
+        var request = owner.SourceRequest!;
+        var html = File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "android-companion-callmetadata.html"));
+        var page = SourcePage.Parse(request, html);
+        var raw = page.Members.Single(member => member.Name == "FLAG_CALL_METADATA").Docs
+            ?? throw new InvalidOperationException("CallMetadata source fixture has no documentation.");
+        Assert(raw.Paragraphs.Single().Text == incorrect,
+            "CallMetadata fixture retains the exact official source defect");
+        var pages = new Dictionary<string, SourceLoadResult> { [request.Url] = SourceLoadResult.Success(page) };
+        var mapped = MapOwner(owner, pages);
+        Assert(mapped.Docs?.Paragraphs.Single().Text == correct,
+            "the actual CallMetadata enum registration maps to the corrected source paragraph");
+        Assert(MapOwner(owner with { Id = memberId + ".Other" }, pages).Docs?.Paragraphs.Single().Text == incorrect &&
+            WithKnownAndroidTextCorrections(memberId, raw with { SourceUrl = raw.SourceUrl + ".Other" })
+                .Paragraphs.Single().Text == incorrect &&
+            WithKnownAndroidTextCorrections(memberId, raw with { SourceKind = "java" })
+                .Paragraphs.Single().Text == incorrect,
+            "CallMetadata correction requires the exact managed member and Android source URL");
+
+        var document = new XDocument(source.Root.Document!);
+        var member = document.Root!.Element("Members")!.Elements("Member").Single(element =>
+            element.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "DocId" &&
+                (string?)signature.Attribute("Value") == memberId));
+        member.Element("Docs")!.Element("summary")!.ReplaceNodes(new XText("To be added."));
+        var directory = Path.Combine(Path.GetTempPath(), "companion-callmetadata-" + Guid.NewGuid().ToString("N"));
+        var cache = Path.Combine(directory, "cache");
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Companion",
+            "SystemDataSyncFlags.importer-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        Directory.CreateDirectory(cache);
+        var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+            Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+        var ordinal = 0;
+        int RunPipeline()
+        {
+            var reportPath = Path.Combine(directory, $"report-{ordinal++}");
+            var exit = RunAsync(
+            [
+                "--path", path, "--namespace", "Android.Companion", "--member", memberId,
+                "--cache", cache, "--offline", "--apply", "--max-changes", "1", "--report", reportPath,
+            ]).GetAwaiter().GetResult();
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(exit == 0 && report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                "CallMetadata production pipeline succeeds");
+            return report.RootElement.GetProperty("appliedCount").GetInt32();
+        }
+        void Write(XDocument value) =>
+            File.WriteAllText(path, value.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+        XElement CurrentDocs() => XDocument.Load(path, LoadOptions.PreserveWhitespace)
+            .Root!.Element("Members")!.Elements("Member").Single(element =>
+                element.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == memberId)).Element("Docs")!;
+        string MaskSummary()
+        {
+            var current = LoadedFile.Load(repositoryRoot, path);
+            current.SelectOwners(memberId);
+            var currentOwner = current.Owners.Single();
+            var block = current.DocsBlocks[currentOwner.Order];
+            var blockText = current.Text[block.Start..block.End];
+            Assert(TryParseDocsBlock(blockText, out var docs),
+                "CallMetadata Docs block is parseable");
+            Assert(TryGetElementSpan(blockText, docs.Element("summary")!, out var span),
+                "CallMetadata summary has an exact lexical span");
+            return current.Text[..(block.Start + span.Start)] + "<summary />" +
+                current.Text[(block.Start + span.End)..];
+        }
+        void AssertRepeat()
+        {
+            var bytes = File.ReadAllBytes(path);
+            Assert(RunPipeline() == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                "CallMetadata persisted repeat makes no writes");
+        }
+        try
+        {
+            Write(document);
+            var outsideSummary = MaskSummary();
+            Assert(RunPipeline() == 1, "CallMetadata first fill respects the one-change budget");
+            var filled = CurrentDocs();
+            Assert(filled.Element("summary")!.Elements("para").First().Value == correct &&
+                HasExactImporterSourceReference(filled, mapped.Docs!) &&
+                IsImporterAttributionParagraph(filled.Element("summary")!.Elements("para").Last()) &&
+                MaskSummary() == outsideSummary &&
+                File.ReadAllBytes(path).AsSpan().StartsWith(Encoding.UTF8.Preamble),
+                "CallMetadata first fill preserves all bytes outside the summary and retains provenance and BOM");
+            AssertRepeat();
+
+            var priorOwned = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+            var priorDocs = priorOwned.Root!.Element("Members")!.Elements("Member").Single(element =>
+                (string?)element.Attribute("MemberName") == "CallMetadata").Element("Docs")!;
+            priorDocs.Element("summary")!.Elements("para").First().Value = incorrect;
+            Write(priorOwned);
+            outsideSummary = MaskSummary();
+            Assert(RunPipeline() == 1 &&
+                CurrentDocs().Element("summary")!.Elements("para").First().Value == correct &&
+                MaskSummary() == outsideSummary,
+                "the complete prior importer-owned CallMetadata paragraph is repaired without unrelated edits");
+            AssertRepeat();
+
+            var authored = new XDocument(priorOwned);
+            authored.Root!.Element("Members")!.Elements("Member").Single(element =>
+                (string?)element.Attribute("MemberName") == "CallMetadata")
+                .Element("Docs")!.Element("summary")!.Elements("para").First()
+                .Add(new XComment("Authored guidance"));
+            Write(authored);
+            AssertRepeat();
+
+            File.WriteAllText(cachePath,
+                html.Replace("</a></code>}.", "</a></code>.", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            Write(document);
+            Assert(RunPipeline() == 1 &&
+                CurrentDocs().Element("summary")!.Elements("para").First().Value == correct,
+                "future corrected official CallMetadata source remains eligible");
+            AssertRepeat();
+
+            File.WriteAllText(cachePath,
+                html.Replace("Enabled by default.</p>", "Enabled by default in this example.</p>",
+                    StringComparison.Ordinal), new UTF8Encoding(false));
+            Write(document);
+            Assert(RunPipeline() == 1 &&
+                CurrentDocs().Element("summary")!.Elements("para").First().Value ==
+                    incorrect.Replace("Enabled by default.", "Enabled by default in this example.", StringComparison.Ordinal),
+                "changed official CallMetadata prose is not normalized by the exact correction");
+            AssertRepeat();
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    static void TestCompanionRenameFromNameTextCorrection(string repositoryRoot)
+    {
+        const string memberId =
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromName(System.String,System.String,System.Int32,System.Int32)";
+        const string byteMemberId =
+            "M:Android.Companion.BluetoothLeDeviceFilter.Builder.SetRenameFromBytes(System.String,System.String,System.Int32,System.Int32,Java.Nio.ByteOrder)";
+        const string incorrectPrefix = "to be displayed before the byte data. This value cannot be null.";
+        const string incorrectSuffix = "to be displayed after the byte data. This value cannot be null.";
+        const string correctPrefix = "to be displayed before the selected display name characters. This value cannot be null.";
+        const string correctSuffix = "to be displayed after the selected display name characters. This value cannot be null.";
+        var sourcePath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Companion",
+            "BluetoothLeDeviceFilter+Builder.xml");
+        var source = LoadedFile.Load(repositoryRoot, sourcePath);
+        source.SelectOwners(memberId);
+        var owner = source.Owners.Single();
+        var byteSource = LoadedFile.Load(repositoryRoot, sourcePath);
+        byteSource.SelectOwners(byteMemberId);
+        var byteOwner = byteSource.Owners.Single();
+        var request = owner.SourceRequest!;
+        var html = File.ReadAllText(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "android-companion-rename-from-name.html"));
+        var page = SourcePage.Parse(request, html);
+        var raw = page.Members.Single(member => member.Name == "setRenameFromName").Docs
+            ?? throw new InvalidOperationException("SetRenameFromName source fixture has no documentation.");
+        var byteRaw = page.Members.Single(member => member.Name == "setRenameFromBytes").Docs
+            ?? throw new InvalidOperationException("SetRenameFromBytes source fixture has no documentation.");
+        Assert(RemoveLeadingJavaType(raw.Parameters["prefix"]) == incorrectPrefix &&
+            RemoveLeadingJavaType(raw.Parameters["suffix"]) == incorrectSuffix &&
+            raw.Summary.Contains("advertised name", StringComparison.Ordinal) &&
+            raw.Summary.Contains("byte data", StringComparison.Ordinal),
+            "the name-based rename fixture retains the exact official source defects");
+        var pages = new Dictionary<string, SourceLoadResult> { [request.Url] = SourceLoadResult.Success(page) };
+        var mapping = MapOwner(owner, pages);
+        var corrected = mapping.Docs ?? throw new InvalidOperationException("SetRenameFromName did not map.");
+        Assert(corrected.Parameters["prefix"] == correctPrefix &&
+            corrected.Parameters["suffix"] == correctSuffix &&
+            corrected.Summary.Contains("device's display name", StringComparison.Ordinal) &&
+            corrected.Summary.Contains("display the name characters", StringComparison.Ordinal) &&
+            corrected.Paragraphs.Single().Text == corrected.Summary,
+            "the registered name-based binding maps each exact corrected source channel");
+        Assert(MapOwner(owner with { Id = memberId + ".Other" }, pages).Docs?.Summary == raw.Summary &&
+            WithKnownAndroidTextCorrections(memberId, raw with { SourceUrl = raw.SourceUrl + ".Other" })
+                .Summary == raw.Summary &&
+            WithKnownAndroidTextCorrections(memberId, raw with { SourceKind = "java" })
+                .Summary == raw.Summary,
+            "name-based correction requires the exact managed member and Android source URL");
+        Assert(MapOwner(owner with
+        {
+            MemberRegistration = owner.MemberRegistration! with { Descriptor = "(Ljava/lang/String;Ljava/lang/String;IJ)Landroid/companion/BluetoothLeDeviceFilter$Builder;" },
+        }, pages).Docs is null,
+            "the name-based correction does not map a different JNI overload");
+        var byteMapping = MapOwner(byteOwner, pages).Docs
+            ?? throw new InvalidOperationException("SetRenameFromBytes did not map.");
+        Assert(RemoveLeadingJavaType(byteMapping.Parameters["prefix"]) == incorrectPrefix &&
+            byteMapping.Summary == byteRaw.Summary,
+            "the neighboring byte-based overload retains its byte-data source text");
+
+        XDocument NewDocument(DocsOwner selected)
+        {
+            var document = new XDocument(source.Root.Document!);
+            document.Root!.Element("Members")!.ReplaceNodes(new XElement(selected.Member!));
+            return document;
+        }
+        static XElement DocumentDocs(XDocument document) =>
+            document.Root!.Element("Members")!.Element("Member")!.Element("Docs")!;
+        static XElement Parameter(XElement docs, string name) =>
+            docs.Elements("param").Single(parameter => (string?)parameter.Attribute("name") == name);
+        var document = NewDocument(owner);
+        var initialDocs = DocumentDocs(document);
+        Parameter(initialDocs, "prefix").Value = "To be added.";
+        Parameter(initialDocs, "suffix").Value = "To be added.";
+        initialDocs.Element("summary")!.Value = "To be added.";
+        initialDocs.Element("remarks")!.Elements("para").First().ReplaceNodes(new XText("To be added."));
+
+        var directory = Path.Combine(Path.GetTempPath(), "companion-rename-name-" + Guid.NewGuid().ToString("N"));
+        var cache = Path.Combine(directory, "cache");
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Companion",
+            "BluetoothLeDeviceFilter.importer-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        Directory.CreateDirectory(cache);
+        var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+            Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+        var ordinal = 0;
+        int RunPipeline(string target = memberId, int limit = 1)
+        {
+            var reportPath = Path.Combine(directory, $"report-{ordinal++}");
+            var exit = RunAsync(
+            [
+                "--path", path, "--namespace", "Android.Companion", "--member", target,
+                "--cache", cache, "--offline", "--apply", "--max-changes",
+                limit.ToString(System.Globalization.CultureInfo.InvariantCulture), "--report", reportPath,
+            ]).GetAwaiter().GetResult();
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            Assert(exit == 0 && report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                "name-based rename production pipeline succeeds");
+            return report.RootElement.GetProperty("appliedCount").GetInt32();
+        }
+        void Write(XDocument value) =>
+            File.WriteAllText(path, value.ToString(SaveOptions.DisableFormatting)
+                .Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(true));
+        XElement CurrentDocs() => DocumentDocs(XDocument.Load(path, LoadOptions.PreserveWhitespace));
+        string MaskApprovedSpans()
+        {
+            var current = LoadedFile.Load(repositoryRoot, path);
+            current.SelectOwners(memberId);
+            var currentOwner = current.Owners.Single();
+            var block = current.DocsBlocks[currentOwner.Order];
+            var blockText = current.Text[block.Start..block.End];
+            Assert(TryParseDocsBlock(blockText, out var docs), "name-based rename Docs parses");
+            var elements = new[]
+            {
+                Parameter(docs, "prefix"),
+                Parameter(docs, "suffix"),
+                docs.Element("summary")!,
+                docs.Element("remarks")!.Elements("para").First(),
+            };
+            var spans = new List<XmlSpan>();
+            foreach (var element in elements)
+            {
+                Assert(TryGetElementSpan(blockText, element, out var span),
+                    $"the approved rename {element.Name} channel has an exact lexical span");
+                spans.Add(span);
+            }
+            foreach (var span in spans.OrderByDescending(span => span.Start))
+                blockText = blockText[..span.Start] + "<approved />" + blockText[span.End..];
+            return current.Text[..block.Start] + blockText + current.Text[block.End..];
+        }
+        void AssertRepeat(string target = memberId)
+        {
+            var bytes = File.ReadAllBytes(path);
+            Assert(RunPipeline(target) == 0 && bytes.SequenceEqual(File.ReadAllBytes(path)),
+                "the persisted rename repeat makes no writes");
+        }
+        try
+        {
+            Write(document);
+            var outsideSpans = MaskApprovedSpans();
+            for (var batch = 0; batch < 4; batch++)
+                Assert(RunPipeline() == 1, "each rename first-fill respects the one-change budget");
+            var filled = CurrentDocs();
+            Assert(Parameter(filled, "prefix").Value == correctPrefix &&
+                Parameter(filled, "suffix").Value == correctSuffix &&
+                filled.Element("summary")!.Value == corrected.Summary &&
+                filled.Element("remarks")!.Elements("para").First().Value == corrected.Summary &&
+                HasExactImporterSourceReference(filled, corrected) &&
+                IsImporterAttributionParagraph(filled.Element("remarks")!.Elements("para").Last()) &&
+                MaskApprovedSpans() == outsideSpans &&
+                File.ReadAllBytes(path).AsSpan().StartsWith(Encoding.UTF8.Preamble),
+                "the name-based first-fill corrects four channels and preserves all other bytes and provenance");
+            AssertRepeat();
+
+            var priorOwned = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+            var priorDocs = DocumentDocs(priorOwned);
+            Parameter(priorDocs, "prefix").Value = incorrectPrefix;
+            Parameter(priorDocs, "suffix").Value = incorrectSuffix;
+            priorDocs.Element("summary")!.Value = raw.Summary;
+            priorDocs.Element("remarks")!.Elements("para").First().Value = raw.Summary;
+            Write(priorOwned);
+            outsideSpans = MaskApprovedSpans();
+            var beforeBoundedRepair = File.ReadAllBytes(path);
+            Assert(RunPipeline(limit: 1) == 0 &&
+                beforeBoundedRepair.SequenceEqual(File.ReadAllBytes(path)),
+                "an insufficient change budget preserves the complete prior name-based description");
+            Assert(RunPipeline(limit: 4) == 4 &&
+                Parameter(CurrentDocs(), "prefix").Value == correctPrefix &&
+                Parameter(CurrentDocs(), "suffix").Value == correctSuffix &&
+                CurrentDocs().Element("summary")!.Value == corrected.Summary &&
+                CurrentDocs().Element("remarks")!.Elements("para").First().Value == corrected.Summary &&
+                MaskApprovedSpans() == outsideSpans,
+                "a complete prior importer-owned name-based description is corrected only in its four spans");
+            AssertRepeat();
+
+            var authored = new XDocument(priorOwned);
+            DocumentDocs(authored).Element("remarks")!.AddFirst(new XElement("para", "Authored guidance."));
+            Write(authored);
+            AssertRepeat();
+
+            File.WriteAllText(cachePath, html.Replace(
+                "as well as a custom prefix/suffix around them",
+                "as well as a separately supplied prefix/suffix around them", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            var changedSummaryDocument = NewDocument(owner);
+            DocumentDocs(changedSummaryDocument).Element("summary")!.Value = "To be added.";
+            Write(changedSummaryDocument);
+            Assert(RunPipeline() == 1 &&
+                CurrentDocs().Element("summary")!.Value == raw.Summary.Replace(
+                    "as well as a custom prefix/suffix around them",
+                    "as well as a separately supplied prefix/suffix around them", StringComparison.Ordinal),
+                "changed official summary text is not rewritten by the exact source correction");
+            AssertRepeat();
+
+            File.WriteAllText(cachePath, html.Replace(
+                "to be displayed before the byte data.",
+                "to be displayed before the selected sequence.", StringComparison.Ordinal),
+                new UTF8Encoding(false));
+            var changedSourceDocument = NewDocument(owner);
+            Parameter(DocumentDocs(changedSourceDocument), "prefix").Value = "To be added.";
+            Write(changedSourceDocument);
+            Assert(RunPipeline() == 1 &&
+                Parameter(CurrentDocs(), "prefix").Value ==
+                    "to be displayed before the selected sequence. This value cannot be null.",
+                "changed official parameter text is imported unchanged rather than broadly normalized");
+            AssertRepeat();
+
+            File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            var byteDocument = NewDocument(byteOwner);
+            Parameter(DocumentDocs(byteDocument), "prefix").Value = "To be added.";
+            Write(byteDocument);
+            Assert(RunPipeline(byteMemberId) == 1 &&
+                Parameter(CurrentDocs(), "prefix").Value == incorrectPrefix &&
+                CurrentDocs().Element("summary")!.Value == byteRaw.Summary,
+                "the registered neighboring byte overload still imports its correct byte-data contract");
+            AssertRepeat(byteMemberId);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     static void TestKnownAndroidTextRepairs()
     {
-        foreach (var group in KnownAndroidTextRepairs.GroupBy(repair => repair.MemberId))
+        foreach (var group in KnownAndroidTextRepairs.GroupBy(repair => (
+            repair.MemberId,
+            Channel: repair.Target.StartsWith("param:", StringComparison.Ordinal) ? repair.Target : "prose")))
         {
             var repair = group.First();
             var parameterName = repair.Target.StartsWith("param:", StringComparison.Ordinal)
@@ -31995,6 +33198,9 @@ static partial class ImporterProgram
                     fragment.Contains("<a href=\"/reference/java/text/MessageFormat\">MessageFormat</a>", StringComparison.Ordinal),
                 HasRecoveredSdkSandboxSurfaceLink: recoveredSdkSandboxSurfaceLink,
                 HasRecoveredBiometricCallbackLinks: recoveredBiometricCallbackLinks,
+                DevicePresenceParameters: url == DevicePresenceEventConstructorSourceUrl
+                    ? ParseDevicePresenceParameterTable(fragment)
+                    : null,
                 LegacyFlattenedParagraphs:
                     legacyFlattenedParagraphs.SequenceEqual(paragraphs)
                         ? null
@@ -32003,6 +33209,95 @@ static partial class ImporterProgram
                     intermediateImplicitListParagraphs.SequenceEqual(paragraphs)
                         ? null
                         : intermediateImplicitListParagraphs);
+        }
+
+        static DevicePresenceParameterTable ParseDevicePresenceParameterTable(string fragment)
+        {
+            const RegexOptions options =
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant;
+            const string tablePattern = @"<table\b[^>]*>(?<table>.*?)</table>";
+            const string rowPattern = @"<tr\b[^>]*>(?<row>.*?)</tr>";
+            var allTables = Regex.Matches(fragment, tablePattern, options).ToList();
+            var tables = allTables
+                .Where(table => Regex.Matches(table.Groups["table"].Value,
+                        @"<th\b[^>]*>(?<cell>.*?)</th>", options)
+                    .Any(heading => HtmlTableCellText(heading.Groups["cell"].Value)
+                        .Equals("Parameters", StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+            var names = new List<string>();
+            var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (Regex.Matches(fragment, @"<table\b", options).Count != allTables.Count ||
+                Regex.Matches(fragment, @"</table\s*>", options).Count != allTables.Count ||
+                allTables.Any(table => Regex.IsMatch(table.Groups["table"].Value, @"</?table\b", options)) ||
+                Regex.IsMatch(Regex.Replace(fragment, tablePattern, "", options),
+                    @"</?(?:tr|th|td)\b", options))
+                return new DevicePresenceParameterTable(false, names, parameters);
+
+            if (tables.Count != 1)
+            {
+                var hasParameterLikeHeader = allTables.Any(table =>
+                {
+                    var firstRow = Regex.Match(table.Groups["table"].Value, rowPattern, options);
+                    return firstRow.Success && HtmlTableCellText(firstRow.Groups["row"].Value)
+                        .StartsWith("Parameter", StringComparison.OrdinalIgnoreCase);
+                });
+                return new DevicePresenceParameterTable(
+                    tables.Count == 0 && !hasParameterLikeHeader, names, parameters);
+            }
+
+            var body = tables[0].Groups["table"].Value;
+            var rows = Regex.Matches(body, rowPattern, options).ToList();
+            var wellFormed = rows.Count > 0 &&
+                Regex.Matches(body, @"<tr\b", options).Count == rows.Count &&
+                Regex.Matches(body, @"</tr\s*>", options).Count == rows.Count &&
+                string.IsNullOrWhiteSpace(Regex.Replace(body, rowPattern, "", options));
+            var headingCount = 0;
+            for (var index = 0; index < rows.Count; index++)
+            {
+                var row = rows[index].Groups["row"].Value;
+                var headings = Regex.Matches(row, @"<th\b[^>]*>(?<cell>.*?)</th>", options);
+                var cells = Regex.Matches(row, @"<td\b[^>]*>(?<cell>.*?)</td>", options);
+                var cellPattern = headings.Count > 0
+                    ? @"<th\b[^>]*>.*?</th>"
+                    : @"<td\b[^>]*>.*?</td>";
+                if (!string.IsNullOrWhiteSpace(Regex.Replace(row, cellPattern, "", options)) ||
+                    Regex.Matches(row, @"<th\b", options).Count != headings.Count ||
+                    Regex.Matches(row, @"</th\s*>", options).Count != headings.Count ||
+                    Regex.Matches(row, @"<td\b", options).Count != cells.Count ||
+                    Regex.Matches(row, @"</td\s*>", options).Count != cells.Count)
+                {
+                    wellFormed = false;
+                    continue;
+                }
+
+                if (headings.Count > 0)
+                {
+                    headingCount++;
+                    if (index != 0 || headings.Count != 1 || cells.Count != 0 ||
+                        !HtmlTableCellText(headings[0].Groups["cell"].Value)
+                            .Equals("Parameters", StringComparison.OrdinalIgnoreCase))
+                        wellFormed = false;
+                    continue;
+                }
+
+                if (index == 0 || cells.Count != 2)
+                {
+                    wellFormed = false;
+                    continue;
+                }
+
+                var name = HtmlTableCellText(cells[0].Groups["cell"].Value);
+                if (!Regex.IsMatch(name, @"^[A-Za-z_]\w*$", RegexOptions.CultureInvariant))
+                {
+                    wellFormed = false;
+                    continue;
+                }
+                names.Add(name);
+                if (!parameters.TryAdd(name, HtmlTableCellText(cells[1].Groups["cell"].Value)))
+                    wellFormed = false;
+            }
+
+            return new DevicePresenceParameterTable(wellFormed && headingCount == 1, names, parameters);
         }
 
         static bool HasIncompleteBiometricAllowedAuthenticatorsDefaultList(
@@ -33061,6 +34356,11 @@ static partial class ImporterProgram
 
     sealed record SourceParagraph(string Text, bool IsCode);
 
+    sealed record DevicePresenceParameterTable(
+        bool IsWellFormed,
+        IReadOnlyList<string> Names,
+        Dictionary<string, string> Parameters);
+
     sealed record SourceDocs(
         string Summary,
         List<SourceParagraph> Paragraphs,
@@ -33090,7 +34390,8 @@ static partial class ImporterProgram
         bool HasJavaTextMessageFormatLink = false,
         bool HasRecoveredAppFunctionAccessLevelMarkup = false,
         bool HasRecoveredSdkSandboxSurfaceLink = false,
-        bool HasRecoveredBiometricCallbackLinks = false);
+        bool HasRecoveredBiometricCallbackLinks = false,
+        DevicePresenceParameterTable? DevicePresenceParameters = null);
 
     static class Descriptor
     {

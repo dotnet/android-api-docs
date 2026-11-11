@@ -141,11 +141,20 @@
         <Parameter Name="callback" Type="Android.Companion.CompanionDeviceManager+Callback" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="request">A request object that describes details of the request. This value cannot be null.</param>
+        <param name="executor">The executor which will be used to invoke the callback. This value cannot be null.</param>
+        <param name="callback">The callback used to notify application when the association is created. This value cannot be null.</param>
+        <summary>Request to associate this app with a companion device.</summary>
+        <remarks>
+          <para>Request to associate this app with a companion device.</para>
+          <para>Note that before creating establishing association the system may need to show UI to collect user confirmation.</para>
+          <para>If the app needs to be excluded from battery optimizations (run in the background) or to have unrestricted data access (use data in the background) it should declare use of Manifest.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND and Manifest.permission.REQUEST_COMPANION_USE_DATA_IN_BACKGROUND in its AndroidManifest.xml respectively. Note that these special capabilities have a negative effect on the device's battery and user's data usage, therefore you should request them when absolutely necessary.</para>
+          <para>Application can use getMyAssociations() for retrieving the list of currently AssociationInfo objects, that represent their existing associations. Applications can also use disassociate(int) to remove an association, and are recommended to do when an association is no longer relevant to avoid unnecessary battery and/or data drain resulting from special privileges that the association provides</para>
+          <para>Note that if you use this api to associate with a Bluetooth device, please make sure to cancel your own Bluetooth discovery before calling this api, otherwise the callback may fail to return the desired device.</para>
+          <para>Calling this API requires a uses-feature PackageManager.FEATURE_COMPANION_DEVICE_SETUP declaration in the manifest</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/companion/CompanionDeviceManager#associate(android.companion.AssociationRequest,%20java.util.concurrent.Executor,%20android.companion.CompanionDeviceManager.Callback)" title="Reference documentation">Android reference for <code>android.companion.CompanionDeviceManager.associate</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Associations">
@@ -405,7 +414,7 @@
         <summary>Returns a new <c>DeviceId</c> which can be passed to device manufacturers' apps,
             allowing them to fetch <c>AssociationInfo</c> or observe device presence for this
             associated device.</summary>
-        <returns>To be added.</returns>
+        <returns>The new <see cref="T:Android.Companion.DeviceId" /> that contains the newly assigned key, or <see langword="null" /> if the companion device service is not available.</returns>
         <remarks>
           <para>Returns a new <c>DeviceId</c> which can be passed to device manufacturers' apps,
             allowing them to fetch <c>AssociationInfo</c> or observe device presence for this
@@ -1520,7 +1529,7 @@
         <Parameter Name="result" Type="Android.Companion.ActionResult" />
       </Parameters>
       <Docs>
-        <param name="associationId">To be added.</param>
+        <param name="associationId">The ID of the association for which the system requested the action.</param>
         <param name="result">The <c>ActionResult</c> to report to the system.</param>
         <summary>Allows a companion app to report the result of an action that was requested by the system.</summary>
         <remarks>
@@ -1670,7 +1679,7 @@
         <Parameter Name="component" Type="Android.Content.ComponentName" />
       </Parameters>
       <Docs>
-        <param name="component">To be added.</param>
+        <param name="component">The notification listener component to request access for. The component must be in the same package as the calling app.</param>
         <summary>Request notification access for the given component.</summary>
         <remarks>
           <para>Request notification access for the given component.

@@ -179,8 +179,18 @@ registrations, unknown type descriptors, overload mismatches, ambiguous matches,
 inherited-only detail, missing documentation channels, or source text that contains
 only a Java type, nullability marker, cross-reference heading, or standalone
 deprecation boilerplate. Android page license/trademark footers and update timestamps
-are filtered, and literal Unicode escapes are decoded before XML escaping. Source
-prose is not imported for the exact `SaProposal.PSEUDORANDOM_FUNCTION_SHA2_512` field
+are filtered, and literal Unicode escapes are decoded before XML escaping.
+
+The exact `DevicePresenceEvent` constructor maps the Java parameter `event` to
+the managed parameter `e`. The mapping requires the matching managed owner and
+assembly, constructor and JNI signatures, ordered parameters, and canonical
+Android source. Duplicate or conflicting managed metadata prevents the mapping.
+It reads only the Parameters table; duplicate, malformed, reordered or
+conflicting parameter rows are reported as ambiguous rather than selected.
+Missing parameter rows are reported as missing. Other members do not use this
+mapping.
+
+Source prose is not imported for the exact `SaProposal.PSEUDORANDOM_FUNCTION_SHA2_512` field
 when its complete Android description incorrectly names HMAC-SHA2-384. That channel
 is reported as ambiguous instead of inventing replacement prose; existing authored
 or imported documentation is preserved.
@@ -451,6 +461,17 @@ Registered production-path tests cover bounded first-fill, strict prior-owned
 repair, provenance and JNI mismatches, authored markup, future corrected source,
 and persisted zero-write repeats.
 The same exact-text allow-list corrects `Tile.writeToParcel`'s `in to` typo.
+For `SystemDataSyncFlags.CallMetadata`, it also removes the stray `}` after the
+method reference in the exact Android `FLAG_CALL_METADATA` paragraph. The
+managed field, canonical source URL, and complete original paragraph must all
+match; changed or corrected source remains eligible without a general punctuation
+repair. Only an exact prior importer-owned paragraph can be repaired.
+The exact `BluetoothLeDeviceFilter.Builder.SetRenameFromName` source mistakenly
+describes byte data and an advertised name. The
+[pinned implementation](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/companion/BluetoothLeDeviceFilter.java#143)
+instead selects characters from the device's display name. Exact source-text
+corrections cover its prefix, suffix, summary and remarks; the byte-based
+overload, changed source text, and authored content are not rewritten.
 For QuickSettings, the exact inherited `TileService.onBind` intent parameter is
 withheld because its claim that extras are invisible contradicts the framework
 binder extras. The nullable-binder prose and return channel remain eligible:
