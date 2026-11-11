@@ -15,6 +15,11 @@ static partial class ImporterProgram
     const string AndroidReference = "https://developer.android.com/reference/";
     const string AppFunctionMetadataJavaPath = "android/app/appfunctions/AppFunctionMetadata";
     const string AppFunctionMetadataSourceUrl = AndroidReference + AppFunctionMetadataJavaPath;
+    const string SslDNameJavaPath = "android/net/http/SslCertificate$DName";
+    const string SslDNameSourceUrl = AndroidReference + "android/net/http/SslCertificate.DName";
+    const string SslDNameConstructorId =
+        "M:Android.Net.Http.SslCertificate.DName.#ctor(Android.Net.Http.SslCertificate,System.String)";
+    const string SslDNameConstructorDescriptor = "(Landroid/net/http/SslCertificate;Ljava/lang/String;)V";
     static readonly (string Field, string Declaration, string Original, string Token, string Replacement)[] AppFunctionAccessLevelMarkup =
     [
         ("ACCESS_LEVEL_SYSTEM", "public static final int ACCESS_LEVEL_SYSTEM",
@@ -2278,8 +2283,10 @@ static partial class ImporterProgram
             .ToList();
         var exact = named
             .Where(member => member.ArgumentDescriptors is not null)
-            .Where(member => member.ArgumentDescriptors!.SequenceEqual(expectedArguments, StringComparer.Ordinal) ||
-                MatchesBoundedIcuAppendTo(owner, registration, member))
+            .Where(member => IsSslDNameConstructorCandidate(owner, registration, member)
+                ? MatchesSslDNameConstructor(owner, registration, member)
+                : member.ArgumentDescriptors!.SequenceEqual(expectedArguments, StringComparer.Ordinal) ||
+                    MatchesBoundedIcuAppendTo(owner, registration, member))
             .ToList();
 
         if (exact.Count > 1)
@@ -2304,6 +2311,15 @@ static partial class ImporterProgram
                 "source_documentation_empty",
                 "The exact source member had no usable prose.",
                 exact[0].Url);
+        if (MatchesSslDNameConstructor(owner, registration, exact[0]))
+        {
+            // The JNI-only enclosing instance has no corresponding source parameter.
+            docs = docs with
+            {
+                Parameters = docs.Parameters.Where(parameter => parameter.Key == "dName")
+                    .ToDictionary(parameter => parameter.Key, parameter => parameter.Value, StringComparer.Ordinal),
+            };
+        }
         if (docs.HasRecoveredSdkSandboxSurfaceLink &&
             !MatchesSdkSandboxSurfaceBinding(owner, registration, docs))
             return MappingResult.Skip("source_channel_ambiguous",
@@ -2548,6 +2564,61 @@ static partial class ImporterProgram
         targets.TryAdd("param:e", detail ??
             "The Android constructor parameter table does not match its declared parameters unambiguously.");
         return docs with { UnsafeTargets = targets };
+    }
+
+    static bool IsSslDNameConstructorCandidate(
+        DocsOwner owner, MemberRegistration registration, SourceMember source) =>
+        owner.Id == SslDNameConstructorId ||
+        owner.SourceRequest?.JavaPath == SslDNameJavaPath &&
+        registration is { Name: ".ctor", IsField: false } &&
+        source.ArgumentDescriptors?.SequenceEqual(["Ljava/lang/String;"]) == true;
+
+    static bool MatchesSslDNameConstructor(
+        DocsOwner owner, MemberRegistration registration, SourceMember source)
+    {
+        static bool HasRegistration(XElement element, string expected) =>
+            HasSingleAndroidRegistration(element) &&
+            element.Element("Attributes")!.Elements("Attribute").Elements("AttributeName")
+                .Any(attribute => (string?)attribute.Attribute("Language") == "C#" &&
+                    attribute.Value == expected);
+
+        return owner.Id == SslDNameConstructorId &&
+            owner.SourceRequest is { JavaPath: SslDNameJavaPath, Url: SslDNameSourceUrl, Kind: "android" } &&
+            registration is { Name: ".ctor", Descriptor: SslDNameConstructorDescriptor, IsField: false } &&
+            owner.Member is { } member &&
+            Registration.Member(member) == registration &&
+            owner.Docs.Parent == member &&
+            owner.Docs.Elements("summary").Take(2).Count() <= 1 &&
+            owner.Docs.Elements("remarks").Take(2).Count() <= 1 &&
+            owner.Docs.Elements("param").Count(parameter => (string?)parameter.Attribute("name") == "__self") <= 1 &&
+            owner.Docs.Elements("param").Count(parameter => (string?)parameter.Attribute("name") == "dName") <= 1 &&
+            member.Ancestors("Type").SingleOrDefault() is { } type &&
+            (string?)type.Attribute("Name") == "SslCertificate+DName" &&
+            (string?)type.Attribute("FullName") == "Android.Net.Http.SslCertificate+DName" &&
+            IsMonoAndroidDeclaration(type) &&
+            HasSingleSignature(type, "TypeSignature", "DocId", "T:Android.Net.Http.SslCertificate.DName") &&
+            HasSingleSignature(type, "TypeSignature", "C#", "public class SslCertificate.DName : Java.Lang.Object") &&
+            Registration.Type(type) == SslDNameJavaPath &&
+            HasRegistration(type, "[Android.Runtime.Register(\"android/net/http/SslCertificate$DName\", DoNotGenerateAcw=true)]") &&
+            (string?)member.Attribute("MemberName") == ".ctor" &&
+            member.Element("MemberType")?.Value == "Constructor" &&
+            IsMonoAndroidDeclaration(member) &&
+            HasSingleSignature(member, "MemberSignature", "DocId", SslDNameConstructorId) &&
+            HasSingleSignature(member, "MemberSignature", "C#",
+                "public DName (Android.Net.Http.SslCertificate __self, string dName);") &&
+            HasRegistration(member, "[Android.Runtime.Register(\".ctor\", \"" + SslDNameConstructorDescriptor + "\", \"\")]") &&
+            member.Element("Parameters")?.Elements("Parameter").ToList() is [var self, var name] &&
+            (string?)self.Attribute("Name") == "__self" &&
+            (string?)self.Attribute("Type") == "Android.Net.Http.SslCertificate" &&
+            (string?)name.Attribute("Name") == "dName" &&
+            (string?)name.Attribute("Type") == "System.String" &&
+            source is { Name: "DName", IsConstructor: true, IsField: false } &&
+            source.ArgumentDescriptors?.SequenceEqual(["Ljava/lang/String;"]) == true &&
+            source.Declaration == "public DName (String dName)" &&
+            source.Url == SslDNameSourceUrl + "#DName(java.lang.String)" &&
+            source.Docs is { SourceKind: "android" } docs &&
+            docs.SourceUrl == source.Url &&
+            docs.SourceLabel == "android.net.http.SslCertificate.DName.DName";
     }
 
     static bool MatchesBoundedIcuAppendTo(
@@ -18961,6 +19032,326 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestSslDNameConstructor(string repositoryRoot, string fixtureRoot)
+    {
+        var fixture = File.ReadAllText(Path.Combine(fixtureRoot, "ssl-dname-source-fragment.txt"))
+            .Trim().Split('|');
+        Assert(fixture is ["DName", _, _, _] &&
+            fixture[1] == "0e990383bd0cef3d799f8081ba8b316498ff1fe1563956d43501583c25077021",
+            "DName native source page identity");
+        var htmlBytes = Convert.FromBase64String(fixture[3]);
+        Assert(Convert.ToHexString(SHA256.HashData(htmlBytes)).Equals(fixture[2], StringComparison.OrdinalIgnoreCase),
+            "DName native source fragment hash");
+        var html = Encoding.UTF8.GetString(htmlBytes);
+        var request = SourceRequest.Create(SslDNameJavaPath)!;
+        var page = SourcePage.Parse(request, html);
+        var source = page.Members.Single();
+        var originalPath = Path.Combine(repositoryRoot, "docs", "xml", "Android.Net.Http",
+            "SslCertificate+DName.xml");
+        var template = XElement.Load(originalPath, LoadOptions.PreserveWhitespace);
+
+        static XElement Constructor(XElement root) =>
+            root.Element("Members")!.Elements("Member").Single(member =>
+                HasSingleSignature(member, "MemberSignature", "DocId", SslDNameConstructorId));
+
+        static XElement Signature(XElement element, string name, string language) =>
+            element.Elements(name).Single(signature => (string?)signature.Attribute("Language") == language);
+
+        static void ChangeRegistration(XElement element, string before, string after)
+        {
+            foreach (var attribute in element.Element("Attributes")!.Elements("Attribute")
+                .Elements("AttributeName").Where(attribute => attribute.Value.Contains("Register(", StringComparison.Ordinal)))
+            {
+                Assert(attribute.Value.Contains(before, StringComparison.Ordinal), "DName mutation has the original registration");
+                attribute.Value = attribute.Value.Replace(before, after, StringComparison.Ordinal);
+            }
+        }
+
+        var docs = Constructor(template).Element("Docs")!;
+        var remarks = new XElement(docs.Element("remarks")!);
+        remarks.AddFirst(new XElement("para", "Authored remarks.", new XComment("Keep."),
+            new XCData(" Retained text.")));
+        remarks.AddFirst(new XElement("para", new XElement("format", new XAttribute("type", "text/html"),
+            new XElement("a", new XAttribute("href", SslDNameSourceUrl + "#DName(java.lang.String)"),
+                "Retained reference."))));
+        docs.ReplaceNodes(
+            new XElement("param", new XAttribute("name", "__self"), "To be added."),
+            new XElement("param", new XAttribute("name", "dName"), "To be added."),
+            new XElement("summary", "To be added."),
+            remarks);
+
+        var temp = Path.Combine(Path.GetTempPath(), "dname-importer-test-" + Guid.NewGuid().ToString("N"));
+        var cache = Path.Combine(temp, "cache");
+        var path = Path.Combine(Path.GetDirectoryName(originalPath)!,
+            "dname-importer-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        Directory.CreateDirectory(cache);
+        var reportIndex = 0;
+        void WriteFixture(XElement root, bool bom = false, string newline = "\n")
+        {
+            var text = NormalizeXmlNewlines(root.ToString(SaveOptions.DisableFormatting))
+                .Replace("\n", newline, StringComparison.Ordinal);
+            File.WriteAllText(path, text, new UTF8Encoding(bom));
+        }
+        void Cache(XElement root, string sourceHtml)
+        {
+            var sourceRequest = SourceRequest.Create(Registration.Type(root))!;
+            var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(sourceRequest.Url))).ToLowerInvariant() + ".html");
+            File.WriteAllText(cachePath, sourceHtml, new UTF8Encoding(false));
+        }
+        (int Changes, int Writes, string[] Reasons) Run(
+            bool apply, int maxChanges = 1, string member = ".ctor", bool allowLayoutErrors = false)
+        {
+            var reportPath = Path.Combine(temp, "report-" + reportIndex++);
+            var arguments = new List<string>
+            {
+                "--path", path, "--member", member, "--offline", "--cache", cache,
+                "--max-changes", maxChanges.ToString(), "--report", reportPath,
+            };
+            if (apply)
+                arguments.Add("--apply");
+            var exitCode = RunAsync(arguments.ToArray()).GetAwaiter().GetResult();
+            using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+            var result = report.RootElement;
+            var errors = result.GetProperty("errorCount").GetInt32();
+            var reasons = result.GetProperty("entries").EnumerateArray()
+                .Select(entry => entry.GetProperty("reason").GetString() ?? "").ToArray();
+            Assert(exitCode == 0 && errors == 0 ||
+                allowLayoutErrors && exitCode == 1 && errors > 0 && reasons.Contains("source_xml_layout_mismatch"),
+                "DName production run succeeds or reports a protected XML layout");
+            return (result.GetProperty(apply ? "appliedCount" : "wouldApplyCount").GetInt32(),
+                result.GetProperty("filesChanged").GetInt32(), reasons);
+        }
+        try
+        {
+            Cache(template, html);
+            foreach (var newline in new[] { "\n", "\r\n" })
+            foreach (var bom in new[] { false, true })
+            {
+                WriteFixture(template, bom, newline);
+                var beforeBytes = File.ReadAllBytes(path);
+                var before = LoadedFile.Load(repositoryRoot, path);
+                before.SelectOwners(SslDNameConstructorId);
+                var owner = before.Owners.Single();
+                var mapped = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                });
+                Assert(mapped.Docs is not null && MatchesSslDNameConstructor(owner, owner.MemberRegistration!, source),
+                    "DName exact attached declaration maps to its canonical source");
+                Assert(ReplacementFor(owner.Placeholders.Single(item => item.Target == "param:__self"),
+                        mapped.Docs!).Reason == "source_parameter_missing" &&
+                    ReplacementFor(owner.Placeholders.Single(item => item.Target == "param:dName"),
+                        mapped.Docs!).Text is null,
+                    "DName enclosing and type-only parameters have no invented documentation");
+                Assert(Run(false).Changes == 1 && beforeBytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "DName preview reports only the summary and writes no bytes");
+                Assert(Run(true).Changes == 1, "DName bounded apply imports exactly one channel");
+                var after = LoadedFile.Load(repositoryRoot, path);
+                const string placeholder = "<summary>To be added.</summary>";
+                var index = before.Text.IndexOf(placeholder, StringComparison.Ordinal);
+                Assert(index >= 0 &&
+                    after.Text == before.Text[..index] + "<summary>Creates a new DName from a string.</summary>" +
+                        before.Text[(index + placeholder.Length)..] &&
+                    after.HasUtf8Bom == bom && after.Newline == newline,
+                    "DName apply preserves bytes outside the summary, including authored remarks and metadata");
+                var persisted = File.ReadAllBytes(path);
+                var repeat = Run(true, 10);
+                Assert(repeat.Changes == 0 && repeat.Writes == 0 && persisted.SequenceEqual(File.ReadAllBytes(path)),
+                    "DName persisted repeat has zero writes");
+            }
+
+            var validExplicitParameter = html.Replace(
+                "String</code> <!-- no parameter comment -->",
+                "String</code> The value to parse.", StringComparison.Ordinal);
+            var extraImplicitParameter = validExplicitParameter.Replace("</table>",
+                "<tr><td><code>__self</code></td><td>Unsafe external text.</td></tr></table>",
+                StringComparison.Ordinal);
+            Assert(extraImplicitParameter != html, "DName hypothetical source mutations reach the parameter table");
+            Cache(template, extraImplicitParameter);
+            WriteFixture(template);
+            Assert(Run(true).Changes == 1, "DName bounded apply imports the explicit parameter first");
+            var bounded = XElement.Load(path);
+            var boundedDocs = Constructor(bounded).Element("Docs")!;
+            Assert(boundedDocs.Elements("param").Single(item => (string?)item.Attribute("name") == "dName").Value
+                    .EndsWith("The value to parse.", StringComparison.Ordinal) &&
+                boundedDocs.Elements("param").Single(item => (string?)item.Attribute("name") == "__self").Value ==
+                    "To be added." && boundedDocs.Element("summary")!.Value == "To be added.",
+                "DName maps only the explicit source parameter and respects the change limit");
+            Assert(Run(true, 10).Changes == 1, "DName imports the remaining summary separately");
+            var explicitBytes = File.ReadAllBytes(path);
+            Assert(Run(true, 10).Changes == 0 && explicitBytes.SequenceEqual(File.ReadAllBytes(path)),
+                "DName explicit-parameter import has a byte-identical repeat");
+
+            Cache(template, html);
+            var mutations = new (string Name, Action<XElement> Change, string Filter)[]
+            {
+                ("owner-name", root => root.SetAttributeValue("Name", "Other+DName"), ".ctor"),
+                ("owner-full-name", root => root.SetAttributeValue("FullName", "Android.Net.Http.Other+DName"), ".ctor"),
+                ("owner-assembly", root => root.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other", ".ctor"),
+                ("owner-docid", root => Signature(root, "TypeSignature", "DocId").SetAttributeValue("Value", "T:Other"), ".ctor"),
+                ("owner-csharp", root => Signature(root, "TypeSignature", "C#").SetAttributeValue("Value", "public static class SslCertificate.DName"), ".ctor"),
+                ("jni-owner", root => ChangeRegistration(root, SslDNameJavaPath, "android/other/SslCertificate$DName"), ".ctor"),
+                ("member-assembly", root => Constructor(root).Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other", ".ctor"),
+                ("member-name", root => Constructor(root).SetAttributeValue("MemberName", "Other"), "Other"),
+                ("member-kind", root => Constructor(root).Element("MemberType")!.Value = "Method", ".ctor"),
+                ("member-docid", root => Signature(Constructor(root), "MemberSignature", "DocId").SetAttributeValue("Value", SslDNameConstructorId + ".Other"), ".ctor"),
+                ("member-csharp", root => Signature(Constructor(root), "MemberSignature", "C#").SetAttributeValue("Value", "public DName (string dName);"), ".ctor"),
+                ("jni-enclosing-type", root => ChangeRegistration(Constructor(root), SslDNameConstructorDescriptor, "(Landroid/net/http/Other;Ljava/lang/String;)V"), ".ctor"),
+                ("jni-no-enclosing-type", root => ChangeRegistration(Constructor(root), SslDNameConstructorDescriptor, "(Ljava/lang/String;)V"), ".ctor"),
+                ("jni-reordered", root => ChangeRegistration(Constructor(root), SslDNameConstructorDescriptor, "(Ljava/lang/String;Landroid/net/http/SslCertificate;)V"), ".ctor"),
+                ("jni-extra", root => ChangeRegistration(Constructor(root), SslDNameConstructorDescriptor, "(Landroid/net/http/SslCertificate;Ljava/lang/String;I)V"), ".ctor"),
+                ("self-name", root => Constructor(root).Element("Parameters")!.Elements("Parameter").First().SetAttributeValue("Name", "other"), ".ctor"),
+                ("self-type", root => Constructor(root).Element("Parameters")!.Elements("Parameter").First().SetAttributeValue("Type", "Java.Lang.Object"), ".ctor"),
+                ("name-name", root => Constructor(root).Element("Parameters")!.Elements("Parameter").Last().SetAttributeValue("Name", "other"), ".ctor"),
+                ("name-type", root => Constructor(root).Element("Parameters")!.Elements("Parameter").Last().SetAttributeValue("Type", "Java.Lang.Object"), ".ctor"),
+                ("parameter-order", root =>
+                    {
+                        var parameters = Constructor(root).Element("Parameters")!;
+                        var first = parameters.Elements("Parameter").First();
+                        first.Remove();
+                        parameters.Add(first);
+                    }, ".ctor"),
+                ("extra-parameter", root => Constructor(root).Element("Parameters")!.Add(new XElement("Parameter", new XAttribute("Name", "extra"), new XAttribute("Type", "System.Int32"))), ".ctor"),
+                ("duplicate-signature", root => Constructor(root).Add(new XElement(Signature(Constructor(root), "MemberSignature", "C#"))), ".ctor"),
+                ("duplicate-self-doc", root => Constructor(root).Element("Docs")!.Add(
+                    new XElement("param", new XAttribute("name", "__self"), "Authored duplicate.")), ".ctor"),
+                ("duplicate-name-doc", root => Constructor(root).Element("Docs")!.Add(
+                    new XElement("param", new XAttribute("name", "dName"), "Authored duplicate.")), ".ctor"),
+                ("duplicate-remarks", root => Constructor(root).Element("Docs")!.Add(new XElement("remarks", "Authored duplicate.")), ".ctor"),
+                ("changed-id-and-descriptor", root =>
+                    {
+                        var member = Constructor(root);
+                        ChangeRegistration(member, SslDNameConstructorDescriptor, "(Ljava/lang/String;)V");
+                        Signature(member, "MemberSignature", "DocId").SetAttributeValue("Value", SslDNameConstructorId + ".Other");
+                    }, ".ctor"),
+            };
+            foreach (var mutation in mutations)
+            {
+                var root = new XElement(template);
+                mutation.Change(root);
+                Cache(root, html);
+                WriteFixture(root);
+                var before = File.ReadAllBytes(path);
+                var result = Run(true, 10, mutation.Filter);
+                Assert(result.Changes == 0 && result.Writes == 0 &&
+                    result.Reasons.Contains("overload_signature_mismatch") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "DName attached metadata mutation reaches the match guard and preserves bytes: " + mutation.Name);
+            }
+
+            var methodRoot = new XElement(template);
+            ChangeRegistration(Constructor(methodRoot), ".ctor", "create");
+            var methodHtml = html.Replace("DName(java.lang.String)", "create(java.lang.String)", StringComparison.Ordinal)
+                .Replace(">DName</h3>", ">create</h3>", StringComparison.Ordinal);
+            Cache(methodRoot, methodHtml);
+            WriteFixture(methodRoot);
+            var methodBytes = File.ReadAllBytes(path);
+            var methodResult = Run(true, 10);
+            Assert(methodResult.Changes == 0 && methodResult.Reasons.Contains("overload_signature_mismatch") &&
+                methodBytes.SequenceEqual(File.ReadAllBytes(path)), "DName altered JNI name reaches the match guard");
+
+            var otherInner = new XElement(template);
+            ChangeRegistration(otherInner, SslDNameJavaPath, "android/net/http/SslCertificate$StaticName");
+            Cache(otherInner, html.Replace("DName", "StaticName", StringComparison.Ordinal));
+            WriteFixture(otherInner);
+            var otherBytes = File.ReadAllBytes(path);
+            var otherResult = Run(true, 10);
+            Assert(otherResult.Changes == 0 && otherResult.Reasons.Contains("overload_signature_mismatch") &&
+                otherBytes.SequenceEqual(File.ReadAllBytes(path)), "DName guard rejects a different static nested source");
+
+            foreach (var (name, changedHtml, reason) in new[]
+            {
+                ("declaration", html.Replace("String</a> dName)", "String</a> different)", StringComparison.Ordinal), "overload_signature_mismatch"),
+                ("anchor", html.Replace("id=\"DName(java.lang.String)\"", "id=\"DName( java.lang.String)\"", StringComparison.Ordinal), "overload_signature_mismatch"),
+                ("label", html.Replace(">DName</h3>", ">Different</h3>", StringComparison.Ordinal), "overload_signature_mismatch"),
+                ("duplicate", html + html, "ambiguous_exact_match"),
+            })
+            {
+                Assert(changedHtml != html, "DName source mutation is effective: " + name);
+                Cache(template, changedHtml);
+                WriteFixture(template);
+                var before = File.ReadAllBytes(path);
+                var result = Run(true, 10);
+                Assert(result.Changes == 0 && result.Reasons.Contains(reason) &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "DName source mutation reaches the match guard and preserves bytes: " + name);
+            }
+
+            Cache(template, html);
+            WriteFixture(template);
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners(SslDNameConstructorId);
+            var exactOwner = loaded.Owners.Single();
+            foreach (var changed in new[]
+            {
+                source with { Url = source.Url + ".Other" },
+                source with { Docs = source.Docs! with { SourceUrl = source.Docs!.SourceUrl + ".Other" } },
+                source with { Docs = source.Docs! with { SourceLabel = source.Docs!.SourceLabel + ".Other" } },
+                source with { Docs = source.Docs! with { SourceKind = "java" } },
+            })
+            {
+                var changedPage = new SourcePage { Members = [changed] };
+                Assert(MapOwner(exactOwner, new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(changedPage),
+                    }).ErrorReason == "overload_signature_mismatch",
+                    "DName source identity mutations are rejected by the production mapper");
+            }
+
+            Action<XElement>[] protectedSummaries =
+            [
+                element => element.ReplaceNodes("Authored summary."),
+                element => element.ReplaceNodes(new XElement("c", "Authored summary.")),
+                element => element.ReplaceNodes(new XCData("To be added.")),
+                element => element.ReplaceNodes(new XComment("Keep."), "To be added."),
+                element => element.ReplaceNodes("To be added.", new XProcessingInstruction("keep", "value")),
+                element => element.AddAfterSelf(new XElement("summary", "To be added.")),
+            ];
+            foreach (var change in protectedSummaries)
+            {
+                var root = new XElement(template);
+                change(Constructor(root).Element("Docs")!.Element("summary")!);
+                WriteFixture(root);
+                var before = File.ReadAllBytes(path);
+                var result = Run(true, 10, allowLayoutErrors: true);
+                Assert(result.Changes == 0 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "DName preserves authored, mixed, duplicate and marked-up summary content");
+            }
+
+            var attributed = new XElement(template);
+            Constructor(attributed).Element("Docs")!.Element("summary")!.SetAttributeValue("authored", "true");
+            WriteFixture(attributed);
+            var attributedBefore = File.ReadAllText(path);
+            Assert(Run(true).Changes == 1 && File.ReadAllText(path) == attributedBefore.Replace(
+                    "<summary authored=\"true\">To be added.</summary>",
+                    "<summary authored=\"true\">Creates a new DName from a string.</summary>",
+                    StringComparison.Ordinal),
+                "DName preserves channel attributes and all other bytes when replacing a placeholder");
+
+            var staticRoot = new XElement(template);
+            var staticMember = Constructor(staticRoot);
+            ChangeRegistration(staticRoot, SslDNameJavaPath, "android/net/http/SslCertificate$StaticName");
+            ChangeRegistration(staticMember, SslDNameConstructorDescriptor, "(Ljava/lang/String;)V");
+            staticRoot.SetAttributeValue("Name", "SslCertificate+StaticName");
+            staticRoot.SetAttributeValue("FullName", "Android.Net.Http.SslCertificate+StaticName");
+            Signature(staticMember, "MemberSignature", "DocId").SetAttributeValue("Value",
+                "M:Android.Net.Http.SslCertificate.StaticName.#ctor(System.String)");
+            staticMember.Element("Parameters")!.Elements("Parameter").First().Remove();
+            staticMember.Element("Docs")!.Elements("param").First().Remove();
+            Cache(staticRoot, html.Replace("DName", "StaticName", StringComparison.Ordinal));
+            WriteFixture(staticRoot);
+            Assert(Run(true).Changes == 1,
+                "DName exception leaves ordinary exact static nested-constructor matching intact");
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temp, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
         TestIcuNumberContracts(repositoryRoot);
@@ -19007,6 +19398,7 @@ static partial class ImporterProgram
         TestRawSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSupportedWriters(repositoryRoot, fixtureRoot);
         TestGestureCloneIntroductions(repositoryRoot);
+        TestSslDNameConstructor(repositoryRoot, fixtureRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
         Assert(
