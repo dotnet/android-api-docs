@@ -2290,6 +2290,11 @@ static partial class ImporterProgram
             return MappingResult.Skip(loaded.Reason!, loaded.Error, owner.SourceRequest.Url);
 
         var page = loaded.Page!;
+        if (owner.SourceRequest.JavaPath == DalvikOpcodeProjection.JavaPath &&
+            !DalvikOpcodeProjection.MatchesSource(owner, page))
+            return MappingResult.Skip("dalvik_opcode_projection_mismatch",
+                "The exact Dalvik projection or official field declaration/value did not match.",
+                owner.SourceRequest.Url);
         if (owner.Member is null)
         {
             if (page.TypeDocs is null || string.IsNullOrWhiteSpace(page.TypeDocs.Summary))
@@ -2299,6 +2304,8 @@ static partial class ImporterProgram
                     owner.SourceRequest.Url);
             var typeDocs = WithoutReviewedAndroidSourceChannels(owner.Id,
                 WithoutUnsafeTrustPairingCallbackTypeRemarks(owner, page.TypeDocs));
+            if (owner.SourceRequest.JavaPath == DalvikOpcodeProjection.JavaPath)
+                typeDocs = typeDocs with { QualityFirstFillOnly = true, UnsafeTargets = new Dictionary<string, string>() };
             return MappingResult.Success(WithVerifiedOdpInferenceParamsBuilderSummary(owner, page, typeDocs));
         }
 
@@ -2355,6 +2362,8 @@ static partial class ImporterProgram
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutUnsafeIcuNumberChannels(owner, fieldDocs);
+            if (owner.SourceRequest.JavaPath == DalvikOpcodeProjection.JavaPath)
+                fieldDocs = fieldDocs with { QualityFirstFillOnly = true, UnsafeTargets = new Dictionary<string, string>() };
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
                 WithKnownNfcContractSafety(owner, WithKnownAndroidTextCorrections(owner.Id, fieldDocs))));
         }
@@ -21792,8 +21801,230 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestDalvikOpcodeProjection(string repositoryRoot)
+    {
+        var fixturePath = Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "dalvik-opcodes-source-fragments.txt");
+        var fragments = File.ReadLines(fixturePath).Where(line => !line.StartsWith('#'))
+            .Select(line => line.Split('|')).ToDictionary(parts => parts[0], parts =>
+            {
+                var bytes = Convert.FromBase64String(parts[3]);
+                Assert(Convert.ToHexString(SHA256.HashData(bytes)).Equals(parts[2],
+                    StringComparison.OrdinalIgnoreCase), "Dalvik native fragment hash: " + parts[0]);
+                return Encoding.UTF8.GetString(bytes);
+            }, StringComparer.Ordinal);
+        var html = fragments["type"] + string.Concat(fragments.Where(pair => pair.Key != "type")
+            .Select(pair => pair.Value));
+        var request = SourceRequest.CreateAndroid(DalvikOpcodeProjection.JavaPath)!;
+        var page = SourcePage.Parse(request, html);
+        var directory = Path.Combine(repositoryRoot, "docs", "xml",
+            ".dalvik-projection-self-test-" + Guid.NewGuid().ToString("N"));
+        var cache = Path.Combine(directory, "cache");
+        Directory.CreateDirectory(cache);
+        var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+            Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        var originals = new[] { "IOpcodes", "Opcodes" }.ToDictionary(name => name, name =>
+            XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Dalvik.Bytecode", name + ".xml")));
+        static XElement Member(XElement root, string name) =>
+            root.Element("Members")!.Elements("Member").Single(item =>
+                (string?)item.Attribute("MemberName") == name);
+        string PathFor(string type) => Path.Combine(directory, type + ".xml");
+        var sequence = 0;
+        try
+        {
+            void Write(string type, string name, Action<XElement, XElement>? mutate = null,
+                string newline = "\n", bool bom = false, bool siblingMutation = false)
+            {
+                foreach (var pair in originals)
+                {
+                    var root = new XElement(pair.Value);
+                    foreach (var docs in root.Element("Members")!.Elements("Member").Elements("Docs"))
+                        docs.ReplaceNodes(new XElement("summary", "Authored summary."),
+                            new XElement("remarks", "Authored remarks."));
+                    var member = Member(root, name);
+                    if (pair.Key == type)
+                        member.Element("Docs")!.ReplaceNodes(
+                            new XElement("summary", "To be added."),
+                            new XElement("remarks", "Authored remarks."));
+                    if (pair.Key == (siblingMutation ? type == "IOpcodes" ? "Opcodes" : "IOpcodes" : type))
+                        mutate?.Invoke(root, member);
+                    File.WriteAllText(PathFor(pair.Key),
+                        root.ToString().ReplaceLineEndings(newline), new UTF8Encoding(bom));
+                }
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            }
+            JsonElement Run(string type, string selectedMember, bool apply)
+            {
+                var reportPath = Path.Combine(directory, "report-" + sequence++);
+                var args = new List<string>
+                {
+                    "--path", PathFor(type), "--namespace", "Dalvik.Bytecode",
+                    "--member", selectedMember, "--max-changes", "1",
+                    "--offline", "--cache", cache, "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                var output = Console.Out;
+                using var captured = new StringWriter();
+                int exit;
+                try
+                {
+                    Console.SetOut(captured);
+                    exit = RunAsync(args.ToArray()).GetAwaiter().GetResult();
+                }
+                finally
+                {
+                    Console.SetOut(output);
+                }
+                Assert(exit == 0, "Dalvik production pipeline succeeds: " + captured);
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("sourcesFetched").GetInt32() == 0,
+                    "Dalvik tests use only the retained offline reference fixture");
+                return report.RootElement.Clone();
+            }
+            void Reject(string type, string name, string description)
+            {
+                var before = File.ReadAllBytes(PathFor(type));
+                var result = Run(type, name, true);
+                Assert(result.GetProperty("appliedCount").GetInt32() == 0 &&
+                    result.GetProperty("filesChanged").GetInt32() == 0 &&
+                    File.ReadAllBytes(PathFor(type)).SequenceEqual(before),
+                    "Dalvik rejects " + description + " without changing bytes");
+            }
+            foreach (var type in originals.Keys)
+            {
+                foreach (var native in fragments.Keys.Where(key => key is not ("type" or "OP_ADD_DOUBLE")))
+                {
+                    var name = (string)originals[type].Element("Members")!.Elements("Member").Single(member =>
+                        Registration.Member(member)?.Name == native).Attribute("MemberName")!;
+                    Write(type, name);
+                    var before = File.ReadAllBytes(PathFor(type));
+                    var preview = Run(type, name, false);
+                    Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        File.ReadAllBytes(PathFor(type)).SequenceEqual(before),
+                        "Dalvik bounded preview preserves " + type + "." + name);
+                    var applied = Run(type, name, true);
+                    Assert(applied.GetProperty("appliedCount").GetInt32() == 1 &&
+                        Member(XElement.Load(PathFor(type)), name).Element("Docs")!
+                            .Element("summary")!.Value.Contains(native.EndsWith("_JUMBO", StringComparison.Ordinal)
+                                ? "Never implemented; do not use." : "Implementation detail.", StringComparison.Ordinal),
+                        "Dalvik imports the exact declared field prose: " + type + "." + name);
+                    var persisted = File.ReadAllBytes(PathFor(type));
+                    var repeated = Run(type, name, true);
+                    Assert(repeated.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(PathFor(type)).SequenceEqual(persisted),
+                        "Dalvik field has a byte-identical persisted zero-write repeat: " + repeated);
+                }
+                const string target = "OpBreakpoint";
+                foreach (var newline in new[] { "\n", "\r\n" })
+                foreach (var bom in new[] { false, true })
+                {
+                    Write(type, target, newline: newline, bom: bom);
+                    var before = File.ReadAllText(PathFor(type));
+                    var siblingType = type == "IOpcodes" ? "Opcodes" : "IOpcodes";
+                    var siblingBytes = File.ReadAllBytes(PathFor(siblingType));
+                    Assert(Run(type, target, true).GetProperty("appliedCount").GetInt32() == 1,
+                        "Dalvik encoding fixture applies exactly one summary");
+                    var after = File.ReadAllText(PathFor(type));
+                    var oldSummary = "<summary>To be added.</summary>";
+                    var memberStart = before.IndexOf("<Member MemberName=\"OpBreakpoint\"", StringComparison.Ordinal);
+                    var start = before.IndexOf(oldSummary, memberStart, StringComparison.Ordinal);
+                    var summaryEnd = after.IndexOf("</summary>", start, StringComparison.Ordinal) + "</summary>".Length;
+                    var restored = after[..start] + oldSummary + after[summaryEnd..];
+                    Assert(restored == before &&
+                        File.ReadAllBytes(PathFor(type)).AsSpan().StartsWith(Encoding.UTF8.Preamble) == bom &&
+                        File.ReadAllBytes(PathFor(siblingType)).SequenceEqual(siblingBytes),
+                        "Dalvik preserves BOM/newlines, authored remarks, sibling and every byte outside the summary");
+                }
+                var mutations = new (string Description, Action<XElement, XElement> Change)[]
+                {
+                    ("owner identity", (root, _) => root.SetAttributeValue("FullName", "Other.IOpcodes")),
+                    ("owner assembly", (root, _) => root.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other"),
+                    ("member assembly", (_, member) => member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other"),
+                    ("field value", (_, member) => member.Element("MemberValue")!.Value = "237"),
+                    ("return type", (_, member) => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int64"),
+                    ("managed signature", (_, member) => member.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public const int Other = 236;")),
+                    ("DocId", (_, member) => member.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", "F:Other.OpBreakpoint")),
+                    ("JNI registration", (_, member) => member.Element("Attributes")!.Descendants("AttributeName")
+                        .First().Value = "[Android.Runtime.Register(\"OP_OTHER\")]"),
+                    ("duplicate field", (root, member) => root.Element("Members")!.Add(new XElement(member))),
+                };
+                foreach (var mutation in mutations)
+                foreach (var siblingMutation in new[] { false, true })
+                {
+                    Write(type, target, mutation.Change, siblingMutation: siblingMutation);
+                    var loaded = LoadedFile.Load(repositoryRoot, PathFor(type));
+                    loaded.SelectOwners(target);
+                    Assert(loaded.Owners.All(owner =>
+                        owner.Member?.Parent == loaded.Root.Element("Members") && owner.SourceRequest is null),
+                        "Dalvik attached mutated binding reaches and fails the projection guard: " + mutation.Description);
+                    Reject(type, target, mutation.Description + (siblingMutation ? " on sibling" : ""));
+                }
+                Write(type, target, (_, member) => member.Element("Docs")!.Element("summary")!
+                    .ReplaceNodes(new XText("Authored "), new XElement("c", "summary"), new XText(".")));
+                Reject(type, target, "authored mixed documentation");
+                foreach (var mutation in new[]
+                {
+                    html.Replace("public static final int OP_BREAKPOINT", "public static final long OP_BREAKPOINT", StringComparison.Ordinal),
+                    html.Replace("          236", "          237", StringComparison.Ordinal),
+                    html + fragments["OP_BREAKPOINT"],
+                    html.Replace("interface\n  Opcodes", "class\n  Opcodes", StringComparison.Ordinal),
+                })
+                {
+                    Assert(mutation != html, "Dalvik source mutation changes the retained native fixture");
+                    Write(type, target);
+                    File.WriteAllText(cachePath, mutation, new UTF8Encoding(false));
+                    var loaded = LoadedFile.Load(repositoryRoot, PathFor(type));
+                    loaded.SelectOwners(target);
+                    Assert(loaded.Owners.Single().SourceRequest == request &&
+                        !DalvikOpcodeProjection.MatchesSource(loaded.Owners.Single(), SourcePage.Parse(request, mutation)),
+                        "Dalvik source mutation reaches the source guard with an otherwise valid binding");
+                    Reject(type, target, "changed or duplicate official declaration/value");
+                }
+                Write(type, "OpAddDouble");
+                Reject(type, "OpAddDouble", "unlisted field with no reference prose");
+                Write(type, "OpConstClassJumbo", (_, member) =>
+                    member.Element("Attributes")!.Descendants("AttributeName").First().Value =
+                        "[Android.Runtime.Register(\"OP_CONST_METHOD_TYPE\")]");
+                Reject(type, "OpConstClassJumbo", "different JNI field with the same numeric value");
+                Write(type, target, (_, member) =>
+                    member.Element("Docs")!.Element("remarks")!.Value = "To be added.");
+                Assert(Run(type, target, true).GetProperty("appliedCount").GetInt32() == 1 &&
+                    Run(type, target, true).GetProperty("appliedCount").GetInt32() == 1,
+                    "Dalvik separate bounded writes fill both direct placeholder channels");
+                var complete = File.ReadAllBytes(PathFor(type));
+                var completeDocs = Member(XElement.Load(PathFor(type)), target).Element("Docs")!;
+                Assert(completeDocs.Element("remarks")!.Descendants("a").Any(link =>
+                        (string?)link.Attribute("href") == request.Url + "#OP_BREAKPOINT") &&
+                    Run(type, target, true).GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(PathFor(type)).SequenceEqual(complete),
+                    "Dalvik newly filled remarks retain source metadata and repeat without writes");
+            }
+            Write("IOpcodes", "OpBreakpoint");
+            var interfaceRoot = XElement.Load(PathFor("IOpcodes"));
+            interfaceRoot.Element("Docs")!.ReplaceNodes(
+                new XElement("summary", "To be added."), new XElement("remarks", "Authored type remarks."));
+            interfaceRoot.Save(PathFor("IOpcodes"));
+            var typeReport = Run("IOpcodes", "T:Dalvik.Bytecode.IOpcodes", true);
+            Assert(typeReport
+                    .GetProperty("appliedCount").GetInt32() == 1 &&
+                XElement.Load(PathFor("IOpcodes")).Element("Docs")!.Element("summary")!.Value ==
+                    "A list of all normal (not implementation-specific) Dalvik opcodes.",
+                "Dalvik constant-only interface imports only its verified native type description: " +
+                    typeReport + XElement.Load(PathFor("IOpcodes")).Element("Docs"));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
+        TestDalvikOpcodeProjection(repositoryRoot);
         TestBiometricStringValueGuard(repositoryRoot);
         TestBiometricCallbackLinks(repositoryRoot);
         TestIcuNumberContracts(repositoryRoot);
@@ -33304,6 +33535,7 @@ static partial class ImporterProgram
             Owners.Clear();
             var typeRegistration = Registration.Type(Root);
             var typeRequest = SourceRequest.Create(typeRegistration);
+            var dalvikProjection = DalvikOpcodeProjection.Create(this);
             var typeName = (string?)Root.Attribute("FullName") ?? (string?)Root.Attribute("Name") ?? "";
             var isEnum = Root.Elements("TypeSignature").Any(signature =>
                 (string?)signature.Attribute("Language") == "C#" &&
@@ -33358,8 +33590,8 @@ static partial class ImporterProgram
                     ? null
                     : SourceVerifiedMemberMappings.ResolveSourceOverride(id, Root, member);
                 var request = member is null
-                    ? typeRequest
-                    : sourceOverride ??
+                    ? dalvikProjection?.Request(null) ?? typeRequest
+                    : dalvikProjection?.Request(member) ?? sourceOverride ??
                         SourceRequest.Create(memberField?.Owner) ??
                         interfaceMember?.SourceRequest ??
                         sourceVerifiedMember?.SourceRequest ??
@@ -33802,6 +34034,170 @@ static partial class ImporterProgram
         SourceRequest SourceRequest,
         bool UseFirstMeaningfulSummary = false,
         bool FilterSynchronousGeocoderBoilerplate = false);
+
+    sealed class DalvikOpcodeProjection
+    {
+        public const string JavaPath = "dalvik/bytecode/Opcodes";
+        const string Prefix = "Dalvik.Bytecode.";
+        static readonly SourceRequest Source = SourceRequest.CreateAndroid(JavaPath)!;
+        static readonly IReadOnlyDictionary<string, (string NativeName, int Value)> Fields =
+            new Dictionary<string, (string, int)>(StringComparer.Ordinal)
+            {
+                ["OpIgetWideVolatile"] = ("OP_IGET_WIDE_VOLATILE", 232),
+                ["OpIputWideVolatile"] = ("OP_IPUT_WIDE_VOLATILE", 233),
+                ["OpSgetWideVolatile"] = ("OP_SGET_WIDE_VOLATILE", 234),
+                ["OpSputWideVolatile"] = ("OP_SPUT_WIDE_VOLATILE", 235),
+                ["OpBreakpoint"] = ("OP_BREAKPOINT", 236),
+                ["OpThrowVerificationError"] = ("OP_THROW_VERIFICATION_ERROR", 237),
+                ["OpExecuteInline"] = ("OP_EXECUTE_INLINE", 238),
+                ["OpExecuteInlineRange"] = ("OP_EXECUTE_INLINE_RANGE", 239),
+                ["OpInvokeDirectEmpty"] = ("OP_INVOKE_DIRECT_EMPTY", 240),
+                ["OpIgetQuick"] = ("OP_IGET_QUICK", 242),
+                ["OpIgetWideQuick"] = ("OP_IGET_WIDE_QUICK", 243),
+                ["OpIgetObjectQuick"] = ("OP_IGET_OBJECT_QUICK", 244),
+                ["OpIputQuick"] = ("OP_IPUT_QUICK", 245),
+                ["OpIputWideQuick"] = ("OP_IPUT_WIDE_QUICK", 246),
+                ["OpIputObjectQuick"] = ("OP_IPUT_OBJECT_QUICK", 247),
+                ["OpInvokeVirtualQuick"] = ("OP_INVOKE_VIRTUAL_QUICK", 248),
+                ["OpInvokeVirtualQuickRange"] = ("OP_INVOKE_VIRTUAL_QUICK_RANGE", 249),
+                ["OpInvokeSuperQuick"] = ("OP_INVOKE_SUPER_QUICK", 250),
+                ["OpInvokeSuperQuickRange"] = ("OP_INVOKE_SUPER_QUICK_RANGE", 251),
+                ["OpCheckCastJumbo"] = ("OP_CHECK_CAST_JUMBO", 511),
+                ["OpConstClassJumbo"] = ("OP_CONST_CLASS_JUMBO", 255),
+                ["OpFilledNewArrayJumbo"] = ("OP_FILLED_NEW_ARRAY_JUMBO", 1535),
+                ["OpIgetBooleanJumbo"] = ("OP_IGET_BOOLEAN_JUMBO", 2559),
+                ["OpIgetByteJumbo"] = ("OP_IGET_BYTE_JUMBO", 2815),
+                ["OpIgetCharJumbo"] = ("OP_IGET_CHAR_JUMBO", 3071),
+                ["OpIgetJumbo"] = ("OP_IGET_JUMBO", 1791),
+                ["OpIgetObjectJumbo"] = ("OP_IGET_OBJECT_JUMBO", 2303),
+                ["OpIgetShortJumbo"] = ("OP_IGET_SHORT_JUMBO", 3327),
+                ["OpIgetWideJumbo"] = ("OP_IGET_WIDE_JUMBO", 2047),
+                ["OpInstanceOfJumbo"] = ("OP_INSTANCE_OF_JUMBO", 767),
+                ["OpInvokeDirectJumbo"] = ("OP_INVOKE_DIRECT_JUMBO", 9471),
+                ["OpInvokeInterfaceJumbo"] = ("OP_INVOKE_INTERFACE_JUMBO", 9983),
+                ["OpInvokeStaticJumbo"] = ("OP_INVOKE_STATIC_JUMBO", 9727),
+                ["OpInvokeSuperJumbo"] = ("OP_INVOKE_SUPER_JUMBO", 9215),
+                ["OpInvokeVirtualJumbo"] = ("OP_INVOKE_VIRTUAL_JUMBO", 8959),
+                ["OpIputBooleanJumbo"] = ("OP_IPUT_BOOLEAN_JUMBO", 4351),
+                ["OpIputByteJumbo"] = ("OP_IPUT_BYTE_JUMBO", 4607),
+                ["OpIputCharJumbo"] = ("OP_IPUT_CHAR_JUMBO", 4863),
+                ["OpIputJumbo"] = ("OP_IPUT_JUMBO", 3583),
+                ["OpIputObjectJumbo"] = ("OP_IPUT_OBJECT_JUMBO", 4095),
+                ["OpIputShortJumbo"] = ("OP_IPUT_SHORT_JUMBO", 5119),
+                ["OpIputWideJumbo"] = ("OP_IPUT_WIDE_JUMBO", 3839),
+                ["OpNewArrayJumbo"] = ("OP_NEW_ARRAY_JUMBO", 1279),
+                ["OpNewInstanceJumbo"] = ("OP_NEW_INSTANCE_JUMBO", 1023),
+                ["OpSgetBooleanJumbo"] = ("OP_SGET_BOOLEAN_JUMBO", 6143),
+                ["OpSgetByteJumbo"] = ("OP_SGET_BYTE_JUMBO", 6399),
+                ["OpSgetCharJumbo"] = ("OP_SGET_CHAR_JUMBO", 6655),
+                ["OpSgetJumbo"] = ("OP_SGET_JUMBO", 5375),
+                ["OpSgetObjectJumbo"] = ("OP_SGET_OBJECT_JUMBO", 5887),
+                ["OpSgetShortJumbo"] = ("OP_SGET_SHORT_JUMBO", 6911),
+                ["OpSgetWideJumbo"] = ("OP_SGET_WIDE_JUMBO", 5631),
+                ["OpSputBooleanJumbo"] = ("OP_SPUT_BOOLEAN_JUMBO", 7935),
+                ["OpSputByteJumbo"] = ("OP_SPUT_BYTE_JUMBO", 8191),
+                ["OpSputCharJumbo"] = ("OP_SPUT_CHAR_JUMBO", 8447),
+                ["OpSputJumbo"] = ("OP_SPUT_JUMBO", 7167),
+                ["OpSputObjectJumbo"] = ("OP_SPUT_OBJECT_JUMBO", 7679),
+                ["OpSputShortJumbo"] = ("OP_SPUT_SHORT_JUMBO", 8703),
+                ["OpSputWideJumbo"] = ("OP_SPUT_WIDE_JUMBO", 7423),
+            };
+        readonly XElement root;
+        readonly XElement sibling;
+
+        DalvikOpcodeProjection(XElement root, XElement sibling)
+        {
+            this.root = root;
+            this.sibling = sibling;
+        }
+
+        public static DalvikOpcodeProjection? Create(LoadedFile file)
+        {
+            var name = (string?)file.Root.Attribute("Name");
+            if (name is not ("IOpcodes" or "Opcodes") || !MatchesType(file.Root, name))
+                return null;
+            var siblingName = name == "IOpcodes" ? "Opcodes" : "IOpcodes";
+            var path = Path.Combine(Path.GetDirectoryName(file.Path)!, siblingName + ".xml");
+            if (!File.Exists(path))
+                return null;
+            var sibling = XElement.Load(path, LoadOptions.PreserveWhitespace);
+            if (!MatchesType(sibling, siblingName))
+                return null;
+            return new DalvikOpcodeProjection(file.Root, sibling);
+        }
+
+        static bool MatchesType(XElement root, string name) =>
+            root.Name == "Type" && (string?)root.Attribute("Name") == name &&
+            (string?)root.Attribute("FullName") == Prefix + name &&
+            IsMonoAndroidDeclaration(root) &&
+            root.Elements("Members").Count() == 1 &&
+            HasSingleSignature(root, "TypeSignature", "DocId", "T:" + Prefix + name) &&
+            HasSingleSignature(root, "TypeSignature", "C#", name == "IOpcodes"
+                ? "public interface IOpcodes"
+                : "public abstract class Opcodes : Java.Lang.Object") &&
+            (name == "IOpcodes"
+                ? !root.Elements("Attributes").Any() && !root.Elements("Base").Any()
+                : HasSingleAndroidRegistration(root) &&
+                    Registration.Type(root) == "mono/internal/" + JavaPath &&
+                    root.Elements("Base").Count() == 1 &&
+                    root.Element("Base")!.Elements("BaseTypeName").Select(item => item.Value)
+                        .SequenceEqual(["Java.Lang.Object"]));
+
+        static bool MatchesField(XElement root, XElement member, string name, string nativeName, int value) =>
+            member.Parent == root.Element("Members") &&
+            root.Element("Members")!.Elements("Member").Count(item =>
+                (string?)item.Attribute("MemberName") == name) == 1 &&
+            (string?)member.Attribute("MemberName") == name &&
+            IsMonoAndroidDeclaration(member) && HasSingleAndroidRegistration(member) &&
+            Registration.Member(member) == new MemberRegistration(nativeName, null, true) &&
+            member.Elements("MemberType").Select(item => item.Value).SequenceEqual(["Field"]) &&
+            member.Elements("ReturnValue").Count() == 1 &&
+            member.Element("ReturnValue")!.Elements("ReturnType").Select(item => item.Value)
+                .SequenceEqual(["System.Int32"]) &&
+            member.Elements("MemberValue").Select(item => item.Value)
+                .SequenceEqual([value.ToString(System.Globalization.CultureInfo.InvariantCulture)]) &&
+            !member.Elements("Parameters").Any() &&
+            HasSingleSignature(member, "MemberSignature", "DocId",
+                $"F:{(string?)root.Attribute("FullName")}.{name}") &&
+            HasSingleSignature(member, "MemberSignature", "C#", $"public const int {name} = {value};");
+
+        public SourceRequest? Request(XElement? member)
+        {
+            if (member is null)
+            {
+                return new[] { ("OpNop", "OP_NOP", 0), ("OpAddDouble", "OP_ADD_DOUBLE", 171) }
+                    .All(field => MatchesPair(field.Item1, field.Item2, field.Item3)) ? Source : null;
+            }
+            var name = (string?)member.Attribute("MemberName") ?? "";
+            return Fields.TryGetValue(name, out var field) &&
+                MatchesField(root, member, name, field.NativeName, field.Value) &&
+                MatchesPair(name, field.NativeName, field.Value) ? Source : null;
+        }
+
+        bool MatchesPair(string name, string nativeName, int value) =>
+            new[] { root, sibling }.All(type =>
+            {
+                var fields = type.Element("Members")?.Elements("Member").Where(item =>
+                    (string?)item.Attribute("MemberName") == name).ToArray() ?? [];
+                return fields.Length == 1 && MatchesField(type, fields[0], name, nativeName, value);
+            });
+
+        public static bool MatchesSource(DocsOwner owner, SourcePage page)
+        {
+            if (owner.SourceRequest != Source || NormalizeText(page.TypeDeclaration) != "public interface Opcodes")
+                return false;
+            if (owner.Member is null)
+                return owner.Id is "T:Dalvik.Bytecode.IOpcodes" or "T:Dalvik.Bytecode.Opcodes";
+            var name = (string?)owner.Member.Attribute("MemberName") ?? "";
+            if (!Fields.TryGetValue(name, out var field))
+                return false;
+            var members = page.Members.Where(item => item.IsField && item.Name == field.NativeName).ToArray();
+            return members.Length == 1 &&
+                members[0].Declaration == $"public static final int {field.NativeName}" &&
+                members[0].ConstantValue == field.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) &&
+                members[0].Url == Source.Url + "#" + field.NativeName;
+        }
+    }
 
     static class SourceVerifiedMemberMappings
     {
@@ -34584,7 +34980,9 @@ static partial class ImporterProgram
                     arguments,
                     docs,
                     url,
-                    declaration));
+                    declaration,
+                    request.JavaPath == DalvikOpcodeProjection.JavaPath
+                        ? DalvikConstantValue(fragment) : null));
             }
 
             return new SourcePage
@@ -34607,6 +35005,13 @@ static partial class ImporterProgram
                     .Select(match => match.Groups["field"].Value)
                     .ToHashSet(StringComparer.Ordinal),
             };
+        }
+
+        static string? DalvikConstantValue(string fragment)
+        {
+            var matches = Regex.Matches(HtmlText(fragment), @"\bConstant Value:\s*(?<value>-?\d+)\b",
+                RegexOptions.CultureInvariant);
+            return matches.Count == 1 ? matches[0].Groups["value"].Value : null;
         }
 
         static bool HasAppFunctionAccessLevelCorroboration(string html)
@@ -36044,7 +36449,8 @@ static partial class ImporterProgram
         List<string>? ArgumentDescriptors,
         SourceDocs? Docs,
         string Url,
-        string? Declaration = null);
+        string? Declaration = null,
+        string? ConstantValue = null);
 
     sealed record SourceParagraph(string Text, bool IsCode);
 
