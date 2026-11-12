@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides the current thread's JNI environment and managed JNI operation helpers.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -64,12 +64,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="jnienv">To be added.</param>
-        <param name="transition">To be added.</param>
-        <param name="runtime">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jnienv">The JNI environment pointer for the managed callback.</param>
+        <param name="transition">On success, the active transition; otherwise, the default transition value.</param>
+        <param name="runtime">On success, the current thread's runtime; otherwise, <see langword="null" />.</param>
+        <summary>Attempts to enter a managed JNI callback and initialize its transition.</summary>
+        <returns><see langword="true" /> if runtime entry and transition initialization succeed; otherwise, <see langword="false" />.</returns>
+        <remarks>Entry calls the runtime's <c>OnEnterMarshalMethod</c> hook before it sets the environment pointer. Failures are written to standard error. A <see langword="false" /> result means the caller must not invoke the callback.</remarks>
       </Docs>
     </Member>
     <Member MemberName="EndMarshalMethod">
@@ -89,9 +89,9 @@
         <Parameter Name="transition" Type="Java.Interop.JniTransition" RefType="ref" />
       </Parameters>
       <Docs>
-        <param name="transition">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="transition">The transition to dispose.</param>
+        <summary>Ends a managed JNI callback transition.</summary>
+        <remarks>Disposing the transition asks the runtime to raise any retained exception in Java. This method does not restore an earlier environment pointer.</remarks>
       </Docs>
     </Member>
     <Member MemberName="EnvironmentPointer">
@@ -108,8 +108,8 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI environment pointer for the current thread.</summary>
+        <value>The current thread's <c>JNIEnv</c> pointer.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -129,8 +129,8 @@
         <ReturnType>Java.Interop.JniVersion</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI version reported by the current environment.</summary>
+        <value>The result of JNI <c>GetVersion</c>, converted to <see cref="T:Java.Interop.JniVersion" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -150,8 +150,8 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the local-reference count tracked for the current thread.</summary>
+        <value>The count maintained by the runtime's object reference manager, not an enumeration of all JVM references.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -171,8 +171,8 @@
         <ReturnType>Java.Interop.JniRuntime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the runtime associated with the current thread's JNI environment.</summary>
+        <value>The current environment's registered managed runtime.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -192,8 +192,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets whether the current thread is inside the JNI <c>NewObject</c> helper.</summary>
+        <value><see langword="true" /> while a <c>NewObject</c> helper is invoking the native constructor; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

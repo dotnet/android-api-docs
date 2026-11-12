@@ -86,10 +86,9 @@
         <Parameter Name="fullEditor" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="targetView">To be added.</param>
-        <param name="fullEditor">To be added.</param>
-        <summary>
-        </summary>
+        <param name="targetView">The view associated with this input connection.</param>
+        <param name="fullEditor"><see langword="true" /> for a full text editor, or <see langword="false" /> to use fallback key event handling.</param>
+        <summary>Creates an input connection for the target view.</summary>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/BaseInputConnection#BaseInputConnection(android.view.View,%20boolean)" title="Reference documentation">Android reference for <code>android.view.inputmethod.BaseInputConnection.BaseInputConnection</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -645,7 +644,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return the target of edit operations.</summary>
-        <value>To be added.</value>
+        <value>The editable buffer used by this connection; an override can return <see langword="null" />.</value>
         <remarks>
           <para>Return the target of edit operations. The default implementation returns its own fake
             editable that is just used for composing text; subclasses that are real text editors should
@@ -778,9 +777,9 @@
         <Parameter Name="text" Type="Android.Text.ISpannable" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
+        <param name="text">The spannable text to inspect for the composing marker.</param>
         <summary>Return the end of the range of composing text, or -1 if there's no composing text.</summary>
-        <returns>To be added.</returns>
+        <returns>The composing range's end offset, or <c>-1</c> when the marker is absent.</returns>
         <remarks>
           <para>Return the end of the range of composing text, or -1 if there's no composing text.</para>
           <para>
@@ -824,9 +823,9 @@
         <Parameter Name="text" Type="Android.Text.ISpannable" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
+        <param name="text">The spannable text to inspect for the composing marker.</param>
         <summary>Return the beginning of the range of composing text, or -1 if there's no composing text.</summary>
-        <returns>To be added.</returns>
+        <returns>The composing range's start offset, or <c>-1</c> when the marker is absent.</returns>
         <remarks>
           <para>Return the beginning of the range of composing text, or -1 if there's no composing text.</para>
           <para>
@@ -981,9 +980,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="flags">To be added.</param>
+        <param name="flags">The options passed to the character sequence retrieval method.</param>
         <summary>The default implementation returns the text currently selected, or null if none is selected.</summary>
-        <returns>To be added.</returns>
+        <returns>The selected text as a string, or <see langword="null" /> when no text is selected.</returns>
         <remarks>
           <para>The default implementation returns the text currently selected, or null if none is selected.</para>
           <para>
@@ -1089,7 +1088,7 @@
         <param name="flags">Supplies additional options controlling how the text is returned. May be either 0 or InputConnection.GET_TEXT_WITH_STYLES. Value is either 0 or InputConnection.GET_TEXT_WITH_STYLES</param>
         <summary>The default implementation returns the given amount of text around the current cursor
             position in the buffer.</summary>
-        <returns>To be added.</returns>
+        <returns>The available surrounding text and selection, or <see langword="null" /> when they cannot be obtained.</returns>
         <remarks>
           <para>The default implementation returns the given amount of text around the current cursor
             position in the buffer.</para>
@@ -1131,11 +1130,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="length">To be added.</param>
-        <param name="flags">To be added.</param>
+        <param name="length">The non-negative maximum number of characters to retrieve.</param>
+        <param name="flags">The options passed to the character sequence retrieval method.</param>
         <summary>The default implementation returns the given amount of text from the current cursor position
             in the buffer.</summary>
-        <returns>To be added.</returns>
+        <returns>The retrieved text as a string, or <see langword="null" /> when the character sequence retrieval method returns <see langword="null" />. A valid buffer can yield an empty string at a text boundary or for a zero-length request.</returns>
         <remarks>
           <para>The default implementation returns the given amount of text from the current cursor position
             in the buffer.</para>
@@ -1191,7 +1190,7 @@
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
         <summary>The default implementation returns the given amount of text from the current cursor position
             in the buffer.</summary>
-        <returns>To be added.</returns>
+        <returns>The available text after the selection, or <see langword="null" /> when no editable buffer is available.</returns>
         <remarks>
           <para>The default implementation returns the given amount of text from the current cursor position
             in the buffer.</para>
@@ -1234,11 +1233,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="length">To be added.</param>
-        <param name="flags">To be added.</param>
+        <param name="length">The non-negative maximum number of characters to retrieve.</param>
+        <param name="flags">The options passed to the character sequence retrieval method.</param>
         <summary>The default implementation returns the given amount of text from the current cursor position
             in the buffer.</summary>
-        <returns>To be added.</returns>
+        <returns>The retrieved text as a string, or <see langword="null" /> when the character sequence retrieval method returns <see langword="null" />. A valid buffer can yield an empty string at a text boundary or for a zero-length request.</returns>
         <remarks>
           <para>The default implementation returns the given amount of text from the current cursor position
             in the buffer.</para>
@@ -1294,7 +1293,7 @@
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
         <summary>The default implementation returns the given amount of text from the current cursor position
             in the buffer.</summary>
-        <returns>To be added.</returns>
+        <returns>The available text before the selection, or <see langword="null" /> when no editable buffer is available.</returns>
         <remarks>
           <para>The default implementation returns the given amount of text from the current cursor position
             in the buffer.</para>
@@ -1340,7 +1339,7 @@
       </ReturnValue>
       <Docs>
         <summary>Called by the system to enable application developers to specify a dedicated thread on which InputConnection methods are called back.</summary>
-        <value>To be added.</value>
+        <value>The handler supplied by an override, or <see langword="null" /> in the base implementation.</value>
         <remarks>
           <para>Called by the system to enable application developers to specify a dedicated thread on which InputConnection methods are called back.</para>
           <para>Editor authors: although you can return your custom subclasses of Handler, the system only uses Looper returned from Handler.getLooper(). You cannot intercept or cancel InputConnection callbacks by implementing this method.</para>
@@ -1442,9 +1441,9 @@
         <Parameter Name="id" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
+        <param name="id">The resource identifier of the context menu action to request.</param>
         <summary>The default implementation does nothing.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="false" /> in the base implementation, which does not perform the action.</returns>
         <remarks>
           <para>The default implementation does nothing.</para>
           <para>
@@ -1656,9 +1655,9 @@
       <Docs>
         <param name="start">Value is 0 or greater</param>
         <param name="end">Value is 0 or greater</param>
-        <param name="text">To be added.</param>
+        <param name="text">The replacement text for the specified range.</param>
         <param name="newCursorPosition">the new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text.</param>
-        <param name="textAttribute">To be added.</param>
+        <param name="textAttribute">Optional text metadata; the base implementation does not use this argument.</param>
         <summary>Replace the specific range in the editor with suggested text.</summary>
         <returns>true if the replace command was sent to the associated editor (regardless of whether the replacement is success or not), false otherwise.</returns>
         <remarks>
@@ -1713,9 +1712,9 @@
       <Docs>
         <param name="start">Value is 0 or greater</param>
         <param name="end">Value is 0 or greater</param>
-        <param name="text">To be added.</param>
+        <param name="text">The replacement string for the specified range.</param>
         <param name="newCursorPosition">the new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text.</param>
-        <param name="textAttribute">To be added.</param>
+        <param name="textAttribute">Optional text metadata passed to the character sequence overload.</param>
         <summary>Replace the specific range in the editor with suggested text.</summary>
         <returns>true if the replace command was sent to the associated editor (regardless of whether the replacement is success or not), false otherwise.</returns>
         <remarks>
@@ -1753,7 +1752,7 @@
         <Parameter Name="enabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="enabled">To be added.</param>
+        <param name="enabled">Whether the connected input method is in fullscreen mode.</param>
         <summary>Updates InputMethodManager with the current fullscreen mode.</summary>
         <returns>For editor authors, the return value will always be ignored. For IME authors, this always returns true on Build.VERSION_CODES.N_MR1 and prior devices and false on Build.VERSION_CODES.O and later devices.</returns>
         <remarks>

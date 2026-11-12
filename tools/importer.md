@@ -918,6 +918,20 @@ Limitations:
   ordinary conservative skip. Existing
   authored or mixed remarks remain protected by the ordinary importer-ownership
   checks.
+- `ReadMedicalResourcesInitialRequest.Builder.setPageSize(int)` and
+  `ReadMedicalResourcesPageRequest.Builder.setPageSize(int)` render the
+  `pageSize` range as `ERROR(/android.health.connect.Constants#MINIMUM_PAGE_SIZE)`
+  and `ERROR(/android.health.connect.Constants#MAXIMUM_PAGE_SIZE)`. These two
+  tokens are replaced with `1` and `5000` only in the `pageSize` parameter cell,
+  and only when the canonical member URL and title match, the member has one
+  `Parameters` table with the exact parameter row, and one `Throws` table with
+  the exact `IllegalArgumentException` row ("less than 1 or more than 5000").
+  Each table must have exactly one data row. Rendering also requires the exact
+  managed type, `Mono.Android` type and member assemblies, DocId, C# signature,
+  return type, `pageSize` parameter, and `(I)` JNI descriptor; otherwise the
+  mapping is skipped as `source_channel_ambiguous`. The global `ERROR(...)` skip
+  is unchanged. The `ReadMedicalResourcesRequest.getPageSize()` return is not
+  repaired because its page does not state the bounds.
 - `CompanionDeviceManager.TrustPairingCallback` type remarks are withheld only
   when the exact official class link has an `int[]` request signature but visible
   scalar-`int` prose, and the managed type registration and signature also match.

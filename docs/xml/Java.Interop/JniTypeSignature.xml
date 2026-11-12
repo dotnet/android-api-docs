@@ -30,7 +30,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Describes a JNI type using its simple reference, array rank, and primitive descriptor state.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -58,10 +58,10 @@
         <Parameter Name="keyword" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="simpleReference">To be added.</param>
-        <param name="arrayRank">To be added.</param>
-        <param name="keyword">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="simpleReference">A class name such as <c>java/lang/Object</c>, a primitive descriptor such as <c>I</c>, or <see langword="null" /> for an invalid signature.</param>
+        <param name="arrayRank">The array rank to store. The default is zero.</param>
+        <param name="keyword"><see langword="true" /> if <paramref name="simpleReference" /> is a primitive descriptor; otherwise, <see langword="false" />.</param>
+        <summary>Creates a JNI type signature from its separate type and array components.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -84,9 +84,9 @@
         <Parameter Name="rank" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="rank">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rank">The amount to add to the current array rank.</param>
+        <summary>Creates a signature with an adjusted array rank.</summary>
+        <returns>A new signature with the same simple reference and primitive descriptor state, and the sum of the current rank and <paramref name="rank" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -112,8 +112,8 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the stored array rank.</summary>
+        <value>The number of array dimensions represented by the signature.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -133,8 +133,8 @@
         <ReturnType>Java.Interop.JniTypeSignature</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>An uninitialized JNI type signature.</summary>
+        <remarks><see cref="P:Java.Interop.JniTypeSignature.SimpleReference" /> is <see langword="null" /> and <see cref="P:Java.Interop.JniTypeSignature.IsValid" /> is <see langword="false" /> for this value.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Equals">
@@ -157,9 +157,9 @@
         <Parameter Name="other" Type="Java.Interop.JniTypeSignature" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="other">The JNI type signature to compare with this value.</param>
+        <summary>Determines whether two JNI type signatures have the same components.</summary>
+        <returns><see langword="true" /> if the simple references, array ranks, and primitive descriptor states match; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -188,9 +188,9 @@
         <Parameter Name="obj" Type="System.Object" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="obj">The object to compare with this value.</param>
+        <summary>Determines whether an object is an equal JNI type signature.</summary>
+        <returns><see langword="true" /> if <paramref name="obj" /> is a <see cref="T:Java.Interop.JniTypeSignature" /> with the same components; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -211,8 +211,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Gets a hash code for the qualified JNI reference.</summary>
+        <returns>The ordinal string hash code of <see cref="P:Java.Interop.JniTypeSignature.QualifiedReference" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -233,8 +233,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Gets the corresponding boxed Java type signature for a primitive descriptor.</summary>
+        <returns>The boxed Java type signature with the same array rank, or this signature if it does not use a primitive descriptor.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -254,8 +254,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets whether the signature has a non-null simple reference.</summary>
+        <value><see langword="true" /> if <see cref="P:Java.Interop.JniTypeSignature.SimpleReference" /> is not <see langword="null" />; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -275,8 +275,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI name used to identify the represented type.</summary>
+        <value><see cref="P:Java.Interop.JniTypeSignature.SimpleReference" /> for a non-array type, or <see cref="P:Java.Interop.JniTypeSignature.QualifiedReference" /> for an array type.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -300,10 +300,10 @@
         <Parameter Name="rhs" Type="Java.Interop.JniTypeSignature" />
       </Parameters>
       <Docs>
-        <param name="lhs">To be added.</param>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="lhs">The first signature to compare.</param>
+        <param name="rhs">The second signature to compare.</param>
+        <summary>Determines whether two JNI type signatures have equal components.</summary>
+        <returns><see langword="true" /> if the simple references, array ranks, and primitive descriptor states match; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -327,10 +327,10 @@
         <Parameter Name="rhs" Type="Java.Interop.JniTypeSignature" />
       </Parameters>
       <Docs>
-        <param name="lhs">To be added.</param>
-        <param name="rhs">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="lhs">The first signature to compare.</param>
+        <param name="rhs">The second signature to compare.</param>
+        <summary>Determines whether two JNI type signatures have different components.</summary>
+        <returns><see langword="true" /> if any simple reference, array rank, or primitive descriptor state differs; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -353,9 +353,9 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="signature">A simple JNI type name or a JNI type descriptor, including any array prefixes.</param>
+        <summary>Parses a JNI type name or descriptor into its components.</summary>
+        <returns>The parsed JNI type signature.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -375,8 +375,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI descriptor for the represented type.</summary>
+        <value>The primitive descriptor or <c>L</c>-delimited class descriptor, preceded by one <c>[</c> for each array dimension.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -414,8 +414,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the stored class name or primitive descriptor.</summary>
+        <value>The type reference without array prefixes or class descriptor delimiters, or <see langword="null" /> for an uninitialized signature.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -436,8 +436,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Returns a diagnostic description of the signature components.</summary>
+        <returns>A string containing the simple reference, array rank, and primitive descriptor state.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -468,10 +468,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="signature">To be added.</param>
-        <param name="result">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="signature">A simple JNI type name or a JNI type descriptor, including any array prefixes.</param>
+        <param name="result">The parsed signature on success; otherwise, the default <see cref="T:Java.Interop.JniTypeSignature" /> value when the method returns <see langword="false" />.</param>
+        <summary>Attempts to parse a JNI type name or descriptor into its components.</summary>
+        <returns><see langword="true" /> if parsing succeeds; <see langword="false" /> if the parser reports an invalid argument.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

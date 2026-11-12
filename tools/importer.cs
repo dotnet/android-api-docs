@@ -163,6 +163,22 @@ static partial class ImporterProgram
         "The calling package needs to declare " + DeviceBuilderSetUdiPermission +
         " in manifest to be able to set UDI for any record. SecurityException is thrown when " +
         "upserting a record with UDI without the permission.";
+    static readonly (string JavaPath, string ManagedType)[] HealthConnectPageSizeBuilders =
+    [
+        ("android/health/connect/ReadMedicalResourcesInitialRequest$Builder",
+            "Android.Health.Connect.ReadMedicalResourcesInitialRequest+Builder"),
+        ("android/health/connect/ReadMedicalResourcesPageRequest$Builder",
+            "Android.Health.Connect.ReadMedicalResourcesPageRequest+Builder"),
+    ];
+    const string HealthConnectPageSizeMinimumError =
+        "ERROR(/android.health.connect.Constants#MINIMUM_PAGE_SIZE)";
+    const string HealthConnectPageSizeMaximumError =
+        "ERROR(/android.health.connect.Constants#MAXIMUM_PAGE_SIZE)";
+    const string HealthConnectPageSizeRawParameter =
+        "int: Value is between " + HealthConnectPageSizeMinimumError + " and " +
+        HealthConnectPageSizeMaximumError + " inclusive";
+    const string HealthConnectPageSizeThrows =
+        "if the provided pageSize is less than 1 or more than 5000.";
     const string DevicePresenceEventConstructorMemberId =
         "M:Android.Companion.DevicePresenceEvent.#ctor(System.Int32,Android.Companion.DevicePresenceEventType,Android.OS.ParcelUuid)";
     const string DevicePresenceEventConstructorDescriptor = "(IILandroid/os/ParcelUuid;)V";
@@ -2361,6 +2377,14 @@ static partial class ImporterProgram
                 "The recovered Device.Builder.setUdi permission contract did not match the exact managed binding and canonical Android source identity.",
                 docs.SourceUrl);
         }
+        if (docs.HasRecoveredHealthConnectPageSizeBounds &&
+            !IsVerifiedHealthConnectPageSizeBinding(owner, registration, docs))
+        {
+            return MappingResult.Skip(
+                "source_channel_ambiguous",
+                "The recovered Health Connect setPageSize bounds did not match the exact managed owner, assembly, DocId, JNI binding, parameter, and canonical Android source identity.",
+                docs.SourceUrl);
+        }
         if (IsImageDecoderDecodeDrawableWorkerThreadContractCandidate(owner, registration) &&
             !HasOrderedImageDecoderDecodeDrawableWorkerThreadContract(docs.Paragraphs))
         {
@@ -3155,6 +3179,41 @@ static partial class ImporterProgram
             docs.SourceKind == "android" &&
             docs.SourceUrl == DeviceBuilderSetUdiSourceUrl &&
             docs.SourceLabel == DeviceBuilderSetUdiSourceLabel;
+
+    static bool IsVerifiedHealthConnectPageSizeBinding(
+        DocsOwner owner,
+        MemberRegistration registration,
+        SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        if (member is null || type is null || owner.IsEnumField ||
+            owner.SourceRequest is not { Kind: "android" } request)
+            return false;
+        var builder = HealthConnectPageSizeBuilders
+            .FirstOrDefault(candidate => candidate.JavaPath == request.JavaPath);
+        if (builder.JavaPath is null)
+            return false;
+        var javaType = builder.JavaPath.Replace('$', '.');
+        var managedType = builder.ManagedType.Replace('+', '.');
+        return (string?)type.Attribute("FullName") == builder.ManagedType &&
+            type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+            member.Element("MemberType")?.Value == "Method" &&
+            owner.Id == $"M:{managedType}.SetPageSize(System.Int32)" &&
+            HasSingleSignature(member, "MemberSignature", "DocId", owner.Id) &&
+            HasSingleSignature(member, "MemberSignature", "C#",
+                $"public {managedType} SetPageSize (int pageSize);") &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == builder.ManagedType &&
+            member.Element("Parameters")?.Elements("Parameter").ToList() is [XElement parameter] &&
+            (string?)parameter.Attribute("Name") == "pageSize" &&
+            (string?)parameter.Attribute("Type") == "System.Int32" &&
+            registration == new MemberRegistration("setPageSize", $"(I)L{builder.JavaPath};", false) &&
+            request.Url == AndroidReference + javaType &&
+            docs.SourceKind == "android" &&
+            docs.SourceUrl == AndroidReference + javaType + "#setPageSize(int)" &&
+            docs.SourceLabel == javaType.Replace('/', '.') + ".setPageSize";
+    }
 
     static bool IsVerifiedImageDecoderDecodeDrawableWorkerThreadContract(
         DocsOwner owner,
@@ -13325,6 +13384,238 @@ static partial class ImporterProgram
             "Device.Builder.setUdi recovers only the verified prose paragraph when identical malformed text also appears in a parameter table");
     }
 
+    static void TestHealthConnectPageSizeBounds()
+    {
+        const string officialParameterCell =
+            """<code translate="no" dir="ltr">int</code>: Value is between <code translate="no" dir="ltr"><a href="/">ERROR(/android.health.connect.Constants#MINIMUM_PAGE_SIZE)</a></code> and <code translate="no" dir="ltr"><a href="/">ERROR(/android.health.connect.Constants#MAXIMUM_PAGE_SIZE)</a></code> inclusive</p>""";
+        const string officialThrowsCell =
+            "if the provided <code translate=\"no\" dir=\"ltr\">pageSize</code> is less than 1 or more\n    than 5000.";
+        const string recovered = "Value is between 1 and 5000 inclusive";
+        string Page(
+            string builder,
+            string parameterCell = officialParameterCell,
+            string throwsRows = "",
+            string anchor = "setPageSize(int)",
+            string javaParameter = "int pageSize",
+            string parameterName = "pageSize",
+            bool includeThrows = true)
+        {
+            var throwsTable = includeThrows
+                ? $"""
+                    <table class="responsive"><tr><th colspan=2>Throws</th></tr>
+                      <tr><td><code><a href="/reference/java/lang/IllegalArgumentException">IllegalArgumentException</a></code></td>
+                      <td width="100%">{officialThrowsCell}</td></tr>{throwsRows}
+                    </table>
+                    """
+                : "";
+            return $"""
+                <h3 class="api-name" id="{anchor}" data-text="setPageSize">setPageSize</h3>
+                <devsite-code><pre class="api-signature no-pretty-print">public {builder} setPageSize ({javaParameter})</pre></devsite-code>
+                <p>Sets the maximum number of <code>MedicalResource</code>s to be returned by the read operation.
+
+                <p>If not set, default to 1000.</p></p>
+                <table class="responsive"><tr><th colspan=2>Parameters</th></tr>
+                  <tr><td><code>{parameterName}</code></td><td width="100%">
+                    {parameterCell}</td></tr>
+                </table>
+                <table class="responsive"><tr><th colspan=2>Returns</th></tr>
+                  <tr><td><code>{builder}</code></td><td width="100%">This value cannot be <code>null</code>.</p></td></tr>
+                </table>
+                {throwsTable}
+                <h3 class="api-name" id="setPageToken(java.lang.String)" data-text="setPageToken">setPageToken</h3>
+                <devsite-code><pre class="api-signature no-pretty-print">public {builder} setPageToken (String pageToken)</pre></devsite-code>
+                <p>Sets page token.</p>
+                <table class="responsive"><tr><th colspan=2>Parameters</th></tr>
+                  <tr><td><code>pageToken</code></td><td width="100%">Value is at least {HealthConnectPageSizeMinimumError}</td></tr>
+                </table>
+                <h2 class="api-section" id="summary"></h2>
+                """;
+        }
+
+        (DocsOwner Owner, SourceRequest Request) Owner(
+            string javaPath,
+            string managedType,
+            Action<XElement>? mutateMember = null,
+            Action<XElement>? mutateType = null)
+        {
+            var request = SourceRequest.Create(javaPath) ??
+                throw new InvalidOperationException("SELF-TEST FAIL: setPageSize source request");
+            var csharpType = managedType.Replace('+', '.');
+            var type = XElement.Parse($"""
+                <Type FullName="{managedType}">
+                  <AssemblyInfo><AssemblyName>Mono.Android</AssemblyName></AssemblyInfo>
+                  <Members>
+                    <Member MemberName="SetPageSize">
+                      <MemberSignature Language="C#" Value="public {csharpType} SetPageSize (int pageSize);" />
+                      <MemberSignature Language="DocId" Value="M:{csharpType}.SetPageSize(System.Int32)" />
+                      <MemberType>Method</MemberType>
+                      <AssemblyInfo><AssemblyName>Mono.Android</AssemblyName></AssemblyInfo>
+                      <Attributes>
+                        <Attribute>
+                          <AttributeName Language="C#">[Android.Runtime.Register("setPageSize", "(I)L{javaPath};", "", ApiSince=36)]</AttributeName>
+                        </Attribute>
+                      </Attributes>
+                      <ReturnValue><ReturnType>{managedType}</ReturnType></ReturnValue>
+                      <Parameters><Parameter Name="pageSize" Type="System.Int32" /></Parameters>
+                      <Docs><param name="pageSize">To be added.</param><returns>To be added.</returns></Docs>
+                    </Member>
+                  </Members>
+                </Type>
+                """);
+            mutateType?.Invoke(type);
+            var member = type.Element("Members")!.Element("Member")!;
+            mutateMember?.Invoke(member);
+            var id = (string?)member.Elements("MemberSignature")
+                .FirstOrDefault(signature => (string?)signature.Attribute("Language") == "DocId")
+                ?.Attribute("Value") ?? "";
+            return (new DocsOwner(
+                0,
+                id,
+                member.Element("Docs")!,
+                member,
+                Registration.Member(member),
+                request,
+                [
+                    new Placeholder(0, "param", "pageSize", "param:pageSize"),
+                    new Placeholder(1, "returns", "", "returns"),
+                ],
+                false), request);
+        }
+
+        MappingResult Map((DocsOwner Owner, SourceRequest Request) candidate, string html) =>
+            MapOwner(candidate.Owner, new Dictionary<string, SourceLoadResult>
+            {
+                [candidate.Request.Url] = SourceLoadResult.Success(
+                    SourcePage.Parse(candidate.Request, html)),
+            });
+
+        string? Parameter(MappingResult result) =>
+            result.Docs is { } docs
+                ? ReplacementFor(new Placeholder(0, "param", "pageSize", "param:pageSize"), docs).Text
+                : null;
+
+        foreach (var (javaPath, managedType) in HealthConnectPageSizeBuilders)
+        {
+            var javaBuilder = javaPath.Split('/').Last().Replace('$', '.');
+            var source = Page(javaBuilder);
+            var exact = Map(Owner(javaPath, managedType), source);
+            Assert(
+                exact.Docs is { HasRecoveredHealthConnectPageSizeBounds: true } exactDocs &&
+                Parameter(exact) == recovered &&
+                ReplacementFor(new Placeholder(1, "returns", "", "returns"), exactDocs).Text is null &&
+                exactDocs.Paragraphs.All(paragraph => !paragraph.Text.Contains("ERROR(", StringComparison.Ordinal)),
+                $"{javaBuilder}.setPageSize recovers only the exact official page-size bounds and leaves the nullability-only return skipped");
+
+            var tokenDocs = SourcePage.Parse(Owner(javaPath, managedType).Request, source).Members
+                .Single(member => member.Name == "setPageToken").Docs;
+            Assert(
+                tokenDocs is { HasRecoveredHealthConnectPageSizeBounds: false } &&
+                tokenDocs.Parameters["pageToken"].Contains(HealthConnectPageSizeMinimumError, StringComparison.Ordinal),
+                $"{javaBuilder}.setPageToken keeps unrelated ERROR text unrepaired on the same page");
+
+            foreach (var (name, mutateMember, mutateType) in new (string, Action<XElement>?, Action<XElement>?)[]
+            {
+                ("owner", member => member.Elements("MemberSignature")
+                    .Single(signature => (string?)signature.Attribute("Language") == "DocId")
+                    .SetAttributeValue("Value", $"M:{managedType.Replace('+', '.')}.SetPageSize(System.Int64)"), null),
+                ("type", null, type => type.SetAttributeValue("FullName", managedType + "Other")),
+                ("type assembly", null, type => type.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly"),
+                ("member assembly", member => member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly", null),
+                ("JNI descriptor", member => member.Descendants("AttributeName").Single().Value =
+                    $"[Android.Runtime.Register(\"setPageSize\", \"(I)Ljava/lang/Object;\", \"\", ApiSince=36)]", null),
+                ("managed return", member => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "Java.Lang.Object", null),
+                ("C# signature", member => member.Elements("MemberSignature")
+                    .Single(signature => (string?)signature.Attribute("Language") == "C#")
+                    .SetAttributeValue("Value", $"public {managedType.Replace('+', '.')} SetPageSize (int size);"), null),
+                ("managed parameter", member => member.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Name", "size"), null),
+            })
+            {
+                var candidate = Owner(javaPath, managedType, mutateMember, mutateType);
+                Assert(
+                    candidate.Owner.Member?.Parent?.Parent is not null,
+                    $"{javaBuilder}.setPageSize {name} negative keeps the member attached to its type");
+                var rejected = Map(candidate, source);
+                Assert(
+                    rejected.Docs is null && rejected.ErrorReason == "source_channel_ambiguous",
+                    $"{javaBuilder}.setPageSize recovery reaches the binding guard for a mismatched {name}");
+            }
+
+            var canonical = Owner(javaPath, managedType);
+            var otherUrl = canonical.Request with { Url = canonical.Request.Url + "Other" };
+            var wrongUrl = Map((canonical.Owner with { SourceRequest = otherUrl }, otherUrl), source);
+            Assert(Parameter(wrongUrl) is null, $"{javaBuilder}.setPageSize recovery rejects a non-canonical source URL");
+
+            foreach (var (name, html) in new[]
+            {
+                ("misleading Parameters heading", source.Replace(
+                    "<th colspan=2>Parameters</th>", "<th colspan=2>Not Parameters</th>", StringComparison.Ordinal)),
+                ("duplicate pageSize row", Page(javaBuilder, officialParameterCell +
+                    "</td></tr><tr><td><code>pageSize</code></td><td width=\"100%\">Conflicting value.")),
+                ("duplicate Parameters table", Page(javaBuilder, officialParameterCell +
+                    "</td></tr></table><table class=\"responsive\"><tr><th colspan=2>Parameters</th></tr>" +
+                    "<tr><td><code>pageSize</code></td><td width=\"100%\">" + officialParameterCell)),
+                ("misleading Throws heading", source.Replace(
+                    "<th colspan=2>Throws</th>", "<th colspan=2>Not Throws</th>", StringComparison.Ordinal)),
+                ("duplicate IllegalArgumentException row", Page(javaBuilder,
+                    throwsRows: "<tr><td>IllegalArgumentException</td><td>Conflicting range.</td></tr>")),
+                ("duplicate Throws table", Page(javaBuilder,
+                    throwsRows: "</table><table class=\"responsive\"><tr><th colspan=2>Throws</th></tr>" +
+                        $"<tr><td>IllegalArgumentException</td><td>{officialThrowsCell}</td></tr>")),
+            })
+            {
+                var rejected = Map(Owner(javaPath, managedType), html);
+                Assert(
+                    rejected.Docs is { HasRecoveredHealthConnectPageSizeBounds: false } rejectedDocs &&
+                    rejectedDocs.Parameters.TryGetValue("pageSize", out var rawPageSize) &&
+                    rawPageSize.Contains(HealthConnectPageSizeMinimumError, StringComparison.Ordinal) &&
+                    rawPageSize.Contains(HealthConnectPageSizeMaximumError, StringComparison.Ordinal) &&
+                    ReplacementFor(new Placeholder(0, "param", "pageSize", "param:pageSize"), rejectedDocs) is
+                        { Text: null, Reason: "source_channel_not_meaningful" },
+                    $"{javaBuilder}.setPageSize rejects a {name} without changing the malformed parameter");
+            }
+
+            foreach (var (name, html) in new[]
+            {
+                ("anchor", Page(javaBuilder, anchor: "setPageSize(long)", javaParameter: "long pageSize")),
+                ("source parameter", Page(javaBuilder, parameterName: "size")),
+                ("minimum token", Page(javaBuilder, officialParameterCell.Replace("#MINIMUM_PAGE_SIZE", "#MIN_PAGE_SIZE", StringComparison.Ordinal))),
+                ("maximum token", Page(javaBuilder, officialParameterCell.Replace("#MAXIMUM_PAGE_SIZE", "#MAX_PAGE_SIZE", StringComparison.Ordinal))),
+                ("duplicate token", Page(javaBuilder, officialParameterCell.Replace("MAXIMUM_PAGE_SIZE", "MINIMUM_PAGE_SIZE", StringComparison.Ordinal))),
+                ("parameter wording", Page(javaBuilder, officialParameterCell.Replace(" inclusive", " exclusive", StringComparison.Ordinal))),
+                ("extra source parameter", Page(javaBuilder, officialParameterCell +
+                    "</td></tr><tr><td><code>other</code></td><td width=\"100%\">Other value.")),
+                ("missing Throws", Page(javaBuilder, includeThrows: false)),
+                ("lower threshold", Page(javaBuilder).Replace("less than 1 or", "less than 0 or", StringComparison.Ordinal)),
+                ("upper threshold", Page(javaBuilder).Replace("than 5000.", "than 10000.", StringComparison.Ordinal)),
+                ("extra Throws row", Page(javaBuilder, throwsRows: "<tr><td>NullPointerException</td><td>if null.</td></tr>")),
+            })
+            {
+                var rejected = Map(Owner(javaPath, managedType), html);
+                Assert(
+                    Parameter(rejected) is null &&
+                    rejected.Docs?.HasRecoveredHealthConnectPageSizeBounds != true,
+                    $"{javaBuilder}.setPageSize recovery rejects a changed {name}");
+            }
+
+            var corrected = Map(Owner(javaPath, managedType), Page(
+                javaBuilder,
+                "<code>int</code>: Value is between 1 and 5000 inclusive"));
+            Assert(
+                corrected.Docs is { HasRecoveredHealthConnectPageSizeBounds: false } &&
+                Parameter(corrected) == recovered,
+                $"{javaBuilder}.setPageSize imports a future corrected official source without the recovery");
+        }
+
+        var otherRequest = Owner(
+            "android/health/connect/ReadMedicalResourcesRequest",
+            "Android.Health.Connect.ReadMedicalResourcesRequest");
+        var other = Map(otherRequest, Page("ReadMedicalResourcesRequest"));
+        Assert(
+            Parameter(other) is null &&
+            other.Docs?.HasRecoveredHealthConnectPageSizeBounds != true,
+            "Health Connect page-size recovery is limited to the two verified Builder source pages");
+    }
+
     static void TestOdpInferenceParamsBuilderTypeSummary(string repositoryRoot, string fixtureRoot)
     {
         var fixture = File.ReadAllText(Path.Combine(
@@ -20662,6 +20953,7 @@ static partial class ImporterProgram
         TestMultisensoryDragTokenMarkup();
         TestImageDecoderDecodeDrawableWorkerThreadRecovery();
         TestDeviceBuilderSetUdiPermissionMarkup();
+        TestHealthConnectPageSizeBounds();
         TestOdpInferenceParamsBuilderTypeSummary(repositoryRoot, fixtureRoot);
         TestTrustPairingCallbackTypeRemarks();
         TestTrustPairingCallbackWithdrawal(repositoryRoot);
@@ -33398,6 +33690,8 @@ static partial class ImporterProgram
 
             var returns = ExtractAndroidTableValue(fragment, "Returns");
             var exceptions = ExtractAndroidExceptions(fragment);
+            var recoveredHealthConnectPageSizeBounds =
+                RecoverHealthConnectPageSizeBounds(fragment, request, title, url, parameters, exceptions);
             var prose = Regex.Replace(
                 fragment,
                 @"<table\b[^>]*>.*?</table>",
@@ -33476,6 +33770,7 @@ static partial class ImporterProgram
                     fragment.Contains("<a href=\"/reference/java/text/MessageFormat\">MessageFormat</a>", StringComparison.Ordinal),
                 HasRecoveredSdkSandboxSurfaceLink: recoveredSdkSandboxSurfaceLink,
                 HasRecoveredBiometricCallbackLinks: recoveredBiometricCallbackLinks,
+                HasRecoveredHealthConnectPageSizeBounds: recoveredHealthConnectPageSizeBounds,
                 DevicePresenceParameters: url == DevicePresenceEventConstructorSourceUrl
                     ? ParseDevicePresenceParameterTable(fragment)
                     : null,
@@ -33488,6 +33783,80 @@ static partial class ImporterProgram
                         ? null
                         : intermediateImplicitListParagraphs);
         }
+
+        // Official setPageSize pages render the page-size constants as ERROR(...)
+        // links. Only the exact parameter cell is repaired, and only when the
+        // same member's single Throws row states the bounds 1 and 5000.
+        static bool RecoverHealthConnectPageSizeBounds(
+            string fragment,
+            SourceRequest request,
+            string title,
+            string url,
+            Dictionary<string, string> parameters,
+            Dictionary<string, string> exceptions)
+        {
+            if (request.Kind != "android" ||
+                title != "setPageSize" ||
+                !HealthConnectPageSizeBuilders.Any(builder => builder.JavaPath == request.JavaPath) ||
+                request.Url != AndroidReference + request.JavaPath.Replace('$', '.') ||
+                url != request.Url + "#setPageSize(int)" ||
+                !HasExactHealthConnectPageSizeTable(
+                    fragment, "Parameters", "pageSize", HealthConnectPageSizeRawParameter) ||
+                !HasExactHealthConnectPageSizeTable(
+                    fragment, "Throws", "IllegalArgumentException", HealthConnectPageSizeThrows) ||
+                parameters.Keys.Any(key => key != "pageSize" && !exceptions.ContainsKey(key)) ||
+                !parameters.TryGetValue("pageSize", out var raw) ||
+                CollapseWhitespace(raw) != HealthConnectPageSizeRawParameter ||
+                CountOccurrences(raw, HealthConnectPageSizeMinimumError) != 1 ||
+                CountOccurrences(raw, HealthConnectPageSizeMaximumError) != 1 ||
+                exceptions.Count != 1 ||
+                !exceptions.TryGetValue("IllegalArgumentException", out var thrown) ||
+                CollapseWhitespace(thrown) != HealthConnectPageSizeThrows)
+            {
+                return false;
+            }
+
+            parameters["pageSize"] = raw
+                .Replace(HealthConnectPageSizeMinimumError, "1", StringComparison.Ordinal)
+                .Replace(HealthConnectPageSizeMaximumError, "5000", StringComparison.Ordinal);
+            return true;
+        }
+
+        static bool HasExactHealthConnectPageSizeTable(
+            string fragment,
+            string heading,
+            string name,
+            string text)
+        {
+            const RegexOptions options =
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant;
+            var tables = Regex.Matches(fragment, @"<table\b[^>]*>(?<body>.*?)</table>", options)
+                .Where(table => Regex.Matches(
+                    table.Groups["body"].Value, @"<th\b[^>]*>(?<cell>.*?)</th>", options)
+                    .Any(cell => CollapseWhitespace(HtmlTableCellText(cell.Groups["cell"].Value)) == heading))
+                .ToArray();
+            if (tables is not [var table])
+                return false;
+
+            var rows = Regex.Matches(table.Groups["body"].Value, @"<tr\b[^>]*>(?<row>.*?)</tr>", options);
+            if (rows.Count != 2)
+                return false;
+            var header = rows[0].Groups["row"].Value;
+            var data = rows[1].Groups["row"].Value;
+            var headings = Regex.Matches(header, @"<th\b[^>]*>(?<cell>.*?)</th>", options)
+                .Select(cell => CollapseWhitespace(HtmlTableCellText(cell.Groups["cell"].Value)))
+                .ToArray();
+            var cells = Regex.Matches(data, @"<td\b[^>]*>(?<cell>.*?)</td>", options)
+                .Select(cell => CollapseWhitespace(HtmlTableCellText(cell.Groups["cell"].Value)))
+                .ToArray();
+            return !Regex.IsMatch(header, @"<td\b", options) &&
+                !Regex.IsMatch(data, @"<th\b", options) &&
+                headings is [var actualHeading] && actualHeading == heading &&
+                cells is [var actualName, var actualText] && actualName == name && actualText == text;
+        }
+
+        static string CollapseWhitespace(string value) =>
+            Regex.Replace(value, @"\s+", " ", RegexOptions.CultureInvariant).Trim();
 
         static DevicePresenceParameterTable ParseDevicePresenceParameterTable(string fragment)
         {
@@ -34669,6 +35038,7 @@ static partial class ImporterProgram
         bool HasRecoveredAppFunctionAccessLevelMarkup = false,
         bool HasRecoveredSdkSandboxSurfaceLink = false,
         bool HasRecoveredBiometricCallbackLinks = false,
+        bool HasRecoveredHealthConnectPageSizeBounds = false,
         DevicePresenceParameterTable? DevicePresenceParameters = null);
 
     static class Descriptor

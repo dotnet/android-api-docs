@@ -43,8 +43,8 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <typeparam name="T">To be added.</typeparam>
-    <summary>To be added.</summary>
+    <typeparam name="T">The managed type corresponding to the Java primitive elements.</typeparam>
+    <summary>Provides managed copying and native buffer access for a Java primitive array.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -70,11 +70,11 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="sourceArray">To be added.</param>
-        <param name="sourceIndex">To be added.</param>
-        <param name="destinationIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="sourceArray">The managed source array.</param>
+        <param name="sourceIndex">The zero-based starting index in the managed source.</param>
+        <param name="destinationIndex">The zero-based starting index in the Java array.</param>
+        <param name="length">The number of elements to copy, not a byte count.</param>
+        <summary>Copies a range from managed memory into the Java primitive array.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -98,9 +98,9 @@
         <Parameter Name="arrayIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="array">To be added.</param>
-        <param name="arrayIndex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="array">The managed destination array.</param>
+        <param name="arrayIndex">The zero-based starting index in the destination.</param>
+        <summary>Copies the complete Java array into a managed array.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -126,11 +126,11 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="sourceIndex">To be added.</param>
-        <param name="destinationArray">To be added.</param>
-        <param name="destinationIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="sourceIndex">The zero-based starting index in the Java array.</param>
+        <param name="destinationArray">The managed destination array.</param>
+        <param name="destinationIndex">The zero-based starting index in the managed destination.</param>
+        <param name="length">The number of elements to copy, not a byte count.</param>
+        <summary>Copies a range from the Java primitive array into managed memory.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -151,8 +151,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Acquires the array-specific native element-buffer wrapper.</summary>
+        <returns>A disposable wrapper for the acquired primitive elements.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -173,8 +173,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Disposes temporary marshaling arrays immediately; otherwise, uses the peer disposal policy.</summary>
+        <remarks>The internal marshaling-collection flag selects unconditional disposal. Other arrays use the base value manager's peer-disposal decision.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetElements">
@@ -192,8 +192,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Acquires a native element-buffer wrapper through the derived implementation.</summary>
+        <returns>The acquired wrapper. Dispose it before disposing this array, and keep the array alive while using its elements.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -216,9 +216,9 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <param name="index">The zero-based Java array index.</param>
+        <summary>Gets or sets one primitive element by copying between Java and managed memory.</summary>
+        <value>The element value copied from or into the Java array.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
