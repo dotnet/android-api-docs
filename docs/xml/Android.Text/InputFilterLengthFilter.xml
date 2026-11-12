@@ -78,9 +78,8 @@
         <Parameter Name="max" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="max">To be added.</param>
-        <summary>
-        </summary>
+        <param name="max">The maximum resulting text length, measured in UTF-16 code units.</param>
+        <summary>Creates an input filter with the specified text-length limit.</summary>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/InputFilter.LengthFilter#LengthFilter(int)" title="Reference documentation">Android reference for <code>android.text.InputFilter.LengthFilter.LengthFilter</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -139,14 +138,14 @@
         <Parameter Name="dend" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <param name="dest">To be added.</param>
-        <param name="dstart">To be added.</param>
-        <param name="dend">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">The string that contains the proposed replacement.</param>
+        <param name="start">The first source character index in the proposed replacement.</param>
+        <param name="end">The exclusive end index of the proposed source range.</param>
+        <param name="dest">The current text in the destination buffer.</param>
+        <param name="dstart">The first destination character offset being replaced.</param>
+        <param name="dend">The exclusive end offset of the replaced destination range.</param>
+        <summary>Limits a proposed replacement to the permitted text length.</summary>
+        <returns>A shortened replacement, an empty string when no inserted text fits, or <see langword="null" /> to accept the original range.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -187,17 +186,17 @@
         <Parameter Name="dend" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <param name="dest">To be added.</param>
-        <param name="dstart">To be added.</param>
-        <param name="dend">To be added.</param>
+        <param name="source">The text that contains the proposed replacement.</param>
+        <param name="start">The first source character index in the proposed replacement.</param>
+        <param name="end">The exclusive end index of the proposed source range.</param>
+        <param name="dest">The current text in the destination buffer.</param>
+        <param name="dstart">The first destination character offset being replaced.</param>
+        <param name="dend">The exclusive end offset of the replaced destination range.</param>
         <summary>This method is called when the buffer is going to replace the
  range <c>dstart &amp;hellip; dend</c> of <c>dest</c>
  with the new text from the range <c>start &amp;hellip; end</c>
  of <c>source</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>A shortened replacement sequence, empty text when no inserted text fits, or <see langword="null" /> to accept the original range.</returns>
         <remarks>
           <para>This method is called when the buffer is going to replace the range dstart … dend of dest with the new text from the range start … end of source. Return the CharSequence that you would like to have placed there instead, including an empty string if appropriate, or null to accept the original replacement. Be careful to not to reject 0-length replacements, as this is what happens when you delete text. Also beware that you should not attempt to make any changes to dest from this method; you may only examine it for context. Note: If source is an instance of Spanned or Spannable, the span objects in the source should be copied into the filtered result (i.e. the non-null return value). TextUtils.copySpansFrom can be used for convenience if the span boundary indices would be remaining identical relative to the source.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/InputFilter.LengthFilter#filter(java.lang.CharSequence,%20int,%20int,%20android.text.Spanned,%20int,%20int)" title="Reference documentation">Android reference for <code>android.text.InputFilter.LengthFilter.filter</code>.</a></format></para>
@@ -284,8 +283,7 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>Gets the text-length limit enforced by this filter.</summary>
         <value>the maximum length enforced by this input filter</value>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/InputFilter.LengthFilter#getMax()" title="Reference documentation">Android reference for <code>android.text.InputFilter.LengthFilter.getMax</code>.</a></format></para>
