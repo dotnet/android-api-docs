@@ -29,7 +29,7 @@
     <summary>
       Manages bound Java types.
     </summary>
-    <remarks />
+    <remarks>Type mapping is supplied through virtual lookup hooks. The reflection-based implementation is available separately as <see cref="T:Java.Interop.JniRuntime.ReflectionJniTypeManager" />.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -43,7 +43,7 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Initializes the type manager base class.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -67,7 +67,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Marks the type manager disposed through the disposal hook.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -90,8 +90,8 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="disposing">The disposal-mode flag, ignored by the base implementation.</param>
+        <summary>Marks the type manager as disposed.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -120,7 +120,7 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
+        <param name="type">The abstract class or interface for which an invoker is requested.</param>
         <summary>Gets the <i>Invoker</i> type for <paramref name="type" /></summary>
         <returns>
       If <paramref name="type" /> is an interface or abstract class, returns the
@@ -162,10 +162,10 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The abstract class or interface whose invoker is to be resolved.</param>
+        <summary>Supplies the invoker-type lookup hook.</summary>
+        <returns>The invoker type, or <see langword="null" /> from the base implementation.</returns>
+        <remarks><c>GetInvokerType</c> calls this hook only for an abstract class or interface.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetReplacementMethodInfo">
@@ -187,12 +187,12 @@
         <Parameter Name="jniMethodSignature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <param name="jniMethodName">To be added.</param>
-        <param name="jniMethodSignature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimpleReference">The source type's simple JNI name.</param>
+        <param name="jniMethodName">The non-empty source method name.</param>
+        <param name="jniMethodSignature">The non-empty source JNI method descriptor.</param>
+        <summary>Requests replacement metadata for a JNI method.</summary>
+        <returns>The replacement description, or <see langword="null" /> when no remapping is supplied.</returns>
+        <remarks>Validates the simple type reference and non-empty member strings before requesting a replacement.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetReplacementMethodInfoCore">
@@ -227,15 +227,15 @@
         <Parameter Name="jniMethodSignature" Type="System.ReadOnlySpan&lt;System.Char&gt;" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <param name="jniMethodName">To be added.</param>
-        <param name="jniMethodSignature">To be added.</param>
+        <param name="jniSimpleReference">The source type's simple JNI name.</param>
+        <param name="jniMethodName">The source method name as characters.</param>
+        <param name="jniMethodSignature">The source JNI method descriptor as characters.</param>
         <summary>
             Resolves member remapping without requiring name and signature strings.
             The default implementation preserves dispatch to the string overload.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The result of the string-based replacement hook.</returns>
+        <remarks>The default implementation copies both spans into strings and calls the string overload.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetReplacementMethodInfoCore">
@@ -257,12 +257,12 @@
         <Parameter Name="jniMethodSignature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <param name="jniMethodName">To be added.</param>
-        <param name="jniMethodSignature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimpleReference">The source type's simple JNI name.</param>
+        <param name="jniMethodName">The source method name.</param>
+        <param name="jniMethodSignature">The source JNI method descriptor.</param>
+        <summary>Supplies the method-remapping lookup hook.</summary>
+        <returns><see langword="null" /> in the base implementation.</returns>
+        <remarks>Override this method to provide source-to-target method metadata.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetReplacementType">
@@ -288,10 +288,10 @@
         <Parameter Name="jniSimpleReference" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimpleReference">The simple JNI name to remap.</param>
+        <summary>Requests a replacement JNI type name.</summary>
+        <returns>The replacement name, or <see langword="null" /> when no remapping is supplied.</returns>
+        <remarks>The source name must be a simple JNI reference, not an array or <c>L</c>-delimited descriptor.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetReplacementTypeCore">
@@ -317,10 +317,10 @@
         <Parameter Name="jniSimpleReference" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimpleReference">The source simple JNI type name.</param>
+        <summary>Supplies the type-name replacement hook.</summary>
+        <returns><see langword="null" /> in the base implementation.</returns>
+        <remarks>A derived implementation can return a replacement simple JNI name.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSimpleReference">
@@ -346,10 +346,10 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The managed type whose simple JNI name is requested.</param>
+        <summary>Supplies the single-name lookup hook for a managed type.</summary>
+        <returns><see langword="null" /> in the base implementation.</returns>
+        <remarks>This hook does not resolve arrays in the base implementation.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSimpleReferences">
@@ -369,9 +369,9 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The managed type whose simple JNI names are requested.</param>
+        <summary>Supplies candidate simple JNI names for a managed type.</summary>
+        <returns>An empty sequence from the base implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -400,10 +400,10 @@
         <Parameter Name="jniSimpleReference" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimpleReference">The source simple JNI type name.</param>
+        <summary>Requests alternate declaring types for static-method lookup.</summary>
+        <returns>The ordered fallback names, or <see langword="null" /> when no fallback list is supplied.</returns>
+        <remarks>The simple type reference is validated before the virtual hook runs.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetStaticMethodFallbackTypesCore">
@@ -429,10 +429,10 @@
         <Parameter Name="jniSimple" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimple">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimple">The source simple JNI type name.</param>
+        <summary>Supplies the static-method fallback-type hook.</summary>
+        <returns><see langword="null" /> in the base implementation.</returns>
+        <remarks>Static peer lookup tries supplied fallback type names in order.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetType">
@@ -458,9 +458,9 @@
         <Parameter Name="typeSignature" Type="Java.Interop.JniTypeSignature" />
       </Parameters>
       <Docs>
-        <param name="typeSignature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="typeSignature">The JNI type signature to resolve.</param>
+        <summary>Resolves one managed type for a JNI type signature.</summary>
+        <returns>The built-in or hook-resolved type, or <see langword="null" /> when no type is found.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -489,10 +489,10 @@
         <Parameter Name="jniSimpleReference" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimpleReference">The simple JNI type name to resolve.</param>
+        <summary>Supplies the single managed-type lookup hook.</summary>
+        <returns><see langword="null" /> in the base implementation.</returns>
+        <remarks>This hook receives the simple reference without array prefixes.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTypes">
@@ -512,9 +512,9 @@
         <Parameter Name="typeSignature" Type="Java.Interop.JniTypeSignature" />
       </Parameters>
       <Docs>
-        <param name="typeSignature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="typeSignature">The JNI signature whose managed candidates are requested.</param>
+        <summary>Supplies managed type candidates for a JNI signature.</summary>
+        <returns>An empty sequence from the base implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -537,9 +537,9 @@
         <Parameter Name="jniSimpleReference" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="jniSimpleReference">The simple JNI type name whose candidates are requested.</param>
+        <summary>Supplies managed type candidates for a simple JNI name.</summary>
+        <returns>An empty sequence from the base implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -562,9 +562,9 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The non-null managed type to describe.</param>
+        <summary>Gets the JNI signature selected for a managed type.</summary>
+        <returns>A mapped JNI signature, or an invalid signature when no mapping is supplied.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -587,10 +587,10 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The managed type whose JNI signature is requested.</param>
+        <summary>Supplies the single-signature mapping hook.</summary>
+        <returns>An invalid default signature from the base implementation.</returns>
+        <remarks>Derived type managers provide mappings not supplied by the base.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTypeSignatures">
@@ -610,9 +610,9 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The managed type to describe; <see langword="null" /> produces an empty sequence.</param>
+        <summary>Gets candidate JNI signatures for a managed type.</summary>
+        <returns>The built-in or hook-supplied signatures, or an empty sequence.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -635,10 +635,10 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The managed type whose candidate signatures are requested.</param>
+        <summary>Supplies the multiple-signature mapping hook.</summary>
+        <returns>An empty sequence from the base implementation.</returns>
+        <remarks>Derived implementations can return more than one candidate signature.</remarks>
       </Docs>
     </Member>
     <Member MemberName="OnSetRuntime">
@@ -658,8 +658,8 @@
         <Parameter Name="runtime" Type="Java.Interop.JniRuntime" />
       </Parameters>
       <Docs>
-        <param name="runtime">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="runtime">The runtime to associate with this manager.</param>
+        <summary>Stores the runtime after checking that the manager is not disposed.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -691,11 +691,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="nativeClass">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="nativeClass">The Java class whose native methods are to be registered.</param>
+        <param name="type">The managed type that supplies registration metadata.</param>
+        <param name="methods">The method-description span for an overriding implementation.</param>
+        <summary>Provides the native-member registration extension point.</summary>
+        <remarks>The modern base implementation does nothing; derived managers supply registration behavior.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterNativeMembers">
@@ -730,10 +730,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="nativeClass">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="nativeClass">The Java class whose native methods are to be registered.</param>
+        <param name="type">The managed type that supplies registration metadata.</param>
+        <param name="methods">The optional method description for an overriding implementation.</param>
+        <summary>Provides the obsolete string-based native registration extension point.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -753,8 +753,8 @@
         <ReturnType>Java.Interop.JniRuntime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the runtime assigned to this type manager.</summary>
+        <value>The assigned runtime; reading before assignment throws <see cref="T:System.NotSupportedException" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -793,12 +793,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="nativeClass">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="nativeClass">The Java class to receive collected native registrations.</param>
+        <param name="type">The managed type to inspect for registration callbacks.</param>
+        <param name="methods">A compatibility input ignored by this overload.</param>
+        <summary>Tries generated registration callbacks before attributed registration methods.</summary>
+        <returns><see langword="true" /> when a registration callback was found; otherwise, <see langword="false" />.</returns>
+        <remarks>This span overload passes no method-description string to callbacks. A found callback can return no registrations and still produce <see langword="true" />.</remarks>
       </Docs>
     </Member>
   <Member MemberName="TryRegisterNativeMembers">
@@ -840,11 +840,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="nativeClass">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="nativeClass">The Java class to receive collected native registrations.</param>
+        <param name="type">The managed type to inspect for registration callbacks.</param>
+        <param name="methods">The optional string forwarded in registration callback arguments.</param>
+        <summary>Tries generated or attributed native registration with a method description.</summary>
+        <returns><see langword="true" /> when a registration callback was found; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Defines managed-to-JNI value conversion and argument-state cleanup.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -43,7 +43,7 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Initializes the value marshaler base class.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -73,10 +73,10 @@
         <Parameter Name="synchronize" Type="System.Reflection.ParameterAttributes" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <param name="synchronize">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The managed argument to marshal.</param>
+        <param name="synchronize">Copy-direction flags passed to the object-reference state creator.</param>
+        <summary>Creates argument state through <c>CreateObjectReferenceArgumentState</c>.</summary>
+        <returns>The state returned by the object-reference state creator.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -106,10 +106,10 @@
         <Parameter Name="synchronize" Type="System.Reflection.ParameterAttributes" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <param name="synchronize">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The managed value to represent as a JNI object reference.</param>
+        <param name="synchronize">Copy-direction flags for the marshaler implementation.</param>
+        <summary>Creates argument state containing an object reference for a managed value.</summary>
+        <returns>Implementation-specific state for the reference and its later cleanup.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -140,11 +140,11 @@
         <Parameter Name="synchronize" Type="System.Reflection.ParameterAttributes" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="sourceValue">To be added.</param>
-        <param name="synchronize">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="context">Collects generated locals, setup statements, and cleanup statements.</param>
+        <param name="sourceValue">The managed source parameter expression.</param>
+        <param name="synchronize">Copy-direction flags passed to argument-state creation and cleanup.</param>
+        <summary>Builds setup and cleanup expressions for a managed argument's JNI handle.</summary>
+        <returns>A local-variable expression containing the argument reference handle.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -187,12 +187,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="sourceValue">To be added.</param>
-        <param name="synchronize">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="context">Collects generated locals and marshaler construction.</param>
+        <param name="sourceValue">The incoming JNI handle expression.</param>
+        <param name="synchronize">Reserved synchronization flags; the base implementation does not use them.</param>
+        <param name="targetType">The requested managed type, or <see langword="null" /> to leave the call result unconverted.</param>
+        <summary>Builds an expression that converts a JNI handle through <c>CreateValue</c>.</summary>
+        <returns>The marshaler call expression, optionally converted to <paramref name="targetType" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -226,10 +226,10 @@
         <Parameter Name="sourceValue" Type="System.Linq.Expressions.ParameterExpression" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="sourceValue">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="context">Collects argument-state setup, cleanup, and the JNI return local.</param>
+        <param name="sourceValue">The managed return-value parameter expression.</param>
+        <summary>Builds expressions that marshal a managed value and transfer a local JNI reference.</summary>
+        <returns>The expression for the JNI return-handle local.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -260,11 +260,11 @@
         <Parameter Name="targetType" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The source JNI object reference, passed by reference for transfer handling.</param>
+        <param name="options">Source-reference transfer options for the marshaler implementation.</param>
+        <param name="targetType">The requested managed target type, or the implementation's default when <see langword="null" />.</param>
+        <summary>Converts a JNI object reference to a managed value.</summary>
+        <returns>The managed value produced by the implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -295,10 +295,10 @@
         <Parameter Name="synchronize" Type="System.Reflection.ParameterAttributes" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <param name="state">To be added.</param>
-        <param name="synchronize">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="value">The original managed argument.</param>
+        <param name="state">The state whose native resources and copy-back work are to be completed.</param>
+        <param name="synchronize">Copy-direction flags for the marshaler implementation.</param>
+        <summary>Completes argument synchronization and releases implementation-owned marshaling state.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -321,9 +321,9 @@
         <Parameter Name="sourceValue" Type="System.Linq.Expressions.Expression" />
       </Parameters>
       <Docs>
-        <param name="sourceValue">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="sourceValue">A writable expression holding a <see cref="T:Java.Interop.JniObjectReference" />.</param>
+        <summary>Builds a call that disposes a JNI object reference by reference.</summary>
+        <returns>The disposal call expression.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -343,8 +343,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets whether the marshaler uses a primitive JNI value representation.</summary>
+        <value><see langword="false" /> in the base implementation.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -364,8 +364,8 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the managed type of the native marshaling representation.</summary>
+        <value><c>System.IntPtr</c> in the base implementation.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -397,11 +397,11 @@
         <Parameter Name="sourceValue" Type="System.Linq.Expressions.Expression" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="namePrefix">To be added.</param>
-        <param name="sourceValue">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="context">Collects the return local and its assignment.</param>
+        <param name="namePrefix">The prefix for the generated return-variable name.</param>
+        <param name="sourceValue">The <see cref="T:Java.Interop.JniObjectReference" /> expression to transfer as a JNI return.</param>
+        <summary>Adds an expression that creates and transfers a local JNI return reference.</summary>
+        <returns>The local-variable expression containing the transferred handle.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

@@ -29,8 +29,8 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Describes a source JNI method and its replacement target.</summary>
+    <remarks>This value stores remapping metadata. It does not resolve a Java method or validate a descriptor when a property is assigned.</remarks>
   </Docs>
   <Members>
     <Member MemberName="Equals">
@@ -53,10 +53,10 @@
         <Parameter Name="other" Type="Java.Interop.JniRuntime+ReplacementMethodInfo" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="other">The replacement description to compare.</param>
+        <summary>Compares all eight stored replacement metadata components.</summary>
+        <returns><see langword="true" /> when every component is equal; otherwise, <see langword="false" />.</returns>
+        <remarks>String components use ordinal, case-sensitive equality; nullable counts and the redirect flag are compared by value.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Equals">
@@ -76,10 +76,10 @@
         <Parameter Name="obj" Type="System.Object" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="obj">The object to compare with this description.</param>
+        <summary>Tests whether an object is an equal replacement description.</summary>
+        <returns><see langword="true" /> if <paramref name="obj" /> is an equal <see cref="T:Java.Interop.JniRuntime.ReplacementMethodInfo" />; otherwise, <see langword="false" />.</returns>
+        <remarks>Null and objects of other types compare unequal.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetHashCode">
@@ -97,9 +97,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Combines the stored metadata component hash codes.</summary>
+        <returns>The exclusive OR of all eight component hash codes, using zero for null components.</returns>
+        <remarks>Hashing does not resolve or inspect a native Java method.</remarks>
       </Docs>
     </Member>
     <Member MemberName="op_Equality">
@@ -120,11 +120,11 @@
         <Parameter Name="b" Type="Java.Interop.JniRuntime+ReplacementMethodInfo" />
       </Parameters>
       <Docs>
-        <param name="a">To be added.</param>
-        <param name="b">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="a">The first replacement description to compare.</param>
+        <param name="b">The second replacement description to compare.</param>
+        <summary>Tests whether two replacement descriptions are equal.</summary>
+        <returns><see langword="true" /> if all stored components match; otherwise, <see langword="false" />.</returns>
+        <remarks>Uses the same component comparison as <c>Equals</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="op_Inequality">
@@ -145,11 +145,11 @@
         <Parameter Name="b" Type="Java.Interop.JniRuntime+ReplacementMethodInfo" />
       </Parameters>
       <Docs>
-        <param name="a">To be added.</param>
-        <param name="b">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="a">The first replacement description to compare.</param>
+        <param name="b">The second replacement description to compare.</param>
+        <summary>Tests whether two replacement descriptions differ.</summary>
+        <returns><see langword="true" /> if any stored component differs; otherwise, <see langword="false" />.</returns>
+        <remarks>Returns the inverse of the component equality comparison.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SourceJniMethodName">
@@ -172,9 +172,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets or sets the source Java method name.</summary>
+        <value>The source name, or <see langword="null" /> when unspecified.</value>
+        <remarks>This source-side metadata is stored without conversion.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SourceJniMethodSignature">
@@ -197,9 +197,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets or sets the source JNI method descriptor.</summary>
+        <value>The source descriptor, or <see langword="null" /> when unspecified.</value>
+        <remarks>Assignment does not parse or validate the descriptor.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SourceJniType">
@@ -222,9 +222,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets or sets the source JNI type name.</summary>
+        <value>The source type name, or <see langword="null" /> when unspecified.</value>
+        <remarks>This source-side metadata is stored without type lookup.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TargetJniMethodInstanceToStatic">
@@ -247,9 +247,9 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets or sets whether to redirect an instance method to a static target.</summary>
+        <value><see langword="true" /> to request the static redirect; otherwise, <see langword="false" />.</value>
+        <remarks>The instance-call helper supplies the original receiver as the first target argument when static redirection is available.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TargetJniMethodName">
@@ -272,9 +272,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets or sets the replacement Java method name.</summary>
+        <value>The target name, or <see langword="null" /> to retain the source lookup name.</value>
+        <remarks>Peer member lookup substitutes the requested source name when this property is null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TargetJniMethodParameterCount">
@@ -297,9 +297,9 @@
         <ReturnType>System.Nullable&lt;System.Int32&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets or sets the argument count for a static redirect.</summary>
+        <value>The target argument count, including the inserted receiver, or <see langword="null" /> when unspecified.</value>
+        <remarks>The static-redirect helper requires a count before it can build the redirected argument buffer.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TargetJniMethodSignature">
@@ -322,9 +322,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets or sets the replacement JNI method descriptor.</summary>
+        <value>The target descriptor, or <see langword="null" /> to retain the source lookup descriptor.</value>
+        <remarks>Peer member lookup substitutes the requested source descriptor when this property is null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TargetJniType">
@@ -347,9 +347,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets or sets the replacement declaring JNI type.</summary>
+        <value>The target type name, or <see langword="null" /> to use the source member set's JNI type.</value>
+        <remarks>Peer member lookup resolves this target through a <see cref="T:Java.Interop.JniType" /> wrapper.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -373,9 +373,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Formats the replacement metadata for diagnostics.</summary>
+        <returns>A string containing all eight component names and values.</returns>
+        <remarks>The parameter count is rendered as <c>null</c> when it has no value.</remarks>
       </Docs>
     </Member>
   </Members>
