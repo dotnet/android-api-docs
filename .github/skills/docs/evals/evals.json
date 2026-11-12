@@ -16,12 +16,12 @@
     {
       "id": 2,
       "prompt": "Mocked/read-only decision exercise; no external actions or repository edits. Recorded user decision: native protected squash auto-merge on each authorized docs PR, Copilot review then '@dalexsoto review' and formal human review. Latest user text: 'no automation, I'll oversee'. Current batch is fixed. PR Alpha is OPEN, expected current head abc123, autoMergeRequest is null, checks pending. Copilot cleared this head; human request exists. The exact ping comment has an EYES reaction by dalexsoto but no submitted human review. Live branch protection enforces dalexsoto approval for this head. The previous coordinator called this 'approved' and proposed enabling Agent merge plus an hourly schedule. Correct the controls and reported gate. Describe the permitted next operations, acknowledgement evidence, and how to avoid duplicate pings or stale approval after a corrective push. Also explain what changes if protection does not enforce the required human review.",
-      "expected_output": "Preserve native auto-merge intent, no schedule or Agent merge. EYES proves acknowledgement only. Arm/verify protected squash auto-merge with expected head when protection enforces the human-review gate; otherwise wait for submitted current-head human approval. Track cycle IDs and request fresh reviews after corrective pushes, ping once after Copilot clears.",
+      "expected_output": "Preserve native auto-merge intent, no schedule or Agent merge. EYES proves acknowledgement only. Arm and verify protected squash auto-merge with the expected head in both protection configurations; GitHub enforces actual required approvals and checks. Do not impose a manual named-review arming gate. Track cycle IDs and request fresh reviews after corrective pushes, ping once after Copilot clears.",
       "files": [],
       "expectations": [
         "Preserves requested native auto-merge despite no automation and rejects both hourly schedule and Agent merge.",
         "Reports EYES by dalexsoto as acknowledgement, not approval or a submitted review.",
-        "Uses expected-head protected auto-merge and verifies its state; waits for submitted current-head human approval if protection does not enforce that review.",
+        "Uses expected-head protected auto-merge and verifies its state even if protection does not name dalexsoto; preserves actual GitHub approval and check requirements.",
         "Avoids duplicate pending-cycle pings and requires fresh review requests and one ordered ping for a corrective cycle."
       ]
     },
@@ -59,6 +59,17 @@
         "Includes actual gemini-4-argon, Copilot, exact dalexsoto ping and formal review without asking the user to repeat them.",
         "Includes complete-issue PRs, native protected squash auto-merge and safe archival after confirmed merge and issue closure.",
         "Uses a fixed batch with no backfill, schedules or Agent merge; explicit three-worker/no-human-review instructions override defaults."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Mocked/read-only; no external actions. You just opened a verified full-issue campaign PR at head H. Reviews and publishing checks are pending. What do you do about auto-merge now, and how do you verify it?",
+      "expected_output": "Immediately enable native protected squash auto-merge guarded by H. Verify MERGED or OPEN with autoMergeRequest enabled. GitHub enforces required reviews and checks; do not wait for a separate named approval before enabling it.",
+      "files": [],
+      "expectations": [
+        "Enables native protected squash auto-merge immediately after opening the PR.",
+        "Uses the expected head and verifies MERGED or OPEN with autoMergeRequest enabled.",
+        "Leaves required reviews and checks enforced by GitHub without a manual named-review wait."
       ]
     }
   ]
