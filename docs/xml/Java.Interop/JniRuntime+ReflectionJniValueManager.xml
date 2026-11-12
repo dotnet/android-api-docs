@@ -27,8 +27,8 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Implements peer construction and value conversion using managed reflection.</summary>
+    <remarks>This implementation requires reflection and dynamic-code support and is not compatible with Native AOT.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -42,8 +42,8 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Initializes the reflection-based value manager.</summary>
+        <remarks>Derived managers still provide peer mapping, collection, and finalization policies.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActivatePeer">
@@ -73,12 +73,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="cinfo">To be added.</param>
-        <param name="argumentValues">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="reference">The Java peer reference stored before constructor invocation.</param>
+        <param name="type">The managed type to allocate without first running a constructor.</param>
+        <param name="cinfo">The constructor to invoke on the allocated instance.</param>
+        <param name="argumentValues">The constructor argument values.</param>
+        <summary>Allocates an uninitialized managed peer and invokes its activation constructor.</summary>
+        <remarks>Activation failures are wrapped in <see cref="T:System.NotSupportedException" /> with diagnostic peer information.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ConstructPeerCore">
@@ -100,11 +100,11 @@
         <Parameter Name="options" Type="Java.Interop.JniObjectReferenceOptions" />
       </Parameters>
       <Docs>
-        <param name="peer">To be added.</param>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peer">The non-null managed peer being initialized.</param>
+        <param name="reference">The source reference subject to the supplied transfer options.</param>
+        <param name="options">Reference-copy, source-disposal, and registration flags.</param>
+        <summary>Initializes peer reference ownership, identity hash, and runtime registration.</summary>
+        <remarks><see cref="F:Java.Interop.JniObjectReferenceOptions.None" /> permits deferred initialization when the peer has no reference. Existing activation peers can reuse their assigned reference.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateLocalObjectReferenceArgumentCore">
@@ -132,11 +132,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The managed type used to select a marshaler.</param>
+        <param name="value">The managed argument to marshal.</param>
+        <summary>Creates a local reference from temporary object-reference argument state.</summary>
+        <returns>A new local reference, or an invalid reference when no native argument reference was produced.</returns>
+        <remarks>Temporary marshaler state is destroyed in a <see langword="finally" /> block after the local reference is created.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateNonArrayListValue">
@@ -164,12 +164,12 @@
         <Parameter Name="targetType" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="reference">The non-array Java list reference subject to transfer handling.</param>
+        <param name="options">Source-reference transfer options applied before failure.</param>
+        <param name="targetType">The requested managed list type.</param>
+        <summary>Rejects non-array Java list conversion in the default implementation.</summary>
+        <returns>No value is returned; the implementation throws <see cref="T:System.InvalidCastException" />.</returns>
+        <remarks>Applies source disposal according to <paramref name="options" /> before throwing. Derived managers can override this hook to support Java lists.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreatePeer">
@@ -204,12 +204,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="reference">The JNI reference whose Java type is checked before wrapper creation.</param>
+        <param name="transfer">Source-reference transfer options for activation.</param>
+        <param name="targetType">The requested peer type; <see langword="null" /> selects <see cref="T:Java.Interop.JavaObject" />.</param>
+        <summary>Finds and constructs a compatible managed wrapper for a Java object.</summary>
+        <returns>The constructed replaceable peer, or <see langword="null" /> for a zero reference or incompatible Java type.</returns>
+        <remarks>Missing type mappings or activation constructors can throw instead of returning null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateValueCore">
@@ -244,12 +244,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="reference">The source JNI reference to convert.</param>
+        <param name="options">Source-reference transfer options.</param>
+        <param name="targetType">The optional managed target type; otherwise, the runtime type is used.</param>
+        <summary>Creates a managed value using peer, proxy, or selected value-marshaler conversion.</summary>
+        <returns>The converted value, or <see langword="null" /> for a zero JNI reference.</returns>
+        <remarks>A known managed proxy can be unwrapped and converted with <c>Convert.ChangeType</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateValueCore&lt;T&gt;">
@@ -304,13 +304,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T">The managed result type.</typeparam>
+        <param name="reference">The source JNI reference to convert.</param>
+        <param name="options">Source-reference transfer options.</param>
+        <param name="targetType">The requested compatible runtime target, or <c>typeof(T)</c> when <see langword="null" />.</param>
+        <summary>Creates a typed managed value after validating the requested target type.</summary>
+        <returns>The converted typed value, or <c>default(T)</c> for a zero reference.</returns>
+        <remarks>A <paramref name="targetType" /> not assignable to <typeparamref name="T" /> causes <see cref="T:System.ArgumentException" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetValueCore">
@@ -345,12 +345,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="reference">The source JNI reference to convert.</param>
+        <param name="options">Source-reference transfer options.</param>
+        <param name="targetType">The optional managed target type; otherwise, the runtime type is used.</param>
+        <summary>Reuses a compatible existing mapped value before selecting a converter.</summary>
+        <returns>The reused or converted value, or <see langword="null" /> for a zero reference.</returns>
+        <remarks>Source disposal options also apply when an existing value is reused.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetValueCore&lt;T&gt;">
@@ -405,13 +405,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T">The managed result type.</typeparam>
+        <param name="reference">The source JNI reference to convert.</param>
+        <param name="options">Source-reference transfer options.</param>
+        <param name="targetType">The requested compatible runtime target, or <c>typeof(T)</c> when <see langword="null" />.</param>
+        <summary>Reuses a compatible mapped value or converts it to the requested managed type.</summary>
+        <returns>The reused or converted typed value, or <c>default(T)</c> for a zero reference.</returns>
+        <remarks>A requested <paramref name="targetType" /> must be assignable to <typeparamref name="T" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetValueMarshalerCore">
@@ -431,10 +431,10 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The non-null, closed managed type requiring a marshaler.</param>
+        <summary>Selects an annotated, built-in, collection, peer, or proxy marshaler.</summary>
+        <returns>The marshaler selected for the managed type.</returns>
+        <remarks>Open generic types are rejected. An annotated marshaler type is instantiated through reflection.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetValueMarshalerCore&lt;T&gt;">
@@ -462,10 +462,10 @@
       </TypeParameters>
       <Parameters />
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T">The managed type requiring a typed marshaler.</typeparam>
+        <summary>Gets a typed marshaler or a cached typed adapter.</summary>
+        <returns>The selected <c>JniValueMarshaler&lt;T&gt;</c> or its delegating adapter.</returns>
+        <remarks>A non-generic marshaler can be wrapped when it does not implement the requested generic marshaler type.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryConstructPeer">
@@ -495,13 +495,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="self">To be added.</param>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="self">The already allocated managed peer to initialize.</param>
+        <param name="reference">The source reference passed to the activation constructor by reference.</param>
+        <param name="options">Reference-transfer options passed to the constructor and subsequent disposal.</param>
+        <param name="type">The type whose public or non-public activation constructor is searched.</param>
+        <summary>Invokes an activation constructor and applies reference-transfer cleanup.</summary>
+        <returns><see langword="true" /> when a matching constructor was invoked; otherwise, <see langword="false" />.</returns>
+        <remarks>Searches for <c>(ref JniObjectReference, JniObjectReferenceOptions)</c>, updates <paramref name="reference" /> from the invocation arguments, then applies source disposal.</remarks>
       </Docs>
     </Member>
   </Members>

@@ -443,7 +443,7 @@
       <Docs>
         <summary>Returns the <c>InputMethodInfo</c> of the currently selected input method (for the process's
             user).</summary>
-        <value>To be added.</value>
+        <value>The selected input method for this process's user, or <see langword="null" />.</value>
         <remarks>
           <para>Returns the <c>InputMethodInfo</c> of the currently selected input method (for the process's
             user).</para>
@@ -482,7 +482,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the current input method subtype.</summary>
-        <value>To be added.</value>
+        <value>The current input method subtype, or <see langword="null" /> when no subtype is available.</value>
         <remarks>
           <para>Returns the current input method subtype. This subtype is one of the subtypes in
             the current input method. This method returns null when the current input method doesn't
@@ -540,7 +540,7 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
+        <param name="e">The key event to dispatch from the input method.</param>
         <param name="targetView">the default target view. If <c>null</c> is specified, then this method
             tries to find a good event target based on the current focus state.</param>
         <param name="event">the key event to be dispatched.</param>
@@ -598,10 +598,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="view">To be added.</param>
-        <param name="completions">To be added.</param>
-        <summary>
-        </summary>
+        <param name="view">The editor view that supplies the completions.</param>
+        <param name="completions">The completion candidates to send to the input method.</param>
+        <summary>Supplies completion candidates for the served editor view.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -685,9 +684,9 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="context">The context used to look up the input method service.</param>
+        <summary>Gets the input method manager from a context.</summary>
+        <returns>The context's input method service, or <see langword="null" /> if the returned service is not an <c>InputMethodManager</c>.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -734,7 +733,7 @@
             enabled subtypes. If an input method info doesn't have enabled subtypes, the framework
             will implicitly enable subtypes according to the current system language.</param>
         <summary>Returns a list of enabled input method subtypes for the specified input method info.</summary>
-        <returns>To be added.</returns>
+        <returns>The enabled subtypes for the requested input method and this process's user.</returns>
         <remarks>
           <para>Returns a list of enabled input method subtypes for the specified input method info.</para>
           <para>On multi user environment, this API returns a result for the calling process user.</para>
@@ -1127,7 +1126,7 @@
         <Parameter Name="imeToken" Type="Android.OS.IBinder" />
       </Parameters>
       <Docs>
-        <param name="imeToken">To be added.</param>
+        <param name="imeToken">The token that identifies the input method.</param>
         <summary>This member is deprecated.</summary>
         <remarks>
           <para>This member is deprecated. Use <c>InputMethodService#hideStatusIcon()</c> instead. This method was
@@ -1279,9 +1278,9 @@
         <Parameter Name="view" Type="Android.Views.View" />
       </Parameters>
       <Docs>
-        <param name="view">To be added.</param>
+        <param name="view">The view whose active input state is queried.</param>
         <summary>Return <c>true</c> if the given view is the currently active view for the input method.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the view is served by the input method and has current editor information; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Return <c>true</c> if the given view is the currently active view for the input method.</para>
           <para>
@@ -1319,7 +1318,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return <c>true</c> if the currently served view is accepting full text edits.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the served view has an input connection for full text editing; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Return <c>true</c> if the currently served view is accepting full text edits.
             If <c>false</c>, it has no input connection, so it can only handle raw key events.</para>
@@ -1358,7 +1357,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return <c>true</c> if any view is currently active for the input method.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if a view is currently active for the input method; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Return <c>true</c> if any view is currently active for the input method.</para>
           <para>
@@ -1401,7 +1400,7 @@
       <Docs>
         <summary>Returns <c>true</c> if the currently selected IME supports connectionless stylus handwriting
             sessions and is enabled.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if connectionless stylus handwriting is available from the enabled input method; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns <c>true</c> if the currently selected IME supports connectionless stylus handwriting
             sessions and is enabled.</para>
@@ -1440,7 +1439,7 @@
       <Docs>
         <summary>Allows you to discover whether the attached input method is running
             in fullscreen mode.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the attached input method is in fullscreen mode; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Allows you to discover whether the attached input method is running
             in fullscreen mode.  Return true if it is fullscreen, entirely covering
@@ -1484,7 +1483,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return <c>true</c> if the input method is suppressing system spell checker.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the bound input method suppresses the system spell checker; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Return <c>true</c> if the input method is suppressing system spell checker.</para>
           <para>
@@ -1525,7 +1524,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns <c>true</c> if currently selected IME supports Stylus handwriting &amp; is enabled.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if stylus handwriting is available from the enabled input method; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns <c>true</c> if currently selected IME supports Stylus handwriting &amp; is enabled.
             If the method returns <c>false</c>, <c>#startStylusHandwriting(View)</c> shouldn't be
@@ -1570,10 +1569,10 @@
         <Parameter Name="view" Type="Android.Views.View" />
       </Parameters>
       <Docs>
-        <param name="view">To be added.</param>
+        <param name="view">The view supplied to the legacy cursor watching query.</param>
         <summary>Return true if the current input method wants to watch the location
             of the input editor's cursor in its window.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="false" /> in the current framework implementation.</returns>
         <remarks>
           <para>Return true if the current input method wants to watch the location
             of the input editor's cursor in its window.</para>
@@ -2346,7 +2345,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns a map of all shortcut input method info and their subtypes.</summary>
-        <value>To be added.</value>
+        <value>The shortcut input methods and their associated subtype lists.</value>
         <remarks>
           <para>Returns a map of all shortcut input method info and their subtypes.</para>
           <para>
@@ -2394,7 +2393,7 @@
             which allows it to perform this operation on itself.</param>
         <summary>Returns true if the current IME needs to offer the users ways to switch to a next input
             method (e.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the input method should offer a way to switch to the next input method; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns true if the current IME needs to offer the users ways to switch to a next input
             method (e.g. a globe key.).
@@ -2837,9 +2836,9 @@
         <Parameter Name="iconId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="imeToken">To be added.</param>
-        <param name="packageName">To be added.</param>
-        <param name="iconId">To be added.</param>
+        <param name="imeToken">The token that identifies the input method.</param>
+        <param name="packageName">The package containing the icon resource.</param>
+        <param name="iconId">The drawable resource identifier of the status icon.</param>
         <summary>This member is deprecated.</summary>
         <remarks>
           <para>This member is deprecated. Use <c>InputMethodService#showStatusIcon(int)</c> instead. This method was
@@ -3485,11 +3484,11 @@
         <Parameter Name="bottom" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="view">To be added.</param>
-        <param name="left">To be added.</param>
-        <param name="top">To be added.</param>
-        <param name="right">To be added.</param>
-        <param name="bottom">To be added.</param>
+        <param name="view">The editor view whose cursor location changed.</param>
+        <param name="left">The left edge of the cursor rectangle in window coordinates.</param>
+        <param name="top">The top edge of the cursor rectangle in window coordinates.</param>
+        <param name="right">The right edge of the cursor rectangle in window coordinates.</param>
+        <param name="bottom">The bottom edge of the cursor rectangle in window coordinates.</param>
         <summary>Report the current cursor location in its window.</summary>
         <remarks>
           <para>Report the current cursor location in its window.</para>
@@ -3532,8 +3531,8 @@
         <Parameter Name="cursorAnchorInfo" Type="Android.Views.InputMethods.CursorAnchorInfo" />
       </Parameters>
       <Docs>
-        <param name="view">To be added.</param>
-        <param name="cursorAnchorInfo">To be added.</param>
+        <param name="view">The editor view that supplies the cursor anchor information.</param>
+        <param name="cursorAnchorInfo">The cursor and composing text position information to report.</param>
         <summary>Report positional change of the text insertion point and/or characters in the composition
             string.</summary>
         <remarks>
@@ -3577,11 +3576,10 @@
         <Parameter Name="text" Type="Android.Views.InputMethods.ExtractedText" />
       </Parameters>
       <Docs>
-        <param name="view">To be added.</param>
-        <param name="token">To be added.</param>
-        <param name="text">To be added.</param>
-        <summary>
-        </summary>
+        <param name="view">The editor view that supplies the extracted text.</param>
+        <param name="token">The identifier from the extraction request.</param>
+        <param name="text">The extracted text update to report.</param>
+        <summary>Reports an extracted text update for the served editor view.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3615,11 +3613,11 @@
         <Parameter Name="candidatesEnd" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="view">To be added.</param>
-        <param name="selStart">To be added.</param>
-        <param name="selEnd">To be added.</param>
-        <param name="candidatesStart">To be added.</param>
-        <param name="candidatesEnd">To be added.</param>
+        <param name="view">The editor view whose selection changed.</param>
+        <param name="selStart">The selection start offset in the editor text.</param>
+        <param name="selEnd">The selection end offset in the editor text.</param>
+        <param name="candidatesStart">The current candidate text start offset.</param>
+        <param name="candidatesEnd">The current candidate text end offset.</param>
         <summary>Report the current selection range.</summary>
         <remarks>
           <para>Report the current selection range.</para>

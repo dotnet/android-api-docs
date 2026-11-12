@@ -52,10 +52,10 @@
         <Parameter Name="targetType" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="jniName">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="jniName">The non-null JNI name to store.</param>
+        <param name="targetType">The non-null managed target type to store.</param>
+        <summary>Initializes a proxy attribute with its Java name and managed target type.</summary>
+        <remarks>Null arguments cause <see cref="T:System.ArgumentNullException" />. The constructor stores the metadata but does not create a peer.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateInstance">
@@ -89,7 +89,7 @@
             This replaces the reflection-based constructor invocation used in the legacy path.
             </summary>
         <returns>A new instance of the target type wrapping the JNI handle, or null if activation is not supported.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>Derived proxies supply the activation implementation. The base class declares this method without performing constructor reflection or reference transfer itself.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetActivationPeer">
@@ -115,10 +115,10 @@
         <Parameter Name="jniSelf" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jniSelf">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSelf">The JNI handle whose existing managed peer is inspected without consuming the reference.</param>
+        <summary>Finds an existing peer marked activatable or replaceable.</summary>
+        <returns>The mapped peer when either activation flag is set; otherwise, <see langword="null" />.</returns>
+        <remarks>This method does not create or activate a managed peer.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniName">
@@ -138,8 +138,8 @@
         <summary>
             Gets the final JNI type name of the Java class this proxy represents.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The JNI name supplied to the constructor.</value>
+        <remarks>The base constructor stores the supplied name without converting it.</remarks>
       </Docs>
     </Member>
     <Member MemberName="MarkActivationPeerReplaceable">
@@ -159,9 +159,9 @@
         <Parameter Name="jniSelf" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jniSelf">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="jniSelf">The JNI handle whose mapped peer state is to be updated.</param>
+        <summary>Adds <see cref="F:Java.Interop.JniManagedPeerStates.Replaceable" /> to an existing peer's state flags.</summary>
+        <remarks>If no mapped peer exists, this method does nothing. Existing state flags are retained.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetActivationPeerReference">
@@ -182,10 +182,10 @@
         <Parameter Name="jniSelf" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="peer">To be added.</param>
-        <param name="jniSelf">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peer">The managed peer whose reference and identity hash are to be set.</param>
+        <param name="jniSelf">The JNI handle to associate with <paramref name="peer" /> without creating another JNI reference.</param>
+        <summary>Sets an activation peer's borrowed JNI handle and Java identity hash.</summary>
+        <remarks>The reference is stored with type <see cref="F:Java.Interop.JniObjectReferenceType.Invalid" />. This helper does not register the peer or create a global reference.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ShouldSkipActivation">
@@ -205,15 +205,15 @@
         <Parameter Name="jniSelf" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="jniSelf">To be added.</param>
+        <param name="jniSelf">The JNI handle whose mapped peer is inspected.</param>
         <summary>
             Returns <see langword="true" /> when the UCO constructor callback should skip
             activation because a managed peer already exists for the given JNI handle
             (e.g., when called from <c>FinishCreateInstance</c> after <c>StartCreateInstance</c>
             already registered the peer).
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns><see langword="true" /> if an existing peer has neither activation flag, or the thread is inside the <c>NewObject</c> helper; otherwise, <see langword="false" />.</returns>
+        <remarks>A peer marked <c>Activatable</c> or <c>Replaceable</c> is not by itself a reason to skip activation.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TargetType">
@@ -233,8 +233,8 @@
         <summary>
             Gets the target .NET type that this proxy represents.
             </summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The managed type supplied to the constructor.</value>
+        <remarks>This is metadata; reading it does not instantiate the target type.</remarks>
       </Docs>
     </Member>
   </Members>

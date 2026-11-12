@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Holds Java peer type metadata and cached field and method access helpers.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -47,9 +47,9 @@
         <Parameter Name="managedPeerType" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="jniPeerTypeName">To be added.</param>
-        <param name="managedPeerType">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="jniPeerTypeName">The simple JNI name of the Java peer type.</param>
+        <param name="managedPeerType">The managed peer type, which must implement <see cref="T:Java.Interop.IJavaPeerable" />.</param>
+        <summary>Creates member access information for a Java class and managed peer type.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -71,11 +71,11 @@
         <Parameter Name="isInterface" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="jniPeerTypeName">To be added.</param>
-        <param name="managedPeerType">To be added.</param>
-        <param name="isInterface">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="jniPeerTypeName">The simple JNI name of the Java peer type.</param>
+        <param name="managedPeerType">The managed peer type, which must implement <see cref="T:Java.Interop.IJavaPeerable" />.</param>
+        <param name="isInterface"><see langword="true" /> to use this member set for interface dispatch; <see langword="false" /> to use each instance's member set.</param>
+        <summary>Creates member access information with an explicit interface-dispatch policy.</summary>
+        <remarks>The type manager can replace the supplied JNI type name before it is stored. The Java class reference is obtained lazily.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -95,8 +95,8 @@
         <Parameter Name="members" Type="Java.Interop.JniPeerMembers" />
       </Parameters>
       <Docs>
-        <param name="members">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="members">The member set to dispose, or <see langword="null" /> to do nothing.</param>
+        <summary>Invokes the member set's managed disposal hook.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -119,8 +119,8 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="disposing"><see langword="true" /> to dispose an initialized Java class cache and its member helpers; <see langword="false" /> to do nothing.</param>
+        <summary>Releases initialized member caches and the cached Java type.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -143,9 +143,9 @@
         <Parameter Name="value" Type="Java.Interop.IJavaPeerable" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The managed peer whose member set can be selected.</param>
+        <summary>Selects the member set for instance dispatch.</summary>
+        <returns>This member set for interface dispatch; otherwise, <paramref name="value" />'s <c>JniPeerMembers</c>.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -165,8 +165,8 @@
         <ReturnType>Java.Interop.JniPeerMembers+JniInstanceFields</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the instance-field access helper.</summary>
+        <value>The helper created for this member set.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -186,8 +186,8 @@
         <ReturnType>Java.Interop.JniPeerMembers+JniInstanceMethods</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the instance-method access helper.</summary>
+        <value>The helper created for this member set.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -207,8 +207,8 @@
         <ReturnType>Java.Interop.JniType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the lazily resolved Java class wrapper.</summary>
+        <value>The cached class wrapper, registered for runtime cleanup.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -228,8 +228,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI peer type name after any runtime replacement.</summary>
+        <value>The simple JNI type name stored during construction.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -249,8 +249,8 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the managed peer type associated with this member set.</summary>
+        <value>The managed type supplied to the constructor.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -270,8 +270,8 @@
         <ReturnType>Java.Interop.JniPeerMembers+JniStaticFields</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the static-field access helper.</summary>
+        <value>The helper created for this member set.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -291,8 +291,8 @@
         <ReturnType>Java.Interop.JniPeerMembers+JniStaticMethods</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the static-method access helper.</summary>
+        <value>The helper created for this member set.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -323,10 +323,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <param name="declaringType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The managed peer receiving the call.</param>
+        <param name="declaringType">The requested managed declaring type, or <see langword="null" /> when no declaring type is specified.</param>
+        <summary>Determines whether an instance call should use virtual dispatch.</summary>
+        <returns><see langword="true" /> if the runtime type equals <paramref name="declaringType" />, <paramref name="declaringType" /> is <see langword="null" />, or the runtime type equals the peer member set's managed type; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

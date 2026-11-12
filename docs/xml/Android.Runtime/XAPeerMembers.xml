@@ -22,7 +22,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides JNI peer member access with legacy threshold handling.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -43,9 +43,9 @@
         <Parameter Name="managedPeerType" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="jniPeerTypeName">To be added.</param>
-        <param name="managedPeerType">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="jniPeerTypeName">The JNI name of the Java peer type.</param>
+        <param name="managedPeerType">The managed peer type, which must implement <see cref="T:Java.Interop.IJavaPeerable" />.</param>
+        <summary>Initializes peer members for the specified Java and managed types.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -67,11 +67,11 @@
         <Parameter Name="isInterface" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="jniPeerTypeName">To be added.</param>
-        <param name="managedPeerType">To be added.</param>
-        <param name="isInterface">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="jniPeerTypeName">The JNI name of the Java peer type.</param>
+        <param name="managedPeerType">The managed peer type, which must implement <see cref="T:Java.Interop.IJavaPeerable" />.</param>
+        <param name="isInterface">Whether the base peer-member lookup treats the peer type as an interface.</param>
+        <summary>Initializes peer members for the specified Java and managed types and interface setting.</summary>
+        <remarks>When the override falls back to the base peer-member lookup, <paramref name="isInterface" /> selects this peer-members instance if <see langword="true" />; otherwise, it selects the peer's own members.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetPeerMembers">
@@ -91,9 +91,9 @@
         <Parameter Name="value" Type="Java.Interop.IJavaPeerable" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The Java peer whose members are requested.</param>
+        <summary>Gets peer members for a Java peer, using its legacy threshold type when necessary.</summary>
+        <returns>The base lookup result if there is no threshold type or it matches the peer's managed peer type; otherwise, peer members cached for the threshold class.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -124,10 +124,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <param name="declaringType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The Java peer to inspect.</param>
+        <param name="declaringType">The declaring type used by the base dispatch test when no threshold type is available, or <see langword="null" />.</param>
+        <summary>Determines whether to use virtual dispatch for a Java peer.</summary>
+        <returns>If a threshold type exists, <see langword="true" /> when it equals the managed type of <paramref name="value" />; otherwise, the result of the base dispatch test.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
