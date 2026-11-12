@@ -21,7 +21,7 @@ status does not start work.
 | Workers | One isolated worker per issue; up to 12 concurrent |
 | Reviews | `gemini-4-argon`, then Copilot, then `dalexsoto` |
 | Human ping | Post exactly `@dalexsoto review` and formally request review |
-| PRs | Open complete-issue PRs; enable native protected squash auto-merge |
+| PRs | Open complete-issue PRs; set native protected squash auto-merge immediately after opening |
 | Finish | Verify merge and issue closure, then archive each finished worker |
 | Limits | Fixed batch unless a timed campaign is requested; no schedules or Agent merge |
 
@@ -122,14 +122,7 @@ relevant comments, including `EYES` and the reacting identity. A reaction is
 not approval; no written review does not mean no acknowledgement. Use submitted
 review evidence to report approval.
 
-When authorized, enable native protected auto-merge with an allowed method
-(squash if recorded), after the required human request and ping. If live branch
-protection does not enforce the required human review, wait for that reviewer's
-submitted approval of the current head before enabling it.
-Guard the write with the exact expected head SHA, then
-verify `MERGED` or `OPEN` with `autoMergeRequest` enabled. Report failures.
-Do not use admin merges, bypasses, protection changes, force pushes or
-self-approval.
+Set native protected squash auto-merge immediately after opening each campaign PR.
 
 ## 4. Handle conflicts and failures
 
