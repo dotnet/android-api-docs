@@ -21874,7 +21874,8 @@ static partial class ImporterProgram
                     var applied = Run(type, name, true);
                     Assert(applied.GetProperty("appliedCount").GetInt32() == 1 &&
                         Member(XElement.Load(PathFor(type)), name).Element("Docs")!
-                            .Element("summary")!.Value.Contains("Implementation detail.", StringComparison.Ordinal),
+                            .Element("summary")!.Value.Contains(native.EndsWith("_JUMBO", StringComparison.Ordinal)
+                                ? "Never implemented; do not use." : "Implementation detail.", StringComparison.Ordinal),
                         "Dalvik imports the exact declared field prose: " + type + "." + name);
                     var persisted = File.ReadAllBytes(PathFor(type));
                     var repeated = Run(type, name, true);
@@ -21952,6 +21953,10 @@ static partial class ImporterProgram
                 }
                 Write(type, "OpAddDouble");
                 Reject(type, "OpAddDouble", "unlisted field with no reference prose");
+                Write(type, "OpConstClassJumbo", (_, member) =>
+                    member.Element("Attributes")!.Descendants("AttributeName").First().Value =
+                        "[Android.Runtime.Register(\"OP_CONST_METHOD_TYPE\")]");
+                Reject(type, "OpConstClassJumbo", "different JNI field with the same numeric value");
                 Write(type, target, (_, member) =>
                     member.Element("Docs")!.Element("remarks")!.Value = "To be added.");
                 Assert(Run(type, target, true).GetProperty("appliedCount").GetInt32() == 1 &&
@@ -33859,6 +33864,45 @@ static partial class ImporterProgram
                 ["OpInvokeVirtualQuickRange"] = ("OP_INVOKE_VIRTUAL_QUICK_RANGE", 249),
                 ["OpInvokeSuperQuick"] = ("OP_INVOKE_SUPER_QUICK", 250),
                 ["OpInvokeSuperQuickRange"] = ("OP_INVOKE_SUPER_QUICK_RANGE", 251),
+                ["OpCheckCastJumbo"] = ("OP_CHECK_CAST_JUMBO", 511),
+                ["OpConstClassJumbo"] = ("OP_CONST_CLASS_JUMBO", 255),
+                ["OpFilledNewArrayJumbo"] = ("OP_FILLED_NEW_ARRAY_JUMBO", 1535),
+                ["OpIgetBooleanJumbo"] = ("OP_IGET_BOOLEAN_JUMBO", 2559),
+                ["OpIgetByteJumbo"] = ("OP_IGET_BYTE_JUMBO", 2815),
+                ["OpIgetCharJumbo"] = ("OP_IGET_CHAR_JUMBO", 3071),
+                ["OpIgetJumbo"] = ("OP_IGET_JUMBO", 1791),
+                ["OpIgetObjectJumbo"] = ("OP_IGET_OBJECT_JUMBO", 2303),
+                ["OpIgetShortJumbo"] = ("OP_IGET_SHORT_JUMBO", 3327),
+                ["OpIgetWideJumbo"] = ("OP_IGET_WIDE_JUMBO", 2047),
+                ["OpInstanceOfJumbo"] = ("OP_INSTANCE_OF_JUMBO", 767),
+                ["OpInvokeDirectJumbo"] = ("OP_INVOKE_DIRECT_JUMBO", 9471),
+                ["OpInvokeInterfaceJumbo"] = ("OP_INVOKE_INTERFACE_JUMBO", 9983),
+                ["OpInvokeStaticJumbo"] = ("OP_INVOKE_STATIC_JUMBO", 9727),
+                ["OpInvokeSuperJumbo"] = ("OP_INVOKE_SUPER_JUMBO", 9215),
+                ["OpInvokeVirtualJumbo"] = ("OP_INVOKE_VIRTUAL_JUMBO", 8959),
+                ["OpIputBooleanJumbo"] = ("OP_IPUT_BOOLEAN_JUMBO", 4351),
+                ["OpIputByteJumbo"] = ("OP_IPUT_BYTE_JUMBO", 4607),
+                ["OpIputCharJumbo"] = ("OP_IPUT_CHAR_JUMBO", 4863),
+                ["OpIputJumbo"] = ("OP_IPUT_JUMBO", 3583),
+                ["OpIputObjectJumbo"] = ("OP_IPUT_OBJECT_JUMBO", 4095),
+                ["OpIputShortJumbo"] = ("OP_IPUT_SHORT_JUMBO", 5119),
+                ["OpIputWideJumbo"] = ("OP_IPUT_WIDE_JUMBO", 3839),
+                ["OpNewArrayJumbo"] = ("OP_NEW_ARRAY_JUMBO", 1279),
+                ["OpNewInstanceJumbo"] = ("OP_NEW_INSTANCE_JUMBO", 1023),
+                ["OpSgetBooleanJumbo"] = ("OP_SGET_BOOLEAN_JUMBO", 6143),
+                ["OpSgetByteJumbo"] = ("OP_SGET_BYTE_JUMBO", 6399),
+                ["OpSgetCharJumbo"] = ("OP_SGET_CHAR_JUMBO", 6655),
+                ["OpSgetJumbo"] = ("OP_SGET_JUMBO", 5375),
+                ["OpSgetObjectJumbo"] = ("OP_SGET_OBJECT_JUMBO", 5887),
+                ["OpSgetShortJumbo"] = ("OP_SGET_SHORT_JUMBO", 6911),
+                ["OpSgetWideJumbo"] = ("OP_SGET_WIDE_JUMBO", 5631),
+                ["OpSputBooleanJumbo"] = ("OP_SPUT_BOOLEAN_JUMBO", 7935),
+                ["OpSputByteJumbo"] = ("OP_SPUT_BYTE_JUMBO", 8191),
+                ["OpSputCharJumbo"] = ("OP_SPUT_CHAR_JUMBO", 8447),
+                ["OpSputJumbo"] = ("OP_SPUT_JUMBO", 7167),
+                ["OpSputObjectJumbo"] = ("OP_SPUT_OBJECT_JUMBO", 7679),
+                ["OpSputShortJumbo"] = ("OP_SPUT_SHORT_JUMBO", 8703),
+                ["OpSputWideJumbo"] = ("OP_SPUT_WIDE_JUMBO", 7423),
             };
         readonly XElement root;
         readonly XElement sibling;

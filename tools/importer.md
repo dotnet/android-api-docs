@@ -881,8 +881,8 @@ Changed or removed defective source text does not enable these exclusions.
 
 The exact `Dalvik.Bytecode.IOpcodes` constant-only interface and its obsolete
 `Opcodes` compatibility class can use the native `dalvik.bytecode.Opcodes`
-reference for their type descriptions and nineteen deprecated implementation
-detail fields. The pinned
+reference for their type descriptions, nineteen deprecated implementation
+detail fields and thirty-nine never-implemented jumbo fields. The pinned
 [interface generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundInterface.cs)
 omits registration on constant-only interfaces; its
 [compatibility-class generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/InterfaceMemberAlternativeClass.cs)
@@ -891,7 +891,10 @@ managed owner, assembly and type signatures. Each listed field must match both
 siblings' JNI names, managed signatures, DocIds, integer return types and pinned
 [native values](https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/dalvik/src/main/java/dalvik/bytecode/Opcodes.java).
 The official page must declare the exact interface and field with that value.
-Other constants, missing prose and empty channels are not filled. Native hashed
+The jumbo mappings do not include the implemented `OP_CONST_STRING_JUMBO` or
+confuse `OP_CONST_CLASS_JUMBO` with the distinct `OP_CONST_METHOD_TYPE` field
+that has the same numeric value. Other constants, missing prose and empty
+channels are not filled. Native hashed
 fixtures and offline production tests cover both projections, changed bindings
 and sources, authored documentation, bounded writes, byte preservation and
 persisted zero-write repeats.
