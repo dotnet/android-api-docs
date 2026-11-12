@@ -122,7 +122,7 @@
       <Parameters />
       <Docs>
         <summary>Builds an instance of <c>KeyGenParameterSpec</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>A new key-generation specification with this builder's settings.</returns>
         <remarks>
           <para>Builds an instance of <c>KeyGenParameterSpec</c>.</para>
           <para>
@@ -202,9 +202,9 @@
         <Parameter Name="spec" Type="Java.Security.Spec.IAlgorithmParameterSpec" />
       </Parameters>
       <Docs>
-        <param name="spec">To be added.</param>
+        <param name="spec">The algorithm-specific settings for the new key.</param>
         <summary>Sets the algorithm-specific key generation parameters.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the algorithm-specific key generation parameters. For example, for RSA keys this may be an instance of RSAKeyGenParameterSpec whereas for EC keys this may be an instance of ECGenParameterSpec.</para>
           <para>These key generation parameters must match other explicitly set parameters (if any), such as key size.</para>
@@ -247,9 +247,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="attestationChallenge">To be added.</param>
+        <param name="attestationChallenge">The challenge bytes for key attestation, or <see langword="null" /> if attestation is not requested.</param>
         <summary>Sets whether an attestation certificate will be generated for this key pair, and what challenge value will be placed in the certificate.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets whether an attestation certificate will be generated for this key pair, and what challenge value will be placed in the certificate. The attestation certificate chain can be retrieved with java.security.KeyStore.getCertificateChain(String).</para>
           <para>If attestationChallenge is not null, the public key certificate for this key pair will contain an extension that describes the details of the key's configuration and authorizations, including the attestationChallenge value. If the key is in secure hardware, and if the secure hardware supports attestation, the certificate will be signed by a chain of certificates rooted at a trustworthy CA key. Otherwise the chain will be rooted at an untrusted certificate.</para>
@@ -298,7 +298,7 @@
       <Docs>
         <param name="attestKeyAlias">the alias of the attestation key to be used to sign the attestation certificate. This value may be null.</param>
         <summary>Sets the alias of the attestation key that will be used to sign the attestation certificate for the generated key pair, if an attestation challenge is set with setAttestationChallenge(byte[]).</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the alias of the attestation key that will be used to sign the attestation certificate for the generated key pair, if an attestation challenge is set with setAttestationChallenge(byte[]). If an attestKeyAlias is set but no challenge, parameter-specification-based initialization will throw InvalidAlgorithmParameterException.</para>
           <para>If the attestKeyAlias is set to null (the default), Android Keystore will select an appropriate system-provided attestation signing key. If not null, the alias must reference an Android Keystore key that was created with KeyProperties.PURPOSE_ATTEST_KEY, or parameter-specification-based initialization will throw InvalidAlgorithmParameterException.</para>
@@ -347,7 +347,7 @@
       <Docs>
         <param name="blockModes">Value is one of the following: KeyProperties.BLOCK_MODE_ECB; KeyProperties.BLOCK_MODE_CBC; KeyProperties.BLOCK_MODE_CTR; KeyProperties.BLOCK_MODE_GCM</param>
         <summary>Sets the set of block modes (e.g., GCM, CBC) with which the key can be used when encrypting/decrypting.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the set of block modes (e.g., GCM, CBC) with which the key can be used when encrypting/decrypting. Attempts to use the key with any other block modes will be rejected.</para>
           <para>This must be specified for symmetric encryption/decryption keys.</para>
@@ -384,9 +384,9 @@
         <Parameter Name="date" Type="Java.Util.Date" />
       </Parameters>
       <Docs>
-        <param name="date">To be added.</param>
+        <param name="date">The end of the certificate's validity period.</param>
         <summary>Sets the end of the validity period for the certificate of the generated key pair.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the end of the validity period for the certificate of the generated key pair.</para>
           <para>By default, this date is Jan 1 2048.</para>
@@ -422,9 +422,9 @@
         <Parameter Name="date" Type="Java.Util.Date" />
       </Parameters>
       <Docs>
-        <param name="date">To be added.</param>
+        <param name="date">The start of the certificate's validity period.</param>
         <summary>Sets the start of the validity period for the certificate of the generated key pair.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the start of the validity period for the certificate of the generated key pair.</para>
           <para>By default, this date is Jan 1 1970.</para>
@@ -460,9 +460,9 @@
         <Parameter Name="serialNumber" Type="Java.Math.BigInteger" />
       </Parameters>
       <Docs>
-        <param name="serialNumber">To be added.</param>
+        <param name="serialNumber">The serial number for the key pair's certificate.</param>
         <summary>Sets the serial number used for the certificate of the generated key pair.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the serial number used for the certificate of the generated key pair. To ensure compatibility with devices and certificate parsers, the value should be 20 bytes or shorter (see RFC 5280 section 4.1.2.2).</para>
           <para>By default, the serial number is 1.</para>
@@ -498,9 +498,9 @@
         <Parameter Name="subject" Type="Javax.Security.Auth.X500.X500Principal" />
       </Parameters>
       <Docs>
-        <param name="subject">To be added.</param>
+        <param name="subject">The subject distinguished name for the key pair's certificate.</param>
         <summary>Sets the subject used for the certificate of the generated key pair.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the subject used for the certificate of the generated key pair.</para>
           <para>By default, the subject is CN=fake.</para>
@@ -536,9 +536,9 @@
         <Parameter Name="devicePropertiesAttestationIncluded" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="devicePropertiesAttestationIncluded">To be added.</param>
+        <param name="devicePropertiesAttestationIncluded"><see langword="true" /> to request base device properties in the attestation certificate; otherwise, <see langword="false" />.</param>
         <summary>Sets whether to include the base device properties in the attestation certificate.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets whether to include the base device properties in the attestation certificate.</para>
           <para>If attestationChallenge is not null, the public key certificate for this key pair will contain an extension that describes the details of the key's configuration and authorizations, including the device properties values (brand, device, manufacturer, model, product). These should be the same as in (Build.BRAND, Build.DEVICE, Build.MANUFACTURER, Build.MODEL, Build.PRODUCT). The attestation certificate chain can be retrieved with java.security.KeyStore.getCertificateChain(String).</para>
@@ -589,7 +589,7 @@
       <Docs>
         <param name="digests">Value is one of the following: KeyProperties.DIGEST_NONE; KeyProperties.DIGEST_MD5; KeyProperties.DIGEST_SHA1; KeyProperties.DIGEST_SHA224; KeyProperties.DIGEST_SHA256; KeyProperties.DIGEST_SHA384; KeyProperties.DIGEST_SHA512</param>
         <summary>Sets the set of digest algorithms (e.g., SHA-256, SHA-384) with which the key can be used.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the set of digest algorithms (e.g., SHA-256, SHA-384) with which the key can be used. Attempts to use the key with any other digest algorithm will be rejected.</para>
           <para>Digests must be specified for: RSA and EC signing/verification keys; RSA encryption/decryption keys used with the RSA OAEP padding scheme</para>
@@ -642,7 +642,7 @@
       <Docs>
         <param name="paddings">Value is one of the following: KeyProperties.ENCRYPTION_PADDING_NONE; KeyProperties.ENCRYPTION_PADDING_PKCS7; KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1; KeyProperties.ENCRYPTION_PADDING_RSA_OAEP</param>
         <summary>Sets the set of padding schemes (e.g., PKCS7Padding, OAEPPadding, PKCS1Padding, NoPadding) with which the key can be used when encrypting/decrypting.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the set of padding schemes (e.g., PKCS7Padding, OAEPPadding, PKCS1Padding, NoPadding) with which the key can be used when encrypting/decrypting. Attempts to use the key with any other padding scheme will be rejected.</para>
           <para>This must be specified for keys which are used for encryption/decryption.</para>
@@ -680,9 +680,9 @@
         <Parameter Name="invalidateKey" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="invalidateKey">To be added.</param>
+        <param name="invalidateKey"><see langword="true" /> to enable invalidation when a new biometric is enrolled or all biometrics are removed; otherwise, <see langword="false" />.</param>
         <summary>Sets whether this key should be invalidated on biometric enrollment.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets whether this key should be invalidated on biometric enrollment. This applies only to keys which require user authentication (see setUserAuthenticationRequired(boolean)) and if no positive validity duration has been set (see setUserAuthenticationValidityDurationSeconds(int)), meaning the key is valid for biometric authentication only.</para>
           <para>By default, invalidateKey is true, so keys that are valid for biometric authentication only are irreversibly invalidated when a new biometric is enrolled, or when all existing biometrics are deleted. That may be changed by calling this method with invalidateKey set to false.</para>
@@ -719,9 +719,9 @@
         <Parameter Name="isStrongBoxBacked" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isStrongBoxBacked">To be added.</param>
+        <param name="isStrongBoxBacked"><see langword="true" /> to request StrongBox-backed key storage; otherwise, <see langword="false" />.</param>
         <summary>Sets whether this key should be protected by a StrongBox security chip.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets whether this key should be protected by a StrongBox security chip.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyGenParameterSpec.Builder#setIsStrongBoxBacked(boolean)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyGenParameterSpec.Builder.setIsStrongBoxBacked</code>.</a></format></para>
@@ -756,9 +756,9 @@
         <Parameter Name="keySize" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="keySize">To be added.</param>
+        <param name="keySize">The size of the new key, in bits.</param>
         <summary>Sets the size (in bits) of the key to be generated.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the size (in bits) of the key to be generated. For instance, for RSA keys this sets the modulus size, for EC keys this selects a curve with a matching field size, and for symmetric keys this sets the size of the bitstring which is their key material. For ML-DSA keys, the key size is ignored.</para>
           <para>The default key size is specific to each key algorithm. If key size is not set via this method, it should be looked up from the algorithm-specific parameters (if any) provided via setAlgorithmParameterSpec.</para>
@@ -801,9 +801,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="endDate">To be added.</param>
+        <param name="endDate">The end of the key's validity period, or <see langword="null" /> for no end-date restriction.</param>
         <summary>Sets the time instant after which the key is no longer valid.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the time instant after which the key is no longer valid.</para>
           <para>By default, the key is valid at any instant.</para>
@@ -846,9 +846,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="endDate">To be added.</param>
+        <param name="endDate">The end date for decryption and verification, or <see langword="null" /> for no end-date restriction.</param>
         <summary>Sets the time instant after which the key is no longer valid for decryption and verification.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the time instant after which the key is no longer valid for decryption and verification.</para>
           <para>By default, the key is valid at any instant.</para>
@@ -891,9 +891,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="endDate">To be added.</param>
+        <param name="endDate">The end date for encryption and signing, or <see langword="null" /> for no end-date restriction.</param>
         <summary>Sets the time instant after which the key is no longer valid for encryption and signing.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the time instant after which the key is no longer valid for encryption and signing.</para>
           <para>By default, the key is valid at any instant.</para>
@@ -936,9 +936,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="startDate">To be added.</param>
+        <param name="startDate">The start of the key's validity period, or <see langword="null" /> for no start-date restriction.</param>
         <summary>Sets the time instant before which the key is not yet valid.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the time instant before which the key is not yet valid.</para>
           <para>By default, the key is valid at any instant.</para>
@@ -976,7 +976,7 @@
       <Docs>
         <param name="maxUsageCount">maximum number of times the key is allowed to be used or KeyProperties.UNRESTRICTED_USAGE_COUNT if there is no restriction on the usage.</param>
         <summary>Sets the maximum number of times the key is allowed to be used.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the maximum number of times the key is allowed to be used. After every use of the key, the use counter will decrease. This authorization applies only to secret key and private key operations. Public key operations are not restricted. For example, after successfully encrypting and decrypting data using methods such as Cipher.doFinal(), the use counter of the secret key will decrease. After successfully signing data using methods such as Signature.sign(), the use counter of the private key will decrease. When the use counter is depleted, the key will be marked for deletion by Android Keystore and any subsequent attempt to use the key will throw KeyPermanentlyInvalidatedException. There is no key to be loaded from the Android Keystore once the exhausted key is permanently deleted, as if the key never existed before.</para>
           <para>By default, there is no restriction on the usage of key.</para>
@@ -1023,7 +1023,7 @@
       <Docs>
         <param name="mgf1Digests">This value cannot be null. Value is one of the following: KeyProperties.DIGEST_NONE; KeyProperties.DIGEST_MD5; KeyProperties.DIGEST_SHA1; KeyProperties.DIGEST_SHA224; KeyProperties.DIGEST_SHA256; KeyProperties.DIGEST_SHA384; KeyProperties.DIGEST_SHA512</param>
         <summary>Sets the set of hash functions (e.g., SHA-256, SHA-384) which could be used by the mask generation function MGF1 (which is used for certain operations with the key).</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the set of hash functions (e.g., SHA-256, SHA-384) which could be used by the mask generation function MGF1 (which is used for certain operations with the key). Attempts to use the key with any other digest for the mask generation function will be rejected.</para>
           <para>This can only be specified for signing/verification keys and RSA encryption/decryption keys used with RSA OAEP padding scheme because these operations involve a mask generation function (MGF1) with a digest. The default digest for MGF1 is SHA-1, which will be specified during key creation time if no digests have been explicitly provided. null may not be specified as a parameter to this method: It is not possible to disable MGF1 digest, a default must be present for when the caller tries to use it.</para>
@@ -1061,9 +1061,9 @@
         <Parameter Name="required" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="required">To be added.</param>
+        <param name="required"><see langword="true" /> to require randomized encryption; otherwise, <see langword="false" />.</param>
         <summary>Sets whether encryption using this key must be sufficiently randomized to produce different ciphertexts for the same plaintext every time.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets whether encryption using this key must be sufficiently randomized to produce different ciphertexts for the same plaintext every time. The formal cryptographic property being required is indistinguishability under chosen-plaintext attack (IND-CPA). This property is important because it mitigates several classes of weaknesses due to which ciphertext may leak information about plaintext. For example, if a given plaintext always produces the same ciphertext, an attacker may see the repeated ciphertexts and be able to deduce something about the plaintext.</para>
           <para>By default, IND-CPA is required.</para>
@@ -1114,7 +1114,7 @@
       <Docs>
         <param name="paddings">Value is one of the following: KeyProperties.SIGNATURE_PADDING_RSA_PKCS1; KeyProperties.SIGNATURE_PADDING_RSA_PSS</param>
         <summary>Sets the set of padding schemes (e.g., PSS, PKCS#1) with which the key can be used when signing/verifying.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the set of padding schemes (e.g., PSS, PKCS#1) with which the key can be used when signing/verifying. Attempts to use the key with any other padding scheme will be rejected.</para>
           <para>This must be specified for RSA keys which are used for signing/verification.</para>
@@ -1151,9 +1151,9 @@
         <Parameter Name="unlockedDeviceRequired" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="unlockedDeviceRequired">To be added.</param>
+        <param name="unlockedDeviceRequired"><see langword="true" /> to require the device to be unlocked for key use; otherwise, <see langword="false" />.</param>
         <summary>Sets whether this key is authorized to be used only while the device is unlocked.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets whether this key is authorized to be used only while the device is unlocked.</para>
           <para>The device is considered to be locked for a user when the user's apps are currently inaccessible and some form of lock screen authentication is required to regain access to them. For the full definition, see KeyguardManager.isDeviceLocked().</para>
@@ -1197,7 +1197,7 @@
         <param name="timeout">duration in seconds or 0 if user authentication must take place for every use of the key. Value is 0 or greater</param>
         <param name="type">set of authentication types which can authorize use of the key. See KeyProperties.AUTH flags. Value is either 0 or a combination of the following: KeyProperties.AUTH_BIOMETRIC_STRONG; KeyProperties.AUTH_DEVICE_CREDENTIAL</param>
         <summary>Sets the duration of time (seconds) and authorization type for which this key is authorized to be used after the user is successfully authenticated.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the duration of time (seconds) and authorization type for which this key is authorized to be used after the user is successfully authenticated. This has effect if the key requires user authentication for its use (see setUserAuthenticationRequired(boolean)).</para>
           <para>By default, if user authentication is required, it must take place for every use of the key.</para>
@@ -1235,9 +1235,9 @@
         <Parameter Name="required" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="required">To be added.</param>
+        <param name="required"><see langword="true" /> to require user authentication for secret-key and private-key operations; otherwise, <see langword="false" />.</param>
         <summary>Sets whether this key is authorized to be used only if the user has been authenticated.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets whether this key is authorized to be used only if the user has been authenticated.</para>
           <para>By default, the key is authorized to be used regardless of whether the user has been authenticated.</para>
@@ -1282,7 +1282,7 @@
       <Docs>
         <param name="seconds">duration in seconds or -1 if user authentication must take place for every use of the key. Value is -1 or greater</param>
         <summary>Sets the duration of time (seconds) for which this key is authorized to be used after the user is successfully authenticated.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>This method was deprecated in API level 30. See setUserAuthenticationParameters(int, int)</para>
           <para>Sets the duration of time (seconds) for which this key is authorized to be used after the user is successfully authenticated. This has effect if the key requires user authentication for its use (see setUserAuthenticationRequired(boolean)).</para>
@@ -1323,7 +1323,7 @@
       <Docs>
         <param name="remainsValid">if true, and if the device supports enforcement of this parameter, the key will be invalidated when the device is removed from the user's body or when the authentication validity expires, whichever occurs first.</param>
         <summary>Sets whether the key will remain authorized only until the device is removed from the user's body up to the limit of the authentication validity period (see setUserAuthenticationValidityDurationSeconds(int) and setUserAuthenticationRequired(boolean)).</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets whether the key will remain authorized only until the device is removed from the user's body up to the limit of the authentication validity period (see setUserAuthenticationValidityDurationSeconds(int) and setUserAuthenticationRequired(boolean)). Once the device has been removed from the user's body, the key will be considered unauthorized and the user will need to re-authenticate to use it. If the device does not have an on-body sensor or the key does not have an authentication validity period, this parameter has no effect.</para>
           <para>Since Android 12 (API level 31), this parameter has no effect even on devices that have an on-body sensor. A future version of Android may restore enforcement of this parameter. Meanwhile, it is recommended to not use it.</para>
@@ -1359,9 +1359,9 @@
         <Parameter Name="required" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="required">To be added.</param>
+        <param name="required"><see langword="true" /> to require user confirmation of messages for secret-key and private-key operations; otherwise, <see langword="false" />.</param>
         <summary>Sets whether this key is authorized to be used only for messages confirmed by the user.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets whether this key is authorized to be used only for messages confirmed by the user. Confirmation is separate from user authentication (see setUserAuthenticationRequired(boolean)). Keys can be created that require confirmation but not user authentication, or user authentication but not confirmation, or both. Confirmation verifies that some user with physical possession of the device has approved a displayed message. User authentication verifies that the correct user is present and has authenticated.</para>
           <para>This authorization applies only to secret key and private key operations. Public key operations are not restricted. See ConfirmationPrompt class for more details about user confirmations.</para>
@@ -1397,9 +1397,9 @@
         <Parameter Name="required" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="required">To be added.</param>
+        <param name="required"><see langword="true" /> to require a test of user presence for signing; otherwise, <see langword="false" />.</param>
         <summary>Sets whether a test of user presence is required to be performed between the Signature.initSign() and Signature.sign() method calls.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets whether a test of user presence is required to be performed between the Signature.initSign() and Signature.sign() method calls. It requires that the KeyStore implementation have a direct way to validate user presence; for example, a hardware-backed StrongBox can use a button press that is observable in hardware. A test for user presence is tangential to authentication. The test can be part of an authentication step as long as it can be validated by the hardware protecting the key and cannot be spoofed. For example, a physical button press can be used as a test of user presence only if the other pins connected to the button cannot simulate a button press. There must be no way for the primary processor to fake a button press, or that button must not be used as a test of user presence.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/security/keystore/KeyGenParameterSpec.Builder#setUserPresenceRequired(boolean)" title="Reference documentation">Android reference for <code>android.security.keystore.KeyGenParameterSpec.Builder.setUserPresenceRequired</code>.</a></format></para>
