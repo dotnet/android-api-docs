@@ -71,8 +71,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates a builder with no output data assigned.</summary>
+        <remarks>The data output map and the data array are empty until you set them. See the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/OnDevicePersonalization/+/cc93f1e4164d0a4bb76dd277abc221f4eaf32efb/framework/java/android/adservices/ondevicepersonalization/InferenceOutput.java#L166">builder</a></format>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AddDataOutput">
@@ -107,11 +107,11 @@
         <Parameter Name="value" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The index of the model output.</param>
+        <param name="value">The output value for the index.</param>
+        <summary>Adds an output value for a model output index.</summary>
+        <returns>This builder, with the output value added.</returns>
+        <remarks>If no output map is assigned, this method creates one before it adds the value. See the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/OnDevicePersonalization/+/cc93f1e4164d0a4bb76dd277abc221f4eaf32efb/framework/java/android/adservices/ondevicepersonalization/InferenceOutput.java#L188">Android source</a></format>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -144,7 +144,7 @@
       <Parameters />
       <Docs>
         <summary>Builds the instance.</summary>
-        <returns>To be added.</returns>
+        <returns>A new inference output with this builder's settings.</returns>
         <remarks>
           <para>Builds the instance. This builder should not be touched after calling this!</para>
           <para>
@@ -222,11 +222,13 @@
         <Parameter Name="value" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
+        <param name="value">The serialized output data.</param>
         <summary>A byte array that holds input data.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the output data assigned.</returns>
         <remarks>
           <para>A byte array that holds input data. The inputs should be in the same order as inputs of the model.</para>
+          <para>For LiteRT, this field is a serialized Map that is mapped to outputs of runForMultipleInputsOutputs: https://www.tensorflow.org/lite/api_docs/java/org/tensorflow/lite/InterpreterApi#parameters_9</para>
+          <para>For ExecuTorch model, this field is a serialized EValue array.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/InferenceOutput.Builder#setData(byte[])" title="Reference documentation">Android reference for <code>android.adservices.ondevicepersonalization.InferenceOutput.Builder.setData</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -263,11 +265,13 @@
         <Parameter Name="value" Type="System.Collections.Generic.IDictionary&lt;Java.Lang.Integer,Java.Lang.Object&gt;" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
+        <param name="value">A map from model output index to output value.</param>
         <summary>Note: use InferenceOutput.Builder.setData(byte[]) instead.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder, with the output map assigned.</returns>
         <remarks>
           <para>Note: use InferenceOutput.Builder.setData(byte[]) instead.</para>
+          <para>A map mapping output indices to multidimensional arrays of output.</para>
+          <para>For TFLite, this field is mapped to outputs of runForMultipleInputsOutputs: https://www.tensorflow.org/lite/api_docs/java/org/tensorflow/lite/InterpreterApi#parameters_9</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/InferenceOutput.Builder#setDataOutputs(java.util.Map&lt;java.lang.Integer,java.lang.Object&gt;)" title="Reference documentation">Android reference for <code>android.adservices.ondevicepersonalization.InferenceOutput.Builder.setDataOutputs</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
