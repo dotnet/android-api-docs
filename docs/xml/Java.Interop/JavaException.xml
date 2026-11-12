@@ -108,9 +108,9 @@
         <Parameter Name="transfer" Type="Java.Interop.JniObjectReferenceOptions" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="reference">The source JNI peer reference.</param>
+        <param name="transfer">Reference-transfer and peer-registration options passed to the runtime.</param>
+        <summary>Reads the Java throwable details and initializes a managed exception peer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -137,9 +137,9 @@
         <Parameter Name="innerException" Type="System.Exception" />
       </Parameters>
       <Docs>
-        <param name="message">To be added.</param>
-        <param name="innerException">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="message">The message stored in the managed exception and passed to the Java throwable constructor.</param>
+        <param name="innerException">The managed inner exception. This overload does not pass it as the Java throwable cause.</param>
+        <summary>Creates a Java throwable with a message and retains a separate managed inner exception.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -161,11 +161,11 @@
         <Parameter Name="throwableOverride" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <param name="throwableOverride">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="reference">The reference used to construct this managed peer.</param>
+        <param name="transfer">Reference-transfer and peer-registration options for <paramref name="reference" />.</param>
+        <param name="throwableOverride">The throwable used to read the message and cause; a valid override also supplies the Java stack trace.</param>
+        <summary>Constructs a peer while reading exception details from an alternate throwable.</summary>
+        <remarks>The override supplies message and cause independently of the peer reference. If it is invalid, stack-trace capture falls back to this peer's reference.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Construct">
@@ -186,9 +186,9 @@
         <Parameter Name="options" Type="Java.Interop.JniObjectReferenceOptions" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="reference">The source JNI peer reference.</param>
+        <param name="options">Reference-transfer and peer-registration options passed to the runtime.</param>
+        <summary>Delegates construction of this peer to the runtime's value manager.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -212,7 +212,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Delegates peer disposal to the runtime's value manager.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -235,8 +235,8 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="disposing"><see langword="true" /> for the explicit-disposal callback; <see langword="false" /> for the finalization callback.</param>
+        <summary>Disposes the inner exception when it is also a <see cref="T:Java.Interop.JavaException" />.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -260,7 +260,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Asks the value manager to dispose this peer unless its mapping retains this same managed instance.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -283,9 +283,9 @@
         <Parameter Name="obj" Type="System.Object" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="obj">The object whose Java peer is to be compared with this instance.</param>
+        <summary>Tests whether another managed peer refers to the same Java object.</summary>
+        <returns><see langword="true" /> if <paramref name="obj" /> is this instance or an <see cref="T:Java.Interop.IJavaPeerable" /> for the same Java object; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -306,7 +306,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Passes this peer to the runtime's finalization policy.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -356,7 +356,7 @@
         <ReturnType>Java.Interop.JniObjectReference*</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>A null pointer sentinel used only with <see cref="F:Java.Interop.JniObjectReferenceOptions.None" /> to defer peer initialization.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -380,7 +380,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Marks this peer as disposed and calls <c>Dispose</c> with <c>disposing</c> set to <see langword="true" />.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -404,7 +404,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Marks this peer as disposed and calls <c>Dispose</c> with <c>disposing</c> set to <see langword="false" />.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -427,9 +427,9 @@
         <ReturnType>System.IntPtr</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the native control-block pointer used by this peer.</summary>
+        <value>The current control-block address, or <see cref="F:System.IntPtr.Zero" /> if no control block is allocated.</value>
+        <remarks>This pointer is runtime state, not a new JNI reference or a transfer of control-block ownership.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.SetJniIdentityHashCode">
@@ -452,8 +452,8 @@
         <Parameter Name="value" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="value">The identity hash code to store.</param>
+        <summary>Stores the identity hash code supplied by the runtime.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -479,8 +479,8 @@
         <Parameter Name="value" Type="Java.Interop.JniManagedPeerStates" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="value">The state flags to store.</param>
+        <summary>Replaces the stored managed peer state flags.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -506,8 +506,8 @@
         <Parameter Name="reference" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="reference">The reference value to store without creating another JNI reference.</param>
+        <summary>Updates the peer reference and releases a disposed peer's control block when the reference is invalid.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -527,8 +527,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the Java stack trace captured from the throwable.</summary>
+        <value>The captured Java stack trace text, or <see langword="null" /> before a Java trace has been captured.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -571,8 +571,8 @@
         <ReturnType>Java.Interop.JniManagedPeerStates</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the state flags last assigned by the runtime.</summary>
+        <value>The stored managed peer state flags, including disposal state when set by a callback.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -605,8 +605,8 @@
         <ReturnType>Java.Interop.JniPeerMembers</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the member-access information for this managed Java peer.</summary>
+        <value>The base Throwable member information, or the information supplied by an override.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -629,8 +629,8 @@
         <ReturnType>Java.Interop.JniObjectReference</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI reference currently stored in the peer control block.</summary>
+        <value>The stored handle and reference type, or a default reference when no control block exists.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -653,9 +653,9 @@
         <Parameter Name="peerReferenceOverride" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="peerReferenceOverride">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peerReferenceOverride">The throwable to inspect, or an invalid reference to use this peer's reference.</param>
+        <summary>Refreshes the captured Java stack trace from a throwable.</summary>
+        <remarks>If neither reference is valid, the existing <c>JavaStackTrace</c> value is left unchanged.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPeerReference">
@@ -676,9 +676,9 @@
         <Parameter Name="options" Type="Java.Interop.JniObjectReferenceOptions" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="reference">The reference whose handle and type are stored directly.</param>
+        <param name="options">Options controlling source disposal. <see cref="F:Java.Interop.JniObjectReferenceOptions.None" /> stores an invalid peer reference instead.</param>
+        <summary>Stores a reference value in the control block without creating a JNI reference copy.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -708,8 +708,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the managed stack trace followed by the captured Java stack trace.</summary>
+        <value>The managed trace, a managed-trace end marker, and <c>JavaStackTrace</c>, separated by platform newlines.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -733,7 +733,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Removes this managed peer from the runtime mapping without disposing its JNI reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

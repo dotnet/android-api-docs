@@ -22,7 +22,7 @@
     </Interface>
   </Interfaces>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Owns a global JNI class reference and provides member lookup and native method registration.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -42,12 +42,12 @@
         <Parameter Name="classname" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="classname">To be added.</param>
+        <param name="classname">The JNI class-name bytes, with a null terminator available to native code.</param>
         <summary>
             Creates a <see cref="T:Java.Interop.JniType" /> from a null-terminated UTF-8 class name span.
             Use with <c>"java/lang/Object"u8</c> literals to avoid string marshalling overhead.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>The lookup obtains a local class reference. This wrapper retains a global copy and disposes that local reference.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -71,8 +71,8 @@
         <Parameter Name="classname" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="classname">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="classname">The class name to resolve.</param>
+        <summary>Resolves a Java class and retains its own global reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -93,9 +93,9 @@
         <Parameter Name="transfer" Type="Java.Interop.JniObjectReferenceOptions" />
       </Parameters>
       <Docs>
-        <param name="peerReference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="peerReference">A nonzero JNI reference to a Java class object. This wrapper retains its own global reference.</param>
+        <param name="transfer">Controls source disposal after the global copy is created. <see cref="F:Java.Interop.JniObjectReferenceOptions.None" /> does not suppress the global copy.</param>
+        <summary>Creates an owned global class reference from an existing JNI reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -116,8 +116,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Allocates a Java object without invoking a constructor.</summary>
+        <returns>The local JNI reference returned by allocation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -159,11 +159,11 @@
         <Parameter Name="classFileData" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="loader">To be added.</param>
-        <param name="classFileData">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">The JNI class name passed to the class-definition operation.</param>
+        <param name="loader">The class-loader reference passed to the class-definition operation.</param>
+        <param name="classFileData">The Java class-file bytes. A null array returns <see langword="null" /> without defining a class.</param>
+        <summary>Defines a Java class from class-file bytes and wraps its class reference.</summary>
+        <returns>A wrapper owning a global reference to the defined class, or <see langword="null" /> if <paramref name="classFileData" /> is <see langword="null" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -187,7 +187,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Unregisters retained native callbacks and releases this wrapper's global class reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -228,11 +228,11 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="cachedMethod">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cachedMethod">The cache location for this exact constructor. Supply <see langword="null" /> or a valid cached identifier.</param>
+        <param name="signature">The JNI constructor descriptor bytes, with a null terminator available to native code.</param>
+        <summary>Gets a cached constructor identifier, looking it up when the cache is empty.</summary>
+        <returns>The constructor information held in the cache.</returns>
+        <remarks>The cache is used without rechecking the requested signature. Use a separate cache for each exact constructor.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCachedConstructor">
@@ -271,10 +271,10 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cachedMethod">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="cachedMethod">The cache location for this exact constructor. Supply <see langword="null" /> or a valid cached identifier.</param>
+        <param name="signature">The JNI constructor descriptor, including its void return type.</param>
+        <summary>Gets a cached constructor identifier, looking it up when the cache is empty.</summary>
+        <returns>The constructor information held in the cache.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -316,12 +316,12 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="cachedField">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cachedField">The cache location for this exact instance field. Supply <see langword="null" /> or a valid cached identifier.</param>
+        <param name="name">The JNI field-name bytes, with a null terminator available to native code.</param>
+        <param name="signature">The JNI field descriptor bytes, with a null terminator available to native code.</param>
+        <summary>Gets a cached instance-field identifier, looking it up when the cache is empty.</summary>
+        <returns>The instance-field information held in the cache.</returns>
+        <remarks>The cache is used without rechecking the requested name and signature. Use a separate cache for each exact instance field.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCachedInstanceField">
@@ -361,11 +361,11 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cachedField">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="cachedField">The cache location for this exact instance field. Supply <see langword="null" /> or a valid cached identifier.</param>
+        <param name="name">The Java field name.</param>
+        <param name="signature">The JNI field descriptor.</param>
+        <summary>Gets a cached instance-field identifier, looking it up when the cache is empty.</summary>
+        <returns>The instance-field information held in the cache.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -407,12 +407,12 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="cachedMethod">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cachedMethod">The cache location for this exact instance method. Supply <see langword="null" /> or a valid cached identifier.</param>
+        <param name="name">The JNI method-name bytes, with a null terminator available to native code.</param>
+        <param name="signature">The JNI method descriptor bytes, with a null terminator available to native code.</param>
+        <summary>Gets a cached instance-method identifier, looking it up when the cache is empty.</summary>
+        <returns>The instance-method information held in the cache.</returns>
+        <remarks>The cache is used without rechecking the requested name and signature. Use a separate cache for each exact instance method.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCachedInstanceMethod">
@@ -452,11 +452,11 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cachedMethod">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="cachedMethod">The cache location for this exact instance method. Supply <see langword="null" /> or a valid cached identifier.</param>
+        <param name="name">The Java method name.</param>
+        <param name="signature">The JNI method descriptor.</param>
+        <summary>Gets a cached instance-method identifier, looking it up when the cache is empty.</summary>
+        <returns>The instance-method information held in the cache.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -497,11 +497,11 @@
         <Parameter Name="classname" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="cachedType">To be added.</param>
-        <param name="classname">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cachedType">The cache location for this exact class. Initialize it to <see langword="null" /> and do not leave a disposed wrapper in it.</param>
+        <param name="classname">The JNI class-name bytes, with a null terminator available to native code.</param>
+        <summary>Gets a cached Java class wrapper, initializing an empty cache when needed.</summary>
+        <returns>The existing valid wrapper, or the wrapper installed in an empty cache.</returns>
+        <remarks>A newly installed wrapper is registered for runtime cleanup. The class name is not rechecked for an existing valid cached wrapper.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCachedJniType">
@@ -540,10 +540,10 @@
         <Parameter Name="classname" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cachedType">To be added.</param>
-        <param name="classname">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="cachedType">The cache location for this exact class. Initialize it to <see langword="null" /> and do not leave a disposed wrapper in it.</param>
+        <param name="classname">The class name to resolve.</param>
+        <summary>Gets a cached Java class wrapper, initializing an empty cache when needed.</summary>
+        <returns>The existing valid wrapper, or the wrapper installed in an empty cache.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -585,12 +585,12 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="cachedField">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cachedField">The cache location for this exact static field. Supply <see langword="null" /> or a valid cached identifier.</param>
+        <param name="name">The JNI field-name bytes, with a null terminator available to native code.</param>
+        <param name="signature">The JNI field descriptor bytes, with a null terminator available to native code.</param>
+        <summary>Gets a cached static-field identifier, looking it up when the cache is empty.</summary>
+        <returns>The static-field information held in the cache.</returns>
+        <remarks>The cache is used without rechecking the requested name and signature. Use a separate cache for each exact static field.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCachedStaticField">
@@ -630,11 +630,11 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cachedField">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="cachedField">The cache location for this exact static field. Supply <see langword="null" /> or a valid cached identifier.</param>
+        <param name="name">The Java field name.</param>
+        <param name="signature">The JNI field descriptor.</param>
+        <summary>Gets a cached static-field identifier, looking it up when the cache is empty.</summary>
+        <returns>The static-field information held in the cache.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -676,12 +676,12 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="cachedMethod">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="cachedMethod">The cache location for this exact static method. Supply <see langword="null" /> or a valid cached identifier.</param>
+        <param name="name">The JNI method-name bytes, with a null terminator available to native code.</param>
+        <param name="signature">The JNI method descriptor bytes, with a null terminator available to native code.</param>
+        <summary>Gets a cached static-method identifier, looking it up when the cache is empty.</summary>
+        <returns>The static-method information held in the cache.</returns>
+        <remarks>The cache is used without rechecking the requested name and signature. Use a separate cache for each exact static method.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCachedStaticMethod">
@@ -721,11 +721,11 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cachedMethod">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="cachedMethod">The cache location for this exact static method. Supply <see langword="null" /> or a valid cached identifier.</param>
+        <param name="name">The Java method name.</param>
+        <param name="signature">The JNI method descriptor.</param>
+        <summary>Gets a cached static-method identifier, looking it up when the cache is empty.</summary>
+        <returns>The static-method information held in the cache.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -754,10 +754,10 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="signature">The JNI constructor descriptor bytes, with a null terminator available to native code.</param>
+        <summary>Looks up a constructor identifier for this Java class.</summary>
+        <returns>The JNI constructor information.</returns>
+        <remarks>JNI reads the descriptor as a null-terminated string. No managed string conversion is performed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetConstructor">
@@ -784,9 +784,9 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="signature">The JNI constructor descriptor, including its void return type.</param>
+        <summary>Looks up a constructor identifier for this Java class.</summary>
+        <returns>The JNI constructor information.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -816,11 +816,11 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="name">The JNI field-name bytes, with a null terminator available to native code.</param>
+        <param name="signature">The JNI field descriptor bytes, with a null terminator available to native code.</param>
+        <summary>Looks up an instance-field identifier for this Java class.</summary>
+        <returns>The JNI instance-field information.</returns>
+        <remarks>JNI reads the name and descriptor as null-terminated strings. No managed string conversion is performed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetInstanceField">
@@ -848,10 +848,10 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">The Java field name.</param>
+        <param name="signature">The JNI field descriptor.</param>
+        <summary>Looks up an instance-field identifier for this Java class.</summary>
+        <returns>The JNI instance-field information.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -881,11 +881,11 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="name">The JNI method-name bytes, with a null terminator available to native code.</param>
+        <param name="signature">The JNI method descriptor bytes, with a null terminator available to native code.</param>
+        <summary>Looks up an instance-method identifier for this Java class.</summary>
+        <returns>The JNI instance-method information.</returns>
+        <remarks>JNI reads the name and descriptor as null-terminated strings. No managed string conversion is performed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetInstanceMethod">
@@ -913,10 +913,10 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">The Java method name.</param>
+        <param name="signature">The JNI method descriptor.</param>
+        <summary>Looks up an instance-method identifier for this Java class.</summary>
+        <returns>The JNI instance-method information.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -946,11 +946,11 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="name">The JNI field-name bytes, with a null terminator available to native code.</param>
+        <param name="signature">The JNI field descriptor bytes, with a null terminator available to native code.</param>
+        <summary>Looks up a static-field identifier for this Java class.</summary>
+        <returns>The JNI static-field information.</returns>
+        <remarks>JNI reads the name and descriptor as null-terminated strings. No managed string conversion is performed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetStaticField">
@@ -978,10 +978,10 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">The Java field name.</param>
+        <param name="signature">The JNI field descriptor.</param>
+        <summary>Looks up a static-field identifier for this Java class.</summary>
+        <returns>The JNI static-field information.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1011,11 +1011,11 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="name">The JNI method-name bytes, with a null terminator available to native code.</param>
+        <param name="signature">The JNI method descriptor bytes, with a null terminator available to native code.</param>
+        <summary>Looks up a static-method identifier for this Java class.</summary>
+        <returns>The JNI static-method information.</returns>
+        <remarks>JNI reads the name and descriptor as null-terminated strings. No managed string conversion is performed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetStaticMethod">
@@ -1043,10 +1043,10 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">The Java method name.</param>
+        <param name="signature">The JNI method descriptor.</param>
+        <summary>Looks up a static-method identifier for this Java class.</summary>
+        <returns>The JNI static-method information.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1073,8 +1073,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Gets a wrapper for the Java superclass.</summary>
+        <returns>A new wrapper owning a global superclass reference, or <see langword="null" /> when JNI reports no superclass.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1104,9 +1104,9 @@
         <Parameter Name="c" Type="Java.Interop.JniType" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="c">The Java type whose instances are to be tested for assignment to this type.</param>
+        <summary>Determines whether values of another Java type can be assigned to this type.</summary>
+        <returns><see langword="true" /> if instances of <paramref name="c" /> can be assigned to this Java type; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1129,9 +1129,9 @@
         <Parameter Name="value" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The nonzero JNI object reference to test. Invalid references are rejected by the generated JNI helper.</param>
+        <summary>Tests whether a referenced Java object can be assigned to this type.</summary>
+        <returns><see langword="true" /> if the Java object is compatible with this type; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1162,8 +1162,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the JNI name of the represented Java type.</summary>
+        <value>The Java class name converted to JNI naming, including slash-separated package names.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1194,10 +1194,10 @@
         <Parameter Name="parameters" Type="Java.Interop.JniArgumentValue*" />
       </Parameters>
       <Docs>
-        <param name="constructor">To be added.</param>
-        <param name="parameters">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="constructor">The constructor identifier for this Java class.</param>
+        <param name="parameters">A pointer to argument values in constructor-signature order.</param>
+        <summary>Allocates a Java object and invokes the supplied constructor.</summary>
+        <returns>The local JNI reference returned by object construction.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1217,8 +1217,8 @@
         <ReturnType>Java.Interop.JniObjectReference</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the class reference owned by this wrapper.</summary>
+        <value>The global JNI class reference, or an invalid reference after disposal.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1258,8 +1258,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="methods">The registration array. This wrapper retains the array to keep callbacks alive; do not remove delegates while registrations are active.</param>
+        <summary>Registers managed delegates as native methods of this Java class.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1280,7 +1280,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Adds this type to the runtime's cleanup tracking.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1308,9 +1308,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns a diagnostic description of the Java type and class reference.</summary>
+        <returns>A string containing the JNI type name and the owned class reference.</returns>
+        <remarks>Reading the type name requires a valid class reference, so this method throws <see cref="T:System.ObjectDisposedException" /> after disposal.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryParse">
@@ -1349,11 +1349,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="name">The class name to resolve.</param>
+        <param name="type">The new global-reference wrapper on success, or <see langword="null" /> when the class lookup fails.</param>
+        <summary>Attempts to resolve a Java class and wrap its class reference.</summary>
+        <returns><see langword="true" /> when class lookup succeeds and the wrapper is created; <see langword="false" /> when lookup finds no class.</returns>
+        <remarks>A failed class lookup returns <see langword="false" />. Invalid arguments and reference-creation failures can still throw.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UnregisterNativeMethods">
@@ -1371,7 +1371,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Removes the native method registrations from this Java class.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

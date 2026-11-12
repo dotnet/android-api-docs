@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides JNI reference creation, deletion, accounting, and diagnostic hooks.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -43,7 +43,7 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Initializes the object reference manager base class.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -67,9 +67,9 @@
         <Parameter Name="localReferenceCount" Type="System.Int32" RefType="ref" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="localReferenceCount">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="reference">An existing local reference to include in accounting.</param>
+        <param name="localReferenceCount">The count to increment when <paramref name="reference" /> has a nonzero handle.</param>
+        <summary>Records a local reference that has already been created, without creating another reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -92,9 +92,9 @@
         <Parameter Name="reference" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The source reference whose Java object is to receive a global reference.</param>
+        <summary>Creates a global reference without disposing the source reference.</summary>
+        <returns>The new global reference, or <paramref name="reference" /> unchanged if its handle is zero.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -118,10 +118,10 @@
         <Parameter Name="localReferenceCount" Type="System.Int32" RefType="ref" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="localReferenceCount">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The source reference whose Java object is to receive a local reference.</param>
+        <param name="localReferenceCount">The count to increment when <paramref name="reference" /> has a nonzero handle.</param>
+        <summary>Creates a local reference and updates the supplied reference count.</summary>
+        <returns>The new local reference, or <paramref name="reference" /> unchanged if its handle is zero.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -144,9 +144,9 @@
         <Parameter Name="reference" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The source reference whose Java object is to receive a weak global reference.</param>
+        <summary>Creates a weak global reference without disposing the source reference.</summary>
+        <returns>The new weak global reference, or <paramref name="reference" /> unchanged if its handle is zero.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -169,8 +169,8 @@
         <Parameter Name="reference" Type="Java.Interop.JniObjectReference" RefType="ref" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="reference">The global reference to delete and invalidate. A zero handle requires no action.</param>
+        <summary>Deletes a global JNI reference and clears the managed reference value.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -194,9 +194,9 @@
         <Parameter Name="localReferenceCount" Type="System.Int32" RefType="ref" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="localReferenceCount">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="reference">The local reference to delete and invalidate. A zero handle requires no action.</param>
+        <param name="localReferenceCount">The count to decrement when <paramref name="reference" /> has a nonzero handle.</param>
+        <summary>Deletes a local JNI reference, clears its value, and updates the supplied count.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -219,8 +219,8 @@
         <Parameter Name="reference" Type="Java.Interop.JniObjectReference" RefType="ref" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="reference">The weak global reference to delete and invalidate. A zero handle requires no action.</param>
+        <summary>Deletes a weak global JNI reference and clears the managed reference value.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -244,7 +244,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Calls the manager's disposal hook with <c>disposing</c> set to <see langword="false" />.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -267,8 +267,8 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="disposing">The disposal-mode flag. The public <c>Dispose</c> method passes <see langword="false" />.</param>
+        <summary>Provides a disposal hook for derived managers; the base implementation does nothing.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -288,8 +288,8 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the global-reference count maintained by the manager implementation.</summary>
+        <value>The implementation's current global-reference count.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -309,8 +309,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets whether global-reference diagnostic messages are enabled.</summary>
+        <value><see langword="false" /> in the base implementation; derived managers can enable diagnostics.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -330,8 +330,8 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets whether local-reference diagnostic messages are enabled.</summary>
+        <value><see langword="false" /> in the base implementation; derived managers can enable diagnostics.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -354,8 +354,8 @@
         <Parameter Name="runtime" Type="Java.Interop.JniRuntime" />
       </Parameters>
       <Docs>
-        <param name="runtime">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="runtime">The runtime to associate with this manager.</param>
+        <summary>Stores the runtime that uses this reference manager.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -379,10 +379,10 @@
         <Parameter Name="localReferenceCount" Type="System.Int32" RefType="ref" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="localReferenceCount">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The local reference whose handle is transferred to the caller. The managed value is invalidated without deleting the native reference.</param>
+        <param name="localReferenceCount">The count to decrement when <paramref name="reference" /> has a nonzero handle.</param>
+        <summary>Removes a local reference from managed accounting without deleting its JNI handle.</summary>
+        <returns>The transferred JNI handle, or <see cref="F:System.IntPtr.Zero" /> if the supplied handle is zero.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -402,8 +402,8 @@
         <ReturnType>Java.Interop.JniRuntime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the runtime associated with this manager.</summary>
+        <value>The runtime supplied to <c>OnSetRuntime</c>. Reading this property before a runtime is assigned throws <see cref="T:System.NotSupportedException" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -423,8 +423,8 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the weak-global-reference count maintained by the manager implementation.</summary>
+        <value>The implementation's current weak-global-reference count.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -459,9 +459,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="format">To be added.</param>
-        <param name="args">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="format">The composite format string for a global-reference diagnostic message.</param>
+        <param name="args">The values to include in the formatted diagnostic message.</param>
+        <summary>Provides a global-reference diagnostic output hook; the base implementation writes nothing.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -492,9 +492,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="format">To be added.</param>
-        <param name="args">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="format">The composite format string for a local-reference diagnostic message.</param>
+        <param name="args">The values to include in the formatted diagnostic message.</param>
+        <summary>Provides a local-reference diagnostic output hook; the base implementation writes nothing.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

@@ -17,7 +17,7 @@
             Blittable JNI native method registration for use with raw function pointers.
             Layout matches JNI's <c>JNINativeMethod</c> struct exactly.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>This value stores raw pointers. It does not allocate, copy, or free the name and signature buffers, and does not keep a managed callback alive.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -36,11 +36,11 @@
         <Parameter Name="functionPointer" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <param name="functionPointer">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="name">A pointer to the null-terminated modified UTF-8 Java method name.</param>
+        <param name="signature">A pointer to the null-terminated modified UTF-8 JNI method signature.</param>
+        <param name="functionPointer">The native entry point for the method.</param>
+        <summary>Creates a native method registration from string pointers and a function pointer.</summary>
+        <remarks>The constructor stores the pointer values without validation. The caller must keep the pointed-to data and entry point valid while JNI uses them.</remarks>
       </Docs>
     </Member>
   </Members>

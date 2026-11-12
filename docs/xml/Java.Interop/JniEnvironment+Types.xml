@@ -22,7 +22,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides Java class lookup, type queries, and native method registration.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -48,12 +48,12 @@
         <Parameter Name="bufferLength" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="name">To be added.</param>
-        <param name="loader">To be added.</param>
-        <param name="buffer">To be added.</param>
-        <param name="bufferLength">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="name">The Java binary class name, with slashes between package names.</param>
+        <param name="loader">A valid reference to the Java class loader.</param>
+        <param name="buffer">The address of class-file bytes that remain valid for this call.</param>
+        <param name="bufferLength">The number of bytes in <paramref name="buffer" />.</param>
+        <summary>Defines a Java class from a caller-owned class-file buffer.</summary>
+        <returns>A local JNI reference to the defined class, which the caller must release.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -82,13 +82,13 @@
         <Parameter Name="classname" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="classname">To be added.</param>
+        <param name="classname">A nonempty, zero-terminated class name encoded as modified UTF-8.</param>
         <summary>
             Finds a Java class using a null-terminated UTF-8 class name span.
             Use with <c>"java/lang/Object"u8</c> literals to avoid string marshalling overhead.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A local JNI class reference, which the caller must release.</returns>
+        <remarks>The span must include a terminating zero byte because JNI receives a pointer without the span length. If the initial lookup fails, lookup falls back to the runtime's class loader.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FindClass">
@@ -108,9 +108,9 @@
         <Parameter Name="classname" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="classname">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="classname">A nonempty Java class name with slash-separated or dot-separated packages.</param>
+        <summary>Finds a Java class with JNI lookup and a runtime-class-loader fallback.</summary>
+        <returns>A local JNI class reference, which the caller must release.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -139,9 +139,9 @@
         <Parameter Name="type" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A Java class reference, or an invalid reference.</param>
+        <summary>Gets the JNI type name represented by a Java class reference.</summary>
+        <returns>A slash-separated class name, an array descriptor, or a primitive descriptor letter; <see langword="null" /> for an invalid reference.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -170,9 +170,9 @@
         <Parameter Name="instance" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="instance">A Java object reference, or an invalid reference.</param>
+        <summary>Gets the JNI name of an object's runtime Java type.</summary>
+        <returns>A slash-separated class name, an array descriptor, or a primitive descriptor letter; <see langword="null" /> for an invalid reference.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -195,9 +195,9 @@
         <Parameter Name="instance" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="instance">A valid Java object reference.</param>
+        <summary>Gets an object's runtime Java class.</summary>
+        <returns>A local JNI class reference, which the caller must release.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -220,9 +220,9 @@
         <Parameter Name="type" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid Java class reference.</param>
+        <summary>Gets the immediate superclass of a Java class.</summary>
+        <returns>A local JNI superclass reference, which the caller must release, or an invalid reference if there is no superclass.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -251,9 +251,9 @@
         <Parameter Name="instance" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="instance">A Java object reference, or an invalid reference.</param>
+        <summary>Creates an owned type wrapper for an object's runtime Java class.</summary>
+        <returns>A type wrapper that the caller must dispose, or <see langword="null" /> if the instance or resulting class reference is invalid.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -277,10 +277,10 @@
         <Parameter Name="class2" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="class1">To be added.</param>
-        <param name="class2">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="class1">A valid reference to the source Java class.</param>
+        <param name="class2">A valid reference to the target Java class.</param>
+        <summary>Tests whether instances of one Java class can be assigned to another Java type.</summary>
+        <returns><see langword="true" /> if an instance of <paramref name="class1" /> can be assigned to <paramref name="class2" />; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -304,10 +304,10 @@
         <Parameter Name="type" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="instance">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="instance">A valid Java object reference; this wrapper does not accept a zero handle.</param>
+        <param name="type">A valid reference to the Java class or interface to test.</param>
+        <summary>Tests whether a Java object is an instance of a class or interface.</summary>
+        <returns><see langword="true" /> if the object is an instance of the specified type; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -331,10 +331,10 @@
         <Parameter Name="object2" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="object1">To be added.</param>
-        <param name="object2">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="object1">The first JNI object reference; a zero handle represents Java null.</param>
+        <param name="object2">The second JNI object reference; a zero handle represents Java null.</param>
+        <summary>Compares Java object identity rather than JNI handle values.</summary>
+        <returns><see langword="true" /> if both references identify the same Java object or both represent Java null; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -364,9 +364,9 @@
         <Parameter Name="methods" Type="Java.Interop.JniNativeMethodRegistration[]" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">The Java class reference used when there are registrations.</param>
+        <param name="methods">The native method registrations, or <see langword="null" /> for none. Keep their delegates alive for all later JNI callbacks.</param>
+        <summary>Registers every entry in a managed native method registration array.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -396,14 +396,14 @@
         <Parameter Name="methods" Type="System.ReadOnlySpan&lt;Java.Interop.JniNativeMethod&gt;" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
+        <param name="type">A valid reference to the Java class that declares the native methods.</param>
+        <param name="methods">The native method records to register.</param>
         <summary>
             Registers JNI native methods using blittable <see cref="T:Java.Interop.JniNativeMethod" /> structs
             with raw function pointers and UTF-8 name/signature pointers.
             Calls the JNI RegisterNatives function directly without delegate marshaling.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>Name and signature pointers must contain zero-terminated modified UTF-8 and remain valid for this call. Function pointers and their callback targets must remain valid for all later JNI calls. A pending Java exception is converted to a managed exception; a nonzero JNI result without such an exception causes <see cref="T:System.InvalidOperationException" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterNatives">
@@ -431,10 +431,10 @@
         <Parameter Name="numMethods" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <param name="numMethods">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">The Java class reference used when there are registrations.</param>
+        <param name="methods">The native method registrations, or <see langword="null" /> when the count is zero. Keep their delegates alive for all later JNI callbacks.</param>
+        <param name="numMethods">The number of entries to register from the start of the array, from zero through its length.</param>
+        <summary>Registers a prefix of a managed native method registration array.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -464,14 +464,14 @@
         <Parameter Name="instance" Type="Java.Interop.JniObjectReference" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="classname">To be added.</param>
-        <param name="instance">To be added.</param>
+        <param name="classname">A nonempty, zero-terminated class name encoded as modified UTF-8.</param>
+        <param name="instance">On success, a local JNI class reference that the caller must release; otherwise, an invalid reference.</param>
         <summary>
             Tries to find a Java class using a null-terminated UTF-8 class name span.
             Returns <c>true</c> if the class was found, <c>false</c> otherwise.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns><see langword="true" /> if a valid class reference was found; otherwise, <see langword="false" />.</returns>
+        <remarks>The span must include a terminating zero byte. Lookup uses the runtime's class loader if the initial JNI lookup fails. Class lookup failure returns <see langword="false" />, but invalid input and other runtime errors can still throw exceptions.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryFindClass">
@@ -492,11 +492,11 @@
         <Parameter Name="instance" Type="Java.Interop.JniObjectReference" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="classname">To be added.</param>
-        <param name="instance">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="classname">A nonempty Java class name with slash-separated or dot-separated packages.</param>
+        <param name="instance">On success, a local JNI class reference that the caller must release; otherwise, an invalid reference.</param>
+        <summary>Attempts to find a Java class with a runtime-class-loader fallback.</summary>
+        <returns><see langword="true" /> if a valid class reference was found; otherwise, <see langword="false" />.</returns>
+        <remarks>Class lookup failure returns <see langword="false" />, but invalid input and other runtime errors can still throw exceptions.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UnregisterNatives">
@@ -516,8 +516,8 @@
         <Parameter Name="type" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A valid reference to the Java class whose native methods are unregistered.</param>
+        <summary>Removes the native method registrations from a Java class.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
