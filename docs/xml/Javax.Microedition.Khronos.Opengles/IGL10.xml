@@ -1218,17 +1218,16 @@
         <Parameter Name="data" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="level">To be added.</param>
-        <param name="xoffset">To be added.</param>
-        <param name="yoffset">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="imageSize">To be added.</param>
-        <param name="data">To be added.</param>
-        <summary>
-        </summary>
+        <param name="target">The texture-image target; <c>GL_TEXTURE_2D</c> in base OpenGL ES.</param>
+        <param name="level">The nonnegative mipmap level of the existing image; zero is the base level.</param>
+        <param name="xoffset">The nonnegative destination x offset, in texels within the existing image.</param>
+        <param name="yoffset">The nonnegative destination y offset, in texels within the existing image.</param>
+        <param name="width">The nonnegative update width in texels. The region must fit the existing image and satisfy the compression format's update restrictions.</param>
+        <param name="height">The nonnegative update height in texels. Zero width or height makes the update have no effect.</param>
+        <param name="format">The compressed format used to define the image. It must support subimage updates; the required paletted formats do not.</param>
+        <param name="imageSize">The compressed data size in bytes, as required by the format for this update.</param>
+        <param name="data">The encoded update data, starting at the buffer's current position. Pixel-store alignment does not apply to compressed data.</param>
+        <summary>Updates part of the bound compressed texture image when its compression format supports subimage updates.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1410,16 +1409,15 @@
         <Parameter Name="height" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="level">To be added.</param>
-        <param name="xoffset">To be added.</param>
-        <param name="yoffset">To be added.</param>
-        <param name="x">To be added.</param>
-        <param name="y">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <summary>
-        </summary>
+        <param name="target">The texture-image target; <c>GL_TEXTURE_2D</c> in base OpenGL ES.</param>
+        <param name="level">The nonnegative mipmap level of the existing image; zero is the base level.</param>
+        <param name="xoffset">The nonnegative destination x offset in texels.</param>
+        <param name="yoffset">The nonnegative destination y offset in texels.</param>
+        <param name="x">The window x coordinate of the source rectangle's lower-left corner.</param>
+        <param name="y">The window y coordinate of the source rectangle's lower-left corner. Source pixels outside the read window have undefined values.</param>
+        <param name="width">The nonnegative copy width in pixels; the destination region must fit the existing texture image.</param>
+        <param name="height">The nonnegative copy height in pixels. Zero width or height makes the copy have no effect.</param>
+        <summary>Copies color-buffer pixels into an existing bound texture image; the source must supply the components required by the texture's format.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1581,10 +1579,9 @@
         <Parameter Name="textures" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <param name="textures">To be added.</param>
-        <summary>
-        </summary>
+        <param name="n">The nonnegative number of texture names to read.</param>
+        <param name="textures">The names to delete, starting at the buffer's current position. Zero and names that do not identify existing textures are ignored.</param>
+        <summary>Deletes named textures and makes their names available for reuse.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1616,11 +1613,10 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <param name="textures">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>
-        </summary>
+        <param name="n">The nonnegative number of texture names to read.</param>
+        <param name="textures">The names to delete, starting at <paramref name="offset" />. Zero and names that do not identify existing textures are ignored.</param>
+        <param name="offset">The nonnegative index of the first source array element.</param>
+        <summary>Deletes named textures and makes their names available for reuse.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3049,10 +3045,9 @@
         <Parameter Name="textures" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <param name="textures">To be added.</param>
-        <summary>
-        </summary>
+        <param name="n">The nonnegative number of unused texture names to generate.</param>
+        <param name="textures">Receives the generated names starting at the buffer's current position. The names need not be consecutive.</param>
+        <summary>Generates unused texture names for later binding.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3084,11 +3079,10 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <param name="textures">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>
-        </summary>
+        <param name="n">The nonnegative number of unused texture names to generate.</param>
+        <param name="textures">Receives the generated names starting at <paramref name="offset" />. The names need not be consecutive.</param>
+        <param name="offset">The nonnegative index of the first destination array element.</param>
+        <summary>Generates unused texture names for later binding.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4739,9 +4733,8 @@
         <Parameter Name="opcode" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="opcode">To be added.</param>
-        <summary>
-        </summary>
+        <param name="opcode"><c>GL_CLEAR</c>, <c>GL_SET</c>, <c>GL_COPY</c>, <c>GL_COPY_INVERTED</c>, <c>GL_NOOP</c>, <c>GL_INVERT</c>, <c>GL_AND</c>, <c>GL_NAND</c>, <c>GL_OR</c>, <c>GL_NOR</c>, <c>GL_XOR</c>, <c>GL_EQUIV</c>, <c>GL_AND_REVERSE</c>, <c>GL_AND_INVERTED</c>, <c>GL_OR_REVERSE</c>, or <c>GL_OR_INVERTED</c>.</param>
+        <summary>Selects the bitwise operation between incoming and framebuffer color bits; enable <c>GL_COLOR_LOGIC_OP</c> separately to apply it.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6610,10 +6603,9 @@
         <Parameter Name="param" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="pname">To be added.</param>
-        <param name="param">To be added.</param>
-        <summary>
-        </summary>
+        <param name="pname"><c>GL_PACK_ALIGNMENT</c> for pixel readback, or <c>GL_UNPACK_ALIGNMENT</c> for uncompressed texture uploads.</param>
+        <param name="param">The pixel-row alignment in bytes: one, two, four, or eight.</param>
+        <summary>Sets pixel-row alignment for memory transfers; compressed texture data is not affected.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7058,15 +7050,14 @@
         <Parameter Name="pixels" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="x">To be added.</param>
-        <param name="y">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="pixels">To be added.</param>
-        <summary>
-        </summary>
+        <param name="x">The window x coordinate of the rectangle's lower-left pixel.</param>
+        <param name="y">The window y coordinate of the rectangle's lower-left pixel. Pixels outside the read window have undefined values.</param>
+        <param name="width">The nonnegative rectangle width in pixels.</param>
+        <param name="height">The nonnegative rectangle height in pixels.</param>
+        <param name="format"><c>GL_RGBA</c> paired with <c>GL_UNSIGNED_BYTE</c>, or the format queried with <c>GL_IMPLEMENTATION_COLOR_READ_FORMAT_OES</c> paired with the queried implementation type.</param>
+        <param name="type"><c>GL_UNSIGNED_BYTE</c> for the guaranteed RGBA pair, or the matching value queried with <c>GL_IMPLEMENTATION_COLOR_READ_TYPE_OES</c>.</param>
+        <param name="pixels">Writable storage for the rectangle, starting at the buffer's current position. Rows are written bottom to top, left to right within each row, with padding selected by <c>GL_PACK_ALIGNMENT</c>.</param>
+        <summary>Reads a rectangle of framebuffer color pixels into memory.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -8459,17 +8450,16 @@
         <Parameter Name="pixels" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="level">To be added.</param>
-        <param name="internalformat">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="border">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="pixels">To be added.</param>
-        <summary>
-        </summary>
+        <param name="target"><c>GL_TEXTURE_2D</c>, or an individual cube-map face target when cube maps are supported.</param>
+        <param name="level">The nonnegative mipmap level; zero is the base image.</param>
+        <param name="internalformat">The image's component format. Base OpenGL ES requires the same value as <paramref name="format" />.</param>
+        <param name="width">The nonnegative image width in texels, within implementation limits. Positive dimensions must be powers of two in base OpenGL ES; a zero dimension specifies a null texture image.</param>
+        <param name="height">The nonnegative image height in texels, subject to the same size rules as <paramref name="width" />. Cube-map faces must have equal width and height.</param>
+        <param name="border">The border width; must be zero.</param>
+        <param name="format">The pixel component layout: <c>GL_ALPHA</c>, <c>GL_RGB</c>, <c>GL_RGBA</c>, <c>GL_LUMINANCE</c>, or <c>GL_LUMINANCE_ALPHA</c> in base OpenGL ES.</param>
+        <param name="type"><c>GL_UNSIGNED_BYTE</c> for separate components, <c>GL_UNSIGNED_SHORT_5_6_5</c> for packed RGB, or <c>GL_UNSIGNED_SHORT_4_4_4_4</c>/<c>GL_UNSIGNED_SHORT_5_5_5_1</c> for packed RGBA.</param>
+        <param name="pixels">Image data starting at the buffer's current position, with row padding selected by <c>GL_UNPACK_ALIGNMENT</c>. May be <see langword="null" /> to define storage with unspecified image contents.</param>
+        <summary>Defines an image of the texture object bound on the active texture unit.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -8577,17 +8567,16 @@
         <Parameter Name="pixels" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="level">To be added.</param>
-        <param name="xoffset">To be added.</param>
-        <param name="yoffset">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="pixels">To be added.</param>
-        <summary>
-        </summary>
+        <param name="target"><c>GL_TEXTURE_2D</c>, or an individual cube-map face target when cube maps are supported.</param>
+        <param name="level">The nonnegative mipmap level of an image that has already been defined; zero is the base image.</param>
+        <param name="xoffset">The nonnegative destination x offset in texels.</param>
+        <param name="yoffset">The nonnegative destination y offset in texels.</param>
+        <param name="width">The nonnegative update width in texels; the region must fit the existing image.</param>
+        <param name="height">The nonnegative update height in texels. Zero width or height makes the update have no effect.</param>
+        <param name="format">The pixel component layout: <c>GL_ALPHA</c>, <c>GL_RGB</c>, <c>GL_RGBA</c>, <c>GL_LUMINANCE</c>, or <c>GL_LUMINANCE_ALPHA</c> in base OpenGL ES.</param>
+        <param name="type"><c>GL_UNSIGNED_BYTE</c> for separate components, <c>GL_UNSIGNED_SHORT_5_6_5</c> for packed RGB, or <c>GL_UNSIGNED_SHORT_4_4_4_4</c>/<c>GL_UNSIGNED_SHORT_5_5_5_1</c> for packed RGBA.</param>
+        <param name="pixels">Update data starting at the buffer's current position, with row padding selected by <c>GL_UNPACK_ALIGNMENT</c>.</param>
+        <summary>Replaces part of an existing bound texture image without changing its dimensions.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
