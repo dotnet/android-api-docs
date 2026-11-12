@@ -640,6 +640,12 @@ static partial class ImporterProgram
             return 2;
         }
 
+        if (options.TelecomSelfTest)
+        {
+            TestTelecomLifecycle(repositoryRoot, Path.Combine(repositoryRoot, "tools", "importer-fixtures"));
+            Console.WriteLine("Telecom lifecycle self-tests passed.");
+            return 0;
+        }
         if (options.PreservationSelfTest)
         {
             TestPreservedRemarksAndSourceGuards(repositoryRoot);
@@ -790,6 +796,29 @@ static partial class ImporterProgram
                     var mapping = MapOwner(owner, pages);
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
+
+                    if (TelecomLifecycleRepairTarget(owner) is { } telecomTarget)
+                    {
+                        var repair = RepairKnownTelecomLifecycle(text, file, owner, mapping.Docs!);
+                        if (repair.Reason is not null || remaining == 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, telecomTarget,
+                                repair.Reason ?? "max_changes_reached",
+                                repair.Detail ?? $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else if (repair.Text != text)
+                        {
+                            text = repair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed("would_apply", file.RelativePath, owner.Id,
+                                telecomTarget, mapping.SourceUrl, "importer_known_unsafe_telecom_lifecycle_repair",
+                                "Withdrew only the exact contradicted inherited channel from complete prior importer-owned Docs."));
+                        }
+                        continue;
+                    }
 
                     if (mapping.Docs!.QualityFirstFillOnly)
                     {
@@ -2437,6 +2466,7 @@ static partial class ImporterProgram
         docs = WithoutKnownUnsafeRangeTemplateRemarks(owner, registration, docs);
         docs = WithKnownAndroidTextCorrections(owner.Id, docs);
         docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
+        docs = WithKnownTelecomLifecycleSafety(owner, exact[0], docs);
         docs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, docs);
         docs = WithKnownNfcContractSafety(owner, docs);
         docs = WithoutUnsafeBrowseSubscriptionRemarks(owner, docs);
@@ -3918,6 +3948,127 @@ static partial class ImporterProgram
     {
         public IEnumerable<string> SafeParagraphs =>
             FirstParagraphReplacement.Concat(OriginalParagraphs.Skip(1));
+    }
+
+    sealed record TelecomLifecycleRule(bool IsBind)
+    {
+        public string Name => IsBind ? "OnBind" : "OnUnbind";
+        public string JavaName => IsBind ? "onBind" : "onUnbind";
+        public string MemberId => $"M:Android.Telecom.CallRedirectionService.{Name}(Android.Content.Intent)";
+        public string Target => IsBind ? "remarks" : "returns";
+        public string UnsafeText => IsBind ? NfcBindingOriginal :
+            "Return true if you would like to have the service's onRebind(Intent) method later called when new clients bind to it.";
+        public string ReturnType => IsBind ? "Android.OS.IBinder" : "System.Boolean";
+        public string ManagedSignature =>
+            $"public override sealed {(IsBind ? "Android.OS.IBinder?" : "bool")} {Name} (Android.Content.Intent intent);";
+        public string Declaration => $"public final {(IsBind ? "IBinder" : "boolean")} {JavaName} (Intent intent)";
+        public MemberRegistration Registration => new(JavaName,
+            "(Landroid/content/Intent;)" + (IsBind ? "Landroid/os/IBinder;" : "Z"), false);
+        public SourceDocs Source => new(
+            IsBind ? NfcBindingSummary :
+                "Called when all clients have disconnected from a particular interface published by the service.",
+            IsBind ? [new(NfcBindingOriginal, false), new(NfcBindingThreadGuidance, false)] :
+                [new("Called when all clients have disconnected from a particular interface published by the service. The default implementation does nothing and returns false.", false)],
+            new()
+            {
+                ["intent"] = "Intent: This value cannot be null.",
+                [IsBind ? "IBinder" : "boolean"] = IsBind ? "This value may be null." : UnsafeText,
+            },
+            IsBind ? "This value may be null." : UnsafeText, new(),
+            AndroidReference + "android/telecom/CallRedirectionService#" + JavaName + "(android.content.Intent)",
+            "android.telecom.CallRedirectionService." + JavaName, "android");
+    }
+
+    static readonly TelecomLifecycleRule[] TelecomLifecycleRules = [new(true), new(false)];
+
+    static bool MatchesTelecomLifecycleOwner(DocsOwner owner, TelecomLifecycleRule rule) =>
+        owner.Id == rule.MemberId &&
+        owner.SourceRequest?.Kind == "android" &&
+        owner.SourceRequest.JavaPath == "android/telecom/CallRedirectionService" &&
+        owner.SourceRequest.Url == AndroidReference + "android/telecom/CallRedirectionService" &&
+        owner.MemberRegistration == rule.Registration &&
+        owner.Member is { } member &&
+        member.Element("MemberType")?.Value == "Method" &&
+        member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+        member.Parent?.Parent is { } type &&
+        (string?)type.Attribute("FullName") == "Android.Telecom.CallRedirectionService" &&
+        type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+        member.Elements("MemberSignature").Where(signature => (string?)signature.Attribute("Language") == "C#")
+            .Select(signature => (string?)signature.Attribute("Value")).SequenceEqual([rule.ManagedSignature]) &&
+        member.Elements("MemberSignature").Where(signature => (string?)signature.Attribute("Language") == "DocId")
+            .Select(signature => (string?)signature.Attribute("Value")).SequenceEqual([rule.MemberId]) &&
+        member.Element("ReturnValue")?.Element("ReturnType")?.Value == rule.ReturnType &&
+        (member.Element("Parameters")?.Elements("Parameter") ?? [])
+            .Select(parameter => ((string?)parameter.Attribute("Name"), (string?)parameter.Attribute("Type")))
+            .SequenceEqual([("intent", "Android.Content.Intent")]);
+
+    static SourceDocs WithKnownTelecomLifecycleSafety(DocsOwner owner, SourceMember member, SourceDocs docs)
+    {
+        var rule = TelecomLifecycleRules.SingleOrDefault(rule => MatchesTelecomLifecycleOwner(owner, rule));
+        if (rule is null || docs.SourceKind != "android" || docs.HasMalformedSourceMarkup ||
+            docs.SourceUrl != rule.Source.SourceUrl || docs.SourceLabel != rule.Source.SourceLabel ||
+            member.Declaration != rule.Declaration)
+            return docs;
+        if (rule.IsBind)
+        {
+            if (!docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text == rule.UnsafeText))
+                return docs;
+            return docs with
+            {
+                Paragraphs = docs.Paragraphs.Select(paragraph =>
+                    !paragraph.IsCode && paragraph.Text == rule.UnsafeText
+                        ? paragraph with { Text = NfcBindingRetained } : paragraph).ToList(),
+                TelecomOriginalSource = docs,
+            };
+        }
+        if (docs.Returns != rule.UnsafeText)
+            return docs;
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["returns"] =
+            "The exact inherited caller-choice return contradicts the final CallRedirectionService.onUnbind implementation, which always returns false; no replacement prose was inferred.";
+        return docs with { UnsafeTargets = targets, TelecomOriginalSource = docs };
+    }
+
+    static string? TelecomLifecycleRepairTarget(DocsOwner owner)
+    {
+        var rule = TelecomLifecycleRules.SingleOrDefault(rule => rule.MemberId == owner.Id);
+        return rule is not null && owner.Docs.Elements(rule.Target).Any(channel =>
+            NormalizeText(channel.Value).Contains(rule.UnsafeText, StringComparison.Ordinal)) ? rule.Target : null;
+    }
+
+    static RemarksRefreshResult RepairKnownTelecomLifecycle(
+        string text, LoadedFile file, DocsOwner owner, SourceDocs source)
+    {
+        var rule = TelecomLifecycleRules.Single(rule => rule.MemberId == owner.Id);
+        if (!MatchesTelecomLifecycleOwner(owner, rule) || source.TelecomOriginalSource is not { } raw ||
+            !MatchesKnownEapSource(raw, rule.Source))
+            return new(text, "source_telecom_lifecycle_mismatch",
+                "The exact binding, declared Android source and complete original source contract could not all be verified.");
+        var expected = new XElement("Docs",
+            new XElement("param", new XAttribute("name", "intent"), "To be added."),
+            new XElement("summary", raw.Summary),
+            new XElement("returns", rule.IsBind ? "To be added." : raw.Returns),
+            new XElement("remarks", raw.Paragraphs.Select(DocumentationElement),
+                ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actual) || !XNode.DeepEquals(actual, owner.Docs) ||
+            !ImporterMarkupEquals(actual, expected))
+            return new(text, "existing_telecom_lifecycle_not_importer_owned",
+                "The entire original Docs, plain channels, canonical reference and unchanged attribution did not match prior importer output.");
+        var target = rule.IsBind ? actual.Element("remarks")!.Elements("para").First() : actual.Element("returns")!;
+        if (!TryGetElementSpan(blockText, target, out var span))
+            return new(text, "telecom_lifecycle_target_not_located",
+                "The parser-selected exact channel could not be located safely.");
+        var targetName = rule.IsBind ? "para" : "returns";
+        if (blockText[span.Start..span.End] != $"<{targetName}>{rule.UnsafeText}</{targetName}>")
+            return new(text, "existing_telecom_lifecycle_not_importer_owned",
+                "The exact original plain paragraph bytes did not match the prior producer; no surrounding text was rewritten.");
+        var replacement = rule.IsBind ? $"<para>{XmlEscape(NfcBindingRetained)}</para>" : "<returns>To be added.</returns>";
+        return new(text[..block.Start] + blockText[..span.Start] + replacement +
+            blockText[span.End..] + text[block.End..], null, null);
     }
 
     static SourceDocs WithoutKnownUnsafeControlsLifecycleChannels(string ownerId, SourceDocs docs)
@@ -5562,6 +5713,8 @@ static partial class ImporterProgram
             targets.Add("remarks");
         targets.UnionWith(KnownUnsafeIkeRepairCandidateTargets(owner));
         targets.UnionWith(KnownControlsLifecycleRepairTargets(owner));
+        if (TelecomLifecycleRepairTarget(owner) is { } telecomTarget)
+            targets.Add(telecomTarget);
         if (NfcRepairTarget(owner) is { } nfcTarget)
             targets.Add(nfcTarget);
         if (HasUnsafeBrowseSubscriptionRemarks(owner))
@@ -5630,6 +5783,7 @@ static partial class ImporterProgram
         KnownUnsafeIkeRepairCandidateTargets(owner).Count > 0 ||
         HasKnownAndroidProseRepairCandidate(file, owner) ||
         NfcRepairTarget(owner) is not null ||
+        TelecomLifecycleRepairTarget(owner) is not null ||
         HasUnsafeBrowseSubscriptionRemarks(owner) ||
         HasUnsafeVibrationEffectAddEventsRemarks(owner) ||
         HasKnownUnsafeZoneTransitionTimeCandidate(owner);
@@ -14231,6 +14385,270 @@ static partial class ImporterProgram
             "ControlTemplate paragraph repair preserves parser-correspondence mismatches");
     }
 
+    static void TestTelecomLifecycle(string repositoryRoot, string fixtureRoot)
+    {
+        var fixtureBytes = Convert.FromBase64String(File.ReadAllText(
+            Path.Combine(fixtureRoot, "telecom-redirection-android-reference.html.b64")).Trim());
+        var html = Encoding.UTF8.GetString(fixtureBytes);
+        using var fixture = JsonDocument.Parse(File.ReadAllText(
+            Path.Combine(fixtureRoot, "telecom-redirection-fresh-legacy-output.json")));
+        var evidence = fixture.RootElement;
+        Assert(Convert.ToHexString(SHA256.HashData(fixtureBytes)).ToLowerInvariant() ==
+            evidence.GetProperty("fragmentSha256").GetString(),
+            "Telecom native declaration fragment matches its independent producer evidence");
+        var token = $"telecom-lifecycle-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var directory = Path.Combine(repositoryRoot, "tools", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Telecom", token + ".xml");
+        Directory.CreateDirectory(directory);
+        var request = SourceRequest.Create("android/telecom/CallRedirectionService")!;
+        var cachePath = Path.Combine(directory,
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        var calls = 0;
+        try
+        {
+            File.WriteAllBytes(cachePath, fixtureBytes);
+            JsonDocument Pipeline(TelecomLifecycleRule rule, bool apply, int limit = 1)
+            {
+                var reportPath = Path.Combine(directory, "report-" + calls++);
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.Telecom", "--member", rule.Name,
+                    "--offline", "--cache", directory, "--max-changes", limit.ToString(),
+                    "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Telecom bounded offline production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Telecom production reports zero errors");
+                return report;
+            }
+            DocsOwner Owner(TelecomLifecycleRule rule)
+            {
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(rule.Name);
+                return file.Owners.Single();
+            }
+            MappingResult Mapping(TelecomLifecycleRule rule, string sourceHtml)
+            {
+                var page = SourcePage.Parse(request, sourceHtml);
+                return MapOwner(Owner(rule), new Dictionary<string, SourceLoadResult>
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                });
+            }
+            void Preserved(TelecomLifecycleRule rule, string input, string sourceHtml, bool requireMapping = true)
+            {
+                File.WriteAllText(path, input, new UTF8Encoding(true));
+                File.WriteAllText(cachePath, sourceHtml, new UTF8Encoding(false));
+                if (requireMapping)
+                    Assert(Mapping(rule, sourceHtml).ErrorReason is null,
+                        "Telecom attached negative reaches the channel/ownership guard after successful source mapping");
+                var before = File.ReadAllBytes(path);
+                for (var repeat = 0; repeat < 2; repeat++)
+                {
+                    using var report = Pipeline(rule, true);
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(before),
+                        "Telecom authored, mixed, altered-binding/source negatives persist byte-identically with max-one");
+                }
+            }
+            foreach (var rule in TelecomLifecycleRules)
+            {
+                var samples = evidence.GetProperty("samples").EnumerateArray()
+                    .Where(sample => sample.GetProperty("member").GetString() == rule.Name).ToArray();
+                var fresh = samples.Single(sample => sample.GetProperty("mode").GetString() == "firstfill");
+                var freshInput = Encoding.UTF8.GetString(Convert.FromBase64String(fresh.GetProperty("inputBase64").GetString()!));
+                var prior = Encoding.UTF8.GetString(Convert.FromBase64String(fresh.GetProperty("outputBase64").GetString()!));
+                File.WriteAllText(path, prior, new UTF8Encoding(false));
+                var owner = Owner(rule);
+                var page = SourcePage.Parse(request, html);
+                var native = page.Members.Single(member => member.Name == rule.JavaName);
+                Assert(native.Declaration == rule.Declaration && MatchesKnownEapSource(native.Docs!, rule.Source),
+                    "Telecom parsed complete native source independently matches the pinned contract");
+                var mapped = Mapping(rule, html);
+                Assert(mapped.ErrorReason is null && mapped.Docs!.TelecomOriginalSource is not null &&
+                    (rule.IsBind
+                        ? mapped.Docs.Paragraphs.Select(paragraph => paragraph.Text)
+                            .SequenceEqual([NfcBindingRetained, NfcBindingThreadGuidance])
+                        : mapped.Docs.Paragraphs.SequenceEqual(native.Docs!.Paragraphs) &&
+                            ReplacementFor(new Placeholder(0, "returns", "", "returns"), mapped.Docs).Reason ==
+                                "source_channel_ambiguous"),
+                    "Telecom mapping changes only nullable binder remarks or the caller-choice return, never correct Unbind remarks");
+                foreach (var candidate in new[]
+                {
+                    native.Docs! with { SourceUrl = native.Docs!.SourceUrl + ".Other" },
+                    native.Docs! with { SourceLabel = native.Docs!.SourceLabel + ".Other" },
+                    native.Docs! with { SourceKind = "java" },
+                    native.Docs! with { HasMalformedSourceMarkup = true },
+                })
+                    Assert(ReferenceEquals(WithKnownTelecomLifecycleSafety(owner, native, candidate), candidate),
+                        "Telecom correction requires exact canonical URL, source label, kind and unambiguous markup");
+
+                string Repaired(string input) => input.Replace(
+                    rule.IsBind ? $"<para>{rule.UnsafeText}</para>" : $"<returns>{rule.UnsafeText}</returns>",
+                    rule.IsBind ? $"<para>{NfcBindingRetained}</para>" : "<returns>To be added.</returns>",
+                    StringComparison.Ordinal);
+                foreach (var sample in samples)
+                {
+                    var inputBytes = Convert.FromBase64String(sample.GetProperty("inputBase64").GetString()!);
+                    var outputBytes = Convert.FromBase64String(sample.GetProperty("outputBase64").GetString()!);
+                    Assert(Convert.ToHexString(SHA256.HashData(inputBytes)).ToLowerInvariant() ==
+                            sample.GetProperty("inputSha256").GetString() &&
+                        Convert.ToHexString(SHA256.HashData(outputBytes)).ToLowerInvariant() ==
+                            sample.GetProperty("outputSha256").GetString(),
+                        "Telecom prior-copy seeds are independently emitted actual legacy-producer bytes, not repair-helper output");
+                    foreach (var (newline, bom) in new[] { ("\n", false), ("\n", true), ("\r\n", false), ("\r\n", true) })
+                    {
+                        var input = Encoding.UTF8.GetString(outputBytes).Replace("\r\n", "\n", StringComparison.Ordinal)
+                            .Replace("\n", newline, StringComparison.Ordinal);
+                        File.WriteAllText(path, input, new UTF8Encoding(bom));
+                        File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                        var before = File.ReadAllBytes(path);
+                        using (var preview = Pipeline(rule, false))
+                            Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                                File.ReadAllBytes(path).SequenceEqual(before),
+                                "Telecom actual prior-copy dry run measures one channel without writing");
+                        using (var apply = Pipeline(rule, true))
+                            Assert(apply.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                                "Telecom actual prior-copy repair consumes exactly one operation");
+                        var expected = new UTF8Encoding(bom).GetPreamble()
+                            .Concat(Encoding.UTF8.GetBytes(Repaired(input))).ToArray();
+                        Assert(File.ReadAllBytes(path).SequenceEqual(expected),
+                            "Telecom prior repair preserves every byte outside its exact text span, including metadata, encoding and newlines");
+                        using (var repeat = Pipeline(rule, true))
+                            Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                                File.ReadAllBytes(path).SequenceEqual(expected),
+                                "Telecom repaired prior-copy persisted repeat is byte-identical and zero-write");
+                    }
+                }
+
+                File.WriteAllText(path, freshInput, new UTF8Encoding(false));
+                using (var preview = Pipeline(rule, false, 10))
+                    Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 2 &&
+                        File.ReadAllText(path) == freshInput, "Telecom first-fill preview measures only safe summary and remarks");
+                for (var batch = 0; batch < 2; batch++)
+                {
+                    using var applied = Pipeline(rule, true);
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "Telecom max-one first-fill persists one safe channel per batch");
+                }
+                Assert(File.ReadAllText(path) == Repaired(prior),
+                    "Telecom first-fill equals independently produced old output with only the exact unsafe channel removed");
+                var filledBytes = File.ReadAllBytes(path);
+                using (var repeat = Pipeline(rule, true))
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(filledBytes),
+                        "Telecom first-fill persisted repeat has no writes or byte changes");
+
+                var mutations = new List<Action<XElement>>
+                {
+                    docs => docs.SetAttributeValue("authored", "keep"),
+                    docs => docs.AddFirst(new XCData(" ")),
+                    docs => docs.AddFirst(new XComment("Authored")),
+                    docs => docs.AddFirst(new XProcessingInstruction("authored", "keep")),
+                    docs => docs.Element("summary")!.Add(" Authored."),
+                    docs => docs.Element("param")!.Value = "Authored intent.",
+                    docs => docs.Element("param")!.Add(new XElement("c", "")),
+                    docs => docs.Element("returns")!.Add(new XElement("c", "")),
+                    docs => docs.Element("remarks")!.SetAttributeValue("authored", "keep"),
+                    docs => docs.Element("remarks")!.AddFirst(new XCData(" ")),
+                    docs => docs.Element("remarks")!.Elements("para").First(paragraph =>
+                        TryGetImporterSourceReferenceUrl(paragraph, out _)).AddFirst(new XCData(" ")),
+                    docs => docs.Element("remarks")!.Add(new XElement("para", "Authored.")),
+                    docs => docs.Element(rule.Target)!.Add(new XComment("Authored")),
+                    docs => docs.Element(rule.Target)!.Add(new XProcessingInstruction("authored", "keep")),
+                    docs => (rule.IsBind ? docs.Element("remarks")!.Element("para")! : docs.Element("returns")!)
+                        .ReplaceNodes(new XCData(rule.UnsafeText)),
+                    docs => docs.Descendants("a").First().SetAttributeValue("href", rule.Source.SourceUrl + ".Other"),
+                    docs => docs.Descendants("a").First().Element("code")!.Value += ".Other",
+                    docs => docs.Element("remarks")!.Elements("para").Last().Add(" Authored."),
+                    docs => docs.Element("remarks")!.Elements("para").Last().Remove(),
+                    docs => docs.Element("remarks")!.Elements("para").Last().Add(new XElement("c", "")),
+                    docs => docs.Add(new XElement("exception", "Authored.")),
+                };
+                foreach (var name in new[] { "summary", "param", "returns", "remarks" })
+                    mutations.Add(docs => docs.Add(new XElement(docs.Element(name)!)));
+                foreach (var mutate in mutations)
+                {
+                    var xml = XElement.Parse(prior, LoadOptions.PreserveWhitespace);
+                    mutate(xml.Element("Members")!.Element("Member")!.Element("Docs")!);
+                    Preserved(rule, xml.ToString(SaveOptions.DisableFormatting), html);
+                }
+                Preserved(rule, prior.Replace(rule.UnsafeText, rule.UnsafeText.Replace(" ", "  ", StringComparison.Ordinal),
+                    StringComparison.Ordinal), html);
+                foreach (var mutate in new Action<XElement>[]
+                {
+                    xml => xml.Element("Members")!.Element("Member")!.Elements("MemberSignature")
+                        .Single(signature => (string?)signature.Attribute("Language") == "C#")
+                        .SetAttributeValue("Value", rule.ManagedSignature.Replace("sealed ", "", StringComparison.Ordinal)),
+                    xml => xml.Element("Members")!.Element("Member")!.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other",
+                    xml => xml.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other",
+                    xml => xml.Element("Members")!.Element("Member")!.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object",
+                    xml => xml.Element("Members")!.Element("Member")!.Element("Parameters")!.Element("Parameter")!
+                        .SetAttributeValue("Name", "other"),
+                })
+                {
+                    var xml = XElement.Parse(prior, LoadOptions.PreserveWhitespace);
+                    mutate(xml);
+                    Preserved(rule, xml.ToString(SaveOptions.DisableFormatting), html);
+                }
+                var jniChanged = prior.Replace(rule.Registration.Descriptor,
+                    "(Ljava/lang/String;)" + (rule.IsBind ? "Landroid/os/IBinder;" : "Z"), StringComparison.Ordinal);
+                Preserved(rule, jniChanged, html, requireMapping: false);
+                Preserved(rule, prior.Replace("M:Android.Telecom.CallRedirectionService." + rule.Name,
+                    "M:Android.Telecom.CallRedirectionService.Other", StringComparison.Ordinal), html);
+
+                var changedSource = html.Replace(
+                    rule.IsBind ? "clients can not bind" : "Return true if you would like",
+                    rule.IsBind ? "clients cannot bind" : "Return true if clients would like", StringComparison.Ordinal);
+                Preserved(rule, prior, changedSource);
+                Preserved(rule, prior, html.Replace(
+                    rule.IsBind ? "public final " : "public final boolean", rule.IsBind ? "public " : "public boolean",
+                    StringComparison.Ordinal));
+                Preserved(rule, prior, html.Replace("This value cannot be", "This value may be", StringComparison.Ordinal));
+                var contextual = html.Replace(
+                    rule.IsBind ? "  <p>Return the communication channel to the service." :
+                        "  <p>Called when all clients have disconnected from a particular interface",
+                    rule.IsBind ? "  <p>Additional safe introduction.</p><p>Return the communication channel to the service." :
+                        "  <p>Additional safe introduction.</p><p>Called when all clients have disconnected from a particular interface",
+                    StringComparison.Ordinal);
+                Assert(contextual != html, "Telecom contextual-source control changes the real native paragraph sequence");
+                Preserved(rule, prior, contextual);
+                File.WriteAllText(path, freshInput, new UTF8Encoding(false));
+                var contextualMapping = Mapping(rule, contextual);
+                Assert(contextualMapping.ErrorReason is null && contextualMapping.Docs!.TelecomOriginalSource is not null &&
+                    (rule.IsBind
+                        ? !contextualMapping.Docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text == rule.UnsafeText)
+                        : contextualMapping.Docs.UnsafeTargets?.ContainsKey("returns") == true),
+                    "Telecom first-fill safety is independent of unrelated summaries and safe surrounding paragraphs");
+                using (var contextFill = Pipeline(rule, true, 10))
+                    Assert(contextFill.RootElement.GetProperty("appliedCount").GetInt32() == 2 &&
+                        !File.ReadAllText(path).Contains(rule.UnsafeText, StringComparison.Ordinal),
+                        "Telecom contextual first-fill retains safe context without importing the exact contradicted channel");
+                var corrected = rule.IsBind
+                    ? html.Replace("May return null if\nclients can not bind to the service.", "", StringComparison.Ordinal)
+                    : html.Replace("Return true if you would like to have the service's\n", "Always returns false. Unlike the superclass,\n", StringComparison.Ordinal);
+                Assert(corrected != html, "Telecom corrected-source control actually changes the native defective text");
+                Preserved(rule, prior, corrected);
+                File.WriteAllText(path, freshInput, new UTF8Encoding(false));
+                using (var future = Pipeline(rule, true, 10))
+                    Assert(future.RootElement.GetProperty("appliedCount").GetInt32() == (rule.IsBind ? 2 : 3),
+                        "Telecom future corrected official source remains eligible for ordinary first-fill channels");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            }
+            Console.WriteLine($"Telecom lifecycle production tests: {calls} bounded offline runs passed.");
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     static void TestControlsLifecycle(string repositoryRoot, string fixtureRoot)
     {
         var html = File.ReadAllText(Path.Combine(fixtureRoot, "controls-lifecycle-android-reference.html"));
@@ -20378,6 +20796,7 @@ static partial class ImporterProgram
         TestAuthenticationPolicyTrustPairingRemarks();
         TestAuthenticationPolicyTrustPairingWithdrawal(repositoryRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
+        TestTelecomLifecycle(repositoryRoot, fixtureRoot);
         TestNfcContracts(repositoryRoot, fixtureRoot);
         TestNfcSafeEnumRefresh(repositoryRoot, fixtureRoot);
         TestNfcCopiedDescriptionExclusion(repositoryRoot, fixtureRoot);
@@ -31493,6 +31912,7 @@ static partial class ImporterProgram
         public bool Offline { get; private set; }
         public bool SelfTest { get; private set; }
         public bool PreservationSelfTest { get; private set; }
+        public bool TelecomSelfTest { get; private set; }
         public bool ManagedOnly { get; private set; }
         public bool RepeatedOnly { get; private set; }
         public bool Help { get; private set; }
@@ -31535,6 +31955,9 @@ static partial class ImporterProgram
                         break;
                     case "--self-test-preservation":
                         options.PreservationSelfTest = true;
+                        break;
+                    case "--self-test-telecom":
+                        options.TelecomSelfTest = true;
                         break;
                     case "--managed-only":
                         options.ManagedOnly = true;
@@ -31626,6 +32049,7 @@ static partial class ImporterProgram
             Validation:
               --self-test            Run local fixture tests; add --managed-only for the .NET rules
               --self-test-preservation Run focused metadata, newline and source exclusion tests
+              --self-test-telecom Run exact Telecom lifecycle preservation and production tests
               -h, --help             Show help
             """);
     }
@@ -34353,6 +34777,7 @@ static partial class ImporterProgram
         List<SourceParagraph>? WithheldRemarks = null,
         SliceProviderContract? SliceProviderContract = null,
         KnownNfcContract? NfcContract = null,
+        SourceDocs? TelecomOriginalSource = null,
         KnownTvAdCorrection? TvAdCorrection = null,
         IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null,
         bool QualityFirstFillOnly = false,

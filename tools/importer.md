@@ -9,6 +9,7 @@ Run it with the .NET 10 SDK or newer:
 ```powershell
 dotnet run tools\importer.cs -- --self-test
 dotnet run tools\importer.cs -- --self-test-preservation
+dotnet run tools\importer.cs -- --self-test-telecom
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --report artifacts\argb-import
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace Android.Animation --max-changes 10 --cache C:\temp\android-doc-cache
 dotnet run tools\importer.cs -- --path docs\xml --api-since 37 --max-changes 10 --report artifacts\api-37-import
@@ -285,6 +286,46 @@ intact; its unsafe return is restored to `To be added.`. Authored or mixed conte
 duplicate channels, altered metadata, and changed sources are preserved and reported.
 Repairs for one member are atomic and require room for every affected channel.
 Implementation verification is not an AOSP prose fallback.
+The two final `CallRedirectionService` lifecycle overrides have separate,
+channel-specific guards. For the exact registered `OnBind` declaration and
+canonical Android source, only the complete known nullable-binder paragraph
+loses `May return null if clients can not bind to the service.`; its remaining
+sentences and Binder-thread guidance remain in order. For `OnUnbind`, only the
+exact inherited caller-choice return is withheld as `source_channel_ambiguous`.
+Its existing default-does-nothing/returns-false remarks are not rewritten.
+The API 37.2 implementation at
+`src/android/telecom/CallRedirectionService.java:330-338` always returns a new
+binder from `onBind` and false from `onUnbind`. Verification uses the official
+`source-37.2_r01.zip` archive, SHA-256
+`9d637c3af6654a2f1b696b3d19c54bb77e38df2b0106116934703f314b3d4e84`,
+not implementation-derived replacement prose.
+First-fill guards require the exact managed/JNI declaration, canonical source
+URL/label, native final declaration, and complete affected non-code paragraph
+or return. Unrelated safe source context does not re-enable the defect.
+Prior-copy repair additionally requires the entire original source contract
+and complete plain importer-owned Docs, including untouched parameter/return
+placeholders, summary, ordered remarks, reference and attribution. It removes
+only the exact original paragraph's nullable sentence or restores the unsafe
+return to `To be added.`, consuming one change and retaining every other byte.
+Authored or mixed content, duplicate channels, comments, CDATA, processing
+instructions, altered binding/source metadata and changed source are preserved;
+no generic refresh can bypass a rejected prior-copy repair.
+Corrected official source remains eligible for first-fill imports.
+`telecom-redirection-fresh-legacy-output.json` records fresh timestamped
+compatibility samples from the unchanged importer at commit
+`dfab3d3dce6f3c28f14b9f13af5a413e20b00e17`, not historical APPLY outputs.
+Its portable-PDB source checksum was verified before generation. Both the
+untouched baseline members and independently placeholder-seeded first-fill
+inputs ran through that real producer, using bounded offline preview/apply
+commands and zero-write persisted repeats. Raw input/output bytes and hashes,
+source-page/fragment hashes, producer hashes and execution receipts are retained;
+the strict repair helper does not manufacture these samples.
+The focused `--self-test-telecom` suite is also included in `--self-test`.
+It verifies both prior-copy sample forms, bounded first fills and repairs,
+authored/mixed and changed-binding/source preservation, LF/CRLF and UTF-8 BOM
+combinations, corrected/contextual source controls, and byte-identical persisted
+repeats through the production pipeline. The native HTML fixture is base64
+encoded to preserve the original declaration bytes.
 The seven final `SliceProvider` data-operation overrides also expose copied
 `ContentProvider` contracts despite ignoring their operation arguments:
 `delete`, `getType`, `insert`, the three `query` overloads, and `update`.
