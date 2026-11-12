@@ -912,6 +912,27 @@ The four Java 21 `Spliterators.Abstract*Spliterator.estimateSize()` summaries
 that stop inside `Consumer<?` are also withheld. Their valid remarks and return
 channels remain eligible; no general generic-type or sentence-parser change
 is made.
+The exact Android `FilePermission` and `SerializablePermission` projections
+have a separate, source-pinned legacy-security path. Java 21 permission checks,
+action lists and retained permission names contradict the API 37.2 Android
+stubs. Complete binding metadata, canonical declarations and full parsed source
+fingerprints are required. Contradicted channels are reported as ambiguous,
+without replacement prose or generic enrichment; safe constructor parameter
+labels remain eligible. Changed source or binding identity is preserved and
+reported rather than guessed.
+Prior-copy withdrawal requires the complete exact original Docs snapshot,
+independently reproduced by the immutable importer at
+`8f08cbfd813a176044a947587916c153865f61d2`. The `Implies` exception additionally
+requires the exact mixed-owner snapshot from review commit
+`3c24283038340cf92288d8fcdee2f4ea390790ee`: only its independently unchanged
+parameter and return spans are withdrawn, never its authored paragraph.
+Other repairs remove only contradicted producer-owned spans and retain every
+source-reference and attribution byte. Each member's repair is atomic within
+the change budget. `java-io-legacy-security.json` retains original binding bytes,
+independent producer inputs/outputs, the reviewed mixed snapshot, native source
+fragments and SDK archive provenance. Registered offline tests cover first fills,
+historical ownership, altered content/source/binding, bounded writes, BOM/newline
+preservation and persisted zero-write repeats.
 The exact `HardwareBufferRenderer.RenderRequest.setColorSpace` remarks are
 withheld when their non-null requirement conflicts with the parameter's
 documented null-to-SRGB behavior. The summary and parameter remain eligible.
