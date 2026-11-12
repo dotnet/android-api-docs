@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Defines managed peer registration, lifetime control, and JNI value conversion.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -43,7 +43,7 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Initializes the value manager base class.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -76,12 +76,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="cinfo">To be added.</param>
-        <param name="argumentValues">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="reference">The Java peer reference used for activation.</param>
+        <param name="type">The managed type to activate.</param>
+        <param name="cinfo">The activation constructor to invoke.</param>
+        <param name="argumentValues">The constructor arguments supplied by the caller.</param>
+        <summary>Activates a managed peer for a Java instance through the derived implementation.</summary>
+        <remarks>The implementation controls allocation and invocation of the activation constructor.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AddPeer">
@@ -101,8 +101,8 @@
         <Parameter Name="value" Type="Java.Interop.IJavaPeerable" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="value">The managed Java peer to add to the implementation's mapping.</param>
+        <summary>Registers a managed peer in the Java-to-managed mapping.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -123,7 +123,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Requests peer collection through the runtime-specific implementation.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -148,10 +148,10 @@
         <Parameter Name="options" Type="Java.Interop.JniObjectReferenceOptions" />
       </Parameters>
       <Docs>
-        <param name="peer">To be added.</param>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="peer">The managed peer being initialized.</param>
+        <param name="reference">The source JNI reference passed by reference.</param>
+        <param name="options">Reference-transfer and peer-registration options.</param>
+        <summary>Delegates peer initialization to <c>ConstructPeerCore</c>.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -176,11 +176,11 @@
         <Parameter Name="options" Type="Java.Interop.JniObjectReferenceOptions" />
       </Parameters>
       <Docs>
-        <param name="peer">To be added.</param>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="peer">The managed peer being initialized.</param>
+        <param name="reference">The source JNI reference passed by reference.</param>
+        <param name="options">Reference-transfer and peer-registration options.</param>
+        <summary>Defines the implementation's peer construction and reference-transfer policy.</summary>
+        <remarks>Runtime-specific managers implement reference ownership and registration here.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateLocalObjectReferenceArgument">
@@ -208,11 +208,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The non-null managed argument type.</param>
+        <param name="value">The managed argument to represent in Java.</param>
+        <summary>Creates a local JNI argument reference through the implementation hook.</summary>
+        <returns>The local reference supplied by the implementation.</returns>
+        <remarks>The caller owns a valid returned local reference and must dispose or transfer it.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateLocalObjectReferenceArgumentCore">
@@ -240,11 +240,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The managed argument type.</param>
+        <param name="value">The managed argument to represent in Java.</param>
+        <summary>Defines creation of a local JNI object-reference argument.</summary>
+        <returns>A local reference for the value, or an invalid reference for a supported null value.</returns>
+        <remarks>Derived implementations determine supported managed values and allocate the argument reference.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreatePeer">
@@ -279,11 +279,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="transfer">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The source JNI reference for the new managed peer.</param>
+        <param name="transfer">Reference-transfer options for the peer implementation.</param>
+        <param name="targetType">The requested peer type, or the implementation's default when <see langword="null" />.</param>
+        <summary>Creates a managed peer wrapper according to the derived implementation.</summary>
+        <returns>The created peer, or <see langword="null" /> when the implementation cannot produce a compatible peer.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -321,11 +321,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The JNI reference supplied to the conversion implementation.</param>
+        <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
+        <param name="targetType">The optional requested managed target type.</param>
+        <summary>Creates a managed value through the creation hook after checking manager disposal.</summary>
+        <returns>The value produced by the creation implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -383,12 +383,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <typeparam name="T">The managed result type.</typeparam>
+        <param name="reference">The JNI reference supplied to the conversion implementation.</param>
+        <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
+        <param name="targetType">The optional requested managed target type.</param>
+        <summary>Creates a typed managed value through the creation hook.</summary>
+        <returns>The value produced by the creation implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -426,12 +426,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="reference">The JNI reference supplied to the conversion implementation.</param>
+        <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
+        <param name="targetType">The optional requested managed target type.</param>
+        <summary>Defines non-generic managed value creation from a JNI reference.</summary>
+        <returns>The value produced by the creation implementation.</returns>
+        <remarks>Derived implementations control conversion and source-reference transfer.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateValueCore&lt;T&gt;">
@@ -486,13 +486,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T">The managed result type.</typeparam>
+        <param name="reference">The JNI reference supplied to the conversion implementation.</param>
+        <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
+        <param name="targetType">The optional requested managed target type.</param>
+        <summary>Defines typed managed value creation from a JNI reference.</summary>
+        <returns>The value produced by the creation implementation.</returns>
+        <remarks>The generic result can be the default value, as permitted by the return annotations.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -513,7 +513,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Calls managed disposal and suppresses finalization.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -536,8 +536,8 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="disposing">The disposal-mode flag, ignored by the base implementation.</param>
+        <summary>Marks the manager as disposed.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -560,8 +560,8 @@
         <Parameter Name="value" Type="Java.Interop.IJavaPeerable" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="value">The non-null managed peer to dispose.</param>
+        <summary>Runs disposal notification, removes the peer mapping, and releases its JNI reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -584,8 +584,8 @@
         <Parameter Name="value" Type="Java.Interop.IJavaPeerable" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="value">The non-null managed peer whose mapping is inspected.</param>
+        <summary>Releases the peer reference unless the mapping still points to this managed instance.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -606,8 +606,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Throws <see cref="T:System.ObjectDisposedException" /> when the manager has been disposed.</summary>
+        <remarks>Derived operations can use this guard before accessing manager state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FinalizePeer">
@@ -627,8 +627,8 @@
         <Parameter Name="value" Type="Java.Interop.IJavaPeerable" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="value">The peer passed from its managed finalizer.</param>
+        <summary>Applies the runtime-specific finalization policy to a managed peer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -651,9 +651,9 @@
         <Parameter Name="reference" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The Java object reference whose identity hash is requested.</param>
+        <summary>Gets the Java identity hash through the runtime's System helper.</summary>
+        <returns>The result of Java <c>System.identityHashCode</c> for the reference.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -690,11 +690,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="reference">The Java object reference to wrap or look up.</param>
+        <param name="targetType">The optional managed peer type required for a reused mapping.</param>
+        <summary>Reuses a compatible mapped peer or creates one with <see cref="F:Java.Interop.JniObjectReferenceOptions.Copy" /> transfer options.</summary>
+        <returns>A compatible existing or created peer, or <see langword="null" /> for a zero reference or incompatible conversion.</returns>
+        <remarks>The source reference is not consumed by this lookup.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSurfacedPeers">
@@ -712,8 +712,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Gets diagnostic information about the implementation's surfaced peer mappings.</summary>
+        <returns>The implementation-supplied list of identity hashes and weak peer references.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -751,11 +751,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The JNI reference supplied to the conversion implementation.</param>
+        <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
+        <param name="targetType">The optional requested managed target type.</param>
+        <summary>Looks up or converts a managed value through the lookup hook.</summary>
+        <returns>The existing or converted value produced by the lookup implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -798,10 +798,10 @@
         <Parameter Name="handle" Type="System.IntPtr" />
       </Parameters>
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <param name="handle">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <typeparam name="T">The managed result type.</typeparam>
+        <param name="handle">The borrowed JNI handle to look up without consuming its reference.</param>
+        <summary>Looks up or converts a raw JNI handle with <see cref="F:Java.Interop.JniObjectReferenceOptions.Copy" /> transfer options.</summary>
+        <returns>The typed result supplied by the ref-reference <c>GetValue</c> overload.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -859,12 +859,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <typeparam name="T">The managed result type.</typeparam>
+        <param name="reference">The JNI reference supplied to the conversion implementation.</param>
+        <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
+        <param name="targetType">The optional requested managed target type.</param>
+        <summary>Looks up or converts a typed managed value through the lookup hook.</summary>
+        <returns>The existing or converted value produced by the lookup implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -902,12 +902,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="reference">The JNI reference supplied to the conversion implementation.</param>
+        <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
+        <param name="targetType">The optional requested managed target type.</param>
+        <summary>Defines non-generic managed value lookup and conversion.</summary>
+        <returns>The existing or converted value produced by the lookup implementation.</returns>
+        <remarks>Derived implementations decide whether an existing mapped value can be reused.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetValueCore&lt;T&gt;">
@@ -962,13 +962,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T">The managed result type.</typeparam>
+        <param name="reference">The JNI reference supplied to the conversion implementation.</param>
+        <param name="options">Reference-transfer options forwarded to the conversion implementation.</param>
+        <param name="targetType">The optional requested managed target type.</param>
+        <summary>Defines typed managed value lookup and conversion.</summary>
+        <returns>The existing or converted value produced by the lookup implementation.</returns>
+        <remarks>Derived implementations supply typed conversion and reference-transfer behavior.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetValueMarshaler">
@@ -988,9 +988,9 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The managed type requiring a value marshaler.</param>
+        <summary>Gets a marshaler through the type-based lookup hook.</summary>
+        <returns>The marshaler returned by the implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1021,9 +1021,9 @@
       </TypeParameters>
       <Parameters />
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <typeparam name="T">The managed value type requiring a marshaler.</typeparam>
+        <summary>Gets a typed marshaler through the generic lookup hook.</summary>
+        <returns>The typed marshaler returned by the implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1046,9 +1046,9 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">The managed type requiring a marshaler.</param>
+        <summary>Defines the type-based value-marshaler lookup policy.</summary>
+        <returns>The marshaler selected by the derived implementation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1079,10 +1079,10 @@
       </TypeParameters>
       <Parameters />
       <Docs>
-        <typeparam name="T">To be added.</typeparam>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <typeparam name="T">The managed type requiring a typed marshaler.</typeparam>
+        <summary>Defines the generic value-marshaler lookup policy.</summary>
+        <returns>The typed marshaler selected by the derived implementation.</returns>
+        <remarks>Derived implementations can adapt an untyped marshaler to this generic API.</remarks>
       </Docs>
     </Member>
     <Member MemberName="OnSetRuntime">
@@ -1102,8 +1102,8 @@
         <Parameter Name="runtime" Type="Java.Interop.JniRuntime" />
       </Parameters>
       <Docs>
-        <param name="runtime">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="runtime">The runtime to store.</param>
+        <summary>Associates the manager with a runtime after checking disposal.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1132,9 +1132,9 @@
         <Parameter Name="reference" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The Java reference whose current mapping is inspected.</param>
+        <summary>Looks up an existing managed peer without creating one.</summary>
+        <returns>The mapped managed peer, or <see langword="null" /> when no peer is available.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1163,9 +1163,9 @@
         <Parameter Name="reference" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="reference">The JNI reference whose existing managed value is requested.</param>
+        <summary>Looks up a peer and unwraps known managed proxy values.</summary>
+        <returns>The unwrapped proxy value or mapped peer, or <see langword="null" /> when no mapping is available.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1188,8 +1188,8 @@
         <Parameter Name="value" Type="Java.Interop.IJavaPeerable" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="value">The managed peer to remove from the implementation's mapping.</param>
+        <summary>Removes a peer mapping without defining JNI reference disposal.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1209,8 +1209,8 @@
         <ReturnType>Java.Interop.JniRuntime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the runtime assigned to this value manager.</summary>
+        <value>The assigned runtime; reading before assignment throws <see cref="T:System.NotSupportedException" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1245,10 +1245,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <param name="result">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="value">The mapped peer to inspect for a managed proxy.</param>
+        <param name="result">The wrapped managed object or exception on success; otherwise, <see langword="null" />.</param>
+        <summary>Unwraps the built-in managed-object and exception proxy types.</summary>
+        <returns><see langword="true" /> when a supported proxy was recognized; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1269,7 +1269,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Provides the GC-bridge coordination hook used before JNI callbacks.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1302,13 +1302,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="self">To be added.</param>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="self">The already allocated managed peer to initialize.</param>
+        <param name="reference">The JNI reference passed to the activation constructor and updated from its by-reference argument.</param>
+        <param name="options">Reference-transfer options passed to the activation constructor.</param>
+        <param name="type">The type whose public or non-public activation constructor is searched.</param>
+        <summary>Invokes an activation constructor on an existing managed peer when one is found.</summary>
+        <returns><see langword="true" /> if the constructor was invoked; <see langword="false" /> if no matching constructor exists.</returns>
+        <remarks>The constructor signature is <c>(ref JniObjectReference, JniObjectReferenceOptions)</c>. Reflection invocation exceptions propagate.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActivatePeer">
@@ -1344,12 +1344,12 @@
         <Parameter Name="argumentValues" Type="System.Object[]" FrameworkAlternate="net-android-35.0" />
       </Parameters>
       <Docs>
-        <param name="self">To be added.</param>
-        <param name="reference">To be added.</param>
-        <param name="cinfo">To be added.</param>
-        <param name="argumentValues">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="self">The optional existing managed peer supplied to the legacy activation implementation.</param>
+        <param name="reference">The Java peer reference used for activation.</param>
+        <param name="cinfo">The activation constructor metadata.</param>
+        <param name="argumentValues">The constructor arguments.</param>
+        <summary>Provides the legacy activation hook with an optional existing managed peer.</summary>
+        <remarks>Allocation and constructor invocation are supplied by the derived implementation.</remarks>
       </Docs>
     </Member>
   </Members>
