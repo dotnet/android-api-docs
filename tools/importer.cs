@@ -2385,6 +2385,11 @@ static partial class ImporterProgram
             return MappingResult.Skip("source_channel_ambiguous",
                 "The recovered SurfacePackage link did not match its verified SdkSandbox binding.",
                 docs.SourceUrl);
+        if (docs.HasRecoveredBiometricCallbackLinks &&
+            !MatchesBiometricCallbackBinding(owner, registration, docs))
+            return MappingResult.Skip("source_channel_ambiguous",
+                "The recovered biometric callback links did not match the verified managed and JNI binding.",
+                docs.SourceUrl);
         if (docs.HasRecoveredSecurityLogImplicitList)
             return MappingResult.Skip("source_channel_ambiguous",
                 "The recovered SecurityLog list is bound only to SecurityLogTags fields.",
@@ -2442,6 +2447,20 @@ static partial class ImporterProgram
                 "The malformed ImageDecoder.decodeDrawable source boundary did not retain the complete ordered non-code contract; no partial contract was imported.",
                 docs.SourceUrl);
         }
+        if (IsKnownUnsafeBiometricStringValue(owner, docs, out var property, out var getter))
+        {
+            if (!MatchesBiometricStringValueBinding(owner, registration, exact[0], docs, property, getter))
+                return MappingResult.Skip(
+                    "source_channel_ambiguous",
+                    "The copied button-label return did not match the verified Biometrics getter binding and source declaration.",
+                    docs.SourceUrl);
+            var targets = docs.UnsafeTargets is null
+                ? new Dictionary<string, string>(StringComparer.Ordinal)
+                : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+            targets["value"] =
+                "The exact official return repeats the button-label description for a different getter; no replacement prose was inferred.";
+            docs = docs with { UnsafeTargets = targets };
+        }
         var sourceVerifiedMapping = SourceVerifiedMemberMappings.Resolve(owner.Id);
         if (sourceVerifiedMapping is { UseFirstMeaningfulSummary: true })
         {
@@ -2476,6 +2495,96 @@ static partial class ImporterProgram
         docs = WithoutUnsafeIcuNumberChannels(owner, docs);
         docs = WithVerifiedDevicePresenceEventParameterName(owner, registration, exact[0], docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    const string BiometricStringsJavaPath = "android/hardware/biometrics/BiometricManager$Strings";
+    const string BiometricStringsSourceUrl =
+        AndroidReference + "android/hardware/biometrics/BiometricManager.Strings";
+    const string BiometricStringsManagedPrefix =
+        "P:Android.Hardware.Biometrics.BiometricManager.Strings.";
+    const string BiometricStringsButtonLabelReturn =
+        "The label for a button that invokes BiometricPrompt for authentication.";
+
+    static bool IsKnownUnsafeBiometricStringValue(
+        DocsOwner owner, SourceDocs docs, out string property, out string getter)
+    {
+        (property, getter) = owner.Id switch
+        {
+            BiometricStringsManagedPrefix + "PromptMessage" or
+                BiometricStringsManagedPrefix + "PromptMessageFormatted" =>
+                ("PromptMessage", "getPromptMessage"),
+            BiometricStringsManagedPrefix + "SettingName" or
+                BiometricStringsManagedPrefix + "SettingNameFormatted" =>
+                ("SettingName", "getSettingName"),
+            _ => docs.SourceUrl switch
+            {
+                BiometricStringsSourceUrl + "#getPromptMessage()" => ("PromptMessage", "getPromptMessage"),
+                BiometricStringsSourceUrl + "#getSettingName()" => ("SettingName", "getSettingName"),
+                _ => ("", ""),
+            },
+        };
+        return property.Length != 0 &&
+            RemoveLeadingJavaType(docs.Returns) == BiometricStringsButtonLabelReturn;
+    }
+
+    static bool MatchesBiometricStringValueBinding(
+        DocsOwner owner, MemberRegistration registration, SourceMember source, SourceDocs docs,
+        string property, string getter)
+    {
+        static bool HasSignature(XElement element, string language, string expected) =>
+            element.Elements("MemberSignature")
+                .Where(signature => (string?)signature.Attribute("Language") == language)
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual([expected], StringComparer.Ordinal);
+
+        if (owner.Member is not { } member ||
+            member.Ancestors("Type").SingleOrDefault() is not { } type ||
+            member.Parent != type.Element("Members") ||
+            (string?)type.Attribute("FullName") != "Android.Hardware.Biometrics.BiometricManager+Strings" ||
+            type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            Registration.Type(type) != BiometricStringsJavaPath ||
+            owner.SourceRequest != SourceRequest.Create(BiometricStringsJavaPath) ||
+            docs.SourceKind != "android" ||
+            docs.SourceUrl != BiometricStringsSourceUrl + "#" + getter + "()" ||
+            docs.SourceLabel != "android.hardware.biometrics.BiometricManager.Strings." + getter ||
+            owner.MemberRegistration != registration ||
+            registration != new MemberRegistration(getter, "()Ljava/lang/CharSequence;", false) ||
+            source is not { IsConstructor: false, IsField: false, ArgumentDescriptors: [] } ||
+            source.Name != getter || source.Declaration != $"public CharSequence {getter} ()" ||
+            source.Url != docs.SourceUrl ||
+            member.Element("MemberType")?.Value != "Property" ||
+            member.Element("Parameters")?.Elements().Any() == true ||
+            !HasSignature(member, "DocId", owner.Id))
+            return false;
+
+        var alias = owner.Id == BiometricStringsManagedPrefix + property;
+        var name = property + (alias ? "" : "Formatted");
+        if ((string?)member.Attribute("MemberName") != name ||
+            owner.Id != BiometricStringsManagedPrefix + name ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value !=
+                (alias ? "System.String" : "Java.Lang.ICharSequence") ||
+            !HasSignature(member, "C#", alias
+                ? $"public string? {name} {{ get; }}"
+                : $"public virtual Java.Lang.ICharSequence? {name} {{ get; }}"))
+            return false;
+
+        if (!alias)
+            return Registration.Member(member) == registration;
+
+        return Registration.Member(member) is null &&
+            SourceVerifiedMemberMappings.Resolve(owner.Id, type, member)?.Registration == registration &&
+            type.Element("Members")!.Elements("Member")
+                .Where(candidate => (string?)candidate.Attribute("MemberName") == property + "Formatted")
+                .ToArray() is [var formatted] &&
+            formatted.Element("MemberType")?.Value == "Property" &&
+            formatted.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+            formatted.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.ICharSequence" &&
+            formatted.Element("Parameters")?.Elements().Any() != true &&
+            HasSignature(formatted, "DocId", BiometricStringsManagedPrefix + property + "Formatted") &&
+            HasSignature(formatted, "C#",
+                $"public virtual Java.Lang.ICharSequence? {property}Formatted {{ get; }}") &&
+            Registration.Member(formatted) == registration;
     }
 
     static SourceDocs WithVerifiedOdpInferenceParamsBuilderSummary(
@@ -2914,6 +3023,111 @@ static partial class ImporterProgram
                 ? name : error ? $"public const {returnType} {name} = {value};" : $"public const string {name};") &&
             member.Element("ReturnValue")?.Element("ReturnType")?.Value == returnType &&
             (!error || member.Element("MemberValue")?.Value == value);
+    }
+
+    const string BiometricCallbackJavaPath =
+        "android/hardware/biometrics/EmbeddedBiometricPrompt$AuthenticationCallback";
+    const string BiometricCallbackSourceUrl =
+        AndroidReference + "android/hardware/biometrics/EmbeddedBiometricPrompt.AuthenticationCallback";
+    const string BiometricCallbackManagedType =
+        "Android.Hardware.Biometrics.EmbeddedBiometricPrompt.AuthenticationCallback";
+    const string BiometricCallbackErrorLink =
+        "ERROR(BiometricConstants.Errors/android.hardware.biometrics.BiometricConstants.Errors BiometricConstants.Errors)";
+    const string BiometricCallbackFaceLink =
+        "ERROR(BiometricFaceConstants.FaceAcquired/android.hardware.biometrics.BiometricFaceConstants.FaceAcquired BiometricFaceConstants.FaceAcquired)";
+    const string BiometricCallbackFingerprintLink =
+        "ERROR(BiometricFingerprintConstants.FingerprintAcquired/android.hardware.biometrics.BiometricFingerprintConstants.FingerprintAcquired BiometricFingerprintConstants.FingerprintAcquired)";
+
+    static string RecoverBiometricCallbackLinks(
+        string fragment, SourceRequest request, string title, out bool recovered)
+    {
+        var expectedHash = title switch
+        {
+            "onAuthenticationError" => "f49e3798145ddabf2e5818a1e57a28ac57455ea82c3386409484472e78b7890d",
+            "onAuthenticationHelp" => "30cde7d024f1158a091063164f062d42455752c38fece9f3f94ac47dc30b4042",
+            _ => "",
+        };
+        recovered = request == SourceRequest.Create(BiometricCallbackJavaPath) &&
+            expectedHash.Length > 0 &&
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(fragment)))
+                .Equals(expectedHash, StringComparison.OrdinalIgnoreCase);
+        if (!recovered)
+            return fragment;
+        return fragment
+            .Replace(BiometricCallbackErrorLink, "BiometricConstants.Errors", StringComparison.Ordinal)
+            .Replace(BiometricCallbackFaceLink, "BiometricFaceConstants.FaceAcquired", StringComparison.Ordinal)
+            .Replace(BiometricCallbackFingerprintLink, "BiometricFingerprintConstants.FingerprintAcquired", StringComparison.Ordinal);
+    }
+
+    static bool MatchesBiometricCallbackBinding(
+        DocsOwner owner, MemberRegistration registration, SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        if (member is null || type is null ||
+            (string?)type.Attribute("FullName") != "Android.Hardware.Biometrics.EmbeddedBiometricPrompt+AuthenticationCallback" ||
+            !IsMonoAndroidDeclaration(type) ||
+            !IsMonoAndroidDeclaration(member) ||
+            !HasSingleSignature(type, "TypeSignature", "DocId", "T:" + BiometricCallbackManagedType) ||
+            !HasSingleAndroidRegistration(type) ||
+            Registration.Type(type) != BiometricCallbackJavaPath ||
+            owner.SourceRequest != SourceRequest.Create(BiometricCallbackJavaPath) ||
+            docs.SourceKind != "android" ||
+            registration.Descriptor != "(ILjava/lang/CharSequence;)V" ||
+            registration.IsField ||
+            member.Element("MemberType")?.Value != "Method" ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value != "System.Void")
+            return false;
+
+        var (managedName, codeName, codeType, textName) = registration.Name switch
+        {
+            "onAuthenticationError" => ("OnAuthenticationError", "errorCode",
+                "Android.Hardware.Biometrics.BiometricErrorCode", "errString"),
+            "onAuthenticationHelp" => ("OnAuthenticationHelp", "helpCode",
+                "System.Int32", "helpString"),
+            _ => ("", "", "", ""),
+        };
+        if (managedName.Length == 0 ||
+            docs.SourceUrl != BiometricCallbackSourceUrl + "#" + registration.Name + "(int,%20java.lang.CharSequence)" ||
+            docs.SourceLabel != "android.hardware.biometrics.EmbeddedBiometricPrompt.AuthenticationCallback." + registration.Name)
+            return false;
+
+        var parameters = member.Element("Parameters")?.Elements("Parameter").Select(parameter =>
+            ((string?)parameter.Attribute("Name"), (string?)parameter.Attribute("Type"))).ToArray() ?? [];
+        if (parameters.Length != 2 || parameters[0] != (codeName, codeType) ||
+            parameters[1].Item1 != textName)
+            return false;
+
+        var alias = parameters[1].Item2 == "System.String";
+        if (!alias && parameters[1].Item2 != "Java.Lang.ICharSequence")
+            return false;
+        var textType = alias ? "string" : "Java.Lang.ICharSequence";
+        var codeSignature = codeType == "System.Int32" ? "int" : codeType;
+        var expectedId = $"M:{BiometricCallbackManagedType}.{managedName}({codeType},{parameters[1].Item2})";
+        var expectedSignature = $"public {(alias ? "" : "virtual ")}void {managedName} ({codeSignature} {codeName}, {textType} {textName});";
+        if (owner.Id != expectedId ||
+            !HasSingleSignature(member, "MemberSignature", "DocId", expectedId) ||
+            !HasSingleSignature(member, "MemberSignature", "C#", expectedSignature))
+            return false;
+        if (!alias)
+            return HasSingleAndroidRegistration(member) && Registration.Member(member) == registration;
+        if (Registration.Member(member) is not null ||
+            SourceVerifiedMemberMappings.Resolve(owner.Id, type, member)?.Registration != registration)
+            return false;
+
+        var siblings = type.Element("Members")?.Elements("Member").Where(candidate =>
+            (string?)candidate.Attribute("MemberName") == managedName &&
+            Registration.Member(candidate) == registration).ToArray() ?? [];
+        if (siblings is not [var sibling] || sibling.Element("Docs") is not XElement siblingDocs)
+            return false;
+        var siblingOwner = owner with
+        {
+            Id = $"M:{BiometricCallbackManagedType}.{managedName}({codeType},Java.Lang.ICharSequence)",
+            Member = sibling,
+            Docs = siblingDocs,
+            MemberRegistration = registration,
+        };
+        return MatchesBiometricCallbackBinding(siblingOwner, registration, docs);
     }
 
     const string SecurityLogJavaPath = "android/app/admin/SecurityLog";
@@ -16952,6 +17166,541 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestBiometricStringValueGuard(string repositoryRoot)
+    {
+        var namespaceDirectory = Path.Combine(repositoryRoot, "docs", "xml", "Android.Hardware.Biometrics");
+        var original = XElement.Load(Path.Combine(namespaceDirectory, "BiometricManager+Strings.xml"),
+            LoadOptions.PreserveWhitespace);
+        var token = "biometric-string-value-" + Guid.NewGuid().ToString("N");
+        var temporary = Path.Combine(Path.GetTempPath(), token);
+        var cache = Path.Combine(temporary, "cache");
+        var path = Path.Combine(namespaceDirectory, "." + token + ".xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            var request = SourceRequest.Create(BiometricStringsJavaPath)!;
+            var cachePath = Path.Combine(cache, Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            var cases = new[]
+            {
+                (Property: "PromptMessage", Getter: "getPromptMessage",
+                    Summary: "Provides a localized string that can be shown while the user is authenticating with BiometricPrompt."),
+                (Property: "SettingName", Getter: "getSettingName",
+                    Summary: "Provides a localized string that can be shown as the title for an app setting that enables authentication with BiometricPrompt."),
+            };
+            const string correctedReturn = "A corrected return description.";
+            string Section(string getter, string summary, string returns, bool changedDeclaration = false,
+                bool changedLabel = false) => $"""
+                <h3 class="api-name" id="{getter}()">{getter}{(changedLabel ? "Other" : "")}</h3>
+                <pre class="api-signature">public {(changedDeclaration ? "Object" : "CharSequence")} {getter} ()</pre>
+                <p>{summary}</p>
+                <table><tr><th colspan="2">Returns</th></tr>
+                <tr><td>CharSequence</td><td>{returns}</td></tr></table>
+                """;
+            string Source(string? correctedGetter = null, string? changedDeclaration = null,
+                string? changedLabel = null) =>
+                Section("getButtonLabel", "Provides a localized button label.", BiometricStringsButtonLabelReturn) +
+                string.Concat(cases.Select(test => Section(test.Getter, test.Summary,
+                    test.Getter == correctedGetter ? correctedReturn : BiometricStringsButtonLabelReturn,
+                    test.Getter == changedDeclaration, test.Getter == changedLabel)));
+            void WriteSource(string? correctedGetter = null, string? changedDeclaration = null,
+                string? changedLabel = null) =>
+                File.WriteAllText(cachePath, Source(correctedGetter, changedDeclaration, changedLabel),
+                    new UTF8Encoding(false));
+            var page = SourcePage.Parse(request, Source());
+            var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+            {
+                [request.Url] = SourceLoadResult.Success(page),
+            };
+            XElement Fixture(string name, bool valuePlaceholder, bool buttonPlaceholder,
+                bool summaryPlaceholder = false, bool remarksPlaceholder = false)
+            {
+                var root = new XElement(original);
+                root.Element("Docs")!.ReplaceNodes(
+                    new XElement("summary", "Authored type summary."),
+                    new XElement("remarks", "Authored type remarks."));
+                var members = root.Element("Members")!;
+                var baseName = name.EndsWith("Formatted", StringComparison.Ordinal)
+                    ? name[..^"Formatted".Length] : name;
+                var sibling = name == baseName ? baseName + "Formatted" : baseName;
+                var selected = new[] { name, sibling, "ButtonLabel", "ButtonLabelFormatted" }
+                    .Select(memberName => members.Elements("Member").Single(member =>
+                        (string?)member.Attribute("MemberName") == memberName)).ToArray();
+                members.RemoveNodes();
+                members.Add(selected);
+                foreach (var member in members.Elements("Member"))
+                {
+                    var memberName = (string)member.Attribute("MemberName")!;
+                    var getter = memberName.StartsWith("PromptMessage", StringComparison.Ordinal)
+                        ? "getPromptMessage"
+                        : memberName.StartsWith("SettingName", StringComparison.Ordinal)
+                            ? "getSettingName" : "getButtonLabel";
+                    var source = page.Members.Single(item => item.Name == getter).Docs!;
+                    member.Element("Docs")!.ReplaceNodes(
+                        new XElement("summary", "Authored summary."),
+                        new XElement("value", new XText("Authored "), new XElement("c", "custom"), new XText(" value.")),
+                        new XElement("remarks", new XElement("para", "Authored remarks."),
+                            ImporterSourceReference(source), XElement.Parse($"<para>{AndroidAttribution}</para>")));
+                }
+                var target = members.Elements("Member").Single(member =>
+                    (string?)member.Attribute("MemberName") == name).Element("Docs")!;
+                if (valuePlaceholder)
+                    target.Element("value")!.ReplaceNodes(new XText("To be added."));
+                if (summaryPlaceholder)
+                    target.Element("summary")!.ReplaceNodes(new XText("To be added."));
+                if (remarksPlaceholder)
+                    target.Element("remarks")!.ReplaceNodes(new XText("To be added."));
+                if (buttonPlaceholder)
+                    members.Elements("Member").Single(member =>
+                        (string?)member.Attribute("MemberName") == "ButtonLabel")
+                        .Element("Docs")!.Element("value")!.ReplaceNodes(new XText("To be added."));
+                return root;
+            }
+            void WriteFixture(XElement root)
+            {
+                var text = root.ToString(SaveOptions.DisableFormatting)
+                    .Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\n", "\r\n", StringComparison.Ordinal);
+                File.WriteAllText(path, text, new UTF8Encoding(true));
+            }
+            var reportNumber = 0;
+            JsonDocument Run(bool apply)
+            {
+                var report = Path.Combine(temporary, "report-" + reportNumber++);
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.Hardware.Biometrics", "--offline",
+                    "--cache", cache, "--max-changes", "1", "--report", report,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Biometrics value guard production pipeline succeeds");
+                var result = JsonDocument.Parse(File.ReadAllText(report + ".json"));
+                Assert(result.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Biometrics value guard production report has no errors");
+                if (result.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous"))
+                    Assert(File.ReadAllText(report + ".txt").Contains(
+                        "source_channel_ambiguous", StringComparison.Ordinal),
+                        "Biometrics text report retains the ambiguity");
+                return result;
+            }
+            static bool HasAmbiguousValue(JsonDocument report, string id) =>
+                report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("member").GetString() == id &&
+                    entry.GetProperty("target").GetString() == "value" &&
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous");
+            LoadedFile Load()
+            {
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                return file;
+            }
+            static XElement Member(XElement root, string name) =>
+                root.Element("Members")!.Elements("Member").Single(member =>
+                    (string?)member.Attribute("MemberName") == name);
+
+            foreach (var test in cases)
+            foreach (var formatted in new[] { false, true })
+            {
+                var name = test.Property + (formatted ? "Formatted" : "");
+                var id = BiometricStringsManagedPrefix + name;
+                WriteSource();
+                WriteFixture(Fixture(name, valuePlaceholder: true, buttonPlaceholder: true));
+                var before = Load();
+                var owner = before.Owners.Single(item => item.Id == id);
+                var sourceMember = page.Members.Single(item => item.Name == test.Getter);
+                var raw = sourceMember.Docs!;
+                var mapped = MapOwner(owner, pages);
+                Assert(mapped.Docs?.UnsafeTargets?.ContainsKey("value") == true &&
+                    mapped.Docs.Returns == raw.Returns &&
+                    mapped.Docs.Summary == raw.Summary &&
+                    mapped.Docs.Paragraphs.SequenceEqual(raw.Paragraphs),
+                    "Biometrics exact attached owner withholds only the copied value: " + id);
+                Assert(ReplacementFor(new Placeholder(0, "summary", "", "summary"), mapped.Docs!).Text == raw.Summary &&
+                    ReplacementFor(new Placeholder(0, "remarks", "", "remarks"), mapped.Docs!).Remarks is not null &&
+                    ReplacementFor(new Placeholder(0, "value", "", "value"), mapped.Docs!).Reason ==
+                        "source_channel_ambiguous",
+                    "Biometrics safe source channels remain eligible: " + id);
+                var existingTargets = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["param:existing"] = "Existing exclusion.",
+                };
+                var seededPage = new SourcePage
+                {
+                    Members = page.Members.Select(item => item == sourceMember
+                        ? item with { Docs = raw with { UnsafeTargets = existingTargets } } : item).ToList(),
+                };
+                var seeded = MapOwner(owner, new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [request.Url] = SourceLoadResult.Success(seededPage),
+                });
+                Assert(seeded.Docs?.UnsafeTargets?.Count == 2 &&
+                    seeded.Docs.UnsafeTargets["param:existing"] == "Existing exclusion." &&
+                    seeded.Docs.UnsafeTargets.ContainsKey("value"),
+                    "Biometrics value exclusion preserves other source exclusions: " + id);
+                foreach (var changed in new[]
+                {
+                    raw with { SourceUrl = raw.SourceUrl + ".other" },
+                    raw with { SourceLabel = raw.SourceLabel + ".other" },
+                    raw with { SourceKind = "java" },
+                })
+                {
+                    var changedPage = new SourcePage
+                    {
+                        Members = page.Members.Select(item => item == sourceMember
+                            ? item with { Docs = changed } : item).ToList(),
+                    };
+                    Assert(IsKnownUnsafeBiometricStringValue(owner, changed, out _, out _) &&
+                        MapOwner(owner, new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                        {
+                            [request.Url] = SourceLoadResult.Success(changedPage),
+                        }).ErrorReason == "source_channel_ambiguous",
+                        "Biometrics changed source provenance reaches and fails the guard: " + id);
+                }
+                Assert(!IsKnownUnsafeBiometricStringValue(owner, raw with { Returns = correctedReturn }, out _, out _),
+                    "Biometrics corrected return is not the known copied value: " + id);
+                var renamedOwner = owner with { Id = id + ".other" };
+                Assert(IsKnownUnsafeBiometricStringValue(renamedOwner, raw, out _, out _) &&
+                    MapOwner(renamedOwner, pages).ErrorReason == "source_channel_ambiguous",
+                    "Biometrics changed managed identity cannot import the known bad source: " + id);
+
+                var button = before.Owners.Single(item => item.Id == BiometricStringsManagedPrefix + "ButtonLabel");
+                var buttonMapping = MapOwner(button, pages);
+                Assert(buttonMapping.Docs?.UnsafeTargets?.ContainsKey("value") != true &&
+                    ReplacementFor(new Placeholder(0, "value", "", "value"), buttonMapping.Docs!).Text ==
+                        BiometricStringsButtonLabelReturn,
+                    "Biometrics button label remains eligible for its own return: " + id);
+                var initialBytes = File.ReadAllBytes(path);
+                var targetDocs = new XElement(owner.Docs);
+                using (var preview = Run(false))
+                    Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        HasAmbiguousValue(preview, id) && File.ReadAllBytes(path).SequenceEqual(initialBytes),
+                        "Biometrics preview reports the held value and one safe bounded write: " + id);
+                using (var applied = Run(true))
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        HasAmbiguousValue(applied, id),
+                        "Biometrics bounded apply fills only the safe sibling: " + id);
+                var after = Load();
+                Assert(XNode.DeepEquals(targetDocs, after.Owners.Single(item => item.Id == id).Docs),
+                    "Biometrics held value and authored target channels remain unchanged: " + id);
+                var block = before.DocsBlocks[button.Order];
+                var blockText = before.Text[block.Start..block.End];
+                const string placeholder = "<value>To be added.</value>";
+                var offset = blockText.IndexOf(placeholder, StringComparison.Ordinal);
+                Assert(offset >= 0 && blockText.LastIndexOf(placeholder, StringComparison.Ordinal) == offset,
+                    "Biometrics safe sibling fixture has one exact value placeholder");
+                offset += block.Start;
+                var expected = before.Text[..offset] + "<value>" + BiometricStringsButtonLabelReturn +
+                    "</value>" + before.Text[(offset + placeholder.Length)..];
+                var expectedBytes = Encoding.UTF8.Preamble.ToArray()
+                    .Concat(Encoding.UTF8.GetBytes(expected)).ToArray();
+                Assert(File.ReadAllBytes(path).SequenceEqual(expectedBytes),
+                    "Biometrics safe sibling apply changes only its value bytes: " + id);
+                var appliedBytes = File.ReadAllBytes(path);
+                using (var repeat = Run(true))
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        repeat.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                        HasAmbiguousValue(repeat, id) && File.ReadAllBytes(path).SequenceEqual(appliedBytes),
+                        "Biometrics withheld value has a byte-identical zero-write repeat: " + id);
+
+                WriteFixture(Fixture(name, valuePlaceholder: false, buttonPlaceholder: true));
+                var authored = new XElement(Member(XElement.Load(path), name).Element("Docs")!);
+                using (var applied = Run(true))
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        XNode.DeepEquals(authored, Member(XElement.Load(path), name).Element("Docs")),
+                        "Biometrics authored mixed value is preserved during a sibling apply: " + id);
+
+                WriteFixture(Fixture(name, valuePlaceholder: true, buttonPlaceholder: false,
+                    summaryPlaceholder: true, remarksPlaceholder: true));
+                using (var summary = Run(true))
+                    Assert(summary.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        HasAmbiguousValue(summary, id) &&
+                        Member(XElement.Load(path), name).Element("Docs")!.Element("summary")!.Value == test.Summary,
+                        "Biometrics safe summary fills independently within budget: " + id);
+                using (var remarks = Run(true))
+                    Assert(remarks.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        HasAmbiguousValue(remarks, id) &&
+                        Member(XElement.Load(path), name).Element("Docs")!.Element("remarks")!.Value.Contains(
+                            test.Summary, StringComparison.Ordinal),
+                        "Biometrics safe remarks fill independently within budget: " + id);
+                var safeBytes = File.ReadAllBytes(path);
+                using (var repeat = Run(true))
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(safeBytes),
+                        "Biometrics safe sibling channels have a zero-write repeat: " + id);
+
+                WriteSource(correctedGetter: test.Getter);
+                WriteFixture(Fixture(name, valuePlaceholder: true, buttonPlaceholder: false));
+                using (var corrected = Run(true))
+                    Assert(corrected.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        !HasAmbiguousValue(corrected, id) &&
+                        Member(XElement.Load(path), name).Element("Docs")!.Element("value")!.Value == correctedReturn,
+                        "Biometrics corrected official value remains eligible: " + id);
+
+                WriteSource();
+                var mutations = new List<(string Description, Action<XElement, XElement> Change)>
+                {
+                    ("member assembly", (_, member) =>
+                        member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly"),
+                };
+                if (formatted)
+                {
+                    mutations.Add(("declaring owner", (type, _) =>
+                        type.SetAttributeValue("FullName", "Android.Hardware.Biometrics.Other")));
+                    mutations.Add(("declaring assembly", (type, _) =>
+                        type.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly"));
+                    mutations.Add(("managed signature", (_, member) =>
+                        member.Elements("MemberSignature").Single(signature =>
+                            (string?)signature.Attribute("Language") == "C#")
+                            .SetAttributeValue("Value", "public object? Changed { get; }")));
+                    mutations.Add(("DocId", (_, member) =>
+                        member.Elements("MemberSignature").Single(signature =>
+                            (string?)signature.Attribute("Language") == "DocId")
+                            .SetAttributeValue("Value", id + ".other")));
+                    mutations.Add(("managed return", (_, member) =>
+                        member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object"));
+                    mutations.Add(("JNI return descriptor", (_, member) =>
+                    {
+                        var attribute = member.Descendants("AttributeName").Single(item =>
+                            (string?)item.Attribute("Language") == "C#" &&
+                            item.Value.Contains($"\"{test.Getter}\"", StringComparison.Ordinal));
+                        attribute.Value = attribute.Value.Replace("()Ljava/lang/CharSequence;",
+                            "()Ljava/lang/String;", StringComparison.Ordinal);
+                    }));
+                    mutations.Add(("JNI getter", (_, member) =>
+                    {
+                        var attribute = member.Descendants("AttributeName").Single(item =>
+                            (string?)item.Attribute("Language") == "C#" &&
+                            item.Value.Contains($"\"{test.Getter}\"", StringComparison.Ordinal));
+                        attribute.Value = attribute.Value.Replace(
+                            $"\"{test.Getter}\"", "\"getButtonLabel\"", StringComparison.Ordinal);
+                    }));
+                }
+                else
+                {
+                    mutations.Add(("registered sibling signature", (type, _) =>
+                        Member(type, test.Property + "Formatted").Elements("MemberSignature").Single(signature =>
+                            (string?)signature.Attribute("Language") == "C#")
+                            .SetAttributeValue("Value", "public object? Changed { get; }")));
+                }
+                foreach (var mutation in mutations)
+                {
+                    var changed = Fixture(name, valuePlaceholder: true, buttonPlaceholder: false);
+                    mutation.Change(changed, Member(changed, name));
+                    WriteFixture(changed);
+                    var changedOwner = Load().Owners.Single(item =>
+                        (string?)item.Member?.Attribute("MemberName") == name);
+                    Assert(changedOwner.Member!.Ancestors("Type").Single().Element("Members") ==
+                            changedOwner.Member.Parent &&
+                        IsKnownUnsafeBiometricStringValue(changedOwner, raw, out _, out _) &&
+                        MapOwner(changedOwner, pages).ErrorReason == "source_channel_ambiguous",
+                        "Biometrics changed " + mutation.Description + " reaches and fails the binding guard: " + id);
+                    var unchanged = File.ReadAllBytes(path);
+                    using var rejected = Run(true);
+                    Assert(rejected.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        HasAmbiguousValue(rejected, changedOwner.Id) &&
+                        File.ReadAllBytes(path).SequenceEqual(unchanged),
+                        "Biometrics changed " + mutation.Description + " writes nothing: " + id);
+                }
+
+                WriteSource(changedDeclaration: test.Getter);
+                WriteFixture(Fixture(name, valuePlaceholder: true, buttonPlaceholder: false));
+                var changedSourcePage = SourcePage.Parse(request, Source(changedDeclaration: test.Getter));
+                var changedSourceOwner = Load().Owners.Single(item => item.Id == id);
+                var changedSourcePages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [request.Url] = SourceLoadResult.Success(changedSourcePage),
+                };
+                Assert(MapOwner(changedSourceOwner, changedSourcePages).ErrorReason == "source_channel_ambiguous",
+                    "Biometrics changed source declaration reaches the binding guard: " + id);
+                var originalBytes = File.ReadAllBytes(path);
+                using (var rejected = Run(true))
+                    Assert(rejected.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        HasAmbiguousValue(rejected, id) && File.ReadAllBytes(path).SequenceEqual(originalBytes),
+                        "Biometrics changed source declaration writes nothing: " + id);
+
+                WriteSource(changedLabel: test.Getter);
+                WriteFixture(Fixture(name, valuePlaceholder: true, buttonPlaceholder: false));
+                var changedLabelPage = SourcePage.Parse(request, Source(changedLabel: test.Getter));
+                var changedLabelOwner = Load().Owners.Single(item => item.Id == id);
+                Assert(MapOwner(changedLabelOwner, new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                    {
+                        [request.Url] = SourceLoadResult.Success(changedLabelPage),
+                    }).ErrorReason == "source_channel_ambiguous",
+                    "Biometrics changed source label reaches the provenance guard: " + id);
+                var changedLabelBytes = File.ReadAllBytes(path);
+                using (var rejected = Run(true))
+                    Assert(rejected.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        HasAmbiguousValue(rejected, id) && File.ReadAllBytes(path).SequenceEqual(changedLabelBytes),
+                        "Biometrics changed source label writes nothing: " + id);
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temporary, recursive: true);
+        }
+    }
+
+    static void TestBiometricsStringAliases(string repositoryRoot)
+    {
+        var biometricsDocs = Path.Combine(repositoryRoot, "docs", "xml", "Android.Hardware.Biometrics");
+        static string DocId(XElement member) => member.Elements("MemberSignature").Single(signature =>
+            (string?)signature.Attribute("Language") == "DocId").Attribute("Value")!.Value;
+        var verified = 0;
+        foreach (var path in Directory.GetFiles(biometricsDocs, "*.xml"))
+        {
+            var root = XElement.Load(path);
+            var members = root.Element("Members")?.Elements("Member").ToList() ?? [];
+            foreach (var alias in members)
+            {
+                var id = DocId(alias);
+                if (!id.StartsWith("M:Android.Hardware.Biometrics.", StringComparison.Ordinal) &&
+                    !id.StartsWith("P:Android.Hardware.Biometrics.", StringComparison.Ordinal) ||
+                    SourceVerifiedMemberMappings.Resolve(id) is not { } mapping)
+                    continue;
+                var isProperty = id.StartsWith("P:", StringComparison.Ordinal);
+                var siblingId = isProperty
+                    ? id + "Formatted"
+                    : id.Replace("System.String", "Java.Lang.ICharSequence", StringComparison.Ordinal);
+                var sibling = members.Single(member => DocId(member) == siblingId);
+                Assert(Registration.Member(alias) is null &&
+                    Registration.Member(sibling) is { } registration &&
+                    mapping.Registration == registration &&
+                    registration.Descriptor!.Contains("Ljava/lang/CharSequence;", StringComparison.Ordinal) &&
+                    mapping.SourceRequest == SourceRequest.Create(Registration.Type(root)) &&
+                    SourceVerifiedMemberMappings.Resolve(id, root, alias) == mapping &&
+                    SourceVerifiedMemberMappings.Resolve(id + "Other") is null,
+                    "Biometrics String alias maps only to its registered CharSequence sibling: " + id);
+
+                XElement Changed(Action<XElement, XElement> change)
+                {
+                    var changedRoot = new XElement(root);
+                    change(changedRoot, changedRoot.Element("Members")!.Elements("Member")
+                        .Single(member => DocId(member) == id));
+                    return changedRoot;
+                }
+                bool Rejects(XElement changedRoot) =>
+                    SourceVerifiedMemberMappings.Resolve(id, changedRoot,
+                        changedRoot.Element("Members")!.Elements("Member").Single(member => DocId(member) == id)) is null;
+                XElement ChangedSibling(XElement changedRoot) =>
+                    changedRoot.Element("Members")!.Elements("Member").Single(member => DocId(member) == siblingId);
+                Assert(Rejects(Changed((changedRoot, _) => changedRoot.Element("Attributes")!.Remove())) &&
+                    Rejects(Changed((changedRoot, _) => changedRoot.Element("AssemblyInfo")!.Remove())) &&
+                    Rejects(Changed((changedRoot, _) => ChangedSibling(changedRoot).Element("Attributes")!.Remove())) &&
+                    Rejects(Changed((changedRoot, _) =>
+                        changedRoot.Element("Members")!.Add(new XElement(ChangedSibling(changedRoot))))) &&
+                    Rejects(Changed((_, changedAlias) => changedAlias.Element("ReturnValue")!
+                        .Element("ReturnType")!.Value = "System.Int32")),
+                    "Biometrics String alias rejects changed owner, assembly, sibling registration, duplicate sibling and return: " + id);
+                if (!isProperty)
+                {
+                    Assert(Rejects(Changed((_, changedAlias) => changedAlias.Element("Parameters")!
+                            .Elements("Parameter").First(parameter => (string?)parameter.Attribute("Type") == "System.String")
+                            .SetAttributeValue("Name", "other"))) &&
+                        Rejects(Changed((_, changedAlias) => changedAlias.Element("Parameters")!
+                            .Elements("Parameter").Last().SetAttributeValue("Type", "System.Object"))) &&
+                        Rejects(Changed((_, changedAlias) => changedAlias.Element("Attributes")!.Add(
+                            new XElement(sibling.Element("Attributes")!.Elements("Attribute").First())))),
+                        "Biometrics String overload rejects changed parameter name, parameter type and own registration: " + id);
+                }
+                verified++;
+            }
+        }
+        Assert(verified == 24, "Biometrics String alias mappings cover the 24 reviewed members exactly");
+
+        var token = $"biometrics-string-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var tempDirectory = Path.Combine(Path.GetTempPath(), token);
+        var pipelinePath = Path.Combine(biometricsDocs, token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var request = SourceRequest.Create("android/hardware/biometrics/BiometricPrompt$Builder")!;
+            File.WriteAllText(
+                Path.Combine(tempDirectory, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                "<div id=\"jd-content\"><div id=\"summary\"></div>" +
+                "<h3 class=\"api-name\" id=\"setTitle(java.lang.CharSequence)\">setTitle</h3>" +
+                "<pre class=\"api-signature\">public BiometricPrompt.Builder setTitle (CharSequence title)</pre>" +
+                "<p>Fixture title setter summary.</p>" +
+                "<table><tr><th colspan=\"2\">Parameters</th></tr><tr><td>title</td><td>Fixture title parameter.</td></tr></table>" +
+                "<table><tr><th colspan=\"2\">Returns</th></tr><tr><td>BiometricPrompt.Builder</td><td>Fixture builder return.</td></tr></table></div>",
+                new UTF8Encoding(false));
+            const string registeredDescriptor = "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;";
+            string Fixture(string siblingDescriptor) =>
+                $"""
+                <Type Name="BiometricPrompt+Builder" FullName="Android.Hardware.Biometrics.BiometricPrompt+Builder">
+                  <TypeSignature Language="C#" Value="public sealed class BiometricPrompt.Builder" />
+                  <AssemblyInfo><AssemblyName>Mono.Android</AssemblyName></AssemblyInfo>
+                  <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("android/hardware/biometrics/BiometricPrompt$Builder", DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
+                  <Docs><summary>Authored type summary.</summary><remarks>Authored type remarks.</remarks></Docs>
+                  <Members>
+                    <Member MemberName="SetTitle">
+                      <MemberSignature Language="DocId" Value="M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetTitle(Java.Lang.ICharSequence)" />
+                      <MemberType>Method</MemberType>
+                      <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("setTitle", "{siblingDescriptor}", "GetSetTitle_Ljava_lang_CharSequence_Handler")]</AttributeName></Attribute></Attributes>
+                      <ReturnValue><ReturnType>Android.Hardware.Biometrics.BiometricPrompt+Builder</ReturnType></ReturnValue>
+                      <Parameters><Parameter Name="title" Type="Java.Lang.ICharSequence" /></Parameters>
+                      <Docs><param name="title">Authored sibling parameter.</param><summary>Authored sibling summary.</summary><returns>Authored sibling return.</returns><remarks>Authored sibling remarks.</remarks></Docs>
+                    </Member>
+                    <Member MemberName="SetTitle">
+                      <MemberSignature Language="DocId" Value="M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetTitle(System.String)" />
+                      <MemberType>Method</MemberType>
+                      <ReturnValue><ReturnType>Android.Hardware.Biometrics.BiometricPrompt+Builder</ReturnType></ReturnValue>
+                      <Parameters><Parameter Name="title" Type="System.String" /></Parameters>
+                      <Docs><param name="title">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>Authored alias remarks.</remarks></Docs>
+                    </Member>
+                  </Members>
+                </Type>
+                """;
+            JsonDocument RunPipeline()
+            {
+                var reportPath = Path.Combine(tempDirectory, "report");
+                Assert(RunAsync([
+                    "--path", pipelinePath, "--namespace", "Android.Hardware.Biometrics", "--offline",
+                    "--cache", tempDirectory, "--max-changes", "10", "--apply", "--report", reportPath,
+                ]).GetAwaiter().GetResult() == 0, "Biometrics String alias pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Biometrics String alias pipeline has zero errors");
+                return report;
+            }
+
+            File.WriteAllText(pipelinePath,
+                Fixture(registeredDescriptor.Replace("CharSequence", "String", StringComparison.Ordinal)),
+                new UTF8Encoding(true));
+            var unchanged = File.ReadAllBytes(pipelinePath);
+            using (var rejected = RunPipeline())
+                Assert(rejected.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    rejected.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "missing_member_registration") &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(unchanged),
+                    "actual Biometrics String alias pipeline rejects a sibling with a different JNI registration");
+
+            File.WriteAllText(pipelinePath, Fixture(registeredDescriptor), new UTF8Encoding(true));
+            using (var applied = RunPipeline())
+                Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 3,
+                    "actual Biometrics String alias pipeline fills summary, parameter and return");
+            var docs = XElement.Load(pipelinePath).Element("Members")!.Elements("Member")
+                .Single(member => DocId(member).EndsWith("(System.String)", StringComparison.Ordinal)).Element("Docs")!;
+            Assert(docs.Element("summary")!.Value == "Fixture title setter summary." &&
+                docs.Element("param")!.Value == "Fixture title parameter." &&
+                docs.Element("returns")!.Value == "Fixture builder return." &&
+                docs.Element("remarks")!.Value.StartsWith("Authored alias remarks.", StringComparison.Ordinal) &&
+                docs.Element("remarks")!.ToString().Contains(
+                    "BiometricPrompt.Builder#setTitle(java.lang.CharSequence)", StringComparison.Ordinal),
+                "actual Biometrics String alias imports the CharSequence source and preserves authored remarks");
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
     static readonly KnownAndroidRemarksRepair[] KnownAndroidRemarksRepairs =
     [
         new(
@@ -20103,6 +20852,258 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestBiometricCallbackLinks(string repositoryRoot)
+    {
+        var fixturePath = Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "biometric-callback-source-fragments.txt");
+        var namespaceDirectory = Path.Combine(repositoryRoot, "docs", "xml", "Android.Hardware.Biometrics");
+        var sourcePath = Path.Combine(namespaceDirectory, "EmbeddedBiometricPrompt+AuthenticationCallback.xml");
+        var token = $"biometric-callback-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var path = Path.Combine(namespaceDirectory, token + ".xml");
+        var temporary = Path.Combine(Path.GetTempPath(), token);
+        var cache = Path.Combine(temporary, "cache");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            var request = SourceRequest.Create(BiometricCallbackJavaPath)!;
+            var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            var ordinal = 0;
+            foreach (var line in File.ReadLines(fixturePath))
+            {
+                var parts = line.Split('|');
+                Assert(parts.Length == 4 &&
+                    parts[1] == "98cdae7006eb82d05c4c2df23bfa8881c98775fdb3ea2f199809425af52a4fc2",
+                    "Biometric callback fixture retains the source page identity");
+                var html = Encoding.UTF8.GetString(Convert.FromBase64String(parts[3]));
+                Assert(Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(html)))
+                    .Equals(parts[2], StringComparison.OrdinalIgnoreCase),
+                    "Biometric callback native fragment hash");
+                var isError = parts[0] == "onAuthenticationError";
+                Assert(isError || parts[0] == "onAuthenticationHelp", "Biometric callback fixture name");
+                var managedName = isError ? "OnAuthenticationError" : "OnAuthenticationHelp";
+                var codeName = isError ? "errorCode" : "helpCode";
+                var textName = isError ? "errString" : "helpString";
+                var expected = isError
+                    ? "An integer from BiometricConstants.Errors identifying the error message"
+                    : "An integer from BiometricFaceConstants.FaceAcquired or BiometricFingerprintConstants.FingerprintAcquired corresponding to a known error message.";
+                var page = SourcePage.Parse(request, html);
+                var source = page.Members.Single().Docs!;
+                Assert(source.HasRecoveredBiometricCallbackLinks &&
+                    RemoveLeadingJavaType(source.Parameters[codeName]) == expected,
+                    "Biometric callback recovery preserves the source annotation names");
+
+                var loaded = LoadedFile.Load(repositoryRoot, sourcePath);
+                loaded.SelectOwners(managedName);
+                var owners = loaded.Owners.Where(owner =>
+                    (string?)owner.Member?.Attribute("MemberName") == managedName).ToArray();
+                Assert(owners.Length == 2, "Biometric callback has registered and string overloads");
+                var sourcePages = new Dictionary<string, SourceLoadResult>
+                    { [request.Url] = SourceLoadResult.Success(page) };
+                foreach (var owner in owners)
+                    Assert(MapOwner(owner, sourcePages).Docs?.HasRecoveredBiometricCallbackLinks == true,
+                        "Biometric callback actual binding accepts recovered source");
+
+                var registered = owners.Single(owner => Registration.Member(owner.Member!) is not null);
+                var changedType = new XElement(registered.Member!.Parent!.Parent!);
+                var changedMember = changedType.Element("Members")!.Elements("Member").Single(member =>
+                    member.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == registered.Id));
+                var changedOwner = registered with { Member = changedMember, Docs = changedMember.Element("Docs")! };
+                Assert(MapOwner(changedOwner, sourcePages).Docs?.HasRecoveredBiometricCallbackLinks == true,
+                    "Biometric callback attached clone reaches the recovery guard");
+                changedMember.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public void Changed();");
+                Assert(MapOwner(changedOwner, sourcePages).ErrorReason == "source_channel_ambiguous",
+                    "Biometric callback changed signature reaches and fails the recovery guard");
+                Assert(SourcePage.Parse(request with { Url = request.Url + ".Other" }, html)
+                    .Members.Single().Docs?.HasRecoveredBiometricCallbackLinks != true,
+                    "Biometric callback recovery requires the canonical page");
+                Assert(SourcePage.Parse(request, html + "\n").Members.Single().Docs?
+                    .HasRecoveredBiometricCallbackLinks != true,
+                    "Biometric callback changed native fragment is not recovered");
+
+                XDocument Fixture(bool singleRegistered, bool changeSignature, bool authoredFirst)
+                {
+                    var document = new XDocument(loaded.Root.Document!);
+                    var members = document.Root!.Element("Members")!;
+                    var selected = singleRegistered ? [registered] : owners;
+                    members.ReplaceNodes(selected.Select(owner => new XElement(owner.Member!)));
+                    document.Root.Element("Docs")!.ReplaceNodes(
+                        new XElement("summary", new XElement("c", "Preserve type documentation.")));
+                    foreach (var (member, index) in members.Elements("Member").Select((member, index) => (member, index)))
+                    {
+                        member.Element("Docs")!.ReplaceNodes(
+                            new XElement("param", new XAttribute("name", codeName),
+                                authoredFirst && index == 0 ? new XElement("c", "Authored code.") : "To be added."),
+                            new XElement("param", new XAttribute("name", textName), new XElement("c", "Authored text.")),
+                            new XElement("summary", new XElement("c", "Authored summary.")),
+                            new XElement("remarks",
+                                new XElement("para", new XElement("c", "Authored remarks.")),
+                                ImporterSourceReference(source),
+                                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+                    }
+                    if (changeSignature)
+                        members.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                            (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public void Changed();");
+                    return document;
+                }
+
+                (int Count, string[] Reasons) Run(bool apply)
+                {
+                    var reportPath = Path.Combine(temporary, $"report-{ordinal++}");
+                    var arguments = new List<string>
+                    {
+                        "--path", path, "--namespace", "Android.Hardware.Biometrics", "--member", managedName,
+                        "--offline", "--cache", cache, "--max-changes", "1", "--report", reportPath,
+                    };
+                    if (apply)
+                        arguments.Add("--apply");
+                    Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                        "Biometric callback production run");
+                    using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "Biometric callback production run has no errors");
+                    return (report.RootElement.GetProperty(apply ? "appliedCount" : "wouldApplyCount").GetInt32(),
+                        report.RootElement.GetProperty("entries").EnumerateArray()
+                            .Select(entry => entry.TryGetProperty("reason", out var reason) ? reason.GetString() ?? "" : "")
+                            .ToArray());
+                }
+
+                void Write(XDocument document, string sourceHtml)
+                {
+                    File.WriteAllText(path, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                    File.WriteAllText(cachePath, sourceHtml, new UTF8Encoding(false));
+                }
+
+                Write(Fixture(false, false, false), html);
+                var before = File.ReadAllBytes(path);
+                Assert(Run(false).Count == 1 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback bounded preview does not write");
+                Assert(Run(true).Count == 1 && Run(true).Count == 1,
+                    "Biometric callback fills both overloads in one-change batches");
+                var expectedXml = Encoding.UTF8.GetString(before.AsSpan(3)).Replace(
+                    $"<param name=\"{codeName}\">To be added.</param>",
+                    $"<param name=\"{codeName}\">{expected}</param>", StringComparison.Ordinal);
+                var expectedBytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(expectedXml)).ToArray();
+                Assert(expectedBytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback changes only the two parameter spans");
+                before = File.ReadAllBytes(path);
+                Assert(Run(true).Count == 0 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback persisted repeat is byte-identical");
+
+                Write(Fixture(false, false, true), html);
+                Assert(Run(true).Count == 1 &&
+                    XElement.Load(path).Element("Members")!.Elements("Member").First()
+                        .Element("Docs")!.Elements("param").First().Element("c")?.Value == "Authored code.",
+                    "Biometric callback preserves authored parameter markup");
+                before = File.ReadAllBytes(path);
+                Assert(Run(true).Count == 0 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback authored-content repeat is byte-identical");
+
+                Write(Fixture(false, false, false), html + "\n");
+                before = File.ReadAllBytes(path);
+                var changedSource = Run(true);
+                Assert(changedSource.Count == 0 &&
+                    changedSource.Reasons.Contains("source_channel_not_meaningful") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback changed source does not write");
+                Write(Fixture(false, false, false), html + html);
+                before = File.ReadAllBytes(path);
+                var duplicateSource = Run(true);
+                Assert(duplicateSource.Count == 0 &&
+                    duplicateSource.Reasons.Contains("ambiguous_exact_match") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback duplicate source sections do not write");
+                var corrected = html.Replace(BiometricCallbackErrorLink, "BiometricConstants.Errors", StringComparison.Ordinal)
+                    .Replace(BiometricCallbackFaceLink, "BiometricFaceConstants.FaceAcquired", StringComparison.Ordinal)
+                    .Replace(BiometricCallbackFingerprintLink, "BiometricFingerprintConstants.FingerprintAcquired", StringComparison.Ordinal);
+                Assert(SourcePage.Parse(request, corrected).Members.Single().Docs?.HasRecoveredBiometricCallbackLinks != true,
+                    "Biometric callback corrected source needs no recovery");
+                Write(Fixture(false, false, false), corrected);
+                Assert(Run(true).Count == 1 && Run(true).Count == 1,
+                    "Biometric callback corrected source remains eligible");
+
+                foreach (var mutateSibling in new Action<XElement>[]
+                {
+                    member => member.Element("Attributes")!.Descendants("AttributeName").First().Value =
+                        member.Element("Attributes")!.Descendants("AttributeName").First().Value.Replace(
+                            "(ILjava/lang/CharSequence;)V", "(JLjava/lang/CharSequence;)V", StringComparison.Ordinal),
+                    member => member.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public void Changed();"),
+                    member => member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                    member => member.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", "M:Other.Member"),
+                    member => member.Add(new XElement(member.Element("AssemblyInfo")!)),
+                    member => member.Element("Attributes")!.Add(new XElement(
+                        member.Element("Attributes")!.Elements("Attribute").First(attribute =>
+                            attribute.Value.Contains("Register(", StringComparison.Ordinal)))),
+                })
+                {
+                    var changed = Fixture(false, false, false);
+                    var sibling = changed.Root!.Element("Members")!.Elements("Member")
+                        .Single(member => Registration.Member(member) is not null);
+                    mutateSibling(sibling);
+                    Write(changed, html);
+                    before = File.ReadAllBytes(path);
+                    var siblingRejected = Run(true);
+                    Assert(siblingRejected.Count == 0 && before.SequenceEqual(File.ReadAllBytes(path)),
+                        "Biometric callback rejects changed registered-sibling identity without writes");
+                }
+
+                var duplicateTypeRegistration = Fixture(false, false, false);
+                var typeAttributes = duplicateTypeRegistration.Root!.Element("Attributes")!;
+                typeAttributes.Add(new XElement(typeAttributes.Elements("Attribute").First(attribute =>
+                    attribute.Value.Contains("Register(", StringComparison.Ordinal))));
+                Write(duplicateTypeRegistration, html);
+                before = File.ReadAllBytes(path);
+                var typeRejected = Run(true);
+                Assert(typeRejected.Count == 0 && typeRejected.Reasons.Contains("source_channel_ambiguous") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback rejects duplicate type registration without writes");
+
+                var missingSibling = Fixture(false, false, false);
+                missingSibling.Root!.Element("Members")!.Elements("Member")
+                    .Single(member => Registration.Member(member) is not null).Remove();
+                Write(missingSibling, html);
+                before = File.ReadAllBytes(path);
+                var missingRejected = Run(true);
+                Assert(missingRejected.Count == 0 &&
+                    missingRejected.Reasons.Contains("missing_member_registration") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback rejects a missing registered sibling without writes");
+
+                var duplicateSibling = Fixture(false, false, true);
+                var registeredSibling = duplicateSibling.Root!.Element("Members")!.Elements("Member")
+                    .Single(member => Registration.Member(member) is not null);
+                registeredSibling.AddAfterSelf(new XElement(registeredSibling));
+                Write(duplicateSibling, html);
+                before = File.ReadAllBytes(path);
+                var siblingDuplicateRejected = Run(true);
+                Assert(siblingDuplicateRejected.Count == 0 &&
+                    siblingDuplicateRejected.Reasons.Contains("missing_member_registration") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback rejects duplicate registered siblings without writes");
+
+                Write(Fixture(true, true, false), html);
+                before = File.ReadAllBytes(path);
+                var rejected = Run(true);
+                Assert(rejected.Count == 0 && rejected.Reasons.Contains("source_channel_ambiguous") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback mismatched binding reaches the guard without writes");
+                Assert(Run(true).Count == 0 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback rejected repeat is byte-identical");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temporary, recursive: true);
+        }
+    }
+
     static void TestSecurityLogImplicitLists(string repositoryRoot)
     {
         var fixture = File.ReadLines(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
@@ -20760,6 +21761,8 @@ static partial class ImporterProgram
 
     static int RunSelfTest(string repositoryRoot)
     {
+        TestBiometricStringValueGuard(repositoryRoot);
+        TestBiometricCallbackLinks(repositoryRoot);
         TestIcuNumberContracts(repositoryRoot);
         TestAppFunctionAccessLevelMarkup(repositoryRoot);
         TestPreservedRemarksAndSourceGuards(repositoryRoot);
@@ -20808,6 +21811,7 @@ static partial class ImporterProgram
         TestRawSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSupportedWriters(repositoryRoot, fixtureRoot);
         TestGestureCloneIntroductions(repositoryRoot);
+        TestBiometricsStringAliases(repositoryRoot);
         TestSslDNameConstructor(repositoryRoot, fixtureRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
@@ -32831,6 +33835,54 @@ static partial class ImporterProgram
                     Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.SetComposingText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
                     Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["P:Android.Hardware.Biometrics.BiometricManager.Strings.ButtonLabel"] =
+                    Mapping("android/hardware/biometrics/BiometricManager$Strings", "getButtonLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricManager.Strings.PromptMessage"] =
+                    Mapping("android/hardware/biometrics/BiometricManager$Strings", "getPromptMessage", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricManager.Strings.SettingName"] =
+                    Mapping("android/hardware/biometrics/BiometricManager$Strings", "getSettingName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.Description"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.NegativeButtonText"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getNegativeButtonText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.Subtitle"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getSubtitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.Title"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getTitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Description"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.NegativeButtonText"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getNegativeButtonText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Subtitle"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getSubtitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Title"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getTitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.FallbackOption.Text"] =
+                    Mapping("android/hardware/biometrics/FallbackOption", "getText", "()Ljava/lang/CharSequence;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.AddFallbackOption(System.String,System.Int32,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "addFallbackOption", "(Ljava/lang/CharSequence;ILjava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetDescription(System.String)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setDescription", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetNegativeButton(System.String,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setNegativeButton", "(Ljava/lang/CharSequence;Ljava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetSubtitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setSubtitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetTitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setTitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.AuthenticationCallback.OnAuthenticationError(Android.Hardware.Biometrics.BiometricErrorCode,System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$AuthenticationCallback", "onAuthenticationError", "(ILjava/lang/CharSequence;)V"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.AuthenticationCallback.OnAuthenticationHelp(System.Int32,System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$AuthenticationCallback", "onAuthenticationHelp", "(ILjava/lang/CharSequence;)V"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.AddFallbackOption(System.String,Android.Hardware.Biometrics.BiometricManagerIconType,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "addFallbackOption", "(Ljava/lang/CharSequence;ILjava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetDescription(System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setDescription", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetNegativeButton(System.String,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setNegativeButton", "(Ljava/lang/CharSequence;Ljava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetSubtitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setSubtitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetTitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setTitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
@@ -32839,8 +33891,12 @@ static partial class ImporterProgram
         public static InterfaceMemberMapping? Resolve(string memberId, XElement root, XElement member)
         {
             var mapping = Resolve(memberId);
+            if (mapping is not null &&
+                memberId.StartsWith("M:Android.Hardware.Biometrics.", StringComparison.Ordinal))
+                return HasRegisteredCharSequenceOverload(root, member, mapping) ? mapping : null;
             if (mapping is null ||
-                !memberId.StartsWith("P:Android.Views.TextClassifiers.", StringComparison.Ordinal))
+                !(memberId.StartsWith("P:Android.Views.TextClassifiers.", StringComparison.Ordinal) ||
+                  memberId.StartsWith("P:Android.Hardware.Biometrics.", StringComparison.Ordinal)))
                 return mapping;
 
             var name = (string?)member.Attribute("MemberName");
@@ -32860,6 +33916,42 @@ static partial class ImporterProgram
                 getter.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.ICharSequence" &&
                 Registration.Member(getter) == mapping.Registration
                     ? mapping : null;
+        }
+
+        // A generated String overload is accepted only when its single sibling has the same
+        // name, return and parameter names, uses ICharSequence for every String parameter, and
+        // carries exactly the mapped JNI registration.
+        static bool HasRegisteredCharSequenceOverload(
+            XElement root,
+            XElement member,
+            InterfaceMemberMapping mapping)
+        {
+            static List<(string? Name, string? Type)> Parameters(XElement candidate) =>
+                candidate.Element("Parameters")?.Elements("Parameter")
+                    .Select(parameter => ((string?)parameter.Attribute("Name"), (string?)parameter.Attribute("Type")))
+                    .ToList() ?? [];
+
+            var name = (string?)member.Attribute("MemberName");
+            var returnType = member.Element("ReturnValue")?.Element("ReturnType")?.Value;
+            var parameters = Parameters(member);
+            if (root.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+                SourceRequest.Create(Registration.Type(root)) != mapping.SourceRequest ||
+                member.Element("MemberType")?.Value != "Method" ||
+                Registration.Member(member) is not null ||
+                !parameters.Any(parameter => parameter.Type == "System.String"))
+                return false;
+            var expected = parameters
+                .Select(parameter => (parameter.Name,
+                    parameter.Type == "System.String" ? "Java.Lang.ICharSequence" : parameter.Type))
+                .ToList();
+            var siblings = root.Element("Members")?.Elements("Member")
+                .Where(candidate =>
+                    (string?)candidate.Attribute("MemberName") == name &&
+                    candidate.Element("MemberType")?.Value == "Method" &&
+                    candidate.Element("ReturnValue")?.Element("ReturnType")?.Value == returnType &&
+                    Parameters(candidate).SequenceEqual(expected))
+                .ToList();
+            return siblings is [var sibling] && Registration.Member(sibling) == mapping.Registration;
         }
 
         static SourceRequest TextClassifierRequest() =>
@@ -33424,6 +34516,7 @@ static partial class ImporterProgram
             string url)
         {
             fragment = RecoverSdkSandboxSurfaceLink(fragment, request, title, out var recoveredSdkSandboxSurfaceLink);
+            fragment = RecoverBiometricCallbackLinks(fragment, request, title, out var recoveredBiometricCallbackLinks);
             fragment = RecoverSecurityLogImplicitList(fragment, request, title, out var recoveredSecurityLogImplicitList);
             var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (Match row in Regex.Matches(
@@ -33522,6 +34615,7 @@ static partial class ImporterProgram
                     url == AndroidReference + "android/icu/text/MessagePattern.ApostropheMode#DOUBLE_REQUIRED" &&
                     fragment.Contains("<a href=\"/reference/java/text/MessageFormat\">MessageFormat</a>", StringComparison.Ordinal),
                 HasRecoveredSdkSandboxSurfaceLink: recoveredSdkSandboxSurfaceLink,
+                HasRecoveredBiometricCallbackLinks: recoveredBiometricCallbackLinks,
                 HasRecoveredSecurityLogImplicitList: recoveredSecurityLogImplicitList,
                 HasRecoveredHealthConnectPageSizeBounds: recoveredHealthConnectPageSizeBounds,
                 DevicePresenceParameters: url == DevicePresenceEventConstructorSourceUrl
@@ -34791,6 +35885,7 @@ static partial class ImporterProgram
         bool HasJavaTextMessageFormatLink = false,
         bool HasRecoveredAppFunctionAccessLevelMarkup = false,
         bool HasRecoveredSdkSandboxSurfaceLink = false,
+        bool HasRecoveredBiometricCallbackLinks = false,
         bool HasRecoveredSecurityLogImplicitList = false,
         bool HasRecoveredHealthConnectPageSizeBounds = false,
         DevicePresenceParameterTable? DevicePresenceParameters = null);

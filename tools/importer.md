@@ -134,6 +134,17 @@ Changed declarations or provenance do not enable recovery, and future corrected
 reference text follows ordinary parsing. Registered offline tests cover bounded
 imports, parameter/prose separation, authored content, and persisted repeats.
 
+The exact `EmbeddedBiometricPrompt.AuthenticationCallback.onAuthenticationError`
+and `onAuthenticationHelp` declarations contain broken links to Android's
+`BiometricConstants.Errors`, `BiometricFaceConstants.FaceAcquired`, and
+`BiometricFingerprintConstants.FingerprintAcquired` annotations. The importer
+retains those source names as plain text only for the two complete native
+fragments in `tools/importer-fixtures/biometric-callback-source-fragments.txt`
+and their exact managed/JNI bindings. The annotation declarations are verified
+against the pinned Android 17 implementation; no equivalence to the complete
+managed enum is inferred. Changed source or binding metadata does not enable
+the recovery. Existing authored channels remain protected.
+
 Twenty-four exact `SecurityLog` `TAG_*` field sections leave bare `<li>` items
 open inside one paragraph, so the last item absorbs the rest of the section and
 the field has no usable prose. The importer closes only that last item, at the
@@ -165,6 +176,14 @@ infer text for the enclosing instance.
 Eight TextClassifiers string properties map to their registered `Formatted`
 getters, following the pinned
 [string-property generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundPropertyStringVariant.cs).
+Twelve Biometrics string properties map in the same way. Twelve unregistered
+Biometrics `System.String` method overloads map to the registered
+`Java.Lang.ICharSequence` sibling that the pinned
+[string-overload generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundMethodStringOverload.cs)
+calls. At runtime, the overload must have exactly one sibling with the same
+name, return type and parameter names, where only each `System.String`
+parameter changes to `Java.Lang.ICharSequence`, and that sibling must carry the
+listed JNI registration.
 Five legacy `TextClassifier` fields use the official `TextClassifier` interface
 page rather than the managed compatibility class's internal Java registration.
 Focused self-tests compare every mapping with its canonical sibling registration
@@ -256,6 +275,17 @@ managed/JNI binding or canonical source identity is rejected before any writer.
 The existing importer-owned remarks remain untouched and the report records
 `source_channel_ambiguous`; a future source paragraph that preserves both
 defaults remains eligible for an existing remarks placeholder.
+The exact `BiometricManager.Strings.getPromptMessage()` and `getSettingName()`
+return descriptions repeat the button-label text despite describing different
+getter purposes. The [pinned framework declarations](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/hardware/biometrics/BiometricManager.java)
+and [service implementation](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/services/core/java/com/android/server/biometrics/AuthService.java)
+confirm distinct getter paths. The importer withholds only the exact copied
+`value` text for the verified string aliases and registered `Formatted`
+properties, reports `source_channel_ambiguous`, and does not infer a replacement.
+If the copied value has mismatched binding or source provenance, the entire
+mapping is withheld rather than writing any channels.
+Other channels, the button-label getter, existing documentation, and future
+corrected source remain eligible or preserved.
 Repair of the known `Control.StatefulBuilder.setControlTemplate` paragraph boundary
 is restricted to its exact Android member URL and verified lead-in/description,
 preserving the source's blank line as two paragraphs without inventing punctuation.
