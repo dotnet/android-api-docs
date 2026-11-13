@@ -34950,7 +34950,9 @@ static partial class ImporterProgram
             public string InterfaceName => "MediaStore+" + Container + "+I" + Name;
             public string JavaPath => "android/provider/MediaStore$" + Container + "$" + Name;
             public string Declaration => "public static interface MediaStore." + Container + "." + Name +
-                (Name == "AlbumColumns" ? "" : " implements MediaStore.MediaColumns");
+                (Name is "AlbumColumns" or "ArtistColumns" or "GenresColumns" ? "" :
+                    Name == "DeletedFilesColumns" ? " implements BaseColumns" :
+                    " implements MediaStore.MediaColumns");
         }
 
         public static readonly Rule[] Rules =
@@ -35021,6 +35023,30 @@ static partial class ImporterProgram
                 ("Longitude", "LONGITUDE", "longitude"),
                 ("MiniThumbMagic", "MINI_THUMB_MAGIC", "mini_thumb_magic"),
                 ("Tags", "TAGS", "tags"),
+            ]),
+            new("Audio", "ArtistColumns",
+            [
+                ("Artist", "ARTIST", "artist"),
+                ("ArtistKey", "ARTIST_KEY", "artist_key"),
+                ("NumberOfAlbums", "NUMBER_OF_ALBUMS", "number_of_albums"),
+                ("NumberOfTracks", "NUMBER_OF_TRACKS", "number_of_tracks"),
+            ]),
+            new("Audio", "GenresColumns",
+            [
+                ("Name", "NAME", "name"),
+            ]),
+            new("DeletedFiles", "DeletedFilesColumns",
+            [
+                ("DeletedGeneration", "DELETED_GENERATION", "deleted_generation"),
+                ("MediaType", "MEDIA_TYPE", "media_type"),
+                ("VolumeName", "VOLUME_NAME", "volume_name"),
+            ]),
+            new("Files", "FileColumns",
+            [
+                ("MediaType", "MEDIA_TYPE", "media_type"),
+                ("MimeType", "MIME_TYPE", "mime_type"),
+                ("Parent", "PARENT", "parent"),
+                ("SpecialFormat", "SPECIAL_FORMAT", "_special_format"),
             ]),
         ];
 
