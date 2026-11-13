@@ -162,6 +162,27 @@ Offline tests create their own placeholders, check bounded applies, preserve
 authored text and all bytes outside replaced summaries, and require a
 byte-identical zero-write repeat.
 
+Two exact `Android.Views` declarations have source-bound markup recovery.
+`SurfaceControl.JankData.getDesiredPresentTimeNanos()` has a broken
+`Transaction.setDesiredPresentTime` link label. The correction names
+`Transaction.setDesiredPresentTimeNanos(long)`, verified by the
+[pinned Android 17 implementation](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/view/SurfaceControl.java#5835)
+and the independently registered managed target.
+`WindowManager.LayoutParams.screenBrightnessUnit` uses an opening `<ul>`
+where its list should close. Only that final tag is corrected, retaining the
+unit description, default, and ordered public unit choices.
+The complete native fragments and their page/fragment SHA-256 values are
+retained in `views-source-fragments.txt`. Recovery requires those exact bytes,
+canonical source provenance, and the complete managed/JNI property identity,
+including unique signatures, registrations, assemblies, and return metadata.
+Changed fragments or bindings do not enable recovery; corrected future source
+uses ordinary parsing. Recovered sources fill only direct plain placeholders,
+with reference and attribution added only inside a newly filled remarks channel.
+Authored or mixed channels, nested placeholders, and existing metadata are
+preserved. The registered production tests cover bounded dry runs and applies,
+attached binding and source negatives, LF/CRLF and UTF-8 BOM states, protected
+bytes, and byte-identical persisted repeats. No missing value prose is inferred.
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.
@@ -1083,3 +1104,38 @@ from page SHA-256
 Registered offline production tests cover the exclusion, attached-owner
 metadata negatives, changed source and provenance, authored-content preservation,
 bounded sibling writes, and byte-identical persisted repeats.
+
+The exact `WindowInsetsAnimationController.getCurrentFraction()` value channel
+is withheld when its complete official return equates progress 0/1 with
+hidden/shown states. In the pinned API 37.2 implementation,
+`InsetsAnimationControlImpl.finish(false)` supplies hidden insets with fraction 1,
+and the applied fraction is stored independently of the insets.
+The exclusion requires the exact managed interface/property, assembly,
+signatures, JNI getter, canonical source URL/label, native declaration, and full
+original return text. It affects only that value channel. Authored and prior
+documentation is retained; safe sibling channels and corrected future source
+remain eligible. No replacement progress contract is inferred.
+The native fragment in `current-fraction-reference.html.b64` has SHA-256
+`b33fd36224b7dc8b9a35acb670fcc9d85dd7714121bdae4de85b3081c7001567`,
+from page SHA-256
+`fd3b6aa53eccbbf5365f21ed6c56a91d22be741c6b46d700112fa36ad1b27205`.
+Registered production tests cover the exclusion, meaningful attached binding
+and source negatives, source-context changes, authored/mixed preservation,
+bounded sibling writes, encoding/newline preservation, and persisted repeats.
+
+The exact `ViewParent.getTextDirection()` value channel is withheld when its
+complete official list omits the first-strong LTR and RTL modes. The pinned
+API 37.2 `View.getTextDirection()` reads the resolved-direction bits, and
+`resolveTextDirection()` explicitly supports both modes; `ViewGroup` inherits
+that implementation while implementing `ViewParent`.
+The guard requires the exact managed interface/property, assembly, signatures,
+JNI getter, canonical source identity, native declaration, and full original
+value text. It preserves authored and prior content and all other channels,
+and does not infer a replacement enumeration. Corrected future source remains
+eligible. The fragment in `view-parent-text-direction-reference.html.b64`
+has SHA-256 `61c86689b01ac5f51b828a3d2280c0fc15a30f850ecfb0c43336bf2a04a60ee2`,
+from page SHA-256
+`ed32ac121eb51abb44b21bf89acaf1bca435dd7b76fb96010cac969d3f6dfa17`.
+Registered bounded production tests cover exact exclusion, attached metadata
+and source negatives, changed JNI, authored/mixed preservation, safe sibling
+fills, corrected or removed source, and zero-write persisted repeats.
