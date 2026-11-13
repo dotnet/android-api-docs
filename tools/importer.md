@@ -10,6 +10,7 @@ Run it with the .NET 10 SDK or newer:
 dotnet run tools\importer.cs -- --self-test
 dotnet run tools\importer.cs -- --self-test-preservation
 dotnet run tools\importer.cs -- --self-test-telecom
+dotnet run tools\importer.cs -- --self-test-provider
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --report artifacts\argb-import
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace Android.Animation --max-changes 10 --cache C:\temp\android-doc-cache
 dotnet run tools\importer.cs -- --path docs\xml --api-since 37 --max-changes 10 --report artifacts\api-37-import
@@ -161,6 +162,27 @@ SHA-256 `4d645108a71f16aa4bd9a646b1d66d9ec072ef52a8f679ca9cff85e1c0c807b8`.
 Offline tests create their own placeholders, check bounded applies, preserve
 authored text and all bytes outside replaced summaries, and require a
 byte-identical zero-write repeat.
+
+Two exact `Android.Views` declarations have source-bound markup recovery.
+`SurfaceControl.JankData.getDesiredPresentTimeNanos()` has a broken
+`Transaction.setDesiredPresentTime` link label. The correction names
+`Transaction.setDesiredPresentTimeNanos(long)`, verified by the
+[pinned Android 17 implementation](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/view/SurfaceControl.java#5835)
+and the independently registered managed target.
+`WindowManager.LayoutParams.screenBrightnessUnit` uses an opening `<ul>`
+where its list should close. Only that final tag is corrected, retaining the
+unit description, default, and ordered public unit choices.
+The complete native fragments and their page/fragment SHA-256 values are
+retained in `views-source-fragments.txt`. Recovery requires those exact bytes,
+canonical source provenance, and the complete managed/JNI property identity,
+including unique signatures, registrations, assemblies, and return metadata.
+Changed fragments or bindings do not enable recovery; corrected future source
+uses ordinary parsing. Recovered sources fill only direct plain placeholders,
+with reference and attribution added only inside a newly filled remarks channel.
+Authored or mixed channels, nested placeholders, and existing metadata are
+preserved. The registered production tests cover bounded dry runs and applies,
+attached binding and source negatives, LF/CRLF and UTF-8 BOM states, protected
+bytes, and byte-identical persisted repeats. No missing value prose is inferred.
 
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
@@ -730,6 +752,55 @@ text match the known incorrect flag-combination wording. Retry policies are
 mutually exclusive codes, not flags. The guard does not affect other channels,
 members, URLs, corrected source text, or existing authored documentation.
 
+Eight exact Provider column-interface pairs have a separate declared-source
+mapping: `MediaStore.Audio.IAudioColumns` / `AudioColumns`,
+`MediaStore.Audio.IAlbumColumns` / `AlbumColumns`,
+`MediaStore.Images.IImageColumns` / `ImageColumns`,
+`MediaStore.Video.IVideoColumns` / `VideoColumns`,
+`MediaStore.Audio.IArtistColumns` / `ArtistColumns`,
+`MediaStore.Audio.IGenresColumns` / `GenresColumns`,
+`MediaStore.DeletedFiles.IDeletedFilesColumns` / `DeletedFilesColumns`, and
+`MediaStore.Files.IFileColumns` / `FileColumns`. The pinned
+[interface generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundInterface.cs)
+omits registration on constant-only interfaces; the
+[compatibility-class generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/InterfaceMemberAlternativeClass.cs)
+places its obsolete projection in `mono/internal/`.
+Both managed siblings must match their exact namespace, assembly, type and
+member signatures, DocIds, string return types and JNI field identities.
+An explicit field allow-list also requires the canonical declared Android
+interface and the exact native String constant value. Values are verified
+against the official API 37.2 implementation archive, SHA-256
+`9d637c3af6654a2f1b696b3d19c54bb77e38df2b0106116934703f314b3d4e84`.
+Inherited-only or removed fields, missing siblings, changed source declarations
+or values, and unlisted projections are not mapped.
+Playlists projections remain unsupported because their interface type metadata
+does not match the unchanged guard.
+Invalid metadata on an allow-listed projection cannot fall through
+to ordinary JNI-field routing. Only direct placeholders
+can change; authored or mixed channels, nested placeholders and existing
+reference/attribution bytes are preserved. No prose is inferred from the
+implementation. Native declaration fragments with page and fragment hashes
+are retained in `provider-columns-source-fragments.txt`. Production tests
+exercise all allowed fields in both siblings, attached-owner metadata and
+source mutations, bounded writes, encoding/newline preservation, and persisted
+zero-write repeats. The focused `--self-test-provider` suite also runs as part
+of `--self-test`.
+
+The exact `ArtistColumns.NUMBER_OF_TRACKS` summary and remarks describe an
+album count. They are withheld for both allowed managed siblings when their
+full known text, canonical declared source, JNI field and String value match.
+The [pinned media database implementation](https://android.googlesource.com/platform/packages/providers/MediaProvider/+/a183e2b92c71d86ec7b104c116ef3f4dbcbb523f/src/com/android/providers/media/DatabaseHelper.java#1604)
+counts distinct audio row IDs for tracks and distinct album IDs for albums.
+Its file SHA-256 is
+`30a8dbee47a14b170aa892ecd2fc6cecc084fa78ba666b26d1ac1af96df513dd`.
+This is evidence for exclusion, not replacement prose. A safe new summary
+does not enable the incorrect remarks paragraph. Corrected source and the
+separate album-count field remain eligible. Authored content and prior copies
+are preserved; there is no general prior-copy withdrawal.
+`provider-artist-tracks-prior-docs.txt` retains actual bounded first-fill output,
+its producer checksum and the output commit/blob identity. Registered tests
+verify that copy's hash and preserve it in both attached managed siblings.
+
 `Android.Media.Quality` has source-bound first-fill exclusions for eight
 `WriteToParcel(Parcel, int)` summary/remarks pairs containing the exact
 `Flatten this object in to a Parcel.` typo, the two `GetAvailable*Profiles`
@@ -1083,3 +1154,38 @@ from page SHA-256
 Registered offline production tests cover the exclusion, attached-owner
 metadata negatives, changed source and provenance, authored-content preservation,
 bounded sibling writes, and byte-identical persisted repeats.
+
+The exact `WindowInsetsAnimationController.getCurrentFraction()` value channel
+is withheld when its complete official return equates progress 0/1 with
+hidden/shown states. In the pinned API 37.2 implementation,
+`InsetsAnimationControlImpl.finish(false)` supplies hidden insets with fraction 1,
+and the applied fraction is stored independently of the insets.
+The exclusion requires the exact managed interface/property, assembly,
+signatures, JNI getter, canonical source URL/label, native declaration, and full
+original return text. It affects only that value channel. Authored and prior
+documentation is retained; safe sibling channels and corrected future source
+remain eligible. No replacement progress contract is inferred.
+The native fragment in `current-fraction-reference.html.b64` has SHA-256
+`b33fd36224b7dc8b9a35acb670fcc9d85dd7714121bdae4de85b3081c7001567`,
+from page SHA-256
+`fd3b6aa53eccbbf5365f21ed6c56a91d22be741c6b46d700112fa36ad1b27205`.
+Registered production tests cover the exclusion, meaningful attached binding
+and source negatives, source-context changes, authored/mixed preservation,
+bounded sibling writes, encoding/newline preservation, and persisted repeats.
+
+The exact `ViewParent.getTextDirection()` value channel is withheld when its
+complete official list omits the first-strong LTR and RTL modes. The pinned
+API 37.2 `View.getTextDirection()` reads the resolved-direction bits, and
+`resolveTextDirection()` explicitly supports both modes; `ViewGroup` inherits
+that implementation while implementing `ViewParent`.
+The guard requires the exact managed interface/property, assembly, signatures,
+JNI getter, canonical source identity, native declaration, and full original
+value text. It preserves authored and prior content and all other channels,
+and does not infer a replacement enumeration. Corrected future source remains
+eligible. The fragment in `view-parent-text-direction-reference.html.b64`
+has SHA-256 `61c86689b01ac5f51b828a3d2280c0fc15a30f850ecfb0c43336bf2a04a60ee2`,
+from page SHA-256
+`ed32ac121eb51abb44b21bf89acaf1bca435dd7b76fb96010cac969d3f6dfa17`.
+Registered bounded production tests cover exact exclusion, attached metadata
+and source negatives, changed JNI, authored/mixed preservation, safe sibling
+fills, corrected or removed source, and zero-write persisted repeats.

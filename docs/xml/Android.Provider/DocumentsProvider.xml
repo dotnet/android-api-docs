@@ -111,8 +111,7 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>
-        </summary>
+        <summary>Initializes the provider base object before its document URI routes are installed.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -172,7 +171,7 @@
         <param name="sourceDocumentId">the document to copy.</param>
         <param name="targetParentDocumentId">the target document to be copied into as a child.</param>
         <summary>Copy the requested document or a document tree.</summary>
-        <returns>To be added.</returns>
+        <returns>The provider-specific ID assigned to the copy. The base method throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Copy the requested document or a document tree.</para>
           <para>Copies a document including all child documents to another location within
@@ -226,7 +225,7 @@
                        avoiding conflicting names.</param>
         <summary>Create a new document and return its newly generated
             <c>Document#COLUMN_DOCUMENT_ID</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>The provider-specific ID assigned to the new document. The base method throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Create a new document and return its newly generated
             <c>Document#COLUMN_DOCUMENT_ID</c>. You must allocate a new
@@ -278,7 +277,7 @@
         <param name="documentId">the document to create a web link intent for.</param>
         <param name="options">additional information, such as list of recipients. Optional.</param>
         <summary>Creates an intent sender for a web link, if the document is web linkable.</summary>
-        <returns>To be added.</returns>
+        <returns>An intent sender supplied by the provider for obtaining the document's web link. The base method throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Creates an intent sender for a web link, if the document is web linkable.</para>
           <para>
@@ -341,7 +340,7 @@
       <Docs>
         <param name="uri">The full URI to query, including a row ID (if a specific record is requested).</param>
         <param name="selection">An optional restriction to apply to rows when deleting.</param>
-        <param name="selectionArgs">To be added.</param>
+        <param name="selectionArgs">Not used; this sealed data-operation override always throws an unsupported-operation exception.</param>
         <summary>Implementation is provided by the parent class.</summary>
         <returns>The number of rows affected.</returns>
         <remarks>
@@ -603,11 +602,11 @@
         <Parameter Name="mimeTypeFilter" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="documentId">To be added.</param>
-        <param name="mimeTypeFilter">To be added.</param>
+        <param name="documentId">The provider-specific ID of the document whose stream formats are requested.</param>
+        <param name="mimeTypeFilter">The MIME-type filter applied to the available stream formats.</param>
         <summary>Return a list of streamable MIME types matching the filter, which can be passed to
             <c>#openTypedDocument(String, String, Bundle, CancellationSignal)</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>The matching stream MIME types, or <see langword="null" /> if none are offered. The base method offers only a nonvirtual document's primary MIME type.</returns>
         <remarks>
           <para>Return a list of streamable MIME types matching the filter, which can be passed to
             <c>#openTypedDocument(String, String, Bundle, CancellationSignal)</c>.</para>
@@ -651,9 +650,9 @@
         <Parameter Name="documentId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="documentId">To be added.</param>
+        <param name="documentId">The provider-specific ID of the document whose MIME type is requested.</param>
         <summary>Return concrete MIME type of the requested document.</summary>
-        <returns>To be added.</returns>
+        <returns>The document MIME type. The base implementation returns <see langword="null" /> when its metadata query has no row.</returns>
         <remarks>
           <para>Return concrete MIME type of the requested document. Must match the value
             of <c>Document#COLUMN_MIME_TYPE</c> for this document. The default
@@ -753,9 +752,9 @@
         <Parameter Name="uri" Type="Android.Net.Uri" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
+        <param name="uri">The URI matched against the provider's registered routes.</param>
         <summary>An unrestricted version of getType, which does not reveal sensitive information</summary>
-        <returns>To be added.</returns>
+        <returns>The single-root MIME type for a matched root URI, or <see langword="null" /> for other routes.</returns>
         <remarks>
           <para>An unrestricted version of getType, which does not reveal sensitive information</para>
           <para>
@@ -937,7 +936,7 @@
         <param name="targetParentDocumentId">the target document to be a new parent of the
                 source document.</param>
         <summary>Move the requested document or a document tree.</summary>
-        <returns>To be added.</returns>
+        <returns>The provider-specific ID used for the moved document at its new location. The base method throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Move the requested document or a document tree.</para>
           <para>Moves a document including all child documents to another location within
@@ -1094,7 +1093,7 @@
         <param name="signal">used by the caller to signal if the request should be
                        cancelled. May be null.</param>
         <summary>Open and return the requested document.</summary>
-        <returns>To be added.</returns>
+        <returns>The provider's file descriptor for the requested document and access mode.</returns>
         <remarks>
           <para>Open and return the requested document.</para>
           <para>Your provider should return a reliable <c>ParcelFileDescriptor</c> to
@@ -1155,7 +1154,7 @@
         <param name="signal">used by the caller to signal if the request should be
                        cancelled. May be null.</param>
         <summary>Open and return a thumbnail of the requested document.</summary>
-        <returns>To be added.</returns>
+        <returns>The provider's asset descriptor for the document thumbnail. The base method throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Open and return a thumbnail of the requested document.</para>
           <para>A provider should return a thumbnail closely matching the hinted size,
@@ -1428,7 +1427,7 @@
                        cancelled. May be null.</param>
         <summary>Open and return the document in a format matching the specified MIME
             type filter.</summary>
-        <returns>To be added.</returns>
+        <returns>The provider's asset descriptor for a stream in the requested format. The base method throws <see cref="T:Java.IO.FileNotFoundException" />.</returns>
         <remarks>
           <para>Open and return the document in a format matching the specified MIME
             type filter.</para>
@@ -1625,7 +1624,7 @@
                        details.</param>
         <summary>Override this method to return the children documents contained
             in the requested directory.</summary>
-        <returns>To be added.</returns>
+        <returns>A cursor containing only the requested directory's immediate child documents. The base overload forwards the extracted sort clause to <see cref="M:Android.Provider.DocumentsProvider.QueryChildDocuments(System.String,System.String[],System.String)" />.</returns>
         <remarks>
           <para>Override this method to return the children documents contained
             in the requested directory. This must return immediate descendants only.</para>
@@ -1699,7 +1698,7 @@
                        prioritize how data is fetched from the network, but UI may
                        always enforce a specific ordering.</param>
         <summary>Return the children documents contained in the requested directory.</summary>
-        <returns>To be added.</returns>
+        <returns>A cursor containing only the requested directory's immediate child documents.</returns>
         <remarks>
           <para>Return the children documents contained in the requested directory. This
             must only return immediate descendants, as additional queries will be
@@ -1773,7 +1772,7 @@
                        cursor. If <c>null</c> all supported columns should be
                        included.</param>
         <summary>Return metadata for the single requested document.</summary>
-        <returns>To be added.</returns>
+        <returns>A cursor containing the requested document's metadata with the requested projection.</returns>
         <remarks>
           <para>Return metadata for the single requested document. You should avoid
             making network requests to keep this request fast.</para>
@@ -1822,12 +1821,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="rootId">To be added.</param>
+        <param name="rootId">The provider-specific ID of the root whose recent documents are requested.</param>
         <param name="projection">list of <c>Document</c> columns to put into the
                        cursor. If <c>null</c> all supported columns should be
                        included.</param>
         <summary>Return recently modified documents under the requested root.</summary>
-        <returns>To be added.</returns>
+        <returns>A cursor of recently modified documents supplied by the provider for this root.</returns>
         <remarks>
           <para>Return recently modified documents under the requested root. This will
             only be called for roots that advertise
@@ -1894,7 +1893,7 @@
         <Parameter Name="signal" Type="Android.OS.CancellationSignal" />
       </Parameters>
       <Docs>
-        <param name="rootId">To be added.</param>
+        <param name="rootId">The provider-specific ID of the root whose recent documents are requested.</param>
         <param name="projection">list of <c>Document</c> columns to put into the
                        cursor. If <c>null</c> all supported columns should be
                        included.</param>
@@ -1902,7 +1901,7 @@
         <param name="signal">used by the caller to signal if the request should be
                        cancelled. May be null.</param>
         <summary>Return recently modified documents under the requested root.</summary>
-        <returns>To be added.</returns>
+        <returns>A cursor of recently modified documents supplied by the provider for this root.</returns>
         <remarks>
           <para>Return recently modified documents under the requested root. This will
             only be called for roots that advertise
@@ -1963,7 +1962,7 @@
         <param name="projection">list of <c>Root</c> columns to put into the cursor. If
                        <c>null</c> all supported columns should be included.</param>
         <summary>Return all roots currently provided.</summary>
-        <returns>To be added.</returns>
+        <returns>A cursor of provider roots using <see cref="T:Android.Provider.DocumentsContract.Root" /> columns.</returns>
         <remarks>
           <para>Return all roots currently provided. To display to users, you must define
             at least one root. You should avoid making network requests to keep this
@@ -2028,7 +2027,7 @@
                        included.</param>
         <summary>Return documents that match the given query under the requested
             root.</summary>
-        <returns>To be added.</returns>
+        <returns>A cursor of matching documents below the specified root. The base method throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Return documents that match the given query under the requested
             root. The returned documents should be sorted by relevance in descending
@@ -2219,7 +2218,7 @@
                 all supported columns should be included.</param>
         <param name="signal">used by the caller to signal if the request should be cancelled. May be null.</param>
         <summary>Return documents that match the given query under the requested directory.</summary>
-        <returns>To be added.</returns>
+        <returns>A cursor of matching documents below the specified directory. The base method throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Return documents that match the given query under the requested directory. The returned documents should be sorted by relevance in descending order. How documents are matched against the query string is an implementation detail left to each provider, but it's suggested that at least Document.COLUMN_DISPLAY_NAME be matched in a case-insensitive fashion.</para>
           <para>If your provider is cloud-based, and you have some data cached or pinned locally, you may return the local data immediately, setting DocumentsContract.EXTRA_LOADING on the Cursor to indicate that you are still fetching additional data. Then, when the network data is available, you can send a change notification to trigger a requery and return the complete contents.</para>
@@ -2352,7 +2351,7 @@
                 all supported columns should be included.</param>
         <param name="queryArgs">the extra query arguments.</param>
         <param name="signal">used by the caller to signal if the request should be cancelled. May be null.</param>
-        <summary>To be added.</summary>
+        <summary>Queries trashed documents associated with the specified root.</summary>
         <returns>a cursor of trashed documents. This will be called for each provider (for local just
                 externalstorage provider) and combine the results.</returns>
         <remarks>
@@ -2440,7 +2439,7 @@
                        may alter this name to meet any internal constraints, such as
                        avoiding conflicting names.</param>
         <summary>Rename an existing document.</summary>
-        <returns>To be added.</returns>
+        <returns>A replacement document ID when the original ID changes, or <see langword="null" /> when it remains valid. The base method throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Rename an existing document.</para>
           <para>If a different <c>Document#COLUMN_DOCUMENT_ID</c> must be used to
@@ -2534,7 +2533,7 @@
         <Parameter Name="documentId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="documentId">To be added.</param>
+        <param name="documentId">The provider-specific document ID whose document-URI and tree-URI permission grants are revoked.</param>
         <summary>Revoke any active permission grants for the given
             <c>Document#COLUMN_DOCUMENT_ID</c>, usually called when a document
             becomes invalid.</summary>
@@ -2712,7 +2711,7 @@
         <param name="values">A set of column_name/value pairs to update in the database.
      This must not be <c>null</c>.</param>
         <param name="selection">An optional filter to match rows to update.</param>
-        <param name="selectionArgs">To be added.</param>
+        <param name="selectionArgs">Not used; this sealed data-operation override always throws an unsupported-operation exception.</param>
         <summary>Implementation is provided by the parent class.</summary>
         <returns>the number of rows affected.</returns>
         <remarks>
