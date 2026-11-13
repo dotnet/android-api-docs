@@ -4870,11 +4870,11 @@
         <Parameter Name="pname" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="pname">To be added.</param>
+        <param name="target">The valid binding target of the buffer to query; the mapped length must not exceed Int32.MaxValue.</param>
+        <param name="pname">GL_BUFFER_MAP_POINTER. Query arguments must be valid because the JNI wrapper does not check GL errors before constructing the result.</param>
         <summary>The <c>java.nio.Buffer</c> instance returned by this method is guaranteed
             to be an instance of <c>java.nio.ByteBuffer</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>A direct byte buffer constructed from the queried mapping pointer and mapped byte length. Use GL_BUFFER_MAPPED to test mapping state rather than testing this wrapper's result for null. Do not access its storage after the buffer is unmapped, deleted, or reallocated.</returns>
         <remarks>
           <para>The <c>java.nio.Buffer</c> instance returned by this method is guaranteed
             to be an instance of <c>java.nio.ByteBuffer</c>.</para>
@@ -5245,13 +5245,12 @@
         <Parameter Name="binary" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="program">To be added.</param>
-        <param name="bufSize">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="binaryFormat">To be added.</param>
-        <param name="binary">To be added.</param>
-        <summary>
-        </summary>
+        <param name="program">The successfully linked program whose binary representation is requested.</param>
+        <param name="bufSize">The maximum output size in bytes; it must fit the complete program binary.</param>
+        <param name="length">An optional direct, native-order writable buffer with one integer remaining; receives the binary byte count. Array-backed cleanup is unsafe.</param>
+        <param name="binaryFormat">A non-null direct, native-order writable buffer with one integer remaining for the binary format token. Capacity is not checked; array-backed cleanup is unsafe.</param>
+        <param name="binary">A non-null writable output buffer with at least bufSize bytes from its current position. Capacity is not checked. Save the returned format and byte count with the binary.</param>
+        <summary>Retrieves a linked program's implementation-specific binary representation.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5287,15 +5286,14 @@
         <Parameter Name="binary" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="program">To be added.</param>
-        <param name="bufSize">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="lengthOffset">To be added.</param>
-        <param name="binaryFormat">To be added.</param>
-        <param name="binaryFormatOffset">To be added.</param>
-        <param name="binary">To be added.</param>
-        <summary>
-        </summary>
+        <param name="program">The successfully linked program whose binary representation is requested.</param>
+        <param name="bufSize">The maximum output size in bytes; it must fit the complete program binary.</param>
+        <param name="length">An optional output array with room for one integer after lengthOffset; receives the number of binary bytes written.</param>
+        <param name="lengthOffset">The non-negative starting length-array index; ignored when length is null.</param>
+        <param name="binaryFormat">A non-null output array with room for one integer after binaryFormatOffset; receives the implementation-specific binary format token.</param>
+        <param name="binaryFormatOffset">The non-negative starting format-array index, measured in integer elements.</param>
+        <param name="binary">A non-null writable output buffer with at least bufSize bytes from its current position. Capacity is not checked. Save the returned format and byte count with the binary.</param>
+        <summary>Retrieves a linked program's implementation-specific binary representation.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5651,13 +5649,12 @@
         <Parameter Name="values" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="sync">To be added.</param>
-        <param name="pname">To be added.</param>
-        <param name="bufSize">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="values">To be added.</param>
-        <summary>
-        </summary>
+        <param name="sync">The existing native sync handle whose properties are queried.</param>
+        <param name="pname">The sync-object property selector.</param>
+        <param name="bufSize">The non-negative maximum number of integer result entries, not bytes.</param>
+        <param name="length">An optional direct, native-order writable buffer with one integer remaining; receives the number of result entries written. Array-backed cleanup is unsafe.</param>
+        <param name="values">A non-null direct, native-order writable buffer with at least bufSize integer entries remaining. Capacity is not checked; array-backed cleanup is unsafe.</param>
+        <summary>Queries a sync object's properties into integer output storage.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5693,15 +5690,14 @@
         <Parameter Name="valuesOffset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="sync">To be added.</param>
-        <param name="pname">To be added.</param>
-        <param name="bufSize">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="lengthOffset">To be added.</param>
-        <param name="values">To be added.</param>
-        <param name="valuesOffset">To be added.</param>
-        <summary>
-        </summary>
+        <param name="sync">The existing native sync handle whose properties are queried.</param>
+        <param name="pname">The sync-object property selector.</param>
+        <param name="bufSize">The non-negative maximum number of integer result entries, not bytes.</param>
+        <param name="length">An optional output array with room for one integer after lengthOffset; receives the number of result entries written.</param>
+        <param name="lengthOffset">The non-negative starting length-array index; ignored when length is null.</param>
+        <param name="values">A non-null output array with room for bufSize integer entries after valuesOffset. Capacity is not checked.</param>
+        <param name="valuesOffset">The non-negative starting result-array index, measured in integer elements.</param>
+        <summary>Queries a sync object's properties into integer output storage.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6943,13 +6939,13 @@
         <Parameter Name="access" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="access">To be added.</param>
+        <param name="target">The binding target of the buffer object to map.</param>
+        <param name="offset">The non-negative starting byte offset within the buffer's data store.</param>
+        <param name="length">The positive number of bytes to map.</param>
+        <param name="access">Compatible GL_MAP_* flags specifying read and/or write access; use the mapped memory only as permitted by these flags.</param>
         <summary>The <c>java.nio.Buffer</c> instance returned by this method is guaranteed
             to be an instance of <c>java.nio.ByteBuffer</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>A direct byte buffer covering the mapped range, or null if native mapping fails. Its storage becomes invalid when the buffer is unmapped, deleted, or reallocated. Select native byte order before creating multibyte views.</returns>
         <remarks>
           <para>The <c>java.nio.Buffer</c> instance returned by this method is guaranteed
             to be an instance of <c>java.nio.ByteBuffer</c>.</para>
@@ -8365,12 +8361,11 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="program">To be added.</param>
-        <param name="binaryFormat">To be added.</param>
-        <param name="binary">To be added.</param>
-        <param name="length">To be added.</param>
-        <summary>
-        </summary>
+        <param name="program">The program object into which the saved binary is loaded.</param>
+        <param name="binaryFormat">The compatible implementation-specific format token saved with the binary.</param>
+        <param name="binary">A non-null input buffer with at least length binary bytes from its current position. The wrapper does not check capacity.</param>
+        <param name="length">The non-negative binary byte count. Check GL_LINK_STATUS after loading; the binary can be rejected.</param>
+        <summary>Loads a saved program binary as an implicit program link.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -13781,10 +13776,9 @@
         <Parameter Name="target" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="target">The binding target of the mapped buffer object.</param>
+        <summary>Unmaps a buffer data store and invalidates pointers into its mapped range.</summary>
+        <returns>True if unmapping completes without detected data corruption; false on detected corruption or a GL error. A corrupted data store must be reinitialized.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
