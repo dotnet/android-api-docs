@@ -98,7 +98,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the client connection manager.</summary>
-        <value>To be added.</value>
+        <value>The director's connection manager, initially supplied to its constructor.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -128,10 +128,10 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="context">To be added.</param>
+        <param name="route">The route whose target host and port form the CONNECT request authority.</param>
+        <param name="context">The execution context. This implementation does not read it.</param>
         <summary>Creates the CONNECT request for tunnelling.</summary>
-        <returns>To be added.</returns>
+        <returns>A CONNECT request with the target's host and port and the protocol version from the director's parameters. A missing target port is obtained from the scheme registry.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -162,11 +162,11 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="hop">To be added.</param>
-        <param name="context">To be added.</param>
+        <param name="route">The route for the proposed proxy tunnel. This implementation does not use it.</param>
+        <param name="hop">The index of the proxy hop to tunnel to. This implementation does not use it.</param>
+        <param name="context">The request execution context. This implementation does not use it.</param>
         <summary>Attempts to create an intermediate proxy tunnel.</summary>
-        <returns>To be added.</returns>
+        <returns>This implementation does not return a value. It always throws <see cref="T:Java.Lang.UnsupportedOperationException" /> because proxy chains are not supported.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -196,8 +196,8 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="context">To be added.</param>
+        <param name="route">The route that supplies the proxy and target for the CONNECT exchange.</param>
+        <param name="context">The context used to send CONNECT and obtain credentials for proxy authentication.</param>
         <summary>Creates a tunnel to the target through the proxy.</summary>
         <returns>true when the established tunnel is secure; otherwise, false.</returns>
         <remarks>
@@ -230,11 +230,11 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="request">To be added.</param>
-        <param name="context">To be added.</param>
+        <param name="target">The target host, or <see langword="null" /> to use the default host in the request parameters.</param>
+        <param name="request">The request passed to the route planner and consulted for a default target host.</param>
+        <param name="context">The execution context passed to the route planner.</param>
         <summary>Determines the route for the request.</summary>
-        <returns>To be added.</returns>
+        <returns>The route selected by the configured route planner. An exception is thrown if neither the argument nor the request parameters supplies a target host.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -264,8 +264,8 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="context">To be added.</param>
+        <param name="route">The planned route to establish on the managed connection.</param>
+        <param name="context">The execution context used when opening the connection, creating tunnels, or layering a protocol.</param>
         <summary>Establishes the target route.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -300,11 +300,11 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="request">To be added.</param>
-        <param name="context">To be added.</param>
+        <param name="target">The initial target host, or <see langword="null" /> to use the request's configured default host.</param>
+        <param name="request">The original request to wrap and execute.</param>
+        <param name="context">The execution context used for the connection, protocol processing, authentication states, and user token.</param>
         <summary>Executes a request and follows retries, redirects, and authentication challenges.</summary>
-        <returns>To be added.</returns>
+        <returns>The final HTTP response, including a proxy response if tunnel creation is refused. A streaming response entity retains the managed connection until released.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -335,9 +335,9 @@
         <Parameter Name="context" Type="Org.Apache.Http.Protocol.IHttpContext" />
       </Parameters>
       <Docs>
-        <param name="roureq">To be added.</param>
-        <param name="response">To be added.</param>
-        <param name="context">To be added.</param>
+        <param name="roureq">The current request wrapper and route used to prepare a redirect or authentication retry.</param>
+        <param name="response">The response to inspect for a redirect or authentication challenge.</param>
+        <param name="context">The current execution context, including credentials and the target host used for authentication.</param>
         <summary>Determines whether a response requires a follow-up request.</summary>
         <returns>A follow-up routed request, or null when processing is complete.</returns>
         <remarks>
@@ -366,7 +366,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the HTTP processor.</summary>
-        <value>To be added.</value>
+        <value>The director's protocol processor, initially supplied to its constructor.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -459,7 +459,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the connection keep-alive strategy.</summary>
-        <value>To be added.</value>
+        <value>The strategy used to set the reusable connection's idle duration from a response.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -486,7 +486,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the managed client connection.</summary>
-        <value>To be added.</value>
+        <value>The connection currently allocated to the director, or <see langword="null" /> when no connection is allocated.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -513,7 +513,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the HTTP parameters.</summary>
-        <value>To be added.</value>
+        <value>The director's HTTP parameter collection, initially supplied to its constructor.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -540,7 +540,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the redirect handler.</summary>
-        <value>To be added.</value>
+        <value>The handler used to test redirect responses and obtain their destination URIs.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -594,7 +594,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the request executor.</summary>
-        <value>To be added.</value>
+        <value>The executor used to send requests and run protocol pre-processing and post-processing.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -621,7 +621,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the HTTP request retry handler.</summary>
-        <value>To be added.</value>
+        <value>The handler consulted after an I/O failure to decide whether another request attempt is permitted.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -648,7 +648,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the connection reuse strategy.</summary>
-        <value>To be added.</value>
+        <value>The strategy consulted to decide whether a response permits connection reuse.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -678,8 +678,8 @@
         <Parameter Name="route" Type="Org.Apache.Http.Conn.Routing.HttpRoute" />
       </Parameters>
       <Docs>
-        <param name="request">To be added.</param>
-        <param name="route">To be added.</param>
+        <param name="request">The wrapper whose URI is to be rewritten in place.</param>
+        <param name="route">The route used to select an absolute URI for a non-tunnelled proxy connection or a relative URI otherwise.</param>
         <summary>Rewrites the request URI for its route.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -707,7 +707,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the HTTP route planner.</summary>
-        <value>To be added.</value>
+        <value>The director's route planner, initially supplied to its constructor.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
