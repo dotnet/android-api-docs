@@ -31,7 +31,7 @@
                 * XOR length in HashFinal()
                 * Using spliced table for faster processing
              </summary>
-    <remarks>To be added.</remarks>
+    <remarks>The checksum starts with all 64 bits set. Finalization combines the checksum with the total number of processed bytes using exclusive OR, then converts the result to a byte array with <see cref="M:System.BitConverter.GetBytes(System.UInt64)" />.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -45,8 +45,8 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates a CRC64 hash algorithm with its initial checksum state.</summary>
+        <remarks>The checksum starts with all 64 bits set and a processed-byte count of zero.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HashCore">
@@ -68,11 +68,11 @@
         <Parameter Name="cbSize" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="array">To be added.</param>
-        <param name="ibStart">To be added.</param>
-        <param name="cbSize">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="array">The byte array containing the data to process.</param>
+        <param name="ibStart">The index of the first byte to process.</param>
+        <param name="cbSize">The number of bytes to process.</param>
+        <summary>Updates the running CRC64 checksum with a segment of a byte array.</summary>
+        <remarks>The processed-byte count increases by <paramref name="cbSize" />. Finalization uses this count together with the running checksum.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HashFinal">
@@ -90,9 +90,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Produces the final bytes from the running checksum and processed-byte count.</summary>
+        <returns>The byte array returned by <see cref="M:System.BitConverter.GetBytes(System.UInt64)" /> for the checksum combined with the processed-byte count using exclusive OR.</returns>
+        <remarks>This method combines the checksum and processed-byte count without resetting either value.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Initialize">
@@ -110,8 +110,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Resets the CRC64 checksum and processed-byte count.</summary>
+        <remarks>The checksum is reset to <see cref="F:System.UInt64.MaxValue" /> and the processed-byte count is reset to zero.</remarks>
       </Docs>
     </Member>
   </Members>
