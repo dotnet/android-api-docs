@@ -19743,8 +19743,10 @@ static partial class ImporterProgram
                         var registration = Member(document).Descendants("AttributeName").Single(attribute =>
                             (string?)attribute.Attribute("Language") == "C#" &&
                             attribute.Value.StartsWith("[Android.Runtime.Register(", StringComparison.Ordinal));
-                        registration.Value = registration.Value.Replace(rule.Registration.Descriptor!,
-                            rule.Registration.Descriptor![..(rule.Registration.Descriptor.LastIndexOf(')') + 1)] +
+                        var descriptor = rule.Registration.Descriptor ??
+                            throw new InvalidOperationException("A media method requires a JNI descriptor.");
+                        registration.Value = registration.Value.Replace(descriptor,
+                            descriptor[..(descriptor.LastIndexOf(')') + 1)] +
                                 "Ljava/lang/Object;", StringComparison.Ordinal);
                     },
                 };
