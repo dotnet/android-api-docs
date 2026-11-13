@@ -91,7 +91,7 @@
       </ReturnValue>
       <Docs>
         <summary>Intent action to identify the defaults to use for the agent task space.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>An activity handling this action supplies the default agent-task icon and launch target. A null agent-task update restores that default state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CanLaunchCaptureContentActivityForNote">
@@ -170,7 +170,7 @@
         <returns>
           <c>true</c> if this app can currently send requests to modify the agents space, and
                     the user has currently authorized this.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>The service checks the calling package and user. This method returns false when the status-bar service is unavailable; a remote-service failure is rethrown.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetAgentStateScreenLocation">
@@ -209,7 +209,7 @@
         <returns>the absolute on-screen bounds of the agent state icon for the given display. Returns
                 null if agent task state is not visible on the given display or if there was a problem
                 fetching the value.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>This call waits for the service result. A timeout, interruption, or cancellation returns null; a failed future can throw an execution exception. A temporary event does not replace the underlying state's reported bounds.</remarks>
       </Docs>
     </Member>
     <Member MemberName="IsAgentTaskFeatureSupported">
@@ -239,7 +239,7 @@
         <summary>Returns whether the agent task status icon feature is supported by this device configuration.</summary>
         <value>
           <c>true</c> if the feature is supported, <c>false</c> otherwise.</value>
-        <remarks>To be added.</remarks>
+        <remarks>This queries device-configuration support, not the caller's authorization to set a task. It returns false when the status-bar service is unavailable.</remarks>
       </Docs>
     </Member>
     <Member MemberName="IsAgentTaskLaunchSupported">
@@ -271,7 +271,7 @@
         <value>
           <c>true</c> if the agent task feature is supported and this implementation
                                  supports interacting with elements to launch activities.</value>
-        <remarks>To be added.</remarks>
+        <remarks>This checks activity-launch interaction support separately from basic status-icon support. It returns false when the status-bar service is unavailable.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -448,7 +448,7 @@
                                    call could not be processed.</param>
         <param name="executor">an executor for calling into <c>outcomeReceiver</c></param>
         <summary>Requests that a specific Agent Task be shown in the corresponding space.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Result callbacks run through the supplied executor. An unavailable service is reported through the error callback, while a remote exception from the initial service call is rethrown.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ShowPowerMenu">

@@ -575,8 +575,35 @@ static partial class ImporterProgram
         "list of package names on which to filter the data. If not set logs from all the sources will be returned. This value cannot be null.",
         null);
 
+    static readonly KnownEapChannelCorrection KnownMediaRouteActionViewCorrection = new(
+        "M:Android.App.MediaRouteActionProvider.OnCreateActionView",
+        new("onCreateActionView", "()Landroid/view/View;", false),
+        "Android.Views.View",
+        "public override Android.Views.View? OnCreateActionView ();",
+        [],
+        new(
+            "This method is deprecated.",
+            [
+                new("This method is deprecated. use onCreateActionView(MenuItem)", false),
+                new("Factory method called by the Android framework to create new action views.", false),
+                new("This method has been deprecated in favor of onCreateActionView(MenuItem). Newer apps that wish to support platform versions prior to API 16 should also implement this method to return a valid action view.", false),
+            ],
+            new(StringComparer.Ordinal)
+            {
+                ["View"] = "A new action view. This value cannot be null.",
+            },
+            "A new action view. This value cannot be null.",
+            new(StringComparer.Ordinal),
+            AndroidReference + "android/app/MediaRouteActionProvider#onCreateActionView()",
+            "android.app.MediaRouteActionProvider.onCreateActionView",
+            "android"),
+        "returns",
+        "A new action view. This value cannot be null.",
+        null);
+
     static IEnumerable<KnownEapChannelCorrection> KnownExactChannelCorrections =>
-        KnownEapChannelCorrections.Append(KnownChangeLogChannelCorrection);
+        KnownEapChannelCorrections.Append(KnownChangeLogChannelCorrection)
+            .Append(KnownMediaRouteActionViewCorrection);
 
     static readonly KnownUnsafeIkeChannel[] KnownUnsafeIkeChannels =
     [
@@ -1667,14 +1694,18 @@ static partial class ImporterProgram
                             remaining--;
                             report.Entries.Add(ReportEntry.Changed(
                                 "would_apply", file.RelativePath, owner.Id, target, mapping.SourceUrl,
-                                target == "param:dataOriginFilter"
+                                mapping.Docs!.EapCorrection == KnownMediaRouteActionViewCorrection
+                                    ? "importer_media_route_unsafe_return_withdrawal"
+                                    : target == "param:dataOriginFilter"
                                     ? "importer_changelog_unsafe_parameter_withdrawal"
                                     : target is "param:reauthId" or "value"
                                     ? target == "value"
                                         ? "importer_eap_unsafe_value_withdrawal"
                                         : "importer_eap_unsafe_parameter_withdrawal"
                                     : "importer_eap_return_typo_repair",
-                                target == "param:dataOriginFilter"
+                                mapping.Docs!.EapCorrection == KnownMediaRouteActionViewCorrection
+                                    ? "Withdrew the exact importer-owned action-view return because the parameterless implementation always throws."
+                                    : target == "param:dataOriginFilter"
                                     ? "Withdrew the exact importer-owned parameter because the official source describes a list of package names for a single DataOrigin."
                                     : target == "value"
                                     ? "Withdrew the exact importer-owned getter value because the supported no-options configuration can return null."
@@ -4876,7 +4907,9 @@ static partial class ImporterProgram
                 UnsafeTargets = new Dictionary<string, string>(StringComparer.Ordinal)
                 {
                     [correction.Target] =
-                        correction.Target == "param:dataOriginFilter"
+                        correction == KnownMediaRouteActionViewCorrection
+                            ? "The exact inherited action-view return contradicts the parameterless MediaRouteActionProvider implementation, which always throws UnsupportedOperationException; no replacement prose was inferred."
+                            : correction.Target == "param:dataOriginFilter"
                             ? "The exact official parameter describes a list of package names, but the registered method accepts one DataOrigin and adds it to a set; no replacement prose was inferred."
                             : correction.Target == "value"
                             ? "The exact official getter return incorrectly guarantees non-null options although the supported no-options builder passes null; no replacement prose was inferred."
@@ -22480,6 +22513,7 @@ static partial class ImporterProgram
         TestDevicePresenceEventKeywordParameter(repositoryRoot);
         TestQuickSettingsSources(repositoryRoot);
         TestKnownEapChannelCorrections(repositoryRoot);
+        TestMediaRouteActionViewReturn(repositoryRoot);
         TestChangeLogDataOriginChannel(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
         TestSdkSandboxSurfaceLinks(repositoryRoot);
@@ -30281,6 +30315,170 @@ static partial class ImporterProgram
             Directory.Delete(directory, recursive: true);
         }
         Console.WriteLine("SELF-TEST PASS: registered ChangeLog DataOrigin first-fill/withdrawal, exact source/JNI/managed/provenance negatives, corrected-source controls, and persisted repeats.");
+    }
+
+    static void TestMediaRouteActionViewReturn(string repositoryRoot)
+    {
+        var fixture = Convert.FromBase64String(File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "media-route-action-provider-reference.html.b64")).Trim());
+        Assert(Convert.ToHexString(SHA256.HashData(fixture)).ToLowerInvariant() ==
+            "6463d3a74b5b3e8e2695ece6dd1143a01d2e3ef52361adf3843572a7af80ea90",
+            "MediaRoute native reference fragment matches the retained source bytes");
+        var html = Encoding.UTF8.GetString(fixture);
+        var rule = KnownMediaRouteActionViewCorrection;
+        var request = SourceRequest.Create("android/app/MediaRouteActionProvider")!;
+        var parsed = SourcePage.Parse(request, html);
+        Assert(MatchesKnownEapSource(parsed.Members.Single(member =>
+                member.Name == "onCreateActionView" && member.ArgumentDescriptors is { Count: 0 }).Docs!, rule.Source),
+            "MediaRoute return guard matches the complete original parsed source contract");
+        var directory = Path.Combine(Path.GetTempPath(), $"media-route-return-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.App",
+            $"MediaRoute.return-self-test-{Environment.ProcessId}.xml");
+        var cachePath = Path.Combine(directory,
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        var root = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Android.App", "MediaRouteActionProvider.xml"));
+        var originalMember = new XElement(root.Element("Members")!.Elements("Member").Single(member =>
+            member.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "DocId" &&
+                (string?)signature.Attribute("Value") == rule.MemberId)));
+        root.Element("Members")!.ReplaceNodes(originalMember);
+        root.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored type summary."));
+        originalMember.Element("Docs")!.ReplaceNodes(
+            new XElement("summary", "Authored throwing-overload summary."),
+            new XElement("returns", "To be added."),
+            new XElement("remarks", "Authored implementation guidance."));
+        var calls = 0;
+        try
+        {
+            JsonDocument Run(bool apply)
+            {
+                var report = Path.Combine(directory, "report-" + calls++);
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.App", "--member", "OnCreateActionView",
+                    "--offline", "--cache", directory, "--max-changes", "1", "--report", report,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "MediaRoute offline production pipeline succeeds");
+                return JsonDocument.Parse(File.ReadAllText(report + ".json"));
+            }
+            void Save(XElement input, string source)
+            {
+                File.WriteAllText(path, input.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                File.WriteAllText(cachePath, source, new UTF8Encoding(false));
+            }
+            bool HasExclusion(JsonDocument report) => report.RootElement.GetProperty("entries")
+                .EnumerateArray().Any(entry =>
+                    entry.GetProperty("member").GetString() == rule.MemberId &&
+                    entry.GetProperty("target").GetString() == "returns" &&
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous");
+            void NoEdit(XElement input, string description)
+            {
+                Save(input, html);
+                var before = File.ReadAllBytes(path);
+                using var report = Run(true);
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), description);
+                using var repeat = Run(true);
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), description + " persisted repeat");
+            }
+            Save(root, html);
+            var before = File.ReadAllBytes(path);
+            using (var preview = Run(false))
+                Assert(HasExclusion(preview) && preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), "MediaRoute dry run reports the unsafe return without writes");
+            NoEdit(root, "MediaRoute unsafe return and authored sibling channels remain byte-identical");
+            var prior = new XElement(root);
+            prior.Element("Members")!.Element("Member")!.Element("Docs")!.ReplaceWith(KnownEapPriorDocs(rule));
+            Save(prior, html);
+            var expectedWithdrawal = File.ReadAllText(path).Replace(
+                $"<returns>{rule.IncorrectText}</returns>", "<returns>To be added.</returns>", StringComparison.Ordinal);
+            using (var report = Run(true))
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "importer_media_route_unsafe_return_withdrawal") &&
+                    File.ReadAllText(path) == expectedWithdrawal,
+                    "MediaRoute synthetic prior-owned copy loses only its exact unsafe return with an accurate report");
+            NoEdit(XElement.Load(path), "MediaRoute synthetic prior-owned withdrawal is byte-identical on repeat");
+            foreach (var change in new Action<XElement>[]
+            {
+                docs => docs.Element("returns")!.Value = "An authored return explanation.",
+                docs => docs.Element("returns")!.ReplaceNodes(new XElement("c", "Authored.")),
+                docs => docs.Element("returns")!.ReplaceNodes(new XCData("To be added.")),
+                docs => docs.Element("returns")!.Add(new XComment("Authored.")),
+            })
+            {
+                var authored = new XElement(root);
+                change(authored.Element("Members")!.Element("Member")!.Element("Docs")!);
+                NoEdit(authored, "MediaRoute guard preserves authored, mixed, CDATA and comment content");
+            }
+            foreach (var change in new Action<XElement>[]
+            {
+                member => member.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId")
+                    .SetAttributeValue("Value", rule.MemberId + ".Other"),
+                member => member.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#")
+                    .SetAttributeValue("Value", "public Android.Views.View? OnCreateActionView ();"),
+                member => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "Java.Lang.Object",
+                member =>
+                {
+                    foreach (var name in member.Descendants("AttributeName"))
+                        name.Value = name.Value.Replace("()Landroid/view/View;", "()Ljava/lang/Object;", StringComparison.Ordinal);
+                },
+            })
+            {
+                var changed = new XElement(root);
+                change(changed.Element("Members")!.Element("Member")!);
+                Save(changed, html);
+                using var report = Run(true);
+                Assert(!HasExclusion(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    XElement.Load(path).Descendants("returns").Single().Value == rule.IncorrectText,
+                    "MediaRoute changed-binding negative reaches ordinary source mapping, not an earlier rejection");
+            }
+            Save(root, html.Replace("A new action view.", "A corrected action-view result.", StringComparison.Ordinal));
+            using (var report = Run(true))
+                Assert(!HasExclusion(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    XElement.Load(path).Descendants("returns").Single().Value ==
+                        "A corrected action-view result. This value cannot be null.",
+                    "MediaRoute future changed return contract remains eligible");
+            var sibling = new XElement(originalMember);
+            sibling.Elements("MemberSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "DocId").Single()
+                .SetAttributeValue("Value", rule.MemberId + "(Android.Views.IMenuItem)");
+            sibling.Elements("MemberSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "C#").Single()
+                .SetAttributeValue("Value", "public override Android.Views.View OnCreateActionView (Android.Views.IMenuItem item);");
+            foreach (var name in sibling.Descendants("AttributeName"))
+                name.Value = name.Value.Replace("()Landroid/view/View;", "(Landroid/view/MenuItem;)Landroid/view/View;", StringComparison.Ordinal);
+            sibling.Element("Parameters")!.ReplaceNodes(
+                new XElement("Parameter", new XAttribute("Name", "item"), new XAttribute("Type", "Android.Views.IMenuItem")));
+            sibling.Element("Docs")!.AddFirst(new XElement("param", new XAttribute("name", "item"), "Authored menu item."));
+            sibling.Element("Docs")!.Element("remarks")!.ReplaceNodes(
+                "Authored safe-overload guidance.",
+                ImporterSourceReference(parsed.Members.Single(member =>
+                    member.Name == "onCreateActionView" && member.ArgumentDescriptors is { Count: 1 }).Docs!),
+                XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            var siblings = new XElement(root);
+            siblings.Element("Members")!.Add(sibling);
+            Save(siblings, html);
+            using (var report = Run(true))
+                Assert(HasExclusion(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "MediaRoute one-operation budget fills the MenuItem overload while withholding only the unsafe return");
+            sibling.Element("Docs")!.Element("returns")!.Value = "the new action view. This value cannot be null.";
+            Assert(File.ReadAllText(path) == siblings.ToString(SaveOptions.DisableFormatting),
+                "MediaRoute safe overload fill preserves every byte outside its return span");
+            NoEdit(XElement.Load(path), "MediaRoute bounded sibling apply is a persisted zero-write repeat");
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
     }
 
     static void TestKnownEapChannelCorrections(string repositoryRoot)
