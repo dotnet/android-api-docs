@@ -2389,6 +2389,7 @@ static partial class ImporterProgram
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutUnsafeIcuNumberChannels(owner, fieldDocs);
+            fieldDocs = ProviderColumnProjection.WithoutUnsafeArtistTrackCountChannels(owner, page, fieldDocs);
             if (owner.SourceRequest.JavaPath == DalvikOpcodeProjection.JavaPath)
                 fieldDocs = fieldDocs with { QualityFirstFillOnly = true, UnsafeTargets = new Dictionary<string, string>() };
             if (providerProjection)
@@ -22140,6 +22141,11 @@ static partial class ImporterProgram
                     foreach (var field in rule.Fields)
                     {
                         Write(type, field.Managed);
+                        if (rule.Name == "ArtistColumns" && field.Native == "NUMBER_OF_TRACKS")
+                            File.WriteAllText(cachePath, html.Replace(
+                                ProviderColumnProjection.IncorrectArtistTrackCountSummary,
+                                "The number of tracks in the database for this artist.",
+                                StringComparison.Ordinal), new UTF8Encoding(false));
                         var before = File.ReadAllText(PathFor(type));
                         var preview = Run(type, field.Managed, false);
                         Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 1 &&
@@ -22268,6 +22274,122 @@ static partial class ImporterProgram
                     Assert(typeRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
                         File.ReadAllBytes(PathFor(type)).SequenceEqual(typeBytes),
                         "Provider declared-type fill has a byte-identical persisted repeat");
+                    if (rule.Name == "ArtistColumns")
+                    {
+                        const string tracks = "NumberOfTracks";
+                        void SeedTrackChannels() => Write(type, tracks, (root, member) =>
+                            member.Element("Docs")!.Element("remarks")!.Value = "To be added.");
+                        SeedTrackChannels();
+                        var before = File.ReadAllBytes(PathFor(type));
+                        var excluded = Run(type, tracks, true);
+                        Assert(excluded.GetProperty("appliedCount").GetInt32() == 0 &&
+                            excluded.GetProperty("entries").EnumerateArray().Count(entry =>
+                                entry.GetProperty("reason").GetString() == "source_channel_ambiguous" &&
+                                entry.GetProperty("target").GetString() is "summary" or "remarks") == 2 &&
+                            File.ReadAllBytes(PathFor(type)).SequenceEqual(before),
+                            "Provider holds both exact incorrect artist track-count channels");
+                        Reject(type, tracks, "the incorrect artist track-count contract on persisted repeat");
+                        var contextualField = parts["NUMBER_OF_TRACKS"].Replace(
+                            "<p>" + ProviderColumnProjection.IncorrectArtistTrackCountSummary,
+                            "<p>Track-count information.</p><p>" +
+                                ProviderColumnProjection.IncorrectArtistTrackCountSummary,
+                            StringComparison.Ordinal);
+                        Assert(contextualField != parts["NUMBER_OF_TRACKS"],
+                            "Artist track contextual control adds a separate safe source paragraph");
+                        SeedTrackChannels();
+                        File.WriteAllText(cachePath, html.Replace(parts["NUMBER_OF_TRACKS"],
+                            contextualField, StringComparison.Ordinal), new UTF8Encoding(false));
+                        var contextual = Run(type, tracks, true, 1);
+                        Assert(contextual.GetProperty("appliedCount").GetInt32() == 1 &&
+                            Member(XElement.Load(PathFor(type)), tracks).Element("Docs")!
+                                .Element("summary")!.Value == "Track-count information." &&
+                            Member(XElement.Load(PathFor(type)), tracks).Element("Docs")!
+                                .Element("remarks")!.Value == "To be added." &&
+                            contextual.GetProperty("entries").EnumerateArray().Any(entry =>
+                                entry.GetProperty("reason").GetString() == "source_channel_ambiguous" &&
+                                entry.GetProperty("target").GetString() == "remarks"),
+                            "A safe new summary cannot bypass the full incorrect track-count remarks paragraph");
+                        Reject(type, tracks, "contextual incorrect track-count remarks on persisted repeat");
+                        foreach (var mutation in new Action<XElement, XElement>[]
+                        {
+                            (root, member) => member.Elements("MemberSignature").Single(signature =>
+                                (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value",
+                                    "F:Other.Provider.MediaStore.Audio.IArtistColumns.NumberOfTracks"),
+                            (root, member) => member.Elements("MemberSignature").Single(signature =>
+                                (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value",
+                                    "public static string NumberOfTracks;"),
+                            (root, member) => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32",
+                            (root, member) => member.Add(new XElement("MemberValue", "changed")),
+                            (root, member) => member.Element("Attributes")!.Elements("Attribute").First()
+                                .Elements("AttributeName").First().Value = "[Android.Runtime.Register(\"NUMBER_OF_ALBUMS\")]",
+                        })
+                        foreach (var sibling in new[] { false, true })
+                        {
+                            Write(type, tracks, mutation, sibling);
+                            Reject(type, tracks, "changed attached track-count binding or sibling identity");
+                        }
+                        foreach (var mutatedHtml in new[]
+                        {
+                            html.Replace("\"number_of_tracks\"", "\"changed\"", StringComparison.Ordinal),
+                            html.Replace(parts["type"],
+                                parts["type"].Replace("public", "private", StringComparison.Ordinal),
+                                StringComparison.Ordinal),
+                        })
+                        {
+                            Assert(mutatedHtml != html, "Artist track source negative changes the intended fixture");
+                            SeedTrackChannels();
+                            File.WriteAllText(cachePath, mutatedHtml, new UTF8Encoding(false));
+                            Reject(type, tracks, "changed track-count source declaration or native value");
+                        }
+                        foreach (var content in new object[]
+                        {
+                            "Authored track-count summary.",
+                            new XElement("c", "To be added."),
+                            new XCData("To be added."),
+                            new XComment("Authored track-count comment."),
+                        })
+                        {
+                            Write(type, tracks, (root, member) =>
+                                member.Element("Docs")!.Element("summary")!.ReplaceNodes(content));
+                            Reject(type, tracks, "authored or mixed track-count documentation");
+                        }
+                        var priorBytes = Convert.FromBase64String(File.ReadLines(Path.Combine(
+                            repositoryRoot, "tools", "importer-fixtures", "provider-artist-tracks-prior-docs.txt"))
+                            .Single(line => !line.StartsWith('#') && !string.IsNullOrWhiteSpace(line)));
+                        Assert(Convert.ToHexString(SHA256.HashData(priorBytes)).Equals(
+                            "eb758f02fcf1df9b1d6006386ae7ce61762b0c57de6a5564d9d3f89f0b4e203b",
+                            StringComparison.OrdinalIgnoreCase), "Actual prior artist track-count Docs receipt");
+                        Write(type, tracks, (root, member) => member.Element("Docs")!.ReplaceWith(
+                            XElement.Parse(Encoding.UTF8.GetString(priorBytes), LoadOptions.PreserveWhitespace)));
+                        Reject(type, tracks, "the actual prior imported track-count copy without generic withdrawal");
+                        SeedTrackChannels();
+                        File.WriteAllText(cachePath, html.Replace(
+                            ProviderColumnProjection.IncorrectArtistTrackCountSummary,
+                            "The number of tracks in the database for this artist.",
+                            StringComparison.Ordinal), new UTF8Encoding(false));
+                        var corrected = Run(type, tracks, true, 1);
+                        var correctedDocs = Member(XElement.Load(PathFor(type)), tracks).Element("Docs")!;
+                        Assert(corrected.GetProperty("appliedCount").GetInt32() == 1 &&
+                            correctedDocs.Element("summary")!.Value ==
+                                "The number of tracks in the database for this artist." &&
+                            correctedDocs.Element("remarks")!.Value == "To be added.",
+                            "Future corrected track-count summary remains eligible within the exact one-write budget");
+                        var correctedRemarks = Run(type, tracks, true, 1);
+                        Assert(correctedRemarks.GetProperty("appliedCount").GetInt32() == 1,
+                            "Future corrected track-count remarks remain eligible");
+                        var correctedBytes = File.ReadAllBytes(PathFor(type));
+                        var correctedRepeat = Run(type, tracks, true, 1);
+                        Assert(correctedRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                            File.ReadAllBytes(PathFor(type)).SequenceEqual(correctedBytes),
+                            "Corrected track-count output has a byte-identical persisted repeat");
+                        Write(type, "NumberOfAlbums");
+                        var albums = Run(type, "NumberOfAlbums", true);
+                        Assert(albums.GetProperty("appliedCount").GetInt32() == 1 &&
+                            Member(XElement.Load(PathFor(type)), "NumberOfAlbums")
+                                .Element("Docs")!.Element("summary")!.Value ==
+                                    ProviderColumnProjection.IncorrectArtistTrackCountSummary,
+                            "The same correct album-count wording remains eligible for its safe sibling");
+                    }
                 }
             }
         }
@@ -34941,6 +35063,12 @@ static partial class ImporterProgram
     sealed class ProviderColumnProjection
     {
         const string Prefix = "Android.Provider.";
+        public const string IncorrectArtistTrackCountSummary =
+            "The number of albums in the database for this artist.";
+        public const string IncorrectArtistTrackCountParagraph =
+            IncorrectArtistTrackCountSummary +
+            " This constant represents a column name that can be used with a ContentProvider through a ContentValues or Cursor object." +
+            " The values stored in this column are Cursor#FIELD_TYPE_INTEGER, and are read-only and cannot be mutated.";
         public sealed record Rule(
             string Container,
             string Name,
@@ -35171,6 +35299,34 @@ static partial class ImporterProgram
                 declarations[0].Declaration == "public static final String " + field.Native &&
                 declarations[0].ConstantValue == field.Value &&
                 declarations[0].Url == owner.SourceRequest!.Url + "#" + field.Native;
+        }
+
+        public static SourceDocs WithoutUnsafeArtistTrackCountChannels(
+            DocsOwner owner, SourcePage page, SourceDocs docs)
+        {
+            const string javaPath = "android/provider/MediaStore$Audio$ArtistColumns";
+            const string sourceUrl =
+                AndroidReference + "android/provider/MediaStore.Audio.ArtistColumns#NUMBER_OF_TRACKS";
+            if (owner.Id is not ("F:Android.Provider.MediaStore.Audio.IArtistColumns.NumberOfTracks" or
+                    "F:Android.Provider.MediaStore.Audio.ArtistColumns.NumberOfTracks") ||
+                owner.MemberRegistration != new MemberRegistration("NUMBER_OF_TRACKS", null, true) ||
+                owner.SourceRequest != SourceRequest.CreateAndroid(javaPath) ||
+                !MatchesSource(owner, page) ||
+                docs.SourceKind != "android" || docs.SourceUrl != sourceUrl ||
+                docs.SourceLabel != "android.provider.MediaStore.Audio.ArtistColumns.NUMBER_OF_TRACKS")
+                return docs;
+
+            var targets = docs.UnsafeTargets is null
+                ? new Dictionary<string, string>(StringComparer.Ordinal)
+                : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+            const string detail =
+                "The exact ArtistColumns.NUMBER_OF_TRACKS source describes album count, but the artist view counts distinct audio row IDs; no replacement prose was inferred.";
+            if (docs.Summary == IncorrectArtistTrackCountSummary)
+                targets["summary"] = detail;
+            if (docs.Paragraphs.Any(paragraph =>
+                !paragraph.IsCode && paragraph.Text == IncorrectArtistTrackCountParagraph))
+                targets["remarks"] = detail;
+            return docs with { UnsafeTargets = targets };
         }
     }
 

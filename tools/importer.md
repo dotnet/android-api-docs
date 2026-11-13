@@ -765,6 +765,21 @@ source mutations, bounded writes, encoding/newline preservation, and persisted
 zero-write repeats. The focused `--self-test-provider` suite also runs as part
 of `--self-test`.
 
+The exact `ArtistColumns.NUMBER_OF_TRACKS` summary and remarks describe an
+album count. They are withheld for both allowed managed siblings when their
+full known text, canonical declared source, JNI field and String value match.
+The [pinned media database implementation](https://android.googlesource.com/platform/packages/providers/MediaProvider/+/a183e2b92c71d86ec7b104c116ef3f4dbcbb523f/src/com/android/providers/media/DatabaseHelper.java#1604)
+counts distinct audio row IDs for tracks and distinct album IDs for albums.
+Its file SHA-256 is
+`30a8dbee47a14b170aa892ecd2fc6cecc084fa78ba666b26d1ac1af96df513dd`.
+This is evidence for exclusion, not replacement prose. A safe new summary
+does not enable the incorrect remarks paragraph. Corrected source and the
+separate album-count field remain eligible. Authored content and prior copies
+are preserved; there is no general prior-copy withdrawal.
+`provider-artist-tracks-prior-docs.txt` retains actual bounded first-fill output,
+its producer checksum and the output commit/blob identity. Registered tests
+verify that copy's hash and preserve it in both attached managed siblings.
+
 `Android.Media.Quality` has source-bound first-fill exclusions for eight
 `WriteToParcel(Parcel, int)` summary/remarks pairs containing the exact
 `Flatten this object in to a Parcel.` typo, the two `GetAvailable*Profiles`
