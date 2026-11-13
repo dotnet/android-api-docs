@@ -508,6 +508,44 @@ receipts. Regression repair seeds load those independently emitted complete
 Docs, check agreement with the strict predicate, then verify exact repaired
 complete blocks and every unchanged output byte. They do not use the predicate's
 expected-Docs helper to manufacture legacy samples.
+
+Four exact Android.Media declarations use the same guarded channel path.
+`MediaPlayer.ProvideKeyResponse` withholds only the sentence that promises a null
+result for streaming or release requests. The pinned
+[MediaDrm JNI implementation](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/media/jni/android_media_MediaDrm.cpp)
+creates a Java byte array even for an empty successful key-set result. The
+importer keeps the safe preceding sentences and does not infer a replacement
+return contract. `MediaSession2.Builder.SetExtras` withholds its exact
+null-accepting remarks; the
+[pinned implementation](https://android.googlesource.com/platform/frameworks/base/+/99b01a65cc4c104933788b3143285ab6bae65827/media/java/android/media/MediaSession2.java)
+rejects null. Safe summary, parameter and return channels remain independent.
+Reports identify these withheld contracts as `source_channel_ambiguous`.
+The two `MediaFormat.QpOffsetRect.FlattenToString` summaries correct only the
+complete known `Returns a a string` text under exact source and binding identity
+checks. They fill summary placeholders only; they do not refresh existing prose
+or import the source's unresolved remarks.
+
+These rules require attached managed owners, type/member assembly and DocId,
+managed signature, ordered parameter types/names, JNI registration, native
+declaration, canonical source URL/label/kind, and the specified source text.
+All parsed summary, parameter, return and exception channels must match.
+The exclusions may retain additional plain source paragraphs; typo correction
+and prior-owned withdrawal require the complete original paragraph sequence.
+Prior-owned withdrawal requires complete original source and complete prior
+Docs ownership; it changes only the unsafe paragraph. Authored or mixed
+siblings, references, attribution, comments, CDATA and processing instructions
+are protected. SetExtras restores that one paragraph to a placeholder rather
+than supplying inferred prose.
+`tools/importer-fixtures/media-source-contracts.json` retains complete native
+fragments, hashes, raw inputs/outputs and **fresh** independent legacy producer
+receipts from unchanged importer commit
+`91582c12b1439fec3b77a33e5829d078c204da41`; these are not historical outputs.
+Offline production tests cover bounded first fills and prior-owned repairs,
+BOM/newline combinations, exact outside-span bytes, source and attached-owner
+negative controls, future corrected sources, and persisted zero-write repeats.
+Whitespace or entity variations within legacy prose, reference or attribution
+paragraphs do not establish ownership and cannot enable withdrawal.
+
 The DreamService focus callback's stale `View.onWindowFocusChangedNotLocked(boolean)`
 source label is corrected only on its exact official member URL when the source
 hyperlink targets `View#onWindowFocusChanged(boolean)`. An existing imported

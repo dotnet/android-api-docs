@@ -1529,8 +1529,11 @@ static partial class ImporterProgram
                                     $"The --max-changes limit of {options.MaxChanges} was reached.", mapping.SourceUrl)
                                 : ReportEntry.Changed(
                                     "would_apply", file.RelativePath, owner.Id, target, mapping.SourceUrl,
-                                    "importer_known_tv_ad_source_repair",
-                                    "Corrected an exact prior importer-owned TV AD source channel under complete binding and source guards."));
+                                    mapping.Docs!.TvAdCorrection?.Declaration is not null
+                                        ? "importer_known_media_source_repair" : "importer_known_tv_ad_source_repair",
+                                    mapping.Docs!.TvAdCorrection?.Declaration is not null
+                                        ? "Withdrew only the exact contradicted importer-owned media source prose under complete binding, source, and prior-output ownership guards."
+                                        : "Corrected an exact prior importer-owned TV AD source channel under complete binding and source guards."));
                         if (exceedsLimit)
                             continue;
                     }
@@ -1825,6 +1828,22 @@ static partial class ImporterProgram
                             owner.Id,
                             placeholder.Target,
                             mapping.SourceUrl));
+                    }
+
+                    if (tvAdRepair.Targets.Count == 0 &&
+                        mapping.Docs!.UnsafeTargets?.TryGetValue(
+                            "remarks:media_contract", out var mediaContractDetail) == true &&
+                        !report.Entries.Any(entry => entry.Member == owner.Id &&
+                            entry.Target == (mapping.Docs.UnsafeTargets.ContainsKey("remarks")
+                                ? "remarks" : "remarks:paragraph") &&
+                            entry.Reason == "source_channel_ambiguous"))
+                    {
+                        report.Entries.Add(ReportEntry.Skipped(
+                            file.RelativePath, owner.Id,
+                            mapping.Docs.UnsafeTargets.ContainsKey("remarks")
+                                ? "remarks" : "remarks:paragraph",
+                            "source_channel_ambiguous",
+                            mediaContractDetail, mapping.SourceUrl));
                     }
 
                     if (owner.Id == ProtoTokenMemberId &&
@@ -2519,7 +2538,7 @@ static partial class ImporterProgram
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
         docs = WithKnownEapChannelCorrections(owner, docs);
-        docs = WithKnownTvAdSourceCorrections(owner, docs);
+        docs = WithKnownTvAdSourceCorrections(owner, docs, exact[0]);
         docs = WithoutKnownUnsafeQualityChannels(owner, exact[0], docs);
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
         docs = WithoutReviewedAndroidSourceChannels(owner.Id, docs);
@@ -4728,7 +4747,17 @@ static partial class ImporterProgram
     sealed record KnownTvAdCorrection(
         string MemberId, string JavaPath, MemberRegistration Registration,
         string ManagedSignature, string ReturnType, (string Name, string Type)[] ParameterTypes,
-        SourceDocs Source, string IncorrectText, string CorrectText, bool CorrectSummary);
+        SourceDocs Source, string IncorrectText, string? CorrectText, bool CorrectSummary,
+        string? Declaration = null, string Target = "remarks", string? UnsafeDetail = null);
+
+    const string MediaKeyResponseSafeParagraph =
+        "A key response is received from the license server by the app, then it is provided to the DRM engine plugin using provideKeyResponse. " +
+        "When the response is for an offline key request, a key-set identifier is returned that can be used to later restore the keys to a new session with the method restoreKeys(byte).";
+    const string MediaKeyResponseUnsafeParagraph = MediaKeyResponseSafeParagraph +
+        " When the response is for a streaming or release request, null is returned.";
+    const string MediaSessionExtrasUnsafeParagraph =
+        "Set extras for the session token. If null or not set, Session2Token.getExtras() will return an empty Bundle. " +
+        "An IllegalArgumentException will be thrown if the bundle contains any non-framework Parcelable objects.";
 
     static readonly KnownTvAdCorrection[] KnownTvAdCorrections =
     [
@@ -4773,12 +4802,88 @@ static partial class ImporterProgram
                 AndroidReference + "android/media/tv/ad/TvAdServiceInfo#writeToParcel(android.os.Parcel,%20int)",
                 "android.media.tv.ad.TvAdServiceInfo.writeToParcel", "android"),
             "Flatten this object in to a Parcel.", "Flatten this object into a Parcel.", true),
+        new(
+            "M:Android.Media.MediaPlayer.ProvideKeyResponse(System.Byte[],System.Byte[])",
+            "android/media/MediaPlayer",
+            new("provideKeyResponse", "([B[B)[B", false),
+            "public virtual byte[]? ProvideKeyResponse (byte[]? keySetId, byte[] response);",
+            "System.Byte[]", [("keySetId", "System.Byte[]"), ("response", "System.Byte[]")],
+            new(
+                "A key response is received from the license server by the app, then it is provided to the DRM engine plugin using provideKeyResponse.",
+                [new(MediaKeyResponseUnsafeParagraph, false)],
+                new()
+                {
+                    ["keySetId"] = "byte: When the response is for a release request, keySetId identifies the saved key associated with the release request (i.e., the same keySetId passed to the earlier getKeyRequest(byte, byte, String, int, Map) call. It MUST be null when the response is for either streaming or offline key requests.",
+                    ["response"] = "byte: the byte array response from the server. This value cannot be null.",
+                    ["DeniedByServerException"] = "if the response indicates that the server rejected the request",
+                },
+                "", new()
+                {
+                    ["DeniedByServerException"] = "if the response indicates that the server rejected the request",
+                    ["MediaPlayer.NoDrmSchemeException"] = "if there is no active DRM session",
+                },
+                AndroidReference + "android/media/MediaPlayer#provideKeyResponse(byte[],%20byte[])",
+                "android.media.MediaPlayer.provideKeyResponse", "android"),
+            MediaKeyResponseUnsafeParagraph, MediaKeyResponseSafeParagraph, false,
+            "public byte[] provideKeyResponse (byte[] keySetId, byte[] response)", "remarks:paragraph",
+            "The exact null-return sentence contradicts the JNI byte-array result for streaming and release responses; only that sentence is withheld."),
+        new(
+            "M:Android.Media.MediaSession2.Builder.SetExtras(Android.OS.Bundle)",
+            "android/media/MediaSession2$Builder",
+            new("setExtras", "(Landroid/os/Bundle;)Landroid/media/MediaSession2$Builder;", false),
+            "public Android.Media.MediaSession2.Builder SetExtras (Android.OS.Bundle extras);",
+            "Android.Media.MediaSession2+Builder", [("extras", "Android.OS.Bundle")],
+            new(
+                "Set extras for the session token.",
+                [new(MediaSessionExtrasUnsafeParagraph, false)],
+                new() { ["extras"] = "Bundle: This value cannot be null." },
+                "The Builder to allow chaining", new(),
+                AndroidReference + "android/media/MediaSession2.Builder#setExtras(android.os.Bundle)",
+                "android.media.MediaSession2.Builder.setExtras", "android"),
+            MediaSessionExtrasUnsafeParagraph, null, false,
+            "public MediaSession2.Builder setExtras (Bundle extras)", "remarks",
+            "The exact null-accepting remarks contradict the implementation's null check; no replacement remarks are inferred."),
+        new(
+            "M:Android.Media.MediaFormat.QpOffsetRect.FlattenToString",
+            "android/media/MediaFormat$QpOffsetRect",
+            new("flattenToString", "()Ljava/lang/String;", false),
+            "public string FlattenToString ();", "System.String", [],
+            new(
+                "Returns a a string representation of this QpOffsetRect.",
+                [new("Returns a a string representation of this QpOffsetRect.", false)],
+                new() { ["String"] = "This value cannot be null." },
+                "This value cannot be null.", new(),
+                AndroidReference + "android/media/MediaFormat.QpOffsetRect#flattenToString()",
+                "android.media.MediaFormat.QpOffsetRect.flattenToString", "android"),
+            "Returns a a string representation of this QpOffsetRect.",
+            "Returns a string representation of this QpOffsetRect.", true,
+            "public String flattenToString ()", "summary"),
+        new(
+            "M:Android.Media.MediaFormat.QpOffsetRect.FlattenToString(System.Collections.Generic.IList{Android.Media.MediaFormat.QpOffsetRect})",
+            "android/media/MediaFormat$QpOffsetRect",
+            new("flattenToString", "(Ljava/util/List;)Ljava/lang/String;", false),
+            "public static string FlattenToString (System.Collections.Generic.IList<Android.Media.MediaFormat.QpOffsetRect> qpOffsetRects);",
+            "System.String", [("qpOffsetRects", "System.Collections.Generic.IList<Android.Media.MediaFormat+QpOffsetRect>")],
+            new(
+                "Returns a a string representation of the provided QpOffsetRect instances.",
+                [new("Returns a a string representation of the provided QpOffsetRect instances.", false)],
+                new()
+                {
+                    ["qpOffsetRects"] = "List: This value cannot be null.",
+                    ["String"] = "This value cannot be null.",
+                },
+                "This value cannot be null.", new(),
+                AndroidReference + "android/media/MediaFormat.QpOffsetRect#flattenToString(java.util.List<android.media.MediaFormat.QpOffsetRect>)",
+                "android.media.MediaFormat.QpOffsetRect.flattenToString", "android"),
+            "Returns a a string representation of the provided QpOffsetRect instances.",
+            "Returns a string representation of the provided QpOffsetRect instances.", true,
+            "public static String flattenToString (List<MediaFormat.QpOffsetRect> qpOffsetRects)", "summary"),
     ];
 
     static bool MatchesKnownTvAdMember(DocsOwner owner, KnownTvAdCorrection correction) =>
         owner.Id == correction.MemberId &&
         owner.SourceRequest?.Kind == "android" &&
-        owner.SourceRequest.Url == AndroidReference + correction.JavaPath &&
+        owner.SourceRequest.Url == AndroidReference + correction.JavaPath.Replace('$', '.') &&
         owner.SourceRequest?.JavaPath == correction.JavaPath &&
         owner.MemberRegistration == correction.Registration &&
         owner.Member?.Element("MemberType")?.Value == "Method" &&
@@ -4792,14 +4897,95 @@ static partial class ImporterProgram
                 (string?)parameter.Attribute("Type") ?? ""))
             .SequenceEqual(correction.ParameterTypes);
 
-    static SourceDocs WithKnownTvAdSourceCorrections(DocsOwner owner, SourceDocs docs)
+    static bool MatchesRegisteredMediaContract(
+        DocsOwner owner, SourceMember? member, SourceDocs docs, KnownTvAdCorrection correction)
+    {
+        var type = owner.Member?.Ancestors("Type").SingleOrDefault();
+        var method = correction.MemberId.Split('(')[0];
+        var managedOwner = method[2..method.LastIndexOf('.')];
+        return member?.Declaration == correction.Declaration &&
+            type is not null && (string?)type.Attribute("FullName") ==
+                "Android.Media." + correction.JavaPath.Split('/').Last().Replace('$', '+') &&
+            type.Elements("TypeSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "DocId").Select(signature =>
+                (string?)signature.Attribute("Value")).SequenceEqual(["T:" + managedOwner]) &&
+            type.Elements("AssemblyInfo").Elements("AssemblyName").Select(name => name.Value)
+                .SequenceEqual(["Mono.Android"]) &&
+            owner.Member!.Elements("AssemblyInfo").Elements("AssemblyName").Select(name => name.Value)
+                .SequenceEqual(["Mono.Android"]) &&
+            docs.SourceKind == "android" && docs.SourceUrl == correction.Source.SourceUrl &&
+            docs.SourceLabel == correction.Source.SourceLabel;
+    }
+
+    static bool MatchesCompleteMediaSource(
+        SourceDocs actual, SourceDocs expected, bool allowAdditionalSafeParagraphs = false) =>
+        actual.SourceKind == expected.SourceKind && actual.SourceUrl == expected.SourceUrl &&
+        actual.SourceLabel == expected.SourceLabel && actual.Summary == expected.Summary &&
+        (actual.Paragraphs.SequenceEqual(expected.Paragraphs) ||
+            allowAdditionalSafeParagraphs && actual.Paragraphs.All(paragraph => !paragraph.IsCode) &&
+            actual.Paragraphs.Where(expected.Paragraphs.Contains).SequenceEqual(expected.Paragraphs)) &&
+        actual.Returns == expected.Returns &&
+        actual.Parameters.Count == expected.Parameters.Count &&
+        actual.Parameters.All(pair => expected.Parameters.TryGetValue(pair.Key, out var value) && pair.Value == value) &&
+        actual.Exceptions.Count == expected.Exceptions.Count &&
+        actual.Exceptions.All(pair => expected.Exceptions.TryGetValue(pair.Key, out var value) && pair.Value == value) &&
+        actual.UnsafeTargets is null && !actual.HasMalformedSourceMarkup &&
+        actual.LegacyFlattenedParagraphs is null && actual.IntermediateImplicitListParagraphs is null;
+
+    static SourceDocs WithKnownTvAdSourceCorrections(
+        DocsOwner owner, SourceDocs docs, SourceMember? member = null)
     {
         var correction = KnownTvAdCorrections.SingleOrDefault(candidate =>
-            MatchesKnownTvAdMember(owner, candidate) && MatchesKnownEapSource(docs, candidate.Source));
-        return correction is null ? docs : docs with
+            MatchesKnownTvAdMember(owner, candidate) &&
+            (candidate.Declaration is null
+                ? MatchesKnownEapSource(docs, candidate.Source)
+                : MatchesRegisteredMediaContract(owner, member, docs, candidate) &&
+                    MatchesCompleteMediaSource(docs, candidate.Source,
+                        allowAdditionalSafeParagraphs: candidate.Target != "summary")));
+        if (correction is null)
+            return docs;
+        if (correction.Declaration is not null && correction.Target == "summary")
+            return docs with
+            {
+                TvAdCorrection = null,
+                Summary = correction.CorrectText ??
+                    throw new InvalidOperationException("An exact summary correction requires source text."),
+                UnsafeTargets = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["remarks"] = "Only the exact summary typo is corrected; the source remarks include an unresolved reference.",
+                },
+                WithheldRemarks = docs.Paragraphs,
+                QualityFirstFillOnly = true,
+            };
+        if (correction.Declaration is not null)
+        {
+            var targets = docs.UnsafeTargets is null
+                ? new Dictionary<string, string>(StringComparer.Ordinal)
+                : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+            var detail = correction.UnsafeDetail ??
+                throw new InvalidOperationException("An exact media exclusion requires a report detail.");
+            targets["remarks:media_contract"] = detail;
+            if (correction.Target == "remarks")
+                targets["remarks"] = detail;
+            return docs with
+            {
+                TvAdCorrection = MatchesCompleteMediaSource(docs, correction.Source) ? correction : null,
+                UnsafeTargets = targets,
+                WithheldRemarks = correction.Target == "remarks" ? docs.Paragraphs : docs.WithheldRemarks,
+                Paragraphs = correction.Target == "remarks" ? docs.Paragraphs : docs.Paragraphs
+                    .Select(paragraph => !paragraph.IsCode && paragraph.Text == correction.IncorrectText
+                        ? paragraph with { Text = correction.CorrectText ??
+                            throw new InvalidOperationException("A partial media exclusion requires retained source text.") }
+                        : paragraph).ToList(),
+            };
+        }
+        return docs with
         {
             TvAdCorrection = correction,
-            Summary = correction.CorrectSummary ? correction.CorrectText : docs.Summary,
+            Summary = correction.CorrectSummary
+                ? correction.CorrectText ??
+                    throw new InvalidOperationException("An exact summary correction requires source text.")
+                : docs.Summary,
         };
     }
 
@@ -4821,25 +5007,49 @@ static partial class ImporterProgram
     static AndroidTextRepairResult RepairKnownTvAdSource(
         string text, LoadedFile file, DocsOwner owner, SourceDocs source)
     {
-        if (source.TvAdCorrection is not { } correction || !MatchesKnownTvAdMember(owner, correction))
+        if (source.QualityFirstFillOnly || source.TvAdCorrection is not { } correction ||
+            correction.Target == "summary" || !MatchesKnownTvAdMember(owner, correction))
             return new(text, []);
         var block = file.DocsBlocks[owner.Order];
         var blockText = text[block.Start..block.End];
         var expected = KnownTvAdPriorDocs(correction);
         if (!TryParseDocsBlock(blockText, out var actual))
             return new(text, []);
+        if (correction.Declaration is not null &&
+            (actual.HasAttributes || actual.Nodes().Any(node => node switch
+            {
+                XElement => false,
+                XText whitespace when whitespace is not XCData => !string.IsNullOrWhiteSpace(whitespace.Value),
+                _ => true,
+            })))
+            return new(text, []);
         var summaryNeedsRepair = correction.CorrectSummary &&
             actual.Elements("summary").Count() == 1 &&
             HasPlainTextContent(actual.Element("summary")!, out var summaryValue) &&
             summaryValue == correction.IncorrectText;
         if (correction.CorrectSummary && !summaryNeedsRepair)
-            expected.Element("summary")!.Value = correction.CorrectText;
+            expected.Element("summary")!.Value = correction.CorrectText ??
+                throw new InvalidOperationException("An exact summary correction requires source text.");
         if (!XNode.DeepEquals(actual, owner.Docs) || !ImporterMarkupEquals(actual, expected) ||
             actual.Elements().Where(element => element.Name != "remarks")
                 .Any(element => !HasPlainTextContent(element, out var value) ||
                     value != expected.Elements(element.Name).Single(candidate =>
                         (string?)candidate.Attribute("name") == (string?)element.Attribute("name")).Value))
             return new(text, []);
+        if (correction.Declaration is not null)
+        {
+            var remarks = actual.Element("remarks")!;
+            if (remarks.HasAttributes || remarks.Nodes().Any(node => node switch
+                {
+                    XElement => false,
+                    XText whitespace when whitespace is not XCData => !string.IsNullOrWhiteSpace(whitespace.Value),
+                    _ => true,
+                }) ||
+                !remarks.Elements("para").Select(paragraph => paragraph.ToString(SaveOptions.DisableFormatting))
+                    .SequenceEqual(expected.Element("remarks")!.Elements("para")
+                        .Select(paragraph => paragraph.ToString(SaveOptions.DisableFormatting))))
+                return new(text, []);
+        }
         var targets = new List<string>();
         var edits = new List<(XmlSpan Span, string Replacement)>();
         if (summaryNeedsRepair)
@@ -4847,15 +5057,17 @@ static partial class ImporterProgram
             var summary = actual.Element("summary")!;
             if (!TryGetElementSpan(blockText, summary, out var summarySpan))
                 return new(text, []);
-            edits.Add((summarySpan, $"<summary>{XmlEscape(correction.CorrectText)}</summary>"));
+            edits.Add((summarySpan, $"<summary>{XmlEscape(correction.CorrectText ??
+                throw new InvalidOperationException("An exact summary correction requires source text."))}</summary>"));
             targets.Add("summary");
         }
-        var paragraph = actual.Element("remarks")!.Elements("para").Single(element =>
+        var paragraph = actual.Element("remarks")!.Elements("para").SingleOrDefault(element =>
             element.Value == correction.IncorrectText);
-        if (!HasPlainTextContent(paragraph, out _) ||
+        if (paragraph is null || !HasPlainTextContent(paragraph, out _) ||
             !TryGetElementSpan(blockText, paragraph, out var paragraphSpan))
             return new(text, []);
-        edits.Add((paragraphSpan, $"<para>{XmlEscape(correction.CorrectText)}</para>"));
+        edits.Add((paragraphSpan, correction.CorrectText is { } corrected
+            ? $"<para>{XmlEscape(corrected)}</para>" : "<para>To be added.</para>"));
         targets.Add("remarks");
         foreach (var edit in edits.OrderByDescending(edit => edit.Span.Start))
             blockText = blockText[..edit.Span.Start] + edit.Replacement + blockText[edit.Span.End..];
@@ -6275,12 +6487,12 @@ static partial class ImporterProgram
     {
         if (docs.SourceKind != "android" || ownerId is null)
             return docs;
-        if (docs.TvAdCorrection is { } correction && correction.MemberId == ownerId)
+        if (docs.TvAdCorrection is { CorrectText: { } corrected } correction && correction.MemberId == ownerId)
             return docs with
             {
                 Paragraphs = docs.Paragraphs.Select(paragraph =>
                     !paragraph.IsCode && paragraph.Text == correction.IncorrectText
-                        ? paragraph with { Text = correction.CorrectText } : paragraph).ToList(),
+                        ? paragraph with { Text = corrected } : paragraph).ToList(),
             };
         var repair = KnownAndroidRemarksRepairs.SingleOrDefault(candidate =>
             candidate.MemberId.Equals(ownerId, StringComparison.Ordinal) &&
@@ -19212,6 +19424,433 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestMediaSourceContracts(string repositoryRoot)
+    {
+        using var fixture = JsonDocument.Parse(File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "media-source-contracts.json")));
+        var fixtureRoot = fixture.RootElement;
+        var producer = fixtureRoot.GetProperty("producer");
+        Assert(fixtureRoot.GetProperty("schema").GetString() == "android-media-source-contracts/v1" &&
+            producer.GetProperty("commit").GetString() == "91582c12b1439fec3b77a33e5829d078c204da41" &&
+            producer.GetProperty("sourceBlob").GetString() == "9af5d871f374e59a57c5a166225c2feb5cb6ea69" &&
+            producer.GetProperty("sourceSha256").GetString() ==
+                "bc3349dd893ea55002a525f135489a2128f8855c87731cde654a850e115e6df1" &&
+            producer.GetProperty("pdbSourceSha256").GetString() ==
+                producer.GetProperty("sourceSha256").GetString() &&
+            producer.GetProperty("binarySha256").GetString() ==
+                "98f7c3a876325bb2d128c4681d728bea0addcacfc8c84b3851de73d5a367ac36",
+            "media fixture identifies the immutable independently executed producer and PDB/source identity");
+        foreach (var sample in fixtureRoot.GetProperty("cases").EnumerateArray())
+        {
+            var memberId = sample.GetProperty("memberId").GetString()!;
+            var rule = KnownTvAdCorrections.Single(candidate =>
+                candidate.Declaration is not null && candidate.MemberId == memberId);
+            var native = fixtureRoot.GetProperty("sources").EnumerateArray().Single(source =>
+                source.GetProperty("javaPath").GetString() == rule.JavaPath &&
+                source.GetProperty("member").GetProperty("Url").GetString() == rule.Source.SourceUrl);
+            var fragment = Convert.FromBase64String(native.GetProperty("fragmentBase64").GetString()!);
+            Assert(Convert.ToHexString(SHA256.HashData(fragment)).ToLowerInvariant() ==
+                native.GetProperty("fragmentSha256").GetString() &&
+                fragment.Length == native.GetProperty("fragmentByteLength").GetInt32(),
+                "media native fragment SHA-256 and exact length");
+            var html = Encoding.UTF8.GetString(fragment);
+            var seedBytes = Convert.FromBase64String(sample.GetProperty("inputXmlBase64").GetString()!);
+            var priorBytes = Convert.FromBase64String(sample.GetProperty("outputXmlBase64").GetString()!);
+            Assert(Convert.ToHexString(SHA256.HashData(seedBytes)).ToLowerInvariant() ==
+                sample.GetProperty("inputSha256").GetString() &&
+                Convert.ToHexString(SHA256.HashData(priorBytes)).ToLowerInvariant() ==
+                sample.GetProperty("outputSha256").GetString(),
+                "media samples retain independent frozen-producer input/output bytes");
+            var seed = XElement.Parse(Encoding.UTF8.GetString(seedBytes), LoadOptions.PreserveWhitespace);
+            var prior = XElement.Parse(Encoding.UTF8.GetString(priorBytes), LoadOptions.PreserveWhitespace);
+            XElement Member(XElement document) => document.Element("Members")!.Elements("Member").Single();
+            XElement Docs(XElement document) => Member(document).Element("Docs")!;
+            var producerDocs = sample.GetProperty("producerDocsXml").GetString()!;
+            Assert(Encoding.UTF8.GetString(priorBytes).Contains(producerDocs, StringComparison.Ordinal) &&
+                XNode.DeepEquals(Docs(prior), XElement.Parse(producerDocs, LoadOptions.PreserveWhitespace)) &&
+                !sample.GetProperty("hasUtf8Bom").GetBoolean() &&
+                !priorBytes.AsSpan().StartsWith(Encoding.UTF8.Preamble) &&
+                sample.GetProperty("newline").GetString() == "LF" &&
+                !Encoding.UTF8.GetString(priorBytes).Contains('\r'),
+                "media independent producer retains the complete raw Docs and recorded encoding/newline state");
+            var reports = sample.GetProperty("reports");
+            var expectedChanges = rule.Target == "remarks:paragraph" ? 4 : rule.Target == "remarks" ? 3 : 2;
+            Assert(reports.GetProperty("preview").GetProperty("appliedCount").GetInt32() == 0 &&
+                reports.GetProperty("preview").GetProperty("wouldApplyCount").GetInt32() == expectedChanges &&
+                reports.GetProperty("apply").GetProperty("appliedCount").GetInt32() == expectedChanges &&
+                reports.GetProperty("repeat").GetProperty("appliedCount").GetInt32() == 0 &&
+                reports.EnumerateObject().All(report =>
+                    report.Value.GetProperty("offline").GetBoolean() &&
+                    report.Value.GetProperty("errorCount").GetInt32() == 0 &&
+                    report.Value.GetProperty("sourcesFetched").GetInt32() == 0),
+                "media frozen producer receipts retain bounded offline preview/apply/zero-write-repeat results");
+            var live = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Android.Media",
+                sample.GetProperty("filename").GetString()!), LoadOptions.PreserveWhitespace);
+            var liveMember = new XElement(live.Element("Members")!.Elements("Member").Single(candidate =>
+                candidate.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == memberId)));
+            liveMember.Element("Docs")!.Remove();
+            foreach (var document in new[] { seed, prior, XElement.Parse(
+                Encoding.UTF8.GetString(Convert.FromBase64String(
+                    sample.GetProperty("originalOwnerXmlBase64").GetString()!)), LoadOptions.PreserveWhitespace) })
+            {
+                var metadata = new XElement(Member(document));
+                metadata.Element("Docs")!.Remove();
+                Assert(ImporterMarkupEquals(metadata, liveMember) &&
+                    (string?)document.Attribute("FullName") == (string?)live.Attribute("FullName") &&
+                    ImporterMarkupEquals(document.Element("AssemblyInfo")!, live.Element("AssemblyInfo")!),
+                    "media original owner, isolated input and producer output retain the live complete member/type binding metadata");
+            }
+            Assert(ImporterMarkupEquals(Docs(prior), KnownTvAdPriorDocs(rule)),
+                "media ownership expectation agrees with the independently emitted complete Docs");
+            var request = SourceRequest.Create(rule.JavaPath)!;
+            var page = SourcePage.Parse(request, html);
+            Assert(page.Members.Single().Declaration == rule.Declaration &&
+                MatchesCompleteMediaSource(page.Members.Single().Docs!, rule.Source),
+                "media full original source and declaration match the retained native fragment");
+            var directory = Path.Combine(Path.GetTempPath(), "media-contract-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Media",
+                "Media.contract-self-test-" + Guid.NewGuid().ToString("N") + ".xml");
+            var cachePath = Path.Combine(directory,
+                Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            var selector = Member(seed).Attribute("MemberName")!.Value;
+            var calls = 0;
+            try
+            {
+                JsonDocument Run(bool apply, int maximum = 10)
+                {
+                    var reportPath = Path.Combine(directory, "report-" + calls++);
+                    var arguments = new List<string>
+                    {
+                        "--path", path, "--namespace", "Android.Media", "--member", selector,
+                        "--offline", "--cache", directory, "--max-changes",
+                        maximum.ToString(System.Globalization.CultureInfo.InvariantCulture), "--report", reportPath,
+                    };
+                    if (apply)
+                        arguments.Add("--apply");
+                    Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                        "media exact-contract production pipeline");
+                    return JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                }
+                void Save(byte[] input, string source)
+                {
+                    File.WriteAllBytes(path, input);
+                    File.WriteAllText(cachePath, source, new UTF8Encoding(false));
+                }
+                byte[] Bytes(XElement document) =>
+                    Encoding.UTF8.GetBytes(document.ToString(SaveOptions.DisableFormatting));
+                void NoEdit(byte[] input, string description, string? source = null)
+                {
+                    Save(input, source ?? html);
+                    using var report = Run(true, 1);
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        input.SequenceEqual(File.ReadAllBytes(path)), description);
+                    using var repeat = Run(true, 1);
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        input.SequenceEqual(File.ReadAllBytes(path)), description + " persisted repeat");
+                }
+                void OutsidePlaceholderSpans(byte[] beforeBytes, byte[] afterBytes)
+                {
+                    var before = Encoding.UTF8.GetString(beforeBytes);
+                    var after = Encoding.UTF8.GetString(afterBytes);
+                    static (int Start, int End) Block(string text)
+                    {
+                        var memberStart = text.IndexOf("<Member ", StringComparison.Ordinal);
+                        var start = text.IndexOf("<Docs>", memberStart, StringComparison.Ordinal);
+                        return (start, text.IndexOf("</Docs>", start, StringComparison.Ordinal) + "</Docs>".Length);
+                    }
+                    var beforeBlock = Block(before);
+                    var afterBlock = Block(after);
+                    var beforeText = before[beforeBlock.Start..beforeBlock.End];
+                    var afterText = after[afterBlock.Start..afterBlock.End];
+                    var beforeDocs = XElement.Parse(beforeText, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                    var afterDocs = XElement.Parse(afterText, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                    var beforeEdits = new List<(XmlSpan Span, string Text)>();
+                    var afterEdits = new List<(XmlSpan Span, string Text)>();
+                    foreach (var element in beforeDocs.Elements())
+                    {
+                        var final = afterDocs.Elements(element.Name).Single(candidate =>
+                            (string?)candidate.Attribute("name") == (string?)element.Attribute("name"));
+                        Assert(TryGetElementSpan(beforeText, element, out var first), "media input channel span");
+                        Assert(TryGetElementSpan(afterText, final, out var second), "media output channel span");
+                        if (beforeText[first.Start..first.End] == afterText[second.Start..second.End])
+                            continue;
+                        Assert(IsPlaceholder(element), "media first fill changes only a real placeholder channel");
+                        var marker = "<approved-" + beforeEdits.Count + "/>";
+                        beforeEdits.Add((first, marker));
+                        afterEdits.Add((second, marker));
+                    }
+                    foreach (var edit in beforeEdits.OrderByDescending(edit => edit.Span.Start))
+                        beforeText = beforeText[..edit.Span.Start] + edit.Text + beforeText[edit.Span.End..];
+                    foreach (var edit in afterEdits.OrderByDescending(edit => edit.Span.Start))
+                        afterText = afterText[..edit.Span.Start] + edit.Text + afterText[edit.Span.End..];
+                    var maskedBefore = before[..beforeBlock.Start] + beforeText + before[beforeBlock.End..];
+                    var maskedAfter = after[..afterBlock.Start] + afterText + after[afterBlock.End..];
+                    Assert(Encoding.UTF8.GetBytes(maskedBefore).SequenceEqual(Encoding.UTF8.GetBytes(maskedAfter)),
+                        "media first fill preserves every byte outside approved channel spans, including BOM/newlines");
+                }
+                bool HasMediaGuard(JsonDocument report) => report.RootElement.GetProperty("entries")
+                    .EnumerateArray().Any(entry =>
+                        entry.GetProperty("target").GetString() is "remarks" or "remarks:paragraph" &&
+                        entry.GetProperty("reason").GetString() == "source_channel_ambiguous");
+
+                foreach (var crlf in new[] { false, true })
+                foreach (var bom in new[] { false, true })
+                {
+                    var text = Encoding.UTF8.GetString(seedBytes).Replace("\r\n", "\n", StringComparison.Ordinal);
+                    if (crlf)
+                        text = text.Replace("\n", "\r\n", StringComparison.Ordinal);
+                    var input = Encoding.UTF8.GetBytes(text);
+                    if (bom)
+                        input = [.. Encoding.UTF8.Preamble, .. input];
+                    Save(input, html);
+                    using (var preview = Run(false))
+                        Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() > 0 &&
+                            input.SequenceEqual(File.ReadAllBytes(path)), "media dry-run has no XML writes");
+                    using (var report = Run(true))
+                    {
+                        var actual = XElement.Load(path, LoadOptions.PreserveWhitespace);
+                        if (rule.Target == "summary")
+                            Assert(Docs(actual).Element("summary")!.Value == rule.CorrectText &&
+                                Docs(actual).Element("remarks")!.Value == "To be added." &&
+                                report.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                                "exact Qp source typo correction changes only the authorized summary and withholds unresolved remarks");
+                        else if (rule.Target == "remarks")
+                            Assert(HasMediaGuard(report) && Docs(actual).Element("remarks")!.Value == "To be added." &&
+                                Docs(actual).Element("summary")!.Value == rule.Source.Summary &&
+                                Docs(actual).Element("returns")!.Value == rule.Source.Returns,
+                                "SetExtras remarks alone are withheld while safe sibling channels fill");
+                        else
+                            Assert(HasMediaGuard(report) &&
+                                Docs(actual).Element("remarks")!.Elements("para").First().Value == rule.CorrectText &&
+                                !Docs(actual).Element("remarks")!.Value.Contains(
+                                    "When the response is for a streaming or release request, null is returned.",
+                                    StringComparison.Ordinal),
+                                "ProvideKeyResponse retains every safe source sentence while withholding only its false null sentence");
+                    }
+                    var output = File.ReadAllBytes(path);
+                    OutsidePlaceholderSpans(input, output);
+                    using (var repeat = Run(true))
+                        Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                            output.SequenceEqual(File.ReadAllBytes(path)), "media first-fill persisted zero-write repeat");
+                }
+
+                Save(seedBytes, html);
+                using (var bounded = Run(true, 1))
+                    Assert(bounded.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "media first-fill one-operation bound");
+                OutsidePlaceholderSpans(seedBytes, File.ReadAllBytes(path));
+
+                if (rule.Target != "summary")
+                {
+                    var end = html.LastIndexOf("</div>", StringComparison.Ordinal);
+                    var contextual = html.Insert(end, "<p>Independent safe context is retained.</p>");
+                    Save(seedBytes, contextual);
+                    using var context = Run(true);
+                    Assert(HasMediaGuard(context), "media unsafe contract remains withheld with added safe source context");
+                    if (rule.Target == "remarks:paragraph")
+                        Assert(XElement.Load(path).Descendants("remarks").Last().Elements("para")
+                            .Any(paragraph => paragraph.Value == "Independent safe context is retained."),
+                            "media partial exclusion retains added safe source paragraphs");
+                    Save(priorBytes, contextual);
+                    using var priorContext = Run(true);
+                    Assert(priorContext.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        priorBytes.SequenceEqual(File.ReadAllBytes(path)),
+                        "media added source context cannot establish complete legacy ownership");
+                }
+
+                if (rule.Target == "summary")
+                    NoEdit(priorBytes, "Qp first-fill-only path preserves existing independently produced prose");
+                else
+                {
+                    foreach (var crlf in new[] { false, true })
+                    foreach (var bom in new[] { false, true })
+                    {
+                        var legacyText = Encoding.UTF8.GetString(priorBytes)
+                            .Replace("\r\n", "\n", StringComparison.Ordinal);
+                        if (crlf)
+                            legacyText = legacyText.Replace("\n", "\r\n", StringComparison.Ordinal);
+                        if (bom)
+                            legacyText = "\uFEFF" + legacyText;
+                        var legacyBytes = Encoding.UTF8.GetBytes(legacyText);
+                        Save(legacyBytes, html);
+                        var expectedText = legacyText.Replace(
+                            "<para>" + XmlEscape(rule.IncorrectText) + "</para>",
+                            "<para>" + (rule.CorrectText is { } corrected ? XmlEscape(corrected) : "To be added.") + "</para>",
+                            StringComparison.Ordinal);
+                        Assert(expectedText != legacyText, "media frozen producer exposes the exact replaceable prior paragraph");
+                        using (var repair = Run(true, 1))
+                            Assert(repair.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                                File.ReadAllBytes(path).SequenceEqual(Encoding.UTF8.GetBytes(expectedText)),
+                                "media independent prior-owned repair changes only the unsafe paragraph span across BOM/newline states");
+                        NoEdit(File.ReadAllBytes(path), "media repaired prior output is a zero-write repeat");
+                    }
+                }
+
+                foreach (var mutation in new Action<XElement>[]
+                {
+                    document => Docs(document).Element("summary")!.Value = "An authored summary.",
+                    document => Docs(document).Element("remarks")!.Add(new XElement("para", "An authored paragraph.")),
+                    document => Docs(document).AddFirst(new XCData(" ")),
+                    document => Docs(document).AddFirst(new XComment("Authored comment.")),
+                    document => Docs(document).Element("remarks")!.AddFirst(new XProcessingInstruction("owned", "no")),
+                    document => Docs(document).Element("remarks")!.AddFirst(new XCData(" ")),
+                    document => Docs(document).Element("remarks")!.Elements("para").First().Add(new XElement("c", "Authored.")),
+                    document => Docs(document).Element("remarks")!.Descendants("a").First()
+                        .SetAttributeValue("href", "https://example.invalid/authored"),
+                    document => Docs(document).Element("returns")!.Value = "An authored return contract.",
+                    document => Docs(document).SetAttributeValue("authored", "true"),
+                    document => Docs(document).Element("summary")!.SetAttributeValue("authored", "true"),
+                    document => Docs(document).Element("remarks")!.SetAttributeValue("authored", "true"),
+                    document => Docs(document).Element("remarks")!.Elements("para").First().Value =
+                        " " + rule.IncorrectText.Replace(" ", "  ", StringComparison.Ordinal) + "\n",
+                    document => Docs(document).Element("remarks")!.Elements("para").Last().DescendantNodes()
+                        .OfType<XText>().First(text => text.Value.Contains("created and", StringComparison.Ordinal))
+                        .Value = "Portions of this page are modifications based on work created and\u00a0shared by the ",
+                })
+                {
+                    var authored = new XElement(prior);
+                    mutation(authored);
+                    NoEdit(Bytes(authored), "media authored/mixed/comment/CDATA/PI content remains protected");
+                }
+                if (rule.ParameterTypes.Length > 0)
+                {
+                    var authored = new XElement(prior);
+                    Docs(authored).Elements("param").First().Value = "An independently authored parameter contract.";
+                    NoEdit(Bytes(authored), "media authored parameter sibling forbids legacy withdrawal");
+                }
+
+                var bindingMutations = new List<Action<XElement>>
+                {
+                    document => Member(document).Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId")
+                        .SetAttributeValue("Value", memberId + ".Other"),
+                    document => Member(document).Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "C#")
+                        .SetAttributeValue("Value", rule.ManagedSignature.Replace("public ", "internal ", StringComparison.Ordinal)),
+                    document => Member(document).Element("ReturnValue")!.Element("ReturnType")!.Value = "Java.Lang.Object",
+                    document => Member(document).Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                    document => document.SetAttributeValue("FullName",
+                        (string?)document.Attribute("FullName") + "Other"),
+                    document => document.Elements("TypeSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", "T:Android.Media.Other"),
+                    document => document.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                    document => Member(document).Element("MemberType")!.Value = "Property",
+                    document =>
+                    {
+                        var registration = Member(document).Descendants("AttributeName").Single(attribute =>
+                            (string?)attribute.Attribute("Language") == "C#" &&
+                            attribute.Value.StartsWith("[Android.Runtime.Register(", StringComparison.Ordinal));
+                        registration.Value = registration.Value.Replace(rule.Registration.Descriptor!,
+                            rule.Registration.Descriptor![..(rule.Registration.Descriptor.LastIndexOf(')') + 1)] +
+                                "Ljava/lang/Object;", StringComparison.Ordinal);
+                    },
+                };
+                if (rule.ParameterTypes.Length > 0)
+                    bindingMutations.AddRange([
+                        document => Member(document).Element("Parameters")!.Elements("Parameter").First()
+                            .SetAttributeValue("Name", "different"),
+                        document => Member(document).Element("Parameters")!.Elements("Parameter").First()
+                            .SetAttributeValue("Type", "Java.Lang.Object"),
+                    ]);
+                foreach (var mutation in bindingMutations)
+                {
+                    var changed = new XElement(seed);
+                    mutation(changed);
+                    Save(Bytes(changed), html);
+                    var loaded = LoadedFile.Load(repositoryRoot, path);
+                    loaded.SelectOwners(selector);
+                    var owner = loaded.Owners.Single(candidate => candidate.Member is not null);
+                    var mapped = MapOwner(owner, new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(page),
+                    });
+                    Assert(mapped.Docs is not null && mapped.Docs.TvAdCorrection is null &&
+                        !mapped.Docs.QualityFirstFillOnly &&
+                        mapped.Docs.UnsafeTargets?.ContainsKey("remarks:media_contract") != true,
+                        "media changed binding reaches ordinary source mapping with the owner attached");
+                    using var negative = Run(true);
+                    Assert(negative.RootElement.GetProperty("appliedCount").GetInt32() > 0 &&
+                        File.ReadAllText(path).Contains(XmlEscape(rule.IncorrectText), StringComparison.Ordinal),
+                        "media changed-binding negative exercises the intended guard, not an earlier mapping rejection");
+                    var changedPrior = new XElement(prior);
+                    mutation(changedPrior);
+                    NoEdit(Bytes(changedPrior), "media changed attached binding forbids prior-output withdrawal");
+                }
+
+                Save(seedBytes, html.Replace("public ", "protected ", StringComparison.Ordinal));
+                using (var changedDeclaration = Run(true))
+                    Assert(changedDeclaration.RootElement.GetProperty("appliedCount").GetInt32() > 0 &&
+                        File.ReadAllText(path).Contains(XmlEscape(rule.IncorrectText), StringComparison.Ordinal),
+                        "media changed native declaration is not corrected by an unrelated guard");
+                NoEdit(priorBytes, "media native-declaration drift forbids legacy withdrawal",
+                    html.Replace("public ", "protected ", StringComparison.Ordinal));
+
+                Save(seedBytes, html);
+                var provenanceFile = LoadedFile.Load(repositoryRoot, path);
+                provenanceFile.SelectOwners(selector);
+                var provenanceOwner = provenanceFile.Owners.Single(candidate => candidate.Member is not null);
+                foreach (var altered in new[]
+                {
+                    rule.Source with { SourceKind = "java" },
+                    rule.Source with { SourceUrl = rule.Source.SourceUrl + ".Other" },
+                    rule.Source with { SourceLabel = rule.Source.SourceLabel + ".Other" },
+                    rule.Source with { Summary = rule.Source.Summary + " Changed." },
+                    rule.Source with { Returns = rule.Source.Returns + " Changed." },
+                    rule.Source with { Parameters = new Dictionary<string, string>(rule.Source.Parameters)
+                        { ["different"] = "A changed source parameter." } },
+                    rule.Source with { Exceptions = new Dictionary<string, string>(rule.Source.Exceptions)
+                        { ["DifferentException"] = "A changed exception contract." } },
+                    rule.Source with { HasMalformedSourceMarkup = true },
+                    rule.Source with
+                    {
+                        Paragraphs =
+                        [
+                            new("Independent safe source text.", false),
+                            new(rule.IncorrectText, true),
+                        ],
+                    },
+                })
+                {
+                    var alteredPage = new SourcePage
+                    {
+                        Members = [page.Members.Single() with { Docs = altered }],
+                    };
+                    var mapped = MapOwner(provenanceOwner, new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(alteredPage),
+                    });
+                    Assert(mapped.Docs is not null && mapped.Docs.TvAdCorrection is null &&
+                        !mapped.Docs.QualityFirstFillOnly &&
+                        mapped.Docs.UnsafeTargets?.ContainsKey("remarks:media_contract") != true,
+                        "media changed source contract/provenance/code-only negative reaches the exact guard with an attached owner");
+                }
+
+                var correctedHtml = rule.Target == "summary"
+                    ? html.Replace("Returns a a string", "Returns a string", StringComparison.Ordinal)
+                    : rule.CorrectText is null
+                        ? html.Replace("If null or not set,", "If not set,", StringComparison.Ordinal)
+                        : html.Replace(
+                            "When the response is for a streaming or release request, null is returned.",
+                            "When the response is for a streaming or release request, an empty byte array is returned.",
+                            StringComparison.Ordinal);
+                Assert(correctedHtml != html, "media future-source control changes the actual native fragment");
+                Save(seedBytes, correctedHtml);
+                using (var future = Run(true))
+                    Assert(future.RootElement.GetProperty("appliedCount").GetInt32() > 0 &&
+                        !HasMediaGuard(future), "future corrected native prose remains ordinarily eligible");
+            }
+            finally
+            {
+                File.Delete(path);
+                Directory.Delete(directory, recursive: true);
+            }
+        }
+        Console.WriteLine("SELF-TEST PASS: exact media source contracts, frozen producer ownership, bounded writes, attached-owner negatives, encoding and byte-identical persisted repeats.");
+    }
+
     static void TestTvAdSourceCorrections(string repositoryRoot)
     {
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
@@ -19220,8 +19859,10 @@ static partial class ImporterProgram
         var path = Path.Combine(docsRoot, $"TvAdSource.importer-self-test-{Environment.ProcessId}.xml");
         try
         {
-            foreach (var correction in KnownTvAdCorrections)
+            foreach (var correction in KnownTvAdCorrections.Where(correction => correction.Declaration is null))
             {
+                var correctedText = correction.CorrectText ??
+                    throw new InvalidOperationException("A TV AD correction requires replacement text.");
                 var fixtureName = correction.CorrectSummary ? "tv-ads-parcel" : "tv-ads-onbind";
                 var html = Encoding.UTF8.GetString(Convert.FromBase64String(File.ReadAllText(
                     Path.Combine(repositoryRoot, "tools", "importer-fixtures",
@@ -19325,15 +19966,15 @@ static partial class ImporterProgram
                 File.WriteAllBytes(path, legacyBytes);
                 var legacyExpected = legacyText.Replace(
                     $"<para>{XmlEscape(correction.IncorrectText)}</para>",
-                    $"<para>{XmlEscape(correction.CorrectText)}</para>", StringComparison.Ordinal);
+                    $"<para>{XmlEscape(correctedText)}</para>", StringComparison.Ordinal);
                 var legacyDocsExpected = legacyDocsText.Replace(
                     $"<para>{XmlEscape(correction.IncorrectText)}</para>",
-                    $"<para>{XmlEscape(correction.CorrectText)}</para>", StringComparison.Ordinal);
+                    $"<para>{XmlEscape(correctedText)}</para>", StringComparison.Ordinal);
                 if (correction.CorrectSummary)
                 {
                     legacyExpected = legacyExpected.Replace(
                         $"<summary>{XmlEscape(correction.IncorrectText)}</summary>",
-                        $"<summary>{XmlEscape(correction.CorrectText)}</summary>", StringComparison.Ordinal);
+                        $"<summary>{XmlEscape(correctedText)}</summary>", StringComparison.Ordinal);
                     legacyDocsExpected = legacyDocsExpected.Replace(
                         $"<summary>{XmlEscape(correction.IncorrectText)}</summary>",
                         $"<summary>{XmlEscape(correction.CorrectText)}</summary>", StringComparison.Ordinal);
@@ -22503,6 +23144,7 @@ static partial class ImporterProgram
         TestBiometricAllowedAuthenticatorsRemarksGuard(repositoryRoot);
         TestQualityFirstFillGuards(repositoryRoot);
         TestTvAdSourceCorrections(repositoryRoot);
+        TestMediaSourceContracts(repositoryRoot);
         TestAdminOnBindRawSource(repositoryRoot);
         TestAdminRestrictionRenderedRepair(repositoryRoot);
         TestAdminResetPasswordFields(repositoryRoot);
