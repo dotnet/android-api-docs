@@ -87,7 +87,7 @@
         <Parameter Name="source" Type="Android.Net.ProxyInfo" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
+        <param name="source">The proxy settings to copy, or null to initialize empty proxy settings.</param>
         <summary>A copy constructor to hold proxy properties.</summary>
         <remarks>
           <para>
@@ -150,11 +150,11 @@
         <Parameter Name="port" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="host">To be added.</param>
-        <param name="port">To be added.</param>
+        <param name="host">The host name of the HTTP proxy.</param>
+        <param name="port">The TCP port of the HTTP proxy.</param>
         <summary>Constructs a <c>ProxyInfo</c> object that points at a Direct proxy
             on the specified host and port.</summary>
-        <returns>To be added.</returns>
+        <returns>A new direct-proxy configuration for the supplied host and port.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -201,13 +201,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="host">To be added.</param>
-        <param name="port">To be added.</param>
+        <param name="host">The host name of the HTTP proxy.</param>
+        <param name="port">The TCP port of the HTTP proxy.</param>
         <param name="exclList">Hosts to exclude using the proxy on connections for.  These
                             hosts can use wildcards such as *.example.com.</param>
         <summary>Constructs a <c>ProxyInfo</c> object that points at a Direct proxy
             on the specified host and port.</summary>
-        <returns>To be added.</returns>
+        <returns>A new direct-proxy configuration for the supplied host and port.</returns>
         <remarks>
           <para>Constructs a <c>ProxyInfo</c> object that points at a Direct proxy
             on the specified host and port.
@@ -249,10 +249,10 @@
         <Parameter Name="pacUri" Type="Android.Net.Uri" />
       </Parameters>
       <Docs>
-        <param name="pacUri">To be added.</param>
+        <param name="pacUri">The URI of the proxy auto-configuration script.</param>
         <summary>Construct a <c>ProxyInfo</c> that will download and run the PAC script
             at the specified URL.</summary>
-        <returns>To be added.</returns>
+        <returns>A new configuration for the specified PAC script.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -299,11 +299,11 @@
         <Parameter Name="port" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="pacUrl">To be added.</param>
-        <param name="port">To be added.</param>
+        <param name="pacUrl">The URI of the proxy auto-configuration script.</param>
+        <param name="port">The local PAC proxy's port.</param>
         <summary>Construct a <c>ProxyInfo</c> object that will download and run the PAC script at the
             specified URL and port.</summary>
-        <returns>To be added.</returns>
+        <returns>A new configuration for the PAC script and local proxy port.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -338,8 +338,7 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>Gets the parcel creator that reconstructs ProxyInfo instances and creates arrays of them.</summary>
         <value>A creator that generates instances of android.net.ProxyInfo from a Parcel.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -420,7 +419,7 @@
       <Docs>
         <summary>When configured to use a Direct Proxy this returns the list
             of hosts for which the proxy is ignored.</summary>
-        <returns>To be added.</returns>
+        <returns>The host patterns that bypass the direct proxy, or null if no parsed list is stored.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -457,7 +456,7 @@
       <Docs>
         <summary>When configured to use a Direct Proxy this returns the host
             of the proxy.</summary>
-        <value>To be added.</value>
+        <value>The direct proxy's host name; for a PAC configuration, the local proxy host name.</value>
         <remarks>
           <para>
             <format type="text/html">
@@ -497,7 +496,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return true if the pattern of proxy is valid, otherwise return false.</summary>
-        <value>To be added.</value>
+        <value>True if a nonempty PAC URI is set or the direct-proxy settings pass validation; otherwise, false.</value>
         <remarks>
           <para>
             <format type="text/html">
@@ -598,7 +597,7 @@
       <Docs>
         <summary>Returns the URL of the current PAC script or null if there is
             no PAC script.</summary>
-        <value>To be added.</value>
+        <value>The PAC script URI, or Uri.Empty when no PAC script is configured.</value>
         <remarks>
           <para>
             <format type="text/html">
@@ -635,7 +634,7 @@
       <Docs>
         <summary>When configured to use a Direct Proxy this returns the port
             of the proxy</summary>
-        <value>To be added.</value>
+        <value>The stored proxy port; a PAC configuration can use -1 before a local port is supplied.</value>
         <remarks>
           <para>
             <format type="text/html">

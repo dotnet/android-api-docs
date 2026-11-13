@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs since="1">
-    <summary>To be added.</summary>
+    <summary>Measures distances, positions, and tangents along one contour of a path at a time.</summary>
     <remarks>
       <para>
         <format type="text/html">
@@ -193,7 +193,7 @@
         <param name="flags">Specified what aspects should be returned in the matrix.</param>
         <summary>Pins distance to 0 &lt;= distance &lt;= getLength(), and then computes the
             corresponding matrix.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the current contour is sampled and the matrix is computed; otherwise <see langword="false" />, leaving the matrix unchanged.</returns>
         <remarks>
           <para>Pins distance to 0 &lt;= distance &lt;= getLength(), and then computes the
             corresponding matrix. Returns false if there is no path, or a zero-length
@@ -296,13 +296,13 @@
         <Parameter Name="startWithMoveTo" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="startD">To be added.</param>
-        <param name="stopD">To be added.</param>
-        <param name="dst">To be added.</param>
-        <param name="startWithMoveTo">To be added.</param>
+        <param name="startD">The starting contour distance; negative values are raised to zero.</param>
+        <param name="stopD">The ending contour distance; values beyond the contour length are reduced to that length.</param>
+        <param name="dst">The path to which the extracted segment is appended.</param>
+        <param name="startWithMoveTo">Whether to begin the appended segment with a move to its starting point.</param>
         <summary>Given a start and stop distance, append to dst the intervening
             segment(s).</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> when a segment is appended; <see langword="false" /> if none can be extracted, including when the adjusted start is not before the stop.</returns>
         <remarks>
           <para>Given a start and stop distance, return in dst the intervening
             segment(s). If the segment is zero-length, return false, else return
@@ -348,7 +348,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return true if the current contour is closed()</summary>
-        <value>To be added.</value>
+        <value>Whether the current measured contour is closed, including forced closure.</value>
         <remarks>
           <para>Return true if the current contour is closed()</para>
           <para>
@@ -418,7 +418,7 @@
       <Docs>
         <summary>Return the total length of the current contour, or 0 if no path is
             associated with this measure object.</summary>
-        <value>To be added.</value>
+        <value>The measured length of the current contour, or zero when no contour is selected.</value>
         <remarks>
           <para>Return the total length of the current contour, or 0 if no path is
             associated with this measure object.</para>
@@ -458,7 +458,7 @@
       <Parameters />
       <Docs>
         <summary>Move to the next contour in the path.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if a next contour becomes current; <see langword="false" /> if none remains.</returns>
         <remarks>
           <para>Move to the next contour in the path. Return true if one exists, or
             false if we're done with the path.</para>
@@ -504,8 +504,8 @@
         <Parameter Name="forceClosed" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="path">To be added.</param>
-        <param name="forceClosed">To be added.</param>
+        <param name="path">The path to measure, or <see langword="null" /> to clear the association.</param>
+        <param name="forceClosed">Whether to measure contours as closed even without an explicit closing segment.</param>
         <summary>Assign a new path, or null to have none.</summary>
         <remarks>
           <para>Assign a new path, or null to have none.</para>

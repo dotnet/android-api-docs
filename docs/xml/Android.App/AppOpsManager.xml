@@ -207,7 +207,7 @@
         <param name="uid">int</param>
         <param name="packageName">String: This value cannot be null.</param>
         <summary>Like checkOp(String,int,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</summary>
-        <returns>To be added.</returns>
+        <returns>The operation mode reported for the UID and package. <see cref="F:Android.App.AppOpsManagerMode.Errored" /> is returned rather than converted to a permission-denial exception.</returns>
         <remarks>
           <para>Like checkOp(String,int,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</para>
           <para>
@@ -267,7 +267,7 @@
         <param name="packageName">String: This value cannot be null.</param>
         <param name="attributionTag">String: This value may be null.</param>
         <summary>Like checkOp(String,int,String,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</summary>
-        <returns>To be added.</returns>
+        <returns>The operation mode reported for the UID, package, and attribution tag. <see cref="F:Android.App.AppOpsManagerMode.Errored" /> is returned rather than converted to a permission-denial exception.</returns>
         <remarks>
           <para>Like checkOp(String,int,String,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</para>
           <para>
@@ -327,7 +327,7 @@
         <param name="packageName">String: This value cannot be null.</param>
         <param name="attributionTag">String: This value may be null.</param>
         <summary>Like checkOp(String,int,String,String) but returns the raw mode associated with the op.</summary>
-        <returns>To be added.</returns>
+        <returns>The operation mode before foreground-state conversion. <see cref="F:Android.App.AppOpsManagerMode.Foreground" /> is retained, and an error mode is returned rather than converted to a permission-denial exception.</returns>
         <remarks>
           <para>Like checkOp(String,int,String,String) but returns the raw mode associated with the op. Does not throw a security exception, does not translate MODE_FOREGROUND.</para>
           <para>
@@ -564,7 +564,7 @@
         <param name="uid">int</param>
         <param name="packageName">String: This value cannot be null.</param>
         <summary>Checks whether the given op for a package is active, i.e.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the system reports that the operation has been started for the UID and package without a matching finish; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Checks whether the given op for a package is active, i.e. did someone call startOp(String, int, String) without finishOp(String, int, String) yet. If you don't hold the android.Manifest.permission.WATCH_APPOPS permission you can query only for your UID.</para>
           <para>See also:</para>
@@ -843,7 +843,7 @@
         <param name="uid">int</param>
         <param name="packageName">String: This value cannot be null.</param>
         <summary>This method was deprecated in API level 30.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported when noting this access. An <see cref="F:Android.App.AppOpsManagerMode.Errored" /> result raises a security exception instead of being returned.</returns>
         <remarks>
           <para>This method was deprecated in API level 30. Use noteOp(String,int,String,String,String) instead</para>
           <para>
@@ -961,7 +961,7 @@
         <param name="uid">int</param>
         <param name="packageName">String: This value cannot be null.</param>
         <summary>This method was deprecated in API level 30.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported when noting this access, including <see cref="F:Android.App.AppOpsManagerMode.Errored" /> without converting that result to a security exception.</returns>
         <remarks>
           <para>This method was deprecated in API level 30. Use noteOpNoThrow(String,int,String,String,String) instead</para>
           <para>
@@ -1030,7 +1030,7 @@
         <param name="attributionTag">String: This value may be null.</param>
         <param name="message">String: This value may be null.</param>
         <summary>Like noteOp(String,int,String,String,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported for the attributed access note. An <see cref="F:Android.App.AppOpsManagerMode.Errored" /> result is returned rather than converted to a security exception.</returns>
         <remarks>
           <para>Like noteOp(String,int,String,String,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</para>
           <para>See also:</para>
@@ -1084,7 +1084,7 @@
         <param name="op">String: This value cannot be null.</param>
         <param name="proxiedPackageName">String: This value cannot be null.</param>
         <summary>This method was deprecated in API level 30.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported when noting the proxied access. An <see cref="F:Android.App.AppOpsManagerMode.Errored" /> result raises a security exception instead of being returned.</returns>
         <remarks>
           <para>This method was deprecated in API level 30. Use noteProxyOp(String,String,int,String,String) instead</para>
           <para>
@@ -1204,7 +1204,7 @@
         <param name="op">String: This value cannot be null.</param>
         <param name="proxiedPackageName">String: This value cannot be null.</param>
         <summary>This method was deprecated in API level 30.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported for the proxied package and calling UID, including <see cref="F:Android.App.AppOpsManagerMode.Errored" /> without converting that result to a security exception.</returns>
         <remarks>
           <para>This method was deprecated in API level 30. Use noteProxyOpNoThrow(String,String,int,String,String) instead</para>
           <para>
@@ -1266,7 +1266,7 @@
         <param name="proxiedPackageName">String: This value may be null.</param>
         <param name="proxiedUid">int</param>
         <summary>This method was deprecated in API level 30.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported for the supplied proxied package and UID. An <see cref="F:Android.App.AppOpsManagerMode.Errored" /> result is returned rather than converted to a security exception.</returns>
         <remarks>
           <para>This method was deprecated in API level 30. Use noteProxyOpNoThrow(String,String,int,String,String) instead</para>
           <para>
@@ -1332,7 +1332,7 @@
         <param name="proxiedAttributionTag">String: This value may be null.</param>
         <param name="message">String: This value may be null.</param>
         <summary>Like noteProxyOp(String,String,int,String,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported for the attributed proxied access. An <see cref="F:Android.App.AppOpsManagerMode.Errored" /> result is returned rather than converted to a security exception.</returns>
         <remarks>
           <para>Like noteProxyOp(String,String,int,String,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</para>
           <para>See also:</para>
@@ -2812,7 +2812,7 @@
         <param name="uid">int</param>
         <param name="packageName">String: This value cannot be null.</param>
         <summary>This method was deprecated in API level 30.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported for the operation-start request. An <see cref="F:Android.App.AppOpsManagerMode.Errored" /> result raises a security exception instead of being returned.</returns>
         <remarks>
           <para>This method was deprecated in API level 30. use startOp(String,int,String,String,String) instead</para>
           <para>
@@ -2930,7 +2930,7 @@
         <param name="uid">int</param>
         <param name="packageName">String: This value cannot be null.</param>
         <summary>This method was deprecated in API level 30.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported for the operation-start request, including <see cref="F:Android.App.AppOpsManagerMode.Errored" /> without converting that result to a security exception.</returns>
         <remarks>
           <para>This method was deprecated in API level 30. use startOpNoThrow(String,int,String,String,String) instead</para>
           <para>
@@ -2999,7 +2999,7 @@
         <param name="attributionTag">String: This value may be null.</param>
         <param name="message">String: This value may be null.</param>
         <summary>Like startOp(String,int,String,String,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported for the attributed operation-start request. An <see cref="F:Android.App.AppOpsManagerMode.Errored" /> result is returned rather than converted to a security exception.</returns>
         <remarks>
           <para>Like startOp(String,int,String,String,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</para>
           <para>See also:</para>
@@ -3127,7 +3127,7 @@
         <param name="proxiedAttributionTag">String: This value may be null.</param>
         <param name="message">String: This value may be null.</param>
         <summary>Like startProxyOp(String,int,String,String,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</summary>
-        <returns>To be added.</returns>
+        <returns>The integer mode reported for the proxy-start request. <c>MODE_ERRORED</c> is returned rather than converted to a permission-denial exception.</returns>
         <remarks>
           <para>Like startProxyOp(String,int,String,String,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</para>
           <para>See also:</para>
@@ -3533,7 +3533,7 @@
         <param name="uid">int</param>
         <param name="packageName">String: This value cannot be null.</param>
         <summary>This method was deprecated in API level 36.</summary>
-        <returns>To be added.</returns>
+        <returns>The mode reported by the operation check for the UID and package. <see cref="F:Android.App.AppOpsManagerMode.Errored" /> is returned rather than converted to a permission-denial exception.</returns>
         <remarks>
           <para>This method was deprecated in API level 36. Use checkOpNoThrow(String,int,String)</para>
           <para>Like unsafeCheckOp(String,int,String) but instead of throwing a SecurityException it returns MODE_ERRORED.</para>
@@ -3589,7 +3589,7 @@
         <param name="uid">int</param>
         <param name="packageName">String: This value cannot be null.</param>
         <summary>This method was deprecated in API level 36.</summary>
-        <returns>To be added.</returns>
+        <returns>The raw operation mode, retaining <see cref="F:Android.App.AppOpsManagerMode.Foreground" /> rather than resolving it for the current process state. An error mode is returned rather than converted to a permission-denial exception.</returns>
         <remarks>
           <para>This method was deprecated in API level 36. Use checkOpRawNoThrow(String,int,String,String) instead</para>
           <para>Like checkOp(String, int, String) but returns the raw mode associated with the op. Does not throw a security exception, does not translate MODE_FOREGROUND.</para>
@@ -3645,7 +3645,7 @@
         <param name="uid">int</param>
         <param name="packageName">String: This value cannot be null.</param>
         <summary>This method was deprecated in API level 36.</summary>
-        <returns>To be added.</returns>
+        <returns>The raw operation mode before foreground-state conversion, including <see cref="F:Android.App.AppOpsManagerMode.Errored" /> without converting that result to a security exception.</returns>
         <remarks>
           <para>This method was deprecated in API level 36. Use checkOpRawNoThrow(String,int,String,String) instead</para>
           <para>Like checkOp(String, int, String) but returns the raw mode associated with the op. Does not throw a security exception, does not translate MODE_FOREGROUND.</para>
