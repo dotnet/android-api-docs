@@ -10,6 +10,7 @@ Run it with the .NET 10 SDK or newer:
 dotnet run tools\importer.cs -- --self-test
 dotnet run tools\importer.cs -- --self-test-preservation
 dotnet run tools\importer.cs -- --self-test-telecom
+dotnet run tools\importer.cs -- --self-test-provider
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --report artifacts\argb-import
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace Android.Animation --max-changes 10 --cache C:\temp\android-doc-cache
 dotnet run tools\importer.cs -- --path docs\xml --api-since 37 --max-changes 10 --report artifacts\api-37-import
@@ -729,6 +730,34 @@ managed member ID, official `getRetryPolicy()` URL, and complete source return
 text match the known incorrect flag-combination wording. Retry policies are
 mutually exclusive codes, not flags. The guard does not affect other channels,
 members, URLs, corrected source text, or existing authored documentation.
+
+Four exact Provider column-interface pairs have a separate declared-source
+mapping: `MediaStore.Audio.IAudioColumns` / `AudioColumns`,
+`MediaStore.Audio.IAlbumColumns` / `AlbumColumns`,
+`MediaStore.Images.IImageColumns` / `ImageColumns`, and
+`MediaStore.Video.IVideoColumns` / `VideoColumns`. The pinned
+[interface generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundInterface.cs)
+omits registration on constant-only interfaces; the
+[compatibility-class generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/InterfaceMemberAlternativeClass.cs)
+places its obsolete projection in `mono/internal/`.
+Both managed siblings must match their exact namespace, assembly, type and
+member signatures, DocIds, string return types and JNI field identities.
+An explicit field allow-list also requires the canonical declared Android
+interface and the exact native String constant value. Values are verified
+against the official API 37.2 implementation archive, SHA-256
+`9d637c3af6654a2f1b696b3d19c54bb77e38df2b0106116934703f314b3d4e84`.
+Inherited-only or removed fields, missing siblings, changed source declarations
+or values, and unlisted projections are not mapped.
+Invalid metadata on an allow-listed projection cannot fall through
+to ordinary JNI-field routing. Only direct placeholders
+can change; authored or mixed channels, nested placeholders and existing
+reference/attribution bytes are preserved. No prose is inferred from the
+implementation. Native declaration fragments with page and fragment hashes
+are retained in `provider-columns-source-fragments.txt`. Production tests
+exercise all allowed fields in both siblings, attached-owner metadata and
+source mutations, bounded writes, encoding/newline preservation, and persisted
+zero-write repeats. The focused `--self-test-provider` suite also runs as part
+of `--self-test`.
 
 `Android.Media.Quality` has source-bound first-fill exclusions for eight
 `WriteToParcel(Parcel, int)` summary/remarks pairs containing the exact

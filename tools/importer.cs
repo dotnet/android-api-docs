@@ -673,6 +673,12 @@ static partial class ImporterProgram
             Console.WriteLine("Telecom lifecycle self-tests passed.");
             return 0;
         }
+        if (options.ProviderSelfTest)
+        {
+            TestProviderColumnProjection(repositoryRoot);
+            Console.WriteLine("Provider column projection self-tests passed.");
+            return 0;
+        }
         if (options.PreservationSelfTest)
         {
             TestPreservedRemarksAndSourceGuards(repositoryRoot);
@@ -859,7 +865,9 @@ static partial class ImporterProgram
                     {
                         foreach (var placeholder in owner.Placeholders)
                         {
-                            var replacement = placeholder.Name == "para" || placeholder.IsImporterMetadataRepair
+                            var replacement = placeholder.Name == "para" || placeholder.IsImporterMetadataRepair ||
+                                ProviderColumnProjection.IsOwner(owner) &&
+                                    !ProviderColumnProjection.IsPlainPlaceholder(owner, placeholder)
                                 ? Replacement.Skip("source_channel_ambiguous",
                                     "This source-bound first-fill guard preserves nested placeholders and existing documentation.")
                                 : ReplacementFor(placeholder, mapping.Docs);
@@ -2303,6 +2311,11 @@ static partial class ImporterProgram
             return MappingResult.Skip("dalvik_opcode_projection_mismatch",
                 "The exact Dalvik projection or official field declaration/value did not match.",
                 owner.SourceRequest.Url);
+        var providerProjection = ProviderColumnProjection.IsOwner(owner);
+        if (providerProjection && !ProviderColumnProjection.MatchesSource(owner, page))
+            return MappingResult.Skip("provider_column_projection_mismatch",
+                "The exact Provider interface declaration or pinned string constant did not match.",
+                owner.SourceRequest.Url);
         if (owner.Member is null)
         {
             if (page.TypeDocs is null || string.IsNullOrWhiteSpace(page.TypeDocs.Summary))
@@ -2314,6 +2327,12 @@ static partial class ImporterProgram
                 WithoutUnsafeTrustPairingCallbackTypeRemarks(owner, page.TypeDocs));
             if (owner.SourceRequest.JavaPath == DalvikOpcodeProjection.JavaPath)
                 typeDocs = typeDocs with { QualityFirstFillOnly = true, UnsafeTargets = new Dictionary<string, string>() };
+            if (providerProjection)
+                typeDocs = typeDocs with
+                {
+                    QualityFirstFillOnly = true,
+                    UnsafeTargets = typeDocs.UnsafeTargets ?? new Dictionary<string, string>(),
+                };
             return MappingResult.Success(WithVerifiedOdpInferenceParamsBuilderSummary(owner, page, typeDocs));
         }
 
@@ -2372,6 +2391,12 @@ static partial class ImporterProgram
             fieldDocs = WithoutUnsafeIcuNumberChannels(owner, fieldDocs);
             if (owner.SourceRequest.JavaPath == DalvikOpcodeProjection.JavaPath)
                 fieldDocs = fieldDocs with { QualityFirstFillOnly = true, UnsafeTargets = new Dictionary<string, string>() };
+            if (providerProjection)
+                fieldDocs = fieldDocs with
+                {
+                    QualityFirstFillOnly = true,
+                    UnsafeTargets = fieldDocs.UnsafeTargets ?? new Dictionary<string, string>(),
+                };
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
                 WithKnownNfcContractSafety(owner, WithKnownAndroidTextCorrections(owner.Id, fieldDocs))));
         }
@@ -22015,6 +22040,243 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestProviderColumnProjection(string repositoryRoot)
+    {
+        var fixturePath = Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "provider-columns-source-fragments.txt");
+        var fragments = File.ReadLines(fixturePath).Where(line => !line.StartsWith('#'))
+            .Select(line => line.Split('|')).GroupBy(parts => parts[0])
+            .ToDictionary(group => group.Key, group => group.ToDictionary(parts => parts[1], parts =>
+            {
+                var bytes = Convert.FromBase64String(parts[4]);
+                Assert(Convert.ToHexString(SHA256.HashData(bytes)).Equals(parts[3],
+                    StringComparison.OrdinalIgnoreCase), "Provider native fragment hash: " + parts[1]);
+                return Encoding.UTF8.GetString(bytes);
+            }, StringComparer.Ordinal), StringComparer.Ordinal);
+        var directory = Path.Combine(repositoryRoot, "docs", "xml",
+            ".provider-columns-self-test-" + Guid.NewGuid().ToString("N"));
+        var cache = Path.Combine(directory, "cache");
+        Directory.CreateDirectory(cache);
+        var sequence = 0;
+        try
+        {
+            foreach (var rule in ProviderColumnProjection.Rules)
+            {
+                var request = SourceRequest.CreateAndroid(rule.JavaPath)!;
+                var parts = fragments[rule.JavaPath];
+                var html = parts["type"] + string.Concat(parts.Where(pair => pair.Key != "type")
+                    .Select(pair => pair.Value));
+                var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                var originals = new[] { rule.InterfaceName, rule.ManagedName }.ToDictionary(name => name, name =>
+                    XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Android.Provider", name + ".xml")));
+                string PathFor(string name) => Path.Combine(directory, name + ".xml");
+                static XElement Member(XElement root, string name) =>
+                    root.Element("Members")!.Elements("Member").Single(item =>
+                        (string?)item.Attribute("MemberName") == name);
+                void Write(string selectedType, string name, Action<XElement, XElement>? mutate = null,
+                    bool mutateSibling = false, string newline = "\n", bool bom = false)
+                {
+                    foreach (var pair in originals)
+                    {
+                        var root = new XElement(pair.Value);
+                        foreach (var docs in root.Descendants("Docs"))
+                            docs.ReplaceNodes(new XElement("summary", "Authored summary."),
+                                new XElement("remarks", "Authored remarks."));
+                        if (pair.Key == selectedType)
+                            Member(root, name).Element("Docs")!.Element("summary")!.Value = "To be added.";
+                        if ((pair.Key != selectedType) == mutateSibling)
+                            mutate?.Invoke(root, Member(root, name));
+                        File.WriteAllText(PathFor(pair.Key), root.ToString().ReplaceLineEndings(newline),
+                            new UTF8Encoding(bom));
+                    }
+                    File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                }
+                JsonElement Run(string type, string member, bool apply, int limit = 1)
+                {
+                    var reportPath = Path.Combine(directory, "report-" + sequence++);
+                    var args = new List<string>
+                    {
+                        "--path", PathFor(type), "--namespace", "Android.Provider",
+                        "--member", member, "--max-changes", limit.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        "--offline", "--cache", cache, "--report", reportPath,
+                    };
+                    if (apply)
+                        args.Add("--apply");
+                    var output = Console.Out;
+                    using var captured = new StringWriter();
+                    int exit;
+                    try
+                    {
+                        Console.SetOut(captured);
+                        exit = RunAsync(args.ToArray()).GetAwaiter().GetResult();
+                    }
+                    finally
+                    {
+                        Console.SetOut(output);
+                    }
+                    Assert(exit == 0, "Provider production pipeline succeeds: " + captured);
+                    using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("sourcesFetched").GetInt32() == 0,
+                        "Provider projection uses only pinned offline source");
+                    return report.RootElement.Clone();
+                }
+                void Reject(string type, string name, string description)
+                {
+                    var before = File.ReadAllBytes(PathFor(type));
+                    var result = Run(type, name, true);
+                    Assert(result.GetProperty("appliedCount").GetInt32() == 0 &&
+                        result.GetProperty("filesChanged").GetInt32() == 0 &&
+                        File.ReadAllBytes(PathFor(type)).SequenceEqual(before),
+                        "Provider preserves " + description);
+                    var repeat = Run(type, name, true);
+                    Assert(repeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(PathFor(type)).SequenceEqual(before),
+                        "Provider rejected case has a byte-identical persisted repeat: " + description);
+                }
+                foreach (var type in originals.Keys)
+                {
+                    foreach (var field in rule.Fields)
+                    {
+                        Write(type, field.Managed);
+                        var before = File.ReadAllText(PathFor(type));
+                        var preview = Run(type, field.Managed, false);
+                        Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                            File.ReadAllText(PathFor(type)) == before,
+                            "Provider previews exact field prose: " + type + "." + field.Managed);
+                        var applied = Run(type, field.Managed, true);
+                        var after = File.ReadAllText(PathFor(type));
+                        var summary = Member(XElement.Load(PathFor(type)), field.Managed)
+                            .Element("Docs")!.Element("summary")!.Value;
+                        Assert(applied.GetProperty("appliedCount").GetInt32() == 1 &&
+                            summary != "To be added." && after ==
+                                before.Replace("<summary>To be added.</summary>",
+                                    "<summary>" + XmlEscape(summary) + "</summary>", StringComparison.Ordinal),
+                            "Provider field fill preserves every outside-summary byte and authored remarks");
+                        var persisted = File.ReadAllBytes(PathFor(type));
+                        var repeated = Run(type, field.Managed, true);
+                        Assert(repeated.GetProperty("appliedCount").GetInt32() == 0 &&
+                            File.ReadAllBytes(PathFor(type)).SequenceEqual(persisted),
+                            "Provider field fill has a byte-identical persisted repeat");
+                    }
+                    var name = rule.Fields[0].Managed;
+                    foreach (var newline in new[] { "\n", "\r\n" })
+                    foreach (var bom in new[] { false, true })
+                    {
+                        Write(type, name, newline: newline, bom: bom);
+                        var before = File.ReadAllBytes(PathFor(type));
+                        var applied = Run(type, name, true);
+                        var after = File.ReadAllBytes(PathFor(type));
+                        Assert(applied.GetProperty("appliedCount").GetInt32() == 1 &&
+                            before.AsSpan(0, 3).SequenceEqual(after.AsSpan(0, 3)) &&
+                            File.ReadAllText(PathFor(type)).Contains(newline, StringComparison.Ordinal),
+                            "Provider preserves UTF-8 BOM state and newlines");
+                    }
+                    foreach (var sibling in new[] { false, true })
+                    {
+                        foreach (var mutation in new Action<XElement, XElement>[]
+                        {
+                            (root, member) => root.SetAttributeValue("FullName", "Other.Provider." + (string?)root.Attribute("Name")),
+                            (root, member) => root.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other",
+                            (root, member) => member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other",
+                            (root, member) => member.Elements("MemberSignature").Single(signature =>
+                                (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public static string " + name + ";"),
+                            (root, member) => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int32",
+                            (root, member) => member.Add(new XElement("MemberValue", "changed")),
+                            (root, member) => member.Element("Attributes")!.Add(new XElement("Attribute",
+                                new XElement("AttributeName", new XAttribute("Language", "C#"),
+                                    "[Android.Runtime.IntDefinition(null, JniField=\"" + rule.JavaPath +
+                                    "." + rule.Fields[0].Native + "\")]"))),
+                            (root, member) => member.Element("Attributes")!.Elements("Attribute").First()
+                                .Elements("AttributeName").First().Value = "[Android.Runtime.Register(\"OTHER\")]",
+                            (root, member) => member.AddAfterSelf(new XElement(member)),
+                        })
+                        {
+                            Write(type, name, mutation, sibling);
+                            Reject(type, name, "changed attached binding or sibling metadata");
+                        }
+                    }
+                    Write(type, name);
+                    File.Delete(PathFor(type == rule.InterfaceName ? rule.ManagedName : rule.InterfaceName));
+                    Reject(type, name, "missing sibling");
+                    foreach (var mutation in new[]
+                    {
+                        html.Replace("public", "private", StringComparison.Ordinal),
+                        Regex.Replace(html, @"(?<open><pre\b[^>]*>)(?<body>.*?)(?<close></pre>)",
+                            match => SourcePage.HtmlText(match.Groups["body"].Value) ==
+                                "public static final String " + rule.Fields[0].Native
+                                ? match.Groups["open"].Value + "public static final int " +
+                                    rule.Fields[0].Native + match.Groups["close"].Value
+                                : match.Value, RegexOptions.Singleline | RegexOptions.CultureInvariant),
+                        html.Replace("\"" + rule.Fields[0].Value + "\"", "\"changed\"", StringComparison.Ordinal),
+                    })
+                    {
+                        Assert(mutation != html, "Provider source negative changes the intended native fixture");
+                        Write(type, name);
+                        File.WriteAllText(cachePath, mutation, new UTF8Encoding(false));
+                        Reject(type, name, "changed native declaration or constant value");
+                    }
+                    foreach (var content in new object[]
+                    {
+                        "Authored summary.",
+                        new XElement("c", "To be added."),
+                        new XCData("To be added."),
+                        new XComment("To be added."),
+                    })
+                    {
+                        Write(type, name, (root, member) =>
+                            member.Element("Docs")!.Element("summary")!.ReplaceNodes(content));
+                        Reject(type, name, "authored or mixed summary");
+                    }
+                    Write(type, name, (root, member) =>
+                        member.Element("Docs")!.Add(new XElement("summary", "Authored duplicate.")));
+                    Reject(type, name, "duplicate summary channels");
+                    Write(type, name, (root, member) =>
+                        member.Element("Docs")!.Element("summary")!.Add(new XComment("Authored comment.")));
+                    Reject(type, name, "comment beside a placeholder");
+                    Write(type, name, (root, member) =>
+                        member.Element("Docs")!.Element("remarks")!.Value = "To be added.");
+                    var bounded = Run(type, name, true);
+                    Assert(bounded.GetProperty("appliedCount").GetInt32() == 1 &&
+                        Member(XElement.Load(PathFor(type)), name).Element("Docs")!.Element("remarks")!.Value ==
+                            "To be added.", "Provider direct channels obey a one-operation limit");
+                    var remarks = Run(type, name, true);
+                    var filledDocs = Member(XElement.Load(PathFor(type)), name).Element("Docs")!;
+                    Assert(remarks.GetProperty("appliedCount").GetInt32() == 1 &&
+                        filledDocs.Element("remarks")!.Descendants("a").Any(link =>
+                            (string?)link.Attribute("href") == request.Url + "#" + rule.Fields[0].Native),
+                        "Provider direct remarks fill includes its exact official field reference");
+                    var remarksBytes = File.ReadAllBytes(PathFor(type));
+                    var remarksRepeat = Run(type, name, true);
+                    Assert(remarksRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(PathFor(type)).SequenceEqual(remarksBytes),
+                        "Provider filled remarks retain every byte on repeat");
+                    Write(type, name, (root, member) =>
+                    {
+                        member.Element("Docs")!.Element("summary")!.Value = "Authored summary.";
+                        root.Element("Docs")!.ReplaceNodes(new XElement("summary", "To be added."),
+                            new XElement("remarks", "To be added."));
+                    });
+                    var typeId = "T:Android.Provider." + type;
+                    var typeFill = Run(type, typeId, true, 2);
+                    Assert(typeFill.GetProperty("appliedCount").GetInt32() == 2 &&
+                        XElement.Load(PathFor(type)).Element("Docs")!.Element("summary")!.Value != "To be added.",
+                        "Provider exact sibling pair imports the declared interface description: " + typeFill);
+                    var typeBytes = File.ReadAllBytes(PathFor(type));
+                    var typeRepeat = Run(type, typeId, true, 2);
+                    Assert(typeRepeat.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(PathFor(type)).SequenceEqual(typeBytes),
+                        "Provider declared-type fill has a byte-identical persisted repeat");
+                }
+            }
+        }
+        finally
+        {
+            Directory.Delete(directory, true);
+        }
+    }
+
     static void TestDalvikOpcodeProjection(string repositoryRoot)
     {
         var fixturePath = Path.Combine(repositoryRoot, "tools", "importer-fixtures",
@@ -22492,6 +22754,7 @@ static partial class ImporterProgram
     {
         TestJavaIoLegacySecurity(repositoryRoot);
         TestDalvikOpcodeProjection(repositoryRoot);
+        TestProviderColumnProjection(repositoryRoot);
         TestBiometricStringValueGuard(repositoryRoot);
         TestBiometricCallbackLinks(repositoryRoot);
         TestIcuNumberContracts(repositoryRoot);
@@ -33813,6 +34076,7 @@ static partial class ImporterProgram
         public bool SelfTest { get; private set; }
         public bool PreservationSelfTest { get; private set; }
         public bool TelecomSelfTest { get; private set; }
+        public bool ProviderSelfTest { get; private set; }
         public bool ManagedOnly { get; private set; }
         public bool RepeatedOnly { get; private set; }
         public bool Help { get; private set; }
@@ -33858,6 +34122,9 @@ static partial class ImporterProgram
                         break;
                     case "--self-test-telecom":
                         options.TelecomSelfTest = true;
+                        break;
+                    case "--self-test-provider":
+                        options.ProviderSelfTest = true;
                         break;
                     case "--managed-only":
                         options.ManagedOnly = true;
@@ -33950,6 +34217,7 @@ static partial class ImporterProgram
               --self-test            Run local fixture tests; add --managed-only for the .NET rules
               --self-test-preservation Run focused metadata, newline and source exclusion tests
               --self-test-telecom Run exact Telecom lifecycle preservation and production tests
+              --self-test-provider Run exact Provider column projection production tests
               -h, --help             Show help
             """);
     }
@@ -34003,6 +34271,8 @@ static partial class ImporterProgram
             var typeRegistration = Registration.Type(Root);
             var typeRequest = SourceRequest.Create(typeRegistration);
             var dalvikProjection = DalvikOpcodeProjection.Create(this);
+            var providerProjection = ProviderColumnProjection.Create(this);
+            var providerCandidate = ProviderColumnProjection.IsCandidate(Root);
             var typeName = (string?)Root.Attribute("FullName") ?? (string?)Root.Attribute("Name") ?? "";
             var isEnum = Root.Elements("TypeSignature").Any(signature =>
                 (string?)signature.Attribute("Language") == "C#" &&
@@ -34056,7 +34326,9 @@ static partial class ImporterProgram
                 var sourceOverride = member is null
                     ? null
                     : SourceVerifiedMemberMappings.ResolveSourceOverride(id, Root, member);
-                var request = member is null
+                var request = providerCandidate
+                    ? providerProjection?.Request(member)
+                    : member is null
                     ? dalvikProjection?.Request(null) ?? typeRequest
                     : dalvikProjection?.Request(member) ?? sourceOverride ??
                         SourceRequest.Create(memberField?.Owner) ??
@@ -34663,6 +34935,216 @@ static partial class ImporterProgram
                 members[0].Declaration == $"public static final int {field.NativeName}" &&
                 members[0].ConstantValue == field.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) &&
                 members[0].Url == Source.Url + "#" + field.NativeName;
+        }
+    }
+
+    sealed class ProviderColumnProjection
+    {
+        const string Prefix = "Android.Provider.";
+        public sealed record Rule(
+            string Container,
+            string Name,
+            (string Managed, string Native, string Value)[] Fields)
+        {
+            public string ManagedName => "MediaStore+" + Container + "+" + Name;
+            public string InterfaceName => "MediaStore+" + Container + "+I" + Name;
+            public string JavaPath => "android/provider/MediaStore$" + Container + "$" + Name;
+            public string Declaration => "public static interface MediaStore." + Container + "." + Name +
+                (Name == "AlbumColumns" ? "" : " implements MediaStore.MediaColumns");
+        }
+
+        public static readonly Rule[] Rules =
+        [
+            new("Audio", "AudioColumns",
+            [
+                ("AlbumId", "ALBUM_ID", "album_id"),
+                ("AlbumKey", "ALBUM_KEY", "album_key"),
+                ("ArtistId", "ARTIST_ID", "artist_id"),
+                ("ArtistKey", "ARTIST_KEY", "artist_key"),
+                ("BitsPerSample", "BITS_PER_SAMPLE", "bits_per_sample"),
+                ("Bookmark", "BOOKMARK", "bookmark"),
+                ("Genre", "GENRE", "genre"),
+                ("GenreId", "GENRE_ID", "genre_id"),
+                ("GenreKey", "GENRE_KEY", "genre_key"),
+                ("IsAlarm", "IS_ALARM", "is_alarm"),
+                ("IsAudiobook", "IS_AUDIOBOOK", "is_audiobook"),
+                ("IsMusic", "IS_MUSIC", "is_music"),
+                ("IsNotification", "IS_NOTIFICATION", "is_notification"),
+                ("IsPodcast", "IS_PODCAST", "is_podcast"),
+                ("IsRecording", "IS_RECORDING", "is_recording"),
+                ("IsRingtone", "IS_RINGTONE", "is_ringtone"),
+                ("Samplerate", "SAMPLERATE", "samplerate"),
+                ("TitleKey", "TITLE_KEY", "title_key"),
+                ("TitleResourceUri", "TITLE_RESOURCE_URI", "title_resource_uri"),
+                ("Track", "TRACK", "track"),
+                ("Year", "YEAR", "year"),
+            ]),
+            new("Audio", "AlbumColumns",
+            [
+                ("Album", "ALBUM", "album"),
+                ("AlbumArt", "ALBUM_ART", "album_art"),
+                ("AlbumId", "ALBUM_ID", "album_id"),
+                ("AlbumKey", "ALBUM_KEY", "album_key"),
+                ("Artist", "ARTIST", "artist"),
+                ("ArtistId", "ARTIST_ID", "artist_id"),
+                ("ArtistKey", "ARTIST_KEY", "artist_key"),
+                ("FirstYear", "FIRST_YEAR", "minyear"),
+                ("LastYear", "LAST_YEAR", "maxyear"),
+                ("NumberOfSongs", "NUMBER_OF_SONGS", "numsongs"),
+                ("NumberOfSongsForArtist", "NUMBER_OF_SONGS_FOR_ARTIST", "numsongs_by_artist"),
+            ]),
+            new("Images", "ImageColumns",
+            [
+                ("Description", "DESCRIPTION", "description"),
+                ("ExposureTime", "EXPOSURE_TIME", "exposure_time"),
+                ("FNumber", "F_NUMBER", "f_number"),
+                ("HasGainMap", "HAS_GAIN_MAP", "has_gain_map"),
+                ("Iso", "ISO", "iso"),
+                ("IsPrivate", "IS_PRIVATE", "isprivate"),
+                ("Latitude", "LATITUDE", "latitude"),
+                ("Longitude", "LONGITUDE", "longitude"),
+                ("MiniThumbMagic", "MINI_THUMB_MAGIC", "mini_thumb_magic"),
+                ("PicasaId", "PICASA_ID", "picasa_id"),
+                ("SceneCaptureType", "SCENE_CAPTURE_TYPE", "scene_capture_type"),
+            ]),
+            new("Video", "VideoColumns",
+            [
+                ("Bookmark", "BOOKMARK", "bookmark"),
+                ("Category", "CATEGORY", "category"),
+                ("ColorRange", "COLOR_RANGE", "color_range"),
+                ("ColorStandard", "COLOR_STANDARD", "color_standard"),
+                ("ColorTransfer", "COLOR_TRANSFER", "color_transfer"),
+                ("Description", "DESCRIPTION", "description"),
+                ("IsPrivate", "IS_PRIVATE", "isprivate"),
+                ("Language", "LANGUAGE", "language"),
+                ("Latitude", "LATITUDE", "latitude"),
+                ("Longitude", "LONGITUDE", "longitude"),
+                ("MiniThumbMagic", "MINI_THUMB_MAGIC", "mini_thumb_magic"),
+                ("Tags", "TAGS", "tags"),
+            ]),
+        ];
+
+        readonly Rule rule;
+        readonly XElement root;
+        readonly XElement sibling;
+
+        ProviderColumnProjection(Rule rule, XElement root, XElement sibling)
+        {
+            this.rule = rule;
+            this.root = root;
+            this.sibling = sibling;
+        }
+
+        public static ProviderColumnProjection? Create(LoadedFile file)
+        {
+            var name = (string?)file.Root.Attribute("Name");
+            var rule = Rules.SingleOrDefault(item =>
+                name == item.ManagedName || name == item.InterfaceName);
+            if (rule is null || !MatchesType(file.Root, rule, name!))
+                return null;
+            var siblingName = name == rule.InterfaceName ? rule.ManagedName : rule.InterfaceName;
+            var siblingPath = Path.Combine(Path.GetDirectoryName(file.Path)!, siblingName + ".xml");
+            if (!File.Exists(siblingPath))
+                return null;
+            var sibling = XElement.Load(siblingPath, LoadOptions.PreserveWhitespace);
+            return MatchesType(sibling, rule, siblingName)
+                ? new ProviderColumnProjection(rule, file.Root, sibling) : null;
+        }
+
+        public static bool IsCandidate(XElement root) =>
+            Rules.Any(rule => (string?)root.Attribute("Name") == rule.ManagedName ||
+                (string?)root.Attribute("Name") == rule.InterfaceName);
+
+        static bool MatchesType(XElement root, Rule rule, string name) =>
+            root.Name == "Type" && (string?)root.Attribute("Name") == name &&
+            (string?)root.Attribute("FullName") == Prefix + name &&
+            IsMonoAndroidDeclaration(root) &&
+            HasSingleSignature(root, "TypeSignature", "DocId", "T:" + Prefix + name.Replace('+', '.')) &&
+            HasSingleSignature(root, "TypeSignature", "C#", name == rule.InterfaceName
+                ? "public interface " + name.Replace('+', '.')
+                : "public abstract class " + name.Replace('+', '.') + " : Java.Lang.Object") &&
+            root.Elements("Members").Count() == 1 &&
+            root.Element("Members")!.Elements("Member").All(member =>
+                member.Element("MemberType")?.Value is "Field" or "Property") &&
+            (name == rule.InterfaceName
+                ? !root.Elements("Attributes").Any() && !root.Elements("Base").Any()
+                : HasSingleAndroidRegistration(root) &&
+                    Registration.Type(root) == "mono/internal/" + rule.JavaPath &&
+                    root.Elements("Base").Count() == 1 &&
+                    root.Element("Base")!.Elements("BaseTypeName").Select(item => item.Value)
+                        .SequenceEqual(["Java.Lang.Object"]));
+
+        static bool MatchesField(XElement root, XElement member,
+            (string Managed, string Native, string Value) field) =>
+            member.Parent == root.Element("Members") &&
+            root.Element("Members")!.Elements("Member").Count(item =>
+                (string?)item.Attribute("MemberName") == field.Managed) == 1 &&
+            (string?)member.Attribute("MemberName") == field.Managed &&
+            IsMonoAndroidDeclaration(member) && HasSingleAndroidRegistration(member) &&
+            Registration.Member(member) == new MemberRegistration(field.Native, null, true) &&
+            Registration.JniField(member) is null &&
+            member.Elements("MemberType").Select(item => item.Value).SequenceEqual(["Field"]) &&
+            member.Elements("ReturnValue").Count() == 1 &&
+            member.Element("ReturnValue")!.Elements("ReturnType").Select(item => item.Value)
+                .SequenceEqual(["System.String"]) &&
+            !member.Elements("Parameters").Any() && !member.Elements("MemberValue").Any() &&
+            HasSingleSignature(member, "MemberSignature", "DocId",
+                "F:" + ((string)root.Attribute("FullName")!).Replace('+', '.') + "." + field.Managed) &&
+            HasSingleSignature(member, "MemberSignature", "C#", $"public const string {field.Managed};");
+
+        bool MatchesPair((string Managed, string Native, string Value) field) =>
+            new[] { root, sibling }.All(type =>
+            {
+                var members = type.Element("Members")!.Elements("Member").Where(item =>
+                    (string?)item.Attribute("MemberName") == field.Managed).ToArray();
+                return members.Length == 1 && MatchesField(type, members[0], field);
+            });
+
+        public SourceRequest? Request(XElement? member)
+        {
+            if (member is null)
+                return rule.Fields.All(MatchesPair) ? SourceRequest.CreateAndroid(rule.JavaPath) : null;
+            var fields = rule.Fields.Where(field =>
+                field.Managed == (string?)member.Attribute("MemberName")).ToArray();
+            return fields.Length == 1 && MatchesField(root, member, fields[0]) && MatchesPair(fields[0])
+                ? SourceRequest.CreateAndroid(rule.JavaPath) : null;
+        }
+
+        static Rule? OwnerRule(DocsOwner owner)
+        {
+            var root = owner.Member?.Parent?.Parent ?? owner.Docs.Parent;
+            return Rules.SingleOrDefault(rule => root is not null &&
+                ((string?)root.Attribute("Name") == rule.ManagedName ||
+                 (string?)root.Attribute("Name") == rule.InterfaceName) &&
+                owner.SourceRequest == SourceRequest.CreateAndroid(rule.JavaPath));
+        }
+
+        public static bool IsOwner(DocsOwner owner) => OwnerRule(owner) is not null;
+        public static bool IsSource(string javaPath) => Rules.Any(rule => rule.JavaPath == javaPath);
+
+        public static bool IsPlainPlaceholder(DocsOwner owner, Placeholder placeholder)
+        {
+            var elements = owner.Docs.Elements(placeholder.Name).ToArray();
+            return elements.Length == 1 && elements[0].Nodes().All(node => node is XText and not XCData);
+        }
+
+        public static bool MatchesSource(DocsOwner owner, SourcePage page)
+        {
+            var rule = OwnerRule(owner);
+            if (rule is null || NormalizeText(page.TypeDeclaration) != rule.Declaration)
+                return false;
+            if (owner.Member is null)
+                return true;
+            var fields = rule.Fields.Where(field =>
+                field.Managed == (string?)owner.Member.Attribute("MemberName")).ToArray();
+            if (fields.Length != 1)
+                return false;
+            var field = fields[0];
+            var declarations = page.Members.Where(member => member.IsField && member.Name == field.Native).ToArray();
+            return declarations.Length == 1 &&
+                declarations[0].Declaration == "public static final String " + field.Native &&
+                declarations[0].ConstantValue == field.Value &&
+                declarations[0].Url == owner.SourceRequest!.Url + "#" + field.Native;
         }
     }
 
@@ -35449,7 +35931,9 @@ static partial class ImporterProgram
                     url,
                     declaration,
                     request.JavaPath == DalvikOpcodeProjection.JavaPath
-                        ? DalvikConstantValue(fragment) : null));
+                        ? DalvikConstantValue(fragment)
+                        : ProviderColumnProjection.IsSource(request.JavaPath)
+                            ? ProviderColumnConstantValue(fragment) : null));
             }
 
             return new SourcePage
@@ -35478,6 +35962,13 @@ static partial class ImporterProgram
         {
             var matches = Regex.Matches(HtmlText(fragment), @"\bConstant Value:\s*(?<value>-?\d+)\b",
                 RegexOptions.CultureInvariant);
+            return matches.Count == 1 ? matches[0].Groups["value"].Value : null;
+        }
+
+        static string? ProviderColumnConstantValue(string fragment)
+        {
+            var matches = Regex.Matches(HtmlText(fragment),
+                "Constant Value:\\s*\"(?<value>[a-z0-9_]+)\"", RegexOptions.CultureInvariant);
             return matches.Count == 1 ? matches[0].Groups["value"].Value : null;
         }
 
