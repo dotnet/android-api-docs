@@ -403,7 +403,7 @@
         <Parameter Name="sessionId" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="sessionId">To be added.</param>
+        <param name="sessionId">The identifier of the open DRM session to close.</param>
         <summary>Close a session on the MediaDrm object that was previously opened
             with <c>#openSession</c>.</summary>
         <remarks>
@@ -749,7 +749,7 @@
             sign and verify messages or data using the session keys established
             for the session using methods <c>#getKeyRequest</c> and
             <c>#provideKeyResponse</c> using a session key server.</summary>
-        <returns>To be added.</returns>
+        <returns>A new cryptographic-session helper configured for the supplied session identifier and cipher and MAC algorithms.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -842,7 +842,7 @@
             This may be <c>null</c> if no additional parameters are to be sent.</param>
         <summary>A key request/response exchange occurs between the app and a license server
             to obtain or release keys used to decrypt encrypted content.</summary>
-        <returns>To be added.</returns>
+        <returns>The DRM plugin's key-request object, containing request data, a default server URL and the request type.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -994,9 +994,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="propertyName">To be added.</param>
+        <param name="propertyName">The byte-valued DRM property name passed to the plugin.</param>
         <summary>Read a MediaDrm byte array property value, given the property name string.</summary>
-        <returns>To be added.</returns>
+        <returns>The byte-array property value supplied by the DRM plugin.</returns>
         <remarks>
           <para>Read a MediaDrm byte array property value, given the property name string.</para>
           <para>Standard fields names are <c>#PROPERTY_DEVICE_UNIQUE_ID</c></para>
@@ -1037,9 +1037,9 @@
         <Parameter Name="propertyName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="propertyName">To be added.</param>
+        <param name="propertyName">The string-valued DRM property name passed to the plugin.</param>
         <summary>Read a MediaDrm String property value, given the property name string.</summary>
-        <returns>To be added.</returns>
+        <returns>The string property value supplied by the DRM plugin.</returns>
         <remarks>
           <para>Read a MediaDrm String property value, given the property name string.</para>
           <para>Standard fields names are:
@@ -1082,7 +1082,7 @@
       <Docs>
         <summary>A provision request/response exchange occurs between the app and a provisioning
             server to retrieve a device certificate.</summary>
-        <returns>To be added.</returns>
+        <returns>The plugin's provisioning-request object with its request data and default server URL.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -1595,7 +1595,7 @@
         <param name="uuid">The UUID of the crypto scheme.</param>
         <summary>Query if the given scheme identified by its UUID is supported on
             this device.</summary>
-        <returns>To be added.</returns>
+        <returns>Whether the platform reports support for the supplied DRM scheme UUID without a container-type or explicit security-level restriction.</returns>
         <remarks>
           <para>Query if the given scheme identified by its UUID is supported on
             this device.</para>
@@ -1643,7 +1643,7 @@
         <summary>Query if the given scheme identified by its UUID is supported on
             this device, and whether the DRM plugin is able to handle the
             media container format specified by mimeType.</summary>
-        <returns>To be added.</returns>
+        <returns>Whether the platform reports support for the DRM scheme and media-container MIME type without an explicit security-level restriction.</returns>
         <remarks>
           <para>Query if the given scheme identified by its UUID is supported on
             this device, and whether the DRM plugin is able to handle the
@@ -1705,7 +1705,7 @@
             this device, and whether the DRM plugin is able to handle the
             media container format specified by mimeType at the requested
             security level.</summary>
-        <returns>To be added.</returns>
+        <returns>Whether the platform reports support for the DRM scheme, container MIME type and requested security level. Virtual-device restrictions can affect the result.</returns>
         <remarks>
           <para>Query if the given scheme identified by its UUID is supported on
             this device, and whether the DRM plugin is able to handle the
@@ -1944,7 +1944,7 @@
       <Docs>
         <summary>Returns recent <c>LogMessage LogMessages</c> associated with this <c>MediaDrm</c>
             instance.</summary>
-        <value>To be added.</value>
+        <value>The recent log records returned for this DRM instance by the framework or vendor plugin.</value>
         <remarks>
           <para>Returns recent <c>LogMessage LogMessages</c> associated with this <c>MediaDrm</c>
             instance.</para>
@@ -2033,7 +2033,7 @@
         <summary>Returns a value that may be passed as a parameter to <c>#openSession(int)</c>
             requesting that the session be opened at the maximum security level of
             the device.</summary>
-        <value>To be added.</value>
+        <value>The special maximum-level request value, not a query of the device's effective hardware security level.</value>
         <remarks>
           <para>Returns a value that may be passed as a parameter to <c>#openSession(int)</c>
             requesting that the session be opened at the maximum security level of
@@ -2116,7 +2116,7 @@
         <ReturnType>System.EventHandler&lt;Android.Media.MediaDrm+MediaDrmEventArgs&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Occurs when the DRM engine dispatches a general plugin event to its registered event listener.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2392,7 +2392,7 @@
       <Parameters />
       <Docs>
         <summary>Open a new session with the MediaDrm object.</summary>
-        <returns>To be added.</returns>
+        <returns>The identifier of the newly opened DRM session, using the platform's maximum-level request and applicable device restrictions.</returns>
         <remarks>
           <para>Open a new session with the MediaDrm object. A session ID is returned.
             By default, sessions are opened at the native security level of the device.
@@ -2453,7 +2453,7 @@
       <Docs>
         <param name="level">the new security level</param>
         <summary>Open a new session at a requested security level.</summary>
-        <returns>To be added.</returns>
+        <returns>The identifier of the newly opened DRM session. The effective security level can be adjusted by the plugin or virtual-device restrictions.</returns>
         <remarks>
           <para>Open a new session at a requested security level. The security level
             represents the robustness of the device's DRM implementation. By default,
@@ -2855,7 +2855,7 @@
       <Docs>
         <param name="sessionId">the session ID for the DRM session</param>
         <summary>Request an informative description of the key status for the session.</summary>
-        <returns>To be added.</returns>
+        <returns>The plugin's session-status names and string values; the DRM vendor defines the status fields.</returns>
         <remarks>
           <para>Request an informative description of the key status for the session.  The status is
             in the form of {name, value} pairs.  Since DRM license policies vary by vendor,
@@ -3251,7 +3251,7 @@
                         for unsupported mime types the return value of <c>#requiresSecureDecoder(String)</c> is crypto scheme dependent.</param>
         <summary>Query if the crypto scheme requires the use of a secure decoder
             to decode data of the given mime type at the default security level.</summary>
-        <returns>To be added.</returns>
+        <returns>Whether the DRM plugin requires secure decoding at its default security level. This is not a MIME-type support check.</returns>
         <remarks>
           <para>Query if the crypto scheme requires the use of a secure decoder
             to decode data of the given mime type at the default security level.
@@ -3314,7 +3314,7 @@
                          supported by the device.</param>
         <summary>Query if the crypto scheme requires the use of a secure decoder
             to decode data of the given mime type at the given security level.</summary>
-        <returns>To be added.</returns>
+        <returns>Whether the DRM plugin requires secure decoding for the requested security level. This is not a MIME-type support check.</returns>
         <remarks>
           <para>Query if the crypto scheme requires the use of a secure decoder
             to decode data of the given mime type at the given security level.</para>
@@ -4220,8 +4220,8 @@
         <Parameter Name="value" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="propertyName">To be added.</param>
-        <param name="value">To be added.</param>
+        <param name="propertyName">The byte-valued DRM property name passed to the plugin.</param>
+        <param name="value">The non-null byte array to pass as that property's new value.</param>
         <summary>Set a MediaDrm byte array property value, given the property name string
             and new value for the property.</summary>
         <remarks>
@@ -4265,8 +4265,8 @@
         <Parameter Name="value" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="propertyName">To be added.</param>
-        <param name="value">To be added.</param>
+        <param name="propertyName">The string-valued DRM property name passed to the plugin.</param>
+        <param name="value">The non-null string to pass as that property's new value.</param>
         <summary>Set a MediaDrm String property value, given the property name string
             and new value for the property.</summary>
         <remarks>
@@ -4310,7 +4310,7 @@
         <ReturnType>System.Collections.Generic.IList&lt;Java.Util.UUID&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Gets the DRM scheme UUIDs enumerated as supported by the platform.</summary>
         <value>list of crypto schemes (as <c>UUID</c>s) for which
             <c>#isCryptoSchemeSupported(UUID)</c> returns true; each <c>UUID</c>
             can be used as input to create <c>MediaDrm</c> objects via <c>#MediaDrm(UUID)</c>.</value>

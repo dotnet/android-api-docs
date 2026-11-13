@@ -247,12 +247,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="streamType">To be added.</param>
-        <param name="sampleRateInHz">To be added.</param>
-        <param name="channelConfig">To be added.</param>
-        <param name="audioFormat">To be added.</param>
-        <param name="bufferSizeInBytes">To be added.</param>
-        <param name="mode">To be added.</param>
+        <param name="streamType">The legacy volume stream category used to build the track's audio attributes.</param>
+        <param name="sampleRateInHz">The requested source sample rate in hertz; an unspecified rate allows a route-dependent rate.</param>
+        <param name="channelConfig">The output-channel configuration passed to the audio-format builder.</param>
+        <param name="audioFormat">The audio-data encoding passed to the audio-format builder.</param>
+        <param name="bufferSizeInBytes">The requested buffer size in bytes, checked for a positive value aligned to the calculated frame size.</param>
+        <param name="mode">The streaming or static-buffer transfer mode.</param>
         <summary>Class constructor.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -429,13 +429,13 @@
         <Parameter Name="sessionId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="streamType">To be added.</param>
-        <param name="sampleRateInHz">To be added.</param>
-        <param name="channelConfig">To be added.</param>
-        <param name="audioFormat">To be added.</param>
-        <param name="bufferSizeInBytes">To be added.</param>
-        <param name="mode">To be added.</param>
-        <param name="sessionId">To be added.</param>
+        <param name="streamType">The legacy volume stream category used to build the track's audio attributes.</param>
+        <param name="sampleRateInHz">The requested source sample rate in hertz; an unspecified rate allows a route-dependent rate.</param>
+        <param name="channelConfig">The output-channel configuration passed to the audio-format builder.</param>
+        <param name="audioFormat">The audio-data encoding passed to the audio-format builder.</param>
+        <param name="bufferSizeInBytes">The requested buffer size in bytes, checked for a positive value aligned to the calculated frame size.</param>
+        <param name="mode">The streaming or static-buffer transfer mode.</param>
+        <param name="sessionId">The nonnegative audio-session identifier, or the generate-session identifier to request a new session.</param>
         <summary>Class constructor with audio session.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -899,7 +899,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the configured audio data encoding.</summary>
-        <value>To be added.</value>
+        <value>The audio-data encoding stored in the track configuration.</value>
         <remarks>
           <para>Returns the configured audio data encoding. See <c>AudioFormat#ENCODING_PCM_8BIT</c>,
             <c>AudioFormat#ENCODING_PCM_16BIT</c>, and <c>AudioFormat#ENCODING_PCM_FLOAT</c>.</para>
@@ -1084,7 +1084,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the configured channel position mask.</summary>
-        <value>To be added.</value>
+        <value>The configured channel-position mask, which can be invalid when an index mask was used instead.</value>
         <remarks>
           <para>Returns the configured channel position mask.</para>
           <para>For example, refer to <c>AudioFormat#CHANNEL_OUT_MONO</c>,
@@ -1128,7 +1128,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the configured number of channels.</summary>
-        <value>To be added.</value>
+        <value>The channel count calculated from the track's configured channel masks.</value>
         <remarks>
           <para>Returns the configured number of channels.</para>
           <para>
@@ -1210,9 +1210,9 @@
         <Parameter Name="configuration" Type="Android.Media.VolumeShaper+Configuration" />
       </Parameters>
       <Docs>
-        <param name="configuration">To be added.</param>
+        <param name="configuration">The configuration passed to the volume shaper created for this track.</param>
         <summary>Returns a VolumeShaper object that can be used modify the volume envelope of the player or track.</summary>
-        <returns>To be added.</returns>
+        <returns>A new volume shaper associated with this track and the supplied configuration.</returns>
         <remarks>
           <para>Returns a VolumeShaper object that can be used modify the volume envelope of the player or track.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioTrack#createVolumeShaper(android.media.VolumeShaper.Configuration)" title="Reference documentation">Android reference for <code>android.media.AudioTrack.createVolumeShaper</code>.</a></format></para>
@@ -2355,9 +2355,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="streamType">To be added.</param>
+        <param name="streamType">The output stream category passed to the native sample-rate query.</param>
         <summary>Returns the output sample rate in Hz for the specified stream type.</summary>
-        <returns>To be added.</returns>
+        <returns>The output sample rate for the specified stream category in hertz, or the native default rate if the output-rate query fails.</returns>
         <remarks>
           <para>Returns the output sample rate in Hz for the specified stream type.</para>
           <para>
@@ -2652,7 +2652,7 @@
                    <c>LogSessionId#LOG_SESSION_ID_NONE</c> to remove the
                    logSessionId association.</param>
         <summary>Returns the <c>LogSessionId</c>. -or- Sets a <c>LogSessionId</c> instance to this AudioTrack for metrics collection.</summary>
-        <value>To be added.</value>
+        <value>The media-metrics log session identifier assigned to this track.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the <c>LogSessionId</c>.</para>
@@ -2690,7 +2690,7 @@
         <ReturnType>System.EventHandler&lt;Android.Media.AudioTrack+MarkerReachedEventArgs&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Occurs when the track reports that its playback head has reached the configured notification marker.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3107,7 +3107,7 @@
         <ReturnType>System.EventHandler&lt;Android.Media.AudioTrack+PeriodicNotificationEventArgs&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Occurs when the track delivers a periodic playback-position notification.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3194,7 +3194,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the playback head position expressed in frames.</summary>
-        <value>To be added.</value>
+        <value>The played-frame counter, interpreted as an unsigned 32-bit value even though the managed return type is signed. It wraps and is not an offset into a static-mode buffer.</value>
         <remarks>
           <para>Returns the playback head position expressed in frames.
             Though the "int" type is signed 32-bits, the value should be reinterpreted as if it is
@@ -3307,7 +3307,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the current playback sample rate rate in Hz.</summary>
-        <value>To be added.</value>
+        <value>The playback sample rate reported by the native track, in hertz rather than a speed multiplier.</value>
         <remarks>
           <para>Returns the current playback sample rate rate in Hz.</para>
           <para>
@@ -3345,7 +3345,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the playback state of the AudioTrack instance.</summary>
-        <value>To be added.</value>
+        <value>The public stopped, paused or playing state; internal stopping states are mapped to their corresponding playing or paused state.</value>
         <remarks>
           <para>Returns the playback state of the AudioTrack instance.</para>
           <para>
@@ -3383,7 +3383,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the notification update period expressed in frames.</summary>
-        <value>To be added.</value>
+        <value>The playback-position notification period in frames, or zero when periodic notifications are disabled.</value>
         <remarks>
           <para>Returns the notification update period expressed in frames.
             Zero means that no position update notifications are being delivered.</para>
@@ -3437,7 +3437,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the selected output specified by <c>#setPreferredDevice</c>.</summary>
-        <value>To be added.</value>
+        <value>The requested preferred output device, or <see langword="null" /> for default routing. This preference need not be the actual playback route.</value>
         <remarks>
           <para>Returns the selected output specified by <c>#setPreferredDevice</c>. Note that this
             is not guaranteed to correspond to the actual device being used for playback.</para>
@@ -3775,7 +3775,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns an <c>AudioDeviceInfo</c> identifying the current routing of this AudioTrack.</summary>
-        <value>To be added.</value>
+        <value>The first resolved output device, or <see langword="null" /> when none is available. Query during active playback; multiple output devices can be in use.</value>
         <remarks>
           <para>Returns an <c>AudioDeviceInfo</c> identifying the current routing of this AudioTrack.
             Note: The query is only valid if the AudioTrack is currently playing. If it is not,
@@ -3824,7 +3824,7 @@
       <Docs>
         <summary>Returns a List of <c>AudioDeviceInfo</c> identifying the current routing of this
             AudioTrack.</summary>
-        <value>To be added.</value>
+        <value>The resolved native output devices, or an empty collection when none is available. Query during active playback.</value>
         <remarks>
           <para>Returns a List of <c>AudioDeviceInfo</c> identifying the current routing of this
             AudioTrack.
@@ -3863,8 +3863,8 @@
         <ReturnType>System.EventHandler&lt;Android.Media.AudioRoutingOnRoutingChangedEventArgs&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Occurs when the track delivers an audio-route change notification.</summary>
+        <remarks>The general audio-routing arguments identify this track through their <see cref="P:Android.Media.AudioRoutingOnRoutingChangedEventArgs.Router" /> property; they do not contain a device list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SampleRate">
@@ -3888,7 +3888,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the configured audio source sample rate in Hz.</summary>
-        <value>To be added.</value>
+        <value>The track's configured source sample rate, in hertz.</value>
         <remarks>
           <para>Returns the configured audio source sample rate in Hz.
             The initial source sample rate depends on the constructor parameters,
@@ -4472,7 +4472,7 @@
         <Parameter Name="listener" Type="Android.Media.AudioTrack+IOnPlaybackPositionUpdateListener" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
+        <param name="listener">The listener for playback-marker and periodic position notifications, or <see langword="null" /> to remove it.</param>
         <summary>Sets the listener the AudioTrack notifies when a previously set marker is reached or
  for each periodic playback head position update.</summary>
         <remarks>
@@ -4509,7 +4509,7 @@
         <Parameter Name="handler" Type="Android.OS.Handler" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
+        <param name="listener">The listener for playback-marker and periodic position notifications, or <see langword="null" /> to remove it.</param>
         <param name="handler">the Handler that will receive the event notification messages.
 </param>
         <summary>Sets the listener the AudioTrack notifies when a previously set marker is reached or
@@ -5026,7 +5026,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the state of the AudioTrack instance.</summary>
-        <value>To be added.</value>
+        <value>The track's resource-initialization state, separate from whether it is playing or paused.</value>
         <remarks>
           <para>Returns the state of the AudioTrack instance. This is useful after the
             AudioTrack instance has been created to check if it was initialized
@@ -5109,7 +5109,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the volume stream type of this AudioTrack.</summary>
-        <value>To be added.</value>
+        <value>The volume stream category stored for the track.</value>
         <remarks>
           <para>Returns the volume stream type of this AudioTrack.
             Compare the result against <c>AudioManager#STREAM_VOICE_CALL</c>,
@@ -5412,7 +5412,7 @@
       <Docs>
         <summary>Returns the number of underrun occurrences in the application-level write buffer
             since the AudioTrack was created.</summary>
-        <value>To be added.</value>
+        <value>The number of application write-buffer underruns reported since this track was created.</value>
         <remarks>
           <para>Returns the number of underrun occurrences in the application-level write buffer
             since the AudioTrack was created.
@@ -6087,11 +6087,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="audioData">To be added.</param>
-        <param name="sizeInBytes">To be added.</param>
-        <param name="writeMode">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="audioData">The source byte buffer, read from its current position.</param>
+        <param name="sizeInBytes">The maximum byte count to write, no larger than the buffer's remaining bytes.</param>
+        <param name="writeMode">The synchronous write's blocking mode; it does not control task scheduling.</param>
+        <summary>Starts a task that calls the byte-buffer write.</summary>
+        <returns>A task with the accepted byte count, possibly zero, or a negative write error code. Acceptance does not mean playback has completed.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6116,11 +6116,11 @@
         <Parameter Name="sizeInBytes" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="audioData">To be added.</param>
-        <param name="offsetInBytes">To be added.</param>
-        <param name="sizeInBytes">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="audioData">The source array of audio bytes.</param>
+        <param name="offsetInBytes">The starting source index, in bytes.</param>
+        <param name="sizeInBytes">The maximum byte count to write after that index.</param>
+        <summary>Starts a task that calls the blocking byte-array write.</summary>
+        <returns>A task with the accepted byte count, possibly zero, or a negative write error code. Acceptance does not mean playback has completed.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6145,11 +6145,11 @@
         <Parameter Name="sizeInShorts" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="audioData">To be added.</param>
-        <param name="offsetInShorts">To be added.</param>
-        <param name="sizeInShorts">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="audioData">The source array of 16-bit audio samples.</param>
+        <param name="offsetInShorts">The starting source index, in 16-bit array elements.</param>
+        <param name="sizeInShorts">The maximum number of 16-bit array elements to write.</param>
+        <summary>Starts a task that calls the blocking 16-bit sample-array write.</summary>
+        <returns>A task with the accepted 16-bit element count, possibly zero, or a negative write error code. Acceptance does not mean playback has completed.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6188,12 +6188,12 @@
         <Parameter Name="timestamp" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="audioData">To be added.</param>
-        <param name="sizeInBytes">To be added.</param>
-        <param name="writeMode">To be added.</param>
-        <param name="timestamp">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="audioData">The source byte buffer, read from its current position.</param>
+        <param name="sizeInBytes">The maximum byte count to write, no larger than the buffer's remaining bytes.</param>
+        <param name="writeMode">The synchronous write's blocking mode; it does not control task scheduling.</param>
+        <param name="timestamp">The first decodable frame's presentation timestamp in nanoseconds for hardware A/V synchronization; ignored on a regular track.</param>
+        <summary>Starts a task that calls the timestamped streaming byte-buffer write.</summary>
+        <returns>A task with the accepted audio-byte count, possibly zero, or a negative write error code. Acceptance does not mean playback has completed.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6232,12 +6232,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="audioData">To be added.</param>
-        <param name="offsetInBytes">To be added.</param>
-        <param name="sizeInBytes">To be added.</param>
-        <param name="writeMode">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="audioData">The source array of audio bytes.</param>
+        <param name="offsetInBytes">The starting source index, in bytes.</param>
+        <param name="sizeInBytes">The maximum byte count to write after that index.</param>
+        <param name="writeMode">The synchronous write's blocking mode; it does not control task scheduling.</param>
+        <summary>Starts a task that calls the byte-array write with the supplied write mode.</summary>
+        <returns>A task with the accepted byte count, possibly zero, or a negative write error code. Acceptance does not mean playback has completed.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6276,12 +6276,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="audioData">To be added.</param>
-        <param name="offsetInShorts">To be added.</param>
-        <param name="sizeInShorts">To be added.</param>
-        <param name="writeMode">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="audioData">The source array of 16-bit audio samples.</param>
+        <param name="offsetInShorts">The starting source index, in 16-bit array elements.</param>
+        <param name="sizeInShorts">The maximum number of 16-bit array elements to write.</param>
+        <param name="writeMode">The synchronous write's blocking mode; it does not control task scheduling.</param>
+        <summary>Starts a task that calls the 16-bit sample-array write with the supplied write mode.</summary>
+        <returns>A task with the accepted 16-bit element count, possibly zero, or a negative write error code. Acceptance does not mean playback has completed.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6314,12 +6314,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="audioData">To be added.</param>
-        <param name="offsetInFloats">To be added.</param>
-        <param name="sizeInFloats">To be added.</param>
-        <param name="writeMode">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="audioData">The source array of floating-point audio samples.</param>
+        <param name="offsetInFloats">The starting source index, in single-precision array elements.</param>
+        <param name="sizeInFloats">The maximum number of floating-point array elements to write.</param>
+        <param name="writeMode">The synchronous write's blocking mode; it does not control task scheduling.</param>
+        <summary>Starts a task that calls the floating-point sample-array write.</summary>
+        <returns>A task with the accepted floating-point element count, possibly zero, or a negative write error code. Acceptance does not mean playback has completed.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

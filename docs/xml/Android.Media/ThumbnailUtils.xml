@@ -60,8 +60,7 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>
-        </summary>
+        <summary>Creates an instance of the thumbnail utility class; thumbnail operations are static and need no instance.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -140,7 +139,7 @@
         <param name="kind">The desired thumbnail kind, such as
                        <c>android.provider.MediaStore.Images.Thumbnails#MINI_KIND</c>.</param>
         <summary>Create a thumbnail for given audio file.</summary>
-        <returns>To be added.</returns>
+        <returns>The audio thumbnail bitmap, or <see langword="null" /> when thumbnail generation encounters an I/O failure.</returns>
         <remarks>
           <para>Create a thumbnail for given audio file.</para>
           <para>This member is deprecated. Callers should migrate to using
@@ -195,11 +194,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="signal">To be added.</param>
+        <param name="signal">An optional signal checked for cancellation during audio-thumbnail generation.</param>
         <param name="file">The audio file.</param>
         <param name="size">The desired thumbnail size.</param>
         <summary>Create a thumbnail for given audio file.</summary>
-        <returns>To be added.</returns>
+        <returns>The bitmap produced from embedded album art or a selected album-art image.</returns>
         <remarks>
           <para>Create a thumbnail for given audio file.</para>
           <para>This method should only be used for files that you have direct access to;
@@ -269,7 +268,7 @@
         <param name="kind">The desired thumbnail kind, such as
                        <c>android.provider.MediaStore.Images.Thumbnails#MINI_KIND</c>.</param>
         <summary>Create a thumbnail for given image file.</summary>
-        <returns>To be added.</returns>
+        <returns>The image thumbnail bitmap, or <see langword="null" /> when thumbnail generation encounters an I/O failure.</returns>
         <remarks>
           <para>Create a thumbnail for given image file.</para>
           <para>This member is deprecated. Callers should migrate to using
@@ -324,11 +323,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="signal">To be added.</param>
+        <param name="signal">An optional signal checked for cancellation during image-thumbnail generation.</param>
         <param name="file">The image file.</param>
         <param name="size">The desired thumbnail size.</param>
         <summary>Create a thumbnail for given image file.</summary>
-        <returns>To be added.</returns>
+        <returns>The thumbnail bitmap decoded or retrieved from the image file.</returns>
         <remarks>
           <para>Create a thumbnail for given image file.</para>
           <para>This method should only be used for files that you have direct access to;
@@ -394,7 +393,7 @@
         <param name="kind">The desired thumbnail kind, such as
                        <c>android.provider.MediaStore.Images.Thumbnails#MINI_KIND</c>.</param>
         <summary>Create a thumbnail for given video file.</summary>
-        <returns>To be added.</returns>
+        <returns>The video thumbnail bitmap, or <see langword="null" /> when thumbnail generation encounters an I/O failure.</returns>
         <remarks>
           <para>Create a thumbnail for given video file.</para>
           <para>This member is deprecated. Callers should migrate to using
@@ -450,11 +449,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="signal">To be added.</param>
+        <param name="signal">An optional signal checked for cancellation during video-thumbnail generation.</param>
         <param name="file">The video file.</param>
         <param name="size">The desired thumbnail size.</param>
         <summary>Create a thumbnail for given video file.</summary>
-        <returns>To be added.</returns>
+        <returns>A thumbnail bitmap from embedded artwork or a representative video frame.</returns>
         <remarks>
           <para>Create a thumbnail for given video file.</para>
           <para>This method should only be used for files that you have direct access to;
@@ -506,10 +505,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="filePath">To be added.</param>
-        <param name="kind">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="filePath">The path of the video file used to generate the thumbnail.</param>
+        <param name="kind">The legacy thumbnail-size selector.</param>
+        <summary>Runs path-based video-thumbnail generation as a background task.</summary>
+        <returns>A task whose result is the video thumbnail, or <see langword="null" /> when the synchronous operation encounters an I/O failure.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -547,12 +546,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="file">To be added.</param>
-        <param name="size">To be added.</param>
-        <param name="signal">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="file">The video file to pass to the synchronous thumbnail operation.</param>
+        <param name="size">The requested thumbnail dimensions.</param>
+        <param name="signal">An optional cancellation signal forwarded to the thumbnail operation.</param>
+        <summary>Runs file-based video-thumbnail generation as a background task.</summary>
+        <returns>A task whose result is a thumbnail from embedded artwork or a representative video frame.</returns>
+        <remarks>The synchronous operation runs through <c>Task.Run</c>. The supplied Android cancellation signal is forwarded to that operation; it is not a cancellation token for scheduling the task.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtractThumbnail">
@@ -588,7 +587,7 @@
         <param name="width">targeted width</param>
         <param name="height">targeted height</param>
         <summary>Creates a centered bitmap of the desired size.</summary>
-        <returns>To be added.</returns>
+        <returns>The extracted thumbnail bitmap, or <see langword="null" /> if the source is <see langword="null" />.</returns>
         <remarks>
           <para>Creates a centered bitmap of the desired size.</para>
           <para>
@@ -647,7 +646,7 @@
         <param name="height">targeted height</param>
         <param name="options">options used during thumbnail extraction</param>
         <summary>Creates a centered bitmap of the desired size.</summary>
-        <returns>To be added.</returns>
+        <returns>The extracted thumbnail bitmap, or <see langword="null" /> if the source is <see langword="null" />.</returns>
         <remarks>
           <para>Creates a centered bitmap of the desired size.</para>
           <para>
@@ -695,11 +694,11 @@
         <Parameter Name="height" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">The bitmap to scale and crop, or <see langword="null" />.</param>
+        <param name="width">The requested thumbnail width, in pixels.</param>
+        <param name="height">The requested thumbnail height, in pixels.</param>
+        <summary>Runs centered thumbnail extraction as a background task.</summary>
+        <returns>A task whose result is the extracted bitmap, or <see langword="null" /> if the source is <see langword="null" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -744,12 +743,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="options">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">The bitmap to scale and crop, or <see langword="null" />.</param>
+        <param name="width">The requested thumbnail width, in pixels.</param>
+        <param name="height">The requested thumbnail height, in pixels.</param>
+        <param name="options">Extraction flags controlling whether an input bitmap that is not used as the result is recycled.</param>
+        <summary>Runs centered thumbnail extraction with the supplied options as a background task.</summary>
+        <returns>A task whose result is the extracted bitmap, or <see langword="null" /> if the source is <see langword="null" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
