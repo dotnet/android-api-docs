@@ -4636,12 +4636,11 @@
         <Parameter Name="uniformBlockName" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="program">To be added.</param>
-        <param name="uniformBlockIndex">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="uniformBlockName">To be added.</param>
-        <summary>
-        </summary>
+        <param name="program">The program object containing the active uniform block.</param>
+        <param name="uniformBlockIndex">A valid active uniform-block index within program.</param>
+        <param name="length">A non-null direct, native-order writable IntBuffer with one integer remaining; receives the name byte count excluding the terminating zero. Array-backed pointer adjustment and cleanup are unsafe.</param>
+        <param name="uniformBlockName">A non-null direct writable ByteBuffer. Its remaining byte count limits the name, including the terminating zero; provide the queried name length to avoid truncation. Array-backed cleanup is unsafe.</param>
+        <summary>Copies an active uniform block's name into output storage.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4677,15 +4676,14 @@
         <Parameter Name="uniformBlockNameOffset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="program">To be added.</param>
-        <param name="uniformBlockIndex">To be added.</param>
-        <param name="bufSize">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="lengthOffset">To be added.</param>
-        <param name="uniformBlockName">To be added.</param>
-        <param name="uniformBlockNameOffset">To be added.</param>
-        <summary>
-        </summary>
+        <param name="program">The program object containing the active uniform block.</param>
+        <param name="uniformBlockIndex">A valid active uniform-block index within program.</param>
+        <param name="bufSize">The non-negative maximum number of name bytes to write, including the terminating zero.</param>
+        <param name="length">An optional output array with room for one integer after lengthOffset; receives the name byte count excluding the terminating zero.</param>
+        <param name="lengthOffset">The non-negative starting length-array index; ignored when length is null.</param>
+        <param name="uniformBlockName">A non-null output array with room for bufSize bytes after uniformBlockNameOffset. Capacity is not checked.</param>
+        <param name="uniformBlockNameOffset">The non-negative starting name-array index, measured in bytes.</param>
+        <summary>Copies an active uniform block's name into output storage.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5730,13 +5728,12 @@
         <Parameter Name="type" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="program">To be added.</param>
-        <param name="index">To be added.</param>
-        <param name="size">To be added.</param>
-        <param name="type">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="program">The successfully linked program containing the transform-feedback varying.</param>
+        <param name="index">A valid zero-based index in the program's linked transform-feedback varying list.</param>
+        <param name="size">A non-null direct, native-order writable buffer with one integer remaining for the varying's element count, not its vector-component count. Capacity is not checked; array-backed cleanup is unsafe.</param>
+        <param name="type">A non-null direct, native-order writable buffer with one integer remaining for the varying's GL type token. Capacity is not checked; array-backed cleanup is unsafe.</param>
+        <summary>Gets varying metadata using Android's potentially empty or truncated name helper.</summary>
+        <returns>The varying name, potentially truncated because this helper sizes it from GL_ACTIVE_ATTRIBUTE_MAX_LENGTH rather than the varying-name limit. If that attribute-name length is zero, the helper returns an empty string without writing size or type.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -5780,15 +5777,14 @@
         <Parameter Name="typeOffset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="program">To be added.</param>
-        <param name="index">To be added.</param>
-        <param name="size">To be added.</param>
-        <param name="sizeOffset">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="typeOffset">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="program">The successfully linked program containing the transform-feedback varying.</param>
+        <param name="index">A valid zero-based index in the program's linked transform-feedback varying list.</param>
+        <param name="size">A non-null output array with room for one integer after sizeOffset; receives the varying's element count, not its vector-component count. Capacity is not checked.</param>
+        <param name="sizeOffset">The non-negative starting element-count array index, measured in integers.</param>
+        <param name="type">A non-null output array with room for one integer after typeOffset; receives the varying's GL type token. Capacity is not checked.</param>
+        <param name="typeOffset">The non-negative starting type-array index, measured in integers.</param>
+        <summary>Gets varying metadata using Android's potentially empty or truncated name helper.</summary>
+        <returns>The varying name, potentially truncated because this helper sizes it from GL_ACTIVE_ATTRIBUTE_MAX_LENGTH rather than the varying-name limit. If that attribute-name length is zero, the helper returns an empty string without writing size or type.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -5837,14 +5833,14 @@
         <Parameter Name="name" Type="Java.Nio.ByteBuffer" />
       </Parameters>
       <Docs>
-        <param name="program">To be added.</param>
-        <param name="index">To be added.</param>
-        <param name="bufsize">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="size">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="name">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="program">The successfully linked program containing the transform-feedback varying.</param>
+        <param name="index">A valid zero-based index in the program's linked transform-feedback varying list.</param>
+        <param name="bufsize">The non-negative maximum number of name bytes, including the terminating zero.</param>
+        <param name="length">A non-null direct, native-order writable buffer with one integer remaining for the name byte count excluding the terminating zero. This overload does not support a null length buffer.</param>
+        <param name="size">A non-null direct, native-order writable buffer with one integer remaining for the varying's element count, not its vector-component count. Capacity is not checked; array-backed cleanup is unsafe.</param>
+        <param name="type">A non-null direct, native-order writable buffer with one integer remaining for the varying's GL type token. Capacity is not checked; array-backed cleanup is unsafe.</param>
+        <param name="name">A non-null direct writable ByteBuffer with at least bufsize bytes remaining. Capacity is not checked; array-backed cleanup is unsafe.</param>
+        <summary>Queries a transform-feedback varying's name, element count, and type.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -5949,19 +5945,18 @@
         <Parameter Name="nameOffset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="program">To be added.</param>
-        <param name="index">To be added.</param>
-        <param name="bufsize">To be added.</param>
-        <param name="length">To be added.</param>
-        <param name="lengthOffset">To be added.</param>
-        <param name="size">To be added.</param>
-        <param name="sizeOffset">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="typeOffset">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="nameOffset">To be added.</param>
-        <summary>
-        </summary>
+        <param name="program">The successfully linked program containing the transform-feedback varying.</param>
+        <param name="index">A valid zero-based index in the program's linked transform-feedback varying list.</param>
+        <param name="bufsize">The non-negative maximum number of name bytes, including the terminating zero.</param>
+        <param name="length">An optional output array with one integer after lengthOffset; receives the name byte count excluding the terminating zero.</param>
+        <param name="lengthOffset">The non-negative starting length-array index; ignored when length is null.</param>
+        <param name="size">A non-null output array with room for one integer after sizeOffset; receives the varying's element count, not its vector-component count. Capacity is not checked.</param>
+        <param name="sizeOffset">The non-negative starting element-count array index, measured in integers.</param>
+        <param name="type">A non-null output array with room for one integer after typeOffset; receives the varying's GL type token. Capacity is not checked.</param>
+        <param name="typeOffset">The non-negative starting type-array index, measured in integers.</param>
+        <param name="name">A non-null output array with room for bufsize bytes after nameOffset. Capacity is not checked.</param>
+        <param name="nameOffset">The non-negative starting name-array index, measured in bytes.</param>
+        <summary>Queries a transform-feedback varying's name, element count, and type.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -8936,7 +8931,7 @@
       <MemberValue>3074</MemberValue>
       <Docs>
         <summary>Selects the read framebuffer's color-buffer selection state.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>A state query with this token returns the selected color-buffer token, not a framebuffer object name.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlReadFramebuffer">
@@ -12270,7 +12265,7 @@
       <MemberValue>35971</MemberValue>
       <Docs>
         <summary>Selects a program's number of transform-feedback varyings.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Use this program-query token to obtain the number of captured varying entries, not the number of buffers or scalar components.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlUniform1ui">
@@ -12846,7 +12841,7 @@
       <MemberValue>35391</MemberValue>
       <Docs>
         <summary>Selects the indexed uniform-buffer binding point assigned to a uniform block.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>The queried value is a uniform-buffer binding-point index, not a uniform-block index or a buffer object name.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlUniformBlockDataSize">
