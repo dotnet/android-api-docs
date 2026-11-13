@@ -546,9 +546,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
+        <param name="text">The text to commit through the target connection.</param>
         <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
-        <param name="textAttribute">To be added.</param>
+        <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>The variant of InputConnection.commitText(CharSequence,int).</summary>
         <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
@@ -605,9 +605,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
+        <param name="text">The string to commit through the target connection.</param>
         <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
-        <param name="textAttribute">To be added.</param>
+        <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>The variant of InputConnection.commitText(CharSequence,int).</summary>
         <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
@@ -903,7 +903,7 @@
         <param name="flags">Additional options to control the client, either 0 or
  <see cref="F:Android.Views.InputMethods.InputConnection.GetExtractedTextMonitor" />.</param>
         <summary>Retrieve the current text in the input connection's editor, and monitor for any changes to it.</summary>
-        <returns>To be added.</returns>
+        <returns>The extraction result returned by the target connection, or <see langword="null" />.</returns>
         <remarks>
           <para>Retrieve the current text in the input connection's editor, and monitor for any changes to it. This function returns with the current text, and optionally the input connection can send updates to the input method when its text changes.</para>
           <para>
@@ -944,11 +944,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="flags">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <param name="flags">The options passed to the target's character sequence retrieval method.</param>
+        <summary>Gets the selected text from the target connection as a string.</summary>
+        <returns>The target's selected text as a string, or <see langword="null" />.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>This overload converts the target's character sequence result to a string without its span objects.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getSelectedText(int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getSelectedText(int)</code>.</a>
@@ -998,7 +998,7 @@
         <param name="flags">Supplies additional options controlling how the text is
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
         <summary>Gets the selected text, if any.</summary>
-        <returns>To be added.</returns>
+        <returns>The selected character sequence returned by the target connection, or <see langword="null" />.</returns>
         <remarks>
           <para>Gets the selected text, if any.</para>
           <para>
@@ -1051,7 +1051,7 @@
         <param name="afterLength">The expected length of the text after the cursor. Value is 0 or greater</param>
         <param name="flags">Supplies additional options controlling how the text is returned. May be either 0 or InputConnection.GET_TEXT_WITH_STYLES. Value is either 0 or InputConnection.GET_TEXT_WITH_STYLES</param>
         <summary>Gets the surrounding text around the current cursor, with beforeLength characters of text before the cursor (start of the selection), afterLength characters of text after the cursor (end of the selection), and all of the selected text.</summary>
-        <returns>To be added.</returns>
+        <returns>The surrounding text result returned by the target connection, or <see langword="null" />.</returns>
         <remarks>
           <para>Gets the surrounding text around the current cursor, with beforeLength characters of text before the cursor (start of the selection), afterLength characters of text after the cursor (end of the selection), and all of the selected text. The range are for java characters, not glyphs that can be multiple characters.</para>
           <para>
@@ -1092,12 +1092,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <param name="n">The non-negative maximum number of characters to retrieve.</param>
+        <param name="flags">The options passed to the target's character sequence retrieval method.</param>
+        <summary>Gets text after the selection from the target connection as a string.</summary>
+        <returns>The target's retrieved text as a string, or <see langword="null" />.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>This overload converts the target's character sequence result to a string without its span objects.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getTextAfterCursor(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getTextAfterCursor(int, int)</code>.</a>
@@ -1149,7 +1149,7 @@
         <param name="flags">Supplies additional options controlling how the text is
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
         <summary>Get n characters of text after the current cursor position.</summary>
-        <returns>To be added.</returns>
+        <returns>The character sequence after the selection returned by the target connection, or <see langword="null" />.</returns>
         <remarks>
           <para>Get n characters of text after the current cursor position.</para>
           <para>
@@ -1191,12 +1191,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added</summary>
-        <returns>To be added.</returns>
+        <param name="n">The non-negative maximum number of characters to retrieve.</param>
+        <param name="flags">The options passed to the target's character sequence retrieval method.</param>
+        <summary>Gets text before the selection from the target connection as a string.</summary>
+        <returns>The target's retrieved text as a string, or <see langword="null" />.</returns>
         <remarks>
-          <para>To be added</para>
+          <para>This overload converts the target's character sequence result to a string without its span objects.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getTextBeforeCursor(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getTextBeforeCursor(int, int)</code>.</a>
@@ -1248,7 +1248,7 @@
         <param name="flags">Supplies additional options controlling how the text is
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
         <summary>Get n characters of text before the current cursor position.</summary>
-        <returns>To be added.</returns>
+        <returns>The character sequence before the selection returned by the target connection, or <see langword="null" />.</returns>
         <remarks>
           <para>Get n characters of text before the current cursor position.</para>
           <para>
@@ -1293,7 +1293,7 @@
       </ReturnValue>
       <Docs>
         <summary>Called by the system to enable application developers to specify a dedicated thread on which InputConnection methods are called back.</summary>
-        <value>To be added.</value>
+        <value>The handler returned by the target connection, or <see langword="null" />.</value>
         <remarks>
           <para>Called by the system to enable application developers to specify a dedicated thread on which InputConnection methods are called back.</para>
           <para>
@@ -1401,9 +1401,9 @@
         <Parameter Name="id" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
+        <param name="id">The resource identifier of the context menu action to request.</param>
         <summary>Perform a context menu action on the field.</summary>
-        <returns>To be added.</returns>
+        <returns>The result reported by the target connection. A <see langword="true" /> result does not guarantee that the text changed.</returns>
         <remarks>
           <para>Perform a context menu action on the field. The given id may be one of: R.id.selectAll, R.id.startSelectingText, R.id.stopSelectingText, R.id.cut, R.id.copy, R.id.paste, R.id.copyUrl, or R.id.switchInputMethod</para>
           <para>
@@ -1513,9 +1513,9 @@
         <Parameter Name="consumer" Type="Java.Util.Functions.IIntConsumer" />
       </Parameters>
       <Docs>
-        <param name="gesture">To be added.</param>
+        <param name="gesture">The handwriting gesture to send to the target connection.</param>
         <param name="executor">This value may be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="consumer">To be added.</param>
+        <param name="consumer">The optional consumer of the gesture result code, called through the supplied executor.</param>
         <summary>Perform a handwriting gesture on text.</summary>
         <remarks>
           <para>Perform a handwriting gesture on text.</para>
@@ -1668,8 +1668,8 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="gesture">To be added.</param>
-        <param name="cancellationSignal">To be added.</param>
+        <param name="gesture">The gesture whose preview is requested from the target connection.</param>
+        <param name="cancellationSignal">The optional signal used to cancel the preview.</param>
         <summary>Preview a handwriting gesture on text.</summary>
         <returns>true on successfully sending command to Editor, false if not implemented by editor or the input connection is no longer valid or preview was cancelled with CancellationSignal.</returns>
         <remarks>
@@ -1734,9 +1734,9 @@
       <Docs>
         <param name="start">Value is 0 or greater</param>
         <param name="end">Value is 0 or greater</param>
-        <param name="text">To be added.</param>
+        <param name="text">The replacement text for the specified range.</param>
         <param name="newCursorPosition">the new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text.</param>
-        <param name="textAttribute">To be added.</param>
+        <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>Replace the specific range in the editor with suggested text.</summary>
         <returns>true if the replace command was sent to the associated editor (regardless of whether the replacement is success or not), false otherwise.</returns>
         <remarks>
@@ -1797,9 +1797,9 @@
       <Docs>
         <param name="start">Value is 0 or greater</param>
         <param name="end">Value is 0 or greater</param>
-        <param name="text">To be added.</param>
+        <param name="text">The replacement string for the specified range.</param>
         <param name="newCursorPosition">the new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text.</param>
-        <param name="textAttribute">To be added.</param>
+        <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>Replace the specific range in the editor with suggested text.</summary>
         <returns>true if the replace command was sent to the associated editor (regardless of whether the replacement is success or not), false otherwise.</returns>
         <remarks>
@@ -1843,7 +1843,7 @@
         <Parameter Name="enabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="enabled">To be added.</param>
+        <param name="enabled">Whether the connected input method is in fullscreen mode.</param>
         <summary>Called back when the connected IME switches between fullscreen and normal modes.</summary>
         <returns>For editor authors, the return value will always be ignored. For IME authors, this always returns true on Build.VERSION_CODES.N_MR1 and prior devices and false on Build.VERSION_CODES.O and later devices.</returns>
         <remarks>
@@ -2011,9 +2011,9 @@
         <Parameter Name="consumer" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="bounds">To be added.</param>
+        <param name="bounds">The screen rectangle for which text bounds are requested.</param>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="consumer">To be added.</param>
+        <param name="consumer">The consumer that receives the target's <c>TextBoundsInfoResult</c> through the supplied executor.</param>
         <summary>Called by input method to request the TextBoundsInfo for a range of text which is covered by or in vicinity of the given bounds.</summary>
         <remarks>
           <para>Called by input method to request the TextBoundsInfo for a range of text which is covered by or in vicinity of the given bounds. It can be used as a supplementary method to implement the handwriting gesture API - performHandwritingGesture(HandwritingGesture,Executor,IntConsumer).</para>
@@ -2156,7 +2156,7 @@
       <Docs>
         <param name="start">the position in the text at which the composing region begins</param>
         <param name="end">the position in the text at which the composing region ends</param>
-        <param name="textAttribute">To be added.</param>
+        <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>The variant of InputConnection.setComposingRegion(int,int).</summary>
         <returns>true on success, false if the input connection is no longer valid. Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
         <remarks>
@@ -2313,9 +2313,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
+        <param name="text">The composing text to send to the target connection.</param>
         <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
-        <param name="textAttribute">To be added.</param>
+        <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>The variant of setComposingText(CharSequence,int).</summary>
         <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
@@ -2372,9 +2372,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
+        <param name="text">The composing string to send to the target connection.</param>
         <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
-        <param name="textAttribute">To be added.</param>
+        <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>The variant of setComposingText(CharSequence,int).</summary>
         <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>

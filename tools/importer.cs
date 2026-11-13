@@ -163,6 +163,22 @@ static partial class ImporterProgram
         "The calling package needs to declare " + DeviceBuilderSetUdiPermission +
         " in manifest to be able to set UDI for any record. SecurityException is thrown when " +
         "upserting a record with UDI without the permission.";
+    static readonly (string JavaPath, string ManagedType)[] HealthConnectPageSizeBuilders =
+    [
+        ("android/health/connect/ReadMedicalResourcesInitialRequest$Builder",
+            "Android.Health.Connect.ReadMedicalResourcesInitialRequest+Builder"),
+        ("android/health/connect/ReadMedicalResourcesPageRequest$Builder",
+            "Android.Health.Connect.ReadMedicalResourcesPageRequest+Builder"),
+    ];
+    const string HealthConnectPageSizeMinimumError =
+        "ERROR(/android.health.connect.Constants#MINIMUM_PAGE_SIZE)";
+    const string HealthConnectPageSizeMaximumError =
+        "ERROR(/android.health.connect.Constants#MAXIMUM_PAGE_SIZE)";
+    const string HealthConnectPageSizeRawParameter =
+        "int: Value is between " + HealthConnectPageSizeMinimumError + " and " +
+        HealthConnectPageSizeMaximumError + " inclusive";
+    const string HealthConnectPageSizeThrows =
+        "if the provided pageSize is less than 1 or more than 5000.";
     const string DevicePresenceEventConstructorMemberId =
         "M:Android.Companion.DevicePresenceEvent.#ctor(System.Int32,Android.Companion.DevicePresenceEventType,Android.OS.ParcelUuid)";
     const string DevicePresenceEventConstructorDescriptor = "(IILandroid/os/ParcelUuid;)V";
@@ -559,8 +575,35 @@ static partial class ImporterProgram
         "list of package names on which to filter the data. If not set logs from all the sources will be returned. This value cannot be null.",
         null);
 
+    static readonly KnownEapChannelCorrection KnownMediaRouteActionViewCorrection = new(
+        "M:Android.App.MediaRouteActionProvider.OnCreateActionView",
+        new("onCreateActionView", "()Landroid/view/View;", false),
+        "Android.Views.View",
+        "public override Android.Views.View? OnCreateActionView ();",
+        [],
+        new(
+            "This method is deprecated.",
+            [
+                new("This method is deprecated. use onCreateActionView(MenuItem)", false),
+                new("Factory method called by the Android framework to create new action views.", false),
+                new("This method has been deprecated in favor of onCreateActionView(MenuItem). Newer apps that wish to support platform versions prior to API 16 should also implement this method to return a valid action view.", false),
+            ],
+            new(StringComparer.Ordinal)
+            {
+                ["View"] = "A new action view. This value cannot be null.",
+            },
+            "A new action view. This value cannot be null.",
+            new(StringComparer.Ordinal),
+            AndroidReference + "android/app/MediaRouteActionProvider#onCreateActionView()",
+            "android.app.MediaRouteActionProvider.onCreateActionView",
+            "android"),
+        "returns",
+        "A new action view. This value cannot be null.",
+        null);
+
     static IEnumerable<KnownEapChannelCorrection> KnownExactChannelCorrections =>
-        KnownEapChannelCorrections.Append(KnownChangeLogChannelCorrection);
+        KnownEapChannelCorrections.Append(KnownChangeLogChannelCorrection)
+            .Append(KnownMediaRouteActionViewCorrection);
 
     static readonly KnownUnsafeIkeChannel[] KnownUnsafeIkeChannels =
     [
@@ -624,6 +667,12 @@ static partial class ImporterProgram
             return 2;
         }
 
+        if (options.TelecomSelfTest)
+        {
+            TestTelecomLifecycle(repositoryRoot, Path.Combine(repositoryRoot, "tools", "importer-fixtures"));
+            Console.WriteLine("Telecom lifecycle self-tests passed.");
+            return 0;
+        }
         if (options.PreservationSelfTest)
         {
             TestPreservedRemarksAndSourceGuards(repositoryRoot);
@@ -754,6 +803,14 @@ static partial class ImporterProgram
                         text = updated;
                         continue;
                     }
+                    if (IsJavaIoLegacySecurityCandidate(owner))
+                    {
+                        var updated = ImportJavaIoLegacySecurity(
+                            text, file, owner, pages, report, options.MaxChanges, ref remaining);
+                        fileChanged |= updated != text;
+                        text = updated;
+                        continue;
+                    }
                     var ownerChanged = false;
                     var importedSourceChannel = false;
                     var replacedRemarksPlaceholder = false;
@@ -774,6 +831,29 @@ static partial class ImporterProgram
                     var mapping = MapOwner(owner, pages);
                     if (ReportMappingFailure(report, file, owner, mapping))
                         continue;
+
+                    if (TelecomLifecycleRepairTarget(owner) is { } telecomTarget)
+                    {
+                        var repair = RepairKnownTelecomLifecycle(text, file, owner, mapping.Docs!);
+                        if (repair.Reason is not null || remaining == 0)
+                        {
+                            report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, telecomTarget,
+                                repair.Reason ?? "max_changes_reached",
+                                repair.Detail ?? $"The --max-changes limit of {options.MaxChanges} was reached.",
+                                mapping.SourceUrl));
+                        }
+                        else if (repair.Text != text)
+                        {
+                            text = repair.Text;
+                            file.UpdateBlockOffsets(owner.Order, text);
+                            fileChanged = true;
+                            remaining--;
+                            report.Entries.Add(ReportEntry.Changed("would_apply", file.RelativePath, owner.Id,
+                                telecomTarget, mapping.SourceUrl, "importer_known_unsafe_telecom_lifecycle_repair",
+                                "Withdrew only the exact contradicted inherited channel from complete prior importer-owned Docs."));
+                        }
+                        continue;
+                    }
 
                     if (mapping.Docs!.QualityFirstFillOnly)
                     {
@@ -1614,14 +1694,18 @@ static partial class ImporterProgram
                             remaining--;
                             report.Entries.Add(ReportEntry.Changed(
                                 "would_apply", file.RelativePath, owner.Id, target, mapping.SourceUrl,
-                                target == "param:dataOriginFilter"
+                                mapping.Docs!.EapCorrection == KnownMediaRouteActionViewCorrection
+                                    ? "importer_media_route_unsafe_return_withdrawal"
+                                    : target == "param:dataOriginFilter"
                                     ? "importer_changelog_unsafe_parameter_withdrawal"
                                     : target is "param:reauthId" or "value"
                                     ? target == "value"
                                         ? "importer_eap_unsafe_value_withdrawal"
                                         : "importer_eap_unsafe_parameter_withdrawal"
                                     : "importer_eap_return_typo_repair",
-                                target == "param:dataOriginFilter"
+                                mapping.Docs!.EapCorrection == KnownMediaRouteActionViewCorrection
+                                    ? "Withdrew the exact importer-owned action-view return because the parameterless implementation always throws."
+                                    : target == "param:dataOriginFilter"
                                     ? "Withdrew the exact importer-owned parameter because the official source describes a list of package names for a single DataOrigin."
                                     : target == "value"
                                     ? "Withdrew the exact importer-owned getter value because the supported no-options configuration can return null."
@@ -2214,6 +2298,11 @@ static partial class ImporterProgram
             return MappingResult.Skip(loaded.Reason!, loaded.Error, owner.SourceRequest.Url);
 
         var page = loaded.Page!;
+        if (owner.SourceRequest.JavaPath == DalvikOpcodeProjection.JavaPath &&
+            !DalvikOpcodeProjection.MatchesSource(owner, page))
+            return MappingResult.Skip("dalvik_opcode_projection_mismatch",
+                "The exact Dalvik projection or official field declaration/value did not match.",
+                owner.SourceRequest.Url);
         if (owner.Member is null)
         {
             if (page.TypeDocs is null || string.IsNullOrWhiteSpace(page.TypeDocs.Summary))
@@ -2223,6 +2312,8 @@ static partial class ImporterProgram
                     owner.SourceRequest.Url);
             var typeDocs = WithoutReviewedAndroidSourceChannels(owner.Id,
                 WithoutUnsafeTrustPairingCallbackTypeRemarks(owner, page.TypeDocs));
+            if (owner.SourceRequest.JavaPath == DalvikOpcodeProjection.JavaPath)
+                typeDocs = typeDocs with { QualityFirstFillOnly = true, UnsafeTargets = new Dictionary<string, string>() };
             return MappingResult.Success(WithVerifiedOdpInferenceParamsBuilderSummary(owner, page, typeDocs));
         }
 
@@ -2267,6 +2358,11 @@ static partial class ImporterProgram
                 return MappingResult.Skip("source_channel_ambiguous",
                     "The recovered SurfacePackage link did not match its verified SdkSandbox binding.",
                     fieldDocs.SourceUrl);
+            if (fieldDocs.HasRecoveredSecurityLogImplicitList &&
+                !MatchesSecurityLogImplicitListBinding(owner, registration, fieldDocs))
+                return MappingResult.Skip("source_channel_ambiguous",
+                    "The recovered SecurityLog list did not match its verified SecurityLogTags binding.",
+                    fieldDocs.SourceUrl);
             fieldDocs = WithoutKnownMalformedConversationAnniversary(owner, registration, fieldDocs);
             fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutReviewedAndroidSourceChannels(owner.Id, fieldDocs);
@@ -2274,6 +2370,8 @@ static partial class ImporterProgram
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutUnsafeIcuNumberChannels(owner, fieldDocs);
+            if (owner.SourceRequest.JavaPath == DalvikOpcodeProjection.JavaPath)
+                fieldDocs = fieldDocs with { QualityFirstFillOnly = true, UnsafeTargets = new Dictionary<string, string>() };
             return MappingResult.Success(WithSemanticSummaryIfNecessary(
                 WithKnownNfcContractSafety(owner, WithKnownAndroidTextCorrections(owner.Id, fieldDocs))));
         }
@@ -2335,6 +2433,15 @@ static partial class ImporterProgram
             return MappingResult.Skip("source_channel_ambiguous",
                 "The recovered SurfacePackage link did not match its verified SdkSandbox binding.",
                 docs.SourceUrl);
+        if (docs.HasRecoveredBiometricCallbackLinks &&
+            !MatchesBiometricCallbackBinding(owner, registration, docs))
+            return MappingResult.Skip("source_channel_ambiguous",
+                "The recovered biometric callback links did not match the verified managed and JNI binding.",
+                docs.SourceUrl);
+        if (docs.HasRecoveredSecurityLogImplicitList)
+            return MappingResult.Skip("source_channel_ambiguous",
+                "The recovered SecurityLog list is bound only to SecurityLogTags fields.",
+                docs.SourceUrl);
         if (docs.HasBiometricAllowedAuthenticatorsIncompleteDefaultList &&
             !MatchesIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs))
         {
@@ -2354,6 +2461,14 @@ static partial class ImporterProgram
             return MappingResult.Skip(
                 "source_channel_ambiguous",
                 "The recovered Device.Builder.setUdi permission contract did not match the exact managed binding and canonical Android source identity.",
+                docs.SourceUrl);
+        }
+        if (docs.HasRecoveredHealthConnectPageSizeBounds &&
+            !IsVerifiedHealthConnectPageSizeBinding(owner, registration, docs))
+        {
+            return MappingResult.Skip(
+                "source_channel_ambiguous",
+                "The recovered Health Connect setPageSize bounds did not match the exact managed owner, assembly, DocId, JNI binding, parameter, and canonical Android source identity.",
                 docs.SourceUrl);
         }
         if (IsImageDecoderDecodeDrawableWorkerThreadContractCandidate(owner, registration) &&
@@ -2380,6 +2495,20 @@ static partial class ImporterProgram
                 "The malformed ImageDecoder.decodeDrawable source boundary did not retain the complete ordered non-code contract; no partial contract was imported.",
                 docs.SourceUrl);
         }
+        if (IsKnownUnsafeBiometricStringValue(owner, docs, out var property, out var getter))
+        {
+            if (!MatchesBiometricStringValueBinding(owner, registration, exact[0], docs, property, getter))
+                return MappingResult.Skip(
+                    "source_channel_ambiguous",
+                    "The copied button-label return did not match the verified Biometrics getter binding and source declaration.",
+                    docs.SourceUrl);
+            var targets = docs.UnsafeTargets is null
+                ? new Dictionary<string, string>(StringComparer.Ordinal)
+                : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+            targets["value"] =
+                "The exact official return repeats the button-label description for a different getter; no replacement prose was inferred.";
+            docs = docs with { UnsafeTargets = targets };
+        }
         var sourceVerifiedMapping = SourceVerifiedMemberMappings.Resolve(owner.Id);
         if (sourceVerifiedMapping is { UseFirstMeaningfulSummary: true })
         {
@@ -2404,6 +2533,7 @@ static partial class ImporterProgram
         docs = WithoutKnownUnsafeRangeTemplateRemarks(owner, registration, docs);
         docs = WithKnownAndroidTextCorrections(owner.Id, docs);
         docs = WithoutKnownUnsafeControlsLifecycleChannels(owner.Id, docs);
+        docs = WithKnownTelecomLifecycleSafety(owner, exact[0], docs);
         docs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, docs);
         docs = WithKnownNfcContractSafety(owner, docs);
         docs = WithoutUnsafeBrowseSubscriptionRemarks(owner, docs);
@@ -2413,6 +2543,96 @@ static partial class ImporterProgram
         docs = WithoutUnsafeIcuNumberChannels(owner, docs);
         docs = WithVerifiedDevicePresenceEventParameterName(owner, registration, exact[0], docs);
         return MappingResult.Success(WithSemanticSummaryIfNecessary(docs));
+    }
+
+    const string BiometricStringsJavaPath = "android/hardware/biometrics/BiometricManager$Strings";
+    const string BiometricStringsSourceUrl =
+        AndroidReference + "android/hardware/biometrics/BiometricManager.Strings";
+    const string BiometricStringsManagedPrefix =
+        "P:Android.Hardware.Biometrics.BiometricManager.Strings.";
+    const string BiometricStringsButtonLabelReturn =
+        "The label for a button that invokes BiometricPrompt for authentication.";
+
+    static bool IsKnownUnsafeBiometricStringValue(
+        DocsOwner owner, SourceDocs docs, out string property, out string getter)
+    {
+        (property, getter) = owner.Id switch
+        {
+            BiometricStringsManagedPrefix + "PromptMessage" or
+                BiometricStringsManagedPrefix + "PromptMessageFormatted" =>
+                ("PromptMessage", "getPromptMessage"),
+            BiometricStringsManagedPrefix + "SettingName" or
+                BiometricStringsManagedPrefix + "SettingNameFormatted" =>
+                ("SettingName", "getSettingName"),
+            _ => docs.SourceUrl switch
+            {
+                BiometricStringsSourceUrl + "#getPromptMessage()" => ("PromptMessage", "getPromptMessage"),
+                BiometricStringsSourceUrl + "#getSettingName()" => ("SettingName", "getSettingName"),
+                _ => ("", ""),
+            },
+        };
+        return property.Length != 0 &&
+            RemoveLeadingJavaType(docs.Returns) == BiometricStringsButtonLabelReturn;
+    }
+
+    static bool MatchesBiometricStringValueBinding(
+        DocsOwner owner, MemberRegistration registration, SourceMember source, SourceDocs docs,
+        string property, string getter)
+    {
+        static bool HasSignature(XElement element, string language, string expected) =>
+            element.Elements("MemberSignature")
+                .Where(signature => (string?)signature.Attribute("Language") == language)
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual([expected], StringComparer.Ordinal);
+
+        if (owner.Member is not { } member ||
+            member.Ancestors("Type").SingleOrDefault() is not { } type ||
+            member.Parent != type.Element("Members") ||
+            (string?)type.Attribute("FullName") != "Android.Hardware.Biometrics.BiometricManager+Strings" ||
+            type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            Registration.Type(type) != BiometricStringsJavaPath ||
+            owner.SourceRequest != SourceRequest.Create(BiometricStringsJavaPath) ||
+            docs.SourceKind != "android" ||
+            docs.SourceUrl != BiometricStringsSourceUrl + "#" + getter + "()" ||
+            docs.SourceLabel != "android.hardware.biometrics.BiometricManager.Strings." + getter ||
+            owner.MemberRegistration != registration ||
+            registration != new MemberRegistration(getter, "()Ljava/lang/CharSequence;", false) ||
+            source is not { IsConstructor: false, IsField: false, ArgumentDescriptors: [] } ||
+            source.Name != getter || source.Declaration != $"public CharSequence {getter} ()" ||
+            source.Url != docs.SourceUrl ||
+            member.Element("MemberType")?.Value != "Property" ||
+            member.Element("Parameters")?.Elements().Any() == true ||
+            !HasSignature(member, "DocId", owner.Id))
+            return false;
+
+        var alias = owner.Id == BiometricStringsManagedPrefix + property;
+        var name = property + (alias ? "" : "Formatted");
+        if ((string?)member.Attribute("MemberName") != name ||
+            owner.Id != BiometricStringsManagedPrefix + name ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value !=
+                (alias ? "System.String" : "Java.Lang.ICharSequence") ||
+            !HasSignature(member, "C#", alias
+                ? $"public string? {name} {{ get; }}"
+                : $"public virtual Java.Lang.ICharSequence? {name} {{ get; }}"))
+            return false;
+
+        if (!alias)
+            return Registration.Member(member) == registration;
+
+        return Registration.Member(member) is null &&
+            SourceVerifiedMemberMappings.Resolve(owner.Id, type, member)?.Registration == registration &&
+            type.Element("Members")!.Elements("Member")
+                .Where(candidate => (string?)candidate.Attribute("MemberName") == property + "Formatted")
+                .ToArray() is [var formatted] &&
+            formatted.Element("MemberType")?.Value == "Property" &&
+            formatted.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+            formatted.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.ICharSequence" &&
+            formatted.Element("Parameters")?.Elements().Any() != true &&
+            HasSignature(formatted, "DocId", BiometricStringsManagedPrefix + property + "Formatted") &&
+            HasSignature(formatted, "C#",
+                $"public virtual Java.Lang.ICharSequence? {property}Formatted {{ get; }}") &&
+            Registration.Member(formatted) == registration;
     }
 
     static SourceDocs WithVerifiedOdpInferenceParamsBuilderSummary(
@@ -2853,6 +3073,187 @@ static partial class ImporterProgram
             (!error || member.Element("MemberValue")?.Value == value);
     }
 
+    const string BiometricCallbackJavaPath =
+        "android/hardware/biometrics/EmbeddedBiometricPrompt$AuthenticationCallback";
+    const string BiometricCallbackSourceUrl =
+        AndroidReference + "android/hardware/biometrics/EmbeddedBiometricPrompt.AuthenticationCallback";
+    const string BiometricCallbackManagedType =
+        "Android.Hardware.Biometrics.EmbeddedBiometricPrompt.AuthenticationCallback";
+    const string BiometricCallbackErrorLink =
+        "ERROR(BiometricConstants.Errors/android.hardware.biometrics.BiometricConstants.Errors BiometricConstants.Errors)";
+    const string BiometricCallbackFaceLink =
+        "ERROR(BiometricFaceConstants.FaceAcquired/android.hardware.biometrics.BiometricFaceConstants.FaceAcquired BiometricFaceConstants.FaceAcquired)";
+    const string BiometricCallbackFingerprintLink =
+        "ERROR(BiometricFingerprintConstants.FingerprintAcquired/android.hardware.biometrics.BiometricFingerprintConstants.FingerprintAcquired BiometricFingerprintConstants.FingerprintAcquired)";
+
+    static string RecoverBiometricCallbackLinks(
+        string fragment, SourceRequest request, string title, out bool recovered)
+    {
+        var expectedHash = title switch
+        {
+            "onAuthenticationError" => "f49e3798145ddabf2e5818a1e57a28ac57455ea82c3386409484472e78b7890d",
+            "onAuthenticationHelp" => "30cde7d024f1158a091063164f062d42455752c38fece9f3f94ac47dc30b4042",
+            _ => "",
+        };
+        recovered = request == SourceRequest.Create(BiometricCallbackJavaPath) &&
+            expectedHash.Length > 0 &&
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(fragment)))
+                .Equals(expectedHash, StringComparison.OrdinalIgnoreCase);
+        if (!recovered)
+            return fragment;
+        return fragment
+            .Replace(BiometricCallbackErrorLink, "BiometricConstants.Errors", StringComparison.Ordinal)
+            .Replace(BiometricCallbackFaceLink, "BiometricFaceConstants.FaceAcquired", StringComparison.Ordinal)
+            .Replace(BiometricCallbackFingerprintLink, "BiometricFingerprintConstants.FingerprintAcquired", StringComparison.Ordinal);
+    }
+
+    static bool MatchesBiometricCallbackBinding(
+        DocsOwner owner, MemberRegistration registration, SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        if (member is null || type is null ||
+            (string?)type.Attribute("FullName") != "Android.Hardware.Biometrics.EmbeddedBiometricPrompt+AuthenticationCallback" ||
+            !IsMonoAndroidDeclaration(type) ||
+            !IsMonoAndroidDeclaration(member) ||
+            !HasSingleSignature(type, "TypeSignature", "DocId", "T:" + BiometricCallbackManagedType) ||
+            !HasSingleAndroidRegistration(type) ||
+            Registration.Type(type) != BiometricCallbackJavaPath ||
+            owner.SourceRequest != SourceRequest.Create(BiometricCallbackJavaPath) ||
+            docs.SourceKind != "android" ||
+            registration.Descriptor != "(ILjava/lang/CharSequence;)V" ||
+            registration.IsField ||
+            member.Element("MemberType")?.Value != "Method" ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value != "System.Void")
+            return false;
+
+        var (managedName, codeName, codeType, textName) = registration.Name switch
+        {
+            "onAuthenticationError" => ("OnAuthenticationError", "errorCode",
+                "Android.Hardware.Biometrics.BiometricErrorCode", "errString"),
+            "onAuthenticationHelp" => ("OnAuthenticationHelp", "helpCode",
+                "System.Int32", "helpString"),
+            _ => ("", "", "", ""),
+        };
+        if (managedName.Length == 0 ||
+            docs.SourceUrl != BiometricCallbackSourceUrl + "#" + registration.Name + "(int,%20java.lang.CharSequence)" ||
+            docs.SourceLabel != "android.hardware.biometrics.EmbeddedBiometricPrompt.AuthenticationCallback." + registration.Name)
+            return false;
+
+        var parameters = member.Element("Parameters")?.Elements("Parameter").Select(parameter =>
+            ((string?)parameter.Attribute("Name"), (string?)parameter.Attribute("Type"))).ToArray() ?? [];
+        if (parameters.Length != 2 || parameters[0] != (codeName, codeType) ||
+            parameters[1].Item1 != textName)
+            return false;
+
+        var alias = parameters[1].Item2 == "System.String";
+        if (!alias && parameters[1].Item2 != "Java.Lang.ICharSequence")
+            return false;
+        var textType = alias ? "string" : "Java.Lang.ICharSequence";
+        var codeSignature = codeType == "System.Int32" ? "int" : codeType;
+        var expectedId = $"M:{BiometricCallbackManagedType}.{managedName}({codeType},{parameters[1].Item2})";
+        var expectedSignature = $"public {(alias ? "" : "virtual ")}void {managedName} ({codeSignature} {codeName}, {textType} {textName});";
+        if (owner.Id != expectedId ||
+            !HasSingleSignature(member, "MemberSignature", "DocId", expectedId) ||
+            !HasSingleSignature(member, "MemberSignature", "C#", expectedSignature))
+            return false;
+        if (!alias)
+            return HasSingleAndroidRegistration(member) && Registration.Member(member) == registration;
+        if (Registration.Member(member) is not null ||
+            SourceVerifiedMemberMappings.Resolve(owner.Id, type, member)?.Registration != registration)
+            return false;
+
+        var siblings = type.Element("Members")?.Elements("Member").Where(candidate =>
+            (string?)candidate.Attribute("MemberName") == managedName &&
+            Registration.Member(candidate) == registration).ToArray() ?? [];
+        if (siblings is not [var sibling] || sibling.Element("Docs") is not XElement siblingDocs)
+            return false;
+        var siblingOwner = owner with
+        {
+            Id = $"M:{BiometricCallbackManagedType}.{managedName}({codeType},Java.Lang.ICharSequence)",
+            Member = sibling,
+            Docs = siblingDocs,
+            MemberRegistration = registration,
+        };
+        return MatchesBiometricCallbackBinding(siblingOwner, registration, docs);
+    }
+
+    const string SecurityLogJavaPath = "android/app/admin/SecurityLog";
+    static readonly Dictionary<string, (string ManagedName, string Value, string FragmentHash)> SecurityLogImplicitListFields =
+        new(StringComparer.Ordinal)
+    {
+        ["TAG_BACKUP_SERVICE_TOGGLED"] = ("BackupServiceToggled", "210044", "84d268d41cdfd37fb0b899eb781a67edf28622df21450d33032b3f7a4d6b03e1"),
+        ["TAG_BLUETOOTH_CONNECTION"] = ("BluetoothConnection", "210039", "0009d54c9d3b9fe8bd8cc39f2a35830ca66d508fe5ba20e587ac8e4e6fbb5585"),
+        ["TAG_BLUETOOTH_DISCONNECTION"] = ("BluetoothDisconnection", "210040", "1fe20a9a11b4975f8b31771eb561fa56bc9bc4ef18985203aa33373bd70f5ad3"),
+        ["TAG_CAMERA_POLICY_SET"] = ("CameraPolicySet", "210034", "44e2fecd51f686084cfb41363e7c09a0b4eff4e6f9b3dec1f40d71d90eff21c1"),
+        ["TAG_CERT_AUTHORITY_INSTALLED"] = ("CertAuthorityInstalled", "210029", "5e9b032735d0a0759a71905b054a2160e0adc96fa81204b6f62750c3315df550"),
+        ["TAG_CERT_AUTHORITY_REMOVED"] = ("CertAuthorityRemoved", "210030", "5a40add366a7c0a9360abeb63839807ba976c19cce97b986f756ad9bf27020d3"),
+        ["TAG_KEYGUARD_DISABLED_FEATURES_SET"] = ("KeyguardDisabledFeaturesSet", "210021", "47c33377b9a7dd73352dbe4c80938b1931e17f79d5f63bdc1825fff431414611"),
+        ["TAG_KEYGUARD_DISMISS_AUTH_ATTEMPT"] = ("KeyguardDismissAuthAttempt", "210007", "d6c76f14455d615d8088cc03b3b296aa092e72aa232b8970e0ac19b217ce0c36"),
+        ["TAG_MAX_PASSWORD_ATTEMPTS_SET"] = ("MaxPasswordAttemptsSet", "210020", "a2e299076a42a71fa591af18787def2527c4593d3a5961ef80651eeb05ccc0c2"),
+        ["TAG_MAX_SCREEN_LOCK_TIMEOUT_SET"] = ("MaxScreenLockTimeoutSet", "210019", "0639be1cfa17449ebac3390f1d1814503440566d0057703c652764ee74fedf23"),
+        ["TAG_MEDIA_MOUNT"] = ("MediaMount", "210013", "8f5721aa84bb95f3be577cc33e245fd848919493ee290c9f4bedaa5b096e1dea"),
+        ["TAG_MEDIA_UNMOUNT"] = ("MediaUnmount", "210014", "e92c85fbd57afeb41d1ad748371faf2df2dc39eaf271ec6bf94d28b3d962f251"),
+        ["TAG_PACKAGE_INSTALLED"] = ("PackageInstalled", "210041", "5508dda1e3bd83dbc14f37114fafb334eba98b31aaabbcbe11757f2e77e06308"),
+        ["TAG_PACKAGE_UNINSTALLED"] = ("PackageUninstalled", "210043", "4fa5e39f69c7f2eeca46d349637ade9e05633343933aa7b0e7a61ec72511f6d9"),
+        ["TAG_PACKAGE_UPDATED"] = ("PackageUpdated", "210042", "3dc211f66502742da34eb4a7470e51f5a625a63a25a47f17410a6bb3eaea3378"),
+        ["TAG_PASSWORD_CHANGED"] = ("PasswordChanged", "210036", "ac7df83c609ed9b8e0d99513b317e20b50c1e6e38a2cbae8be3fe5a1437d5b1f"),
+        ["TAG_PASSWORD_COMPLEXITY_REQUIRED"] = ("PasswordComplexityRequired", "210035", "d730a4e166db11b8eb22a113ce5cdd59e2f2452189201234b00938935f452997"),
+        ["TAG_PASSWORD_COMPLEXITY_SET"] = ("PasswordComplexitySet", "210017", "c3fda457bd31a601a5c6613323efad1d87dd7267b0f51bb6704ef9c56f9118d4"),
+        ["TAG_PASSWORD_EXPIRATION_SET"] = ("PasswordExpirationSet", "210016", "1615d3e30a7ffa8b75424cd6ecf738bd49be9ff25d745ebadc8f860a8a4b5eae"),
+        ["TAG_PASSWORD_HISTORY_LENGTH_SET"] = ("PasswordHistoryLengthSet", "210018", "2afbbdfea0e34d61c6a98d2ae65674542685e68257c988e8898049bb63e50e70"),
+        ["TAG_USER_RESTRICTION_ADDED"] = ("UserRestrictionAdded", "210027", "6447863289436a033052e1bef9f17897c427a4425d46d79ce847e42c22b74224"),
+        ["TAG_USER_RESTRICTION_REMOVED"] = ("UserRestrictionRemoved", "210028", "1624e71a1bc0a652fe36d8488532def684833ba7b56621ffc957988e241537e8"),
+        ["TAG_WIFI_CONNECTION"] = ("WifiConnection", "210037", "0cc32e41629bed4489a8ed330aff120bb4d44551ff28cd6ddebc8fda00e6cc34"),
+        ["TAG_WIFI_DISCONNECTION"] = ("WifiDisconnection", "210038", "6d8db55d087982aa5c121296bb97af3ed37ee48a3696150cf86349d5284a67f1"),
+    };
+
+    static string RecoverSecurityLogImplicitList(
+        string fragment, SourceRequest request, string title, out bool recovered)
+    {
+        recovered = false;
+        if (request.Kind != "android" ||
+            request.JavaPath != SecurityLogJavaPath ||
+            request.Url != AndroidReference + SecurityLogJavaPath ||
+            !SecurityLogImplicitListFields.TryGetValue(title, out var field) ||
+            !Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(fragment)))
+                .Equals(field.FragmentHash, StringComparison.OrdinalIgnoreCase))
+            return fragment;
+        // These official sections leave bare <li> items open inside one <p>, so the last item
+        // would absorb the rest of the section. Close that item where its paragraph ends or
+        // where the nested paragraph that follows it starts.
+        var firstItem = fragment.IndexOf("<li>", StringComparison.Ordinal);
+        var paragraphEnd = fragment.IndexOf("</p>", firstItem, StringComparison.Ordinal);
+        var nestedParagraph = fragment.IndexOf("<p>", firstItem, StringComparison.Ordinal);
+        recovered = true;
+        return fragment.Insert(nestedParagraph >= 0 && nestedParagraph < paragraphEnd ? nestedParagraph : paragraphEnd, "</li>");
+    }
+
+    static bool MatchesSecurityLogImplicitListBinding(
+        DocsOwner owner, MemberRegistration registration, SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        return member is not null && type is not null && owner.IsEnumField &&
+            SecurityLogImplicitListFields.TryGetValue(registration.Name, out var field) &&
+            registration == new MemberRegistration(registration.Name, null, true) &&
+            owner.SourceRequest?.JavaPath == SecurityLogJavaPath &&
+            docs.SourceKind == "android" &&
+            docs.SourceUrl == AndroidReference + SecurityLogJavaPath + "#" + registration.Name &&
+            docs.SourceLabel == "android.app.admin.SecurityLog." + registration.Name &&
+            type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+            (string?)type.Attribute("FullName") == "Android.App.Admin.SecurityLogTags" &&
+            member.Element("MemberType")?.Value == "Field" &&
+            (string?)member.Attribute("MemberName") == field.ManagedName &&
+            owner.Id == "F:Android.App.Admin.SecurityLogTags." + field.ManagedName &&
+            HasSingleSignature(member, "MemberSignature", "DocId", owner.Id) &&
+            HasSingleSignature(member, "MemberSignature", "C#", field.ManagedName) &&
+            Registration.JniField(member) == new JniFieldRegistration(SecurityLogJavaPath, registration.Name) &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == "Android.App.Admin.SecurityLogTags" &&
+            member.Element("MemberValue")?.Value == field.Value;
+    }
+
     static SourceDocs WithoutIncompleteBiometricAllowedAuthenticatorsRemarks(
         DocsOwner owner,
         MemberRegistration registration,
@@ -2942,6 +3343,41 @@ static partial class ImporterProgram
             docs.SourceUrl == DeviceBuilderSetUdiSourceUrl &&
             docs.SourceLabel == DeviceBuilderSetUdiSourceLabel;
 
+    static bool IsVerifiedHealthConnectPageSizeBinding(
+        DocsOwner owner,
+        MemberRegistration registration,
+        SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        if (member is null || type is null || owner.IsEnumField ||
+            owner.SourceRequest is not { Kind: "android" } request)
+            return false;
+        var builder = HealthConnectPageSizeBuilders
+            .FirstOrDefault(candidate => candidate.JavaPath == request.JavaPath);
+        if (builder.JavaPath is null)
+            return false;
+        var javaType = builder.JavaPath.Replace('$', '.');
+        var managedType = builder.ManagedType.Replace('+', '.');
+        return (string?)type.Attribute("FullName") == builder.ManagedType &&
+            type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+            member.Element("MemberType")?.Value == "Method" &&
+            owner.Id == $"M:{managedType}.SetPageSize(System.Int32)" &&
+            HasSingleSignature(member, "MemberSignature", "DocId", owner.Id) &&
+            HasSingleSignature(member, "MemberSignature", "C#",
+                $"public {managedType} SetPageSize (int pageSize);") &&
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value == builder.ManagedType &&
+            member.Element("Parameters")?.Elements("Parameter").ToList() is [XElement parameter] &&
+            (string?)parameter.Attribute("Name") == "pageSize" &&
+            (string?)parameter.Attribute("Type") == "System.Int32" &&
+            registration == new MemberRegistration("setPageSize", $"(I)L{builder.JavaPath};", false) &&
+            request.Url == AndroidReference + javaType &&
+            docs.SourceKind == "android" &&
+            docs.SourceUrl == AndroidReference + javaType + "#setPageSize(int)" &&
+            docs.SourceLabel == javaType.Replace('/', '.') + ".setPageSize";
+    }
+
     static bool IsVerifiedImageDecoderDecodeDrawableWorkerThreadContract(
         DocsOwner owner,
         MemberRegistration registration,
@@ -3009,6 +3445,208 @@ static partial class ImporterProgram
                 defaultSettings + ImageDecoderDecodeDrawableDefaultSettings.Length,
                 StringComparison.Ordinal);
         return workerThread >= 0;
+    }
+
+    sealed record JavaIoLegacySecurityContract(
+        string Id, string SourceHash, string DocsHash, string Declaration,
+        string[] UnsafeTargets, string[] RepairTargets);
+
+    static readonly JavaIoLegacySecurityContract[] JavaIoLegacySecurityContracts =
+    [
+        new("T:Java.IO.FilePermission",
+            "e0686cab243ac9b013df0e37107cbad25f14261c3991d4a6fbff933012d94396", "",
+            "public final class FilePermission extends Permission implements Serializable",
+            ["summary", "remarks"], []),
+        new("M:Java.IO.FilePermission.#ctor(System.String,System.String)",
+            "5c85dc0804a429919ba52486794d4ac50ac3632fa16ae933b61b63c6441dc9c8",
+            "899d9d26290e377956ed8be9053e73e2f8daffa19df998ea3b10c57ed2993348",
+            "public FilePermission(String path, String actions)",
+            ["summary", "remarks"], ["remarks"]),
+        new("P:Java.IO.FilePermission.Actions",
+            "8f88496631536b08eb730000896ba2314f65cc6a475db1951e8e7e07981dd6ee",
+            "43757eb55dbaaa751f77e1e3e98a9843d1ff7f59a48d191e5e878d227281c10d",
+            "public String getActions()",
+            ["summary", "value", "remarks"], ["value", "remarks"]),
+        new("M:Java.IO.FilePermission.Implies(Java.Security.Permission)",
+            "e32fc74687c5a287a72992d2cde13177a4c62987b9f307c1a2b92ad021d9eb10",
+            "460d83e25871b3139f468113000dec26676e40ae2bbd7251270bf9d828778ec4",
+            "public boolean implies(Permission p)",
+            ["param:p", "summary", "returns", "remarks"], ["param:p", "returns"]),
+        new("T:Java.IO.SerializablePermission",
+            "664fa34331dd049a5f80927455d35553df203d69758d9cd0d777d8d12fbfefa1", "",
+            "public final class SerializablePermission extends BasicPermission",
+            ["summary", "remarks"], []),
+        new("M:Java.IO.SerializablePermission.#ctor(System.String)",
+            "4b2b450a7bab19afd2bf5a10cc7c4cd6a945ab53ecabf207cc82e6700664e5e0",
+            "1bdd8a1f53ae8e1a785287464caf6b8af2f9b3d97a6edfe4bfd1896a9551f430",
+            "public SerializablePermission(String name)",
+            ["param:name", "summary", "remarks"], ["param:name", "remarks"]),
+        new("M:Java.IO.SerializablePermission.#ctor(System.String,System.String)",
+            "239c11f9f44aa6dd444a5605e1f8e9e2a9ffc1c475a3aeeaf395486a0d64175d",
+            "fd61e184a16516581d75dbe988d8e9730e4bd923a69d20ec9d1b507dc37721cd",
+            "public SerializablePermission(String name, String actions)",
+            ["param:name", "param:actions", "summary", "remarks"],
+            ["param:name", "param:actions", "remarks"]),
+    ];
+
+    static bool IsJavaIoLegacySecurityCandidate(DocsOwner owner)
+    {
+        if (JavaIoLegacySecurityContracts.Any(rule => rule.Id == owner.Id))
+            return true;
+        var root = owner.Docs.Ancestors("Type").SingleOrDefault();
+        return root is not null &&
+            ((string?)root.Attribute("FullName") is "Java.IO.FilePermission" or "Java.IO.SerializablePermission" ||
+                Registration.Type(root) is "java/io/FilePermission" or "java/io/SerializablePermission") &&
+            (owner.Member is null ||
+                (string?)owner.Member.Attribute("MemberName") is ".ctor" or "Actions" or "Implies" ||
+                owner.MemberRegistration?.Name is ".ctor" or "getActions" or "implies") &&
+            !owner.Id.Contains("System.IntPtr", StringComparison.Ordinal);
+    }
+
+    static string JavaIoLegacySecurityBindingHash(XElement root)
+    {
+        var binding = new XElement(root);
+        foreach (var docs in binding.Descendants("Docs").ToArray())
+            docs.Remove();
+        return JavaIoLegacySecurityHash(binding.ToString(SaveOptions.DisableFormatting));
+    }
+
+    static string JavaIoLegacySecurityHash(string text) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
+            text.Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace("\r", "\n", StringComparison.Ordinal)))).ToLowerInvariant();
+
+    static string ImportJavaIoLegacySecurity(
+        string text, LoadedFile file, DocsOwner owner,
+        IReadOnlyDictionary<string, SourceLoadResult> pages,
+        ImportReport report, int limit, ref int remaining)
+    {
+        var rule = JavaIoLegacySecurityContracts.SingleOrDefault(rule => rule.Id == owner.Id);
+        var root = owner.Docs.Ancestors("Type").SingleOrDefault();
+        var expectedBinding = owner.Id.StartsWith("T:Java.IO.FilePermission", StringComparison.Ordinal) ||
+            owner.Id.StartsWith("M:Java.IO.FilePermission.", StringComparison.Ordinal) ||
+            owner.Id.StartsWith("P:Java.IO.FilePermission.", StringComparison.Ordinal)
+                ? "8ca47e03f7430cfd65f35197a99c48000a5f245830d33e1bef983607b4df8f1e"
+                : "2f055959e7cdaf9f7939f912ce5d24ab544dcf160f0d7bee88829187ef78b5d7";
+        if (rule is null || root is null || JavaIoLegacySecurityBindingHash(root) != expectedBinding)
+        {
+            report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, "summary",
+                "java_io_legacy_security_binding_mismatch",
+                "The complete historical Android binding metadata did not match; documentation was preserved.",
+                owner.SourceRequest?.Url ?? ""));
+            return text;
+        }
+        var mapping = MapOwner(owner, pages);
+        if (ReportMappingFailure(report, file, owner, mapping))
+            return text;
+        var source = mapping.Docs!;
+        var page = pages[owner.SourceRequest!.Url].Page!;
+        var declarations = owner.Member is null
+            ? new[] { page.TypeDeclaration }
+            : page.Members.Where(member => member.Url == source.SourceUrl)
+                .Select(member => member.Declaration).ToArray();
+        var expectedTypeDeclaration = owner.SourceRequest.JavaPath == "java/io/FilePermission"
+            ? "public final class FilePermission extends Permission implements Serializable"
+            : "public final class SerializablePermission extends BasicPermission";
+        // Reuse the complete parsed-source fingerprint, including provenance and every source channel.
+        if (page.TypeDeclaration != expectedTypeDeclaration ||
+            declarations is not [string declaration] || declaration != rule.Declaration ||
+            SliceProviderSourceHash(source) != rule.SourceHash)
+        {
+            report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, "summary",
+                "java_io_legacy_security_source_mismatch",
+                "The pinned Java source contract changed; no repair or replacement was inferred.", mapping.SourceUrl));
+            return text;
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (rule.RepairTargets.Length > 0 && JavaIoLegacySecurityHash(blockText) == rule.DocsHash)
+        {
+            if (remaining < rule.RepairTargets.Length)
+            {
+                foreach (var target in rule.RepairTargets)
+                    report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, target,
+                        "max_changes_reached", $"The complete repair exceeds the remaining --max-changes limit of {limit}.",
+                        mapping.SourceUrl));
+                return text;
+            }
+            if (!TryParseDocsBlock(blockText, out var actual) || !XNode.DeepEquals(actual, owner.Docs))
+            {
+                report.Entries.Add(ReportEntry.Error(file.RelativePath, owner.Id, "summary",
+                    "source_xml_layout_mismatch", "The historical Docs block did not match its parsed owner.",
+                    mapping.SourceUrl));
+                return text;
+            }
+            var edits = new List<(int Start, int End, string Replacement)>();
+            foreach (var target in rule.RepairTargets)
+            {
+                var channel = target.StartsWith("param:", StringComparison.Ordinal)
+                    ? actual.Elements("param").Single(element =>
+                        (string?)element.Attribute("name") == target[6..])
+                    : target == "remarks"
+                        ? actual.Element("remarks")!.Elements("para").First()
+                        : actual.Element(target)!;
+                if (!TryGetElementSpan(blockText, channel, out var span))
+                {
+                    report.Entries.Add(ReportEntry.Error(file.RelativePath, owner.Id, target,
+                        "source_xml_layout_mismatch", "The proven historical channel could not be located.",
+                        mapping.SourceUrl));
+                    return text;
+                }
+                edits.Add((span.Start, span.End,
+                    new XElement(channel.Name, channel.Attributes(), "To be added.")
+                        .ToString(SaveOptions.DisableFormatting)));
+            }
+            foreach (var edit in edits.OrderByDescending(edit => edit.Start))
+                blockText = blockText[..edit.Start] + edit.Replacement + blockText[edit.End..];
+            text = text[..block.Start] + blockText + text[block.End..];
+            file.UpdateBlockOffsets(owner.Order, text);
+            remaining -= rule.RepairTargets.Length;
+            foreach (var target in rule.RepairTargets)
+                report.Entries.Add(ReportEntry.Changed("would_apply", file.RelativePath, owner.Id, target,
+                    mapping.SourceUrl, "importer_unsafe_java_io_legacy_security_withdrawal",
+                    "Withdrew only an exact historically proven importer-owned channel contradicted by the Android stub; retained all other bytes."));
+            return text;
+        }
+
+        var guarded = source with
+        {
+            UnsafeTargets = rule.UnsafeTargets.ToDictionary(target => target, _ =>
+                "The pinned Java 21 contract does not describe the mapped Android legacy permission stub; no replacement prose was inferred.",
+                StringComparer.Ordinal),
+        };
+        foreach (var placeholder in owner.Placeholders)
+        {
+            var replacement = placeholder.Name == "para" || placeholder.IsImporterMetadataRepair
+                ? Replacement.Skip("source_channel_ambiguous", "This guard preserves nested and metadata-only layouts.")
+                : ReplacementFor(placeholder, guarded);
+            if (replacement.Text is null || remaining == 0)
+            {
+                report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, placeholder.Target,
+                    replacement.Text is null ? replacement.Reason! : "max_changes_reached",
+                    replacement.Text is null ? replacement.Detail : $"The --max-changes limit of {limit} was reached.",
+                    mapping.SourceUrl));
+                continue;
+            }
+            if (!TryReplaceDirectSourcePlaceholder(text, file.DocsBlocks[owner.Order], placeholder,
+                    replacement, guarded, out var updated, out var error))
+            {
+                report.Entries.Add(ReportEntry.Error(file.RelativePath, owner.Id, placeholder.Target,
+                    "source_xml_layout_mismatch", error, mapping.SourceUrl));
+                continue;
+            }
+            text = updated;
+            file.UpdateBlockOffsets(owner.Order, text);
+            remaining--;
+            report.Entries.Add(ReportEntry.Changed("would_apply", file.RelativePath, owner.Id,
+                placeholder.Target, mapping.SourceUrl));
+        }
+        foreach (var target in rule.UnsafeTargets.Where(target =>
+            !owner.Placeholders.Any(placeholder => placeholder.Target == target)))
+            report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, target,
+                "source_channel_ambiguous", guarded.UnsafeTargets[target], mapping.SourceUrl));
+        return text;
     }
 
     sealed record SliceProviderContract(string MemberId, string BindingHash, string SourceHash);
@@ -3776,6 +4414,127 @@ static partial class ImporterProgram
             FirstParagraphReplacement.Concat(OriginalParagraphs.Skip(1));
     }
 
+    sealed record TelecomLifecycleRule(bool IsBind)
+    {
+        public string Name => IsBind ? "OnBind" : "OnUnbind";
+        public string JavaName => IsBind ? "onBind" : "onUnbind";
+        public string MemberId => $"M:Android.Telecom.CallRedirectionService.{Name}(Android.Content.Intent)";
+        public string Target => IsBind ? "remarks" : "returns";
+        public string UnsafeText => IsBind ? NfcBindingOriginal :
+            "Return true if you would like to have the service's onRebind(Intent) method later called when new clients bind to it.";
+        public string ReturnType => IsBind ? "Android.OS.IBinder" : "System.Boolean";
+        public string ManagedSignature =>
+            $"public override sealed {(IsBind ? "Android.OS.IBinder?" : "bool")} {Name} (Android.Content.Intent intent);";
+        public string Declaration => $"public final {(IsBind ? "IBinder" : "boolean")} {JavaName} (Intent intent)";
+        public MemberRegistration Registration => new(JavaName,
+            "(Landroid/content/Intent;)" + (IsBind ? "Landroid/os/IBinder;" : "Z"), false);
+        public SourceDocs Source => new(
+            IsBind ? NfcBindingSummary :
+                "Called when all clients have disconnected from a particular interface published by the service.",
+            IsBind ? [new(NfcBindingOriginal, false), new(NfcBindingThreadGuidance, false)] :
+                [new("Called when all clients have disconnected from a particular interface published by the service. The default implementation does nothing and returns false.", false)],
+            new()
+            {
+                ["intent"] = "Intent: This value cannot be null.",
+                [IsBind ? "IBinder" : "boolean"] = IsBind ? "This value may be null." : UnsafeText,
+            },
+            IsBind ? "This value may be null." : UnsafeText, new(),
+            AndroidReference + "android/telecom/CallRedirectionService#" + JavaName + "(android.content.Intent)",
+            "android.telecom.CallRedirectionService." + JavaName, "android");
+    }
+
+    static readonly TelecomLifecycleRule[] TelecomLifecycleRules = [new(true), new(false)];
+
+    static bool MatchesTelecomLifecycleOwner(DocsOwner owner, TelecomLifecycleRule rule) =>
+        owner.Id == rule.MemberId &&
+        owner.SourceRequest?.Kind == "android" &&
+        owner.SourceRequest.JavaPath == "android/telecom/CallRedirectionService" &&
+        owner.SourceRequest.Url == AndroidReference + "android/telecom/CallRedirectionService" &&
+        owner.MemberRegistration == rule.Registration &&
+        owner.Member is { } member &&
+        member.Element("MemberType")?.Value == "Method" &&
+        member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+        member.Parent?.Parent is { } type &&
+        (string?)type.Attribute("FullName") == "Android.Telecom.CallRedirectionService" &&
+        type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value == "Mono.Android" &&
+        member.Elements("MemberSignature").Where(signature => (string?)signature.Attribute("Language") == "C#")
+            .Select(signature => (string?)signature.Attribute("Value")).SequenceEqual([rule.ManagedSignature]) &&
+        member.Elements("MemberSignature").Where(signature => (string?)signature.Attribute("Language") == "DocId")
+            .Select(signature => (string?)signature.Attribute("Value")).SequenceEqual([rule.MemberId]) &&
+        member.Element("ReturnValue")?.Element("ReturnType")?.Value == rule.ReturnType &&
+        (member.Element("Parameters")?.Elements("Parameter") ?? [])
+            .Select(parameter => ((string?)parameter.Attribute("Name"), (string?)parameter.Attribute("Type")))
+            .SequenceEqual([("intent", "Android.Content.Intent")]);
+
+    static SourceDocs WithKnownTelecomLifecycleSafety(DocsOwner owner, SourceMember member, SourceDocs docs)
+    {
+        var rule = TelecomLifecycleRules.SingleOrDefault(rule => MatchesTelecomLifecycleOwner(owner, rule));
+        if (rule is null || docs.SourceKind != "android" || docs.HasMalformedSourceMarkup ||
+            docs.SourceUrl != rule.Source.SourceUrl || docs.SourceLabel != rule.Source.SourceLabel ||
+            member.Declaration != rule.Declaration)
+            return docs;
+        if (rule.IsBind)
+        {
+            if (!docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text == rule.UnsafeText))
+                return docs;
+            return docs with
+            {
+                Paragraphs = docs.Paragraphs.Select(paragraph =>
+                    !paragraph.IsCode && paragraph.Text == rule.UnsafeText
+                        ? paragraph with { Text = NfcBindingRetained } : paragraph).ToList(),
+                TelecomOriginalSource = docs,
+            };
+        }
+        if (docs.Returns != rule.UnsafeText)
+            return docs;
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["returns"] =
+            "The exact inherited caller-choice return contradicts the final CallRedirectionService.onUnbind implementation, which always returns false; no replacement prose was inferred.";
+        return docs with { UnsafeTargets = targets, TelecomOriginalSource = docs };
+    }
+
+    static string? TelecomLifecycleRepairTarget(DocsOwner owner)
+    {
+        var rule = TelecomLifecycleRules.SingleOrDefault(rule => rule.MemberId == owner.Id);
+        return rule is not null && owner.Docs.Elements(rule.Target).Any(channel =>
+            NormalizeText(channel.Value).Contains(rule.UnsafeText, StringComparison.Ordinal)) ? rule.Target : null;
+    }
+
+    static RemarksRefreshResult RepairKnownTelecomLifecycle(
+        string text, LoadedFile file, DocsOwner owner, SourceDocs source)
+    {
+        var rule = TelecomLifecycleRules.Single(rule => rule.MemberId == owner.Id);
+        if (!MatchesTelecomLifecycleOwner(owner, rule) || source.TelecomOriginalSource is not { } raw ||
+            !MatchesKnownEapSource(raw, rule.Source))
+            return new(text, "source_telecom_lifecycle_mismatch",
+                "The exact binding, declared Android source and complete original source contract could not all be verified.");
+        var expected = new XElement("Docs",
+            new XElement("param", new XAttribute("name", "intent"), "To be added."),
+            new XElement("summary", raw.Summary),
+            new XElement("returns", rule.IsBind ? "To be added." : raw.Returns),
+            new XElement("remarks", raw.Paragraphs.Select(DocumentationElement),
+                ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>")));
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (!TryParseDocsBlock(blockText, out var actual) || !XNode.DeepEquals(actual, owner.Docs) ||
+            !ImporterMarkupEquals(actual, expected))
+            return new(text, "existing_telecom_lifecycle_not_importer_owned",
+                "The entire original Docs, plain channels, canonical reference and unchanged attribution did not match prior importer output.");
+        var target = rule.IsBind ? actual.Element("remarks")!.Elements("para").First() : actual.Element("returns")!;
+        if (!TryGetElementSpan(blockText, target, out var span))
+            return new(text, "telecom_lifecycle_target_not_located",
+                "The parser-selected exact channel could not be located safely.");
+        var targetName = rule.IsBind ? "para" : "returns";
+        if (blockText[span.Start..span.End] != $"<{targetName}>{rule.UnsafeText}</{targetName}>")
+            return new(text, "existing_telecom_lifecycle_not_importer_owned",
+                "The exact original plain paragraph bytes did not match the prior producer; no surrounding text was rewritten.");
+        var replacement = rule.IsBind ? $"<para>{XmlEscape(NfcBindingRetained)}</para>" : "<returns>To be added.</returns>";
+        return new(text[..block.Start] + blockText[..span.Start] + replacement +
+            blockText[span.End..] + text[block.End..], null, null);
+    }
+
     static SourceDocs WithoutKnownUnsafeControlsLifecycleChannels(string ownerId, SourceDocs docs)
     {
         var repair = KnownControlsLifecycleRepairs.SingleOrDefault(candidate =>
@@ -4148,7 +4907,9 @@ static partial class ImporterProgram
                 UnsafeTargets = new Dictionary<string, string>(StringComparer.Ordinal)
                 {
                     [correction.Target] =
-                        correction.Target == "param:dataOriginFilter"
+                        correction == KnownMediaRouteActionViewCorrection
+                            ? "The exact inherited action-view return contradicts the parameterless MediaRouteActionProvider implementation, which always throws UnsupportedOperationException; no replacement prose was inferred."
+                            : correction.Target == "param:dataOriginFilter"
                             ? "The exact official parameter describes a list of package names, but the registered method accepts one DataOrigin and adds it to a set; no replacement prose was inferred."
                             : correction.Target == "value"
                             ? "The exact official getter return incorrectly guarantees non-null options although the supported no-options builder passes null; no replacement prose was inferred."
@@ -5408,6 +6169,9 @@ static partial class ImporterProgram
         var targets = owner.Placeholders
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
+        if (IsJavaIoLegacySecurityCandidate(owner))
+            targets.UnionWith(JavaIoLegacySecurityContracts.SingleOrDefault(rule => rule.Id == owner.Id)
+                ?.UnsafeTargets ?? ["summary"]);
         if (KnownSliceProviderContracts.Any(contract => contract.MemberId == owner.Id))
             targets.Add("summary");
         targets.UnionWith(KnownAndroidTextRepairCandidateTargets(owner));
@@ -5418,6 +6182,8 @@ static partial class ImporterProgram
             targets.Add("remarks");
         targets.UnionWith(KnownUnsafeIkeRepairCandidateTargets(owner));
         targets.UnionWith(KnownControlsLifecycleRepairTargets(owner));
+        if (TelecomLifecycleRepairTarget(owner) is { } telecomTarget)
+            targets.Add(telecomTarget);
         if (NfcRepairTarget(owner) is { } nfcTarget)
             targets.Add(nfcTarget);
         if (HasUnsafeBrowseSubscriptionRemarks(owner))
@@ -5466,6 +6232,7 @@ static partial class ImporterProgram
 
     static bool RequiresSourceLoad(LoadedFile file, DocsOwner owner) =>
         owner.Placeholders.Count > 0 ||
+        IsJavaIoLegacySecurityCandidate(owner) ||
         IsEnumSummaryRepairCandidate(owner) ||
         HasPotentialEnumListRepair(file, owner) ||
         HasEnumDiscardedMetadataCandidate(file, owner) ||
@@ -5486,6 +6253,7 @@ static partial class ImporterProgram
         KnownUnsafeIkeRepairCandidateTargets(owner).Count > 0 ||
         HasKnownAndroidProseRepairCandidate(file, owner) ||
         NfcRepairTarget(owner) is not null ||
+        TelecomLifecycleRepairTarget(owner) is not null ||
         HasUnsafeBrowseSubscriptionRemarks(owner) ||
         HasUnsafeVibrationEffectAddEventsRemarks(owner) ||
         HasKnownUnsafeZoneTransitionTimeCandidate(owner);
@@ -13111,6 +13879,238 @@ static partial class ImporterProgram
             "Device.Builder.setUdi recovers only the verified prose paragraph when identical malformed text also appears in a parameter table");
     }
 
+    static void TestHealthConnectPageSizeBounds()
+    {
+        const string officialParameterCell =
+            """<code translate="no" dir="ltr">int</code>: Value is between <code translate="no" dir="ltr"><a href="/">ERROR(/android.health.connect.Constants#MINIMUM_PAGE_SIZE)</a></code> and <code translate="no" dir="ltr"><a href="/">ERROR(/android.health.connect.Constants#MAXIMUM_PAGE_SIZE)</a></code> inclusive</p>""";
+        const string officialThrowsCell =
+            "if the provided <code translate=\"no\" dir=\"ltr\">pageSize</code> is less than 1 or more\n    than 5000.";
+        const string recovered = "Value is between 1 and 5000 inclusive";
+        string Page(
+            string builder,
+            string parameterCell = officialParameterCell,
+            string throwsRows = "",
+            string anchor = "setPageSize(int)",
+            string javaParameter = "int pageSize",
+            string parameterName = "pageSize",
+            bool includeThrows = true)
+        {
+            var throwsTable = includeThrows
+                ? $"""
+                    <table class="responsive"><tr><th colspan=2>Throws</th></tr>
+                      <tr><td><code><a href="/reference/java/lang/IllegalArgumentException">IllegalArgumentException</a></code></td>
+                      <td width="100%">{officialThrowsCell}</td></tr>{throwsRows}
+                    </table>
+                    """
+                : "";
+            return $"""
+                <h3 class="api-name" id="{anchor}" data-text="setPageSize">setPageSize</h3>
+                <devsite-code><pre class="api-signature no-pretty-print">public {builder} setPageSize ({javaParameter})</pre></devsite-code>
+                <p>Sets the maximum number of <code>MedicalResource</code>s to be returned by the read operation.
+
+                <p>If not set, default to 1000.</p></p>
+                <table class="responsive"><tr><th colspan=2>Parameters</th></tr>
+                  <tr><td><code>{parameterName}</code></td><td width="100%">
+                    {parameterCell}</td></tr>
+                </table>
+                <table class="responsive"><tr><th colspan=2>Returns</th></tr>
+                  <tr><td><code>{builder}</code></td><td width="100%">This value cannot be <code>null</code>.</p></td></tr>
+                </table>
+                {throwsTable}
+                <h3 class="api-name" id="setPageToken(java.lang.String)" data-text="setPageToken">setPageToken</h3>
+                <devsite-code><pre class="api-signature no-pretty-print">public {builder} setPageToken (String pageToken)</pre></devsite-code>
+                <p>Sets page token.</p>
+                <table class="responsive"><tr><th colspan=2>Parameters</th></tr>
+                  <tr><td><code>pageToken</code></td><td width="100%">Value is at least {HealthConnectPageSizeMinimumError}</td></tr>
+                </table>
+                <h2 class="api-section" id="summary"></h2>
+                """;
+        }
+
+        (DocsOwner Owner, SourceRequest Request) Owner(
+            string javaPath,
+            string managedType,
+            Action<XElement>? mutateMember = null,
+            Action<XElement>? mutateType = null)
+        {
+            var request = SourceRequest.Create(javaPath) ??
+                throw new InvalidOperationException("SELF-TEST FAIL: setPageSize source request");
+            var csharpType = managedType.Replace('+', '.');
+            var type = XElement.Parse($"""
+                <Type FullName="{managedType}">
+                  <AssemblyInfo><AssemblyName>Mono.Android</AssemblyName></AssemblyInfo>
+                  <Members>
+                    <Member MemberName="SetPageSize">
+                      <MemberSignature Language="C#" Value="public {csharpType} SetPageSize (int pageSize);" />
+                      <MemberSignature Language="DocId" Value="M:{csharpType}.SetPageSize(System.Int32)" />
+                      <MemberType>Method</MemberType>
+                      <AssemblyInfo><AssemblyName>Mono.Android</AssemblyName></AssemblyInfo>
+                      <Attributes>
+                        <Attribute>
+                          <AttributeName Language="C#">[Android.Runtime.Register("setPageSize", "(I)L{javaPath};", "", ApiSince=36)]</AttributeName>
+                        </Attribute>
+                      </Attributes>
+                      <ReturnValue><ReturnType>{managedType}</ReturnType></ReturnValue>
+                      <Parameters><Parameter Name="pageSize" Type="System.Int32" /></Parameters>
+                      <Docs><param name="pageSize">To be added.</param><returns>To be added.</returns></Docs>
+                    </Member>
+                  </Members>
+                </Type>
+                """);
+            mutateType?.Invoke(type);
+            var member = type.Element("Members")!.Element("Member")!;
+            mutateMember?.Invoke(member);
+            var id = (string?)member.Elements("MemberSignature")
+                .FirstOrDefault(signature => (string?)signature.Attribute("Language") == "DocId")
+                ?.Attribute("Value") ?? "";
+            return (new DocsOwner(
+                0,
+                id,
+                member.Element("Docs")!,
+                member,
+                Registration.Member(member),
+                request,
+                [
+                    new Placeholder(0, "param", "pageSize", "param:pageSize"),
+                    new Placeholder(1, "returns", "", "returns"),
+                ],
+                false), request);
+        }
+
+        MappingResult Map((DocsOwner Owner, SourceRequest Request) candidate, string html) =>
+            MapOwner(candidate.Owner, new Dictionary<string, SourceLoadResult>
+            {
+                [candidate.Request.Url] = SourceLoadResult.Success(
+                    SourcePage.Parse(candidate.Request, html)),
+            });
+
+        string? Parameter(MappingResult result) =>
+            result.Docs is { } docs
+                ? ReplacementFor(new Placeholder(0, "param", "pageSize", "param:pageSize"), docs).Text
+                : null;
+
+        foreach (var (javaPath, managedType) in HealthConnectPageSizeBuilders)
+        {
+            var javaBuilder = javaPath.Split('/').Last().Replace('$', '.');
+            var source = Page(javaBuilder);
+            var exact = Map(Owner(javaPath, managedType), source);
+            Assert(
+                exact.Docs is { HasRecoveredHealthConnectPageSizeBounds: true } exactDocs &&
+                Parameter(exact) == recovered &&
+                ReplacementFor(new Placeholder(1, "returns", "", "returns"), exactDocs).Text is null &&
+                exactDocs.Paragraphs.All(paragraph => !paragraph.Text.Contains("ERROR(", StringComparison.Ordinal)),
+                $"{javaBuilder}.setPageSize recovers only the exact official page-size bounds and leaves the nullability-only return skipped");
+
+            var tokenDocs = SourcePage.Parse(Owner(javaPath, managedType).Request, source).Members
+                .Single(member => member.Name == "setPageToken").Docs;
+            Assert(
+                tokenDocs is { HasRecoveredHealthConnectPageSizeBounds: false } &&
+                tokenDocs.Parameters["pageToken"].Contains(HealthConnectPageSizeMinimumError, StringComparison.Ordinal),
+                $"{javaBuilder}.setPageToken keeps unrelated ERROR text unrepaired on the same page");
+
+            foreach (var (name, mutateMember, mutateType) in new (string, Action<XElement>?, Action<XElement>?)[]
+            {
+                ("owner", member => member.Elements("MemberSignature")
+                    .Single(signature => (string?)signature.Attribute("Language") == "DocId")
+                    .SetAttributeValue("Value", $"M:{managedType.Replace('+', '.')}.SetPageSize(System.Int64)"), null),
+                ("type", null, type => type.SetAttributeValue("FullName", managedType + "Other")),
+                ("type assembly", null, type => type.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly"),
+                ("member assembly", member => member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly", null),
+                ("JNI descriptor", member => member.Descendants("AttributeName").Single().Value =
+                    $"[Android.Runtime.Register(\"setPageSize\", \"(I)Ljava/lang/Object;\", \"\", ApiSince=36)]", null),
+                ("managed return", member => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "Java.Lang.Object", null),
+                ("C# signature", member => member.Elements("MemberSignature")
+                    .Single(signature => (string?)signature.Attribute("Language") == "C#")
+                    .SetAttributeValue("Value", $"public {managedType.Replace('+', '.')} SetPageSize (int size);"), null),
+                ("managed parameter", member => member.Element("Parameters")!.Element("Parameter")!.SetAttributeValue("Name", "size"), null),
+            })
+            {
+                var candidate = Owner(javaPath, managedType, mutateMember, mutateType);
+                Assert(
+                    candidate.Owner.Member?.Parent?.Parent is not null,
+                    $"{javaBuilder}.setPageSize {name} negative keeps the member attached to its type");
+                var rejected = Map(candidate, source);
+                Assert(
+                    rejected.Docs is null && rejected.ErrorReason == "source_channel_ambiguous",
+                    $"{javaBuilder}.setPageSize recovery reaches the binding guard for a mismatched {name}");
+            }
+
+            var canonical = Owner(javaPath, managedType);
+            var otherUrl = canonical.Request with { Url = canonical.Request.Url + "Other" };
+            var wrongUrl = Map((canonical.Owner with { SourceRequest = otherUrl }, otherUrl), source);
+            Assert(Parameter(wrongUrl) is null, $"{javaBuilder}.setPageSize recovery rejects a non-canonical source URL");
+
+            foreach (var (name, html) in new[]
+            {
+                ("misleading Parameters heading", source.Replace(
+                    "<th colspan=2>Parameters</th>", "<th colspan=2>Not Parameters</th>", StringComparison.Ordinal)),
+                ("duplicate pageSize row", Page(javaBuilder, officialParameterCell +
+                    "</td></tr><tr><td><code>pageSize</code></td><td width=\"100%\">Conflicting value.")),
+                ("duplicate Parameters table", Page(javaBuilder, officialParameterCell +
+                    "</td></tr></table><table class=\"responsive\"><tr><th colspan=2>Parameters</th></tr>" +
+                    "<tr><td><code>pageSize</code></td><td width=\"100%\">" + officialParameterCell)),
+                ("misleading Throws heading", source.Replace(
+                    "<th colspan=2>Throws</th>", "<th colspan=2>Not Throws</th>", StringComparison.Ordinal)),
+                ("duplicate IllegalArgumentException row", Page(javaBuilder,
+                    throwsRows: "<tr><td>IllegalArgumentException</td><td>Conflicting range.</td></tr>")),
+                ("duplicate Throws table", Page(javaBuilder,
+                    throwsRows: "</table><table class=\"responsive\"><tr><th colspan=2>Throws</th></tr>" +
+                        $"<tr><td>IllegalArgumentException</td><td>{officialThrowsCell}</td></tr>")),
+            })
+            {
+                var rejected = Map(Owner(javaPath, managedType), html);
+                Assert(
+                    rejected.Docs is { HasRecoveredHealthConnectPageSizeBounds: false } rejectedDocs &&
+                    rejectedDocs.Parameters.TryGetValue("pageSize", out var rawPageSize) &&
+                    rawPageSize.Contains(HealthConnectPageSizeMinimumError, StringComparison.Ordinal) &&
+                    rawPageSize.Contains(HealthConnectPageSizeMaximumError, StringComparison.Ordinal) &&
+                    ReplacementFor(new Placeholder(0, "param", "pageSize", "param:pageSize"), rejectedDocs) is
+                        { Text: null, Reason: "source_channel_not_meaningful" },
+                    $"{javaBuilder}.setPageSize rejects a {name} without changing the malformed parameter");
+            }
+
+            foreach (var (name, html) in new[]
+            {
+                ("anchor", Page(javaBuilder, anchor: "setPageSize(long)", javaParameter: "long pageSize")),
+                ("source parameter", Page(javaBuilder, parameterName: "size")),
+                ("minimum token", Page(javaBuilder, officialParameterCell.Replace("#MINIMUM_PAGE_SIZE", "#MIN_PAGE_SIZE", StringComparison.Ordinal))),
+                ("maximum token", Page(javaBuilder, officialParameterCell.Replace("#MAXIMUM_PAGE_SIZE", "#MAX_PAGE_SIZE", StringComparison.Ordinal))),
+                ("duplicate token", Page(javaBuilder, officialParameterCell.Replace("MAXIMUM_PAGE_SIZE", "MINIMUM_PAGE_SIZE", StringComparison.Ordinal))),
+                ("parameter wording", Page(javaBuilder, officialParameterCell.Replace(" inclusive", " exclusive", StringComparison.Ordinal))),
+                ("extra source parameter", Page(javaBuilder, officialParameterCell +
+                    "</td></tr><tr><td><code>other</code></td><td width=\"100%\">Other value.")),
+                ("missing Throws", Page(javaBuilder, includeThrows: false)),
+                ("lower threshold", Page(javaBuilder).Replace("less than 1 or", "less than 0 or", StringComparison.Ordinal)),
+                ("upper threshold", Page(javaBuilder).Replace("than 5000.", "than 10000.", StringComparison.Ordinal)),
+                ("extra Throws row", Page(javaBuilder, throwsRows: "<tr><td>NullPointerException</td><td>if null.</td></tr>")),
+            })
+            {
+                var rejected = Map(Owner(javaPath, managedType), html);
+                Assert(
+                    Parameter(rejected) is null &&
+                    rejected.Docs?.HasRecoveredHealthConnectPageSizeBounds != true,
+                    $"{javaBuilder}.setPageSize recovery rejects a changed {name}");
+            }
+
+            var corrected = Map(Owner(javaPath, managedType), Page(
+                javaBuilder,
+                "<code>int</code>: Value is between 1 and 5000 inclusive"));
+            Assert(
+                corrected.Docs is { HasRecoveredHealthConnectPageSizeBounds: false } &&
+                Parameter(corrected) == recovered,
+                $"{javaBuilder}.setPageSize imports a future corrected official source without the recovery");
+        }
+
+        var otherRequest = Owner(
+            "android/health/connect/ReadMedicalResourcesRequest",
+            "Android.Health.Connect.ReadMedicalResourcesRequest");
+        var other = Map(otherRequest, Page("ReadMedicalResourcesRequest"));
+        Assert(
+            Parameter(other) is null &&
+            other.Docs?.HasRecoveredHealthConnectPageSizeBounds != true,
+            "Health Connect page-size recovery is limited to the two verified Builder source pages");
+    }
+
     static void TestOdpInferenceParamsBuilderTypeSummary(string repositoryRoot, string fixtureRoot)
     {
         var fixture = File.ReadAllText(Path.Combine(
@@ -13853,6 +14853,270 @@ static partial class ImporterProgram
             mismatch.Text == repaired.Before &&
             mismatch.Reason == "paragraph_boundary_target_not_located",
             "ControlTemplate paragraph repair preserves parser-correspondence mismatches");
+    }
+
+    static void TestTelecomLifecycle(string repositoryRoot, string fixtureRoot)
+    {
+        var fixtureBytes = Convert.FromBase64String(File.ReadAllText(
+            Path.Combine(fixtureRoot, "telecom-redirection-android-reference.html.b64")).Trim());
+        var html = Encoding.UTF8.GetString(fixtureBytes);
+        using var fixture = JsonDocument.Parse(File.ReadAllText(
+            Path.Combine(fixtureRoot, "telecom-redirection-fresh-legacy-output.json")));
+        var evidence = fixture.RootElement;
+        Assert(Convert.ToHexString(SHA256.HashData(fixtureBytes)).ToLowerInvariant() ==
+            evidence.GetProperty("fragmentSha256").GetString(),
+            "Telecom native declaration fragment matches its independent producer evidence");
+        var token = $"telecom-lifecycle-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var directory = Path.Combine(repositoryRoot, "tools", token);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Telecom", token + ".xml");
+        Directory.CreateDirectory(directory);
+        var request = SourceRequest.Create("android/telecom/CallRedirectionService")!;
+        var cachePath = Path.Combine(directory,
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        var calls = 0;
+        try
+        {
+            File.WriteAllBytes(cachePath, fixtureBytes);
+            JsonDocument Pipeline(TelecomLifecycleRule rule, bool apply, int limit = 1)
+            {
+                var reportPath = Path.Combine(directory, "report-" + calls++);
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.Telecom", "--member", rule.Name,
+                    "--offline", "--cache", directory, "--max-changes", limit.ToString(),
+                    "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Telecom bounded offline production pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Telecom production reports zero errors");
+                return report;
+            }
+            DocsOwner Owner(TelecomLifecycleRule rule)
+            {
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(rule.Name);
+                return file.Owners.Single();
+            }
+            MappingResult Mapping(TelecomLifecycleRule rule, string sourceHtml)
+            {
+                var page = SourcePage.Parse(request, sourceHtml);
+                return MapOwner(Owner(rule), new Dictionary<string, SourceLoadResult>
+                {
+                    [request.Url] = SourceLoadResult.Success(page),
+                });
+            }
+            void Preserved(TelecomLifecycleRule rule, string input, string sourceHtml, bool requireMapping = true)
+            {
+                File.WriteAllText(path, input, new UTF8Encoding(true));
+                File.WriteAllText(cachePath, sourceHtml, new UTF8Encoding(false));
+                if (requireMapping)
+                    Assert(Mapping(rule, sourceHtml).ErrorReason is null,
+                        "Telecom attached negative reaches the channel/ownership guard after successful source mapping");
+                var before = File.ReadAllBytes(path);
+                for (var repeat = 0; repeat < 2; repeat++)
+                {
+                    using var report = Pipeline(rule, true);
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(before),
+                        "Telecom authored, mixed, altered-binding/source negatives persist byte-identically with max-one");
+                }
+            }
+            foreach (var rule in TelecomLifecycleRules)
+            {
+                var samples = evidence.GetProperty("samples").EnumerateArray()
+                    .Where(sample => sample.GetProperty("member").GetString() == rule.Name).ToArray();
+                var fresh = samples.Single(sample => sample.GetProperty("mode").GetString() == "firstfill");
+                var freshInput = Encoding.UTF8.GetString(Convert.FromBase64String(fresh.GetProperty("inputBase64").GetString()!));
+                var prior = Encoding.UTF8.GetString(Convert.FromBase64String(fresh.GetProperty("outputBase64").GetString()!));
+                File.WriteAllText(path, prior, new UTF8Encoding(false));
+                var owner = Owner(rule);
+                var page = SourcePage.Parse(request, html);
+                var native = page.Members.Single(member => member.Name == rule.JavaName);
+                Assert(native.Declaration == rule.Declaration && MatchesKnownEapSource(native.Docs!, rule.Source),
+                    "Telecom parsed complete native source independently matches the pinned contract");
+                var mapped = Mapping(rule, html);
+                Assert(mapped.ErrorReason is null && mapped.Docs!.TelecomOriginalSource is not null &&
+                    (rule.IsBind
+                        ? mapped.Docs.Paragraphs.Select(paragraph => paragraph.Text)
+                            .SequenceEqual([NfcBindingRetained, NfcBindingThreadGuidance])
+                        : mapped.Docs.Paragraphs.SequenceEqual(native.Docs!.Paragraphs) &&
+                            ReplacementFor(new Placeholder(0, "returns", "", "returns"), mapped.Docs).Reason ==
+                                "source_channel_ambiguous"),
+                    "Telecom mapping changes only nullable binder remarks or the caller-choice return, never correct Unbind remarks");
+                foreach (var candidate in new[]
+                {
+                    native.Docs! with { SourceUrl = native.Docs!.SourceUrl + ".Other" },
+                    native.Docs! with { SourceLabel = native.Docs!.SourceLabel + ".Other" },
+                    native.Docs! with { SourceKind = "java" },
+                    native.Docs! with { HasMalformedSourceMarkup = true },
+                })
+                    Assert(ReferenceEquals(WithKnownTelecomLifecycleSafety(owner, native, candidate), candidate),
+                        "Telecom correction requires exact canonical URL, source label, kind and unambiguous markup");
+
+                string Repaired(string input) => input.Replace(
+                    rule.IsBind ? $"<para>{rule.UnsafeText}</para>" : $"<returns>{rule.UnsafeText}</returns>",
+                    rule.IsBind ? $"<para>{NfcBindingRetained}</para>" : "<returns>To be added.</returns>",
+                    StringComparison.Ordinal);
+                foreach (var sample in samples)
+                {
+                    var inputBytes = Convert.FromBase64String(sample.GetProperty("inputBase64").GetString()!);
+                    var outputBytes = Convert.FromBase64String(sample.GetProperty("outputBase64").GetString()!);
+                    Assert(Convert.ToHexString(SHA256.HashData(inputBytes)).ToLowerInvariant() ==
+                            sample.GetProperty("inputSha256").GetString() &&
+                        Convert.ToHexString(SHA256.HashData(outputBytes)).ToLowerInvariant() ==
+                            sample.GetProperty("outputSha256").GetString(),
+                        "Telecom prior-copy seeds are independently emitted actual legacy-producer bytes, not repair-helper output");
+                    foreach (var (newline, bom) in new[] { ("\n", false), ("\n", true), ("\r\n", false), ("\r\n", true) })
+                    {
+                        var input = Encoding.UTF8.GetString(outputBytes).Replace("\r\n", "\n", StringComparison.Ordinal)
+                            .Replace("\n", newline, StringComparison.Ordinal);
+                        File.WriteAllText(path, input, new UTF8Encoding(bom));
+                        File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                        var before = File.ReadAllBytes(path);
+                        using (var preview = Pipeline(rule, false))
+                            Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                                File.ReadAllBytes(path).SequenceEqual(before),
+                                "Telecom actual prior-copy dry run measures one channel without writing");
+                        using (var apply = Pipeline(rule, true))
+                            Assert(apply.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                                "Telecom actual prior-copy repair consumes exactly one operation");
+                        var expected = new UTF8Encoding(bom).GetPreamble()
+                            .Concat(Encoding.UTF8.GetBytes(Repaired(input))).ToArray();
+                        Assert(File.ReadAllBytes(path).SequenceEqual(expected),
+                            "Telecom prior repair preserves every byte outside its exact text span, including metadata, encoding and newlines");
+                        using (var repeat = Pipeline(rule, true))
+                            Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                                File.ReadAllBytes(path).SequenceEqual(expected),
+                                "Telecom repaired prior-copy persisted repeat is byte-identical and zero-write");
+                    }
+                }
+
+                File.WriteAllText(path, freshInput, new UTF8Encoding(false));
+                using (var preview = Pipeline(rule, false, 10))
+                    Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 2 &&
+                        File.ReadAllText(path) == freshInput, "Telecom first-fill preview measures only safe summary and remarks");
+                for (var batch = 0; batch < 2; batch++)
+                {
+                    using var applied = Pipeline(rule, true);
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "Telecom max-one first-fill persists one safe channel per batch");
+                }
+                Assert(File.ReadAllText(path) == Repaired(prior),
+                    "Telecom first-fill equals independently produced old output with only the exact unsafe channel removed");
+                var filledBytes = File.ReadAllBytes(path);
+                using (var repeat = Pipeline(rule, true))
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(filledBytes),
+                        "Telecom first-fill persisted repeat has no writes or byte changes");
+
+                var mutations = new List<Action<XElement>>
+                {
+                    docs => docs.SetAttributeValue("authored", "keep"),
+                    docs => docs.AddFirst(new XCData(" ")),
+                    docs => docs.AddFirst(new XComment("Authored")),
+                    docs => docs.AddFirst(new XProcessingInstruction("authored", "keep")),
+                    docs => docs.Element("summary")!.Add(" Authored."),
+                    docs => docs.Element("param")!.Value = "Authored intent.",
+                    docs => docs.Element("param")!.Add(new XElement("c", "")),
+                    docs => docs.Element("returns")!.Add(new XElement("c", "")),
+                    docs => docs.Element("remarks")!.SetAttributeValue("authored", "keep"),
+                    docs => docs.Element("remarks")!.AddFirst(new XCData(" ")),
+                    docs => docs.Element("remarks")!.Elements("para").First(paragraph =>
+                        TryGetImporterSourceReferenceUrl(paragraph, out _)).AddFirst(new XCData(" ")),
+                    docs => docs.Element("remarks")!.Add(new XElement("para", "Authored.")),
+                    docs => docs.Element(rule.Target)!.Add(new XComment("Authored")),
+                    docs => docs.Element(rule.Target)!.Add(new XProcessingInstruction("authored", "keep")),
+                    docs => (rule.IsBind ? docs.Element("remarks")!.Element("para")! : docs.Element("returns")!)
+                        .ReplaceNodes(new XCData(rule.UnsafeText)),
+                    docs => docs.Descendants("a").First().SetAttributeValue("href", rule.Source.SourceUrl + ".Other"),
+                    docs => docs.Descendants("a").First().Element("code")!.Value += ".Other",
+                    docs => docs.Element("remarks")!.Elements("para").Last().Add(" Authored."),
+                    docs => docs.Element("remarks")!.Elements("para").Last().Remove(),
+                    docs => docs.Element("remarks")!.Elements("para").Last().Add(new XElement("c", "")),
+                    docs => docs.Add(new XElement("exception", "Authored.")),
+                };
+                foreach (var name in new[] { "summary", "param", "returns", "remarks" })
+                    mutations.Add(docs => docs.Add(new XElement(docs.Element(name)!)));
+                foreach (var mutate in mutations)
+                {
+                    var xml = XElement.Parse(prior, LoadOptions.PreserveWhitespace);
+                    mutate(xml.Element("Members")!.Element("Member")!.Element("Docs")!);
+                    Preserved(rule, xml.ToString(SaveOptions.DisableFormatting), html);
+                }
+                Preserved(rule, prior.Replace(rule.UnsafeText, rule.UnsafeText.Replace(" ", "  ", StringComparison.Ordinal),
+                    StringComparison.Ordinal), html);
+                foreach (var mutate in new Action<XElement>[]
+                {
+                    xml => xml.Element("Members")!.Element("Member")!.Elements("MemberSignature")
+                        .Single(signature => (string?)signature.Attribute("Language") == "C#")
+                        .SetAttributeValue("Value", rule.ManagedSignature.Replace("sealed ", "", StringComparison.Ordinal)),
+                    xml => xml.Element("Members")!.Element("Member")!.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other",
+                    xml => xml.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other",
+                    xml => xml.Element("Members")!.Element("Member")!.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object",
+                    xml => xml.Element("Members")!.Element("Member")!.Element("Parameters")!.Element("Parameter")!
+                        .SetAttributeValue("Name", "other"),
+                })
+                {
+                    var xml = XElement.Parse(prior, LoadOptions.PreserveWhitespace);
+                    mutate(xml);
+                    Preserved(rule, xml.ToString(SaveOptions.DisableFormatting), html);
+                }
+                var jniChanged = prior.Replace(rule.Registration.Descriptor,
+                    "(Ljava/lang/String;)" + (rule.IsBind ? "Landroid/os/IBinder;" : "Z"), StringComparison.Ordinal);
+                Preserved(rule, jniChanged, html, requireMapping: false);
+                Preserved(rule, prior.Replace("M:Android.Telecom.CallRedirectionService." + rule.Name,
+                    "M:Android.Telecom.CallRedirectionService.Other", StringComparison.Ordinal), html);
+
+                var changedSource = html.Replace(
+                    rule.IsBind ? "clients can not bind" : "Return true if you would like",
+                    rule.IsBind ? "clients cannot bind" : "Return true if clients would like", StringComparison.Ordinal);
+                Preserved(rule, prior, changedSource);
+                Preserved(rule, prior, html.Replace(
+                    rule.IsBind ? "public final " : "public final boolean", rule.IsBind ? "public " : "public boolean",
+                    StringComparison.Ordinal));
+                Preserved(rule, prior, html.Replace("This value cannot be", "This value may be", StringComparison.Ordinal));
+                var contextual = html.Replace(
+                    rule.IsBind ? "  <p>Return the communication channel to the service." :
+                        "  <p>Called when all clients have disconnected from a particular interface",
+                    rule.IsBind ? "  <p>Additional safe introduction.</p><p>Return the communication channel to the service." :
+                        "  <p>Additional safe introduction.</p><p>Called when all clients have disconnected from a particular interface",
+                    StringComparison.Ordinal);
+                Assert(contextual != html, "Telecom contextual-source control changes the real native paragraph sequence");
+                Preserved(rule, prior, contextual);
+                File.WriteAllText(path, freshInput, new UTF8Encoding(false));
+                var contextualMapping = Mapping(rule, contextual);
+                Assert(contextualMapping.ErrorReason is null && contextualMapping.Docs!.TelecomOriginalSource is not null &&
+                    (rule.IsBind
+                        ? !contextualMapping.Docs.Paragraphs.Any(paragraph => !paragraph.IsCode && paragraph.Text == rule.UnsafeText)
+                        : contextualMapping.Docs.UnsafeTargets?.ContainsKey("returns") == true),
+                    "Telecom first-fill safety is independent of unrelated summaries and safe surrounding paragraphs");
+                using (var contextFill = Pipeline(rule, true, 10))
+                    Assert(contextFill.RootElement.GetProperty("appliedCount").GetInt32() == 2 &&
+                        !File.ReadAllText(path).Contains(rule.UnsafeText, StringComparison.Ordinal),
+                        "Telecom contextual first-fill retains safe context without importing the exact contradicted channel");
+                var corrected = rule.IsBind
+                    ? html.Replace("May return null if\nclients can not bind to the service.", "", StringComparison.Ordinal)
+                    : html.Replace("Return true if you would like to have the service's\n", "Always returns false. Unlike the superclass,\n", StringComparison.Ordinal);
+                Assert(corrected != html, "Telecom corrected-source control actually changes the native defective text");
+                Preserved(rule, prior, corrected);
+                File.WriteAllText(path, freshInput, new UTF8Encoding(false));
+                using (var future = Pipeline(rule, true, 10))
+                    Assert(future.RootElement.GetProperty("appliedCount").GetInt32() == (rule.IsBind ? 2 : 3),
+                        "Telecom future corrected official source remains eligible for ordinary first-fill channels");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            }
+            Console.WriteLine($"Telecom lifecycle production tests: {calls} bounded offline runs passed.");
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
     }
 
     static void TestControlsLifecycle(string repositoryRoot, string fixtureRoot)
@@ -16150,6 +17414,541 @@ static partial class ImporterProgram
                     Assert(RefreshImporterOwnedRemarks(file.Text, file, candidate, source).Text == file.Text,
                         "prior gesture repair requires exact managed, source-request and JNI binding identity");
             }
+        }
+        finally
+        {
+            File.Delete(pipelinePath);
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
+    static void TestBiometricStringValueGuard(string repositoryRoot)
+    {
+        var namespaceDirectory = Path.Combine(repositoryRoot, "docs", "xml", "Android.Hardware.Biometrics");
+        var original = XElement.Load(Path.Combine(namespaceDirectory, "BiometricManager+Strings.xml"),
+            LoadOptions.PreserveWhitespace);
+        var token = "biometric-string-value-" + Guid.NewGuid().ToString("N");
+        var temporary = Path.Combine(Path.GetTempPath(), token);
+        var cache = Path.Combine(temporary, "cache");
+        var path = Path.Combine(namespaceDirectory, "." + token + ".xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            var request = SourceRequest.Create(BiometricStringsJavaPath)!;
+            var cachePath = Path.Combine(cache, Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            var cases = new[]
+            {
+                (Property: "PromptMessage", Getter: "getPromptMessage",
+                    Summary: "Provides a localized string that can be shown while the user is authenticating with BiometricPrompt."),
+                (Property: "SettingName", Getter: "getSettingName",
+                    Summary: "Provides a localized string that can be shown as the title for an app setting that enables authentication with BiometricPrompt."),
+            };
+            const string correctedReturn = "A corrected return description.";
+            string Section(string getter, string summary, string returns, bool changedDeclaration = false,
+                bool changedLabel = false) => $"""
+                <h3 class="api-name" id="{getter}()">{getter}{(changedLabel ? "Other" : "")}</h3>
+                <pre class="api-signature">public {(changedDeclaration ? "Object" : "CharSequence")} {getter} ()</pre>
+                <p>{summary}</p>
+                <table><tr><th colspan="2">Returns</th></tr>
+                <tr><td>CharSequence</td><td>{returns}</td></tr></table>
+                """;
+            string Source(string? correctedGetter = null, string? changedDeclaration = null,
+                string? changedLabel = null) =>
+                Section("getButtonLabel", "Provides a localized button label.", BiometricStringsButtonLabelReturn) +
+                string.Concat(cases.Select(test => Section(test.Getter, test.Summary,
+                    test.Getter == correctedGetter ? correctedReturn : BiometricStringsButtonLabelReturn,
+                    test.Getter == changedDeclaration, test.Getter == changedLabel)));
+            void WriteSource(string? correctedGetter = null, string? changedDeclaration = null,
+                string? changedLabel = null) =>
+                File.WriteAllText(cachePath, Source(correctedGetter, changedDeclaration, changedLabel),
+                    new UTF8Encoding(false));
+            var page = SourcePage.Parse(request, Source());
+            var pages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+            {
+                [request.Url] = SourceLoadResult.Success(page),
+            };
+            XElement Fixture(string name, bool valuePlaceholder, bool buttonPlaceholder,
+                bool summaryPlaceholder = false, bool remarksPlaceholder = false)
+            {
+                var root = new XElement(original);
+                root.Element("Docs")!.ReplaceNodes(
+                    new XElement("summary", "Authored type summary."),
+                    new XElement("remarks", "Authored type remarks."));
+                var members = root.Element("Members")!;
+                var baseName = name.EndsWith("Formatted", StringComparison.Ordinal)
+                    ? name[..^"Formatted".Length] : name;
+                var sibling = name == baseName ? baseName + "Formatted" : baseName;
+                var selected = new[] { name, sibling, "ButtonLabel", "ButtonLabelFormatted" }
+                    .Select(memberName => members.Elements("Member").Single(member =>
+                        (string?)member.Attribute("MemberName") == memberName)).ToArray();
+                members.RemoveNodes();
+                members.Add(selected);
+                foreach (var member in members.Elements("Member"))
+                {
+                    var memberName = (string)member.Attribute("MemberName")!;
+                    var getter = memberName.StartsWith("PromptMessage", StringComparison.Ordinal)
+                        ? "getPromptMessage"
+                        : memberName.StartsWith("SettingName", StringComparison.Ordinal)
+                            ? "getSettingName" : "getButtonLabel";
+                    var source = page.Members.Single(item => item.Name == getter).Docs!;
+                    member.Element("Docs")!.ReplaceNodes(
+                        new XElement("summary", "Authored summary."),
+                        new XElement("value", new XText("Authored "), new XElement("c", "custom"), new XText(" value.")),
+                        new XElement("remarks", new XElement("para", "Authored remarks."),
+                            ImporterSourceReference(source), XElement.Parse($"<para>{AndroidAttribution}</para>")));
+                }
+                var target = members.Elements("Member").Single(member =>
+                    (string?)member.Attribute("MemberName") == name).Element("Docs")!;
+                if (valuePlaceholder)
+                    target.Element("value")!.ReplaceNodes(new XText("To be added."));
+                if (summaryPlaceholder)
+                    target.Element("summary")!.ReplaceNodes(new XText("To be added."));
+                if (remarksPlaceholder)
+                    target.Element("remarks")!.ReplaceNodes(new XText("To be added."));
+                if (buttonPlaceholder)
+                    members.Elements("Member").Single(member =>
+                        (string?)member.Attribute("MemberName") == "ButtonLabel")
+                        .Element("Docs")!.Element("value")!.ReplaceNodes(new XText("To be added."));
+                return root;
+            }
+            void WriteFixture(XElement root)
+            {
+                var text = root.ToString(SaveOptions.DisableFormatting)
+                    .Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\n", "\r\n", StringComparison.Ordinal);
+                File.WriteAllText(path, text, new UTF8Encoding(true));
+            }
+            var reportNumber = 0;
+            JsonDocument Run(bool apply)
+            {
+                var report = Path.Combine(temporary, "report-" + reportNumber++);
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.Hardware.Biometrics", "--offline",
+                    "--cache", cache, "--max-changes", "1", "--report", report,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Biometrics value guard production pipeline succeeds");
+                var result = JsonDocument.Parse(File.ReadAllText(report + ".json"));
+                Assert(result.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Biometrics value guard production report has no errors");
+                if (result.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous"))
+                    Assert(File.ReadAllText(report + ".txt").Contains(
+                        "source_channel_ambiguous", StringComparison.Ordinal),
+                        "Biometrics text report retains the ambiguity");
+                return result;
+            }
+            static bool HasAmbiguousValue(JsonDocument report, string id) =>
+                report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("member").GetString() == id &&
+                    entry.GetProperty("target").GetString() == "value" &&
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous");
+            LoadedFile Load()
+            {
+                var file = LoadedFile.Load(repositoryRoot, path);
+                file.SelectOwners(null);
+                return file;
+            }
+            static XElement Member(XElement root, string name) =>
+                root.Element("Members")!.Elements("Member").Single(member =>
+                    (string?)member.Attribute("MemberName") == name);
+
+            foreach (var test in cases)
+            foreach (var formatted in new[] { false, true })
+            {
+                var name = test.Property + (formatted ? "Formatted" : "");
+                var id = BiometricStringsManagedPrefix + name;
+                WriteSource();
+                WriteFixture(Fixture(name, valuePlaceholder: true, buttonPlaceholder: true));
+                var before = Load();
+                var owner = before.Owners.Single(item => item.Id == id);
+                var sourceMember = page.Members.Single(item => item.Name == test.Getter);
+                var raw = sourceMember.Docs!;
+                var mapped = MapOwner(owner, pages);
+                Assert(mapped.Docs?.UnsafeTargets?.ContainsKey("value") == true &&
+                    mapped.Docs.Returns == raw.Returns &&
+                    mapped.Docs.Summary == raw.Summary &&
+                    mapped.Docs.Paragraphs.SequenceEqual(raw.Paragraphs),
+                    "Biometrics exact attached owner withholds only the copied value: " + id);
+                Assert(ReplacementFor(new Placeholder(0, "summary", "", "summary"), mapped.Docs!).Text == raw.Summary &&
+                    ReplacementFor(new Placeholder(0, "remarks", "", "remarks"), mapped.Docs!).Remarks is not null &&
+                    ReplacementFor(new Placeholder(0, "value", "", "value"), mapped.Docs!).Reason ==
+                        "source_channel_ambiguous",
+                    "Biometrics safe source channels remain eligible: " + id);
+                var existingTargets = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["param:existing"] = "Existing exclusion.",
+                };
+                var seededPage = new SourcePage
+                {
+                    Members = page.Members.Select(item => item == sourceMember
+                        ? item with { Docs = raw with { UnsafeTargets = existingTargets } } : item).ToList(),
+                };
+                var seeded = MapOwner(owner, new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [request.Url] = SourceLoadResult.Success(seededPage),
+                });
+                Assert(seeded.Docs?.UnsafeTargets?.Count == 2 &&
+                    seeded.Docs.UnsafeTargets["param:existing"] == "Existing exclusion." &&
+                    seeded.Docs.UnsafeTargets.ContainsKey("value"),
+                    "Biometrics value exclusion preserves other source exclusions: " + id);
+                foreach (var changed in new[]
+                {
+                    raw with { SourceUrl = raw.SourceUrl + ".other" },
+                    raw with { SourceLabel = raw.SourceLabel + ".other" },
+                    raw with { SourceKind = "java" },
+                })
+                {
+                    var changedPage = new SourcePage
+                    {
+                        Members = page.Members.Select(item => item == sourceMember
+                            ? item with { Docs = changed } : item).ToList(),
+                    };
+                    Assert(IsKnownUnsafeBiometricStringValue(owner, changed, out _, out _) &&
+                        MapOwner(owner, new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                        {
+                            [request.Url] = SourceLoadResult.Success(changedPage),
+                        }).ErrorReason == "source_channel_ambiguous",
+                        "Biometrics changed source provenance reaches and fails the guard: " + id);
+                }
+                Assert(!IsKnownUnsafeBiometricStringValue(owner, raw with { Returns = correctedReturn }, out _, out _),
+                    "Biometrics corrected return is not the known copied value: " + id);
+                var renamedOwner = owner with { Id = id + ".other" };
+                Assert(IsKnownUnsafeBiometricStringValue(renamedOwner, raw, out _, out _) &&
+                    MapOwner(renamedOwner, pages).ErrorReason == "source_channel_ambiguous",
+                    "Biometrics changed managed identity cannot import the known bad source: " + id);
+
+                var button = before.Owners.Single(item => item.Id == BiometricStringsManagedPrefix + "ButtonLabel");
+                var buttonMapping = MapOwner(button, pages);
+                Assert(buttonMapping.Docs?.UnsafeTargets?.ContainsKey("value") != true &&
+                    ReplacementFor(new Placeholder(0, "value", "", "value"), buttonMapping.Docs!).Text ==
+                        BiometricStringsButtonLabelReturn,
+                    "Biometrics button label remains eligible for its own return: " + id);
+                var initialBytes = File.ReadAllBytes(path);
+                var targetDocs = new XElement(owner.Docs);
+                using (var preview = Run(false))
+                    Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        HasAmbiguousValue(preview, id) && File.ReadAllBytes(path).SequenceEqual(initialBytes),
+                        "Biometrics preview reports the held value and one safe bounded write: " + id);
+                using (var applied = Run(true))
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        HasAmbiguousValue(applied, id),
+                        "Biometrics bounded apply fills only the safe sibling: " + id);
+                var after = Load();
+                Assert(XNode.DeepEquals(targetDocs, after.Owners.Single(item => item.Id == id).Docs),
+                    "Biometrics held value and authored target channels remain unchanged: " + id);
+                var block = before.DocsBlocks[button.Order];
+                var blockText = before.Text[block.Start..block.End];
+                const string placeholder = "<value>To be added.</value>";
+                var offset = blockText.IndexOf(placeholder, StringComparison.Ordinal);
+                Assert(offset >= 0 && blockText.LastIndexOf(placeholder, StringComparison.Ordinal) == offset,
+                    "Biometrics safe sibling fixture has one exact value placeholder");
+                offset += block.Start;
+                var expected = before.Text[..offset] + "<value>" + BiometricStringsButtonLabelReturn +
+                    "</value>" + before.Text[(offset + placeholder.Length)..];
+                var expectedBytes = Encoding.UTF8.Preamble.ToArray()
+                    .Concat(Encoding.UTF8.GetBytes(expected)).ToArray();
+                Assert(File.ReadAllBytes(path).SequenceEqual(expectedBytes),
+                    "Biometrics safe sibling apply changes only its value bytes: " + id);
+                var appliedBytes = File.ReadAllBytes(path);
+                using (var repeat = Run(true))
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        repeat.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                        HasAmbiguousValue(repeat, id) && File.ReadAllBytes(path).SequenceEqual(appliedBytes),
+                        "Biometrics withheld value has a byte-identical zero-write repeat: " + id);
+
+                WriteFixture(Fixture(name, valuePlaceholder: false, buttonPlaceholder: true));
+                var authored = new XElement(Member(XElement.Load(path), name).Element("Docs")!);
+                using (var applied = Run(true))
+                    Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        XNode.DeepEquals(authored, Member(XElement.Load(path), name).Element("Docs")),
+                        "Biometrics authored mixed value is preserved during a sibling apply: " + id);
+
+                WriteFixture(Fixture(name, valuePlaceholder: true, buttonPlaceholder: false,
+                    summaryPlaceholder: true, remarksPlaceholder: true));
+                using (var summary = Run(true))
+                    Assert(summary.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        HasAmbiguousValue(summary, id) &&
+                        Member(XElement.Load(path), name).Element("Docs")!.Element("summary")!.Value == test.Summary,
+                        "Biometrics safe summary fills independently within budget: " + id);
+                using (var remarks = Run(true))
+                    Assert(remarks.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        HasAmbiguousValue(remarks, id) &&
+                        Member(XElement.Load(path), name).Element("Docs")!.Element("remarks")!.Value.Contains(
+                            test.Summary, StringComparison.Ordinal),
+                        "Biometrics safe remarks fill independently within budget: " + id);
+                var safeBytes = File.ReadAllBytes(path);
+                using (var repeat = Run(true))
+                    Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(path).SequenceEqual(safeBytes),
+                        "Biometrics safe sibling channels have a zero-write repeat: " + id);
+
+                WriteSource(correctedGetter: test.Getter);
+                WriteFixture(Fixture(name, valuePlaceholder: true, buttonPlaceholder: false));
+                using (var corrected = Run(true))
+                    Assert(corrected.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        !HasAmbiguousValue(corrected, id) &&
+                        Member(XElement.Load(path), name).Element("Docs")!.Element("value")!.Value == correctedReturn,
+                        "Biometrics corrected official value remains eligible: " + id);
+
+                WriteSource();
+                var mutations = new List<(string Description, Action<XElement, XElement> Change)>
+                {
+                    ("member assembly", (_, member) =>
+                        member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly"),
+                };
+                if (formatted)
+                {
+                    mutations.Add(("declaring owner", (type, _) =>
+                        type.SetAttributeValue("FullName", "Android.Hardware.Biometrics.Other")));
+                    mutations.Add(("declaring assembly", (type, _) =>
+                        type.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly"));
+                    mutations.Add(("managed signature", (_, member) =>
+                        member.Elements("MemberSignature").Single(signature =>
+                            (string?)signature.Attribute("Language") == "C#")
+                            .SetAttributeValue("Value", "public object? Changed { get; }")));
+                    mutations.Add(("DocId", (_, member) =>
+                        member.Elements("MemberSignature").Single(signature =>
+                            (string?)signature.Attribute("Language") == "DocId")
+                            .SetAttributeValue("Value", id + ".other")));
+                    mutations.Add(("managed return", (_, member) =>
+                        member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Object"));
+                    mutations.Add(("JNI return descriptor", (_, member) =>
+                    {
+                        var attribute = member.Descendants("AttributeName").Single(item =>
+                            (string?)item.Attribute("Language") == "C#" &&
+                            item.Value.Contains($"\"{test.Getter}\"", StringComparison.Ordinal));
+                        attribute.Value = attribute.Value.Replace("()Ljava/lang/CharSequence;",
+                            "()Ljava/lang/String;", StringComparison.Ordinal);
+                    }));
+                    mutations.Add(("JNI getter", (_, member) =>
+                    {
+                        var attribute = member.Descendants("AttributeName").Single(item =>
+                            (string?)item.Attribute("Language") == "C#" &&
+                            item.Value.Contains($"\"{test.Getter}\"", StringComparison.Ordinal));
+                        attribute.Value = attribute.Value.Replace(
+                            $"\"{test.Getter}\"", "\"getButtonLabel\"", StringComparison.Ordinal);
+                    }));
+                }
+                else
+                {
+                    mutations.Add(("registered sibling signature", (type, _) =>
+                        Member(type, test.Property + "Formatted").Elements("MemberSignature").Single(signature =>
+                            (string?)signature.Attribute("Language") == "C#")
+                            .SetAttributeValue("Value", "public object? Changed { get; }")));
+                }
+                foreach (var mutation in mutations)
+                {
+                    var changed = Fixture(name, valuePlaceholder: true, buttonPlaceholder: false);
+                    mutation.Change(changed, Member(changed, name));
+                    WriteFixture(changed);
+                    var changedOwner = Load().Owners.Single(item =>
+                        (string?)item.Member?.Attribute("MemberName") == name);
+                    Assert(changedOwner.Member!.Ancestors("Type").Single().Element("Members") ==
+                            changedOwner.Member.Parent &&
+                        IsKnownUnsafeBiometricStringValue(changedOwner, raw, out _, out _) &&
+                        MapOwner(changedOwner, pages).ErrorReason == "source_channel_ambiguous",
+                        "Biometrics changed " + mutation.Description + " reaches and fails the binding guard: " + id);
+                    var unchanged = File.ReadAllBytes(path);
+                    using var rejected = Run(true);
+                    Assert(rejected.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        HasAmbiguousValue(rejected, changedOwner.Id) &&
+                        File.ReadAllBytes(path).SequenceEqual(unchanged),
+                        "Biometrics changed " + mutation.Description + " writes nothing: " + id);
+                }
+
+                WriteSource(changedDeclaration: test.Getter);
+                WriteFixture(Fixture(name, valuePlaceholder: true, buttonPlaceholder: false));
+                var changedSourcePage = SourcePage.Parse(request, Source(changedDeclaration: test.Getter));
+                var changedSourceOwner = Load().Owners.Single(item => item.Id == id);
+                var changedSourcePages = new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                {
+                    [request.Url] = SourceLoadResult.Success(changedSourcePage),
+                };
+                Assert(MapOwner(changedSourceOwner, changedSourcePages).ErrorReason == "source_channel_ambiguous",
+                    "Biometrics changed source declaration reaches the binding guard: " + id);
+                var originalBytes = File.ReadAllBytes(path);
+                using (var rejected = Run(true))
+                    Assert(rejected.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        HasAmbiguousValue(rejected, id) && File.ReadAllBytes(path).SequenceEqual(originalBytes),
+                        "Biometrics changed source declaration writes nothing: " + id);
+
+                WriteSource(changedLabel: test.Getter);
+                WriteFixture(Fixture(name, valuePlaceholder: true, buttonPlaceholder: false));
+                var changedLabelPage = SourcePage.Parse(request, Source(changedLabel: test.Getter));
+                var changedLabelOwner = Load().Owners.Single(item => item.Id == id);
+                Assert(MapOwner(changedLabelOwner, new Dictionary<string, SourceLoadResult>(StringComparer.Ordinal)
+                    {
+                        [request.Url] = SourceLoadResult.Success(changedLabelPage),
+                    }).ErrorReason == "source_channel_ambiguous",
+                    "Biometrics changed source label reaches the provenance guard: " + id);
+                var changedLabelBytes = File.ReadAllBytes(path);
+                using (var rejected = Run(true))
+                    Assert(rejected.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        HasAmbiguousValue(rejected, id) && File.ReadAllBytes(path).SequenceEqual(changedLabelBytes),
+                        "Biometrics changed source label writes nothing: " + id);
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temporary, recursive: true);
+        }
+    }
+
+    static void TestBiometricsStringAliases(string repositoryRoot)
+    {
+        var biometricsDocs = Path.Combine(repositoryRoot, "docs", "xml", "Android.Hardware.Biometrics");
+        static string DocId(XElement member) => member.Elements("MemberSignature").Single(signature =>
+            (string?)signature.Attribute("Language") == "DocId").Attribute("Value")!.Value;
+        var verified = 0;
+        foreach (var path in Directory.GetFiles(biometricsDocs, "*.xml"))
+        {
+            var root = XElement.Load(path);
+            var members = root.Element("Members")?.Elements("Member").ToList() ?? [];
+            foreach (var alias in members)
+            {
+                var id = DocId(alias);
+                if (!id.StartsWith("M:Android.Hardware.Biometrics.", StringComparison.Ordinal) &&
+                    !id.StartsWith("P:Android.Hardware.Biometrics.", StringComparison.Ordinal) ||
+                    SourceVerifiedMemberMappings.Resolve(id) is not { } mapping)
+                    continue;
+                var isProperty = id.StartsWith("P:", StringComparison.Ordinal);
+                var siblingId = isProperty
+                    ? id + "Formatted"
+                    : id.Replace("System.String", "Java.Lang.ICharSequence", StringComparison.Ordinal);
+                var sibling = members.Single(member => DocId(member) == siblingId);
+                Assert(Registration.Member(alias) is null &&
+                    Registration.Member(sibling) is { } registration &&
+                    mapping.Registration == registration &&
+                    registration.Descriptor!.Contains("Ljava/lang/CharSequence;", StringComparison.Ordinal) &&
+                    mapping.SourceRequest == SourceRequest.Create(Registration.Type(root)) &&
+                    SourceVerifiedMemberMappings.Resolve(id, root, alias) == mapping &&
+                    SourceVerifiedMemberMappings.Resolve(id + "Other") is null,
+                    "Biometrics String alias maps only to its registered CharSequence sibling: " + id);
+
+                XElement Changed(Action<XElement, XElement> change)
+                {
+                    var changedRoot = new XElement(root);
+                    change(changedRoot, changedRoot.Element("Members")!.Elements("Member")
+                        .Single(member => DocId(member) == id));
+                    return changedRoot;
+                }
+                bool Rejects(XElement changedRoot) =>
+                    SourceVerifiedMemberMappings.Resolve(id, changedRoot,
+                        changedRoot.Element("Members")!.Elements("Member").Single(member => DocId(member) == id)) is null;
+                XElement ChangedSibling(XElement changedRoot) =>
+                    changedRoot.Element("Members")!.Elements("Member").Single(member => DocId(member) == siblingId);
+                Assert(Rejects(Changed((changedRoot, _) => changedRoot.Element("Attributes")!.Remove())) &&
+                    Rejects(Changed((changedRoot, _) => changedRoot.Element("AssemblyInfo")!.Remove())) &&
+                    Rejects(Changed((changedRoot, _) => ChangedSibling(changedRoot).Element("Attributes")!.Remove())) &&
+                    Rejects(Changed((changedRoot, _) =>
+                        changedRoot.Element("Members")!.Add(new XElement(ChangedSibling(changedRoot))))) &&
+                    Rejects(Changed((_, changedAlias) => changedAlias.Element("ReturnValue")!
+                        .Element("ReturnType")!.Value = "System.Int32")),
+                    "Biometrics String alias rejects changed owner, assembly, sibling registration, duplicate sibling and return: " + id);
+                if (!isProperty)
+                {
+                    Assert(Rejects(Changed((_, changedAlias) => changedAlias.Element("Parameters")!
+                            .Elements("Parameter").First(parameter => (string?)parameter.Attribute("Type") == "System.String")
+                            .SetAttributeValue("Name", "other"))) &&
+                        Rejects(Changed((_, changedAlias) => changedAlias.Element("Parameters")!
+                            .Elements("Parameter").Last().SetAttributeValue("Type", "System.Object"))) &&
+                        Rejects(Changed((_, changedAlias) => changedAlias.Element("Attributes")!.Add(
+                            new XElement(sibling.Element("Attributes")!.Elements("Attribute").First())))),
+                        "Biometrics String overload rejects changed parameter name, parameter type and own registration: " + id);
+                }
+                verified++;
+            }
+        }
+        Assert(verified == 24, "Biometrics String alias mappings cover the 24 reviewed members exactly");
+
+        var token = $"biometrics-string-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var tempDirectory = Path.Combine(Path.GetTempPath(), token);
+        var pipelinePath = Path.Combine(biometricsDocs, token + ".xml");
+        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            var request = SourceRequest.Create("android/hardware/biometrics/BiometricPrompt$Builder")!;
+            File.WriteAllText(
+                Path.Combine(tempDirectory, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"),
+                "<div id=\"jd-content\"><div id=\"summary\"></div>" +
+                "<h3 class=\"api-name\" id=\"setTitle(java.lang.CharSequence)\">setTitle</h3>" +
+                "<pre class=\"api-signature\">public BiometricPrompt.Builder setTitle (CharSequence title)</pre>" +
+                "<p>Fixture title setter summary.</p>" +
+                "<table><tr><th colspan=\"2\">Parameters</th></tr><tr><td>title</td><td>Fixture title parameter.</td></tr></table>" +
+                "<table><tr><th colspan=\"2\">Returns</th></tr><tr><td>BiometricPrompt.Builder</td><td>Fixture builder return.</td></tr></table></div>",
+                new UTF8Encoding(false));
+            const string registeredDescriptor = "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;";
+            string Fixture(string siblingDescriptor) =>
+                $"""
+                <Type Name="BiometricPrompt+Builder" FullName="Android.Hardware.Biometrics.BiometricPrompt+Builder">
+                  <TypeSignature Language="C#" Value="public sealed class BiometricPrompt.Builder" />
+                  <AssemblyInfo><AssemblyName>Mono.Android</AssemblyName></AssemblyInfo>
+                  <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("android/hardware/biometrics/BiometricPrompt$Builder", DoNotGenerateAcw=true)]</AttributeName></Attribute></Attributes>
+                  <Docs><summary>Authored type summary.</summary><remarks>Authored type remarks.</remarks></Docs>
+                  <Members>
+                    <Member MemberName="SetTitle">
+                      <MemberSignature Language="DocId" Value="M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetTitle(Java.Lang.ICharSequence)" />
+                      <MemberType>Method</MemberType>
+                      <Attributes><Attribute><AttributeName Language="C#">[Android.Runtime.Register("setTitle", "{siblingDescriptor}", "GetSetTitle_Ljava_lang_CharSequence_Handler")]</AttributeName></Attribute></Attributes>
+                      <ReturnValue><ReturnType>Android.Hardware.Biometrics.BiometricPrompt+Builder</ReturnType></ReturnValue>
+                      <Parameters><Parameter Name="title" Type="Java.Lang.ICharSequence" /></Parameters>
+                      <Docs><param name="title">Authored sibling parameter.</param><summary>Authored sibling summary.</summary><returns>Authored sibling return.</returns><remarks>Authored sibling remarks.</remarks></Docs>
+                    </Member>
+                    <Member MemberName="SetTitle">
+                      <MemberSignature Language="DocId" Value="M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetTitle(System.String)" />
+                      <MemberType>Method</MemberType>
+                      <ReturnValue><ReturnType>Android.Hardware.Biometrics.BiometricPrompt+Builder</ReturnType></ReturnValue>
+                      <Parameters><Parameter Name="title" Type="System.String" /></Parameters>
+                      <Docs><param name="title">To be added.</param><summary>To be added.</summary><returns>To be added.</returns><remarks>Authored alias remarks.</remarks></Docs>
+                    </Member>
+                  </Members>
+                </Type>
+                """;
+            JsonDocument RunPipeline()
+            {
+                var reportPath = Path.Combine(tempDirectory, "report");
+                Assert(RunAsync([
+                    "--path", pipelinePath, "--namespace", "Android.Hardware.Biometrics", "--offline",
+                    "--cache", tempDirectory, "--max-changes", "10", "--apply", "--report", reportPath,
+                ]).GetAwaiter().GetResult() == 0, "Biometrics String alias pipeline succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Biometrics String alias pipeline has zero errors");
+                return report;
+            }
+
+            File.WriteAllText(pipelinePath,
+                Fixture(registeredDescriptor.Replace("CharSequence", "String", StringComparison.Ordinal)),
+                new UTF8Encoding(true));
+            var unchanged = File.ReadAllBytes(pipelinePath);
+            using (var rejected = RunPipeline())
+                Assert(rejected.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    rejected.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "missing_member_registration") &&
+                    File.ReadAllBytes(pipelinePath).SequenceEqual(unchanged),
+                    "actual Biometrics String alias pipeline rejects a sibling with a different JNI registration");
+
+            File.WriteAllText(pipelinePath, Fixture(registeredDescriptor), new UTF8Encoding(true));
+            using (var applied = RunPipeline())
+                Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == 3,
+                    "actual Biometrics String alias pipeline fills summary, parameter and return");
+            var docs = XElement.Load(pipelinePath).Element("Members")!.Elements("Member")
+                .Single(member => DocId(member).EndsWith("(System.String)", StringComparison.Ordinal)).Element("Docs")!;
+            Assert(docs.Element("summary")!.Value == "Fixture title setter summary." &&
+                docs.Element("param")!.Value == "Fixture title parameter." &&
+                docs.Element("returns")!.Value == "Fixture builder return." &&
+                docs.Element("remarks")!.Value.StartsWith("Authored alias remarks.", StringComparison.Ordinal) &&
+                docs.Element("remarks")!.ToString().Contains(
+                    "BiometricPrompt.Builder#setTitle(java.lang.CharSequence)", StringComparison.Ordinal),
+                "actual Biometrics String alias imports the CharSequence source and preserves authored remarks");
         }
         finally
         {
@@ -19309,6 +21108,593 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestBiometricCallbackLinks(string repositoryRoot)
+    {
+        var fixturePath = Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "biometric-callback-source-fragments.txt");
+        var namespaceDirectory = Path.Combine(repositoryRoot, "docs", "xml", "Android.Hardware.Biometrics");
+        var sourcePath = Path.Combine(namespaceDirectory, "EmbeddedBiometricPrompt+AuthenticationCallback.xml");
+        var token = $"biometric-callback-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}";
+        var path = Path.Combine(namespaceDirectory, token + ".xml");
+        var temporary = Path.Combine(Path.GetTempPath(), token);
+        var cache = Path.Combine(temporary, "cache");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            var request = SourceRequest.Create(BiometricCallbackJavaPath)!;
+            var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+            var ordinal = 0;
+            foreach (var line in File.ReadLines(fixturePath))
+            {
+                var parts = line.Split('|');
+                Assert(parts.Length == 4 &&
+                    parts[1] == "98cdae7006eb82d05c4c2df23bfa8881c98775fdb3ea2f199809425af52a4fc2",
+                    "Biometric callback fixture retains the source page identity");
+                var html = Encoding.UTF8.GetString(Convert.FromBase64String(parts[3]));
+                Assert(Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(html)))
+                    .Equals(parts[2], StringComparison.OrdinalIgnoreCase),
+                    "Biometric callback native fragment hash");
+                var isError = parts[0] == "onAuthenticationError";
+                Assert(isError || parts[0] == "onAuthenticationHelp", "Biometric callback fixture name");
+                var managedName = isError ? "OnAuthenticationError" : "OnAuthenticationHelp";
+                var codeName = isError ? "errorCode" : "helpCode";
+                var textName = isError ? "errString" : "helpString";
+                var expected = isError
+                    ? "An integer from BiometricConstants.Errors identifying the error message"
+                    : "An integer from BiometricFaceConstants.FaceAcquired or BiometricFingerprintConstants.FingerprintAcquired corresponding to a known error message.";
+                var page = SourcePage.Parse(request, html);
+                var source = page.Members.Single().Docs!;
+                Assert(source.HasRecoveredBiometricCallbackLinks &&
+                    RemoveLeadingJavaType(source.Parameters[codeName]) == expected,
+                    "Biometric callback recovery preserves the source annotation names");
+
+                var loaded = LoadedFile.Load(repositoryRoot, sourcePath);
+                loaded.SelectOwners(managedName);
+                var owners = loaded.Owners.Where(owner =>
+                    (string?)owner.Member?.Attribute("MemberName") == managedName).ToArray();
+                Assert(owners.Length == 2, "Biometric callback has registered and string overloads");
+                var sourcePages = new Dictionary<string, SourceLoadResult>
+                    { [request.Url] = SourceLoadResult.Success(page) };
+                foreach (var owner in owners)
+                    Assert(MapOwner(owner, sourcePages).Docs?.HasRecoveredBiometricCallbackLinks == true,
+                        "Biometric callback actual binding accepts recovered source");
+
+                var registered = owners.Single(owner => Registration.Member(owner.Member!) is not null);
+                var changedType = new XElement(registered.Member!.Parent!.Parent!);
+                var changedMember = changedType.Element("Members")!.Elements("Member").Single(member =>
+                    member.Elements("MemberSignature").Any(signature =>
+                        (string?)signature.Attribute("Language") == "DocId" &&
+                        (string?)signature.Attribute("Value") == registered.Id));
+                var changedOwner = registered with { Member = changedMember, Docs = changedMember.Element("Docs")! };
+                Assert(MapOwner(changedOwner, sourcePages).Docs?.HasRecoveredBiometricCallbackLinks == true,
+                    "Biometric callback attached clone reaches the recovery guard");
+                changedMember.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public void Changed();");
+                Assert(MapOwner(changedOwner, sourcePages).ErrorReason == "source_channel_ambiguous",
+                    "Biometric callback changed signature reaches and fails the recovery guard");
+                Assert(SourcePage.Parse(request with { Url = request.Url + ".Other" }, html)
+                    .Members.Single().Docs?.HasRecoveredBiometricCallbackLinks != true,
+                    "Biometric callback recovery requires the canonical page");
+                Assert(SourcePage.Parse(request, html + "\n").Members.Single().Docs?
+                    .HasRecoveredBiometricCallbackLinks != true,
+                    "Biometric callback changed native fragment is not recovered");
+
+                XDocument Fixture(bool singleRegistered, bool changeSignature, bool authoredFirst)
+                {
+                    var document = new XDocument(loaded.Root.Document!);
+                    var members = document.Root!.Element("Members")!;
+                    var selected = singleRegistered ? [registered] : owners;
+                    members.ReplaceNodes(selected.Select(owner => new XElement(owner.Member!)));
+                    document.Root.Element("Docs")!.ReplaceNodes(
+                        new XElement("summary", new XElement("c", "Preserve type documentation.")));
+                    foreach (var (member, index) in members.Elements("Member").Select((member, index) => (member, index)))
+                    {
+                        member.Element("Docs")!.ReplaceNodes(
+                            new XElement("param", new XAttribute("name", codeName),
+                                authoredFirst && index == 0 ? new XElement("c", "Authored code.") : "To be added."),
+                            new XElement("param", new XAttribute("name", textName), new XElement("c", "Authored text.")),
+                            new XElement("summary", new XElement("c", "Authored summary.")),
+                            new XElement("remarks",
+                                new XElement("para", new XElement("c", "Authored remarks.")),
+                                ImporterSourceReference(source),
+                                XElement.Parse($"<para>{AndroidAttribution}</para>")));
+                    }
+                    if (changeSignature)
+                        members.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                            (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public void Changed();");
+                    return document;
+                }
+
+                (int Count, string[] Reasons) Run(bool apply)
+                {
+                    var reportPath = Path.Combine(temporary, $"report-{ordinal++}");
+                    var arguments = new List<string>
+                    {
+                        "--path", path, "--namespace", "Android.Hardware.Biometrics", "--member", managedName,
+                        "--offline", "--cache", cache, "--max-changes", "1", "--report", reportPath,
+                    };
+                    if (apply)
+                        arguments.Add("--apply");
+                    Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                        "Biometric callback production run");
+                    using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "Biometric callback production run has no errors");
+                    return (report.RootElement.GetProperty(apply ? "appliedCount" : "wouldApplyCount").GetInt32(),
+                        report.RootElement.GetProperty("entries").EnumerateArray()
+                            .Select(entry => entry.TryGetProperty("reason", out var reason) ? reason.GetString() ?? "" : "")
+                            .ToArray());
+                }
+
+                void Write(XDocument document, string sourceHtml)
+                {
+                    File.WriteAllText(path, document.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                    File.WriteAllText(cachePath, sourceHtml, new UTF8Encoding(false));
+                }
+
+                Write(Fixture(false, false, false), html);
+                var before = File.ReadAllBytes(path);
+                Assert(Run(false).Count == 1 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback bounded preview does not write");
+                Assert(Run(true).Count == 1 && Run(true).Count == 1,
+                    "Biometric callback fills both overloads in one-change batches");
+                var expectedXml = Encoding.UTF8.GetString(before.AsSpan(3)).Replace(
+                    $"<param name=\"{codeName}\">To be added.</param>",
+                    $"<param name=\"{codeName}\">{expected}</param>", StringComparison.Ordinal);
+                var expectedBytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(expectedXml)).ToArray();
+                Assert(expectedBytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback changes only the two parameter spans");
+                before = File.ReadAllBytes(path);
+                Assert(Run(true).Count == 0 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback persisted repeat is byte-identical");
+
+                Write(Fixture(false, false, true), html);
+                Assert(Run(true).Count == 1 &&
+                    XElement.Load(path).Element("Members")!.Elements("Member").First()
+                        .Element("Docs")!.Elements("param").First().Element("c")?.Value == "Authored code.",
+                    "Biometric callback preserves authored parameter markup");
+                before = File.ReadAllBytes(path);
+                Assert(Run(true).Count == 0 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback authored-content repeat is byte-identical");
+
+                Write(Fixture(false, false, false), html + "\n");
+                before = File.ReadAllBytes(path);
+                var changedSource = Run(true);
+                Assert(changedSource.Count == 0 &&
+                    changedSource.Reasons.Contains("source_channel_not_meaningful") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback changed source does not write");
+                Write(Fixture(false, false, false), html + html);
+                before = File.ReadAllBytes(path);
+                var duplicateSource = Run(true);
+                Assert(duplicateSource.Count == 0 &&
+                    duplicateSource.Reasons.Contains("ambiguous_exact_match") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback duplicate source sections do not write");
+                var corrected = html.Replace(BiometricCallbackErrorLink, "BiometricConstants.Errors", StringComparison.Ordinal)
+                    .Replace(BiometricCallbackFaceLink, "BiometricFaceConstants.FaceAcquired", StringComparison.Ordinal)
+                    .Replace(BiometricCallbackFingerprintLink, "BiometricFingerprintConstants.FingerprintAcquired", StringComparison.Ordinal);
+                Assert(SourcePage.Parse(request, corrected).Members.Single().Docs?.HasRecoveredBiometricCallbackLinks != true,
+                    "Biometric callback corrected source needs no recovery");
+                Write(Fixture(false, false, false), corrected);
+                Assert(Run(true).Count == 1 && Run(true).Count == 1,
+                    "Biometric callback corrected source remains eligible");
+
+                foreach (var mutateSibling in new Action<XElement>[]
+                {
+                    member => member.Element("Attributes")!.Descendants("AttributeName").First().Value =
+                        member.Element("Attributes")!.Descendants("AttributeName").First().Value.Replace(
+                            "(ILjava/lang/CharSequence;)V", "(JLjava/lang/CharSequence;)V", StringComparison.Ordinal),
+                    member => member.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public void Changed();"),
+                    member => member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                    member => member.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", "M:Other.Member"),
+                    member => member.Add(new XElement(member.Element("AssemblyInfo")!)),
+                    member => member.Element("Attributes")!.Add(new XElement(
+                        member.Element("Attributes")!.Elements("Attribute").First(attribute =>
+                            attribute.Value.Contains("Register(", StringComparison.Ordinal)))),
+                })
+                {
+                    var changed = Fixture(false, false, false);
+                    var sibling = changed.Root!.Element("Members")!.Elements("Member")
+                        .Single(member => Registration.Member(member) is not null);
+                    mutateSibling(sibling);
+                    Write(changed, html);
+                    before = File.ReadAllBytes(path);
+                    var siblingRejected = Run(true);
+                    Assert(siblingRejected.Count == 0 && before.SequenceEqual(File.ReadAllBytes(path)),
+                        "Biometric callback rejects changed registered-sibling identity without writes");
+                }
+
+                var duplicateTypeRegistration = Fixture(false, false, false);
+                var typeAttributes = duplicateTypeRegistration.Root!.Element("Attributes")!;
+                typeAttributes.Add(new XElement(typeAttributes.Elements("Attribute").First(attribute =>
+                    attribute.Value.Contains("Register(", StringComparison.Ordinal))));
+                Write(duplicateTypeRegistration, html);
+                before = File.ReadAllBytes(path);
+                var typeRejected = Run(true);
+                Assert(typeRejected.Count == 0 && typeRejected.Reasons.Contains("source_channel_ambiguous") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback rejects duplicate type registration without writes");
+
+                var missingSibling = Fixture(false, false, false);
+                missingSibling.Root!.Element("Members")!.Elements("Member")
+                    .Single(member => Registration.Member(member) is not null).Remove();
+                Write(missingSibling, html);
+                before = File.ReadAllBytes(path);
+                var missingRejected = Run(true);
+                Assert(missingRejected.Count == 0 &&
+                    missingRejected.Reasons.Contains("missing_member_registration") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback rejects a missing registered sibling without writes");
+
+                var duplicateSibling = Fixture(false, false, true);
+                var registeredSibling = duplicateSibling.Root!.Element("Members")!.Elements("Member")
+                    .Single(member => Registration.Member(member) is not null);
+                registeredSibling.AddAfterSelf(new XElement(registeredSibling));
+                Write(duplicateSibling, html);
+                before = File.ReadAllBytes(path);
+                var siblingDuplicateRejected = Run(true);
+                Assert(siblingDuplicateRejected.Count == 0 &&
+                    siblingDuplicateRejected.Reasons.Contains("missing_member_registration") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback rejects duplicate registered siblings without writes");
+
+                Write(Fixture(true, true, false), html);
+                before = File.ReadAllBytes(path);
+                var rejected = Run(true);
+                Assert(rejected.Count == 0 && rejected.Reasons.Contains("source_channel_ambiguous") &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback mismatched binding reaches the guard without writes");
+                Assert(Run(true).Count == 0 && before.SequenceEqual(File.ReadAllBytes(path)),
+                    "Biometric callback rejected repeat is byte-identical");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temporary, recursive: true);
+        }
+    }
+
+    static void TestSecurityLogImplicitLists(string repositoryRoot)
+    {
+        var fixture = File.ReadLines(Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "securitylog-source-fragments.txt")).Select(line => line.Split('|')).ToList();
+        Assert(SecurityLogImplicitListFields.Keys.All(key => fixture.Count(parts => parts[0] == key) == 1) &&
+            fixture.Count(parts => parts[0].StartsWith("TAG_KEY_", StringComparison.Ordinal)) == 4,
+            "SecurityLog fixture covers every recovered and already parsed field");
+        var tagsPath = Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Admin", "SecurityLogTags.xml");
+        var tags = LoadedFile.Load(repositoryRoot, tagsPath);
+        tags.SelectOwners(null);
+        var request = tags.Owners.First(owner => owner.IsEnumField).SourceRequest!;
+        Assert(request.Url == AndroidReference + SecurityLogJavaPath, "SecurityLog enum request is canonical");
+        var html = string.Concat(fixture.Select(parts =>
+        {
+            var fragment = Encoding.UTF8.GetString(Convert.FromBase64String(parts[3]));
+            Assert(Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(fragment)))
+                .Equals(parts[2], StringComparison.OrdinalIgnoreCase), "SecurityLog fixture hash");
+            return fragment;
+        }));
+        var page = SourcePage.Parse(request, html);
+        var pages = new Dictionary<string, SourceLoadResult> { [request.Url] = SourceLoadResult.Success(page) };
+        var unrelated = request with
+        {
+            JavaPath = "android/app/admin/NetworkEvent",
+            Url = AndroidReference + "android/app/admin/NetworkEvent",
+        };
+        foreach (var parts in fixture)
+        {
+            var fragment = Encoding.UTF8.GetString(Convert.FromBase64String(parts[3]));
+            var owner = tags.Owners.Single(candidate => (string?)candidate.Member?.Attribute("MemberName") == parts[1]);
+            var docs = page.Members.Single(member => member.Name == parts[0]).Docs;
+            var mapped = MapOwner(owner, pages);
+            foreach (var other in new[]
+            {
+                SourcePage.Parse(request with { Url = request.Url + ".Other" }, fragment),
+                SourcePage.Parse(unrelated, fragment),
+                SourcePage.Parse(request, fragment + "\n"),
+            })
+            {
+                var otherDocs = other.Members.Single().Docs;
+                Assert(otherDocs?.HasRecoveredSecurityLogImplicitList != true &&
+                    (otherDocs is null) == !parts[0].StartsWith("TAG_KEY_", StringComparison.Ordinal),
+                    $"SecurityLog {parts[0]} unrelated or changed source keeps the existing parse");
+            }
+            if (SecurityLogImplicitListFields.ContainsKey(parts[0]))
+            {
+                Assert(docs is { HasRecoveredSecurityLogImplicitList: true } &&
+                    MatchesSecurityLogImplicitListBinding(owner, owner.MemberRegistration!, docs) &&
+                    mapped.Docs is { HasRecoveredSecurityLogImplicitList: true } &&
+                    !docs.Paragraphs.Any(paragraph => paragraph.Text.Contains("Constant Value", StringComparison.Ordinal) ||
+                        paragraph.Text.Contains("See also", StringComparison.Ordinal)),
+                    $"SecurityLog {parts[0]} recovers only for its exact SecurityLogTags binding");
+                var correctedFragment = RecoverSecurityLogImplicitList(fragment, request, parts[0], out var recovered);
+                var corrected = SourcePage.Parse(request, correctedFragment).Members.Single().Docs;
+                Assert(recovered && corrected is { HasRecoveredSecurityLogImplicitList: false } &&
+                    corrected.Paragraphs.SequenceEqual(docs!.Paragraphs),
+                    $"SecurityLog {parts[0]} correctly closed source follows ordinary parsing");
+                if (parts[0] == "TAG_BACKUP_SERVICE_TOGGLED")
+                {
+                    var sourceMember = page.Members.Single(member => member.Name == parts[0]);
+                    foreach (var changed in new[]
+                    {
+                        docs! with { SourceKind = "java" },
+                        docs! with { SourceUrl = docs.SourceUrl + ".Other" },
+                        docs! with { SourceLabel = docs.SourceLabel + ".Other" },
+                    })
+                    {
+                        var provenancePage = new SourcePage { Members = [sourceMember with { Docs = changed }] };
+                        var provenancePages = new Dictionary<string, SourceLoadResult>
+                            { [request.Url] = SourceLoadResult.Success(provenancePage) };
+                        Assert(MapOwner(owner, provenancePages).ErrorReason == "source_channel_ambiguous",
+                            "SecurityLog rejects changed recovered source provenance");
+                    }
+                    var changedRequest = request with { JavaPath = "android/app/admin/Other" };
+                    Assert(MapOwner(owner with { SourceRequest = changedRequest }, pages).ErrorReason ==
+                        "source_channel_ambiguous", "SecurityLog rejects a changed source Java path");
+                }
+                var clonedType = new XElement(owner.Member!.Parent!.Parent!);
+                var clone = clonedType.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == parts[1]);
+                DocsOwner SelectedClone() => owner with
+                {
+                    Member = clone,
+                    Docs = clone.Element("Docs")!,
+                    MemberRegistration = Registration.Member(clone),
+                    SourceRequest = SourceRequest.Create(Registration.JniField(clone)?.Owner),
+                };
+                Assert(MapOwner(SelectedClone(), pages).Docs is { HasRecoveredSecurityLogImplicitList: true },
+                    $"SecurityLog {parts[0]} attached clone reaches the recovery guard");
+                var memberValue = clone.Element("MemberValue")!;
+                var originalValue = memberValue.Value;
+                memberValue.Value = "1";
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed managed value");
+                memberValue.Value = originalValue;
+                clone.SetAttributeValue("MemberName", parts[1] + "Changed");
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed member name");
+                clone.SetAttributeValue("MemberName", parts[1]);
+                var docId = clone.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId");
+                docId.SetAttributeValue("Value", owner.Id + "Changed");
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed DocId");
+                docId.SetAttributeValue("Value", owner.Id);
+                var csharp = clone.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#");
+                csharp.SetAttributeValue("Value", parts[1] + "Changed");
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed C# signature");
+                csharp.SetAttributeValue("Value", parts[1]);
+                var returnType = clone.Element("ReturnValue")!.Element("ReturnType")!;
+                var originalReturnType = returnType.Value;
+                returnType.Value = "System.Int32";
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed return type");
+                returnType.Value = originalReturnType;
+                var memberType = clone.Element("MemberType")!;
+                memberType.Value = "Property";
+                Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                    $"SecurityLog {parts[0]} rejects a changed member type");
+                memberType.Value = "Field";
+                foreach (var assembly in new[]
+                {
+                    clonedType.Element("AssemblyInfo")!.Element("AssemblyName")!,
+                    clone.Element("AssemblyInfo")!.Element("AssemblyName")!,
+                })
+                {
+                    assembly.Value = "Other.Assembly";
+                    Assert(MapOwner(SelectedClone(), pages).ErrorReason == "source_channel_ambiguous",
+                        $"SecurityLog {parts[0]} rejects a changed assembly");
+                    assembly.Value = "Mono.Android";
+                }
+                var jniAttributes = clone.Descendants("AttributeName")
+                    .Where(name => name.Value.Contains("JniField=", StringComparison.Ordinal)).ToList();
+                Assert(jniAttributes.Count > 0 && jniAttributes.All(attribute =>
+                    attribute.Value.Contains(SecurityLogJavaPath + "." + parts[0] + "\"", StringComparison.Ordinal)),
+                    $"SecurityLog {parts[0]} clone has the expected JNI field");
+                foreach (var attribute in jniAttributes)
+                    attribute.Value = attribute.Value.Replace(SecurityLogJavaPath + "." + parts[0] + "\"",
+                        "android/app/admin/Other." + parts[0] + "\"", StringComparison.Ordinal);
+                var changedOwner = SelectedClone();
+                Assert(changedOwner.MemberRegistration == owner.MemberRegistration &&
+                    changedOwner.SourceRequest?.JavaPath == "android/app/admin/Other",
+                    $"SecurityLog {parts[0]} changed JNI owner is routed to its own page");
+                var changedPage = SourcePage.Parse(changedOwner.SourceRequest!, fragment);
+                var changedPages = new Dictionary<string, SourceLoadResult>
+                    { [changedOwner.SourceRequest!.Url] = SourceLoadResult.Success(changedPage) };
+                Assert(MapOwner(changedOwner, changedPages).ErrorReason == "source_documentation_empty" &&
+                    !MatchesSecurityLogImplicitListBinding(changedOwner with { SourceRequest = request },
+                        owner.MemberRegistration!, docs!),
+                    $"SecurityLog {parts[0]} rejects a changed JNI owner");
+            }
+            else if (parts[0].StartsWith("TAG_KEY_", StringComparison.Ordinal))
+                Assert(docs is { HasRecoveredSecurityLogImplicitList: false } && mapped.Docs is not null,
+                    "SecurityLog already parsed field is not recovered");
+            else
+                Assert(docs is null && mapped.ErrorReason == "source_documentation_empty",
+                    $"SecurityLog withheld {parts[0]} stays unparsed");
+        }
+        Assert(page.Members.Single(member => member.Name == "TAG_BACKUP_SERVICE_TOGGLED").Docs!.Paragraphs
+            .Select(paragraph => paragraph.Text).SequenceEqual([
+                "Indicates that an admin has enabled or disabled backup service. The log entry contains the following information about the event encapsulated in an Object array, accessible via SecurityEvent.getData(): [0] admin package name (String); [1] admin user ID (Integer); [2] backup service state (Integer, 1 for enabled, 0 for disabled)",
+            ]), "SecurityLog recovered list ends at its paragraph");
+        Assert(page.Members.Single(member => member.Name == "TAG_CERT_AUTHORITY_INSTALLED").Docs!.Paragraphs
+            .Select(paragraph => paragraph.Text).SequenceEqual([
+                "Indicates that a new root certificate has been installed into system's trusted credential storage. The log entry contains the following information about the event, encapsulated in an Object array and accessible via SecurityEvent.getData(): [0] result (Integer, 0 if operation failed, 1 if succeeded); [1] subject of the certificate (String); [2] which user the certificate is installed for (Integer), only available from version Build.VERSION_CODES.R.",
+                "If security logging is enabled on organization-owned managed profile devices, only events happening inside the managed profile will be visible.",
+            ]), "SecurityLog recovered list ends before its nested paragraph");
+        var fieldSource = page.Members.Single(member => member.Name == "TAG_BACKUP_SERVICE_TOGGLED");
+        var methodOwner = tags.Owners.Single(owner =>
+            (string?)owner.Member?.Attribute("MemberName") == "BackupServiceToggled") with
+        {
+            MemberRegistration = new MemberRegistration(fieldSource.Name, "()V", false),
+            IsEnumField = false,
+        };
+        var methodSource = fieldSource with { IsField = false, ArgumentDescriptors = [] };
+        var methodPages = new Dictionary<string, SourceLoadResult>
+        {
+            [request.Url] = SourceLoadResult.Success(new SourcePage { Members = [methodSource] }),
+        };
+        Assert(MapOwner(methodOwner, methodPages).ErrorReason == "source_channel_ambiguous",
+            "SecurityLog recovered fields cannot be mapped as methods");
+        methodPages[request.Url] = SourceLoadResult.Success(new SourcePage
+        {
+            Members = [methodSource with { Docs = methodSource.Docs! with { HasRecoveredSecurityLogImplicitList = false } }],
+        });
+        Assert(MapOwner(methodOwner, methodPages).Docs is not null,
+            "SecurityLog unflagged control reaches the method mapping");
+
+        var constants = LoadedFile.Load(repositoryRoot,
+            Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Admin", "SecurityLog.xml"));
+        constants.SelectOwners("TagBackupServiceToggled");
+        var constant = constants.Owners.Single(owner => (string?)owner.Member?.Attribute("MemberName") == "TagBackupServiceToggled");
+        Assert(MapOwner(constant, pages).ErrorReason == "source_channel_ambiguous",
+            "SecurityLog recovered list does not bind to SecurityLog constants");
+
+        var temp = Path.Combine(Path.GetTempPath(), $"securitylog-source-{Guid.NewGuid():N}");
+        var cache = Path.Combine(temp, "cache");
+        Directory.CreateDirectory(cache);
+        var path = Path.Combine(repositoryRoot, "docs", "xml",
+            $".securitylog-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}.xml");
+        try
+        {
+            var names = SecurityLogImplicitListFields.Values.Select(field => field.ManagedName)
+                .ToHashSet(StringComparer.Ordinal);
+            var document = XDocument.Load(tagsPath, LoadOptions.PreserveWhitespace);
+            void PrepareFixture(XDocument input)
+            {
+                var members = input.Root!.Element("Members")!.Elements("Member")
+                    .Where(member => names.Contains((string?)member.Attribute("MemberName") ?? "")).ToList();
+                Assert(members.Count == names.Count, "SecurityLog fixture has every recovered binding");
+                // The checked-in summaries may already be filled when this test runs.
+                foreach (var member in members)
+                {
+                    var summary = member.Element("Docs")!.Elements("summary").Single();
+                    summary.RemoveAttributes();
+                    summary.ReplaceNodes("To be added.");
+                }
+            }
+            PrepareFixture(document);
+            void WriteFixture(XDocument input) => File.WriteAllText(path,
+                input.ToString(SaveOptions.DisableFormatting).ReplaceLineEndings("\r\n"), new UTF8Encoding(true));
+            WriteFixture(document);
+            Assert(!SelectFiles(repositoryRoot, Path.Combine(repositoryRoot, "docs", "xml"),
+                    Options.Parse(["--path", Path.Combine(repositoryRoot, "docs", "xml", "Android.App.Admin")]))
+                .Contains(path, StringComparer.Ordinal), "SecurityLog fixture is outside namespace path scans");
+            File.WriteAllText(Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"), html, new UTF8Encoding(false));
+            var ordinal = 0;
+            JsonElement Run(bool apply)
+            {
+                var reportPath = Path.Combine(temp, $"report-{ordinal++}");
+                var arguments = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.App.Admin", "--offline", "--cache", cache,
+                    "--max-changes", "10", "--report", reportPath,
+                };
+                if (apply)
+                    arguments.Add("--apply");
+                Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                    "SecurityLog bounded production run");
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "SecurityLog production report has no errors");
+                return report.RootElement.Clone();
+            }
+            string MaskSummaries(string text)
+            {
+                var parsed = XDocument.Parse(text, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                var summaries = parsed.Root!.Element("Members")!.Elements("Member")
+                    .Where(member => names.Contains((string?)member.Attribute("MemberName") ?? ""))
+                    .Select(member => member.Element("Docs")!.Elements("summary").Single()).ToList();
+                Assert(summaries.Count == names.Count, "SecurityLog locates every recovered summary");
+                var spans = summaries.Select(summary =>
+                {
+                    Assert(TryGetElementSpan(text, summary, out var span), "SecurityLog locates a raw summary span");
+                    return span;
+                }).OrderByDescending(span => span.Start).ToList();
+                foreach (var span in spans)
+                    text = text[..span.Start] + "<summary />" + text[span.End..];
+                return text;
+            }
+            string RawSummary(string text, string name)
+            {
+                var parsed = XDocument.Parse(text, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                var summary = parsed.Root!.Element("Members")!.Elements("Member")
+                    .Single(member => (string?)member.Attribute("MemberName") == name)
+                    .Element("Docs")!.Elements("summary").Single();
+                Assert(TryGetElementSpan(text, summary, out var span), "SecurityLog locates an authored summary");
+                return text[span.Start..span.End];
+            }
+            var before = File.ReadAllBytes(path);
+            var beforeText = File.ReadAllText(path);
+            var strictUtf8 = new UTF8Encoding(false, true);
+            Assert(before.AsSpan().StartsWith(Encoding.UTF8.Preamble) &&
+                before.AsSpan(Encoding.UTF8.Preamble.Length).SequenceEqual(strictUtf8.GetBytes(beforeText)),
+                "SecurityLog fixture is exact UTF-8 with a BOM");
+            var preview = Run(false);
+            Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 10 &&
+                File.ReadAllBytes(path).SequenceEqual(before),
+                "SecurityLog bounded preview does not write");
+            var applied = new List<string>();
+            for (var batch = 0; batch < 3; batch++)
+            {
+                var report = Run(true);
+                var entries = report.GetProperty("entries").EnumerateArray()
+                    .Where(entry => entry.GetProperty("status").GetString() == "applied")
+                    .Select(entry => entry.GetProperty("member").GetString() + "/" + entry.GetProperty("target").GetString())
+                    .ToList();
+                Assert(entries.Count == report.GetProperty("appliedCount").GetInt32() &&
+                    entries.Count is > 0 and <= 10, "SecurityLog each apply respects the ten-change limit");
+                applied.AddRange(entries);
+            }
+            Assert(applied.Order(StringComparer.Ordinal).SequenceEqual(SecurityLogImplicitListFields.Values
+                    .Select(field => $"F:Android.App.Admin.SecurityLogTags.{field.ManagedName}/summary")
+                    .Order(StringComparer.Ordinal)),
+                "SecurityLog production runs fill exactly the 24 recovered enum summaries");
+            var after = File.ReadAllBytes(path);
+            var afterText = File.ReadAllText(path);
+            Assert(after.AsSpan().StartsWith(Encoding.UTF8.Preamble) &&
+                after.AsSpan(Encoding.UTF8.Preamble.Length).SequenceEqual(strictUtf8.GetBytes(afterText)) &&
+                MaskSummaries(beforeText) == MaskSummaries(afterText),
+                "SecurityLog preserves every byte outside the recovered summary spans, including the BOM");
+            var populatedDocument = XDocument.Parse(afterText, LoadOptions.PreserveWhitespace);
+            PrepareFixture(populatedDocument);
+            Assert(populatedDocument.ToString(SaveOptions.DisableFormatting).ReplaceLineEndings("\r\n") == beforeText,
+                "SecurityLog fixture can be rebuilt after all summaries are filled");
+            Assert(Run(true).GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllBytes(path).SequenceEqual(after),
+                "SecurityLog persisted repeat is a byte-identical zero-write");
+
+            var authoredDocument = new XDocument(document);
+            var authoredSummary = authoredDocument.Root!.Element("Members")!.Elements("Member")
+                .Single(member => (string?)member.Attribute("MemberName") == "BackupServiceToggled")
+                .Element("Docs")!.Element("summary")!;
+            authoredSummary.ReplaceNodes("Retained ", new XElement("c", "authored"), " text.");
+            WriteFixture(authoredDocument);
+            var authoredBefore = RawSummary(File.ReadAllText(path), "BackupServiceToggled");
+            var authoredReport = Run(true);
+            Assert(authoredReport.GetProperty("appliedCount").GetInt32() == 10 &&
+                !authoredReport.GetProperty("entries").EnumerateArray().Any(entry =>
+                    entry.GetProperty("status").GetString() == "applied" &&
+                    entry.GetProperty("member").GetString() == "F:Android.App.Admin.SecurityLogTags.BackupServiceToggled") &&
+                RawSummary(File.ReadAllText(path), "BackupServiceToggled") == authoredBefore,
+                "SecurityLog preserves authored mixed content while applying sibling fields");
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temp, recursive: true);
+        }
+    }
+
     static void TestSslDNameConstructor(string repositoryRoot, string fixtureRoot)
     {
         var fixture = File.ReadAllText(Path.Combine(fixtureRoot, "ssl-dname-source-fragment.txt"))
@@ -19629,8 +22015,485 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestDalvikOpcodeProjection(string repositoryRoot)
+    {
+        var fixturePath = Path.Combine(repositoryRoot, "tools", "importer-fixtures",
+            "dalvik-opcodes-source-fragments.txt");
+        var fragments = File.ReadLines(fixturePath).Where(line => !line.StartsWith('#'))
+            .Select(line => line.Split('|')).ToDictionary(parts => parts[0], parts =>
+            {
+                var bytes = Convert.FromBase64String(parts[3]);
+                Assert(Convert.ToHexString(SHA256.HashData(bytes)).Equals(parts[2],
+                    StringComparison.OrdinalIgnoreCase), "Dalvik native fragment hash: " + parts[0]);
+                return Encoding.UTF8.GetString(bytes);
+            }, StringComparer.Ordinal);
+        var html = fragments["type"] + string.Concat(fragments.Where(pair => pair.Key != "type")
+            .Select(pair => pair.Value));
+        var request = SourceRequest.CreateAndroid(DalvikOpcodeProjection.JavaPath)!;
+        var page = SourcePage.Parse(request, html);
+        var directory = Path.Combine(repositoryRoot, "docs", "xml",
+            ".dalvik-projection-self-test-" + Guid.NewGuid().ToString("N"));
+        var cache = Path.Combine(directory, "cache");
+        Directory.CreateDirectory(cache);
+        var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+            Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        var originals = new[] { "IOpcodes", "Opcodes" }.ToDictionary(name => name, name =>
+            XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Dalvik.Bytecode", name + ".xml")));
+        static XElement Member(XElement root, string name) =>
+            root.Element("Members")!.Elements("Member").Single(item =>
+                (string?)item.Attribute("MemberName") == name);
+        string PathFor(string type) => Path.Combine(directory, type + ".xml");
+        var sequence = 0;
+        try
+        {
+            void Write(string type, string name, Action<XElement, XElement>? mutate = null,
+                string newline = "\n", bool bom = false, bool siblingMutation = false)
+            {
+                foreach (var pair in originals)
+                {
+                    var root = new XElement(pair.Value);
+                    foreach (var docs in root.Element("Members")!.Elements("Member").Elements("Docs"))
+                        docs.ReplaceNodes(new XElement("summary", "Authored summary."),
+                            new XElement("remarks", "Authored remarks."));
+                    var member = Member(root, name);
+                    if (pair.Key == type)
+                        member.Element("Docs")!.ReplaceNodes(
+                            new XElement("summary", "To be added."),
+                            new XElement("remarks", "Authored remarks."));
+                    if (pair.Key == (siblingMutation ? type == "IOpcodes" ? "Opcodes" : "IOpcodes" : type))
+                        mutate?.Invoke(root, member);
+                    File.WriteAllText(PathFor(pair.Key),
+                        root.ToString().ReplaceLineEndings(newline), new UTF8Encoding(bom));
+                }
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+            }
+            JsonElement Run(string type, string selectedMember, bool apply)
+            {
+                var reportPath = Path.Combine(directory, "report-" + sequence++);
+                var args = new List<string>
+                {
+                    "--path", PathFor(type), "--namespace", "Dalvik.Bytecode",
+                    "--member", selectedMember, "--max-changes", "1",
+                    "--offline", "--cache", cache, "--report", reportPath,
+                };
+                if (apply)
+                    args.Add("--apply");
+                var output = Console.Out;
+                using var captured = new StringWriter();
+                int exit;
+                try
+                {
+                    Console.SetOut(captured);
+                    exit = RunAsync(args.ToArray()).GetAwaiter().GetResult();
+                }
+                finally
+                {
+                    Console.SetOut(output);
+                }
+                Assert(exit == 0, "Dalvik production pipeline succeeds: " + captured);
+                using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("sourcesFetched").GetInt32() == 0,
+                    "Dalvik tests use only the retained offline reference fixture");
+                return report.RootElement.Clone();
+            }
+            void Reject(string type, string name, string description)
+            {
+                var before = File.ReadAllBytes(PathFor(type));
+                var result = Run(type, name, true);
+                Assert(result.GetProperty("appliedCount").GetInt32() == 0 &&
+                    result.GetProperty("filesChanged").GetInt32() == 0 &&
+                    File.ReadAllBytes(PathFor(type)).SequenceEqual(before),
+                    "Dalvik rejects " + description + " without changing bytes");
+            }
+            foreach (var type in originals.Keys)
+            {
+                foreach (var native in fragments.Keys.Where(key => key is not ("type" or "OP_ADD_DOUBLE")))
+                {
+                    var name = (string)originals[type].Element("Members")!.Elements("Member").Single(member =>
+                        Registration.Member(member)?.Name == native).Attribute("MemberName")!;
+                    Write(type, name);
+                    var before = File.ReadAllBytes(PathFor(type));
+                    var preview = Run(type, name, false);
+                    Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        File.ReadAllBytes(PathFor(type)).SequenceEqual(before),
+                        "Dalvik bounded preview preserves " + type + "." + name);
+                    var applied = Run(type, name, true);
+                    Assert(applied.GetProperty("appliedCount").GetInt32() == 1 &&
+                        Member(XElement.Load(PathFor(type)), name).Element("Docs")!
+                            .Element("summary")!.Value.Contains(native.EndsWith("_JUMBO", StringComparison.Ordinal)
+                                ? "Never implemented; do not use." : "Implementation detail.", StringComparison.Ordinal),
+                        "Dalvik imports the exact declared field prose: " + type + "." + name);
+                    var persisted = File.ReadAllBytes(PathFor(type));
+                    var repeated = Run(type, name, true);
+                    Assert(repeated.GetProperty("appliedCount").GetInt32() == 0 &&
+                        File.ReadAllBytes(PathFor(type)).SequenceEqual(persisted),
+                        "Dalvik field has a byte-identical persisted zero-write repeat: " + repeated);
+                }
+                const string target = "OpBreakpoint";
+                foreach (var newline in new[] { "\n", "\r\n" })
+                foreach (var bom in new[] { false, true })
+                {
+                    Write(type, target, newline: newline, bom: bom);
+                    var before = File.ReadAllText(PathFor(type));
+                    var siblingType = type == "IOpcodes" ? "Opcodes" : "IOpcodes";
+                    var siblingBytes = File.ReadAllBytes(PathFor(siblingType));
+                    Assert(Run(type, target, true).GetProperty("appliedCount").GetInt32() == 1,
+                        "Dalvik encoding fixture applies exactly one summary");
+                    var after = File.ReadAllText(PathFor(type));
+                    var oldSummary = "<summary>To be added.</summary>";
+                    var memberStart = before.IndexOf("<Member MemberName=\"OpBreakpoint\"", StringComparison.Ordinal);
+                    var start = before.IndexOf(oldSummary, memberStart, StringComparison.Ordinal);
+                    var summaryEnd = after.IndexOf("</summary>", start, StringComparison.Ordinal) + "</summary>".Length;
+                    var restored = after[..start] + oldSummary + after[summaryEnd..];
+                    Assert(restored == before &&
+                        File.ReadAllBytes(PathFor(type)).AsSpan().StartsWith(Encoding.UTF8.Preamble) == bom &&
+                        File.ReadAllBytes(PathFor(siblingType)).SequenceEqual(siblingBytes),
+                        "Dalvik preserves BOM/newlines, authored remarks, sibling and every byte outside the summary");
+                }
+                var mutations = new (string Description, Action<XElement, XElement> Change)[]
+                {
+                    ("owner identity", (root, _) => root.SetAttributeValue("FullName", "Other.IOpcodes")),
+                    ("owner assembly", (root, _) => root.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other"),
+                    ("member assembly", (_, member) => member.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other"),
+                    ("field value", (_, member) => member.Element("MemberValue")!.Value = "237"),
+                    ("return type", (_, member) => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int64"),
+                    ("managed signature", (_, member) => member.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public const int Other = 236;")),
+                    ("DocId", (_, member) => member.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", "F:Other.OpBreakpoint")),
+                    ("JNI registration", (_, member) => member.Element("Attributes")!.Descendants("AttributeName")
+                        .First().Value = "[Android.Runtime.Register(\"OP_OTHER\")]"),
+                    ("duplicate field", (root, member) => root.Element("Members")!.Add(new XElement(member))),
+                };
+                foreach (var mutation in mutations)
+                foreach (var siblingMutation in new[] { false, true })
+                {
+                    Write(type, target, mutation.Change, siblingMutation: siblingMutation);
+                    var loaded = LoadedFile.Load(repositoryRoot, PathFor(type));
+                    loaded.SelectOwners(target);
+                    Assert(loaded.Owners.All(owner =>
+                        owner.Member?.Parent == loaded.Root.Element("Members") && owner.SourceRequest is null),
+                        "Dalvik attached mutated binding reaches and fails the projection guard: " + mutation.Description);
+                    Reject(type, target, mutation.Description + (siblingMutation ? " on sibling" : ""));
+                }
+                Write(type, target, (_, member) => member.Element("Docs")!.Element("summary")!
+                    .ReplaceNodes(new XText("Authored "), new XElement("c", "summary"), new XText(".")));
+                Reject(type, target, "authored mixed documentation");
+                foreach (var mutation in new[]
+                {
+                    html.Replace("public static final int OP_BREAKPOINT", "public static final long OP_BREAKPOINT", StringComparison.Ordinal),
+                    html.Replace("          236", "          237", StringComparison.Ordinal),
+                    html + fragments["OP_BREAKPOINT"],
+                    html.Replace("interface\n  Opcodes", "class\n  Opcodes", StringComparison.Ordinal),
+                })
+                {
+                    Assert(mutation != html, "Dalvik source mutation changes the retained native fixture");
+                    Write(type, target);
+                    File.WriteAllText(cachePath, mutation, new UTF8Encoding(false));
+                    var loaded = LoadedFile.Load(repositoryRoot, PathFor(type));
+                    loaded.SelectOwners(target);
+                    Assert(loaded.Owners.Single().SourceRequest == request &&
+                        !DalvikOpcodeProjection.MatchesSource(loaded.Owners.Single(), SourcePage.Parse(request, mutation)),
+                        "Dalvik source mutation reaches the source guard with an otherwise valid binding");
+                    Reject(type, target, "changed or duplicate official declaration/value");
+                }
+                Write(type, "OpAddDouble");
+                Reject(type, "OpAddDouble", "unlisted field with no reference prose");
+                Write(type, "OpConstClassJumbo", (_, member) =>
+                    member.Element("Attributes")!.Descendants("AttributeName").First().Value =
+                        "[Android.Runtime.Register(\"OP_CONST_METHOD_TYPE\")]");
+                Reject(type, "OpConstClassJumbo", "different JNI field with the same numeric value");
+                Write(type, target, (_, member) =>
+                    member.Element("Docs")!.Element("remarks")!.Value = "To be added.");
+                Assert(Run(type, target, true).GetProperty("appliedCount").GetInt32() == 1 &&
+                    Run(type, target, true).GetProperty("appliedCount").GetInt32() == 1,
+                    "Dalvik separate bounded writes fill both direct placeholder channels");
+                var complete = File.ReadAllBytes(PathFor(type));
+                var completeDocs = Member(XElement.Load(PathFor(type)), target).Element("Docs")!;
+                Assert(completeDocs.Element("remarks")!.Descendants("a").Any(link =>
+                        (string?)link.Attribute("href") == request.Url + "#OP_BREAKPOINT") &&
+                    Run(type, target, true).GetProperty("appliedCount").GetInt32() == 0 &&
+                    File.ReadAllBytes(PathFor(type)).SequenceEqual(complete),
+                    "Dalvik newly filled remarks retain source metadata and repeat without writes");
+            }
+            Write("IOpcodes", "OpBreakpoint");
+            var interfaceRoot = XElement.Load(PathFor("IOpcodes"));
+            interfaceRoot.Element("Docs")!.ReplaceNodes(
+                new XElement("summary", "To be added."), new XElement("remarks", "Authored type remarks."));
+            interfaceRoot.Save(PathFor("IOpcodes"));
+            var typeReport = Run("IOpcodes", "T:Dalvik.Bytecode.IOpcodes", true);
+            Assert(typeReport
+                    .GetProperty("appliedCount").GetInt32() == 1 &&
+                XElement.Load(PathFor("IOpcodes")).Element("Docs")!.Element("summary")!.Value ==
+                    "A list of all normal (not implementation-specific) Dalvik opcodes.",
+                "Dalvik constant-only interface imports only its verified native type description: " +
+                    typeReport + XElement.Load(PathFor("IOpcodes")).Element("Docs"));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    static void TestJavaIoLegacySecurity(string repositoryRoot)
+    {
+        using var fixture = JsonDocument.Parse(File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "java-io-legacy-security.json")));
+        var data = fixture.RootElement;
+        var scope = Path.Combine(repositoryRoot, "docs", "xml", "Java.IO",
+            $".java-io-security-self-test-{Guid.NewGuid():N}");
+        var temporary = Path.Combine(Path.GetTempPath(), $"java-io-security-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(scope);
+        Directory.CreateDirectory(temporary);
+        var cache = Path.Combine(temporary, "cache");
+        Directory.CreateDirectory(cache);
+        var pages = new Dictionary<string, string>(StringComparer.Ordinal);
+        var originals = new Dictionary<string, string>(StringComparer.Ordinal);
+        var executions = 0;
+        try
+        {
+            foreach (var binding in data.GetProperty("bindings").EnumerateArray())
+            {
+                var bytes = Convert.FromBase64String(binding.GetProperty("base64").GetString()!);
+                Assert(Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant() ==
+                    binding.GetProperty("sha256").GetString(), "retained original binding bytes match their receipt");
+                originals.Add(binding.GetProperty("type").GetString()!, Encoding.UTF8.GetString(bytes));
+            }
+            foreach (var group in data.GetProperty("nativeFragments").EnumerateArray()
+                .GroupBy(fragment => fragment.GetProperty("name").GetString()!.Split('.')[0]))
+            {
+                var html = "<html><body>";
+                foreach (var fragment in group)
+                {
+                    var bytes = Convert.FromBase64String(fragment.GetProperty("base64").GetString()!);
+                    Assert(bytes.Length == fragment.GetProperty("fragmentBytes").GetInt32() &&
+                        Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant() ==
+                            fragment.GetProperty("fragmentSha256").GetString(),
+                        "native contiguous Java fragment retains its exact byte length and source hash");
+                    html += Encoding.UTF8.GetString(bytes);
+                }
+                pages.Add(group.Key, html + "</body></html>");
+            }
+            void CachePage(string name, string html)
+            {
+                var url = SourceRequest.Create("java/io/" + name)!.Url;
+                File.WriteAllText(Path.Combine(cache, JavaIoLegacySecurityHash(url) + ".html"),
+                    html, new UTF8Encoding(false));
+            }
+            foreach (var page in pages)
+                CachePage(page.Key, page.Value);
+
+            XElement Member(XElement root, string id) => root.Element("Members")!.Elements("Member")
+                .Single(member => member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == id));
+            JsonDocument Run(string path, string id, int maximum, bool apply)
+            {
+                var reportPath = Path.Combine(temporary, "report-" + ++executions);
+                var args = new List<string> { "--path", path, "--namespace", "Java.IO",
+                    "--member", id, "--offline", "--cache", cache,
+                    "--max-changes", maximum.ToString(), "--report", reportPath };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Java.IO permission production pipeline succeeds offline");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Java.IO permission production pipeline reports no errors");
+                return report;
+            }
+            void NoWrites(string path, string id, string? reason = null)
+            {
+                var before = File.ReadAllBytes(path);
+                using var report = Run(path, id, 10, true);
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "unproven Java.IO permission content is preserved byte-for-byte");
+                if (reason is not null)
+                    Assert(report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == reason),
+                        "negative input reaches its intended Java.IO permission guard");
+            }
+            var cases = new (string Name, string Id, string[] Targets)[]
+            {
+                ("FilePermission", "M:Java.IO.FilePermission.#ctor(System.String,System.String)", ["remarks"]),
+                ("FilePermission", "P:Java.IO.FilePermission.Actions", ["value", "remarks"]),
+                ("FilePermission", "M:Java.IO.FilePermission.Implies(Java.Security.Permission)", ["param:p", "returns"]),
+                ("SerializablePermission", "M:Java.IO.SerializablePermission.#ctor(System.String)", ["param:name", "remarks"]),
+                ("SerializablePermission", "M:Java.IO.SerializablePermission.#ctor(System.String,System.String)", ["param:name", "param:actions", "remarks"]),
+            };
+            foreach (var sample in data.GetProperty("replayedSamples").EnumerateArray())
+            {
+                var bytes = Convert.FromBase64String(sample.GetProperty("outputBase64").GetString()!);
+                Assert(Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant() ==
+                    sample.GetProperty("outputSha256").GetString(),
+                    "actual independent historical producer output retains its receipt");
+                var replay = XElement.Parse(Encoding.UTF8.GetString(bytes), LoadOptions.PreserveWhitespace);
+                var original = XElement.Parse(originals[sample.GetProperty("type").GetString()!],
+                    LoadOptions.PreserveWhitespace);
+                foreach (var test in cases.Where(test => test.Name == sample.GetProperty("type").GetString()))
+                {
+                    var actual = Member(original, test.Id).Element("Docs")!;
+                    var produced = Member(replay, test.Id).Element("Docs")!;
+                    if (test.Id.Contains(".Implies(", StringComparison.Ordinal))
+                    {
+                        var reviewed = XElement.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(
+                            data.GetProperty("reviewedMixedDocsBase64").GetString()!)), LoadOptions.PreserveWhitespace);
+                        Assert(XNode.DeepEquals(actual, reviewed) && !XNode.DeepEquals(actual, produced),
+                            "the exact immutable mixed-owner review snapshot, not an all-importer reconstruction, seeds Implies");
+                        foreach (var channel in new[] { "param", "returns" })
+                            Assert(XNode.DeepEquals(actual.Element(channel), produced.Element(channel)),
+                                "only the independently unchanged historical Implies target remains producer-owned");
+                    }
+                    else
+                        Assert(XNode.DeepEquals(actual, produced),
+                            "complete current Docs independently match the actual immutable producer output");
+                }
+            }
+            foreach (var test in cases)
+            {
+                var path = Path.Combine(scope, test.Name + ".xml");
+                var variants = test.Id.Contains(".Implies(", StringComparison.Ordinal)
+                    ? new[] { ("\n", false), ("\n", true), ("\r\n", false), ("\r\n", true) }
+                    : new[] { ("\n", false) };
+                foreach (var (newline, bom) in variants)
+                {
+                    var input = originals[test.Name].Replace("\r\n", "\n", StringComparison.Ordinal)
+                        .Replace("\n", newline, StringComparison.Ordinal);
+                    File.WriteAllText(path, input, new UTF8Encoding(bom));
+                    var loaded = LoadedFile.Load(repositoryRoot, path);
+                    loaded.SelectOwners(test.Id);
+                    var owner = loaded.Owners.Single();
+                    var block = loaded.DocsBlocks[owner.Order];
+                    var expectedDocs = input[block.Start..block.End];
+                    foreach (var target in test.Targets)
+                    {
+                        var channel = target == "remarks" ? owner.Docs.Element("remarks")!.Elements("para").First()
+                            : target.StartsWith("param:", StringComparison.Ordinal)
+                                ? owner.Docs.Elements("param").Single(parameter => (string?)parameter.Attribute("name") == target[6..])
+                                : owner.Docs.Element(target)!;
+                        var original = channel.ToString(SaveOptions.DisableFormatting);
+                        Assert(expectedDocs.Contains(original, StringComparison.Ordinal),
+                            "the independently retained original target is present as a complete XML span");
+                        expectedDocs = expectedDocs.Replace(original,
+                            new XElement(channel.Name, channel.Attributes(), "To be added.")
+                                .ToString(SaveOptions.DisableFormatting), StringComparison.Ordinal);
+                    }
+                    var expected = input[..block.Start] + expectedDocs + input[block.End..];
+                    var before = File.ReadAllBytes(path);
+                    using (var dry = Run(path, test.Id, test.Targets.Length, false))
+                        Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == test.Targets.Length &&
+                            before.SequenceEqual(File.ReadAllBytes(path)), "historical repair dry-run does not write");
+                    if (test.Targets.Length > 1)
+                        using (var bounded = Run(path, test.Id, test.Targets.Length - 1, true))
+                            Assert(bounded.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                                before.SequenceEqual(File.ReadAllBytes(path)),
+                                "all related historical targets are atomic within a conservative change budget");
+                    using (var applied = Run(path, test.Id, test.Targets.Length, true))
+                        Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == test.Targets.Length,
+                            "only the independently proven historical target spans are withdrawn");
+                    var encoding = new UTF8Encoding(bom);
+                    Assert(File.ReadAllBytes(path).SequenceEqual(
+                        encoding.GetPreamble().Concat(encoding.GetBytes(expected))),
+                        "historical repair preserves every other byte, including the authored Implies paragraph and BOM/newlines");
+                    NoWrites(path, test.Id);
+                }
+                foreach (var mutation in new Action<XElement>[]
+                {
+                    docs => docs.Add(new XElement("para", "An additional authored contract.")),
+                    docs => docs.Element("summary")!.Value = "An authored sibling summary.",
+                    docs => docs.Add(new XComment("authored comment")),
+                    docs => docs.Add(new XCData(" ")),
+                    docs => docs.Add(new XProcessingInstruction("authored", "retain")),
+                })
+                {
+                    var root = XElement.Parse(originals[test.Name], LoadOptions.PreserveWhitespace);
+                    mutation(Member(root, test.Id).Element("Docs")!);
+                    File.WriteAllText(path, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                    NoWrites(path, test.Id);
+                }
+                var changedTarget = XElement.Parse(originals[test.Name], LoadOptions.PreserveWhitespace);
+                var targetDocs = Member(changedTarget, test.Id).Element("Docs")!;
+                var firstTarget = test.Targets[0];
+                var targetElement = firstTarget == "remarks" ? targetDocs.Element("remarks")!.Elements("para").First()
+                    : firstTarget.StartsWith("param:", StringComparison.Ordinal)
+                        ? targetDocs.Elements("param").Single(parameter => (string?)parameter.Attribute("name") == firstTarget[6..])
+                        : targetDocs.Element(firstTarget)!;
+                targetElement.Value = "An authored target.";
+                File.WriteAllText(path, changedTarget.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                NoWrites(path, test.Id);
+                foreach (var metadata in new Action<XElement>[]
+                {
+                    root => root.SetAttributeValue("Extra", "changed"),
+                    root => Member(root, test.Id).Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                    root =>
+                    {
+                        var attribute = Member(root, test.Id).Descendants("AttributeName").Single(attribute =>
+                            (string?)attribute.Attribute("Language") == "C#" &&
+                            attribute.Value.Contains("Android.Runtime.Register(", StringComparison.Ordinal));
+                        attribute.Value = attribute.Value.Replace("Ljava/", "Lchanged/", StringComparison.Ordinal);
+                    },
+                    root =>
+                    {
+                        var attribute = root.Element("Attributes")!.Descendants("AttributeName").Single(attribute =>
+                            (string?)attribute.Attribute("Language") == "C#" &&
+                            attribute.Value.Contains("Android.Runtime.Register(", StringComparison.Ordinal));
+                        attribute.Value = attribute.Value.Replace("java/io/", "java/changed/", StringComparison.Ordinal);
+                    },
+                })
+                {
+                    var root = XElement.Parse(originals[test.Name], LoadOptions.PreserveWhitespace);
+                    metadata(root);
+                    File.WriteAllText(path, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                    NoWrites(path, test.Id, "java_io_legacy_security_binding_mismatch");
+                }
+                File.WriteAllText(path, originals[test.Name], new UTF8Encoding(false));
+                var source = pages[test.Name];
+                var changed = source.Replace("Creates a new", "Creates an altered", StringComparison.Ordinal)
+                    .Replace("Returns the", "Returns altered", StringComparison.Ordinal)
+                    .Replace("Checks if", "Checks whether", StringComparison.Ordinal);
+                Assert(source != changed, "the native source mutation changes the actual parsed contract");
+                CachePage(test.Name, changed);
+                NoWrites(path, test.Id, "java_io_legacy_security_source_mismatch");
+                CachePage(test.Name, source);
+                var seeded = XElement.Parse(originals[test.Name], LoadOptions.PreserveWhitespace);
+                foreach (var channel in Member(seeded, test.Id).Element("Docs")!.Elements()
+                    .Where(channel => channel.Name != "since"))
+                    channel.ReplaceNodes("To be added.");
+                File.WriteAllText(path, seeded.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                using (var firstFill = Run(path, test.Id, 10, true))
+                    Assert(firstFill.RootElement.GetProperty("appliedCount").GetInt32() ==
+                        (test.Targets.SequenceEqual(new[] { "remarks" }) ? 2 : 0) &&
+                        firstFill.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                        "first fills retain safe pathname/action labels but withhold each contradicted stub channel");
+                NoWrites(path, test.Id);
+            }
+            foreach (var name in originals.Keys)
+            {
+                var root = XElement.Parse(originals[name], LoadOptions.PreserveWhitespace);
+                root.Element("Docs")!.Element("summary")!.ReplaceNodes("To be added.");
+                root.Element("Docs")!.Element("remarks")!.ReplaceNodes("To be added.");
+                var path = Path.Combine(scope, name + ".xml");
+                File.WriteAllText(path, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                NoWrites(path, "T:Java.IO." + name, "source_channel_ambiguous");
+            }
+        }
+        finally
+        {
+            Directory.Delete(scope, recursive: true);
+            Directory.Delete(temporary, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
+        TestJavaIoLegacySecurity(repositoryRoot);
+        TestDalvikOpcodeProjection(repositoryRoot);
+        TestBiometricStringValueGuard(repositoryRoot);
+        TestBiometricCallbackLinks(repositoryRoot);
         TestIcuNumberContracts(repositoryRoot);
         TestAppFunctionAccessLevelMarkup(repositoryRoot);
         TestPreservedRemarksAndSourceGuards(repositoryRoot);
@@ -19650,21 +22513,25 @@ static partial class ImporterProgram
         TestDevicePresenceEventKeywordParameter(repositoryRoot);
         TestQuickSettingsSources(repositoryRoot);
         TestKnownEapChannelCorrections(repositoryRoot);
+        TestMediaRouteActionViewReturn(repositoryRoot);
         TestChangeLogDataOriginChannel(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
         TestSdkSandboxSurfaceLinks(repositoryRoot);
+        TestSecurityLogImplicitLists(repositoryRoot);
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestBlobParcelTextCorrection(repositoryRoot, fixtureRoot);
         TestControlTemplateParagraphBoundary(repositoryRoot, fixtureRoot);
         TestMultisensoryDragTokenMarkup();
         TestImageDecoderDecodeDrawableWorkerThreadRecovery();
         TestDeviceBuilderSetUdiPermissionMarkup();
+        TestHealthConnectPageSizeBounds();
         TestOdpInferenceParamsBuilderTypeSummary(repositoryRoot, fixtureRoot);
         TestTrustPairingCallbackTypeRemarks();
         TestTrustPairingCallbackWithdrawal(repositoryRoot);
         TestAuthenticationPolicyTrustPairingRemarks();
         TestAuthenticationPolicyTrustPairingWithdrawal(repositoryRoot);
         TestControlsLifecycle(repositoryRoot, fixtureRoot);
+        TestTelecomLifecycle(repositoryRoot, fixtureRoot);
         TestNfcContracts(repositoryRoot, fixtureRoot);
         TestNfcSafeEnumRefresh(repositoryRoot, fixtureRoot);
         TestNfcCopiedDescriptionExclusion(repositoryRoot, fixtureRoot);
@@ -19676,6 +22543,7 @@ static partial class ImporterProgram
         TestRawSourceGuards(repositoryRoot, fixtureRoot);
         TestRawSupportedWriters(repositoryRoot, fixtureRoot);
         TestGestureCloneIntroductions(repositoryRoot);
+        TestBiometricsStringAliases(repositoryRoot);
         TestSslDNameConstructor(repositoryRoot, fixtureRoot);
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
         var healthConnectDocs = Path.Combine(docsRoot, "Android.Health.Connect.DataTypes");
@@ -27449,6 +30317,170 @@ static partial class ImporterProgram
         Console.WriteLine("SELF-TEST PASS: registered ChangeLog DataOrigin first-fill/withdrawal, exact source/JNI/managed/provenance negatives, corrected-source controls, and persisted repeats.");
     }
 
+    static void TestMediaRouteActionViewReturn(string repositoryRoot)
+    {
+        var fixture = Convert.FromBase64String(File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "media-route-action-provider-reference.html.b64")).Trim());
+        Assert(Convert.ToHexString(SHA256.HashData(fixture)).ToLowerInvariant() ==
+            "6463d3a74b5b3e8e2695ece6dd1143a01d2e3ef52361adf3843572a7af80ea90",
+            "MediaRoute native reference fragment matches the retained source bytes");
+        var html = Encoding.UTF8.GetString(fixture);
+        var rule = KnownMediaRouteActionViewCorrection;
+        var request = SourceRequest.Create("android/app/MediaRouteActionProvider")!;
+        var parsed = SourcePage.Parse(request, html);
+        Assert(MatchesKnownEapSource(parsed.Members.Single(member =>
+                member.Name == "onCreateActionView" && member.ArgumentDescriptors is { Count: 0 }).Docs!, rule.Source),
+            "MediaRoute return guard matches the complete original parsed source contract");
+        var directory = Path.Combine(Path.GetTempPath(), $"media-route-return-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.App",
+            $"MediaRoute.return-self-test-{Environment.ProcessId}.xml");
+        var cachePath = Path.Combine(directory,
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+        var root = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Android.App", "MediaRouteActionProvider.xml"));
+        var originalMember = new XElement(root.Element("Members")!.Elements("Member").Single(member =>
+            member.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "DocId" &&
+                (string?)signature.Attribute("Value") == rule.MemberId)));
+        root.Element("Members")!.ReplaceNodes(originalMember);
+        root.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored type summary."));
+        originalMember.Element("Docs")!.ReplaceNodes(
+            new XElement("summary", "Authored throwing-overload summary."),
+            new XElement("returns", "To be added."),
+            new XElement("remarks", "Authored implementation guidance."));
+        var calls = 0;
+        try
+        {
+            JsonDocument Run(bool apply)
+            {
+                var report = Path.Combine(directory, "report-" + calls++);
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.App", "--member", "OnCreateActionView",
+                    "--offline", "--cache", directory, "--max-changes", "1", "--report", report,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "MediaRoute offline production pipeline succeeds");
+                return JsonDocument.Parse(File.ReadAllText(report + ".json"));
+            }
+            void Save(XElement input, string source)
+            {
+                File.WriteAllText(path, input.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                File.WriteAllText(cachePath, source, new UTF8Encoding(false));
+            }
+            bool HasExclusion(JsonDocument report) => report.RootElement.GetProperty("entries")
+                .EnumerateArray().Any(entry =>
+                    entry.GetProperty("member").GetString() == rule.MemberId &&
+                    entry.GetProperty("target").GetString() == "returns" &&
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous");
+            void NoEdit(XElement input, string description)
+            {
+                Save(input, html);
+                var before = File.ReadAllBytes(path);
+                using var report = Run(true);
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), description);
+                using var repeat = Run(true);
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), description + " persisted repeat");
+            }
+            Save(root, html);
+            var before = File.ReadAllBytes(path);
+            using (var preview = Run(false))
+                Assert(HasExclusion(preview) && preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), "MediaRoute dry run reports the unsafe return without writes");
+            NoEdit(root, "MediaRoute unsafe return and authored sibling channels remain byte-identical");
+            var prior = new XElement(root);
+            prior.Element("Members")!.Element("Member")!.Element("Docs")!.ReplaceWith(KnownEapPriorDocs(rule));
+            Save(prior, html);
+            var expectedWithdrawal = File.ReadAllText(path).Replace(
+                $"<returns>{rule.IncorrectText}</returns>", "<returns>To be added.</returns>", StringComparison.Ordinal);
+            using (var report = Run(true))
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == "importer_media_route_unsafe_return_withdrawal") &&
+                    File.ReadAllText(path) == expectedWithdrawal,
+                    "MediaRoute synthetic prior-owned copy loses only its exact unsafe return with an accurate report");
+            NoEdit(XElement.Load(path), "MediaRoute synthetic prior-owned withdrawal is byte-identical on repeat");
+            foreach (var change in new Action<XElement>[]
+            {
+                docs => docs.Element("returns")!.Value = "An authored return explanation.",
+                docs => docs.Element("returns")!.ReplaceNodes(new XElement("c", "Authored.")),
+                docs => docs.Element("returns")!.ReplaceNodes(new XCData("To be added.")),
+                docs => docs.Element("returns")!.Add(new XComment("Authored.")),
+            })
+            {
+                var authored = new XElement(root);
+                change(authored.Element("Members")!.Element("Member")!.Element("Docs")!);
+                NoEdit(authored, "MediaRoute guard preserves authored, mixed, CDATA and comment content");
+            }
+            foreach (var change in new Action<XElement>[]
+            {
+                member => member.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId")
+                    .SetAttributeValue("Value", rule.MemberId + ".Other"),
+                member => member.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#")
+                    .SetAttributeValue("Value", "public Android.Views.View? OnCreateActionView ();"),
+                member => member.Element("ReturnValue")!.Element("ReturnType")!.Value = "Java.Lang.Object",
+                member =>
+                {
+                    foreach (var name in member.Descendants("AttributeName"))
+                        name.Value = name.Value.Replace("()Landroid/view/View;", "()Ljava/lang/Object;", StringComparison.Ordinal);
+                },
+            })
+            {
+                var changed = new XElement(root);
+                change(changed.Element("Members")!.Element("Member")!);
+                Save(changed, html);
+                using var report = Run(true);
+                Assert(!HasExclusion(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    XElement.Load(path).Descendants("returns").Single().Value == rule.IncorrectText,
+                    "MediaRoute changed-binding negative reaches ordinary source mapping, not an earlier rejection");
+            }
+            Save(root, html.Replace("A new action view.", "A corrected action-view result.", StringComparison.Ordinal));
+            using (var report = Run(true))
+                Assert(!HasExclusion(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    XElement.Load(path).Descendants("returns").Single().Value ==
+                        "A corrected action-view result. This value cannot be null.",
+                    "MediaRoute future changed return contract remains eligible");
+            var sibling = new XElement(originalMember);
+            sibling.Elements("MemberSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "DocId").Single()
+                .SetAttributeValue("Value", rule.MemberId + "(Android.Views.IMenuItem)");
+            sibling.Elements("MemberSignature").Where(signature =>
+                (string?)signature.Attribute("Language") == "C#").Single()
+                .SetAttributeValue("Value", "public override Android.Views.View OnCreateActionView (Android.Views.IMenuItem item);");
+            foreach (var name in sibling.Descendants("AttributeName"))
+                name.Value = name.Value.Replace("()Landroid/view/View;", "(Landroid/view/MenuItem;)Landroid/view/View;", StringComparison.Ordinal);
+            sibling.Element("Parameters")!.ReplaceNodes(
+                new XElement("Parameter", new XAttribute("Name", "item"), new XAttribute("Type", "Android.Views.IMenuItem")));
+            sibling.Element("Docs")!.AddFirst(new XElement("param", new XAttribute("name", "item"), "Authored menu item."));
+            sibling.Element("Docs")!.Element("remarks")!.ReplaceNodes(
+                "Authored safe-overload guidance.",
+                ImporterSourceReference(parsed.Members.Single(member =>
+                    member.Name == "onCreateActionView" && member.ArgumentDescriptors is { Count: 1 }).Docs!),
+                XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            var siblings = new XElement(root);
+            siblings.Element("Members")!.Add(sibling);
+            Save(siblings, html);
+            using (var report = Run(true))
+                Assert(HasExclusion(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "MediaRoute one-operation budget fills the MenuItem overload while withholding only the unsafe return");
+            sibling.Element("Docs")!.Element("returns")!.Value = "the new action view. This value cannot be null.";
+            Assert(File.ReadAllText(path) == siblings.ToString(SaveOptions.DisableFormatting),
+                "MediaRoute safe overload fill preserves every byte outside its return span");
+            NoEdit(XElement.Load(path), "MediaRoute bounded sibling apply is a persisted zero-write repeat");
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     static void TestKnownEapChannelCorrections(string repositoryRoot)
     {
         var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
@@ -30780,6 +33812,7 @@ static partial class ImporterProgram
         public bool Offline { get; private set; }
         public bool SelfTest { get; private set; }
         public bool PreservationSelfTest { get; private set; }
+        public bool TelecomSelfTest { get; private set; }
         public bool ManagedOnly { get; private set; }
         public bool RepeatedOnly { get; private set; }
         public bool Help { get; private set; }
@@ -30822,6 +33855,9 @@ static partial class ImporterProgram
                         break;
                     case "--self-test-preservation":
                         options.PreservationSelfTest = true;
+                        break;
+                    case "--self-test-telecom":
+                        options.TelecomSelfTest = true;
                         break;
                     case "--managed-only":
                         options.ManagedOnly = true;
@@ -30913,6 +33949,7 @@ static partial class ImporterProgram
             Validation:
               --self-test            Run local fixture tests; add --managed-only for the .NET rules
               --self-test-preservation Run focused metadata, newline and source exclusion tests
+              --self-test-telecom Run exact Telecom lifecycle preservation and production tests
               -h, --help             Show help
             """);
     }
@@ -30965,6 +34002,7 @@ static partial class ImporterProgram
             Owners.Clear();
             var typeRegistration = Registration.Type(Root);
             var typeRequest = SourceRequest.Create(typeRegistration);
+            var dalvikProjection = DalvikOpcodeProjection.Create(this);
             var typeName = (string?)Root.Attribute("FullName") ?? (string?)Root.Attribute("Name") ?? "";
             var isEnum = Root.Elements("TypeSignature").Any(signature =>
                 (string?)signature.Attribute("Language") == "C#" &&
@@ -31019,8 +34057,8 @@ static partial class ImporterProgram
                     ? null
                     : SourceVerifiedMemberMappings.ResolveSourceOverride(id, Root, member);
                 var request = member is null
-                    ? typeRequest
-                    : sourceOverride ??
+                    ? dalvikProjection?.Request(null) ?? typeRequest
+                    : dalvikProjection?.Request(member) ?? sourceOverride ??
                         SourceRequest.Create(memberField?.Owner) ??
                         interfaceMember?.SourceRequest ??
                         sourceVerifiedMember?.SourceRequest ??
@@ -31464,6 +34502,170 @@ static partial class ImporterProgram
         bool UseFirstMeaningfulSummary = false,
         bool FilterSynchronousGeocoderBoilerplate = false);
 
+    sealed class DalvikOpcodeProjection
+    {
+        public const string JavaPath = "dalvik/bytecode/Opcodes";
+        const string Prefix = "Dalvik.Bytecode.";
+        static readonly SourceRequest Source = SourceRequest.CreateAndroid(JavaPath)!;
+        static readonly IReadOnlyDictionary<string, (string NativeName, int Value)> Fields =
+            new Dictionary<string, (string, int)>(StringComparer.Ordinal)
+            {
+                ["OpIgetWideVolatile"] = ("OP_IGET_WIDE_VOLATILE", 232),
+                ["OpIputWideVolatile"] = ("OP_IPUT_WIDE_VOLATILE", 233),
+                ["OpSgetWideVolatile"] = ("OP_SGET_WIDE_VOLATILE", 234),
+                ["OpSputWideVolatile"] = ("OP_SPUT_WIDE_VOLATILE", 235),
+                ["OpBreakpoint"] = ("OP_BREAKPOINT", 236),
+                ["OpThrowVerificationError"] = ("OP_THROW_VERIFICATION_ERROR", 237),
+                ["OpExecuteInline"] = ("OP_EXECUTE_INLINE", 238),
+                ["OpExecuteInlineRange"] = ("OP_EXECUTE_INLINE_RANGE", 239),
+                ["OpInvokeDirectEmpty"] = ("OP_INVOKE_DIRECT_EMPTY", 240),
+                ["OpIgetQuick"] = ("OP_IGET_QUICK", 242),
+                ["OpIgetWideQuick"] = ("OP_IGET_WIDE_QUICK", 243),
+                ["OpIgetObjectQuick"] = ("OP_IGET_OBJECT_QUICK", 244),
+                ["OpIputQuick"] = ("OP_IPUT_QUICK", 245),
+                ["OpIputWideQuick"] = ("OP_IPUT_WIDE_QUICK", 246),
+                ["OpIputObjectQuick"] = ("OP_IPUT_OBJECT_QUICK", 247),
+                ["OpInvokeVirtualQuick"] = ("OP_INVOKE_VIRTUAL_QUICK", 248),
+                ["OpInvokeVirtualQuickRange"] = ("OP_INVOKE_VIRTUAL_QUICK_RANGE", 249),
+                ["OpInvokeSuperQuick"] = ("OP_INVOKE_SUPER_QUICK", 250),
+                ["OpInvokeSuperQuickRange"] = ("OP_INVOKE_SUPER_QUICK_RANGE", 251),
+                ["OpCheckCastJumbo"] = ("OP_CHECK_CAST_JUMBO", 511),
+                ["OpConstClassJumbo"] = ("OP_CONST_CLASS_JUMBO", 255),
+                ["OpFilledNewArrayJumbo"] = ("OP_FILLED_NEW_ARRAY_JUMBO", 1535),
+                ["OpIgetBooleanJumbo"] = ("OP_IGET_BOOLEAN_JUMBO", 2559),
+                ["OpIgetByteJumbo"] = ("OP_IGET_BYTE_JUMBO", 2815),
+                ["OpIgetCharJumbo"] = ("OP_IGET_CHAR_JUMBO", 3071),
+                ["OpIgetJumbo"] = ("OP_IGET_JUMBO", 1791),
+                ["OpIgetObjectJumbo"] = ("OP_IGET_OBJECT_JUMBO", 2303),
+                ["OpIgetShortJumbo"] = ("OP_IGET_SHORT_JUMBO", 3327),
+                ["OpIgetWideJumbo"] = ("OP_IGET_WIDE_JUMBO", 2047),
+                ["OpInstanceOfJumbo"] = ("OP_INSTANCE_OF_JUMBO", 767),
+                ["OpInvokeDirectJumbo"] = ("OP_INVOKE_DIRECT_JUMBO", 9471),
+                ["OpInvokeInterfaceJumbo"] = ("OP_INVOKE_INTERFACE_JUMBO", 9983),
+                ["OpInvokeStaticJumbo"] = ("OP_INVOKE_STATIC_JUMBO", 9727),
+                ["OpInvokeSuperJumbo"] = ("OP_INVOKE_SUPER_JUMBO", 9215),
+                ["OpInvokeVirtualJumbo"] = ("OP_INVOKE_VIRTUAL_JUMBO", 8959),
+                ["OpIputBooleanJumbo"] = ("OP_IPUT_BOOLEAN_JUMBO", 4351),
+                ["OpIputByteJumbo"] = ("OP_IPUT_BYTE_JUMBO", 4607),
+                ["OpIputCharJumbo"] = ("OP_IPUT_CHAR_JUMBO", 4863),
+                ["OpIputJumbo"] = ("OP_IPUT_JUMBO", 3583),
+                ["OpIputObjectJumbo"] = ("OP_IPUT_OBJECT_JUMBO", 4095),
+                ["OpIputShortJumbo"] = ("OP_IPUT_SHORT_JUMBO", 5119),
+                ["OpIputWideJumbo"] = ("OP_IPUT_WIDE_JUMBO", 3839),
+                ["OpNewArrayJumbo"] = ("OP_NEW_ARRAY_JUMBO", 1279),
+                ["OpNewInstanceJumbo"] = ("OP_NEW_INSTANCE_JUMBO", 1023),
+                ["OpSgetBooleanJumbo"] = ("OP_SGET_BOOLEAN_JUMBO", 6143),
+                ["OpSgetByteJumbo"] = ("OP_SGET_BYTE_JUMBO", 6399),
+                ["OpSgetCharJumbo"] = ("OP_SGET_CHAR_JUMBO", 6655),
+                ["OpSgetJumbo"] = ("OP_SGET_JUMBO", 5375),
+                ["OpSgetObjectJumbo"] = ("OP_SGET_OBJECT_JUMBO", 5887),
+                ["OpSgetShortJumbo"] = ("OP_SGET_SHORT_JUMBO", 6911),
+                ["OpSgetWideJumbo"] = ("OP_SGET_WIDE_JUMBO", 5631),
+                ["OpSputBooleanJumbo"] = ("OP_SPUT_BOOLEAN_JUMBO", 7935),
+                ["OpSputByteJumbo"] = ("OP_SPUT_BYTE_JUMBO", 8191),
+                ["OpSputCharJumbo"] = ("OP_SPUT_CHAR_JUMBO", 8447),
+                ["OpSputJumbo"] = ("OP_SPUT_JUMBO", 7167),
+                ["OpSputObjectJumbo"] = ("OP_SPUT_OBJECT_JUMBO", 7679),
+                ["OpSputShortJumbo"] = ("OP_SPUT_SHORT_JUMBO", 8703),
+                ["OpSputWideJumbo"] = ("OP_SPUT_WIDE_JUMBO", 7423),
+            };
+        readonly XElement root;
+        readonly XElement sibling;
+
+        DalvikOpcodeProjection(XElement root, XElement sibling)
+        {
+            this.root = root;
+            this.sibling = sibling;
+        }
+
+        public static DalvikOpcodeProjection? Create(LoadedFile file)
+        {
+            var name = (string?)file.Root.Attribute("Name");
+            if (name is not ("IOpcodes" or "Opcodes") || !MatchesType(file.Root, name))
+                return null;
+            var siblingName = name == "IOpcodes" ? "Opcodes" : "IOpcodes";
+            var path = Path.Combine(Path.GetDirectoryName(file.Path)!, siblingName + ".xml");
+            if (!File.Exists(path))
+                return null;
+            var sibling = XElement.Load(path, LoadOptions.PreserveWhitespace);
+            if (!MatchesType(sibling, siblingName))
+                return null;
+            return new DalvikOpcodeProjection(file.Root, sibling);
+        }
+
+        static bool MatchesType(XElement root, string name) =>
+            root.Name == "Type" && (string?)root.Attribute("Name") == name &&
+            (string?)root.Attribute("FullName") == Prefix + name &&
+            IsMonoAndroidDeclaration(root) &&
+            root.Elements("Members").Count() == 1 &&
+            HasSingleSignature(root, "TypeSignature", "DocId", "T:" + Prefix + name) &&
+            HasSingleSignature(root, "TypeSignature", "C#", name == "IOpcodes"
+                ? "public interface IOpcodes"
+                : "public abstract class Opcodes : Java.Lang.Object") &&
+            (name == "IOpcodes"
+                ? !root.Elements("Attributes").Any() && !root.Elements("Base").Any()
+                : HasSingleAndroidRegistration(root) &&
+                    Registration.Type(root) == "mono/internal/" + JavaPath &&
+                    root.Elements("Base").Count() == 1 &&
+                    root.Element("Base")!.Elements("BaseTypeName").Select(item => item.Value)
+                        .SequenceEqual(["Java.Lang.Object"]));
+
+        static bool MatchesField(XElement root, XElement member, string name, string nativeName, int value) =>
+            member.Parent == root.Element("Members") &&
+            root.Element("Members")!.Elements("Member").Count(item =>
+                (string?)item.Attribute("MemberName") == name) == 1 &&
+            (string?)member.Attribute("MemberName") == name &&
+            IsMonoAndroidDeclaration(member) && HasSingleAndroidRegistration(member) &&
+            Registration.Member(member) == new MemberRegistration(nativeName, null, true) &&
+            member.Elements("MemberType").Select(item => item.Value).SequenceEqual(["Field"]) &&
+            member.Elements("ReturnValue").Count() == 1 &&
+            member.Element("ReturnValue")!.Elements("ReturnType").Select(item => item.Value)
+                .SequenceEqual(["System.Int32"]) &&
+            member.Elements("MemberValue").Select(item => item.Value)
+                .SequenceEqual([value.ToString(System.Globalization.CultureInfo.InvariantCulture)]) &&
+            !member.Elements("Parameters").Any() &&
+            HasSingleSignature(member, "MemberSignature", "DocId",
+                $"F:{(string?)root.Attribute("FullName")}.{name}") &&
+            HasSingleSignature(member, "MemberSignature", "C#", $"public const int {name} = {value};");
+
+        public SourceRequest? Request(XElement? member)
+        {
+            if (member is null)
+            {
+                return new[] { ("OpNop", "OP_NOP", 0), ("OpAddDouble", "OP_ADD_DOUBLE", 171) }
+                    .All(field => MatchesPair(field.Item1, field.Item2, field.Item3)) ? Source : null;
+            }
+            var name = (string?)member.Attribute("MemberName") ?? "";
+            return Fields.TryGetValue(name, out var field) &&
+                MatchesField(root, member, name, field.NativeName, field.Value) &&
+                MatchesPair(name, field.NativeName, field.Value) ? Source : null;
+        }
+
+        bool MatchesPair(string name, string nativeName, int value) =>
+            new[] { root, sibling }.All(type =>
+            {
+                var fields = type.Element("Members")?.Elements("Member").Where(item =>
+                    (string?)item.Attribute("MemberName") == name).ToArray() ?? [];
+                return fields.Length == 1 && MatchesField(type, fields[0], name, nativeName, value);
+            });
+
+        public static bool MatchesSource(DocsOwner owner, SourcePage page)
+        {
+            if (owner.SourceRequest != Source || NormalizeText(page.TypeDeclaration) != "public interface Opcodes")
+                return false;
+            if (owner.Member is null)
+                return owner.Id is "T:Dalvik.Bytecode.IOpcodes" or "T:Dalvik.Bytecode.Opcodes";
+            var name = (string?)owner.Member.Attribute("MemberName") ?? "";
+            if (!Fields.TryGetValue(name, out var field))
+                return false;
+            var members = page.Members.Where(item => item.IsField && item.Name == field.NativeName).ToArray();
+            return members.Length == 1 &&
+                members[0].Declaration == $"public static final int {field.NativeName}" &&
+                members[0].ConstantValue == field.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) &&
+                members[0].Url == Source.Url + "#" + field.NativeName;
+        }
+    }
+
     static class SourceVerifiedMemberMappings
     {
         static readonly IReadOnlyDictionary<string, SourceRequest> SourceOverrides =
@@ -31694,6 +34896,54 @@ static partial class ImporterProgram
                     Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;I)Z"),
                 ["M:Android.Views.InputMethods.IInputConnectionExtensions.SetComposingText(Android.Views.InputMethods.IInputConnection,System.String,System.Int32,Android.Views.InputMethods.TextAttribute)"] =
                     Mapping("android/view/inputmethod/InputConnection", "setComposingText", "(Ljava/lang/CharSequence;ILandroid/view/inputmethod/TextAttribute;)Z"),
+                ["P:Android.Hardware.Biometrics.BiometricManager.Strings.ButtonLabel"] =
+                    Mapping("android/hardware/biometrics/BiometricManager$Strings", "getButtonLabel", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricManager.Strings.PromptMessage"] =
+                    Mapping("android/hardware/biometrics/BiometricManager$Strings", "getPromptMessage", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricManager.Strings.SettingName"] =
+                    Mapping("android/hardware/biometrics/BiometricManager$Strings", "getSettingName", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.Description"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.NegativeButtonText"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getNegativeButtonText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.Subtitle"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getSubtitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.BiometricPrompt.Title"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt", "getTitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Description"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getDescription", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.NegativeButtonText"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getNegativeButtonText", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Subtitle"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getSubtitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Title"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt", "getTitle", "()Ljava/lang/CharSequence;"),
+                ["P:Android.Hardware.Biometrics.FallbackOption.Text"] =
+                    Mapping("android/hardware/biometrics/FallbackOption", "getText", "()Ljava/lang/CharSequence;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.AddFallbackOption(System.String,System.Int32,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "addFallbackOption", "(Ljava/lang/CharSequence;ILjava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetDescription(System.String)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setDescription", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetNegativeButton(System.String,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setNegativeButton", "(Ljava/lang/CharSequence;Ljava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetSubtitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setSubtitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.BiometricPrompt.Builder.SetTitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/BiometricPrompt$Builder", "setTitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/BiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.AuthenticationCallback.OnAuthenticationError(Android.Hardware.Biometrics.BiometricErrorCode,System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$AuthenticationCallback", "onAuthenticationError", "(ILjava/lang/CharSequence;)V"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.AuthenticationCallback.OnAuthenticationHelp(System.Int32,System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$AuthenticationCallback", "onAuthenticationHelp", "(ILjava/lang/CharSequence;)V"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.AddFallbackOption(System.String,Android.Hardware.Biometrics.BiometricManagerIconType,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "addFallbackOption", "(Ljava/lang/CharSequence;ILjava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetDescription(System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setDescription", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetNegativeButton(System.String,Java.Util.Concurrent.IExecutor,Android.Content.IDialogInterfaceOnClickListener)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setNegativeButton", "(Ljava/lang/CharSequence;Ljava/util/concurrent/Executor;Landroid/content/DialogInterface$OnClickListener;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetSubtitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setSubtitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
+                ["M:Android.Hardware.Biometrics.EmbeddedBiometricPrompt.Builder.SetTitle(System.String)"] =
+                    Mapping("android/hardware/biometrics/EmbeddedBiometricPrompt$Builder", "setTitle", "(Ljava/lang/CharSequence;)Landroid/hardware/biometrics/EmbeddedBiometricPrompt$Builder;"),
             };
 
         public static InterfaceMemberMapping? Resolve(string memberId) =>
@@ -31702,8 +34952,12 @@ static partial class ImporterProgram
         public static InterfaceMemberMapping? Resolve(string memberId, XElement root, XElement member)
         {
             var mapping = Resolve(memberId);
+            if (mapping is not null &&
+                memberId.StartsWith("M:Android.Hardware.Biometrics.", StringComparison.Ordinal))
+                return HasRegisteredCharSequenceOverload(root, member, mapping) ? mapping : null;
             if (mapping is null ||
-                !memberId.StartsWith("P:Android.Views.TextClassifiers.", StringComparison.Ordinal))
+                !(memberId.StartsWith("P:Android.Views.TextClassifiers.", StringComparison.Ordinal) ||
+                  memberId.StartsWith("P:Android.Hardware.Biometrics.", StringComparison.Ordinal)))
                 return mapping;
 
             var name = (string?)member.Attribute("MemberName");
@@ -31723,6 +34977,42 @@ static partial class ImporterProgram
                 getter.Element("ReturnValue")?.Element("ReturnType")?.Value == "Java.Lang.ICharSequence" &&
                 Registration.Member(getter) == mapping.Registration
                     ? mapping : null;
+        }
+
+        // A generated String overload is accepted only when its single sibling has the same
+        // name, return and parameter names, uses ICharSequence for every String parameter, and
+        // carries exactly the mapped JNI registration.
+        static bool HasRegisteredCharSequenceOverload(
+            XElement root,
+            XElement member,
+            InterfaceMemberMapping mapping)
+        {
+            static List<(string? Name, string? Type)> Parameters(XElement candidate) =>
+                candidate.Element("Parameters")?.Elements("Parameter")
+                    .Select(parameter => ((string?)parameter.Attribute("Name"), (string?)parameter.Attribute("Type")))
+                    .ToList() ?? [];
+
+            var name = (string?)member.Attribute("MemberName");
+            var returnType = member.Element("ReturnValue")?.Element("ReturnType")?.Value;
+            var parameters = Parameters(member);
+            if (root.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+                SourceRequest.Create(Registration.Type(root)) != mapping.SourceRequest ||
+                member.Element("MemberType")?.Value != "Method" ||
+                Registration.Member(member) is not null ||
+                !parameters.Any(parameter => parameter.Type == "System.String"))
+                return false;
+            var expected = parameters
+                .Select(parameter => (parameter.Name,
+                    parameter.Type == "System.String" ? "Java.Lang.ICharSequence" : parameter.Type))
+                .ToList();
+            var siblings = root.Element("Members")?.Elements("Member")
+                .Where(candidate =>
+                    (string?)candidate.Attribute("MemberName") == name &&
+                    candidate.Element("MemberType")?.Value == "Method" &&
+                    candidate.Element("ReturnValue")?.Element("ReturnType")?.Value == returnType &&
+                    Parameters(candidate).SequenceEqual(expected))
+                .ToList();
+            return siblings is [var sibling] && Registration.Member(sibling) == mapping.Registration;
         }
 
         static SourceRequest TextClassifierRequest() =>
@@ -32157,7 +35447,9 @@ static partial class ImporterProgram
                     arguments,
                     docs,
                     url,
-                    declaration));
+                    declaration,
+                    request.JavaPath == DalvikOpcodeProjection.JavaPath
+                        ? DalvikConstantValue(fragment) : null));
             }
 
             return new SourcePage
@@ -32180,6 +35472,13 @@ static partial class ImporterProgram
                     .Select(match => match.Groups["field"].Value)
                     .ToHashSet(StringComparer.Ordinal),
             };
+        }
+
+        static string? DalvikConstantValue(string fragment)
+        {
+            var matches = Regex.Matches(HtmlText(fragment), @"\bConstant Value:\s*(?<value>-?\d+)\b",
+                RegexOptions.CultureInvariant);
+            return matches.Count == 1 ? matches[0].Groups["value"].Value : null;
         }
 
         static bool HasAppFunctionAccessLevelCorroboration(string html)
@@ -32287,6 +35586,8 @@ static partial class ImporterProgram
             string url)
         {
             fragment = RecoverSdkSandboxSurfaceLink(fragment, request, title, out var recoveredSdkSandboxSurfaceLink);
+            fragment = RecoverBiometricCallbackLinks(fragment, request, title, out var recoveredBiometricCallbackLinks);
+            fragment = RecoverSecurityLogImplicitList(fragment, request, title, out var recoveredSecurityLogImplicitList);
             var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (Match row in Regex.Matches(
                 fragment,
@@ -32305,6 +35606,8 @@ static partial class ImporterProgram
 
             var returns = ExtractAndroidTableValue(fragment, "Returns");
             var exceptions = ExtractAndroidExceptions(fragment);
+            var recoveredHealthConnectPageSizeBounds =
+                RecoverHealthConnectPageSizeBounds(fragment, request, title, url, parameters, exceptions);
             var prose = Regex.Replace(
                 fragment,
                 @"<table\b[^>]*>.*?</table>",
@@ -32382,6 +35685,9 @@ static partial class ImporterProgram
                     url == AndroidReference + "android/icu/text/MessagePattern.ApostropheMode#DOUBLE_REQUIRED" &&
                     fragment.Contains("<a href=\"/reference/java/text/MessageFormat\">MessageFormat</a>", StringComparison.Ordinal),
                 HasRecoveredSdkSandboxSurfaceLink: recoveredSdkSandboxSurfaceLink,
+                HasRecoveredBiometricCallbackLinks: recoveredBiometricCallbackLinks,
+                HasRecoveredSecurityLogImplicitList: recoveredSecurityLogImplicitList,
+                HasRecoveredHealthConnectPageSizeBounds: recoveredHealthConnectPageSizeBounds,
                 DevicePresenceParameters: url == DevicePresenceEventConstructorSourceUrl
                     ? ParseDevicePresenceParameterTable(fragment)
                     : null,
@@ -32394,6 +35700,80 @@ static partial class ImporterProgram
                         ? null
                         : intermediateImplicitListParagraphs);
         }
+
+        // Official setPageSize pages render the page-size constants as ERROR(...)
+        // links. Only the exact parameter cell is repaired, and only when the
+        // same member's single Throws row states the bounds 1 and 5000.
+        static bool RecoverHealthConnectPageSizeBounds(
+            string fragment,
+            SourceRequest request,
+            string title,
+            string url,
+            Dictionary<string, string> parameters,
+            Dictionary<string, string> exceptions)
+        {
+            if (request.Kind != "android" ||
+                title != "setPageSize" ||
+                !HealthConnectPageSizeBuilders.Any(builder => builder.JavaPath == request.JavaPath) ||
+                request.Url != AndroidReference + request.JavaPath.Replace('$', '.') ||
+                url != request.Url + "#setPageSize(int)" ||
+                !HasExactHealthConnectPageSizeTable(
+                    fragment, "Parameters", "pageSize", HealthConnectPageSizeRawParameter) ||
+                !HasExactHealthConnectPageSizeTable(
+                    fragment, "Throws", "IllegalArgumentException", HealthConnectPageSizeThrows) ||
+                parameters.Keys.Any(key => key != "pageSize" && !exceptions.ContainsKey(key)) ||
+                !parameters.TryGetValue("pageSize", out var raw) ||
+                CollapseWhitespace(raw) != HealthConnectPageSizeRawParameter ||
+                CountOccurrences(raw, HealthConnectPageSizeMinimumError) != 1 ||
+                CountOccurrences(raw, HealthConnectPageSizeMaximumError) != 1 ||
+                exceptions.Count != 1 ||
+                !exceptions.TryGetValue("IllegalArgumentException", out var thrown) ||
+                CollapseWhitespace(thrown) != HealthConnectPageSizeThrows)
+            {
+                return false;
+            }
+
+            parameters["pageSize"] = raw
+                .Replace(HealthConnectPageSizeMinimumError, "1", StringComparison.Ordinal)
+                .Replace(HealthConnectPageSizeMaximumError, "5000", StringComparison.Ordinal);
+            return true;
+        }
+
+        static bool HasExactHealthConnectPageSizeTable(
+            string fragment,
+            string heading,
+            string name,
+            string text)
+        {
+            const RegexOptions options =
+                RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant;
+            var tables = Regex.Matches(fragment, @"<table\b[^>]*>(?<body>.*?)</table>", options)
+                .Where(table => Regex.Matches(
+                    table.Groups["body"].Value, @"<th\b[^>]*>(?<cell>.*?)</th>", options)
+                    .Any(cell => CollapseWhitespace(HtmlTableCellText(cell.Groups["cell"].Value)) == heading))
+                .ToArray();
+            if (tables is not [var table])
+                return false;
+
+            var rows = Regex.Matches(table.Groups["body"].Value, @"<tr\b[^>]*>(?<row>.*?)</tr>", options);
+            if (rows.Count != 2)
+                return false;
+            var header = rows[0].Groups["row"].Value;
+            var data = rows[1].Groups["row"].Value;
+            var headings = Regex.Matches(header, @"<th\b[^>]*>(?<cell>.*?)</th>", options)
+                .Select(cell => CollapseWhitespace(HtmlTableCellText(cell.Groups["cell"].Value)))
+                .ToArray();
+            var cells = Regex.Matches(data, @"<td\b[^>]*>(?<cell>.*?)</td>", options)
+                .Select(cell => CollapseWhitespace(HtmlTableCellText(cell.Groups["cell"].Value)))
+                .ToArray();
+            return !Regex.IsMatch(header, @"<td\b", options) &&
+                !Regex.IsMatch(data, @"<th\b", options) &&
+                headings is [var actualHeading] && actualHeading == heading &&
+                cells is [var actualName, var actualText] && actualName == name && actualText == text;
+        }
+
+        static string CollapseWhitespace(string value) =>
+            Regex.Replace(value, @"\s+", " ", RegexOptions.CultureInvariant).Trim();
 
         static DevicePresenceParameterTable ParseDevicePresenceParameterTable(string fragment)
         {
@@ -33536,7 +36916,8 @@ static partial class ImporterProgram
         List<string>? ArgumentDescriptors,
         SourceDocs? Docs,
         string Url,
-        string? Declaration = null);
+        string? Declaration = null,
+        string? ConstantValue = null);
 
     sealed record SourceParagraph(string Text, bool IsCode);
 
@@ -33561,6 +36942,7 @@ static partial class ImporterProgram
         List<SourceParagraph>? WithheldRemarks = null,
         SliceProviderContract? SliceProviderContract = null,
         KnownNfcContract? NfcContract = null,
+        SourceDocs? TelecomOriginalSource = null,
         KnownTvAdCorrection? TvAdCorrection = null,
         IReadOnlyList<SourceParagraph>? OriginalBrowseSubscriptionParagraphs = null,
         bool QualityFirstFillOnly = false,
@@ -33574,6 +36956,9 @@ static partial class ImporterProgram
         bool HasJavaTextMessageFormatLink = false,
         bool HasRecoveredAppFunctionAccessLevelMarkup = false,
         bool HasRecoveredSdkSandboxSurfaceLink = false,
+        bool HasRecoveredBiometricCallbackLinks = false,
+        bool HasRecoveredSecurityLogImplicitList = false,
+        bool HasRecoveredHealthConnectPageSizeBounds = false,
         DevicePresenceParameterTable? DevicePresenceParameters = null);
 
     static class Descriptor

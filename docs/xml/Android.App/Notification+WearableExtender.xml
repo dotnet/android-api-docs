@@ -101,8 +101,7 @@
       </Parameters>
       <Docs>
         <param name="notif">Notification</param>
-        <summary>
-        </summary>
+        <summary>Initializes wearable options from the supplied notification's extension data.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -138,7 +137,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the wearable actions present on this notification.</summary>
-        <value>To be added.</value>
+        <value>The list of actions stored in this notification's wearable extensions.</value>
         <remarks>
           <para>Get the wearable actions present on this notification.</para>
           <para>
@@ -355,7 +354,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get a background image to be displayed behind the notification content.</summary>
-        <value>To be added.</value>
+        <value>The stored legacy background bitmap, or <see langword="null" /> when no background has been retained.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -565,7 +564,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get an icon that goes with the content of this notification.</summary>
-        <value>To be added.</value>
+        <value>The icon identifier stored for the wearable notification's content.</value>
         <remarks>
           <para>Get an icon that goes with the content of this notification.</para>
           <para>
@@ -602,7 +601,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the gravity that the content icon should have within the notification display.</summary>
-        <value>To be added.</value>
+        <value>The stored content-icon gravity; its default is <c>Gravity.END</c>.</value>
         <remarks>
           <para>Get the gravity that the content icon should have within the notification display. Supported values include Gravity.START and Gravity.END. The default value is Gravity.END.</para>
           <para>See also:</para>
@@ -636,7 +635,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get whether the content intent is available when the wearable device is not connected to a companion device.</summary>
-        <value>To be added.</value>
+        <value>The flag indicating whether the content intent is marked available without a connected companion device.</value>
         <remarks>
           <para>Get whether the content intent is available when the wearable device is not connected to a companion device. The user can still trigger this intent when the wearable device is offline, but a visual hint will indicate that the content intent may not be available. Defaults to true.</para>
           <para>
@@ -673,7 +672,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the custom height in pixels for the display of this notification's content.</summary>
-        <value>To be added.</value>
+        <value>The stored custom content height in pixels for a legacy display-intent notification.</value>
         <remarks>
           <para>Get the custom height in pixels for the display of this notification's content. This option is only available for custom display notifications created using setDisplayIntent(PendingIntent). See also setCustomSizePreset(int) and setCustomContentHeight(int).</para>
           <para>
@@ -710,7 +709,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the custom size preset for the display of this notification out of the available presets found in Notification.WearableExtender, e.g.</summary>
-        <value>To be added.</value>
+        <value>The size preset stored for the wearable notification's content.</value>
         <remarks>
           <para>Get the custom size preset for the display of this notification out of the available presets found in Notification.WearableExtender, e.g. SIZE_LARGE. Some custom size presets are only applicable for custom display notifications created using setDisplayIntent(PendingIntent). Check the documentation for the preset in question. See also setCustomContentHeight(int) and setCustomSizePreset(int).</para>
           <para>
@@ -784,7 +783,7 @@
       </ReturnValue>
       <Docs>
         <summary>This method was deprecated in API level 29.</summary>
-        <value>To be added.</value>
+        <value>The pending intent stored for the legacy activity-view display, or <see langword="null" /> if unset.</value>
         <remarks>
           <para>This method was deprecated in API level 29. Display intents are no longer supported.</para>
           <para>Get the intent to launch inside of an activity view when displaying this notification. This PendingIntent should be for an activity.</para>
@@ -862,7 +861,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the gravity that this notification should have within the available viewport space.</summary>
-        <value>To be added.</value>
+        <value>The stored position within the wearable viewport; its default is <c>Gravity.BOTTOM</c>.</value>
         <remarks>
           <para>Get the gravity that this notification should have within the available viewport space. Supported values include Gravity.TOP, Gravity.CENTER_VERTICAL and Gravity.BOTTOM. The default value is Gravity.BOTTOM.</para>
           <para>
@@ -1097,7 +1096,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get a visual hint that only the background image of this notification should be displayed, and other semantic content should be hidden.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the background-only display hint is set for wearable subpages; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Get a visual hint that only the background image of this notification should be displayed, and other semantic content should be hidden. This hint is only applicable to sub-pages added using addPage(Notification).</para>
           <para>
@@ -1333,10 +1332,9 @@
         <Parameter Name="background" Type="Android.Graphics.Bitmap" />
       </Parameters>
       <Docs>
-        <param name="background">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="background">The bitmap to retain as a legacy background; ignored when the background-storage compatibility change is enabled.</param>
+        <summary>Sets the legacy background only when its compatibility change permits storage.</summary>
+        <returns>This extender, whether or not the bitmap was stored.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2087,7 +2085,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get whether the scrolling position for the contents of this notification should start at the bottom of the contents instead of the top when the contents are too long to display within the screen.</summary>
-        <value>To be added.</value>
+        <value>The flag requesting that oversized wearable content begin scrolled to its bottom rather than its top.</value>
         <remarks>
           <para>Get whether the scrolling position for the contents of this notification should start at the bottom of the contents instead of the top when the contents are too long to display within the screen. Default is false (start scroll at the top).</para>
           <para>

@@ -1205,7 +1205,7 @@
       <Docs>
         <summary>Return a list of all currently active device administrators' component
             names.</summary>
-        <value>To be added.</value>
+        <value>A list of the components of the active device admins, or <see langword="null" /> if there are no active admins.</value>
         <remarks>
           <para>Return a list of all currently active device administrators' component
             names.  If there are no administrators <c>null</c> may be
@@ -2465,13 +2465,13 @@
         <Parameter Name="targetUser" Type="Android.OS.UserHandle" />
       </Parameters>
       <Docs>
-        <param name="admin">To be added.</param>
-        <param name="serviceIntent">To be added.</param>
-        <param name="conn">To be added.</param>
-        <param name="flags">To be added.</param>
-        <param name="targetUser">To be added.</param>
+        <param name="admin">The <see cref="T:Android.App.Admin.DeviceAdminReceiver" /> component that this request is associated with.</param>
+        <param name="serviceIntent">The intent that identifies the service. The intent must specify an explicit component name or a package name.</param>
+        <param name="conn">The connection that receives information when the service starts and stops. The system calls it on the main thread. It must not be <see langword="null" />.</param>
+        <param name="flags">The options for the binding. See <see cref="T:Android.Content.Context.BindServiceFlags" />.</param>
+        <param name="targetUser">The user to bind to. It must be one of the users that <see cref="M:Android.App.Admin.DevicePolicyManager.GetBindDeviceAdminTargetUsers(Android.Content.ComponentName)" /> returns, otherwise a <see cref="T:Java.Lang.SecurityException" /> is thrown.</param>
         <summary>See bindDeviceAdminServiceAsUser(ComponentName,Intent,ServiceConnection,int,UserHandle).</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the system is binding to the service; <see langword="false" /> if the connection is not made and no service object will be received.</returns>
         <remarks>
           <para>See bindDeviceAdminServiceAsUser(ComponentName,Intent,ServiceConnection,int,UserHandle). Call Context.BindServiceFlags.of(long) to obtain a BindServiceFlags object.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/admin/DevicePolicyManager#bindDeviceAdminServiceAsUser(android.content.ComponentName,%20android.content.Intent,%20android.content.ServiceConnection,%20android.content.Context.BindServiceFlags,%20android.os.UserHandle)" title="Reference documentation">Android reference for <code>android.app.admin.DevicePolicyManager.bindDeviceAdminServiceAsUser</code>.</a></format></para>
@@ -3255,7 +3255,7 @@
         <param name="adminExtras">Extras that will be passed to onEnable of the admin receiver
       on the new user.</param>
         <summary>Called by a device owner to create a user with the specified name.</summary>
-        <returns>To be added.</returns>
+        <returns>The <see cref="T:Android.OS.UserHandle" /> of the new user, or <see langword="null" /> if the user could not be created.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3394,7 +3394,7 @@
         <param name="admin">Which <see cref="T:Android.App.Admin.DeviceAdminReceiver" /> this request is associated with.</param>
         <param name="name">the user's name</param>
         <summary>Called by a device owner to create a user with the specified name.</summary>
-        <returns>To be added.</returns>
+        <returns>The <see cref="T:Android.OS.UserHandle" /> of the new user, or <see langword="null" /> if the user could not be created.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4044,8 +4044,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets the device owner information that is shown on the lock screen.</summary>
+        <value>The device owner information, or <see langword="null" /> if it is not set.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -4083,7 +4083,7 @@
         <ReturnType>Java.Lang.ICharSequence</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Gets the device owner information that is shown on the lock screen.</summary>
         <value>The device owner information. If it is not set returns <c>null</c>.</value>
         <remarks>
           <para>
@@ -4132,7 +4132,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the package name of the device policy management role holder.</summary>
-        <value>To be added.</value>
+        <value>The package name of the device policy management role holder, or <see langword="null" /> if it is not configured.</value>
         <remarks>
           <para>Returns the package name of the device policy management role holder.</para>
           <para>If the device policy management role holder is not configured for this device, returns
@@ -7059,9 +7059,9 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="context">The context to get the service from.</param>
+        <summary>Gets the <see cref="T:Android.App.Admin.DevicePolicyManager" /> system service from <paramref name="context" />.</summary>
+        <returns>The <see cref="T:Android.App.Admin.DevicePolicyManager" /> for <see cref="F:Android.Content.Context.DevicePolicyService" />, or <see langword="null" /> if <see cref="M:Android.Content.Context.GetSystemService(System.String)" /> does not return a <see cref="T:Android.App.Admin.DevicePolicyManager" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7359,10 +7359,10 @@
         <Parameter Name="admin" Type="Android.Content.ComponentName" />
       </Parameters>
       <Docs>
-        <param name="admin">To be added.</param>
+        <param name="admin">The component name of an active administrator with the same UID as the caller.</param>
         <summary>Returns the set of affiliation ids previously set via <c>#setAffiliationIds</c>, or an
             empty set if none have been set.</summary>
-        <returns>To be added.</returns>
+        <returns>The affiliation IDs that were set with <see cref="M:Android.App.Admin.DevicePolicyManager.SetAffiliationIds(Android.Content.ComponentName,System.Collections.Generic.ICollection{System.String})" />. The result is never <see langword="null" />; it is empty if no IDs are set.</returns>
         <remarks>
           <para>Returns the set of affiliation ids previously set via <c>#setAffiliationIds</c>, or an
             empty set if none have been set.</para>
@@ -7415,7 +7415,7 @@
         <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with.</param>
         <summary>Called by device or profile owner to query the set of packages that are allowed to access
             the network directly when always-on VPN is in lockdown mode but not connected.</summary>
-        <returns>To be added.</returns>
+        <returns>The package names that can access the network directly when the always-on VPN is in lockdown mode but is not connected, or <see langword="null" /> if always-on VPN is not active or is not in lockdown mode.</returns>
         <remarks>
           <para>Called by device or profile owner to query the set of packages that are allowed to access
             the network directly when always-on VPN is in lockdown mode but not connected. Returns
@@ -7466,7 +7466,7 @@
         <Parameter Name="admin" Type="Android.Content.ComponentName" />
       </Parameters>
       <Docs>
-        <param name="admin">To be added.</param>
+        <param name="admin">The component name of an active administrator with the same UID as the caller.</param>
         <summary>Called by a device or profile owner to read the name of the package administering an
             always-on VPN connection for the current user.</summary>
         <returns>Package name of VPN controller responsible for always-on VPN, or <c>null</c> if none
@@ -7739,10 +7739,10 @@
         <Parameter Name="admin" Type="Android.Content.ComponentName" />
       </Parameters>
       <Docs>
-        <param name="admin">To be added.</param>
+        <param name="admin">The component name of an active administrator with the same UID as the caller.</param>
         <summary>Returns the list of target users that the calling device owner or owner of secondary user
             can use when calling <c>#bindDeviceAdminServiceAsUser</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>The users that the caller can bind to. The list is never <see langword="null" />.</returns>
         <remarks>
           <para>Returns the list of target users that the calling device owner or owner of secondary user
             can use when calling <c>#bindDeviceAdminServiceAsUser</c>.</para>
@@ -7791,7 +7791,7 @@
         <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with.</param>
         <summary>Called by a profile owner of a managed profile to determine whether or not Bluetooth devices
             cannot access enterprise contacts.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if Bluetooth contact sharing is disabled for the managed profile; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Called by a profile owner of a managed profile to determine whether or not Bluetooth devices
             cannot access enterprise contacts.</para>
@@ -7846,7 +7846,7 @@
                          admins have disabled the camera</param>
         <summary>Determine whether or not the device's cameras have been disabled for this user,
             either by the calling admin, if specified, or all admins.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the camera is disabled; otherwise, <see langword="false" />. Pass <see langword="null" /> for <paramref name="admin" /> to check all active admins.</returns>
         <remarks>
           <para>Determine whether or not the device's cameras have been disabled for this user,
             either by the calling admin, if specified, or all admins.</para>
@@ -8079,7 +8079,7 @@
         <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with.</param>
         <summary>Called by a profile owner of a managed profile to determine whether or not caller-Id
             information has been disabled.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if caller ID information from the managed profile is not shown in the parent profile; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Called by a profile owner of a managed profile to determine whether or not caller-Id
             information has been disabled.</para>
@@ -8139,7 +8139,7 @@
         <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with.</param>
         <summary>Called by a profile owner of a managed profile to determine whether or not contacts search
             has been disabled.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if contacts search in the parent profile does not include the managed profile; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Called by a profile owner of a managed profile to determine whether or not contacts search
             has been disabled.</para>
@@ -8424,7 +8424,7 @@
       <Docs>
         <param name="admin">which <c>DeviceAdminReceiver</c> this request is associated with.</param>
         <summary>Returns the user session end message.</summary>
-        <returns>To be added.</returns>
+        <returns>The user session end message.</returns>
         <remarks>
           <para>Returns the user session end message.</para>
           <para>
@@ -8475,7 +8475,7 @@
       <Docs>
         <param name="admin">which <c>DeviceAdminReceiver</c> this request is associated with.</param>
         <summary>Returns the user session end message.</summary>
-        <returns>To be added.</returns>
+        <returns>The user session end message.</returns>
         <remarks>
           <para>Returns the user session end message.</para>
           <para>
@@ -9036,7 +9036,7 @@
         <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with. Null if the
                          caller is not a device admin.</param>
         <summary>Returns the list of packages allowed to start the lock task mode.</summary>
-        <returns>To be added.</returns>
+        <returns>The package names that can enter lock task mode. The array is never <see langword="null" />.</returns>
         <remarks>
           <para>Returns the list of packages allowed to start the lock task mode.</para>
           <para>Starting from <c>Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>, the returned policy will be the
@@ -9233,7 +9233,7 @@
         <summary>Retrieve the current maximum number of login attempts that are allowed before the device
             or profile is wiped, for a particular admin or all admins that set restrictions on this user
             and its participating profiles.</summary>
-        <returns>To be added.</returns>
+        <returns>The maximum number of failed password attempts before the device or profile is wiped, or 0 if no maximum is set. Pass <see langword="null" /> for <paramref name="admin" /> to check all active admins.</returns>
         <remarks>
           <para>Retrieve the current maximum number of login attempts that are allowed before the device
             or profile is wiped, for a particular admin or all admins that set restrictions on this user
@@ -9940,7 +9940,7 @@
             all admins.</param>
         <summary>Retrieve the current minimum password length for a particular admin or all admins that set
             restrictions on this user and its participating profiles.</summary>
-        <returns>To be added.</returns>
+        <returns>The minimum password length, or 0 if no minimum is set. Pass <see langword="null" /> for <paramref name="admin" /> to check all active admins.</returns>
         <remarks>
           <para>Retrieve the current minimum password length for a particular admin or all admins that set
             restrictions on this user and its participating profiles. Restrictions on profiles that have
@@ -10403,7 +10403,7 @@
             all admins.</param>
         <summary>Retrieve the current minimum password quality for a particular admin or all admins that set
             restrictions on this user and its participating profiles.</summary>
-        <returns>To be added.</returns>
+        <returns>The password quality that is required, or <see cref="F:Android.App.Admin.PasswordQuality.Unspecified" /> if no quality is required. Pass <see langword="null" /> for <paramref name="admin" /> to check all active admins.</returns>
         <remarks>
           <para>Retrieve the current minimum password quality for a particular admin or all admins that set
             restrictions on this user and its participating profiles. Restrictions on profiles that have
@@ -10700,11 +10700,11 @@
         <Parameter Name="admin" Type="Android.Content.ComponentName" />
       </Parameters>
       <Docs>
-        <param name="admin">To be added.</param>
+        <param name="admin">The component name of an active administrator with the same UID as the caller.</param>
         <summary>Returns the list of packages installed on the primary user that allowed to use a
             <c>android.service.notification.NotificationListenerService</c> to receive
             notifications from this managed profile, as set by the profile owner.</summary>
-        <returns>To be added.</returns>
+        <returns>The package names of the notification listeners that are permitted, or <see langword="null" /> if all listeners are permitted. An empty list means that only system notification listeners are permitted.</returns>
         <remarks>
           <para>Returns the list of packages installed on the primary user that allowed to use a
             <c>android.service.notification.NotificationListenerService</c> to receive
@@ -10814,7 +10814,7 @@
         <Parameter Name="admin" Type="Android.Content.ComponentName" />
       </Parameters>
       <Docs>
-        <param name="admin">To be added.</param>
+        <param name="admin">The component name of an active administrator with the same UID as the caller.</param>
         <summary>Called by profile owner of an organization-owned managed profile to check whether
             personal apps are suspended.</summary>
         <returns>a bitmask of reasons for personal apps suspension or
@@ -11085,7 +11085,7 @@
                          admins have disabled screen capture.</param>
         <summary>Determine whether or not screen capture has been disabled by the calling
             admin, if specified, or all admins.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if screen capture is disabled; otherwise, <see langword="false" />. Pass <see langword="null" /> for <paramref name="admin" /> to check all active admins.</returns>
         <remarks>
           <para>Determine whether or not screen capture has been disabled by the calling
             admin, if specified, or all admins.</para>
@@ -11301,7 +11301,7 @@
       <Docs>
         <param name="admin">which <c>DeviceAdminReceiver</c> this request is associated with.</param>
         <summary>Returns the user session start message.</summary>
-        <returns>To be added.</returns>
+        <returns>The user session start message.</returns>
         <remarks>
           <para>Returns the user session start message.</para>
           <para>
@@ -11352,7 +11352,7 @@
       <Docs>
         <param name="admin">which <c>DeviceAdminReceiver</c> this request is associated with.</param>
         <summary>Returns the user session start message.</summary>
-        <returns>To be added.</returns>
+        <returns>The user session start message.</returns>
         <remarks>
           <para>Returns the user session start message.</para>
           <para>
@@ -11542,7 +11542,7 @@
         <summary>Returns the list of packages over which user control is disabled by a device or profile
             owner or holders of the permission
             <c>android.Manifest.permission#MANAGE_DEVICE_POLICY_APPS_CONTROL</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>The package names that the user cannot control. The list is never <see langword="null" />.</returns>
         <remarks>
           <para>Returns the list of packages over which user control is disabled by a device or profile
             owner or holders of the permission
@@ -11965,7 +11965,7 @@
                          <c>null</c> if calling from a delegated certificate installer.</param>
         <param name="certBuffer">encoded form of the certificate to look up.</param>
         <summary>Returns whether this certificate is installed as a trusted CA.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the certificate is installed as a trusted CA certificate; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns whether this certificate is installed as a trusted CA.</para>
           <para>
@@ -12016,7 +12016,7 @@
                        active administrator, or an exception will be thrown.</param>
         <param name="usesPolicy">Which uses-policy to check, as defined in <c>DeviceAdminInfo</c>.</param>
         <summary>Returns true if an administrator has been granted a particular device policy.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the admin was granted the policy; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns true if an administrator has been granted a particular device policy. This can be
             used to check whether the administrator was activated under an earlier set of policies, but
@@ -12214,7 +12214,7 @@
                                      with.</param>
         <summary>Called by a device owner or a profile owner of an organization-owned managed profile to
             determine whether the user is prevented from modifying networks configured by the admin.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the user cannot change the Wi-Fi networks that the admin configured; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Called by a device owner or a profile owner of an organization-owned managed profile to
             determine whether the user is prevented from modifying networks configured by the admin.</para>
@@ -13261,7 +13261,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether this user is affiliated with the device.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the user is affiliated with the device owner; otherwise, <see langword="false" />. The device owner user is always affiliated.</value>
         <remarks>
           <para>Returns whether this user is affiliated with the device.</para>
           <para>By definition, the user that the device owner runs on is always affiliated with the device.
@@ -13310,7 +13310,7 @@
         <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with.</param>
         <summary>Called by device or profile owner to query whether current always-on VPN is configured in
             lockdown mode.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the always-on VPN is in lockdown mode; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Called by device or profile owner to query whether current always-on VPN is configured in
             lockdown mode. Returns <c>false</c> when no always-on configuration is set.</para>
@@ -13415,7 +13415,7 @@
         <Parameter Name="admin" Type="Android.Content.ComponentName" />
       </Parameters>
       <Docs>
-        <param name="admin">To be added.</param>
+        <param name="admin">The component name of an active administrator with the same UID as the caller.</param>
         <summary>Return whether the backup service is enabled by the device owner or profile owner for the
             current user, as previously set by <c>#setBackupServiceEnabled(ComponentName, boolean)</c>.</summary>
         <returns>
@@ -13471,7 +13471,7 @@
         <summary>Called by any application to find out whether it has been granted permission via
             <c>#setApplicationRestrictionsManagingPackage</c> to manage application restrictions
             for the calling user.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the caller is the package that manages application restrictions; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Called by any application to find out whether it has been granted permission via
             <c>#setApplicationRestrictionsManagingPackage</c> to manage application restrictions
@@ -13575,7 +13575,7 @@
         <summary>Called by a profile owner of an organization-owned managed profile to query whether it needs
             to acknowledge device compliance to allow the user to turn the profile off if needed
             according to the maximum profile time off policy.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the profile owner must acknowledge that the device is compliant; otherwise, <see langword="false" />. See <see cref="M:Android.App.Admin.DevicePolicyManager.AcknowledgeDeviceCompliant" />.</value>
         <remarks>
           <para>Called by a profile owner of an organization-owned managed profile to query whether it needs
             to acknowledge device compliance to allow the user to turn the profile off if needed
@@ -13623,7 +13623,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns <c>true</c> if this device is marked as a financed device.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the device is marked as financed; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns <c>true</c> if this device is marked as a financed device.</para>
           <para>A financed device can be entered into lock task mode (see <c>#setLockTaskPackages</c>)
@@ -13930,7 +13930,7 @@
         <param name="pkg">The package to check</param>
         <summary>This function lets the caller know whether the given component is allowed to start the
             lock task mode.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if <paramref name="pkg" /> can start lock task mode; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>This function lets the caller know whether the given component is allowed to start the
             lock task mode.</para>
@@ -14669,7 +14669,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether the status bar is disabled/enabled, see <c>#setStatusBarDisabled</c>.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> if the status bar is disabled; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns whether the status bar is disabled/enabled, see <c>#setStatusBarDisabled</c>.</para>
           <para>Callable by device owner or profile owner of secondary users that is affiliated with the
@@ -14833,7 +14833,7 @@
         <param name="admin">Which <c>DeviceAdminReceiver</c> this request is associated with.</param>
         <summary>When called by a profile owner of a managed profile returns true if the profile uses unified
             challenge with its parent user.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the profile uses a unified challenge with its parent user; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>When called by a profile owner of a managed profile returns true if the profile uses unified
             challenge with its parent user.
@@ -16392,7 +16392,7 @@
           <c>ManagedSubscriptionsPolicy</c> policy, passing null for this resets the
                           policy to be the default.</param>
         <summary>Returns the current <c>ManagedSubscriptionsPolicy</c>. -or- Called by a profile owner of an organization-owned device to specify <c>ManagedSubscriptionsPolicy</c></summary>
-        <value>To be added.</value>
+        <value>The policy for managed subscriptions. The default policy is <see cref="F:Android.App.Admin.ManagedSubscriptionsPolicy.TypeAllPersonalSubscriptions" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the current <c>ManagedSubscriptionsPolicy</c>.
@@ -19223,7 +19223,7 @@
       <Docs>
         <summary>Returns a <c>DevicePolicyResourcesManager</c> containing the required APIs to set, reset,
             and get device policy related resources.</summary>
-        <value>To be added.</value>
+        <value>The <see cref="T:Android.App.Admin.DevicePolicyResourcesManager" /> for updatable device policy resources. The value is never <see langword="null" />.</value>
         <remarks>
           <para>Returns a <c>DevicePolicyResourcesManager</c> containing the required APIs to set, reset,
             and get device policy related resources.</para>
@@ -19878,7 +19878,7 @@
         <Parameter Name="lockdownEnabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="admin">To be added.</param>
+        <param name="admin">The component name of an active administrator with the same UID as the caller.</param>
         <param name="vpnPackage">The package name for an installed VPN app on the device, or <c>null</c> to
                    remove an existing always-on VPN configuration.</param>
         <param name="lockdownEnabled">
@@ -19963,7 +19963,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="admin">To be added.</param>
+        <param name="admin">The component name of an active administrator with the same UID as the caller.</param>
         <param name="vpnPackage">package name for an installed VPN app on the device, or <c>null</c>
                     to remove an existing always-on VPN configuration</param>
         <param name="lockdownEnabled">
@@ -26678,7 +26678,7 @@
       <Docs>
         <summary>Returns the data passed from the current administrator to the new administrator during an
             ownership transfer.</summary>
-        <value>To be added.</value>
+        <value>The bundle that was given to <see cref="M:Android.App.Admin.DevicePolicyManager.TransferOwnership(Android.Content.ComponentName,Android.Content.ComponentName,Android.OS.PersistableBundle)" />, or <see langword="null" /> if no ownership transfer was started for the calling user.</value>
         <remarks>
           <para>Returns the data passed from the current administrator to the new administrator during an
             ownership transfer. This is the same <c>bundle</c> passed in
@@ -27293,7 +27293,7 @@
         <param name="policy">Wi-Fi SSID policy</param>
         <summary>Returns the current Wi-Fi SSID policy. -or- Called by device owner or profile owner of an organization-owned managed profile to
             specify the Wi-Fi SSID policy (<c>WifiSsidPolicy</c>).</summary>
-        <value>To be added.</value>
+        <value>The Wi-Fi SSID policy, or <see langword="null" /> if no policy is set.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the current Wi-Fi SSID policy.

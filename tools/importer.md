@@ -9,6 +9,7 @@ Run it with the .NET 10 SDK or newer:
 ```powershell
 dotnet run tools\importer.cs -- --self-test
 dotnet run tools\importer.cs -- --self-test-preservation
+dotnet run tools\importer.cs -- --self-test-telecom
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation\ArgbEvaluator.xml --member Evaluate --report artifacts\argb-import
 dotnet run tools\importer.cs -- --path docs\xml\Android.Animation --namespace Android.Animation --max-changes 10 --cache C:\temp\android-doc-cache
 dotnet run tools\importer.cs -- --path docs\xml --api-since 37 --max-changes 10 --report artifacts\api-37-import
@@ -133,6 +134,34 @@ Changed declarations or provenance do not enable recovery, and future corrected
 reference text follows ordinary parsing. Registered offline tests cover bounded
 imports, parameter/prose separation, authored content, and persisted repeats.
 
+The exact `EmbeddedBiometricPrompt.AuthenticationCallback.onAuthenticationError`
+and `onAuthenticationHelp` declarations contain broken links to Android's
+`BiometricConstants.Errors`, `BiometricFaceConstants.FaceAcquired`, and
+`BiometricFingerprintConstants.FingerprintAcquired` annotations. The importer
+retains those source names as plain text only for the two complete native
+fragments in `tools/importer-fixtures/biometric-callback-source-fragments.txt`
+and their exact managed/JNI bindings. The annotation declarations are verified
+against the pinned Android 17 implementation; no equivalence to the complete
+managed enum is inferred. Changed source or binding metadata does not enable
+the recovery. Existing authored channels remain protected.
+
+Twenty-four exact `SecurityLog` `TAG_*` field sections leave bare `<li>` items
+open inside one paragraph, so the last item absorbs the rest of the section and
+the field has no usable prose. The importer closes only that last item, at the
+paragraph end or before a nested paragraph, when the complete native HTML
+fragment matches its pinned SHA-256 and the `SecurityLogTags` enum field
+binding, JNI field, and constant value match. Other `SecurityLog` sections,
+`SecurityLog` constants, and other pages follow ordinary parsing.
+`TAG_APP_PROCESS_START` (no sentence boundary before a nested sentence),
+`TAG_REMOTE_LOCK` (trailing comma before the list separator), and
+`TAG_OS_STARTUP` (nested list) stay withheld. The fixtures in
+`tools/importer-fixtures/securitylog-source-fragments.txt` retain recovered,
+withheld, and already parsed fragments as base64 with their hashes, from page
+SHA-256 `4d645108a71f16aa4bd9a646b1d66d9ec072ef52a8f679ca9cff85e1c0c807b8`.
+Offline tests create their own placeholders, check bounded applies, preserve
+authored text and all bytes outside replaced summaries, and require a
+byte-identical zero-write repeat.
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.
@@ -147,6 +176,14 @@ infer text for the enclosing instance.
 Eight TextClassifiers string properties map to their registered `Formatted`
 getters, following the pinned
 [string-property generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundPropertyStringVariant.cs).
+Twelve Biometrics string properties map in the same way. Twelve unregistered
+Biometrics `System.String` method overloads map to the registered
+`Java.Lang.ICharSequence` sibling that the pinned
+[string-overload generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundMethodStringOverload.cs)
+calls. At runtime, the overload must have exactly one sibling with the same
+name, return type and parameter names, where only each `System.String`
+parameter changes to `Java.Lang.ICharSequence`, and that sibling must carry the
+listed JNI registration.
 Five legacy `TextClassifier` fields use the official `TextClassifier` interface
 page rather than the managed compatibility class's internal Java registration.
 Focused self-tests compare every mapping with its canonical sibling registration
@@ -238,6 +275,17 @@ managed/JNI binding or canonical source identity is rejected before any writer.
 The existing importer-owned remarks remain untouched and the report records
 `source_channel_ambiguous`; a future source paragraph that preserves both
 defaults remains eligible for an existing remarks placeholder.
+The exact `BiometricManager.Strings.getPromptMessage()` and `getSettingName()`
+return descriptions repeat the button-label text despite describing different
+getter purposes. The [pinned framework declarations](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/hardware/biometrics/BiometricManager.java)
+and [service implementation](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/services/core/java/com/android/server/biometrics/AuthService.java)
+confirm distinct getter paths. The importer withholds only the exact copied
+`value` text for the verified string aliases and registered `Formatted`
+properties, reports `source_channel_ambiguous`, and does not infer a replacement.
+If the copied value has mismatched binding or source provenance, the entire
+mapping is withheld rather than writing any channels.
+Other channels, the button-label getter, existing documentation, and future
+corrected source remain eligible or preserved.
 Repair of the known `Control.StatefulBuilder.setControlTemplate` paragraph boundary
 is restricted to its exact Android member URL and verified lead-in/description,
 preserving the source's blank line as two paragraphs without inventing punctuation.
@@ -268,6 +316,46 @@ intact; its unsafe return is restored to `To be added.`. Authored or mixed conte
 duplicate channels, altered metadata, and changed sources are preserved and reported.
 Repairs for one member are atomic and require room for every affected channel.
 Implementation verification is not an AOSP prose fallback.
+The two final `CallRedirectionService` lifecycle overrides have separate,
+channel-specific guards. For the exact registered `OnBind` declaration and
+canonical Android source, only the complete known nullable-binder paragraph
+loses `May return null if clients can not bind to the service.`; its remaining
+sentences and Binder-thread guidance remain in order. For `OnUnbind`, only the
+exact inherited caller-choice return is withheld as `source_channel_ambiguous`.
+Its existing default-does-nothing/returns-false remarks are not rewritten.
+The API 37.2 implementation at
+`src/android/telecom/CallRedirectionService.java:330-338` always returns a new
+binder from `onBind` and false from `onUnbind`. Verification uses the official
+`source-37.2_r01.zip` archive, SHA-256
+`9d637c3af6654a2f1b696b3d19c54bb77e38df2b0106116934703f314b3d4e84`,
+not implementation-derived replacement prose.
+First-fill guards require the exact managed/JNI declaration, canonical source
+URL/label, native final declaration, and complete affected non-code paragraph
+or return. Unrelated safe source context does not re-enable the defect.
+Prior-copy repair additionally requires the entire original source contract
+and complete plain importer-owned Docs, including untouched parameter/return
+placeholders, summary, ordered remarks, reference and attribution. It removes
+only the exact original paragraph's nullable sentence or restores the unsafe
+return to `To be added.`, consuming one change and retaining every other byte.
+Authored or mixed content, duplicate channels, comments, CDATA, processing
+instructions, altered binding/source metadata and changed source are preserved;
+no generic refresh can bypass a rejected prior-copy repair.
+Corrected official source remains eligible for first-fill imports.
+`telecom-redirection-fresh-legacy-output.json` records fresh timestamped
+compatibility samples from the unchanged importer at commit
+`dfab3d3dce6f3c28f14b9f13af5a413e20b00e17`, not historical APPLY outputs.
+Its portable-PDB source checksum was verified before generation. Both the
+untouched baseline members and independently placeholder-seeded first-fill
+inputs ran through that real producer, using bounded offline preview/apply
+commands and zero-write persisted repeats. Raw input/output bytes and hashes,
+source-page/fragment hashes, producer hashes and execution receipts are retained;
+the strict repair helper does not manufacture these samples.
+The focused `--self-test-telecom` suite is also included in `--self-test`.
+It verifies both prior-copy sample forms, bounded first fills and repairs,
+authored/mixed and changed-binding/source preservation, LF/CRLF and UTF-8 BOM
+combinations, corrected/contextual source controls, and byte-identical persisted
+repeats through the production pipeline. The native HTML fixture is base64
+encoded to preserve the original declaration bytes.
 The seven final `SliceProvider` data-operation overrides also expose copied
 `ContentProvider` contracts despite ignoring their operation arguments:
 `delete`, `getType`, `insert`, the three `query` overloads, and `update`.
@@ -497,6 +585,27 @@ attribution intact. Authored or mixed content, including whitespace-only CDATA
 at the Docs root, remarks container, or source-reference paragraph, and changed
 source contracts are preserved. Corrected or removed source
 prose remains eligible under the ordinary channel rules.
+
+The parameterless `MediaRouteActionProvider.onCreateActionView()` return is
+withheld when its complete official source contract promises a new non-null
+view. The [pinned current platform implementation](https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/app/MediaRouteActionProvider.java#107)
+always throws `UnsupportedOperationException`; it is evidence, not replacement
+prose. The current API 37.2 implementation in the official
+`source-37.2_r01.zip` archive has the same file SHA-256,
+`09f116e12a5b2450538f36c531982b51ba25b87ae53937275a1ff21084699115`,
+and the same throwing body at lines 107-111. The archive SHA-256 is
+`9d637c3af6654a2f1b696b3d19c54bb77e38df2b0106116934703f314b3d4e84`.
+The guard reuses the exact registered-channel rules and requires the
+managed DocId, signature, return type, JNI descriptor, canonical source URL and
+label, and full original source contract. The `MenuItem` overload is separate
+and remains eligible. Authored content is preserved, and changed future source
+remains eligible. The base64 native reference fixture has SHA-256
+`6463d3a74b5b3e8e2695ece6dd1143a01d2e3ef52361adf3843572a7af80ea90`,
+from page SHA-256
+`02995ca27dcaa3906d9b31331306aac8b331f17e1945a0081a475294297ab792`.
+Registered offline production tests cover the exclusion, changed binding and
+source controls, authored content, a one-operation sibling fill, exact outside-span
+byte preservation, and persisted zero-write repeats.
 
 The same exact allow-list covers the RSSI builder's Bluetooth-address parameter
 and RSSI parcel-write summary and remarks. The RSSI update-rate setter's malformed
@@ -791,6 +900,26 @@ source links. Safe separate channels remain eligible. No replacement prose or
 equations are inferred, and existing documentation is not withdrawn.
 Changed or removed defective source text does not enable these exclusions.
 
+The exact `Dalvik.Bytecode.IOpcodes` constant-only interface and its obsolete
+`Opcodes` compatibility class can use the native `dalvik.bytecode.Opcodes`
+reference for their type descriptions, nineteen deprecated implementation
+detail fields and thirty-nine never-implemented jumbo fields. The pinned
+[interface generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/BoundInterface.cs)
+omits registration on constant-only interfaces; its
+[compatibility-class generator](https://github.com/dotnet/java-interop/blob/87c5d3ea09de94c40424c1d3eb2bc2bd9a1449ff/tools/generator/SourceWriters/InterfaceMemberAlternativeClass.cs)
+uses the `mono/internal/` registration. Both sibling files must match the exact
+managed owner, assembly and type signatures. Each listed field must match both
+siblings' JNI names, managed signatures, DocIds, integer return types and pinned
+[native values](https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/dalvik/src/main/java/dalvik/bytecode/Opcodes.java).
+The official page must declare the exact interface and field with that value.
+The jumbo mappings do not include the implemented `OP_CONST_STRING_JUMBO` or
+confuse `OP_CONST_CLASS_JUMBO` with the distinct `OP_CONST_METHOD_TYPE` field
+that has the same numeric value. Other constants, missing prose and empty
+channels are not filled. Native hashed
+fixtures and offline production tests cover both projections, changed bindings
+and sources, authored documentation, bounded writes, byte preservation and
+persisted zero-write repeats.
+
 Further reviewed exclusions cover exact ICU return and date-format errors, the
 lost `java.text.MessageFormat` link qualification, incomplete Net and Provider
 result lists, conflicting PeopleContract restrictions, the PeopleContract list
@@ -804,6 +933,27 @@ The four Java 21 `Spliterators.Abstract*Spliterator.estimateSize()` summaries
 that stop inside `Consumer<?` are also withheld. Their valid remarks and return
 channels remain eligible; no general generic-type or sentence-parser change
 is made.
+The exact Android `FilePermission` and `SerializablePermission` projections
+have a separate, source-pinned legacy-security path. Java 21 permission checks,
+action lists and retained permission names contradict the API 37.2 Android
+stubs. Complete binding metadata, canonical declarations and full parsed source
+fingerprints are required. Contradicted channels are reported as ambiguous,
+without replacement prose or generic enrichment; safe constructor parameter
+labels remain eligible. Changed source or binding identity is preserved and
+reported rather than guessed.
+Prior-copy withdrawal requires the complete exact original Docs snapshot,
+independently reproduced by the immutable importer at
+`8f08cbfd813a176044a947587916c153865f61d2`. The `Implies` exception additionally
+requires the exact mixed-owner snapshot from review commit
+`3c24283038340cf92288d8fcdee2f4ea390790ee`: only its independently unchanged
+parameter and return spans are withdrawn, never its authored paragraph.
+Other repairs remove only contradicted producer-owned spans and retain every
+source-reference and attribution byte. Each member's repair is atomic within
+the change budget. `java-io-legacy-security.json` retains original binding bytes,
+independent producer inputs/outputs, the reviewed mixed snapshot, native source
+fragments and SDK archive provenance. Registered offline tests cover first fills,
+historical ownership, altered content/source/binding, bounded writes, BOM/newline
+preservation and persisted zero-write repeats.
 The exact `HardwareBufferRenderer.RenderRequest.setColorSpace` remarks are
 withheld when their non-null requirement conflicts with the parameter's
 documented null-to-SRGB behavior. The summary and parameter remain eligible.
@@ -888,6 +1038,20 @@ Limitations:
   ordinary conservative skip. Existing
   authored or mixed remarks remain protected by the ordinary importer-ownership
   checks.
+- `ReadMedicalResourcesInitialRequest.Builder.setPageSize(int)` and
+  `ReadMedicalResourcesPageRequest.Builder.setPageSize(int)` render the
+  `pageSize` range as `ERROR(/android.health.connect.Constants#MINIMUM_PAGE_SIZE)`
+  and `ERROR(/android.health.connect.Constants#MAXIMUM_PAGE_SIZE)`. These two
+  tokens are replaced with `1` and `5000` only in the `pageSize` parameter cell,
+  and only when the canonical member URL and title match, the member has one
+  `Parameters` table with the exact parameter row, and one `Throws` table with
+  the exact `IllegalArgumentException` row ("less than 1 or more than 5000").
+  Each table must have exactly one data row. Rendering also requires the exact
+  managed type, `Mono.Android` type and member assemblies, DocId, C# signature,
+  return type, `pageSize` parameter, and `(I)` JNI descriptor; otherwise the
+  mapping is skipped as `source_channel_ambiguous`. The global `ERROR(...)` skip
+  is unchanged. The `ReadMedicalResourcesRequest.getPageSize()` return is not
+  repaired because its page does not state the bounds.
 - `CompanionDeviceManager.TrustPairingCallback` type remarks are withheld only
   when the exact official class link has an `int[]` request signature but visible
   scalar-`int` prose, and the managed type registration and signature also match.

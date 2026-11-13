@@ -40,7 +40,7 @@
     </Attribute>
   </Attributes>
   <Docs since="1">
-    <typeparam name="E">To be added.</typeparam>
+    <typeparam name="E">The managed type used for values stored in the array.</typeparam>
     <summary>SparseArrays map integers to Objects.</summary>
     <remarks>
       <para>
@@ -64,7 +64,7 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Creates an empty sparse array of managed values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -84,8 +84,8 @@
         <Parameter Name="capacity" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="capacity">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="capacity">The initial number of mappings to reserve space for.</param>
+        <summary>Creates an empty sparse array with storage for the specified number of values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -115,8 +115,8 @@
         <Parameter Name="value" Type="E" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
+        <param name="key">The integer key to associate with the value.</param>
+        <param name="value">The managed value to associate with <paramref name="key" />.</param>
         <summary>Puts a key/value pair into the array, optimizing for the case where the key is greater than all existing keys in the array.</summary>
         <remarks>
           <para>Puts a key/value pair into the array, optimizing for the case where the key is greater than all existing keys in the array.</para>
@@ -148,10 +148,10 @@
         <Parameter Name="key" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
+        <param name="key">The integer key to look up.</param>
         <summary>Gets the Object mapped from the specified key, or <c>null</c>
  if no such mapping has been made.</summary>
-        <returns>To be added.</returns>
+        <returns>The mapped value converted to <c>E</c>, or <c>default(E)</c> if the key is absent.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -182,10 +182,10 @@
         <Parameter Name="valueIfKeyNotFound" Type="E" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="valueIfKeyNotFound">To be added.</param>
+        <param name="key">The integer key to look up.</param>
+        <param name="valueIfKeyNotFound">The managed value to return when the key has no mapping.</param>
         <summary>Gets the Object mapped from the specified key, or the specified Object if no such mapping has been made.</summary>
-        <returns>To be added.</returns>
+        <returns>The mapped value, or <paramref name="valueIfKeyNotFound" /> if the key is absent.</returns>
         <remarks>
           <para>Gets the Object mapped from the specified key, or the specified Object if no such mapping has been made.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/util/SparseArray#get(int,%20E)" title="Reference documentation">Android reference for <code>android.util.SparseArray.get</code>.</a></format></para>
@@ -216,9 +216,9 @@
         <Parameter Name="value" Type="E" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
+        <param name="value">The value whose Java representation is to be searched for by identity.</param>
         <summary>Returns an index for which valueAt(int) would return the specified value, or a negative number if no keys map to the specified value.</summary>
-        <returns>To be added.</returns>
+        <returns>The first index matching the value's Java representation by identity, or -1 if none matches.</returns>
         <remarks>
           <para>Returns an index for which valueAt(int) would return the specified value, or a negative number if no keys map to the specified value.</para>
           <para>Beware that this is a linear search, unlike lookups by key, and that multiple keys can map to the same value and this will find only one of them.</para>
@@ -252,8 +252,8 @@
         <Parameter Name="value" Type="E" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
+        <param name="key">The integer key for the mapping to add or replace.</param>
+        <param name="value">The managed value to associate with <paramref name="key" />.</param>
         <summary>Adds a mapping from the specified key to the specified value, replacing the previous mapping from the specified key if there was one.</summary>
         <remarks>
           <para>Adds a mapping from the specified key to the specified value, replacing the previous mapping from the specified key if there was one.</para>
@@ -286,8 +286,8 @@
         <Parameter Name="value" Type="E" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
-        <param name="value">To be added.</param>
+        <param name="index">The zero-based index of the mapping to update.</param>
+        <param name="value">The managed value to store at the specified mapping index.</param>
         <summary>Given an index in the range 0...size()-1, sets a new value for the indexth key-value mapping that this SparseArray stores.</summary>
         <remarks>
           <para>Given an index in the range 0...size()-1, sets a new value for the indexth key-value mapping that this SparseArray stores.</para>
@@ -320,11 +320,11 @@
         <Parameter Name="index" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="index">To be added.</param>
+        <param name="index">The zero-based index of an existing mapping.</param>
         <summary>Given an index in the range <c>0...size()-1</c>, returns
  the value from the <c>index</c>th key-value mapping that this
  SparseArray stores.</summary>
-        <returns>To be added.</returns>
+        <returns>The value at the specified mapping index, converted to <c>E</c>.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

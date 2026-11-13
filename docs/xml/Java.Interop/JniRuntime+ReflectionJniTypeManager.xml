@@ -27,8 +27,8 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Resolves JNI types and native registration callbacks using managed reflection.</summary>
+    <remarks>This implementation requires reflection and dynamic-code support and is not compatible with Native AOT.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -42,8 +42,8 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Initializes the reflection-based type manager.</summary>
+        <remarks>Native type and member lookup occur when the lookup operations are requested.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetInvokerTypeCore">
@@ -69,10 +69,10 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The abstract class or interface whose invoker metadata is inspected.</param>
+        <summary>Reads the invoker type from <see cref="T:Java.Interop.JniTypeSignatureAttribute" />.</summary>
+        <returns>The declared invoker type, or <see langword="null" /> when none is specified.</returns>
+        <remarks>A generic type with an invoker annotation is rejected because generic invoker construction is unsupported.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetReplacementMethodInfoCore">
@@ -94,12 +94,12 @@
         <Parameter Name="jniMethodSignature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <param name="jniMethodName">To be added.</param>
-        <param name="jniMethodSignature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimpleReference">The source simple JNI type name.</param>
+        <param name="jniMethodName">The source method name.</param>
+        <param name="jniMethodSignature">The source JNI method descriptor.</param>
+        <summary>Supplies no method remapping in this implementation.</summary>
+        <returns><see langword="null" />.</returns>
+        <remarks>Override this hook to add method remapping.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetReplacementTypeCore">
@@ -125,10 +125,10 @@
         <Parameter Name="jniSimpleReference" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimpleReference">The source simple JNI type name.</param>
+        <summary>Supplies no type-name replacement in this implementation.</summary>
+        <returns><see langword="null" />.</returns>
+        <remarks>Override this hook to add type-name replacement.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSimpleReference">
@@ -154,10 +154,10 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The non-array managed type whose JNI annotation is inspected.</param>
+        <summary>Gets the first simple JNI name produced by <c>GetSimpleReferences</c>.</summary>
+        <returns>The first candidate name, or <see langword="null" /> when no annotation supplies one.</returns>
+        <remarks>The result can use a runtime replacement for the annotated name.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetSimpleReferences">
@@ -183,10 +183,10 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The non-null, non-array managed type to inspect.</param>
+        <summary>Reads a type's directly declared <see cref="T:Java.Interop.JniTypeSignatureAttribute" /> name.</summary>
+        <returns>The replacement or declared simple name, or an empty sequence.</returns>
+        <remarks>Inherited type annotations are not searched by this implementation.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetStaticMethodFallbackTypesCore">
@@ -212,10 +212,10 @@
         <Parameter Name="jniSimple" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimple">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimple">The source simple JNI type name.</param>
+        <summary>Supplies no static-method fallback list in this implementation.</summary>
+        <returns><see langword="null" />.</returns>
+        <remarks>Derived managers can provide fallback declaring types.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTypeForSimpleReference">
@@ -241,10 +241,10 @@
         <Parameter Name="jniSimpleReference" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimpleReference">The validated simple JNI type name.</param>
+        <summary>Resolves built-in Java names and primitive descriptors to managed types.</summary>
+        <returns>The built-in type, including nullable primitive wrappers, or <see langword="null" /> for an unknown name.</returns>
+        <remarks>This lookup does not scan assemblies for arbitrary user types.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTypes">
@@ -264,10 +264,10 @@
         <Parameter Name="typeSignature" Type="Java.Interop.JniTypeSignature" />
       </Parameters>
       <Docs>
-        <param name="typeSignature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="typeSignature">The JNI signature whose managed representations are requested.</param>
+        <summary>Enumerates supported managed representations of a JNI signature.</summary>
+        <returns>Candidate scalar or array types, or an empty sequence when no mapping exists.</returns>
+        <remarks>Array signatures can produce both managed arrays and Java array wrappers. Candidates are not guaranteed to be unique.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTypesForSimpleReference">
@@ -287,10 +287,10 @@
         <Parameter Name="jniSimpleReference" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="jniSimpleReference">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="jniSimpleReference">The simple JNI name whose built-in mappings are requested.</param>
+        <summary>Enumerates built-in managed types for a simple JNI name.</summary>
+        <returns>The matching built-in candidates, or an empty sequence.</returns>
+        <remarks>The internal <c>ManagedPeer</c> type is included only when its native-registration feature is enabled.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTypeSignatureCore">
@@ -310,10 +310,10 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The managed type whose JNI representation is requested.</param>
+        <summary>Resolves a managed type through built-in, array, and annotation mappings.</summary>
+        <returns>The selected JNI signature, or an invalid default signature.</returns>
+        <remarks>Jagged array levels contribute to the JNI array rank. Multidimensional managed arrays are rejected; enums use their underlying managed type.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTypeSignaturesCore">
@@ -339,10 +339,10 @@
         <Parameter Name="type" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The managed type whose candidate JNI representations are requested.</param>
+        <summary>Enumerates built-in and annotated JNI signatures for a managed type.</summary>
+        <returns>The candidate signatures in lookup order.</returns>
+        <remarks>This method can include multiple candidates rather than selecting only the first.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterNativeMembers">
@@ -371,11 +371,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="nativeClass">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="nativeClass">The Java class to receive native registrations.</param>
+        <param name="type">The managed type to inspect for registration callbacks.</param>
+        <param name="methods">A compatibility input ignored by this overload.</param>
+        <summary>Invokes generated or attributed native registration callbacks.</summary>
+        <remarks>The span is not forwarded as a method-description string.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterNativeMembers">
@@ -410,11 +410,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="nativeClass">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="nativeClass">The Java class to receive native registrations.</param>
+        <param name="type">The managed type to inspect for registration callbacks.</param>
+        <param name="methods">The optional description forwarded to callback arguments.</param>
+        <summary>Invokes native registration callbacks with an optional method description.</summary>
+        <remarks>Generated registration is tried before attributed methods.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryRegisterNativeMembers">
@@ -443,12 +443,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="nativeClass">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="nativeClass">The Java class to receive native registrations.</param>
+        <param name="type">The managed type to inspect for registration callbacks.</param>
+        <param name="methods">A compatibility input ignored by this overload.</param>
+        <summary>Tries generated registration before attributed callbacks.</summary>
+        <returns><see langword="true" /> when a callback is found; otherwise, <see langword="false" />.</returns>
+        <remarks>A callback can be found even if it supplies no native registrations.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryRegisterNativeMembers">
@@ -483,12 +483,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="nativeClass">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="methods">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="nativeClass">The Java class to receive native registrations.</param>
+        <param name="type">The managed type to inspect for registration callbacks.</param>
+        <param name="methods">The optional description forwarded to callback arguments.</param>
+        <summary>Tries native registration with an optional method description.</summary>
+        <returns><see langword="true" /> when a callback is found; otherwise, <see langword="false" />.</returns>
+        <remarks>Callback exceptions propagate instead of being converted to <see langword="false" />.</remarks>
       </Docs>
     </Member>
   </Members>

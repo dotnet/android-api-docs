@@ -33,7 +33,7 @@
               Timing messages are logged with the <c>Info</c> priority and the <c>monodroid-timing</c> tag in the
               device's logcat buffer.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>The first call to the base disposal implementation stops any active measurement.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -51,12 +51,12 @@
         <Parameter Name="startImmediately" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="startMessage">To be added.</param>
-        <param name="startImmediately">To be added.</param>
+        <param name="startMessage">An optional message to use when timing starts.</param>
+        <param name="startImmediately"><see langword="true" /> to request an immediate start; <see langword="false" /> to leave timing stopped until <see cref="M:Android.Runtime.TimingLogger.Start(System.String)" /> is called.</param>
         <summary>
               Construct a TimeLogger instance and start measuring time immediately, if the <paramref name="startImmediately" /> parameter is left out or set to <c>true</c>. If the <paramref name="startMessage" /> is not <c>null</c> then the message is logged at the start.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>When <paramref name="startImmediately" /> is <see langword="false" />, the constructor saves <paramref name="startMessage" /> for a later start.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -80,7 +80,7 @@
         <summary>
               Dispose of the current instance. <see cref="M:Android.Runtime.TimingLogger.Dispose" /> for more information.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>Calls the protected <see cref="M:Android.Runtime.TimingLogger.Dispose(System.Boolean)" /> overload with <see langword="true" /> and suppresses finalization.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Dispose">
@@ -100,12 +100,12 @@
         <Parameter Name="disposing" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="disposing">To be added.</param>
+        <param name="disposing">The public <see cref="M:Android.Runtime.TimingLogger.Dispose" /> method passes <see langword="true" />; the finalizer passes <see langword="false" />. The base implementation does not read this value.</param>
         <summary>
               Dispose of the current instance, stopping timing if necessary. Note that if timing is stopped
               here, the log will contain the default message (<see cref="M:Android.Runtime.TimingLogger.Stop(System.String)" />)
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>On its first call, the base implementation stops any active measurement and marks the instance as disposed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Finalize">
@@ -123,8 +123,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Calls the protected <see cref="M:Android.Runtime.TimingLogger.Dispose(System.Boolean)" /> overload with <see langword="false" />.</summary>
+        <remarks>The public <see cref="M:Android.Runtime.TimingLogger.Dispose" /> method suppresses finalization.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Start">
@@ -144,13 +144,13 @@
         <Parameter Name="startMessage" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="startMessage">To be added.</param>
+        <param name="startMessage">An optional start message. If timing starts and this is <see langword="null" />, any message saved by the constructor is used.</param>
         <summary>
               Start measuring time. If <paramref name="startMessage" /> is provided (or if the constructor was
               passed a message to use when starting) it will be output to the log, otherwise the measurement
               start is silent. The method does anything only if no measurement is active.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>When the constructor starts timing immediately, it does not save its message for later calls to this method.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Stop">
@@ -176,7 +176,7 @@
         <Parameter Name="stopMessage" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="stopMessage">To be added.</param>
+        <param name="stopMessage">The message for the completed measurement.</param>
         <summary>
                Stop measuring time and log message specified in the <paramref name="stopMessage" /> parameter. If
                message is not specified, the .NET for Android runtime will use the default message, <c>"Managed
@@ -184,7 +184,7 @@
             
              <para><c>stopMessage; elapsed: %lis:%lu::%lu</c></para><para>
                The <c>elapsed</c> fields are defined as follows: <c>seconds:milliseconds::nanoseconds</c></para></summary>
-        <remarks>To be added.</remarks>
+        <remarks>If no measurement is active, this method does nothing.</remarks>
       </Docs>
     </Member>
   </Members>

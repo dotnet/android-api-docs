@@ -22,7 +22,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides direct JNI lookup and typed access for Java static fields.</summary>
     <remarks>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -46,10 +46,10 @@
         <Parameter Name="field" Type="Java.Interop.JniFieldInfo" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the boolean static field.</param>
+        <summary>Reads a Java boolean static field through its JNI identifier.</summary>
+        <returns>The field value as <see langword="bool" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -73,10 +73,10 @@
         <Parameter Name="field" Type="Java.Interop.JniFieldInfo" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the byte static field.</param>
+        <summary>Reads a Java byte static field through its JNI identifier.</summary>
+        <returns>The field value as <see langword="sbyte" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -100,10 +100,10 @@
         <Parameter Name="field" Type="Java.Interop.JniFieldInfo" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the char static field.</param>
+        <summary>Reads a Java char static field through its JNI identifier.</summary>
+        <returns>The field value as <see langword="char" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -127,10 +127,10 @@
         <Parameter Name="field" Type="Java.Interop.JniFieldInfo" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the double static field.</param>
+        <summary>Reads a Java double static field through its JNI identifier.</summary>
+        <returns>The field value as <see langword="double" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -167,15 +167,15 @@
         <Parameter Name="signature" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
+        <param name="type">A valid reference to the Java class used for field lookup.</param>
+        <param name="name">The zero-terminated Java field name encoded as modified UTF-8.</param>
+        <param name="signature">The zero-terminated JNI field descriptor encoded as modified UTF-8.</param>
         <summary>
             Looks up a JNI static field ID using null-terminated UTF-8 name and signature spans.
             Use with <c>"fieldName"u8</c> literals to avoid string marshalling overhead.
             </summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>Valid JNI field information for the static field.</returns>
+        <remarks>Both spans must include terminating zero bytes. Their bytes are passed to JNI without transcoding or length arguments. A pending Java exception from lookup is converted to a managed exception.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetStaticFieldID">
@@ -197,11 +197,11 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="name">To be added.</param>
-        <param name="signature">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid reference to the Java class used for field lookup.</param>
+        <param name="name">The Java field name.</param>
+        <param name="signature">The JNI field descriptor.</param>
+        <summary>Resolves a JNI static field identifier.</summary>
+        <returns>Valid JNI field information for the static field.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -225,10 +225,10 @@
         <Parameter Name="field" Type="Java.Interop.JniFieldInfo" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the float static field.</param>
+        <summary>Reads a Java float static field through its JNI identifier.</summary>
+        <returns>The field value as <see langword="float" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -252,10 +252,10 @@
         <Parameter Name="field" Type="Java.Interop.JniFieldInfo" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the int static field.</param>
+        <summary>Reads a Java int static field through its JNI identifier.</summary>
+        <returns>The field value as <see langword="int" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -279,10 +279,10 @@
         <Parameter Name="field" Type="Java.Interop.JniFieldInfo" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the long static field.</param>
+        <summary>Reads a Java long static field through its JNI identifier.</summary>
+        <returns>The field value as <see langword="long" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -306,10 +306,10 @@
         <Parameter Name="field" Type="Java.Interop.JniFieldInfo" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the object-reference static field.</param>
+        <summary>Reads a Java object-reference static field through its JNI identifier.</summary>
+        <returns>A local JNI reference that the caller must release, or an invalid reference for Java null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -333,10 +333,10 @@
         <Parameter Name="field" Type="Java.Interop.JniFieldInfo" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the short static field.</param>
+        <summary>Reads a Java short static field through its JNI identifier.</summary>
+        <returns>The field value as <see langword="short" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -361,10 +361,10 @@
         <Parameter Name="value" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the boolean static field.</param>
+        <param name="value">The <see langword="bool" /> value to store.</param>
+        <summary>Writes a Java boolean static field through its JNI identifier.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -389,10 +389,10 @@
         <Parameter Name="value" Type="System.SByte" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the byte static field.</param>
+        <param name="value">The <see langword="sbyte" /> value to store.</param>
+        <summary>Writes a Java byte static field through its JNI identifier.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -417,10 +417,10 @@
         <Parameter Name="value" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the char static field.</param>
+        <param name="value">The <see langword="char" /> value to store.</param>
+        <summary>Writes a Java char static field through its JNI identifier.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -445,10 +445,10 @@
         <Parameter Name="value" Type="System.Double" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the double static field.</param>
+        <param name="value">The <see langword="double" /> value to store.</param>
+        <summary>Writes a Java double static field through its JNI identifier.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -473,10 +473,10 @@
         <Parameter Name="value" Type="System.Single" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the float static field.</param>
+        <param name="value">The <see langword="float" /> value to store.</param>
+        <summary>Writes a Java float static field through its JNI identifier.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -501,10 +501,10 @@
         <Parameter Name="value" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the int static field.</param>
+        <param name="value">The <see langword="int" /> value to store.</param>
+        <summary>Writes a Java int static field through its JNI identifier.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -529,10 +529,10 @@
         <Parameter Name="value" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the long static field.</param>
+        <param name="value">The <see langword="long" /> value to store.</param>
+        <summary>Writes a Java long static field through its JNI identifier.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -557,10 +557,10 @@
         <Parameter Name="value" Type="Java.Interop.JniObjectReference" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the object-reference static field.</param>
+        <param name="value">The JNI reference to store; a zero handle stores Java null.</param>
+        <summary>Writes a Java object-reference static field without consuming the supplied reference.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -585,10 +585,10 @@
         <Parameter Name="value" Type="System.Int16" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="field">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="type">A valid Java class reference used for field access.</param>
+        <param name="field">A valid JNI identifier for the short static field.</param>
+        <param name="value">The <see langword="short" /> value to store.</param>
+        <summary>Writes a Java short static field through its JNI identifier.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
