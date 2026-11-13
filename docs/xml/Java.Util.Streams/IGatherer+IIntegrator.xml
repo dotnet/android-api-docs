@@ -90,12 +90,12 @@
         <Parameter Name="downstream" Type="Java.Util.Streams.IGatherer+IDownstream" />
       </Parameters>
       <Docs>
-        <param name="state">To be added.</param>
-        <param name="element">To be added.</param>
-        <param name="downstream">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="state">The current intermediate state of the gathering operation.</param>
+        <param name="element">The input element to process.</param>
+        <param name="downstream">The consumer to which this call can send result elements.</param>
+        <summary>Processes one input element using the current state and downstream consumer.</summary>
+        <returns><see langword="true" /> to request more input elements; <see langword="false" /> to stop integration.</returns>
+        <remarks>This call can inspect or update the state and send zero or more results downstream. Returning <see langword="false" /> signals that no further input elements are wanted; it does not describe the number of results sent downstream.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Of">
@@ -133,10 +133,10 @@
         <Parameter Name="integrator" Type="Java.Util.Streams.IGatherer+IIntegrator" />
       </Parameters>
       <Docs>
-        <param name="integrator">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="integrator">The integrator to return.</param>
+        <summary>Returns the supplied integrator without wrapping it.</summary>
+        <returns>The integrator supplied in <paramref name="integrator" />.</returns>
+        <remarks>This identity factory does not create an adapter or change the integration function.</remarks>
       </Docs>
     </Member>
     <Member MemberName="OfGreedy">
@@ -174,10 +174,10 @@
         <Parameter Name="greedy" Type="Java.Util.Streams.IGatherer+IIntegrator+IGreedy" />
       </Parameters>
       <Docs>
-        <param name="greedy">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="greedy">The greedy integrator to return.</param>
+        <summary>Returns the supplied greedy integrator without wrapping it.</summary>
+        <returns>The greedy integrator supplied in <paramref name="greedy" />.</returns>
+        <remarks>The returned object keeps its greedy marker. This method does not turn an ordinary integrator into a greedy integrator.</remarks>
       </Docs>
     </Member>
   </Members>

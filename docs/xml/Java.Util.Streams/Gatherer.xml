@@ -34,8 +34,8 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Provides legacy class-based access to the static methods of <see cref="T:Java.Util.Streams.IGatherer" />.</summary>
+    <remarks>This compatibility class exposes static methods from the Java gatherer interface. Use <see cref="T:Java.Util.Streams.IGatherer" /> for new code; this class does not represent a separate gathering operation.</remarks>
   </Docs>
   <Members>
     <Member MemberName="DefaultCombiner">
@@ -234,10 +234,10 @@
         <Parameter Name="integrator" Type="Java.Util.Streams.IGatherer+IIntegrator" />
       </Parameters>
       <Docs>
-        <param name="integrator">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="integrator">The function that processes each input element and can send results downstream.</param>
+        <summary>Creates a stateless gatherer that supports parallel evaluation.</summary>
+        <returns>A new gatherer that uses <paramref name="integrator" />.</returns>
+        <remarks>This overload uses the default initializer, a combiner for stateless parallel evaluation, and no additional end-of-input action. The integration function must be non-null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Of">
@@ -276,11 +276,11 @@
         <Parameter Name="finisher" Type="Java.Util.Functions.IBiConsumer" />
       </Parameters>
       <Docs>
-        <param name="integrator">To be added.</param>
-        <param name="finisher">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="integrator">The function that processes each input element and can send results downstream.</param>
+        <param name="finisher">The function that can send final results downstream when input processing ends.</param>
+        <summary>Creates a stateless gatherer with a final action and support for parallel evaluation.</summary>
+        <returns>A new gatherer that uses the supplied integration and completion functions.</returns>
+        <remarks>This overload uses the default initializer and a combiner for stateless parallel evaluation. Both supplied functions must be non-null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Of">
@@ -321,13 +321,13 @@
         <Parameter Name="finisher" Type="Java.Util.Functions.IBiConsumer" />
       </Parameters>
       <Docs>
-        <param name="initializer">To be added.</param>
-        <param name="integrator">To be added.</param>
-        <param name="combiner">To be added.</param>
-        <param name="finisher">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="initializer">The function that creates the intermediate state for an input partition.</param>
+        <param name="integrator">The function that processes an input element with the current state and downstream consumer.</param>
+        <param name="combiner">The function that joins two intermediate states into one.</param>
+        <param name="finisher">The function that receives the final state and can send final results downstream.</param>
+        <summary>Creates a gatherer from its state, integration, combination, and completion functions.</summary>
+        <returns>A new gatherer that uses the four supplied functions.</returns>
+        <remarks>The combiner permits evaluation of separate input partitions in parallel, unless it is the sequential-only function returned by <see cref="M:Java.Util.Streams.IGatherer.DefaultCombiner" />. All four functions must be non-null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="OfSequential">
@@ -365,10 +365,10 @@
         <Parameter Name="integrator" Type="Java.Util.Streams.IGatherer+IIntegrator" />
       </Parameters>
       <Docs>
-        <param name="integrator">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="integrator">The function that processes each input element and can send results downstream.</param>
+        <summary>Creates a stateless gatherer for sequential evaluation.</summary>
+        <returns>A new sequential gatherer that uses <paramref name="integrator" />.</returns>
+        <remarks>This overload uses the default initializer, the sequential-only combiner, and no additional end-of-input action. The integration function must be non-null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="OfSequential">
@@ -407,11 +407,11 @@
         <Parameter Name="integrator" Type="Java.Util.Streams.IGatherer+IIntegrator" />
       </Parameters>
       <Docs>
-        <param name="initializer">To be added.</param>
-        <param name="integrator">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="initializer">The function that creates the intermediate state for the gathering operation.</param>
+        <param name="integrator">The function that processes an input element with the current state and downstream consumer.</param>
+        <summary>Creates a sequential gatherer with the supplied state initializer and integration function.</summary>
+        <returns>A new sequential gatherer that uses the supplied functions.</returns>
+        <remarks>This overload uses the sequential-only combiner and has no additional end-of-input action. Both supplied functions must be non-null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="OfSequential">
@@ -450,11 +450,11 @@
         <Parameter Name="finisher" Type="Java.Util.Functions.IBiConsumer" />
       </Parameters>
       <Docs>
-        <param name="integrator">To be added.</param>
-        <param name="finisher">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="integrator">The function that processes each input element and can send results downstream.</param>
+        <param name="finisher">The function that can send final results downstream when input processing ends.</param>
+        <summary>Creates a stateless sequential gatherer with a final action.</summary>
+        <returns>A new sequential gatherer that uses the supplied integration and completion functions.</returns>
+        <remarks>This overload uses the default initializer and the sequential-only combiner. Both supplied functions must be non-null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="OfSequential">
@@ -494,12 +494,12 @@
         <Parameter Name="finisher" Type="Java.Util.Functions.IBiConsumer" />
       </Parameters>
       <Docs>
-        <param name="initializer">To be added.</param>
-        <param name="integrator">To be added.</param>
-        <param name="finisher">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="initializer">The function that creates the intermediate state for the gathering operation.</param>
+        <param name="integrator">The function that processes an input element with the current state and downstream consumer.</param>
+        <param name="finisher">The function that receives the final state and can send final results downstream.</param>
+        <summary>Creates a sequential gatherer with state, integration, and completion functions.</summary>
+        <returns>A new sequential gatherer that uses the three supplied functions.</returns>
+        <remarks>This overload uses the sequential-only combiner. The initializer supplies state for integration and for the final action. All three supplied functions must be non-null.</remarks>
       </Docs>
     </Member>
   </Members>
