@@ -1064,3 +1064,22 @@ Limitations:
   canonical URL and label. A strict prior importer-owned repair removes only that
   paragraph, retaining the valid source paragraphs, reference, attribution, and
   all other documentation channels.
+
+The exact `MloLink.getChannel()` value channel is withheld when its complete
+official range says `Value is 1 or greater`. The exported constructor initializes
+the channel to zero and the getter returns that stored value unchanged
+(`src/android/net/wifi/MloLink.java:129-141,185-188` in the official API 37.2
+source archive, SHA-256
+`9d637c3af6654a2f1b696b3d19c54bb77e38df2b0106116934703f314b3d4e84`).
+The exclusion requires the exact managed type, assembly, property signature,
+integer value type, JNI getter, native declaration, canonical Android source URL and label, and
+complete defective value text. It reports `source_channel_ambiguous` without
+inventing a replacement range. Safe sibling channels and future corrected
+source remain eligible; existing documentation is not withdrawn or rewritten.
+The native fragment in `mlo-channel-reference.html.b64` has SHA-256
+`705820e68adc7e117272085c844b40952fe3a9299a2b08e6cd6f1889a987d4ad`,
+from page SHA-256
+`93a3d0408e5ed690d8634d9015d46b4fd3a4dc8fb57c0983a9a1acc485b2689b`.
+Registered offline production tests cover the exclusion, attached-owner
+metadata negatives, changed source and provenance, authored-content preservation,
+bounded sibling writes, and byte-identical persisted repeats.
