@@ -1122,3 +1122,20 @@ from page SHA-256
 Registered production tests cover the exclusion, meaningful attached binding
 and source negatives, source-context changes, authored/mixed preservation,
 bounded sibling writes, encoding/newline preservation, and persisted repeats.
+
+The exact `ViewParent.getTextDirection()` value channel is withheld when its
+complete official list omits the first-strong LTR and RTL modes. The pinned
+API 37.2 `View.getTextDirection()` reads the resolved-direction bits, and
+`resolveTextDirection()` explicitly supports both modes; `ViewGroup` inherits
+that implementation while implementing `ViewParent`.
+The guard requires the exact managed interface/property, assembly, signatures,
+JNI getter, canonical source identity, native declaration, and full original
+value text. It preserves authored and prior content and all other channels,
+and does not infer a replacement enumeration. Corrected future source remains
+eligible. The fragment in `view-parent-text-direction-reference.html.b64`
+has SHA-256 `61c86689b01ac5f51b828a3d2280c0fc15a30f850ecfb0c43336bf2a04a60ee2`,
+from page SHA-256
+`ed32ac121eb51abb44b21bf89acaf1bca435dd7b76fb96010cac969d3f6dfa17`.
+Registered bounded production tests cover exact exclusion, attached metadata
+and source negatives, changed JNI, authored/mixed preservation, safe sibling
+fills, corrected or removed source, and zero-write persisted repeats.

@@ -2531,6 +2531,7 @@ static partial class ImporterProgram
         docs = WithKnownEapChannelCorrections(owner, docs);
         docs = WithoutUnsafeMloChannelValue(owner, exact[0], docs);
         docs = WithoutUnsafeInsetsCurrentFractionValue(owner, exact[0], docs);
+        docs = WithoutUnsafeViewParentTextDirectionValue(owner, exact[0], docs);
         docs = WithKnownTvAdSourceCorrections(owner, docs);
         docs = WithoutKnownUnsafeQualityChannels(owner, exact[0], docs);
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
@@ -5109,6 +5110,48 @@ static partial class ImporterProgram
             : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
         targets["value"] =
             "The exact official return equates animation progress with visibility, but finish(false) applies hidden insets with fraction 1; no visibility endpoints were inferred.";
+        return docs with { UnsafeTargets = targets };
+    }
+
+    const string ViewParentTextDirectionMemberId = "P:Android.Views.IViewParent.TextDirection";
+    const string UnsafeViewParentTextDirectionReturn =
+        "the resolved text direction. Returns one of: View.TEXT_DIRECTION_FIRST_STRONG View.TEXT_DIRECTION_ANY_RTL, " +
+        "View.TEXT_DIRECTION_LTR, View.TEXT_DIRECTION_RTL, View.TEXT_DIRECTION_LOCALE";
+
+    static SourceDocs WithoutUnsafeViewParentTextDirectionValue(DocsOwner owner, SourceMember source, SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        const string javaPath = "android/view/ViewParent";
+        const string url = AndroidReference + javaPath + "#getTextDirection()";
+        if (owner.Id != ViewParentTextDirectionMemberId ||
+            owner.MemberRegistration != new MemberRegistration("getTextDirection", "()I", false) ||
+            member is null || type is null || type.Name != "Type" ||
+            (string?)type.Attribute("FullName") != "Android.Views.IViewParent" ||
+            Registration.Type(type) != javaPath || Registration.Member(member) != owner.MemberRegistration ||
+            !HasSingleSignature(type, "TypeSignature", "DocId", "T:Android.Views.IViewParent") ||
+            !HasSingleSignature(type, "TypeSignature", "C#",
+                "public interface IViewParent : Android.Runtime.IJavaObject, IDisposable, Java.Interop.IJavaPeerable") ||
+            type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            !member.Elements("MemberType").Select(element => element.Value).SequenceEqual(["Property"]) ||
+            !HasSingleSignature(member, "MemberSignature", "DocId", ViewParentTextDirectionMemberId) ||
+            !HasSingleSignature(member, "MemberSignature", "C#", "public Android.Views.TextDirection TextDirection { get; }") ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value != "Android.Views.TextDirection" ||
+            member.Element("Parameters")?.Elements("Parameter").Any() == true ||
+            owner.SourceRequest != SourceRequest.Create(javaPath) ||
+            source.Name != "getTextDirection" || source.IsConstructor || source.IsField ||
+            source.ArgumentDescriptors is not { Count: 0 } ||
+            source.Declaration != "public abstract int getTextDirection ()" || source.Url != url ||
+            docs.SourceKind != "android" || docs.SourceUrl != url ||
+            docs.SourceLabel != "android.view.ViewParent.getTextDirection" ||
+            docs.Returns != UnsafeViewParentTextDirectionReturn)
+            return docs;
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["value"] =
+            "The exact official exhaustive list omits the first-strong LTR and RTL modes supported by ViewParent implementations; no replacement list was inferred.";
         return docs with { UnsafeTargets = targets };
     }
 
@@ -23004,6 +23047,7 @@ static partial class ImporterProgram
         TestMediaRouteActionViewReturn(repositoryRoot);
         TestMloChannelValue(repositoryRoot);
         TestInsetsCurrentFractionValue(repositoryRoot);
+        TestViewParentTextDirectionValue(repositoryRoot);
         TestChangeLogDataOriginChannel(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
         TestSdkSandboxSurfaceLinks(repositoryRoot);
@@ -30969,6 +31013,164 @@ static partial class ImporterProgram
         {
             File.Delete(path);
             Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    static void TestViewParentTextDirectionValue(string repositoryRoot)
+    {
+        var fixture = Convert.FromBase64String(File.ReadAllText(Path.Combine(repositoryRoot,
+            "tools", "importer-fixtures", "view-parent-text-direction-reference.html.b64")).Trim());
+        Assert(Convert.ToHexString(SHA256.HashData(fixture)).ToLowerInvariant() ==
+            "61c86689b01ac5f51b828a3d2280c0fc15a30f850ecfb0c43336bf2a04a60ee2",
+            "ViewParent direction fixture retains the full native declaration");
+        var html = Encoding.UTF8.GetString(fixture);
+        var request = SourceRequest.Create("android/view/ViewParent")!;
+        var page = SourcePage.Parse(request, html);
+        var raw = page.Members.Single().Docs!;
+        Assert(raw.Returns == UnsafeViewParentTextDirectionReturn,
+            "ViewParent direction fixture contains the complete incomplete list");
+        var root = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Android.Views", "IViewParent.xml"));
+        var member = new XElement(root.Element("Members")!.Elements("Member").Single(candidate =>
+            candidate.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "DocId" &&
+                (string?)signature.Attribute("Value") == ViewParentTextDirectionMemberId)));
+        root.Element("Members")!.ReplaceNodes(member);
+        root.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored interface summary."));
+        member.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored direction summary."),
+            new XElement("value", "To be added."), new XElement("remarks", "Authored direction guidance."));
+        var temporary = Path.Combine(Path.GetTempPath(), $"view-parent-direction-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(temporary);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Views",
+            $".view-parent-direction-self-test-{Guid.NewGuid():N}.xml");
+        var ordinal = 0;
+        try
+        {
+            void Save(XElement input, string source)
+            {
+                File.WriteAllText(path, input.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(true));
+                File.WriteAllText(Path.Combine(temporary, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html"), source, new UTF8Encoding(false));
+            }
+            JsonDocument Run(bool apply)
+            {
+                var reportPath = Path.Combine(temporary, "report-" + ordinal++);
+                var arguments = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.Views", "--member", "TextDirection",
+                    "--offline", "--cache", temporary, "--max-changes", "1", "--report", reportPath,
+                };
+                if (apply)
+                    arguments.Add("--apply");
+                Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                    "ViewParent direction bounded production run succeeds");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "ViewParent direction production reports no errors");
+                return report;
+            }
+            bool Excluded(JsonDocument report) => report.RootElement.GetProperty("entries").EnumerateArray()
+                .Any(entry => entry.GetProperty("member").GetString() == ViewParentTextDirectionMemberId &&
+                    entry.GetProperty("target").GetString() == "value" &&
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous");
+            void NoWrites(XElement input, string source)
+            {
+                Save(input, source);
+                var before = File.ReadAllBytes(path);
+                using (var preview = Run(false))
+                    Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)), "ViewParent direction preview preserves all bytes");
+                using (var apply = Run(true))
+                    Assert(apply.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)), "ViewParent direction apply preserves all bytes");
+                using var repeat = Run(true);
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), "ViewParent direction persisted repeat makes no writes");
+            }
+            NoWrites(root, html);
+            using (var report = Run(true))
+                Assert(Excluded(report), "ViewParent direction reports its exact excluded value");
+            var context = html.Replace("<p>Return this view parent",
+                "<p>Additional context ()}.</p><p>Return this view parent", StringComparison.Ordinal);
+            Assert(SourcePage.Parse(request, context).Members.Single().Docs!.HasMalformedSourceMarkup,
+                "ViewParent direction context reaches the unrelated malformed-prose flag");
+            NoWrites(root, context);
+            using (var report = Run(true))
+                Assert(Excluded(report), "ViewParent direction context cannot re-enable the incomplete list");
+            foreach (var value in new object[] { "Authored direction value.", UnsafeViewParentTextDirectionReturn,
+                new XElement("c", "Authored direction value."), new XCData("To be added.") })
+            {
+                var authored = new XElement(root);
+                authored.Element("Members")!.Element("Member")!.Element("Docs")!.Element("value")!.ReplaceNodes(value);
+                NoWrites(authored, html);
+            }
+            Save(root, html);
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners(ViewParentTextDirectionMemberId);
+            var owner = loaded.Owners.Single();
+            foreach (var changed in new[] { raw with { SourceKind = "java" },
+                raw with { SourceUrl = raw.SourceUrl + ".Other" }, raw with { SourceLabel = raw.SourceLabel + ".Other" } })
+                Assert(WithoutUnsafeViewParentTextDirectionValue(owner, page.Members.Single(), changed)
+                    .UnsafeTargets is null, "ViewParent direction changed source provenance is not excluded");
+            Assert(WithoutUnsafeViewParentTextDirectionValue(owner,
+                page.Members.Single() with { Declaration = "public int getTextDirection ()" }, raw).UnsafeTargets is null,
+                "ViewParent direction requires the exact abstract native declaration");
+            foreach (var mutate in new Action<XElement>[]
+            {
+                type => type.SetAttributeValue("FullName", "Android.Views.OtherParent"),
+                type => type.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                type => type.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public int TextDirection { get; }"),
+                type => type.Element("Members")!.Element("Member")!.Element("ReturnValue")!
+                    .Element("ReturnType")!.Value = "System.Int32",
+            })
+            {
+                var changed = new XElement(root);
+                var attachedMember = changed.Element("Members")!.Element("Member")!;
+                var attachedOwner = owner with { Member = attachedMember, Docs = attachedMember.Element("Docs")! };
+                Assert(WithoutUnsafeViewParentTextDirectionValue(attachedOwner, page.Members.Single(), raw)
+                    .UnsafeTargets?.ContainsKey("value") == true, "ViewParent direction negative starts from an attached guarded owner");
+                mutate(changed);
+                Assert(WithoutUnsafeViewParentTextDirectionValue(attachedOwner, page.Members.Single(), raw).UnsafeTargets is null,
+                    "ViewParent direction changed metadata reaches the exact guard");
+                Save(changed, html);
+                using var report = Run(true);
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "ViewParent direction metadata negative reaches ordinary production mapping");
+            }
+            var renamed = new XElement(root);
+            foreach (var attribute in renamed.Element("Members")!.Element("Member")!.Descendants("AttributeName"))
+                attribute.Value = attribute.Value.Replace("getTextDirection", "getOtherDirection", StringComparison.Ordinal);
+            Save(renamed, html.Replace("getTextDirection", "getOtherDirection", StringComparison.Ordinal));
+            using (var report = Run(true))
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "ViewParent direction changed JNI getter is not covered by a general enum rule");
+            var cell = Regex.Match(html, @"<td width=""100%"">(?<cell>.*?)</td>",
+                RegexOptions.Singleline | RegexOptions.CultureInvariant).Groups["cell"].Value;
+            Assert(cell.Length > 0, "ViewParent direction corrected control locates the actual return cell");
+            foreach (var corrected in new[] { "The resolved text direction, including first-strong LTR and RTL modes.", "" })
+            {
+                Save(root, html.Replace(cell, corrected, StringComparison.Ordinal));
+                using var report = Run(true);
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() ==
+                    (corrected.Length == 0 ? 0 : 1), "ViewParent direction future corrected or removed source remains ordinary");
+            }
+            var sibling = new XElement(root);
+            var siblingDocs = sibling.Element("Members")!.Element("Member")!.Element("Docs")!;
+            siblingDocs.Element("summary")!.Value = "To be added.";
+            siblingDocs.Element("remarks")!.ReplaceNodes(new XElement("para", "Authored direction guidance."),
+                ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            Save(sibling, html);
+            var expected = File.ReadAllText(path).Replace("<summary>To be added.</summary>",
+                new XElement("summary", raw.Summary).ToString(SaveOptions.DisableFormatting), StringComparison.Ordinal);
+            using (var report = Run(true))
+                Assert(Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    File.ReadAllText(path) == expected, "ViewParent direction safe sibling fills within one operation and preserves all other bytes");
+            NoWrites(XElement.Load(path), html);
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(temporary, recursive: true);
         }
     }
 
