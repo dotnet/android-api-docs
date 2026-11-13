@@ -65,8 +65,7 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>
-        </summary>
+        <summary>Initializes the ETC1 codec API container; encoding and decoding use static methods.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -209,9 +208,9 @@
         <Parameter Name="stride" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="stride">To be added.</param>
+        <param name="width">The decoded image width in pixels, without ETC1 block padding.</param>
+        <param name="height">The decoded image height in pixels, without ETC1 block padding.</param>
+        <param name="stride">The byte distance between consecutive rows of the decoded output image.</param>
         <param name="in">native order direct buffer of the encoded data.</param>
         <param name="out">native order direct buffer of the image data. Will be written such that
             pixel (x,y) is at pIn + pixelSize * x + stride * y. Must be
@@ -350,9 +349,9 @@
         <Parameter Name="out" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="stride">To be added.</param>
+        <param name="width">The uncompressed input image's width in pixels.</param>
+        <param name="height">The uncompressed input image's height in pixels.</param>
+        <param name="stride">The byte distance between consecutive rows of the uncompressed input image.</param>
         <param name="in">a native order direct buffer of the image data. Formatted such that
                       pixel (x,y) is at pIn + pixelSize * x + stride * y;</param>
         <param name="out">a native order direct buffer of the encoded data.
@@ -521,10 +520,10 @@
         <Parameter Name="height" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
+        <param name="width">The width in pixels of the image to size.</param>
+        <param name="height">The height in pixels of the image to size.</param>
         <summary>Return the size of the encoded image data (does not include size of PKM header).</summary>
-        <returns>To be added.</returns>
+        <returns>The native ETC1 payload-size calculation in bytes, excluding the PKM header. Native dimension rounding and multiplication use 32-bit unsigned arithmetic.</returns>
         <remarks>
           <para>Return the size of the encoded image data (does not include size of PKM header).</para>
           <para>
@@ -566,7 +565,7 @@
       <Docs>
         <param name="header">native order direct buffer of the header.</param>
         <summary>Read the image height from a PKM header</summary>
-        <returns>To be added.</returns>
+        <returns>The unpadded image height stored in the PKM header, in pixels.</returns>
         <remarks>
           <para>Read the image height from a PKM header</para>
           <para>
@@ -608,7 +607,7 @@
       <Docs>
         <param name="header">native order direct buffer of the header.</param>
         <summary>Read the image width from a PKM header</summary>
-        <returns>To be added.</returns>
+        <returns>The unpadded image width stored in the PKM header, in pixels.</returns>
         <remarks>
           <para>Read the image width from a PKM header</para>
           <para>
@@ -650,7 +649,7 @@
       <Docs>
         <param name="header">native order direct buffer of the header.</param>
         <summary>Check if a PKM header is correctly formatted.</summary>
-        <returns>To be added.</returns>
+        <returns>true if the PKM header passes the codec's magic, format, and dimension-consistency checks; otherwise, false.</returns>
         <remarks>
           <para>Check if a PKM header is correctly formatted.</para>
           <para>

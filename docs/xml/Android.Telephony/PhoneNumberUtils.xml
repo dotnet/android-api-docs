@@ -60,8 +60,7 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>
-        </summary>
+        <summary>Creates a phone-number utility instance.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -232,8 +231,8 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Selects the extended BCD alphabet for a called-party number.</summary>
+        <remarks>Values above nine map to an asterisk, number sign, or one of the letters a, b, and c.</remarks>
       </Docs>
     </Member>
     <Member MemberName="BcdExtendedTypeEfAdn">
@@ -265,8 +264,8 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Selects the extended BCD alphabet used by SIM abbreviated dialing records.</summary>
+        <remarks>Values above nine map to an asterisk, number sign, pause, wildcard, or wait.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CalledPartyBCDFragmentToString">
@@ -298,12 +297,12 @@
         <Parameter Name="length" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="bytes">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
+        <param name="bytes">The buffer that contains the BCD digit bytes, without a type-of-address byte.</param>
+        <param name="offset">The zero-based index of the first BCD digit byte to decode.</param>
+        <param name="length">The number of bytes to decode, starting at <paramref name="offset" />.</param>
         <summary>Like calledPartyBCDToString, but field does not start with a
             TOA byte.</summary>
-        <returns>To be added.</returns>
+        <returns>The number fragment decoded from the requested BCD bytes.</returns>
         <remarks>
           <para>Like calledPartyBCDToString, but field does not start with a
             TOA byte. For example: SIM ADN extension fields</para>
@@ -362,13 +361,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="bytes">To be added.</param>
-        <param name="offset">To be added.</param>
-        <param name="length">To be added.</param>
+        <param name="bytes">The buffer that contains the BCD digit bytes, without a type-of-address byte.</param>
+        <param name="offset">The zero-based index of the first BCD digit byte to decode.</param>
+        <param name="length">The number of bytes to decode, starting at <paramref name="offset" />.</param>
         <param name="bcdExtType">Value is one of the following: BCD_EXTENDED_TYPE_EF_ADN BCD_EXTENDED_TYPE_CALLED_PARTY</param>
         <summary>Like calledPartyBCDToString, but field does not start with a
             TOA byte.</summary>
-        <returns>To be added.</returns>
+        <returns>The number fragment decoded from the requested BCD bytes.</returns>
         <remarks>
           <para>Like calledPartyBCDToString, but field does not start with a
             TOA byte. For example: SIM ADN extension fields</para>
@@ -532,10 +531,10 @@
         <Parameter Name="b" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="a">To be added.</param>
-        <param name="b">To be added.</param>
+        <param name="a">The first phone number to compare.</param>
+        <param name="b">The second phone number to compare.</param>
         <summary>Compare phone numbers a and b, return true if they're identical enough for caller ID purposes.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the comparison treats the inputs as the same number for caller identification; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Compare phone numbers a and b, return true if they're identical enough for caller ID purposes.</para>
           <para>This member is deprecated. use <c>#areSamePhoneNumber(String, String, String)</c> instead</para>
@@ -582,12 +581,12 @@
         <Parameter Name="b" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="a">To be added.</param>
-        <param name="b">To be added.</param>
+        <param name="context">The context whose resources select strict or loose number comparison.</param>
+        <param name="a">The first phone number to compare.</param>
+        <param name="b">The second phone number to compare.</param>
         <summary>Compare phone numbers a and b, and return true if they're identical
             enough for caller ID purposes.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the comparison treats the inputs as the same number for caller identification; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Compare phone numbers a and b, and return true if they're identical
             enough for caller ID purposes. Checks a resource to determine whether
@@ -630,7 +629,7 @@
         <Parameter Name="input" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="input">To be added.</param>
+        <param name="input">The phone-number text whose keypad letters are to be converted to digits.</param>
         <summary>Translates any alphabetic letters (i.</summary>
         <returns>the input string, with alpha letters converted to numeric
                     digits using the phone keypad letter mapping.  For example,
@@ -812,10 +811,10 @@
         <Parameter Name="phoneNumber" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="phoneNumber">To be added.</param>
+        <param name="phoneNumber">The phone-number text that can include separators and post-dial instructions.</param>
         <summary>Extracts the network address portion and canonicalizes
              (filters out separators.</summary>
-        <returns>To be added.</returns>
+        <returns>The network portion with separators removed and digits normalized, ending before the first pause or wait; <see langword="null" /> if the input is null.</returns>
         <remarks>
           <para>Extracts the network address portion and canonicalizes
              (filters out separators.)
@@ -861,10 +860,10 @@
         <Parameter Name="phoneNumber" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="phoneNumber">To be added.</param>
+        <param name="phoneNumber">The phone-number text from which to extract the post-dial sequence.</param>
         <summary>Extracts the post-dial sequence of DTMF control digits, pauses, and
             waits.</summary>
-        <returns>To be added.</returns>
+        <returns>The post-dial sequence with separators removed, or an empty string if no post-dial sequence exists; <see langword="null" /> if the input is null.</returns>
         <remarks>
           <para>Extracts the post-dial sequence of DTMF control digits, pauses, and
             waits. Strips separators. This string may be empty, but will not be null
@@ -1413,9 +1412,9 @@
         <Parameter Name="phoneNumber" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="phoneNumber">To be added.</param>
+        <param name="phoneNumber">The phone number whose network portion is to be reversed.</param>
         <summary>Returns the network portion reversed.</summary>
-        <returns>To be added.</returns>
+        <returns>The reversed network portion used for number lookup, or <see langword="null" /> if the input is null.</returns>
         <remarks>
           <para>Returns the network portion reversed.
             This string is intended to go into an index column for a
@@ -1458,9 +1457,9 @@
         <Parameter Name="c" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
+        <param name="c">The character to examine.</param>
         <summary>True if c is ISO-LATIN characters 0-9, *, #</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if <paramref name="c" /> is an ASCII digit, an asterisk, or a number sign; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>True if c is ISO-LATIN characters 0-9, *, #</para>
           <para>
@@ -1500,9 +1499,9 @@
         <Parameter Name="c" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
+        <param name="c">The character to examine.</param>
         <summary>True if c is ISO-LATIN characters 0-9, *, # , +, WILD</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if <paramref name="c" /> is an ASCII digit, an asterisk, a number sign, a plus sign, or the wildcard character; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>True if c is ISO-LATIN characters 0-9, *, # , +, WILD</para>
           <para>
@@ -1592,10 +1591,9 @@
         <Parameter Name="phoneNumber" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="phoneNumber">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="phoneNumber">The text to check against the global phone-number pattern.</param>
+        <summary>Checks whether text matches Android's global phone-number syntax.</summary>
+        <returns><see langword="true" /> for a nonempty string with an optional leading plus sign followed by ASCII digits, periods, or hyphens; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1625,9 +1623,9 @@
         <Parameter Name="c" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
+        <param name="c">The character to examine.</param>
         <summary>True if c is ISO-LATIN characters 0-9</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if <paramref name="c" /> is an ASCII digit from 0 to 9; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>True if c is ISO-LATIN characters 0-9</para>
           <para>
@@ -1717,9 +1715,9 @@
         <Parameter Name="c" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
+        <param name="c">The character to examine.</param>
         <summary>True if c is ISO-LATIN characters 0-9, *, # , +, WILD, WAIT, PAUSE</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if <paramref name="c" /> is an ASCII digit, an asterisk, a number sign, a plus sign, a wildcard, a wait, or a pause; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>True if c is ISO-LATIN characters 0-9, *, # , +, WILD, WAIT, PAUSE</para>
           <para>
@@ -1759,9 +1757,9 @@
         <Parameter Name="c" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
+        <param name="c">The character to examine.</param>
         <summary>True if c is ISO-LATIN characters 0-9, *, # , + (no WILD)</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if <paramref name="c" /> is an ASCII digit, an asterisk, a number sign, or a plus sign; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>True if c is ISO-LATIN characters 0-9, *, # , + (no WILD)</para>
           <para>
@@ -1801,10 +1799,10 @@
         <Parameter Name="c" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
+        <param name="c">The character to examine.</param>
         <summary>This any anything to the right of this char is part of the
              post-dial string (eg this is PAUSE or WAIT)</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if <paramref name="c" /> is a pause or wait character that starts a post-dial sequence; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>This any anything to the right of this char is part of the
              post-dial string (eg this is PAUSE or WAIT)</para>
@@ -1891,11 +1889,11 @@
         <Parameter Name="address" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="address">To be added.</param>
+        <param name="address">The destination address whose network portion is to be checked.</param>
         <summary>Return true iff the network portion of <c>address</c> is,
             as far as we can tell on the device, suitable for use as an SMS
             destination address.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the extracted network portion is nonempty, is not just a plus sign, and contains only dialable characters; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Return true iff the network portion of <c>address</c> is,
             as far as we can tell on the device, suitable for use as an SMS
@@ -2026,10 +2024,10 @@
         <Parameter Name="s" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
+        <param name="s">The phone-number text whose network portion is to be encoded.</param>
         <summary>Note: calls extractNetworkPortion(), so do not use for
             SIM EF[ADN] style records</summary>
-        <returns>To be added.</returns>
+        <returns>The BCD network number with a type-of-address byte, or <see langword="null" /> when the network portion is empty or consists only of a plus sign.</returns>
         <remarks>
           <para>Note: calls extractNetworkPortion(), so do not use for
             SIM EF[ADN] style records</para>
@@ -2071,10 +2069,10 @@
         <Parameter Name="s" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
+        <param name="s">The phone-number text whose network portion is to be encoded.</param>
         <summary>Same as <c>#networkPortionToCalledPartyBCD</c>, but includes a
             one-byte length prefix.</summary>
-        <returns>To be added.</returns>
+        <returns>The BCD network number with a length byte followed by a type-of-address byte, or <see langword="null" /> when the network portion is empty or consists only of a plus sign.</returns>
         <remarks>
           <para>Same as <c>#networkPortionToCalledPartyBCD</c>, but includes a
             one-byte length prefix.</para>
@@ -2260,8 +2258,7 @@
         <ReturnType>System.Char</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>The comma character that inserts a pause in a post-dial sequence.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2340,11 +2337,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="TOA">To be added.</param>
+        <param name="s">The phone-number text to combine with its type of address.</param>
+        <param name="TOA">The type-of-address value that indicates whether the number is international.</param>
         <summary>Basically: makes sure there's a + in front of a
             TOA_International number</summary>
-        <returns>To be added.</returns>
+        <returns>The input with a leading plus sign added for a nonempty international number that lacks it; otherwise, the input unchanged.</returns>
         <remarks>
           <para>Basically: makes sure there's a + in front of a
             TOA_International number</para>
@@ -2393,10 +2390,10 @@
         <Parameter Name="TOA" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="TOA">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">The phone-number text to combine with its type of address.</param>
+        <param name="TOA">The type-of-address value that indicates whether the number is international.</param>
+        <summary>Adds an international prefix when the type-of-address value requires it.</summary>
+        <returns>The input with a leading plus sign added for a nonempty international number that lacks it; otherwise, the input unchanged.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2537,10 +2534,10 @@
         <Parameter Name="s" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
+        <param name="s">The phone-number text whose leading character is to be checked.</param>
         <summary>Returns the TOA for the given dial string
             Basically, returns TOA_International if there's a + prefix</summary>
-        <returns>To be added.</returns>
+        <returns>The international type-of-address value if the input starts with a plus sign; otherwise, the unknown type-of-address value.</returns>
         <remarks>
           <para>Returns the TOA for the given dial string
             Basically, returns TOA_International if there's a + prefix</para>
@@ -2583,8 +2580,7 @@
       </ReturnValue>
       <MemberValue>145</MemberValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>The international-number type-of-address value.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2616,8 +2612,7 @@
       </ReturnValue>
       <MemberValue>129</MemberValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>The unknown-number-type type-of-address value.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2647,10 +2642,10 @@
         <Parameter Name="phoneNumber" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="phoneNumber">To be added.</param>
+        <param name="phoneNumber">The phone number for which to form a caller-identification lookup key.</param>
         <summary>Returns the rightmost minimum matched characters in the network portion
             in *reversed* order</summary>
-        <returns>To be added.</returns>
+        <returns>The configured minimum-match suffix of the network portion in reverse order, or <see langword="null" /> if the input is null.</returns>
         <remarks>
           <para>Returns the rightmost minimum matched characters in the network portion
             in *reversed* order</para>
@@ -2691,8 +2686,7 @@
         <ReturnType>System.Char</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>The semicolon character that inserts a wait in a post-dial sequence.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2719,8 +2713,7 @@
         <ReturnType>System.Char</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>The uppercase N character used as a dial-string wildcard.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

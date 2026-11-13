@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
+    <summary>Provides collection URIs, cursor queries, and bitmap access for stored images.</summary>
     <remarks>
       <para>
         <format type="text/html">
@@ -54,8 +54,7 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>
-        </summary>
+        <summary>Creates the image-contract container without querying image data.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -148,7 +147,7 @@
       <Docs>
         <summary>The content:// style URI for the "primary" external storage
  volume.</summary>
-        <value>To be added.</value>
+        <value>The URI returned by <see cref="M:Android.Provider.MediaStore.Images.Media.GetContentUri(System.String)" /> for the <c>external</c> volume.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -186,7 +185,7 @@
         <param name="cr">The content resolver to use</param>
         <param name="url">The url of the image</param>
         <summary>Retrieves an image for the given url as a <see cref="T:Android.Graphics.Bitmap" />.</summary>
-        <returns>To be added.</returns>
+        <returns>The decoded bitmap, or <see langword="null" /> when the decoder cannot produce one.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -385,7 +384,7 @@
       </ReturnValue>
       <Docs>
         <summary>The content:// style URI for the internal storage.</summary>
-        <value>To be added.</value>
+        <value>The URI returned by <see cref="M:Android.Provider.MediaStore.Images.Media.GetContentUri(System.String)" /> for the <c>internal</c> volume.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -467,12 +466,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="cr">To be added.</param>
-        <param name="uri">To be added.</param>
-        <param name="projection">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="cr">The resolver used to issue the query.</param>
+        <param name="uri">The URI passed unchanged to the resolver query.</param>
+        <param name="projection">The column names requested in the result cursor.</param>
+        <summary>Queries the supplied URI using the image collection's default sort order.</summary>
+        <returns>The cursor returned by the resolver for this query.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -517,14 +515,13 @@
         <Parameter Name="orderBy" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cr">To be added.</param>
-        <param name="uri">To be added.</param>
-        <param name="projection">To be added.</param>
-        <param name="where">To be added.</param>
-        <param name="orderBy">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="cr">The resolver used to issue the query.</param>
+        <param name="uri">The URI passed unchanged to the resolver query.</param>
+        <param name="projection">The column names requested in the result cursor.</param>
+        <param name="where">The selection predicate forwarded without separate bound arguments.</param>
+        <param name="orderBy">The SQL sort clause, or <see langword="null" /> to use the class default sort order.</param>
+        <summary>Queries the supplied URI with a selection and optional sort order.</summary>
+        <returns>The cursor returned by the resolver for this query.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -577,15 +574,14 @@
         <Parameter Name="orderBy" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cr">To be added.</param>
-        <param name="uri">To be added.</param>
-        <param name="projection">To be added.</param>
-        <param name="selection">To be added.</param>
-        <param name="selectionArgs">To be added.</param>
-        <param name="orderBy">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="cr">The resolver used to issue the query.</param>
+        <param name="uri">The URI passed unchanged to the resolver query.</param>
+        <param name="projection">The column names requested in the result cursor.</param>
+        <param name="selection">The selection predicate forwarded to the resolver.</param>
+        <param name="selectionArgs">The strings bound to placeholders in the selection predicate.</param>
+        <param name="orderBy">The SQL sort clause, or <see langword="null" /> to use the class default sort order.</param>
+        <summary>Queries the supplied URI with bound selection arguments and an optional sort order.</summary>
+        <returns>The cursor returned by the resolver for this query.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
