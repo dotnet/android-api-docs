@@ -363,7 +363,7 @@
       <Docs>
         <summary>Return the current design dimensions for <c>AppTask</c> thumbnails, for use
             with <c>#addAppTask</c>.</summary>
-        <value>To be added.</value>
+        <value>The width and height expected for application-task thumbnails.</value>
         <remarks>
           <para>Return the current design dimensions for AppTask thumbnails, for use with addAppTask(Activity, Intent, TaskDescription, Bitmap).</para>
           <para>
@@ -469,7 +469,7 @@
       </ReturnValue>
       <Docs>
         <summary>Get the device configuration attributes.</summary>
-        <value>To be added.</value>
+        <value>The device-configuration attributes returned by the activity-task service.</value>
         <remarks>
           <para>Get the device configuration attributes.</para>
           <para>
@@ -551,11 +551,10 @@
         <Parameter Name="packageName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="fd">To be added.</param>
-        <param name="packageName">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="fd">The file descriptor that receives text output. The caller retains ownership.</param>
+        <param name="packageName">The package name forwarded to the diagnostic dump operation.</param>
+        <summary>Starts a task that calls the package-state dump operation.</summary>
+        <returns>A task representing the forwarded <see cref="M:Android.App.ActivityManager.DumpPackageState(Java.IO.FileDescriptor,System.String)" /> call.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -875,7 +874,7 @@
             user has started and the maximum number the system can remember.</param>
         <param name="flags">Information about what to return.  May be any combination
             of <c>#RECENT_WITH_EXCLUDED</c> and <c>#RECENT_IGNORE_UNAVAILABLE</c>.</param>
-        <summary />
+        <summary>Retrieves the recent-task records available to the caller, most recent first.</summary>
         <returns>Returns a list of RecentTaskInfo records describing each of
             the recent tasks.</returns>
         <remarks>
@@ -918,7 +917,7 @@
         <param name="service">ComponentName</param>
         <summary>Returns a PendingIntent you can start to show a control panel for the
             given running service.</summary>
-        <returns>To be added.</returns>
+        <returns>The service's control-panel pending intent, or <see langword="null" /> if the service has none.</returns>
         <remarks>
           <para>Returns a PendingIntent you can start to show a control panel for the given running service. If the service does not have a control panel, null is returned.</para>
           <para>Throws: SecurityException</para>
@@ -1155,7 +1154,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return whether currently in lock task mode.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> when a lock-task mode is active; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>This method was deprecated in API level 23. Use getLockTaskModeState() instead.</para>
           <para>Return whether currently in lock task mode. When in this mode no new tasks can be created or switched to.</para>
@@ -1228,7 +1227,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns true if this is a low-RAM device.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> when the platform classifies the device as low-RAM; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns true if this is a low-RAM device. Exactly whether a device is low-RAM is ultimately up to the device configuration, but currently it generally means something with 1GB or less of RAM. This is mostly intended to be used by apps to determine whether they should turn off certain features that require more RAM.</para>
           <para>
@@ -1265,7 +1264,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns "true" if device is running in a test harness.</summary>
-        <value>To be added.</value>
+        <value>The legacy <c>ro.test_harness</c> flag, <see langword="false" /> if the property is not set.</value>
         <remarks>
           <para>This method was deprecated in API level 29. this method is false for all user builds. Users looking to check if their device is running in a device farm should see isRunningInUserTestHarness().</para>
           <para>Returns "true" if device is running in a test harness.</para>
@@ -1304,7 +1303,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns "true" if the device is running in Test Harness Mode.</summary>
-        <value>To be added.</value>
+        <value>The Boolean value of <c>persist.sys.test_harness</c>. It does not indicate whether an ordinary instrumentation test is running.</value>
         <remarks>
           <para>Returns "true" if the device is running in Test Harness Mode. Test Harness Mode is a feature that allows devices to run without human interaction in a device farm/testing harness (such as Firebase Test Lab). You should check this method if you want your app to behave differently when running in a test harness to skip setup screens that would impede UI testing. e.g. a keyboard application that has a full screen setup page for the first time it is launched. Note that you should not use this to determine whether or not your app is running an instrumentation test, as it is not set for a standard device running a test.</para>
           <para>
@@ -1338,7 +1337,7 @@
       <Docs>
         <summary>Returns "true" if the user interface is currently being messed with by a
             <see href="https://developer.android.com/studio/test/other-testing-tools/monkey">monkey</see>.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> when the activity service reports Monkey-controlled user-interface testing; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns "true" if the user interface is currently being messed with by a monkey.</para>
           <para>
@@ -1456,7 +1455,7 @@
       <Docs>
         <summary>Return the approximate per-application memory class of the current
             device when an application is running with a large heap.</summary>
-        <value>To be added.</value>
+        <value>The approximate Java-heap class for the large-heap configuration, in megabytes.</value>
         <remarks>
           <para>Return the approximate per-application memory class of the current device when an application is running with a large heap. This is the space available for memory-intensive applications; most applications should not need this amount of memory, and should instead stay with the getMemoryClass() limit. The returned value is in megabytes. This may be the same size as getMemoryClass() on memory constrained devices, or it may be significantly larger on devices with a large amount of available RAM. This is the size of the application's Dalvik heap if it has specified android:largeHeap="true" in its manifest.</para>
           <para>
@@ -1562,7 +1561,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return the current state of task locking.</summary>
-        <value>To be added.</value>
+        <value>The reported mode: no lock-task restriction, a locked task, or screen pinning.</value>
         <remarks>
           <para>Return the current state of task locking. The three possible outcomes are LOCK_TASK_MODE_NONE, LOCK_TASK_MODE_LOCKED and LOCK_TASK_MODE_PINNED.</para>
           <para>See also:</para>
@@ -1597,7 +1596,7 @@
       <Docs>
         <summary>Return the approximate per-application memory class of the current
             device.</summary>
-        <value>To be added.</value>
+        <value>The approximate standard per-application Java-heap class, in megabytes.</value>
         <remarks>
           <para>Return the approximate per-application memory class of the current device. This gives you an idea of how hard a memory limit you should impose on your application to let the overall system work best. The returned value is in megabytes; the baseline Android memory class is 16 (which happens to be the Java heap limit of those devices); some devices with more memory may return 24 or even higher numbers.</para>
           <para>
@@ -1717,10 +1716,9 @@
         <Parameter Name="flags" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="taskId">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>
-        </summary>
+        <param name="taskId">The task identifier forwarded to the typed-flags overload.</param>
+        <param name="flags">The integer flags converted to <c>MoveTaskFlags</c> for the typed overload.</param>
+        <summary>Forwards a move-to-front request with integer flags.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
