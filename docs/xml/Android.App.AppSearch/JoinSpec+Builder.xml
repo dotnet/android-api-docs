@@ -66,7 +66,7 @@
         <Parameter Name="joinSpec" Type="Android.App.AppSearch.JoinSpec" />
       </Parameters>
       <Docs>
-        <param name="joinSpec">To be added.</param>
+        <param name="joinSpec">The join specification whose nested query and join settings initialize this builder.</param>
         <summary>Creates a new <c>Builder</c> from the given <c>JoinSpec</c>.</summary>
         <remarks>
           <para>Creates a new <c>Builder</c> from the given <c>JoinSpec</c>.</para>
@@ -159,7 +159,7 @@
       <Parameters />
       <Docs>
         <summary>Constructs a new <c>JoinSpec</c> from the contents of this builder.</summary>
-        <returns>To be added.</returns>
+        <returns>A new join specification containing this builder's nested search and scoring settings.</returns>
         <remarks>
           <para>Constructs a new <c>JoinSpec</c> from the contents of this builder.</para>
           <para>
@@ -242,7 +242,7 @@
       <Docs>
         <param name="aggregationScoringStrategy">Value is one of the following: JoinSpec.AGGREGATION_SCORING_OUTER_RESULT_RANKING_SIGNAL JoinSpec.AGGREGATION_SCORING_RESULT_COUNT JoinSpec.AGGREGATION_SCORING_MIN_RANKING_SIGNAL JoinSpec.AGGREGATION_SCORING_AVG_RANKING_SIGNAL JoinSpec.AGGREGATION_SCORING_MAX_RANKING_SIGNAL JoinSpec.AGGREGATION_SCORING_SUM_RANKING_SIGNAL</param>
         <summary>Sets how we derive a single score from a list of joined documents.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets how we derive a single score from a list of joined documents. The default scoring strategy is JoinSpec.AGGREGATION_SCORING_OUTER_RESULT_RANKING_SIGNAL, which specifies that the ranking signal of the outer parent document will be used.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/JoinSpec.Builder#setAggregationScoringStrategy(int)" title="Reference documentation">Android reference for <code>android.app.appsearch.JoinSpec.Builder.setAggregationScoringStrategy</code>.</a></format></para>
@@ -279,7 +279,7 @@
       <Docs>
         <param name="childPropertyExpression">the property to match in the child documents. This value cannot be null.</param>
         <summary>Sets the child property expression.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the child property expression. The child property expression specifies how to join documents. Documents with a child property expression equal to the qualified id of the parent will be retrieved. Property expressions differ from PropertyPath as property expressions may refer to document properties or nested document properties such as "person.business.id" as well as a property expression. Currently the only property expression is "this.qualifiedId()". PropertyPath objects may only reference document properties and nested document properties. In order to join a child document to a parent document, the child document must contain the parent's qualified id at the property expression specified by this method.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/JoinSpec.Builder#setChildPropertyExpression(java.lang.String)" title="Reference documentation">Android reference for <code>android.app.appsearch.JoinSpec.Builder.setChildPropertyExpression</code>.</a></format></para>
@@ -314,9 +314,9 @@
         <Parameter Name="maxJoinedResultCount" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="maxJoinedResultCount">To be added.</param>
+        <param name="maxJoinedResultCount">The joined-result limit to store in this specification.</param>
         <summary>Sets the max amount of SearchResults to return with the parent document, with a default of 10 SearchResults.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the max amount of SearchResults to return with the parent document, with a default of 10 SearchResults. This does NOT limit the number of results that are joined with the parent document for scoring. This means that, when set, only a maximum of maxJoinedResultCount results will be returned with each parent document, but all results that are joined with a parent will factor into the score.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/JoinSpec.Builder#setMaxJoinedResultCount(int)" title="Reference documentation">Android reference for <code>android.app.appsearch.JoinSpec.Builder.setMaxJoinedResultCount</code>.</a></format></para>
@@ -352,10 +352,10 @@
         <Parameter Name="nestedSearchSpec" Type="Android.App.AppSearch.SearchSpec" />
       </Parameters>
       <Docs>
-        <param name="nestedQuery">To be added.</param>
-        <param name="nestedSearchSpec">To be added.</param>
+        <param name="nestedQuery">The query text to store for the nested search.</param>
+        <param name="nestedSearchSpec">The search settings to store for the nested search.</param>
         <summary>Sets the query and the SearchSpec for the documents being joined.</summary>
-        <returns>To be added.</returns>
+        <returns>This builder instance.</returns>
         <remarks>
           <para>Sets the query and the SearchSpec for the documents being joined. This will score and rank the joined documents as well as filter the joined documents. If SearchSpec.RANKING_STRATEGY_JOIN_AGGREGATE_SCORE is set in the outer SearchSpec, the resulting signals will be used to rank the parent documents. Note that the aggregation strategy also needs to be set with JoinSpec.Builder.setAggregationScoringStrategy, otherwise the default will be JoinSpec.AGGREGATION_SCORING_OUTER_RESULT_RANKING_SIGNAL, which will just use the parent documents ranking signal. If this method is never called, JoinSpec.getNestedQuery will return an empty string, meaning we will join with every possible document that matches the equality constraints and hasn't been filtered out by the type or namespace filters.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/appsearch/JoinSpec.Builder#setNestedSearch(java.lang.String,%20android.app.appsearch.SearchSpec)" title="Reference documentation">Android reference for <code>android.app.appsearch.JoinSpec.Builder.setNestedSearch</code>.</a></format></para>
