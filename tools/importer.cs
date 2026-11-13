@@ -2530,6 +2530,7 @@ static partial class ImporterProgram
         }
         docs = WithKnownEapChannelCorrections(owner, docs);
         docs = WithoutUnsafeMloChannelValue(owner, exact[0], docs);
+        docs = WithoutUnsafeInsetsCurrentFractionValue(owner, exact[0], docs);
         docs = WithKnownTvAdSourceCorrections(owner, docs);
         docs = WithoutKnownUnsafeQualityChannels(owner, exact[0], docs);
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
@@ -5065,6 +5066,49 @@ static partial class ImporterProgram
             : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
         targets["value"] =
             "The exact official channel range excludes zero, but the exported MloLink constructor initializes the channel to zero and the getter returns it unchanged; no replacement range was inferred.";
+        return docs with { UnsafeTargets = targets };
+    }
+
+    const string InsetsCurrentFractionMemberId = "P:Android.Views.IWindowInsetsAnimationController.CurrentFraction";
+    const string UnsafeInsetsCurrentFractionReturn =
+        "the progress of the animation, where 0 is fully hidden and 1 is fully shown. " +
+        "Note: this value represents raw overall progress of the animation i.e. the combined progress of insets and alpha.. " +
+        "Value is between 0.0f and 1.0f inclusive";
+
+    static SourceDocs WithoutUnsafeInsetsCurrentFractionValue(DocsOwner owner, SourceMember source, SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        const string javaPath = "android/view/WindowInsetsAnimationController";
+        const string url = AndroidReference + javaPath + "#getCurrentFraction()";
+        if (owner.Id != InsetsCurrentFractionMemberId ||
+            owner.MemberRegistration != new MemberRegistration("getCurrentFraction", "()F", false) ||
+            member is null || type is null || type.Name != "Type" ||
+            (string?)type.Attribute("FullName") != "Android.Views.IWindowInsetsAnimationController" ||
+            Registration.Type(type) != javaPath || Registration.Member(member) != owner.MemberRegistration ||
+            !HasSingleSignature(type, "TypeSignature", "DocId", "T:Android.Views.IWindowInsetsAnimationController") ||
+            !HasSingleSignature(type, "TypeSignature", "C#",
+                "public interface IWindowInsetsAnimationController : Android.Runtime.IJavaObject, IDisposable, Java.Interop.IJavaPeerable") ||
+            type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            !member.Elements("MemberType").Select(element => element.Value).SequenceEqual(["Property"]) ||
+            !HasSingleSignature(member, "MemberSignature", "DocId", InsetsCurrentFractionMemberId) ||
+            !HasSingleSignature(member, "MemberSignature", "C#", "public float CurrentFraction { get; }") ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value != "System.Single" ||
+            member.Element("Parameters")?.Elements("Parameter").Any() == true ||
+            owner.SourceRequest != SourceRequest.Create(javaPath) ||
+            source.Name != "getCurrentFraction" || source.IsConstructor || source.IsField ||
+            source.ArgumentDescriptors is not { Count: 0 } ||
+            source.Declaration != "public abstract float getCurrentFraction ()" || source.Url != url ||
+            docs.SourceKind != "android" || docs.SourceUrl != url ||
+            docs.SourceLabel != "android.view.WindowInsetsAnimationController.getCurrentFraction" ||
+            docs.Returns != UnsafeInsetsCurrentFractionReturn || docs.HasMalformedSourceMarkup)
+            return docs;
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["value"] =
+            "The exact official return equates animation progress with visibility, but finish(false) applies hidden insets with fraction 1; no visibility endpoints were inferred.";
         return docs with { UnsafeTargets = targets };
     }
 
@@ -22959,6 +23003,7 @@ static partial class ImporterProgram
         TestKnownEapChannelCorrections(repositoryRoot);
         TestMediaRouteActionViewReturn(repositoryRoot);
         TestMloChannelValue(repositoryRoot);
+        TestInsetsCurrentFractionValue(repositoryRoot);
         TestChangeLogDataOriginChannel(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
         TestSdkSandboxSurfaceLinks(repositoryRoot);
@@ -30924,6 +30969,192 @@ static partial class ImporterProgram
         {
             File.Delete(path);
             Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    static void TestInsetsCurrentFractionValue(string repositoryRoot)
+    {
+        var fixture = Convert.FromBase64String(File.ReadAllText(Path.Combine(repositoryRoot,
+            "tools", "importer-fixtures", "current-fraction-reference.html.b64")).Trim());
+        Assert(Convert.ToHexString(SHA256.HashData(fixture)).ToLowerInvariant() ==
+            "b33fd36224b7dc8b9a35acb670fcc9d85dd7714121bdae4de85b3081c7001567",
+            "Insets fraction fixture retains the complete native declaration");
+        var html = Encoding.UTF8.GetString(fixture);
+        var request = SourceRequest.Create("android/view/WindowInsetsAnimationController")!;
+        var page = SourcePage.Parse(request, html);
+        var raw = page.Members.Single().Docs!;
+        Assert(raw.Returns == UnsafeInsetsCurrentFractionReturn &&
+            page.Members.Single().Declaration == "public abstract float getCurrentFraction ()",
+            "Insets fraction fixture contains the exact contradicted return and declaration");
+        var root = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Android.Views",
+            "IWindowInsetsAnimationController.xml"));
+        var member = new XElement(root.Element("Members")!.Elements("Member").Single(candidate =>
+            candidate.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "DocId" &&
+                (string?)signature.Attribute("Value") == InsetsCurrentFractionMemberId)));
+        root.Element("Members")!.ReplaceNodes(member);
+        root.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored interface summary."));
+        member.Element("Docs")!.ReplaceNodes(
+            new XElement("summary", "Authored progress summary."),
+            new XElement("value", "To be added."),
+            new XElement("remarks", "Authored progress guidance."));
+        var temporary = Path.Combine(Path.GetTempPath(), $"insets-fraction-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(temporary);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Views",
+            $".insets-fraction-self-test-{Guid.NewGuid():N}.xml");
+        var calls = 0;
+        try
+        {
+            void Save(XElement input, string source, bool bom = false, string newline = "\n")
+            {
+                File.WriteAllText(path, input.ToString().Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\n", newline, StringComparison.Ordinal), new UTF8Encoding(bom));
+                var sourceRequest = SourceRequest.Create(Registration.Type(input)!)!;
+                File.WriteAllText(Path.Combine(temporary, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(sourceRequest.Url))).ToLowerInvariant() + ".html"), source, new UTF8Encoding(false));
+            }
+            JsonDocument Run(bool apply)
+            {
+                var reportPath = Path.Combine(temporary, "report-" + calls++);
+                var arguments = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.Views", "--member", "CurrentFraction",
+                    "--offline", "--cache", temporary, "--max-changes", "1", "--report", reportPath,
+                };
+                if (apply)
+                    arguments.Add("--apply");
+                Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Insets fraction uses the bounded offline production pipeline");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Insets fraction production run has no errors");
+                return report;
+            }
+            bool Excluded(JsonDocument report) => report.RootElement.GetProperty("entries").EnumerateArray()
+                .Any(entry => entry.GetProperty("member").GetString() == InsetsCurrentFractionMemberId &&
+                    entry.GetProperty("target").GetString() == "value" &&
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous");
+            void NoWrites(XElement input, string source, string description, bool bom = false, string newline = "\n")
+            {
+                Save(input, source, bom, newline);
+                var before = File.ReadAllBytes(path);
+                using (var preview = Run(false))
+                    Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)), description + " preview");
+                using (var apply = Run(true))
+                    Assert(apply.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)), description + " apply");
+                using var repeat = Run(true);
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), description + " persisted repeat");
+            }
+            foreach (var bom in new[] { false, true })
+            foreach (var newline in new[] { "\n", "\r\n" })
+            {
+                NoWrites(root, html, "Insets fraction exclusion preserves all bytes", bom, newline);
+                using var report = Run(true);
+                Assert(Excluded(report), "Insets fraction exclusion reports only the exact value channel");
+            }
+            NoWrites(root, html.Replace("<p>Returns the progress", "<p>Additional safe context.</p><p>Returns the progress",
+                StringComparison.Ordinal), "Insets fraction harmless source context does not restore false visibility endpoints");
+            foreach (var mutate in new Action<XElement>[]
+            {
+                value => value.Value = "Authored progress value.",
+                value => value.Value = UnsafeInsetsCurrentFractionReturn,
+                value => value.ReplaceNodes(new XElement("c", "Authored progress value.")),
+                value => value.ReplaceNodes(new XCData("To be added.")),
+                value => value.Add(new XComment("Authored progress note.")),
+            })
+            {
+                var authored = new XElement(root);
+                mutate(authored.Element("Members")!.Element("Member")!.Element("Docs")!.Element("value")!);
+                NoWrites(authored, html, "Insets fraction first-fill exclusion does not withdraw authored or prior content");
+            }
+            Save(root, html);
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners(InsetsCurrentFractionMemberId);
+            var owner = loaded.Owners.Single();
+            Assert(WithoutUnsafeInsetsCurrentFractionValue(owner, page.Members.Single(), raw)
+                .UnsafeTargets?.ContainsKey("value") == true, "Insets fraction attached control reaches the exact guard");
+            foreach (var changed in new[]
+            {
+                raw with { SourceKind = "java" },
+                raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                raw with { Returns = "The animation's caller-supplied progress fraction." },
+                raw with { Returns = "" },
+            })
+                Assert(WithoutUnsafeInsetsCurrentFractionValue(owner, page.Members.Single(), changed)
+                    .UnsafeTargets is null, "Insets fraction changed provenance or return is outside the exact exclusion");
+            Assert(WithoutUnsafeInsetsCurrentFractionValue(owner,
+                page.Members.Single() with { Declaration = "public float getCurrentFraction ()" }, raw).UnsafeTargets is null,
+                "Insets fraction exclusion requires its exact native declaration");
+            foreach (var mutate in new Action<XElement>[]
+            {
+                type => type.SetAttributeValue("FullName", "Android.Views.OtherController"),
+                type => type.Elements("TypeSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public interface OtherController"),
+                type => type.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                type => type.Element("Members")!.Element("Member")!.Element("AssemblyInfo")!
+                    .Element("AssemblyName")!.Value = "Other.Assembly",
+                type => type.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public double CurrentFraction { get; }"),
+                type => type.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", InsetsCurrentFractionMemberId + ".Other"),
+                type => type.Element("Members")!.Element("Member")!.Element("ReturnValue")!
+                    .Element("ReturnType")!.Value = "System.Double",
+            })
+            {
+                var changed = new XElement(root);
+                var attachedMember = changed.Element("Members")!.Element("Member")!;
+                var attachedOwner = owner with { Member = attachedMember, Docs = attachedMember.Element("Docs")! };
+                Assert(WithoutUnsafeInsetsCurrentFractionValue(attachedOwner, page.Members.Single(), raw)
+                    .UnsafeTargets?.ContainsKey("value") == true, "Insets fraction negative starts from an attached guarded owner");
+                mutate(changed);
+                Assert(WithoutUnsafeInsetsCurrentFractionValue(attachedOwner, page.Members.Single(), raw)
+                    .UnsafeTargets is null, "Insets fraction changed attached metadata reaches and rejects the exact guard");
+                Save(changed, html);
+                using var report = Run(true);
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    XElement.Load(path).Descendants("value").Single().Value == raw.Returns,
+                    "Insets fraction production metadata negative reaches ordinary source mapping rather than an earlier skip");
+            }
+            var renamed = new XElement(root);
+            foreach (var attribute in renamed.Element("Members")!.Element("Member")!.Descendants("AttributeName"))
+                attribute.Value = attribute.Value.Replace("getCurrentFraction", "getOtherFraction", StringComparison.Ordinal);
+            Save(renamed, html.Replace("getCurrentFraction", "getOtherFraction", StringComparison.Ordinal));
+            using (var report = Run(true))
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "Insets fraction renamed JNI getter is not covered by a general progress rule");
+            foreach (var corrected in new[] { "The animation's caller-supplied progress fraction.", "" })
+            {
+                var returnCell = Regex.Match(html, @"<td width=""100%"">(?<cell>.*?)</td>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant).Groups["cell"].Value;
+                Assert(returnCell.Length > 0, "Insets fraction corrected control locates the actual return cell");
+                var correctedHtml = html.Replace(returnCell, corrected, StringComparison.Ordinal);
+                Assert(correctedHtml != html, "Insets fraction corrected control changes the actual return cell");
+                Save(root, correctedHtml);
+                using var report = Run(true);
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() ==
+                    (corrected.Length == 0 ? 0 : 1), "Insets fraction future corrected or removed source remains ordinary");
+            }
+            var sibling = new XElement(root);
+            var siblingDocs = sibling.Element("Members")!.Element("Member")!.Element("Docs")!;
+            siblingDocs.Element("summary")!.Value = "To be added.";
+            siblingDocs.Element("remarks")!.ReplaceNodes(new XElement("para", "Authored progress guidance."),
+                ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            Save(sibling, html);
+            var expected = File.ReadAllText(path).Replace("<summary>To be added.</summary>",
+                new XElement("summary", raw.Summary).ToString(SaveOptions.DisableFormatting), StringComparison.Ordinal);
+            using (var report = Run(true))
+                Assert(Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    File.ReadAllText(path) == expected, "Insets fraction safe sibling fills within one operation and preserves all other bytes");
+            NoWrites(XElement.Load(path), html, "Insets fraction safe sibling persisted output");
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(temporary, recursive: true);
         }
     }
 

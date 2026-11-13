@@ -1104,3 +1104,21 @@ from page SHA-256
 Registered offline production tests cover the exclusion, attached-owner
 metadata negatives, changed source and provenance, authored-content preservation,
 bounded sibling writes, and byte-identical persisted repeats.
+
+The exact `WindowInsetsAnimationController.getCurrentFraction()` value channel
+is withheld when its complete official return equates progress 0/1 with
+hidden/shown states. In the pinned API 37.2 implementation,
+`InsetsAnimationControlImpl.finish(false)` supplies hidden insets with fraction 1,
+and the applied fraction is stored independently of the insets.
+The exclusion requires the exact managed interface/property, assembly,
+signatures, JNI getter, canonical source URL/label, native declaration, and full
+original return text. It affects only that value channel. Authored and prior
+documentation is retained; safe sibling channels and corrected future source
+remain eligible. No replacement progress contract is inferred.
+The native fragment in `current-fraction-reference.html.b64` has SHA-256
+`b33fd36224b7dc8b9a35acb670fcc9d85dd7714121bdae4de85b3081c7001567`,
+from page SHA-256
+`fd3b6aa53eccbbf5365f21ed6c56a91d22be741c6b46d700112fa36ad1b27205`.
+Registered production tests cover the exclusion, meaningful attached binding
+and source negatives, source-context changes, authored/mixed preservation,
+bounded sibling writes, encoding/newline preservation, and persisted repeats.
