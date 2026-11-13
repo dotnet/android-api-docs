@@ -1726,7 +1726,7 @@
         <param name="filter">true to set the FILTER_BITMAP_FLAG bit in the paint's
                           flags, false to clear it.</param>
         <summary>Whether or not the bitmap filter is activated. -or- Helper for setFlags(), setting or clearing the FILTER_BITMAP_FLAG bit.</summary>
-        <value>To be added.</value>
+        <value>Whether the bitmap-filtering flag is set.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Whether or not the bitmap filter is activated.
@@ -2098,7 +2098,7 @@
       <Docs>
         <summary>Allocates a new FontMetrics object, and then calls getFontMetrics(fm)
             with it, returning the object.</summary>
-        <returns>To be added.</returns>
+        <returns>A new object containing floating-point metrics for this paint's font settings.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -2259,7 +2259,7 @@
         <Parameter Name="fmi" Type="Android.Graphics.Paint+FontMetricsInt" />
       </Parameters>
       <Docs>
-        <param name="fmi">To be added.</param>
+        <param name="fmi">An optional object to receive integer font metrics.</param>
         <summary>Return the font's interline spacing, given the Paint's settings for
             typeface, textSize, etc.</summary>
         <returns>the font's interline spacing.</returns>
@@ -2415,15 +2415,15 @@
         <Parameter Name="outMetrics" Type="Android.Graphics.Paint+FontMetricsInt" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="contextStart">To be added.</param>
-        <param name="contextCount">To be added.</param>
-        <param name="isRtl">To be added.</param>
-        <param name="outMetrics">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="text">The text whose font metrics are measured.</param>
+        <param name="start">The index of the first UTF-16 code unit in the measured range.</param>
+        <param name="count">The number of UTF-16 code units in the measured range.</param>
+        <param name="contextStart">The index of the first UTF-16 code unit in the shaping context.</param>
+        <param name="contextCount">The number of UTF-16 code units in the shaping context.</param>
+        <param name="isRtl"><see langword="true" /> for right-to-left shaping; <see langword="false" /> for left-to-right shaping.</param>
+        <param name="outMetrics">The object that receives the integer font metrics.</param>
+        <summary>Fills integer font metrics for a text range shaped with the supplied context.</summary>
+        <remarks><para>Offsets and counts use UTF-16 code units. A zero count selects the paint's default metrics after argument validation.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName="GetFontMetricsIntForLocale">
@@ -2506,7 +2506,7 @@
         <param name="contextEnd">the index + 1 of the end of the range to measure</param>
         <param name="isRtl">whether the run is in RTL direction</param>
         <param name="advance">width relative to start of run</param>
-        <summary>To be added.</summary>
+        <summary>Finds a cursor offset for an advance within a direction-specific text run.</summary>
         <returns>index of offset</returns>
         <remarks>
           <para>
@@ -2685,7 +2685,7 @@
         <param name="contextEnd">the index + 1 of the end of the shaping context</param>
         <param name="isRtl">whether the run is in RTL direction</param>
         <param name="offset">index of caret position</param>
-        <summary>To be added.</summary>
+        <summary>Measures the advance from the start of a shaped text run to a specified offset.</summary>
         <returns>width measurement between start and offset</returns>
         <remarks>
           <para>
@@ -2883,7 +2883,7 @@
         <param name="offset">index of caret position</param>
         <param name="advances">the array that receives the computed character advances</param>
         <param name="advancesIndex">the start index from which the advances array is filled</param>
-        <summary>To be added.</summary>
+        <summary>Measures character advances and the advance to an offset within a shaped text run.</summary>
         <returns>width measurement between start and offset</returns>
         <remarks>
           <para>
@@ -3923,7 +3923,7 @@
       </ReturnValue>
       <Docs>
         <summary>Return the paint's hinting mode. -or- Set the paint's hinting mode.</summary>
-        <value>To be added.</value>
+        <value>The font-hinting mode: zero for off and one for on.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Return the paint's hinting mode.  Returns either
@@ -4545,7 +4545,7 @@
         <Parameter Name="src" Type="Android.Graphics.Paint" />
       </Parameters>
       <Docs>
-        <param name="src">To be added.</param>
+        <param name="src">The paint whose settings are copied into this paint.</param>
         <summary>Copy the fields from src into this paint.</summary>
         <remarks>
           <para>Copy the fields from src into this paint. This is equivalent to calling
@@ -4988,10 +4988,10 @@
         <Parameter Name="shadowColor" Type="Android.Graphics.Color" />
       </Parameters>
       <Docs>
-        <param name="radius">To be added.</param>
-        <param name="dx">To be added.</param>
-        <param name="dy">To be added.</param>
-        <param name="shadowColor">To be added.</param>
+        <param name="radius">The shadow blur radius; non-positive values remove the native shadow layer.</param>
+        <param name="dx">The horizontal shadow offset.</param>
+        <param name="dy">The vertical shadow offset.</param>
+        <param name="shadowColor">The shadow's sRGB color.</param>
         <summary>This draws a shadow layer below the main layer, with the specified
             offset and color, and blur radius.</summary>
         <remarks>
@@ -5047,10 +5047,10 @@
         <Parameter Name="shadowColor" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="radius">To be added.</param>
-        <param name="dx">To be added.</param>
-        <param name="dy">To be added.</param>
-        <param name="shadowColor">To be added.</param>
+        <param name="radius">The shadow blur radius; non-positive values remove the native shadow layer.</param>
+        <param name="dx">The horizontal shadow offset.</param>
+        <param name="dy">The vertical shadow offset.</param>
+        <param name="shadowColor">The packed color-long shadow color, including its encoded color space.</param>
         <summary>This draws a shadow layer below the main layer, with the specified
             offset and color, and blur radius.</summary>
         <remarks>
@@ -5272,7 +5272,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the color of the shadow layer.</summary>
-        <value>To be added.</value>
+        <value>The stored shadow color converted to packed ARGB sRGB.</value>
         <remarks>
           <para>Returns the color of the shadow layer.</para>
           <para>
@@ -5354,7 +5354,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the x offset of the shadow layer.</summary>
-        <value>To be added.</value>
+        <value>The stored horizontal shadow offset.</value>
         <remarks>
           <para>Returns the x offset of the shadow layer.</para>
           <para>
@@ -5395,7 +5395,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the y offset of the shadow layer.</summary>
-        <value>To be added.</value>
+        <value>The stored vertical shadow offset.</value>
         <remarks>
           <para>Returns the y offset of the shadow layer.</para>
           <para>
@@ -5436,7 +5436,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the blur radius of the shadow layer.</summary>
-        <value>To be added.</value>
+        <value>The stored shadow blur radius.</value>
         <remarks>
           <para>Returns the blur radius of the shadow layer.</para>
           <para>

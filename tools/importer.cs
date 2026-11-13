@@ -2545,6 +2545,7 @@ static partial class ImporterProgram
             docs = WithoutSynchronousGeocoderBoilerplate(docs);
         }
         docs = WithKnownEapChannelCorrections(owner, docs);
+        docs = WithoutUnsafeMloChannelValue(owner, exact[0], docs);
         docs = WithKnownTvAdSourceCorrections(owner, docs);
         docs = WithoutKnownUnsafeQualityChannels(owner, exact[0], docs);
         docs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, docs);
@@ -4943,6 +4944,52 @@ static partial class ImporterProgram
                 },
             }
             : docs with { Returns = correction.CorrectText, EapCorrection = correction };
+    }
+
+    static SourceDocs WithoutUnsafeMloChannelValue(DocsOwner owner, SourceMember source, SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        if (owner.Id != "P:Android.Net.Wifi.MloLink.Channel" ||
+            owner.MemberRegistration != new MemberRegistration("getChannel", "()I", false) ||
+            member is null || type is null || type.Name != "Type" ||
+            (string?)type.Attribute("FullName") != "Android.Net.Wifi.MloLink" ||
+            Registration.Type(type) != "android/net/wifi/MloLink" ||
+            !type.Elements("TypeSignature").Where(signature =>
+                    (string?)signature.Attribute("Language") == "DocId")
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual(["T:Android.Net.Wifi.MloLink"]) ||
+            !type.Elements("TypeSignature").Where(signature =>
+                    (string?)signature.Attribute("Language") == "C#")
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual(["public sealed class MloLink : Java.Lang.Object, Android.OS.IParcelable, IDisposable"]) ||
+            type.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            member.Element("AssemblyInfo")?.Element("AssemblyName")?.Value != "Mono.Android" ||
+            member.Element("MemberType")?.Value != "Property" ||
+            !member.Elements("MemberSignature").Where(signature =>
+                    (string?)signature.Attribute("Language") == "C#")
+                .Select(signature => (string?)signature.Attribute("Value"))
+                .SequenceEqual(["public int Channel { get; }"]) ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value != "System.Int32" ||
+            member.Element("Parameters")?.Elements("Parameter").Any() == true ||
+            owner.SourceRequest?.Kind != "android" ||
+            owner.SourceRequest.Url != AndroidReference + "android/net/wifi/MloLink" ||
+            source.Name != "getChannel" || source.IsConstructor || source.IsField ||
+            source.ArgumentDescriptors is not { Count: 0 } ||
+            source.Declaration != "public int getChannel ()" ||
+            source.Url != AndroidReference + "android/net/wifi/MloLink#getChannel()" ||
+            docs.SourceKind != "android" ||
+            docs.SourceUrl != AndroidReference + "android/net/wifi/MloLink#getChannel()" ||
+            docs.SourceLabel != "android.net.wifi.MloLink.getChannel" ||
+            docs.Returns != "Value is 1 or greater" ||
+            docs.HasMalformedSourceMarkup)
+            return docs;
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["value"] =
+            "The exact official channel range excludes zero, but the exported MloLink constructor initializes the channel to zero and the getter returns it unchanged; no replacement range was inferred.";
+        return docs with { UnsafeTargets = targets };
     }
 
     static bool MatchesKnownEapGetterSource(SourceDocs actual, SourceDocs expected) =>
@@ -22899,6 +22946,7 @@ static partial class ImporterProgram
         TestQuickSettingsSources(repositoryRoot);
         TestKnownEapChannelCorrections(repositoryRoot);
         TestMediaRouteActionViewReturn(repositoryRoot);
+        TestMloChannelValue(repositoryRoot);
         TestChangeLogDataOriginChannel(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
         TestSdkSandboxSurfaceLinks(repositoryRoot);
@@ -30863,6 +30911,209 @@ static partial class ImporterProgram
         {
             File.Delete(path);
             Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    static void TestMloChannelValue(string repositoryRoot)
+    {
+        const string memberId = "P:Android.Net.Wifi.MloLink.Channel";
+        var fixture = Convert.FromBase64String(File.ReadAllText(Path.Combine(repositoryRoot,
+            "tools", "importer-fixtures", "mlo-channel-reference.html.b64")).Trim());
+        Assert(Convert.ToHexString(SHA256.HashData(fixture)).ToLowerInvariant() ==
+            "705820e68adc7e117272085c844b40952fe3a9299a2b08e6cd6f1889a987d4ad",
+            "MLO channel fixture retains the exact native declaration bytes");
+        var html = Encoding.UTF8.GetString(fixture);
+        var request = SourceRequest.Create("android/net/wifi/MloLink")!;
+        var page = SourcePage.Parse(request, html);
+        Assert(page.Members.Single().Docs!.Returns == "Value is 1 or greater",
+            "MLO channel fixture contains the complete unsafe value channel");
+        var root = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Android.Net.Wifi", "MloLink.xml"));
+        var member = new XElement(root.Element("Members")!.Elements("Member").Single(candidate =>
+            candidate.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "DocId" &&
+                (string?)signature.Attribute("Value") == memberId)));
+        root.Element("Members")!.ReplaceNodes(member);
+        root.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored MLO type summary."));
+        member.Element("Docs")!.ReplaceNodes(
+            new XElement("summary", "Authored channel summary."),
+            new XElement("value", "To be added."),
+            new XElement("remarks", "Authored channel guidance."));
+        var temporary = Path.Combine(Path.GetTempPath(), $"mlo-channel-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(temporary);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Net.Wifi",
+            $"MloLink.channel-self-test-{Guid.NewGuid():N}.xml");
+        var calls = 0;
+        try
+        {
+            void Save(XElement input, string source)
+            {
+                File.WriteAllText(path, input.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                var sourceRequest = SourceRequest.Create(Registration.Type(input)!)!;
+                File.WriteAllText(Path.Combine(temporary,
+                        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceRequest.Url)))
+                            .ToLowerInvariant() + ".html"),
+                    source, new UTF8Encoding(false));
+            }
+            JsonDocument Run(bool apply)
+            {
+                var report = Path.Combine(temporary, "report-" + calls++);
+                var args = new List<string>
+                {
+                    "--path", path, "--namespace", "Android.Net.Wifi", "--offline",
+                    "--cache", temporary, "--max-changes", "1", "--report", report,
+                };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "MLO channel uses the actual bounded offline production pipeline");
+                return JsonDocument.Parse(File.ReadAllText(report + ".json"));
+            }
+            bool Excluded(JsonDocument report) => report.RootElement.GetProperty("entries")
+                .EnumerateArray().Any(entry => entry.GetProperty("member").GetString() == memberId &&
+                    entry.GetProperty("target").GetString() == "value" &&
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous");
+            void NoWrites(XElement input, string description)
+            {
+                Save(input, html);
+                var before = File.ReadAllBytes(path);
+                using (var report = Run(true))
+                    Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)), description);
+                using var repeat = Run(true);
+                Assert(repeat.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)), description + " persisted repeat");
+            }
+            Save(root, html);
+            var before = File.ReadAllBytes(path);
+            using (var preview = Run(false))
+                Assert(Excluded(preview) && preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "MLO unsafe value preview reports the exact channel without changing XML");
+            using (var apply = Run(true))
+                Assert(Excluded(apply) && apply.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "MLO unsafe value apply preserves authored siblings and all API bytes");
+            Save(root, html.Replace("<p>Returns the channel number", "<p>Additional safe context.</p><p>Returns the channel number",
+                StringComparison.Ordinal));
+            using (var contextual = Run(true))
+                Assert(Excluded(contextual) && contextual.RootElement.GetProperty("appliedCount").GetInt32() == 0,
+                    "MLO source context cannot re-enable the unchanged unsafe value");
+            NoWrites(root, "MLO first-fill exclusion is byte-identical on persisted repeats");
+            foreach (var mutate in new Action<XElement>[]
+            {
+                value => value.ReplaceNodes("An authored channel description."),
+                value => value.ReplaceNodes("Value is 1 or greater"),
+                value => value.ReplaceNodes(new XElement("c", "Authored channel text.")),
+                value => value.ReplaceNodes(new XCData("To be added.")),
+                value => value.Add(new XComment("Authored channel note.")),
+            })
+            {
+                var authored = new XElement(root);
+                mutate(authored.Element("Members")!.Element("Member")!.Element("Docs")!.Element("value")!);
+                NoWrites(authored, "MLO first-fill guard preserves authored, prior, mixed, CDATA and comment content");
+            }
+            var prior = new XElement(root);
+            prior.Element("Members")!.Element("Member")!.Element("Docs")!.ReplaceNodes(
+                new XElement("summary", page.Members.Single().Docs!.Summary),
+                new XElement("value", "Value is 1 or greater"),
+                new XElement("remarks", page.Members.Single().Docs!.Paragraphs.Select(DocumentationElement),
+                    ImporterSourceReference(page.Members.Single().Docs!),
+                    XElement.Parse($"<para>{AndroidAttribution}</para>")));
+            NoWrites(prior, "MLO first-fill exclusion does not withdraw or rewrite prior importer-owned documentation");
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners(null);
+            var owner = loaded.Owners.Single(candidate => candidate.Id == memberId);
+            var raw = page.Members.Single().Docs!;
+            foreach (var source in new[]
+            {
+                raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                raw with { SourceKind = "java" },
+                raw with { Returns = "Value is 0 or greater" },
+                raw with { Returns = "" },
+            })
+                Assert(WithoutUnsafeMloChannelValue(owner, page.Members.Single(), source).UnsafeTargets is null,
+                    "MLO changed source provenance or range is not excluded");
+            Assert(WithoutUnsafeMloChannelValue(owner,
+                    page.Members.Single() with { Declaration = "public long getChannel ()" }, raw).UnsafeTargets is null,
+                "MLO changed native return declaration is not excluded");
+            foreach (var mutate in new Action<XElement>[]
+            {
+                input => input.SetAttributeValue("FullName", "Android.Net.Wifi.OtherLink"),
+                input => input.Elements("TypeSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", "T:Android.Net.Wifi.OtherLink"),
+                input => input.Elements("TypeSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public class MloLink"),
+                input => input.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                input => input.Element("Members")!.Element("Member")!.Element("AssemblyInfo")!
+                    .Element("AssemblyName")!.Value = "Other.Assembly",
+                input => input.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public long Channel { get; }"),
+                input => input.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", memberId + ".Other"),
+                input => input.Element("Members")!.Element("Member")!.Element("ReturnValue")!
+                    .Element("ReturnType")!.Value = "System.Int64",
+            })
+            {
+                var changed = new XElement(root);
+                mutate(changed);
+                Save(changed, html);
+                using var report = Run(true);
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    XElement.Load(path).Descendants("value").Single().Value == raw.Returns,
+                    "MLO attached-owner metadata negative reaches ordinary source mapping, not an earlier rejection");
+            }
+            var renamed = new XElement(root);
+            foreach (var name in renamed.Element("Members")!.Element("Member")!.Descendants("AttributeName"))
+                name.Value = name.Value.Replace("getChannel", "getOtherChannel", StringComparison.Ordinal);
+            Save(renamed, html.Replace("getChannel", "getOtherChannel", StringComparison.Ordinal));
+            using (var report = Run(true))
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "MLO changed native getter and canonical member remain outside the exact guard");
+            var wide = new XElement(root);
+            var wideMember = wide.Element("Members")!.Element("Member")!;
+            wideMember.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.Int64";
+            wideMember.Elements("MemberSignature").Single(signature =>
+                (string?)signature.Attribute("Language") == "C#")
+                .SetAttributeValue("Value", "public long Channel { get; }");
+            foreach (var name in wideMember.Descendants("AttributeName"))
+                name.Value = name.Value.Replace("()I", "()J", StringComparison.Ordinal);
+            Save(wide, html.Replace("public int getChannel", "public long getChannel", StringComparison.Ordinal)
+                .Replace(">int</code>", ">long</code>", StringComparison.Ordinal));
+            using (var report = Run(true))
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "MLO changed JNI return descriptor with matching native and managed types reaches ordinary mapping");
+            foreach (var value in new[] { "Value is 0 or greater", "A corrected channel number." })
+            {
+                Save(root, html.Replace("Value is 1 or greater", value, StringComparison.Ordinal));
+                using var report = Run(true);
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    XElement.Load(path).Descendants("value").Single().Value == value,
+                    "MLO future corrected source value is ordinarily imported");
+            }
+            Save(root, html.Replace("Value is 1 or greater", "", StringComparison.Ordinal));
+            using (var report = Run(true))
+                Assert(!Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 0,
+                    "MLO removed source range follows ordinary missing-channel handling");
+            var sibling = new XElement(root);
+            var siblingDocs = sibling.Element("Members")!.Element("Member")!.Element("Docs")!;
+            siblingDocs.Element("summary")!.Value = "To be added.";
+            siblingDocs.Element("remarks")!.ReplaceNodes(
+                new XElement("para", "Authored channel guidance."),
+                ImporterSourceReference(raw), XElement.Parse($"<para>{AndroidAttribution}</para>"));
+            Save(sibling, html);
+            var expected = File.ReadAllText(path).Replace("<summary>To be added.</summary>",
+                $"<summary>{raw.Summary}</summary>", StringComparison.Ordinal);
+            using (var report = Run(true))
+                Assert(Excluded(report) && report.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    File.ReadAllText(path) == expected,
+                    "MLO one-change apply fills the safe summary and preserves every byte outside that gap");
+            NoWrites(XElement.Load(path), "MLO safe sibling apply persists with zero writes");
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(temporary, recursive: true);
         }
     }
 
