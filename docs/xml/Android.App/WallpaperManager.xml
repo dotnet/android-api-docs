@@ -247,7 +247,7 @@
       </ReturnValue>
       <Docs>
         <summary>Obtain a drawable for the built-in static system wallpaper.</summary>
-        <value>To be added.</value>
+        <value>The built-in default system-wallpaper drawable, or <see langword="null" /> if no built-in default image exists.</value>
         <remarks>
           <para>Obtain a drawable for the built-in static system wallpaper.</para>
           <para>
@@ -461,8 +461,7 @@
         <ReturnType>System.EventHandler&lt;Android.App.WallpaperManager+ColorsChangedEventArgs&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>Occurs when the reported wallpaper colors change.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1061,7 +1060,7 @@
       <Docs>
         <param name="imageUri">Uri: The image URI that will be set in the intent. The must be a content URI and its provider must resolve its type to "image/*"</param>
         <summary>Gets an Intent that will launch an activity that crops the given image and sets the device's wallpaper.</summary>
-        <returns>To be added.</returns>
+        <returns>An intent configured for a handler that can crop and set the supplied content URI as wallpaper.</returns>
         <remarks>
           <para>Gets an Intent that will launch an activity that crops the given image and sets the device's wallpaper. If there is a default HOME activity that supports cropping wallpapers, it will be preferred as the default. Use this method instead of directly creating a ACTION_CROP_AND_SET_WALLPAPER intent.</para>
           <para>Throws: IllegalArgumentException if the URI is not a content URI or its MIME type is not "image/*"</para>
@@ -1394,7 +1393,7 @@
       <Docs>
         <param name="which">int: Specifies wallpaper to request (home or lock). Value is either 0 or a combination of the following: FLAG_SYSTEM FLAG_LOCK</param>
         <summary>Returns the information about the designated wallpaper if its current wallpaper is a live wallpaper component.</summary>
-        <returns>To be added.</returns>
+        <returns>Live-wallpaper metadata for the selected wallpaper kind, or <see langword="null" /> for a static or unset wallpaper or one hidden from the caller.</returns>
         <remarks>
           <para>Returns the information about the designated wallpaper if its current wallpaper is a live wallpaper component. Otherwise, if the wallpaper is a static image or is not set, or if the caller doesn't have the appropriate permissions, this returns null. In order to use this, apps should declare a &lt;queries&gt; tag with the action "android.service.wallpaper.WallpaperService". Otherwise, this method will return null if the caller doesn't otherwise have visibility of the wallpaper package.</para>
           <para>Throws: IllegalArgumentException if which is not exactly one of {FLAG_SYSTEM,FLAG_LOCK}.</para>
@@ -1433,7 +1432,7 @@
         <param name="resid">int</param>
         <summary>Return whether any users are currently set to use the wallpaper
             with the given resource ID.</summary>
-        <returns>To be added.</returns>
+        <returns>Whether the wallpaper service has a wallpaper named for the supplied resource.</returns>
         <remarks>
           <para>Return whether any users are currently set to use the wallpaper with the given resource ID. That is, their wallpaper has been set through setResource(int) with the same resource id.</para>
           <para>
@@ -1471,7 +1470,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether the calling package is allowed to set the wallpaper for the calling user.</summary>
-        <value>To be added.</value>
+        <value>Whether the wallpaper service permits the calling package to change wallpaper.</value>
         <remarks>
           <para>Returns whether the calling package is allowed to set the wallpaper for the calling user. If this function returns false, any attempts to change the wallpaper will have no effect. Always returns true for device owner and profile owner.</para>
           <para>See also:</para>
@@ -1509,7 +1508,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether wallpapers are supported for the calling user.</summary>
-        <value>To be added.</value>
+        <value>Whether the wallpaper service reports wallpaper support for the calling package.</value>
         <remarks>
           <para>Returns whether wallpapers are supported for the calling user. If this function returns false, any attempts to changing the wallpaper will have no effect, and any attempt to obtain of the wallpaper will return null.</para>
           <para>
@@ -2504,7 +2503,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the information about the home screen wallpaper if its current wallpaper is a live wallpaper component.</summary>
-        <value>To be added.</value>
+        <value>The home-screen live-wallpaper metadata, or <see langword="null" /> when that wallpaper is static, unset, or hidden from the caller.</value>
         <remarks>
           <para>Returns the information about the home screen wallpaper if its current wallpaper is a live wallpaper component. Otherwise, if the wallpaper is a static image or is not set, or if the caller doesn't have the appropriate permissions, this returns null. For devices running Android 13 or earlier, this method requires the Manifest.permission.QUERY_ALL_PACKAGES permission.</para>
           <para>For devices running Android 14 or later, in order to use this, apps should declare a &lt;queries&gt; tag with the action "android.service.wallpaper.WallpaperService". Otherwise, this method will return null if the caller doesn't otherwise have visibility of the wallpaper package.</para>

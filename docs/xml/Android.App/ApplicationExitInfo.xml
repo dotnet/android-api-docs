@@ -79,8 +79,7 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
+        <summary>Gets the creator that reconstructs application-exit records from a parcel.</summary>
         <value>A creator that generates instances of android.app.ApplicationExitInfo from a Parcel.</value>
         <remarks>
           <para>
@@ -122,7 +121,7 @@
             to <c>true</c> and was bound with the flag
             <c>android.content.Context#BIND_EXTERNAL_SERVICE</c> - in this case, this field here will
             be the kernel user identifier of the external service provider.</summary>
-        <value>To be added.</value>
+        <value>The defining UID; for an external service using an app zygote, this identifies the service provider rather than necessarily the process or installed package UID.</value>
         <remarks>
           <para>Return the defining kernel user identifier, maybe different from getRealUid() and getPackageUid(), if an external service has the android:useAppZygote set to true and was bound with the flag Context.BIND_EXTERNAL_SERVICE - in this case, this field here will be the kernel user identifier of the external service provider.</para>
           <para>
@@ -208,7 +207,7 @@
       </ReturnValue>
       <Docs>
         <summary>The human readable description of the process's death, given by the system; could be null.</summary>
-        <value>To be added.</value>
+        <value>The human-readable exit description with an available subreason. Its format is not stable; the current implementation returns an empty string when there is no descriptive content.</value>
         <remarks>
           <para>The human readable description of the process's death, given by the system; could be null. Note: only intended to be human-readable and the system provides no guarantees that the format is stable across devices or Android releases.</para>
           <para>
@@ -250,7 +249,7 @@
       <Parameters />
       <Docs>
         <summary>Populated only when the reason is REASON_ANR.</summary>
-        <returns>To be added.</returns>
+        <returns>The ANR-specific details stored in this exit record, or <see langword="null" /> when none are available.</returns>
         <remarks>
           <para>Populated only when the reason is REASON_ANR. Otherwise Null.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/ApplicationExitInfo#getAnrInfo()" title="Reference documentation">Android reference for <code>android.app.ApplicationExitInfo.getAnrInfo</code>.</a></format></para>
@@ -425,7 +424,7 @@
       <Docs>
         <summary>Similar to <c>#getRealUid</c>, it's the kernel user identifier that is assigned at the
             package installation time.</summary>
-        <value>To be added.</value>
+        <value>The UID assigned to the package at installation, distinct from an isolated process's runtime UID.</value>
         <remarks>
           <para>Similar to getRealUid(), it's the kernel user identifier that is assigned at the package installation time.</para>
           <para>
@@ -462,7 +461,7 @@
       </ReturnValue>
       <Docs>
         <summary>The process id of the process that died.</summary>
-        <value>To be added.</value>
+        <value>The process identifier recorded for the process that exited.</value>
         <remarks>
           <para>The process id of the process that died.</para>
           <para>
@@ -536,7 +535,7 @@
       </ReturnValue>
       <Docs>
         <summary>Last proportional set size of the memory that the process had used in kB.</summary>
-        <value>To be added.</value>
+        <value>The last sampled proportional-set memory size in kilobytes, or zero if no sample was taken. It is not necessarily the memory size at exit.</value>
         <remarks>
           <para>Last proportional set size of the memory that the process had used in kB. Note: This is the value from last sampling on the process, it's NOT the exact memory information prior to its death; and it'll be zero if the process died before system had a chance to take the sample.</para>
           <para>
@@ -574,7 +573,7 @@
       <Docs>
         <summary>The kernel user identifier of the process, most of the time the system uses this
             to do access control checks.</summary>
-        <value>To be added.</value>
+        <value>The kernel UID under which the process actually ran, which can differ from the package UID for an isolated process.</value>
         <remarks>
           <para>The kernel user identifier of the process, most of the time the system uses this to do access control checks. It's typically the uid of the package where the component is running from, except the case of isolated process, where this field identifies the kernel user identifier that this process is actually running with, while the getPackageUid() identifies the kernel user identifier that is assigned at the package installation time.</para>
           <para>
@@ -1490,7 +1489,7 @@
       </ReturnValue>
       <Docs>
         <summary>Last resident set size of the memory that the process had used in kB.</summary>
-        <value>To be added.</value>
+        <value>The last sampled resident-set memory size in kilobytes, or zero if no sample was taken. It is not necessarily the memory size at exit.</value>
         <remarks>
           <para>Last resident set size of the memory that the process had used in kB. Note: This is the value from last sampling on the process, it's NOT the exact memory information prior to its death; and it'll be zero if the process died before system had a chance to take the sample.</para>
           <para>
@@ -1528,7 +1527,7 @@
       <Docs>
         <summary>The exit status argument of exit() if the application calls it, or the signal
             number if the application is signaled.</summary>
-        <value>To be added.</value>
+        <value>The argument supplied to <c>exit()</c>, or the signal number when a signal ended the process.</value>
         <remarks>
           <para>The exit status argument of exit() if the application calls it, or the signal number if the application is signaled.</para>
           <para>

@@ -586,6 +586,27 @@ at the Docs root, remarks container, or source-reference paragraph, and changed
 source contracts are preserved. Corrected or removed source
 prose remains eligible under the ordinary channel rules.
 
+The parameterless `MediaRouteActionProvider.onCreateActionView()` return is
+withheld when its complete official source contract promises a new non-null
+view. The [pinned current platform implementation](https://android.googlesource.com/platform/frameworks/base/+/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/app/MediaRouteActionProvider.java#107)
+always throws `UnsupportedOperationException`; it is evidence, not replacement
+prose. The current API 37.2 implementation in the official
+`source-37.2_r01.zip` archive has the same file SHA-256,
+`09f116e12a5b2450538f36c531982b51ba25b87ae53937275a1ff21084699115`,
+and the same throwing body at lines 107-111. The archive SHA-256 is
+`9d637c3af6654a2f1b696b3d19c54bb77e38df2b0106116934703f314b3d4e84`.
+The guard reuses the exact registered-channel rules and requires the
+managed DocId, signature, return type, JNI descriptor, canonical source URL and
+label, and full original source contract. The `MenuItem` overload is separate
+and remains eligible. Authored content is preserved, and changed future source
+remains eligible. The base64 native reference fixture has SHA-256
+`6463d3a74b5b3e8e2695ece6dd1143a01d2e3ef52361adf3843572a7af80ea90`,
+from page SHA-256
+`02995ca27dcaa3906d9b31331306aac8b331f17e1945a0081a475294297ab792`.
+Registered offline production tests cover the exclusion, changed binding and
+source controls, authored content, a one-operation sibling fill, exact outside-span
+byte preservation, and persisted zero-write repeats.
+
 The same exact allow-list covers the RSSI builder's Bluetooth-address parameter
 and RSSI parcel-write summary and remarks. The RSSI update-rate setter's malformed
 default paragraph (an unresolved `ERROR(...)` label linked to the site root) is
