@@ -803,6 +803,14 @@ static partial class ImporterProgram
                         text = updated;
                         continue;
                     }
+                    if (IsJavaIoLegacySecurityCandidate(owner))
+                    {
+                        var updated = ImportJavaIoLegacySecurity(
+                            text, file, owner, pages, report, options.MaxChanges, ref remaining);
+                        fileChanged |= updated != text;
+                        text = updated;
+                        continue;
+                    }
                     var ownerChanged = false;
                     var importedSourceChannel = false;
                     var replacedRemarksPlaceholder = false;
@@ -3439,6 +3447,208 @@ static partial class ImporterProgram
         return workerThread >= 0;
     }
 
+    sealed record JavaIoLegacySecurityContract(
+        string Id, string SourceHash, string DocsHash, string Declaration,
+        string[] UnsafeTargets, string[] RepairTargets);
+
+    static readonly JavaIoLegacySecurityContract[] JavaIoLegacySecurityContracts =
+    [
+        new("T:Java.IO.FilePermission",
+            "e0686cab243ac9b013df0e37107cbad25f14261c3991d4a6fbff933012d94396", "",
+            "public final class FilePermission extends Permission implements Serializable",
+            ["summary", "remarks"], []),
+        new("M:Java.IO.FilePermission.#ctor(System.String,System.String)",
+            "5c85dc0804a429919ba52486794d4ac50ac3632fa16ae933b61b63c6441dc9c8",
+            "899d9d26290e377956ed8be9053e73e2f8daffa19df998ea3b10c57ed2993348",
+            "public FilePermission(String path, String actions)",
+            ["summary", "remarks"], ["remarks"]),
+        new("P:Java.IO.FilePermission.Actions",
+            "8f88496631536b08eb730000896ba2314f65cc6a475db1951e8e7e07981dd6ee",
+            "43757eb55dbaaa751f77e1e3e98a9843d1ff7f59a48d191e5e878d227281c10d",
+            "public String getActions()",
+            ["summary", "value", "remarks"], ["value", "remarks"]),
+        new("M:Java.IO.FilePermission.Implies(Java.Security.Permission)",
+            "e32fc74687c5a287a72992d2cde13177a4c62987b9f307c1a2b92ad021d9eb10",
+            "460d83e25871b3139f468113000dec26676e40ae2bbd7251270bf9d828778ec4",
+            "public boolean implies(Permission p)",
+            ["param:p", "summary", "returns", "remarks"], ["param:p", "returns"]),
+        new("T:Java.IO.SerializablePermission",
+            "664fa34331dd049a5f80927455d35553df203d69758d9cd0d777d8d12fbfefa1", "",
+            "public final class SerializablePermission extends BasicPermission",
+            ["summary", "remarks"], []),
+        new("M:Java.IO.SerializablePermission.#ctor(System.String)",
+            "4b2b450a7bab19afd2bf5a10cc7c4cd6a945ab53ecabf207cc82e6700664e5e0",
+            "1bdd8a1f53ae8e1a785287464caf6b8af2f9b3d97a6edfe4bfd1896a9551f430",
+            "public SerializablePermission(String name)",
+            ["param:name", "summary", "remarks"], ["param:name", "remarks"]),
+        new("M:Java.IO.SerializablePermission.#ctor(System.String,System.String)",
+            "239c11f9f44aa6dd444a5605e1f8e9e2a9ffc1c475a3aeeaf395486a0d64175d",
+            "fd61e184a16516581d75dbe988d8e9730e4bd923a69d20ec9d1b507dc37721cd",
+            "public SerializablePermission(String name, String actions)",
+            ["param:name", "param:actions", "summary", "remarks"],
+            ["param:name", "param:actions", "remarks"]),
+    ];
+
+    static bool IsJavaIoLegacySecurityCandidate(DocsOwner owner)
+    {
+        if (JavaIoLegacySecurityContracts.Any(rule => rule.Id == owner.Id))
+            return true;
+        var root = owner.Docs.Ancestors("Type").SingleOrDefault();
+        return root is not null &&
+            ((string?)root.Attribute("FullName") is "Java.IO.FilePermission" or "Java.IO.SerializablePermission" ||
+                Registration.Type(root) is "java/io/FilePermission" or "java/io/SerializablePermission") &&
+            (owner.Member is null ||
+                (string?)owner.Member.Attribute("MemberName") is ".ctor" or "Actions" or "Implies" ||
+                owner.MemberRegistration?.Name is ".ctor" or "getActions" or "implies") &&
+            !owner.Id.Contains("System.IntPtr", StringComparison.Ordinal);
+    }
+
+    static string JavaIoLegacySecurityBindingHash(XElement root)
+    {
+        var binding = new XElement(root);
+        foreach (var docs in binding.Descendants("Docs").ToArray())
+            docs.Remove();
+        return JavaIoLegacySecurityHash(binding.ToString(SaveOptions.DisableFormatting));
+    }
+
+    static string JavaIoLegacySecurityHash(string text) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
+            text.Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace("\r", "\n", StringComparison.Ordinal)))).ToLowerInvariant();
+
+    static string ImportJavaIoLegacySecurity(
+        string text, LoadedFile file, DocsOwner owner,
+        IReadOnlyDictionary<string, SourceLoadResult> pages,
+        ImportReport report, int limit, ref int remaining)
+    {
+        var rule = JavaIoLegacySecurityContracts.SingleOrDefault(rule => rule.Id == owner.Id);
+        var root = owner.Docs.Ancestors("Type").SingleOrDefault();
+        var expectedBinding = owner.Id.StartsWith("T:Java.IO.FilePermission", StringComparison.Ordinal) ||
+            owner.Id.StartsWith("M:Java.IO.FilePermission.", StringComparison.Ordinal) ||
+            owner.Id.StartsWith("P:Java.IO.FilePermission.", StringComparison.Ordinal)
+                ? "8ca47e03f7430cfd65f35197a99c48000a5f245830d33e1bef983607b4df8f1e"
+                : "2f055959e7cdaf9f7939f912ce5d24ab544dcf160f0d7bee88829187ef78b5d7";
+        if (rule is null || root is null || JavaIoLegacySecurityBindingHash(root) != expectedBinding)
+        {
+            report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, "summary",
+                "java_io_legacy_security_binding_mismatch",
+                "The complete historical Android binding metadata did not match; documentation was preserved.",
+                owner.SourceRequest?.Url ?? ""));
+            return text;
+        }
+        var mapping = MapOwner(owner, pages);
+        if (ReportMappingFailure(report, file, owner, mapping))
+            return text;
+        var source = mapping.Docs!;
+        var page = pages[owner.SourceRequest!.Url].Page!;
+        var declarations = owner.Member is null
+            ? new[] { page.TypeDeclaration }
+            : page.Members.Where(member => member.Url == source.SourceUrl)
+                .Select(member => member.Declaration).ToArray();
+        var expectedTypeDeclaration = owner.SourceRequest.JavaPath == "java/io/FilePermission"
+            ? "public final class FilePermission extends Permission implements Serializable"
+            : "public final class SerializablePermission extends BasicPermission";
+        // Reuse the complete parsed-source fingerprint, including provenance and every source channel.
+        if (page.TypeDeclaration != expectedTypeDeclaration ||
+            declarations is not [string declaration] || declaration != rule.Declaration ||
+            SliceProviderSourceHash(source) != rule.SourceHash)
+        {
+            report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, "summary",
+                "java_io_legacy_security_source_mismatch",
+                "The pinned Java source contract changed; no repair or replacement was inferred.", mapping.SourceUrl));
+            return text;
+        }
+
+        var block = file.DocsBlocks[owner.Order];
+        var blockText = text[block.Start..block.End];
+        if (rule.RepairTargets.Length > 0 && JavaIoLegacySecurityHash(blockText) == rule.DocsHash)
+        {
+            if (remaining < rule.RepairTargets.Length)
+            {
+                foreach (var target in rule.RepairTargets)
+                    report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, target,
+                        "max_changes_reached", $"The complete repair exceeds the remaining --max-changes limit of {limit}.",
+                        mapping.SourceUrl));
+                return text;
+            }
+            if (!TryParseDocsBlock(blockText, out var actual) || !XNode.DeepEquals(actual, owner.Docs))
+            {
+                report.Entries.Add(ReportEntry.Error(file.RelativePath, owner.Id, "summary",
+                    "source_xml_layout_mismatch", "The historical Docs block did not match its parsed owner.",
+                    mapping.SourceUrl));
+                return text;
+            }
+            var edits = new List<(int Start, int End, string Replacement)>();
+            foreach (var target in rule.RepairTargets)
+            {
+                var channel = target.StartsWith("param:", StringComparison.Ordinal)
+                    ? actual.Elements("param").Single(element =>
+                        (string?)element.Attribute("name") == target[6..])
+                    : target == "remarks"
+                        ? actual.Element("remarks")!.Elements("para").First()
+                        : actual.Element(target)!;
+                if (!TryGetElementSpan(blockText, channel, out var span))
+                {
+                    report.Entries.Add(ReportEntry.Error(file.RelativePath, owner.Id, target,
+                        "source_xml_layout_mismatch", "The proven historical channel could not be located.",
+                        mapping.SourceUrl));
+                    return text;
+                }
+                edits.Add((span.Start, span.End,
+                    new XElement(channel.Name, channel.Attributes(), "To be added.")
+                        .ToString(SaveOptions.DisableFormatting)));
+            }
+            foreach (var edit in edits.OrderByDescending(edit => edit.Start))
+                blockText = blockText[..edit.Start] + edit.Replacement + blockText[edit.End..];
+            text = text[..block.Start] + blockText + text[block.End..];
+            file.UpdateBlockOffsets(owner.Order, text);
+            remaining -= rule.RepairTargets.Length;
+            foreach (var target in rule.RepairTargets)
+                report.Entries.Add(ReportEntry.Changed("would_apply", file.RelativePath, owner.Id, target,
+                    mapping.SourceUrl, "importer_unsafe_java_io_legacy_security_withdrawal",
+                    "Withdrew only an exact historically proven importer-owned channel contradicted by the Android stub; retained all other bytes."));
+            return text;
+        }
+
+        var guarded = source with
+        {
+            UnsafeTargets = rule.UnsafeTargets.ToDictionary(target => target, _ =>
+                "The pinned Java 21 contract does not describe the mapped Android legacy permission stub; no replacement prose was inferred.",
+                StringComparer.Ordinal),
+        };
+        foreach (var placeholder in owner.Placeholders)
+        {
+            var replacement = placeholder.Name == "para" || placeholder.IsImporterMetadataRepair
+                ? Replacement.Skip("source_channel_ambiguous", "This guard preserves nested and metadata-only layouts.")
+                : ReplacementFor(placeholder, guarded);
+            if (replacement.Text is null || remaining == 0)
+            {
+                report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, placeholder.Target,
+                    replacement.Text is null ? replacement.Reason! : "max_changes_reached",
+                    replacement.Text is null ? replacement.Detail : $"The --max-changes limit of {limit} was reached.",
+                    mapping.SourceUrl));
+                continue;
+            }
+            if (!TryReplaceDirectSourcePlaceholder(text, file.DocsBlocks[owner.Order], placeholder,
+                    replacement, guarded, out var updated, out var error))
+            {
+                report.Entries.Add(ReportEntry.Error(file.RelativePath, owner.Id, placeholder.Target,
+                    "source_xml_layout_mismatch", error, mapping.SourceUrl));
+                continue;
+            }
+            text = updated;
+            file.UpdateBlockOffsets(owner.Order, text);
+            remaining--;
+            report.Entries.Add(ReportEntry.Changed("would_apply", file.RelativePath, owner.Id,
+                placeholder.Target, mapping.SourceUrl));
+        }
+        foreach (var target in rule.UnsafeTargets.Where(target =>
+            !owner.Placeholders.Any(placeholder => placeholder.Target == target)))
+            report.Entries.Add(ReportEntry.Skipped(file.RelativePath, owner.Id, target,
+                "source_channel_ambiguous", guarded.UnsafeTargets[target], mapping.SourceUrl));
+        return text;
+    }
+
     sealed record SliceProviderContract(string MemberId, string BindingHash, string SourceHash);
 
     static readonly SliceProviderContract[] KnownSliceProviderContracts =
@@ -5959,6 +6169,9 @@ static partial class ImporterProgram
         var targets = owner.Placeholders
             .Select(placeholder => placeholder.Target)
             .ToHashSet(StringComparer.Ordinal);
+        if (IsJavaIoLegacySecurityCandidate(owner))
+            targets.UnionWith(JavaIoLegacySecurityContracts.SingleOrDefault(rule => rule.Id == owner.Id)
+                ?.UnsafeTargets ?? ["summary"]);
         if (KnownSliceProviderContracts.Any(contract => contract.MemberId == owner.Id))
             targets.Add("summary");
         targets.UnionWith(KnownAndroidTextRepairCandidateTargets(owner));
@@ -6019,6 +6232,7 @@ static partial class ImporterProgram
 
     static bool RequiresSourceLoad(LoadedFile file, DocsOwner owner) =>
         owner.Placeholders.Count > 0 ||
+        IsJavaIoLegacySecurityCandidate(owner) ||
         IsEnumSummaryRepairCandidate(owner) ||
         HasPotentialEnumListRepair(file, owner) ||
         HasEnumDiscardedMetadataCandidate(file, owner) ||
@@ -22022,8 +22236,261 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestJavaIoLegacySecurity(string repositoryRoot)
+    {
+        using var fixture = JsonDocument.Parse(File.ReadAllText(Path.Combine(
+            repositoryRoot, "tools", "importer-fixtures", "java-io-legacy-security.json")));
+        var data = fixture.RootElement;
+        var scope = Path.Combine(repositoryRoot, "docs", "xml", "Java.IO",
+            $".java-io-security-self-test-{Guid.NewGuid():N}");
+        var temporary = Path.Combine(Path.GetTempPath(), $"java-io-security-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(scope);
+        Directory.CreateDirectory(temporary);
+        var cache = Path.Combine(temporary, "cache");
+        Directory.CreateDirectory(cache);
+        var pages = new Dictionary<string, string>(StringComparer.Ordinal);
+        var originals = new Dictionary<string, string>(StringComparer.Ordinal);
+        var executions = 0;
+        try
+        {
+            foreach (var binding in data.GetProperty("bindings").EnumerateArray())
+            {
+                var bytes = Convert.FromBase64String(binding.GetProperty("base64").GetString()!);
+                Assert(Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant() ==
+                    binding.GetProperty("sha256").GetString(), "retained original binding bytes match their receipt");
+                originals.Add(binding.GetProperty("type").GetString()!, Encoding.UTF8.GetString(bytes));
+            }
+            foreach (var group in data.GetProperty("nativeFragments").EnumerateArray()
+                .GroupBy(fragment => fragment.GetProperty("name").GetString()!.Split('.')[0]))
+            {
+                var html = "<html><body>";
+                foreach (var fragment in group)
+                {
+                    var bytes = Convert.FromBase64String(fragment.GetProperty("base64").GetString()!);
+                    Assert(bytes.Length == fragment.GetProperty("fragmentBytes").GetInt32() &&
+                        Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant() ==
+                            fragment.GetProperty("fragmentSha256").GetString(),
+                        "native contiguous Java fragment retains its exact byte length and source hash");
+                    html += Encoding.UTF8.GetString(bytes);
+                }
+                pages.Add(group.Key, html + "</body></html>");
+            }
+            void CachePage(string name, string html)
+            {
+                var url = SourceRequest.Create("java/io/" + name)!.Url;
+                File.WriteAllText(Path.Combine(cache, JavaIoLegacySecurityHash(url) + ".html"),
+                    html, new UTF8Encoding(false));
+            }
+            foreach (var page in pages)
+                CachePage(page.Key, page.Value);
+
+            XElement Member(XElement root, string id) => root.Element("Members")!.Elements("Member")
+                .Single(member => member.Elements("MemberSignature").Any(signature =>
+                    (string?)signature.Attribute("Language") == "DocId" &&
+                    (string?)signature.Attribute("Value") == id));
+            JsonDocument Run(string path, string id, int maximum, bool apply)
+            {
+                var reportPath = Path.Combine(temporary, "report-" + ++executions);
+                var args = new List<string> { "--path", path, "--namespace", "Java.IO",
+                    "--member", id, "--offline", "--cache", cache,
+                    "--max-changes", maximum.ToString(), "--report", reportPath };
+                if (apply)
+                    args.Add("--apply");
+                Assert(RunAsync(args.ToArray()).GetAwaiter().GetResult() == 0,
+                    "Java.IO permission production pipeline succeeds offline");
+                var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "Java.IO permission production pipeline reports no errors");
+                return report;
+            }
+            void NoWrites(string path, string id, string? reason = null)
+            {
+                var before = File.ReadAllBytes(path);
+                using var report = Run(path, id, 10, true);
+                Assert(report.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    report.RootElement.GetProperty("filesChanged").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "unproven Java.IO permission content is preserved byte-for-byte");
+                if (reason is not null)
+                    Assert(report.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                        entry.GetProperty("reason").GetString() == reason),
+                        "negative input reaches its intended Java.IO permission guard");
+            }
+            var cases = new (string Name, string Id, string[] Targets)[]
+            {
+                ("FilePermission", "M:Java.IO.FilePermission.#ctor(System.String,System.String)", ["remarks"]),
+                ("FilePermission", "P:Java.IO.FilePermission.Actions", ["value", "remarks"]),
+                ("FilePermission", "M:Java.IO.FilePermission.Implies(Java.Security.Permission)", ["param:p", "returns"]),
+                ("SerializablePermission", "M:Java.IO.SerializablePermission.#ctor(System.String)", ["param:name", "remarks"]),
+                ("SerializablePermission", "M:Java.IO.SerializablePermission.#ctor(System.String,System.String)", ["param:name", "param:actions", "remarks"]),
+            };
+            foreach (var sample in data.GetProperty("replayedSamples").EnumerateArray())
+            {
+                var bytes = Convert.FromBase64String(sample.GetProperty("outputBase64").GetString()!);
+                Assert(Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant() ==
+                    sample.GetProperty("outputSha256").GetString(),
+                    "actual independent historical producer output retains its receipt");
+                var replay = XElement.Parse(Encoding.UTF8.GetString(bytes), LoadOptions.PreserveWhitespace);
+                var original = XElement.Parse(originals[sample.GetProperty("type").GetString()!],
+                    LoadOptions.PreserveWhitespace);
+                foreach (var test in cases.Where(test => test.Name == sample.GetProperty("type").GetString()))
+                {
+                    var actual = Member(original, test.Id).Element("Docs")!;
+                    var produced = Member(replay, test.Id).Element("Docs")!;
+                    if (test.Id.Contains(".Implies(", StringComparison.Ordinal))
+                    {
+                        var reviewed = XElement.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(
+                            data.GetProperty("reviewedMixedDocsBase64").GetString()!)), LoadOptions.PreserveWhitespace);
+                        Assert(XNode.DeepEquals(actual, reviewed) && !XNode.DeepEquals(actual, produced),
+                            "the exact immutable mixed-owner review snapshot, not an all-importer reconstruction, seeds Implies");
+                        foreach (var channel in new[] { "param", "returns" })
+                            Assert(XNode.DeepEquals(actual.Element(channel), produced.Element(channel)),
+                                "only the independently unchanged historical Implies target remains producer-owned");
+                    }
+                    else
+                        Assert(XNode.DeepEquals(actual, produced),
+                            "complete current Docs independently match the actual immutable producer output");
+                }
+            }
+            foreach (var test in cases)
+            {
+                var path = Path.Combine(scope, test.Name + ".xml");
+                var variants = test.Id.Contains(".Implies(", StringComparison.Ordinal)
+                    ? new[] { ("\n", false), ("\n", true), ("\r\n", false), ("\r\n", true) }
+                    : new[] { ("\n", false) };
+                foreach (var (newline, bom) in variants)
+                {
+                    var input = originals[test.Name].Replace("\r\n", "\n", StringComparison.Ordinal)
+                        .Replace("\n", newline, StringComparison.Ordinal);
+                    File.WriteAllText(path, input, new UTF8Encoding(bom));
+                    var loaded = LoadedFile.Load(repositoryRoot, path);
+                    loaded.SelectOwners(test.Id);
+                    var owner = loaded.Owners.Single();
+                    var block = loaded.DocsBlocks[owner.Order];
+                    var expectedDocs = input[block.Start..block.End];
+                    foreach (var target in test.Targets)
+                    {
+                        var channel = target == "remarks" ? owner.Docs.Element("remarks")!.Elements("para").First()
+                            : target.StartsWith("param:", StringComparison.Ordinal)
+                                ? owner.Docs.Elements("param").Single(parameter => (string?)parameter.Attribute("name") == target[6..])
+                                : owner.Docs.Element(target)!;
+                        var original = channel.ToString(SaveOptions.DisableFormatting);
+                        Assert(expectedDocs.Contains(original, StringComparison.Ordinal),
+                            "the independently retained original target is present as a complete XML span");
+                        expectedDocs = expectedDocs.Replace(original,
+                            new XElement(channel.Name, channel.Attributes(), "To be added.")
+                                .ToString(SaveOptions.DisableFormatting), StringComparison.Ordinal);
+                    }
+                    var expected = input[..block.Start] + expectedDocs + input[block.End..];
+                    var before = File.ReadAllBytes(path);
+                    using (var dry = Run(path, test.Id, test.Targets.Length, false))
+                        Assert(dry.RootElement.GetProperty("wouldApplyCount").GetInt32() == test.Targets.Length &&
+                            before.SequenceEqual(File.ReadAllBytes(path)), "historical repair dry-run does not write");
+                    if (test.Targets.Length > 1)
+                        using (var bounded = Run(path, test.Id, test.Targets.Length - 1, true))
+                            Assert(bounded.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                                before.SequenceEqual(File.ReadAllBytes(path)),
+                                "all related historical targets are atomic within a conservative change budget");
+                    using (var applied = Run(path, test.Id, test.Targets.Length, true))
+                        Assert(applied.RootElement.GetProperty("appliedCount").GetInt32() == test.Targets.Length,
+                            "only the independently proven historical target spans are withdrawn");
+                    var encoding = new UTF8Encoding(bom);
+                    Assert(File.ReadAllBytes(path).SequenceEqual(
+                        encoding.GetPreamble().Concat(encoding.GetBytes(expected))),
+                        "historical repair preserves every other byte, including the authored Implies paragraph and BOM/newlines");
+                    NoWrites(path, test.Id);
+                }
+                foreach (var mutation in new Action<XElement>[]
+                {
+                    docs => docs.Add(new XElement("para", "An additional authored contract.")),
+                    docs => docs.Element("summary")!.Value = "An authored sibling summary.",
+                    docs => docs.Add(new XComment("authored comment")),
+                    docs => docs.Add(new XCData(" ")),
+                    docs => docs.Add(new XProcessingInstruction("authored", "retain")),
+                })
+                {
+                    var root = XElement.Parse(originals[test.Name], LoadOptions.PreserveWhitespace);
+                    mutation(Member(root, test.Id).Element("Docs")!);
+                    File.WriteAllText(path, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                    NoWrites(path, test.Id);
+                }
+                var changedTarget = XElement.Parse(originals[test.Name], LoadOptions.PreserveWhitespace);
+                var targetDocs = Member(changedTarget, test.Id).Element("Docs")!;
+                var firstTarget = test.Targets[0];
+                var targetElement = firstTarget == "remarks" ? targetDocs.Element("remarks")!.Elements("para").First()
+                    : firstTarget.StartsWith("param:", StringComparison.Ordinal)
+                        ? targetDocs.Elements("param").Single(parameter => (string?)parameter.Attribute("name") == firstTarget[6..])
+                        : targetDocs.Element(firstTarget)!;
+                targetElement.Value = "An authored target.";
+                File.WriteAllText(path, changedTarget.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                NoWrites(path, test.Id);
+                foreach (var metadata in new Action<XElement>[]
+                {
+                    root => root.SetAttributeValue("Extra", "changed"),
+                    root => Member(root, test.Id).Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                    root =>
+                    {
+                        var attribute = Member(root, test.Id).Descendants("AttributeName").Single(attribute =>
+                            (string?)attribute.Attribute("Language") == "C#" &&
+                            attribute.Value.Contains("Android.Runtime.Register(", StringComparison.Ordinal));
+                        attribute.Value = attribute.Value.Replace("Ljava/", "Lchanged/", StringComparison.Ordinal);
+                    },
+                    root =>
+                    {
+                        var attribute = root.Element("Attributes")!.Descendants("AttributeName").Single(attribute =>
+                            (string?)attribute.Attribute("Language") == "C#" &&
+                            attribute.Value.Contains("Android.Runtime.Register(", StringComparison.Ordinal));
+                        attribute.Value = attribute.Value.Replace("java/io/", "java/changed/", StringComparison.Ordinal);
+                    },
+                })
+                {
+                    var root = XElement.Parse(originals[test.Name], LoadOptions.PreserveWhitespace);
+                    metadata(root);
+                    File.WriteAllText(path, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                    NoWrites(path, test.Id, "java_io_legacy_security_binding_mismatch");
+                }
+                File.WriteAllText(path, originals[test.Name], new UTF8Encoding(false));
+                var source = pages[test.Name];
+                var changed = source.Replace("Creates a new", "Creates an altered", StringComparison.Ordinal)
+                    .Replace("Returns the", "Returns altered", StringComparison.Ordinal)
+                    .Replace("Checks if", "Checks whether", StringComparison.Ordinal);
+                Assert(source != changed, "the native source mutation changes the actual parsed contract");
+                CachePage(test.Name, changed);
+                NoWrites(path, test.Id, "java_io_legacy_security_source_mismatch");
+                CachePage(test.Name, source);
+                var seeded = XElement.Parse(originals[test.Name], LoadOptions.PreserveWhitespace);
+                foreach (var channel in Member(seeded, test.Id).Element("Docs")!.Elements()
+                    .Where(channel => channel.Name != "since"))
+                    channel.ReplaceNodes("To be added.");
+                File.WriteAllText(path, seeded.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                using (var firstFill = Run(path, test.Id, 10, true))
+                    Assert(firstFill.RootElement.GetProperty("appliedCount").GetInt32() ==
+                        (test.Targets.SequenceEqual(new[] { "remarks" }) ? 2 : 0) &&
+                        firstFill.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous"),
+                        "first fills retain safe pathname/action labels but withhold each contradicted stub channel");
+                NoWrites(path, test.Id);
+            }
+            foreach (var name in originals.Keys)
+            {
+                var root = XElement.Parse(originals[name], LoadOptions.PreserveWhitespace);
+                root.Element("Docs")!.Element("summary")!.ReplaceNodes("To be added.");
+                root.Element("Docs")!.Element("remarks")!.ReplaceNodes("To be added.");
+                var path = Path.Combine(scope, name + ".xml");
+                File.WriteAllText(path, root.ToString(SaveOptions.DisableFormatting), new UTF8Encoding(false));
+                NoWrites(path, "T:Java.IO." + name, "source_channel_ambiguous");
+            }
+        }
+        finally
+        {
+            Directory.Delete(scope, recursive: true);
+            Directory.Delete(temporary, recursive: true);
+        }
+    }
+
     static int RunSelfTest(string repositoryRoot)
     {
+        TestJavaIoLegacySecurity(repositoryRoot);
         TestDalvikOpcodeProjection(repositoryRoot);
         TestBiometricStringValueGuard(repositoryRoot);
         TestBiometricCallbackLinks(repositoryRoot);
