@@ -27,7 +27,15 @@
   <Docs>
     <summary>Interface definition for a callback to be invoked when window insets animations prepare or
             end.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Interface definition for a callback to be invoked when window insets animations prepare or end.</para>
+      <para>A window insets animation listener can be registered to observe when window insets animations are about to start (prepare) and when they end. These callbacks are executed on the UI thread.</para>
+      <para>Unlike WindowInsetsAnimation.Callback, which is designed for applications to synchronize their view layouts or draw frames with the animation on every frame, this listener only observes the preparation and completion of animations, but doesn't allow for frame-by-frame synchronization.</para>
+      <para>Because this listener does not perform frame-by-frame synchronization, registering only this listener without a corresponding WindowInsetsAnimation.Callback on the view hierarchy allows the window insets animation to run off-thread on the background animation thread. This avoids the performance overhead of running the animation on the main UI thread.</para>
+      <para>This listener does not have an equivalent to WindowInsetsAnimation.Callback.onStart or receive the animation bounds, because it is not intended for layout synchronization. To perform frame-synchronized layout changes or customize the animation bounds, register a WindowInsetsAnimation.Callback on the view hierarchy instead.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/ViewTreeObserver.WindowInsetsAnimationListener" title="Reference documentation">Android reference for <code>android.view.ViewTreeObserver.WindowInsetsAnimationListener</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="OnEnd">
@@ -59,7 +67,11 @@
       <Docs>
         <param name="animation">The animation that has ended.</param>
         <summary>Called after a window insets animation has ended.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called after a window insets animation has ended.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/ViewTreeObserver.WindowInsetsAnimationListener#onEnd(android.view.WindowInsetsAnimation)" title="Reference documentation">Android reference for <code>android.view.ViewTreeObserver.WindowInsetsAnimationListener.onEnd</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnPrepare">
@@ -92,7 +104,12 @@
         <param name="animation">The animation that is about to start.</param>
         <summary>Called when an insets animation is about to start and before the views have been laid out
             in the end state of the animation.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Called when an insets animation is about to start and before the views have been laid out in the end state of the animation.</para>
+          <para>This is called before the final insets are dispatched to the view hierarchy via View.onApplyWindowInsets or View.OnApplyWindowInsetsListener.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/ViewTreeObserver.WindowInsetsAnimationListener#onPrepare(android.view.WindowInsetsAnimation)" title="Reference documentation">Android reference for <code>android.view.ViewTreeObserver.WindowInsetsAnimationListener.onPrepare</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
