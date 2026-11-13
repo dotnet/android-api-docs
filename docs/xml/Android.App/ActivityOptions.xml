@@ -100,7 +100,7 @@
         <summary>Returns whether the source activity allows the overlaying activities from the to-be-launched
             app to pass through touch events to it when touches fall outside the content window. -or- Sets whether the source activity allows the overlaying activities from the to-be-launched
             app to pass through touch events to it when touches fall outside the content window.</summary>
-        <value>To be added.</value>
+        <value>The source activity's opt-in to receive touches outside an overlaying launched activity's content window. It is ignored when the launch context is not an activity.</value>
         <remarks>
           <para>Returns whether the source activity allows the overlaying activities from the to-be-launched app to pass through touch events to it when touches fall outside the content window.</para>
           <para>See also:</para>
@@ -487,7 +487,7 @@
       <Parameters />
       <Docs>
         <summary>Create a basic ActivityOptions that has no special animation associated with it.</summary>
-        <returns>To be added.</returns>
+        <returns>A new activity-options object with no special launch animation selected.</returns>
         <remarks>
           <para>Create a basic ActivityOptions that has no special animation associated with it. Other options can still be set.</para>
           <para>
@@ -876,7 +876,7 @@
       <Parameters />
       <Docs>
         <summary>If set along with Intent.</summary>
-        <returns>To be added.</returns>
+        <returns>A new options object marked for the legacy task-launch-behind animation mode.</returns>
         <remarks>
           <para>This method was deprecated in API level 10000. This method is deprecated because starting an Activity behind the current task lacks transparency and violates user expectations. Alternative: Start the target Activity, then immediately call ActivityManager.AppTask.moveToFront() on the caller's task to restore its foreground focus.</para>
           <para>If set along with Intent.FLAG_ACTIVITY_NEW_DOCUMENT then the task being launched will not be presented to the user but will instead be only available through the recents task list. In addition, the new task wil be affiliated with the launching activity's task. Affiliated tasks are grouped together in the recents task list. This behavior is not supported for activities with launchMode values of singleInstance or singleTask.</para>
@@ -1185,7 +1185,7 @@
         <summary>Get PendingIntent activity is allowed to be started in the background if the caller can start
             background activities. -or- Set PendingIntent activity is allowed to be started in the background if the caller
             can start background activities.</summary>
-        <value>To be added.</value>
+        <value>The legacy Boolean projection of the background-start mode: <see langword="false" /> only for an explicitly denied mode. A <see langword="true" /> value does not guarantee that background launch is permitted.</value>
         <remarks>
           <para>This method was deprecated in API level 34. use getPendingIntentBackgroundActivityStartMode() since for apps targeting Build.VERSION_CODES.UPSIDE_DOWN_CAKE or higher this value might not match the actual behavior if the value was not explicitly set.</para>
           <para>Get PendingIntent activity is allowed to be started in the background if the caller can start background activities.</para>
@@ -1562,11 +1562,11 @@
         <Parameter Name="movableTaskRequired" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="movableTaskRequired">To be added.</param>
+        <param name="movableTaskRequired"><see langword="true" /> to require launch into a new task that can be moved immediately afterward; <see langword="false" /> to omit this requirement.</param>
         <summary>Sets whether a task in which the activity will be launched is required to be movable right
             after launch using the <c>ActivityManager.AppTask#moveTaskTo(TaskLocation,
             java.util.concurrent.Executor, android.os.OutcomeReceiver)</c> method.</summary>
-        <returns>To be added.</returns>
+        <returns>This options object after the movability requirement has been stored.</returns>
         <remarks>
           <para>Sets whether a task in which the activity will be launched is required to be movable right after launch using the ActivityManager.AppTask.moveTaskTo(TaskLocation,java.util.concurrent.Executor,android.os.OutcomeReceiver) method. If the system cannot guarantee this, the Context.startActivity call will throw an InfeasibleActivityOptionsException.</para>
           <para>Defaults to false, if not set.</para>
@@ -1917,7 +1917,7 @@
         <summary>Returns the created options as a Bundle, which can be passed to
             <c>android.content.Context#startActivity(android.content.Intent, android.os.Bundle)
             Context.startActivity(Intent, Bundle)</c> and related methods.</summary>
-        <returns>To be added.</returns>
+        <returns>A bundle encoding these activity-launch options for APIs that accept an options bundle.</returns>
         <remarks>
           <para>Returns the created options as a Bundle, which can be passed to Context.startActivity(Intent, Bundle) and related methods. Note that the returned Bundle is still owned by the ActivityOptions object; you must not modify it, but can supply it to the startActivity methods that take an options Bundle.</para>
           <para>
