@@ -5102,7 +5102,7 @@ static partial class ImporterProgram
             source.Declaration != "public abstract float getCurrentFraction ()" || source.Url != url ||
             docs.SourceKind != "android" || docs.SourceUrl != url ||
             docs.SourceLabel != "android.view.WindowInsetsAnimationController.getCurrentFraction" ||
-            docs.Returns != UnsafeInsetsCurrentFractionReturn || docs.HasMalformedSourceMarkup)
+            docs.Returns != UnsafeInsetsCurrentFractionReturn)
             return docs;
         var targets = docs.UnsafeTargets is null
             ? new Dictionary<string, string>(StringComparer.Ordinal)
@@ -31057,6 +31057,15 @@ static partial class ImporterProgram
             }
             NoWrites(root, html.Replace("<p>Returns the progress", "<p>Additional safe context.</p><p>Returns the progress",
                 StringComparison.Ordinal), "Insets fraction harmless source context does not restore false visibility endpoints");
+            var malformedContextHtml = html.Replace("<p>Returns the progress",
+                "<p>Additional context ()}.</p><p>Returns the progress", StringComparison.Ordinal);
+            var malformedContext = SourcePage.Parse(request, malformedContextHtml).Members.Single().Docs!;
+            Assert(malformedContext.HasMalformedSourceMarkup && malformedContext.Returns == UnsafeInsetsCurrentFractionReturn,
+                "Insets fraction contextual control reaches the malformed-prose flag with its unsafe value unchanged");
+            NoWrites(root, malformedContextHtml,
+                "Insets fraction unrelated malformed prose cannot re-enable the known unsafe value");
+            using (var report = Run(true))
+                Assert(Excluded(report), "Insets fraction malformed context still reports the exact value exclusion");
             foreach (var mutate in new Action<XElement>[]
             {
                 value => value.Value = "Authored progress value.",
