@@ -25,8 +25,10 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Generates expressions that convert between color values and packed 32-bit integers.</summary>
+    <remarks>
+      <para>The expression conversion methods are implemented. Object-reference conversion, argument-state creation, and argument-state cleanup throw <see cref="T:System.NotImplementedException" />.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -40,8 +42,10 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates a marshaler for expression-based color conversions.</summary>
+        <remarks>
+          <para>Creating an instance does not enable object-reference conversion or argument-state operations; those methods are not implemented.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateGenericObjectReferenceArgumentState">
@@ -69,11 +73,13 @@
         <Parameter Name="synchronize" Type="System.Reflection.ParameterAttributes" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <param name="synchronize">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="value">Unused because this operation always throws.</param>
+        <param name="synchronize">Unused because no argument state is created.</param>
+        <summary>Throws because object-reference argument-state creation is not implemented.</summary>
+        <returns>This method does not return a state; it throws <see cref="T:System.NotImplementedException" />.</returns>
+        <remarks>
+          <para>Color conversion is supported by this type's expression methods, not by an object-reference argument state.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateGenericValue">
@@ -101,12 +107,14 @@
         <Parameter Name="targetType" Type="System.Type" />
       </Parameters>
       <Docs>
-        <param name="reference">To be added.</param>
-        <param name="options">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="reference">The reference is left unchanged because this operation immediately throws.</param>
+        <param name="options">Unused; no reference ownership operation is performed.</param>
+        <param name="targetType">Unused; this method does not construct a managed value.</param>
+        <summary>Throws because conversion from a Java object reference is not implemented.</summary>
+        <returns>This method does not return a color; it throws <see cref="T:System.NotImplementedException" />.</returns>
+        <remarks>
+          <para>No Java reference is consumed or released before the exception is thrown.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateParameterFromManagedExpression">
@@ -134,12 +142,14 @@
         <Parameter Name="synchronize" Type="System.Reflection.ParameterAttributes" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="sourceValue">To be added.</param>
-        <param name="synchronize">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="context">Receives the generated integer local and its initialization statement.</param>
+        <param name="sourceValue">An expression for the source color value.</param>
+        <param name="synchronize">Unused by this packed-integer conversion.</param>
+        <summary>Builds an expression that reads the packed integer from a color parameter.</summary>
+        <returns>An expression that refers to the generated integer local.</returns>
+        <remarks>
+          <para>The context receives an assignment from the color's stored integer to the generated local. The returned expression refers to that local; it does not perform the conversion immediately.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateParameterToManagedExpression">
@@ -179,13 +189,15 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="sourceValue">To be added.</param>
-        <param name="synchronize">To be added.</param>
-        <param name="targetType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="context">Receives the generated color local and its initialization statement.</param>
+        <param name="sourceValue">An expression for the packed 32-bit integer input.</param>
+        <param name="synchronize">Unused by this packed-integer conversion.</param>
+        <param name="targetType">Unused; the generated managed value is always a color.</param>
+        <summary>Builds an expression that constructs a color from an integer parameter.</summary>
+        <returns>An expression that refers to the generated color local.</returns>
+        <remarks>
+          <para>The context receives an assignment that calls the color constructor with the integer input. The returned expression refers to the resulting local; it does not construct a color immediately.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateReturnValueFromManagedExpression">
@@ -216,11 +228,13 @@
         <Parameter Name="sourceValue" Type="System.Linq.Expressions.ParameterExpression" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="sourceValue">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="context">Receives the generated integer local and its initialization statement.</param>
+        <param name="sourceValue">An expression for the color being returned.</param>
+        <summary>Builds the packed-integer expression for a managed color return value.</summary>
+        <returns>An expression that refers to the generated integer local.</returns>
+        <remarks>
+          <para>This method uses the same conversion as <see cref="M:Android.Graphics.ColorValueMarshaler.CreateParameterFromManagedExpression(Java.Interop.Expressions.JniValueMarshalerContext,System.Linq.Expressions.ParameterExpression,System.Reflection.ParameterAttributes)" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DestroyGenericArgumentState">
@@ -242,11 +256,13 @@
         <Parameter Name="synchronize" Type="System.Reflection.ParameterAttributes" />
       </Parameters>
       <Docs>
-        <param name="value">To be added.</param>
-        <param name="state">To be added.</param>
-        <param name="synchronize">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="value">Unused because this operation always throws.</param>
+        <param name="state">The state is left unchanged; no cleanup is performed.</param>
+        <param name="synchronize">Unused because argument-state cleanup is not implemented.</param>
+        <summary>Throws because argument-state cleanup is not implemented.</summary>
+        <remarks>
+          <para>This method throws <see cref="T:System.NotImplementedException" /> without releasing resources or changing the supplied state.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="MarshalType">
@@ -263,9 +279,11 @@
         <ReturnType>System.Type</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the integer type used by generated color conversions.</summary>
+        <value>The <see cref="T:System.Type" /> for <see cref="T:System.Int32" />.</value>
+        <remarks>
+          <para>The expression methods represent a color by its packed 32-bit integer, not by a Java object reference.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
