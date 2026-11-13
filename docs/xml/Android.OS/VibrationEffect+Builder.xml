@@ -257,9 +257,16 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Builds the composed VibrationEffect.</summary>
+        <returns>The resulting VibrationEffect. This value cannot be null.</returns>
+        <remarks>
+          <para>Builds the composed VibrationEffect.</para>
+          <para>This method finalizes the composition of all added elements (Envelopes, Presets, Events) and returns a single VibrationEffect that can be played by the vibrator.</para>
+          <para>The Builder object is still valid after this call, so you can continue adding more elements to it and generate more VibrationEffects by calling this method again.</para>
+          <para>Automatic fallback will be supported for the built VibrationEffect. If the device does not support some of the composed haptic elements, they will be automatically mapped to fallback effects at runtime (except for elements that explicitly do not support fallback, such as envelopes from WaveformEnvelopeBuilder).</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/VibrationEffect.Builder#build()" title="Reference documentation">Android reference for <code>android.os.VibrationEffect.Builder.build</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -322,12 +329,19 @@
         <Parameter Name="durationMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="startTimeMillis">To be added.</param>
-        <param name="effect">To be added.</param>
-        <param name="durationMillis">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="startTimeMillis">The non-negative time in milliseconds from the start of the composition to start the repeating effect. Value is a non-negative duration in milliseconds.</param>
+        <param name="effect">The non-repeating VibrationEffect to be repeated. This value cannot be null.</param>
+        <param name="durationMillis">The positive total duration of each repeat cycle, including any trailing pause. Must be greater than or equal to the duration of the effect if the duration is known; otherwise, a best-effort check based on the estimated duration is performed to prevent impossible values. Value is 1 or greater. Value is a non-negative duration in milliseconds.</param>
+        <summary>Adds a repeating haptic effect to the composition.</summary>
+        <returns>This Builder object. This value cannot be null.</returns>
+        <remarks>
+          <para>Adds a repeating haptic effect to the composition.</para>
+          <para>The startTimeMillis is the time in milliseconds from the start of the composition being built. The repeating effect will be scheduled to start at this time.</para>
+          <para>The durationMillis specifies the total length of one repeat cycle. If the provided effect has a shorter natural duration (the time from the start of the first segment to the end of the last segment), a pause (silence) will be added at the end of each cycle to fill the remaining time. For example, if the effect lasts 150ms and durationMillis is 1000ms, then the effect will play once and be followed by an 850ms pause before repeating again.</para>
+          <para>After this method is called, no more haptic elements can be added to the composition.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/VibrationEffect.Builder#setRepeatingEffect(long,%20android.os.VibrationEffect,%20long)" title="Reference documentation">Android reference for <code>android.os.VibrationEffect.Builder.setRepeatingEffect</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
