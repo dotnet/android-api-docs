@@ -5944,7 +5944,7 @@ static partial class ImporterProgram
         targets["remarks"] =
             "The exact Java 21 SHORT_IDS paragraph promises fixed EST/HST/MST offsets, " +
             "but Android API 37.2 maps those aliases to region IDs; no replacement mapping was inferred.";
-        return docs with { UnsafeTargets = targets, HasRawExclusions = true };
+        return docs with { UnsafeTargets = targets, WithheldRemarks = docs.Paragraphs, HasRawExclusions = true };
     }
 
     const string KnownUnsafeZoneTransitionMemberId =
@@ -30698,6 +30698,33 @@ static partial class ImporterProgram
                 authored.Element("Members")!.Element("Member")!.Element("Docs")!.Element("remarks")!
                     .ReplaceWith(authoredRemarks);
                 Save(authored, html);
+                Repeat();
+            }
+            foreach (var withheldRemarks in new XElement[]
+            {
+                new("remarks", new XElement("para", "To be added.")),
+                new("remarks", new XElement("para", "Authored introduction."),
+                    new XElement("para", "To be added.")),
+                new("remarks", new XElement("para", "To be added."), ImporterSourceReference(raw)),
+                new("remarks", "To be added.", ImporterSourceReference(raw)),
+                new("remarks", ImporterSourceReference(raw)),
+            })
+            {
+                var withheld = new XElement(root);
+                withheld.Element("Members")!.Element("Member")!.Element("Docs")!.Element("remarks")!
+                    .ReplaceWith(withheldRemarks);
+                Save(withheld, html, true, "\r\n");
+                var before = File.ReadAllBytes(path);
+                using (var preview = Run(false))
+                    Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)),
+                        "SHORT_IDS nested or metadata-only remarks preview cannot expose the obsolete paragraph");
+                using (var result = Run())
+                    Assert(result.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        result.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                        before.SequenceEqual(File.ReadAllBytes(path)),
+                        "SHORT_IDS logical remarks exclusion protects nested, augmented and metadata-only layouts");
                 Repeat();
             }
             Save(root, html);
