@@ -2363,6 +2363,11 @@ static partial class ImporterProgram
                 return MappingResult.Skip("source_channel_ambiguous",
                     "The recovered SecurityLog list did not match its verified SecurityLogTags binding.",
                     fieldDocs.SourceUrl);
+            if (fieldDocs.HasRecoveredViewsSourceMarkup &&
+                !MatchesViewsSourceMarkupBinding(owner, registration, fieldDocs))
+                return MappingResult.Skip("source_channel_ambiguous",
+                    "The recovered Views source fragment did not match its exact managed and JNI property binding.",
+                    fieldDocs.SourceUrl);
             fieldDocs = WithoutKnownMalformedConversationAnniversary(owner, registration, fieldDocs);
             fieldDocs = WithoutKnownUnsafeAndroidSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutReviewedAndroidSourceChannels(owner.Id, fieldDocs);
@@ -2441,6 +2446,11 @@ static partial class ImporterProgram
         if (docs.HasRecoveredSecurityLogImplicitList)
             return MappingResult.Skip("source_channel_ambiguous",
                 "The recovered SecurityLog list is bound only to SecurityLogTags fields.",
+                docs.SourceUrl);
+        if (docs.HasRecoveredViewsSourceMarkup &&
+            !MatchesViewsSourceMarkupBinding(owner, registration, docs))
+            return MappingResult.Skip("source_channel_ambiguous",
+                "The recovered Views source fragment did not match its exact managed and JNI property binding.",
                 docs.SourceUrl);
         if (docs.HasBiometricAllowedAuthenticatorsIncompleteDefaultList &&
             !MatchesIncompleteBiometricAllowedAuthenticatorsRemarks(owner, registration, docs))
@@ -3015,6 +3025,98 @@ static partial class ImporterProgram
         return recovered
             ? fragment.Replace(SdkSandboxSurfaceError, "SurfacePackage", StringComparison.Ordinal)
             : fragment;
+    }
+
+    const string ViewsJankJavaPath = "android/view/SurfaceControl$JankData";
+    const string ViewsBrightnessJavaPath = "android/view/WindowManager$LayoutParams";
+    const string ViewsJankMemberId = "P:Android.Views.SurfaceControl.JankData.DesiredPresentTimeNanos";
+    const string ViewsBrightnessMemberId = "P:Android.Views.WindowManagerLayoutParams.ScreenBrightnessUnit";
+    const string ViewsJankSourceUrl =
+        AndroidReference + "android/view/SurfaceControl.JankData#getDesiredPresentTimeNanos()";
+    const string ViewsBrightnessSourceUrl =
+        AndroidReference + "android/view/WindowManager.LayoutParams#screenBrightnessUnit";
+    const string ViewsJankMalformedLink =
+        """<a href="/">ERROR(Transaction.setDesiredPresentTime/android.view.SurfaceControl.Transaction#setDesiredPresentTime Transaction.setDesiredPresentTime)</a>""";
+    const string ViewsJankCorrectLink =
+        """<a href="/reference/android/view/SurfaceControl.Transaction#setDesiredPresentTimeNanos(long)">Transaction.setDesiredPresentTimeNanos</a>""";
+
+    static string RecoverViewsSourceMarkup(
+        string fragment, SourceRequest request, string title, out bool recovered)
+    {
+        recovered = false;
+        if (request.Kind != "android")
+            return fragment;
+        var (expectedHash, original, replacement) = (request.JavaPath, request.Url, title) switch
+        {
+            (ViewsJankJavaPath, AndroidReference + "android/view/SurfaceControl.JankData",
+                "getDesiredPresentTimeNanos") =>
+                ("107e84e2b27227a61e78461484c3f6d8749719dd58cb2e1c8d42eb4312bed71d",
+                    ViewsJankMalformedLink, ViewsJankCorrectLink),
+            (ViewsBrightnessJavaPath, AndroidReference + "android/view/WindowManager.LayoutParams",
+                "screenBrightnessUnit") =>
+                ("097cdc15b78eb1fc963458c772ee036f936029eea00a6e8a9cbbfe480aee1a66",
+                    "<ul></p></p>", "</ul></p></p>"),
+            _ => ("", "", ""),
+        };
+        if (expectedHash.Length == 0 ||
+            !Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(fragment)))
+                .Equals(expectedHash, StringComparison.OrdinalIgnoreCase) ||
+            !fragment.Contains(original, StringComparison.Ordinal))
+            return fragment;
+        recovered = true;
+        return fragment.Replace(original, replacement, StringComparison.Ordinal);
+    }
+
+    static bool MatchesViewsSourceMarkupBinding(
+        DocsOwner owner, MemberRegistration registration, SourceDocs docs)
+    {
+        static bool HasSingleRegister(XElement element) =>
+            element.Elements("Attributes").Count() == 1 &&
+            element.Element("Attributes")!.Elements("Attribute")
+                .SelectMany(attribute => attribute.Elements("AttributeName"))
+                .Count(attribute => (string?)attribute.Attribute("Language") == "C#" &&
+                    attribute.Value.Contains("Android.Runtime.Register(", StringComparison.Ordinal)) == 1;
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        if (member is null || type is null || owner.IsEnumField ||
+            !member.Elements("MemberType").Select(element => element.Value).SequenceEqual(["Property"]) ||
+            type.Elements("AssemblyInfo").Count() != 1 ||
+            member.Elements("AssemblyInfo").Count() != 1 ||
+            !type.Element("AssemblyInfo")!.Elements("AssemblyName").Select(element => element.Value).SequenceEqual(["Mono.Android"]) ||
+            !member.Element("AssemblyInfo")!.Elements("AssemblyName").Select(element => element.Value).SequenceEqual(["Mono.Android"]) ||
+            !HasSingleRegister(type) || !HasSingleRegister(member) ||
+            member.Elements("ReturnValue").Count() != 1 ||
+            member.Element("ReturnValue")!.Elements("ReturnType").Count() != 1 ||
+            member.Elements("Parameters").Count() > 1 ||
+            member.Element("Parameters")?.Elements("Parameter").Any() == true ||
+            Registration.Member(member) != registration ||
+            docs.SourceKind != "android" ||
+            !HasSingleSignature(member, "MemberSignature", "DocId", owner.Id))
+            return false;
+        var jank = owner.Id == ViewsJankMemberId;
+        var javaPath = jank ? ViewsJankJavaPath : ViewsBrightnessJavaPath;
+        var typeName = jank ? "Android.Views.SurfaceControl+JankData" : "Android.Views.WindowManagerLayoutParams";
+        return (jank || owner.Id == ViewsBrightnessMemberId) &&
+            (string?)type.Attribute("FullName") == typeName &&
+            Registration.Type(type) == javaPath &&
+            owner.SourceRequest == SourceRequest.Create(javaPath) &&
+            HasSingleSignature(type, "TypeSignature", "DocId", "T:" + typeName.Replace('+', '.')) &&
+            HasSingleSignature(type, "TypeSignature", "C#", jank
+                ? "public class SurfaceControl.JankData : Java.Lang.Object"
+                : "public class WindowManagerLayoutParams : Android.Views.ViewGroup.LayoutParams, Android.OS.IParcelable, IDisposable") &&
+            (string?)member.Attribute("MemberName") == (jank ? "DesiredPresentTimeNanos" : "ScreenBrightnessUnit") &&
+            registration == (jank
+                ? new MemberRegistration("getDesiredPresentTimeNanos", "()J", false)
+                : new MemberRegistration("screenBrightnessUnit", null, true)) &&
+            HasSingleSignature(member, "MemberSignature", "C#", jank
+                ? "public virtual long DesiredPresentTimeNanos { get; }"
+                : "public Android.Hardware.Display.DisplayBrightnessUnit ScreenBrightnessUnit { get; set; }") &&
+            member.Element("ReturnValue")!.Element("ReturnType")!.Value ==
+                (jank ? "System.Int64" : "Android.Hardware.Display.DisplayBrightnessUnit") &&
+            docs.SourceUrl == (jank ? ViewsJankSourceUrl : ViewsBrightnessSourceUrl) &&
+            docs.SourceLabel == (jank
+                ? "android.view.SurfaceControl.JankData.getDesiredPresentTimeNanos"
+                : "android.view.WindowManager.LayoutParams.screenBrightnessUnit");
     }
 
     static bool MatchesSdkSandboxSurfaceBinding(
@@ -21009,6 +21111,301 @@ static partial class ImporterProgram
         }
     }
 
+    static void TestViewsSourceMarkup(string repositoryRoot)
+    {
+        var fixturePath = Path.Combine(repositoryRoot, "tools", "importer-fixtures", "views-source-fragments.txt");
+        var temporary = Path.Combine(Path.GetTempPath(), $"views-markup-{Guid.NewGuid():N}");
+        var cache = Path.Combine(temporary, "cache");
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Android.Views",
+            $".views-markup-self-test-{Environment.ProcessId}-{Guid.NewGuid():N}.xml");
+        Directory.CreateDirectory(cache);
+        try
+        {
+            foreach (var line in File.ReadLines(fixturePath))
+            {
+                var parts = line.Split('|');
+                Assert(parts.Length == 4, "Views fixture retains native page and fragment hashes");
+                var jank = parts[0] == "desired-present-time";
+                Assert(jank || parts[0] == "screen-brightness-unit", "Views fixture has only the two reviewed members");
+                Assert(parts[1] == (jank
+                    ? "b305391566b140b9e6b35d9944953dad00e02991a5078f79a9190b2b25f1d3f0"
+                    : "047b82fc44599456541c64e073b694bd5b6f605e4ea492bfe4cba52c7e92ef54"),
+                    "Views fixture records the complete original page identity");
+                var html = Encoding.UTF8.GetString(Convert.FromBase64String(parts[3]));
+                Assert(Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(html)))
+                    .Equals(parts[2], StringComparison.OrdinalIgnoreCase), "Views native fragment hash");
+                var id = jank ? ViewsJankMemberId : ViewsBrightnessMemberId;
+                var loaded = LoadedFile.Load(repositoryRoot, Path.Combine(repositoryRoot, "docs", "xml",
+                    "Android.Views", jank ? "SurfaceControl+JankData.xml" : "WindowManagerLayoutParams.xml"));
+                loaded.SelectOwners(id);
+                var owner = loaded.Owners.Single();
+                var memberName = (string)owner.Member!.Attribute("MemberName")!;
+                var request = owner.SourceRequest!;
+                var page = SourcePage.Parse(request, html);
+                var source = page.Members.Single().Docs;
+                Assert(source is { HasRecoveredViewsSourceMarkup: true, QualityFirstFillOnly: true } &&
+                    MatchesViewsSourceMarkupBinding(owner, owner.MemberRegistration!, source),
+                    "Views exact native fragment and actual registered property enable recovery");
+                var docs = source!;
+                var prose = string.Join(" ", docs.Paragraphs.Select(paragraph => paragraph.Text));
+                Assert(!prose.Contains("ERROR(", StringComparison.Ordinal) &&
+                    docs.Paragraphs.All(paragraph => !paragraph.IsCode),
+                    "Views recovery retains ordinary source prose without the broken label");
+                if (jank)
+                {
+                    Assert(docs.Summary ==
+                        "Returns the time in nanoseconds the frame was intended to be presented, such as the one set by Transaction.setDesiredPresentTimeNanos." &&
+                        prose.EndsWith("Will be PRESENTATION_TIME_UNSET if a desired present time was not set for this frame.", StringComparison.Ordinal) &&
+                        docs.Returns == "the desired present time in ns",
+                        "Views JankData retains the intended time, real setter, unset sentinel and return channel");
+                    var target = LoadedFile.Load(repositoryRoot, Path.Combine(repositoryRoot, "docs", "xml",
+                        "Android.Views", "SurfaceControl+Transaction.xml"));
+                    target.SelectOwners("M:Android.Views.SurfaceControl.Transaction.SetDesiredPresentTimeNanos(System.Int64)");
+                    Assert(target.Owners.Single().MemberRegistration == new MemberRegistration(
+                        "setDesiredPresentTimeNanos", "(J)Landroid/view/SurfaceControl$Transaction;", false),
+                        "Views JankData correction names the independently registered Transaction target");
+                }
+                else
+                {
+                    Assert(docs.Summary == "The unit of screenBrightness." &&
+                        prose.StartsWith("The unit of screenBrightness. If not set, the default is DisplayManager.BRIGHTNESS_UNIT_RAW.", StringComparison.Ordinal) &&
+                        prose.Contains("Value is one of the following:", StringComparison.Ordinal) &&
+                        prose.IndexOf("DisplayManager.BRIGHTNESS_UNIT_PERCENTAGE", StringComparison.Ordinal) <
+                            prose.LastIndexOf("DisplayManager.BRIGHTNESS_UNIT_RAW", StringComparison.Ordinal) &&
+                        docs.Returns.Length == 0,
+                        "Views brightness recovery retains the unit, default and complete ordered public choices without inventing a value channel");
+                }
+                var pages = new Dictionary<string, SourceLoadResult> { [request.Url] = SourceLoadResult.Success(page) };
+                Assert(MapOwner(owner, pages).Docs?.HasRecoveredViewsSourceMarkup == true,
+                    "Views recovery reaches the production mapping");
+                foreach (var changedDocs in new[]
+                {
+                    docs with { SourceKind = "java" },
+                    docs with { SourceUrl = docs.SourceUrl + ".Other" },
+                    docs with { SourceLabel = docs.SourceLabel + ".Other" },
+                })
+                {
+                    var changedPage = new SourcePage
+                    {
+                        Members = [page.Members.Single() with { Docs = changedDocs }],
+                    };
+                    Assert(MapOwner(owner, new Dictionary<string, SourceLoadResult>
+                    {
+                        [request.Url] = SourceLoadResult.Success(changedPage),
+                    }).ErrorReason == "source_channel_ambiguous", "Views recovery rejects changed source provenance");
+                }
+
+                var root = new XElement(loaded.Root);
+                root.Element("Members")!.ReplaceNodes(new XElement(owner.Member));
+                root.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored type summary."));
+                var member = root.Element("Members")!.Element("Member")!;
+                member.Element("Docs")!.ReplaceNodes(
+                    new XElement("summary", "To be added."),
+                    new XElement("value", new XElement("c", "Authored value.")),
+                    new XElement("remarks", "To be added."));
+                var originalRoot = new XElement(root);
+                var cachePath = Path.Combine(cache, Convert.ToHexString(SHA256.HashData(
+                    Encoding.UTF8.GetBytes(request.Url))).ToLowerInvariant() + ".html");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                var ordinal = 0;
+                JsonElement Run(bool apply)
+                {
+                    var reportPath = Path.Combine(temporary, $"report-{ordinal++}");
+                    var arguments = new List<string>
+                    {
+                        "--path", path, "--namespace", "Android.Views", "--member", memberName,
+                        "--offline", "--cache", cache, "--max-changes", "1", "--report", reportPath,
+                    };
+                    if (apply)
+                        arguments.Add("--apply");
+                    Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                        "Views bounded offline production run succeeds");
+                    using var report = JsonDocument.Parse(File.ReadAllText(reportPath + ".json"));
+                    Assert(report.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                        "Views production run reports no errors");
+                    return report.RootElement.Clone();
+                }
+                void Write(XElement input, string newline = "\n", bool bom = false) =>
+                    File.WriteAllText(path, input.ToString().Replace("\r\n", "\n", StringComparison.Ordinal)
+                        .Replace("\n", newline, StringComparison.Ordinal), new UTF8Encoding(bom));
+                string ChannelMarkup(string text, string name)
+                {
+                    var blockText = Regex.Matches(text, @"<Docs\b[^>]*>.*?</Docs>",
+                        RegexOptions.Singleline | RegexOptions.CultureInvariant)[1].Value;
+                    Assert(TryParseDocsBlock(blockText, out var parsed) &&
+                        TryGetElementSpan(blockText, parsed.Element(name)!, out _),
+                        "Views test locates an exact direct channel");
+                    TryGetElementSpan(blockText, parsed.Element(name)!, out var span);
+                    return blockText[span.Start..span.End];
+                }
+                foreach (var newline in new[] { "\n", "\r\n" })
+                foreach (var bom in new[] { false, true })
+                {
+                    Write(originalRoot, newline, bom);
+                    var before = File.ReadAllBytes(path);
+                    Assert(Run(false).GetProperty("wouldApplyCount").GetInt32() == 1 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)), "Views preview is bounded and read-only");
+                    foreach (var channel in new[] { "summary", "remarks" })
+                    {
+                        var beforeText = File.ReadAllText(path);
+                        Assert(Run(true).GetProperty("appliedCount").GetInt32() == 1,
+                            "Views one-operation apply fills one direct channel");
+                        var afterText = File.ReadAllText(path);
+                        var oldChannel = ChannelMarkup(beforeText, channel);
+                        var newChannel = ChannelMarkup(afterText, channel);
+                        Assert(beforeText.Replace(oldChannel, newChannel, StringComparison.Ordinal) == afterText &&
+                            File.ReadAllBytes(path).AsSpan().StartsWith(Encoding.UTF8.Preamble) == bom &&
+                            LoadedFile.SelectNewline(afterText) == newline,
+                            "Views apply preserves every byte outside its one channel, including encoding and newlines");
+                    }
+                    var filled = XElement.Load(path).Element("Members")!.Element("Member")!.Element("Docs")!;
+                    Assert(filled.Element("summary")!.Value == docs.Summary &&
+                        filled.Element("value")!.Element("c")!.Value == "Authored value." &&
+                        filled.Element("remarks")!.Elements("para").Select(para => para.Value)
+                            .Take(docs.Paragraphs.Count).SequenceEqual(docs.Paragraphs.Select(paragraph => paragraph.Text)),
+                        "Views production output retains all ordered source paragraphs and protected authored value");
+                    before = File.ReadAllBytes(path);
+                    Assert(Run(true).GetProperty("appliedCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)), "Views persisted repeat is byte-identical");
+                }
+
+                foreach (Action<XElement, XElement> mutate in new Action<XElement, XElement>[]
+                {
+                    (type, selected) => type.SetAttributeValue("FullName", "Android.Views.Other"),
+                    (type, selected) => type.Elements("TypeSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", "T:Android.Views.Other"),
+                    (type, selected) => type.Elements("TypeSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public class Other"),
+                    (type, selected) => type.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                    (type, selected) => selected.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                    (type, selected) => selected.Element("ReturnValue")!.Element("ReturnType")!.Value = "System.String",
+                    (type, selected) => selected.Element("MemberType")!.Value = "Field",
+                    (type, selected) => selected.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public int Other { get; }"),
+                    (type, selected) => selected.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", id + ".Other"),
+                    (type, selected) => selected.Add(new XElement("Parameters",
+                        new XElement("Parameter", new XAttribute("Name", "other"), new XAttribute("Type", "System.Int32")))),
+                    (type, selected) => selected.Add(new XElement(selected.Elements("MemberSignature").Single(signature =>
+                        (string?)signature.Attribute("Language") == "C#"))),
+                    (type, selected) => selected.Element("ReturnValue")!.Add(new XElement("ReturnType", "System.Int32")),
+                    (type, selected) => selected.Element("AssemblyInfo")!.Add(new XElement("AssemblyName", "Other.Assembly")),
+                })
+                {
+                    var changedRoot = new XElement(originalRoot);
+                    var changedMember = changedRoot.Element("Members")!.Element("Member")!;
+                    var attachedOwner = owner with { Member = changedMember, Docs = changedMember.Element("Docs")! };
+                    Assert(MapOwner(attachedOwner, pages).Docs?.HasRecoveredViewsSourceMarkup == true,
+                        "Views attached negative starts at the exact successful recovery guard");
+                    mutate(changedRoot, changedMember);
+                    Assert(MapOwner(attachedOwner, pages).ErrorReason == "source_channel_ambiguous",
+                        "Views changed attached metadata reaches and fails the exact recovery guard");
+                    Write(changedRoot);
+                    var before = File.ReadAllBytes(path);
+                    var report = Run(true);
+                    Assert(report.GetProperty("appliedCount").GetInt32() == 0 &&
+                        report.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                        before.SequenceEqual(File.ReadAllBytes(path)), "Views production rejects changed metadata without writes");
+                    Assert(Run(true).GetProperty("appliedCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)), "Views rejected metadata stays byte-identical on a persisted repeat");
+                }
+                foreach (var targetType in new[] { true, false })
+                {
+                    var changedRoot = new XElement(originalRoot);
+                    var changedMember = changedRoot.Element("Members")!.Element("Member")!;
+                    var changedOwner = owner with { Member = changedMember, Docs = changedMember.Element("Docs")! };
+                    Assert(MapOwner(changedOwner, pages).Docs?.HasRecoveredViewsSourceMarkup == true,
+                        "Views JNI negative starts at an attached accepted binding");
+                    var attributes = (targetType ? changedRoot : changedMember).Element("Attributes")!;
+                    var registrationAttribute = attributes.Elements("Attribute")
+                        .SelectMany(attribute => attribute.Elements("AttributeName"))
+                        .Single(attribute => (string?)attribute.Attribute("Language") == "C#" &&
+                            attribute.Value.Contains("Android.Runtime.Register(", StringComparison.Ordinal));
+                    var originalRegistration = registrationAttribute.Value;
+                    registrationAttribute.Value = originalRegistration.Replace(
+                        targetType ? request.JavaPath : owner.MemberRegistration!.Name, "other/Changed", StringComparison.Ordinal);
+                    Assert(MapOwner(changedOwner, pages).ErrorReason == "source_channel_ambiguous",
+                        "Views changed JNI owner or member is rejected by the recovery guard itself");
+                    registrationAttribute.Value = originalRegistration;
+                    attributes.Add(new XElement("Attribute", new XElement(registrationAttribute)));
+                    Assert(MapOwner(changedOwner, pages).ErrorReason == "source_channel_ambiguous",
+                        "Views duplicate JNI registrations cannot enable recovery");
+                }
+                Assert(SourcePage.Parse(request with { Url = request.Url + ".Other" }, html)
+                    .Members.Single().Docs?.HasRecoveredViewsSourceMarkup != true &&
+                    SourcePage.Parse(request with { JavaPath = "android/view/Other" }, html)
+                        .Members.Single().Docs?.HasRecoveredViewsSourceMarkup != true,
+                    "Views source recovery requires both the canonical page and native declaring owner");
+                foreach (var changedHtml in new[]
+                {
+                    html + "\n",
+                    html.Replace(jank ? "the frame was intended" : "The unit of", jank ? "the frame was expected" : "The scale of", StringComparison.Ordinal),
+                    html.Replace(jank ? "public long " : "public int ", jank ? "public int " : "private int ", StringComparison.Ordinal),
+                })
+                {
+                    Assert(SourcePage.Parse(request, changedHtml).Members.Single().Docs?.HasRecoveredViewsSourceMarkup != true,
+                        "Views changed native fragments never enable the pinned recovery");
+                    File.WriteAllText(cachePath, changedHtml, new UTF8Encoding(false));
+                    var changedRoot = new XElement(originalRoot);
+                    changedRoot.Element("Members")!.Element("Member")!.Element("Docs")!
+                        .Element("remarks")!.ReplaceNodes(new XElement("para", "Authored remarks."));
+                    Write(changedRoot);
+                    var before = File.ReadAllBytes(path);
+                    Assert(Run(true).GetProperty("appliedCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)),
+                        "Views changed source production run preserves protected channels and unresolved summary");
+                    Assert(Run(true).GetProperty("appliedCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)), "Views changed source persisted repeat makes no writes");
+                }
+                var correctedHtml = jank ? html.Replace(ViewsJankMalformedLink, ViewsJankCorrectLink, StringComparison.Ordinal)
+                    : html.Replace("<ul></p></p>", "</ul></p></p>", StringComparison.Ordinal);
+                var corrected = SourcePage.Parse(request, correctedHtml).Members.Single().Docs!;
+                Assert(!corrected.HasRecoveredViewsSourceMarkup &&
+                    corrected.Summary == docs.Summary && corrected.Paragraphs.SequenceEqual(docs.Paragraphs),
+                    "Views future corrected source remains ordinarily eligible without recovery");
+                File.WriteAllText(cachePath, correctedHtml, new UTF8Encoding(false));
+                var correctedRoot = new XElement(originalRoot);
+                correctedRoot.Element("Members")!.Element("Member")!.Element("Docs")!
+                    .Element("remarks")!.ReplaceNodes(new XElement("para", "Authored remarks."));
+                Write(correctedRoot);
+                Assert(Run(true).GetProperty("appliedCount").GetInt32() == 1 &&
+                    XElement.Load(path).Element("Members")!.Element("Member")!.Element("Docs")!
+                        .Element("summary")!.Value == docs.Summary,
+                    "Views future corrected source fills the summary through ordinary production parsing");
+                File.WriteAllText(cachePath, html, new UTF8Encoding(false));
+                var authored = new XElement(originalRoot);
+                var authoredDocs = authored.Element("Members")!.Element("Member")!.Element("Docs")!;
+                authoredDocs.Element("summary")!.ReplaceNodes(new XElement("c", "Authored summary."));
+                Write(authored, "\r\n", true);
+                var authoredBefore = File.ReadAllText(path);
+                Assert(Run(true).GetProperty("appliedCount").GetInt32() == 1,
+                    "Views recovered source can fill remarks beside authored summary and value");
+                var authoredAfter = File.ReadAllText(path);
+                Assert(authoredBefore.Replace(ChannelMarkup(authoredBefore, "remarks"),
+                    ChannelMarkup(authoredAfter, "remarks"), StringComparison.Ordinal) == authoredAfter,
+                    "Views one-operation remarks fill preserves every authored sibling and outside byte");
+                authoredDocs.Element("remarks")!.ReplaceNodes(
+                    new XElement("para", "Authored remarks.", new XCData(" preserved ")),
+                    new XElement("para", "To be added."));
+                Write(authored, "\r\n", true);
+                var protectedBytes = File.ReadAllBytes(path);
+                Assert(Run(true).GetProperty("appliedCount").GetInt32() == 0 &&
+                    protectedBytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "Views recovered source preserves mixed authored channels, CDATA and nested placeholders");
+                Assert(Run(true).GetProperty("appliedCount").GetInt32() == 0 &&
+                    protectedBytes.SequenceEqual(File.ReadAllBytes(path)),
+                    "Views mixed-content persisted repeat makes no writes");
+            }
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+            Directory.Delete(temporary, recursive: true);
+        }
+    }
+
     static void TestSdkSandboxSurfaceLinks(string repositoryRoot)
     {
         var fixturePath = Path.Combine(repositoryRoot, "tools", "importer-fixtures", "sdksandbox-source-fragments.txt");
@@ -22565,6 +22962,7 @@ static partial class ImporterProgram
         TestChangeLogDataOriginChannel(repositoryRoot);
         TestKnownEapOptionalGetter(repositoryRoot);
         TestSdkSandboxSurfaceLinks(repositoryRoot);
+        TestViewsSourceMarkup(repositoryRoot);
         TestSecurityLogImplicitLists(repositoryRoot);
         var fixtureRoot = Path.Combine(repositoryRoot, "tools", "importer-fixtures");
         TestBlobParcelTextCorrection(repositoryRoot, fixtureRoot);
@@ -35839,6 +36237,7 @@ static partial class ImporterProgram
             fragment = RecoverSdkSandboxSurfaceLink(fragment, request, title, out var recoveredSdkSandboxSurfaceLink);
             fragment = RecoverBiometricCallbackLinks(fragment, request, title, out var recoveredBiometricCallbackLinks);
             fragment = RecoverSecurityLogImplicitList(fragment, request, title, out var recoveredSecurityLogImplicitList);
+            fragment = RecoverViewsSourceMarkup(fragment, request, title, out var recoveredViewsSourceMarkup);
             var parameters = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (Match row in Regex.Matches(
                 fragment,
@@ -35938,6 +36337,11 @@ static partial class ImporterProgram
                 HasRecoveredSdkSandboxSurfaceLink: recoveredSdkSandboxSurfaceLink,
                 HasRecoveredBiometricCallbackLinks: recoveredBiometricCallbackLinks,
                 HasRecoveredSecurityLogImplicitList: recoveredSecurityLogImplicitList,
+                HasRecoveredViewsSourceMarkup: recoveredViewsSourceMarkup,
+                QualityFirstFillOnly: recoveredViewsSourceMarkup,
+                UnsafeTargets: recoveredViewsSourceMarkup
+                    ? new Dictionary<string, string>(StringComparer.Ordinal)
+                    : null,
                 HasRecoveredHealthConnectPageSizeBounds: recoveredHealthConnectPageSizeBounds,
                 DevicePresenceParameters: url == DevicePresenceEventConstructorSourceUrl
                     ? ParseDevicePresenceParameterTable(fragment)
@@ -37208,6 +37612,7 @@ static partial class ImporterProgram
         bool HasRecoveredAppFunctionAccessLevelMarkup = false,
         bool HasRecoveredSdkSandboxSurfaceLink = false,
         bool HasRecoveredBiometricCallbackLinks = false,
+        bool HasRecoveredViewsSourceMarkup = false,
         bool HasRecoveredSecurityLogImplicitList = false,
         bool HasRecoveredHealthConnectPageSizeBounds = false,
         DevicePresenceParameterTable? DevicePresenceParameters = null);

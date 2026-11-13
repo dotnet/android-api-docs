@@ -162,6 +162,27 @@ Offline tests create their own placeholders, check bounded applies, preserve
 authored text and all bytes outside replaced summaries, and require a
 byte-identical zero-write repeat.
 
+Two exact `Android.Views` declarations have source-bound markup recovery.
+`SurfaceControl.JankData.getDesiredPresentTimeNanos()` has a broken
+`Transaction.setDesiredPresentTime` link label. The correction names
+`Transaction.setDesiredPresentTimeNanos(long)`, verified by the
+[pinned Android 17 implementation](https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/view/SurfaceControl.java#5835)
+and the independently registered managed target.
+`WindowManager.LayoutParams.screenBrightnessUnit` uses an opening `<ul>`
+where its list should close. Only that final tag is corrected, retaining the
+unit description, default, and ordered public unit choices.
+The complete native fragments and their page/fragment SHA-256 values are
+retained in `views-source-fragments.txt`. Recovery requires those exact bytes,
+canonical source provenance, and the complete managed/JNI property identity,
+including unique signatures, registrations, assemblies, and return metadata.
+Changed fragments or bindings do not enable recovery; corrected future source
+uses ordinary parsing. Recovered sources fill only direct plain placeholders,
+with reference and attribution added only inside a newly filled remarks channel.
+Authored or mixed channels, nested placeholders, and existing metadata are
+preserved. The registered production tests cover bounded dry runs and applies,
+attached binding and source negatives, LF/CRLF and UTF-8 BOM states, protected
+bytes, and byte-identical persisted repeats. No missing value prose is inferred.
+
 The importer uses the managed type registration, exact JNI names and descriptors,
 and `JniField` owner metadata for projected constants. It also recognizes scalar
 `JniTypeSignature` type metadata and `JniConstructorSignature` descriptors.
