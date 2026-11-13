@@ -26,7 +26,7 @@
     </Attribute>
   </Attributes>
   <Docs since="1">
-    <summary>To be added.</summary>
+    <summary>Provides operations for text ranges, spans, searches, and text formatting.</summary>
     <remarks>
       <para>
         <format type="text/html">
@@ -80,9 +80,8 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>
-        </summary>
-        <value>To be added.</value>
+        <summary>Gets the parcel reader for text written by this utility.</summary>
+        <value>The creator that reads a character sequence and its supported parcelable spans.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -124,7 +123,7 @@
         <summary>Converts a CharSequence of the comma-separated form "Andy, Bob,
             Charles, David" that is too wide to fit into the specified width
             into one like "Andy, Bob, 2 more".</summary>
-        <returns>To be added.</returns>
+        <returns>The list text after applying the width limit, or the unchanged text when it already fits.</returns>
         <remarks>
           <para>Converts a CharSequence of the comma-separated form "Andy, Bob,
             Charles, David" that is too wide to fit into the specified width
@@ -185,7 +184,7 @@
         <summary>Converts a CharSequence of the comma-separated form "Andy, Bob,
             Charles, David" that is too wide to fit into the specified width
             into one like "Andy, Bob, 2 more".</summary>
-        <returns>To be added.</returns>
+        <returns>The list text after applying the width limit, or the original sequence when it already fits.</returns>
         <remarks>
           <para>Converts a CharSequence of the comma-separated form "Andy, Bob,
             Charles, David" that is too wide to fit into the specified width
@@ -236,10 +235,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
+        <param name="text">The text values to concatenate, in order.</param>
         <summary>Returns a CharSequence concatenating the specified CharSequences,
             retaining their spans if any.</summary>
-        <returns>To be added.</returns>
+        <returns>The combined string, empty text for no values, or <see langword="null" /> when the sole value is null.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -288,10 +287,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
+        <param name="text">The character sequences to concatenate, in order.</param>
         <summary>Returns a CharSequence concatenating the specified CharSequences,
             retaining their spans if any.</summary>
-        <returns>To be added.</returns>
+        <returns>The combined text with retained spans, empty text for no sequences, or the sole sequence when only one is supplied.</returns>
         <remarks>
           <para>Returns a CharSequence concatenating the specified CharSequences, retaining their spans if any. If there are no parameters, an empty string will be returned. If the number of parameters is exactly one, that parameter is returned as output, even if it is null. If the number of parameters is at least two, any null CharSequence among the parameters is treated as if it was the string "null". If there are paragraph spans in the source CharSequences that satisfy paragraph boundary requirements in the sources but would no longer satisfy them in the concatenated CharSequence, they may get extended in the resulting CharSequence or not retained.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#concat(java.lang.CharSequence[])" title="Reference documentation">Android reference for <code>android.text.TextUtils.concat</code>.</a></format></para>
@@ -327,12 +326,12 @@
         <Parameter Name="destoff" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <param name="kind">To be added.</param>
-        <param name="dest">To be added.</param>
-        <param name="destoff">To be added.</param>
+        <param name="source">The spanned text from which to copy span objects.</param>
+        <param name="start">The first source character offset in the copied region.</param>
+        <param name="end">The exclusive end offset of the source region.</param>
+        <param name="kind">The span class to copy, or <see langword="null" /> to include all span classes.</param>
+        <param name="dest">The text to which the copied spans are attached.</param>
+        <param name="destoff">The destination character offset that corresponds to <paramref name="start" />.</param>
         <summary>Copies the spans from the region <c>start...end</c> in
             <c>source</c> to the region
             <c>destoff...destoff+end-start</c> in <c>dest</c>.</summary>
@@ -385,9 +384,9 @@
         <Parameter Name="prefix" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cs">To be added.</param>
-        <param name="printer">To be added.</param>
-        <param name="prefix">To be added.</param>
+        <param name="cs">The text whose spans are inspected.</param>
+        <param name="printer">The printer that receives the span descriptions.</param>
+        <param name="prefix">The text placed before each output line.</param>
         <summary>Debugging tool to print the spans in a CharSequence.</summary>
         <remarks>
           <para>Debugging tool to print the spans in a CharSequence.  The output will
@@ -426,9 +425,9 @@
         <Parameter Name="prefix" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="cs">To be added.</param>
-        <param name="printer">To be added.</param>
-        <param name="prefix">To be added.</param>
+        <param name="cs">The text to inspect.</param>
+        <param name="printer">The printer that receives the text and its no-spans indication.</param>
+        <param name="prefix">The text placed before the output line.</param>
         <summary>Debugging tool to print the spans in a CharSequence.</summary>
         <remarks>
           <para>Debugging tool to print the spans in a CharSequence.  The output will
@@ -467,15 +466,15 @@
         <Parameter Name="where" Type="Android.Text.TextUtils+TruncateAt" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="p">To be added.</param>
-        <param name="avail">To be added.</param>
-        <param name="where">To be added.</param>
+        <param name="text">The text to shorten if it exceeds the available width.</param>
+        <param name="p">The paint used to measure the text.</param>
+        <param name="avail">The available horizontal width, in pixels.</param>
+        <param name="where">The edge or middle position at which to remove text.</param>
         <summary>Returns the original text if it fits in the specified width
             given the properties of the specified Paint,
             or, if it does not fit, a truncated
             copy with ellipsis character added at the specified edge or center.</summary>
-        <returns>To be added.</returns>
+        <returns>The original text when it fits, or the ellipsized or empty result otherwise.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -512,17 +511,17 @@
         <Parameter Name="callback" Type="Android.Text.TextUtils+IEllipsizeCallback" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="paint">To be added.</param>
-        <param name="avail">To be added.</param>
-        <param name="where">To be added.</param>
-        <param name="preserveLength">To be added.</param>
-        <param name="callback">To be added.</param>
+        <param name="text">The text to shorten if it exceeds the available width.</param>
+        <param name="paint">The paint used to measure the text.</param>
+        <param name="avail">The available horizontal width, in pixels.</param>
+        <param name="where">The edge or middle position at which to remove text.</param>
+        <param name="preserveLength">Whether to keep the original length by padding the ellipsized range with zero-width characters.</param>
+        <param name="callback">An optional callback that receives the removed range's start and exclusive end offsets.</param>
         <summary>Returns the original text if it fits in the specified width
             given the properties of the specified Paint,
             or, if it does not fit, a truncated
             copy with ellipsis character added at the specified edge or center.</summary>
-        <returns>To be added.</returns>
+        <returns>The text after ellipsis processing, with its original length retained when <paramref name="preserveLength" /> is true.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -563,15 +562,15 @@
         <Parameter Name="where" Type="Android.Text.TextUtils+TruncateAt" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="p">To be added.</param>
-        <param name="avail">To be added.</param>
-        <param name="where">To be added.</param>
+        <param name="text">The text to shorten if it exceeds the available width.</param>
+        <param name="p">The paint used to measure the text.</param>
+        <param name="avail">The available horizontal width, in pixels.</param>
+        <param name="where">The edge or middle position at which to remove text.</param>
         <summary>Returns the original text if it fits in the specified width
             given the properties of the specified Paint,
             or, if it does not fit, a truncated
             copy with ellipsis character added at the specified edge or center.</summary>
-        <returns>To be added.</returns>
+        <returns>The original sequence when it fits, or the ellipsized or empty result otherwise.</returns>
         <remarks>
           <para>Returns the original text if it fits in the specified width given the properties of the specified Paint, or, if it does not fit, a truncated copy with ellipsis character added at the specified edge or center.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#ellipsize(java.lang.CharSequence,%20android.text.TextPaint,%20float,%20android.text.TextUtils.TruncateAt)" title="Reference documentation">Android reference for <code>android.text.TextUtils.ellipsize</code>.</a></format></para>
@@ -608,17 +607,17 @@
         <Parameter Name="callback" Type="Android.Text.TextUtils+IEllipsizeCallback" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="paint">To be added.</param>
-        <param name="avail">To be added.</param>
-        <param name="where">To be added.</param>
-        <param name="preserveLength">To be added.</param>
-        <param name="callback">To be added.</param>
+        <param name="text">The text to shorten if it exceeds the available width.</param>
+        <param name="paint">The paint used to measure the text.</param>
+        <param name="avail">The available horizontal width, in pixels.</param>
+        <param name="where">The edge or middle position at which to remove text.</param>
+        <param name="preserveLength">Whether to keep the original length by padding the ellipsized range with zero-width characters.</param>
+        <param name="callback">An optional callback that receives the removed range's start and exclusive end offsets.</param>
         <summary>Returns the original text if it fits in the specified width
             given the properties of the specified Paint,
             or, if it does not fit, a truncated
             copy with ellipsis character added at the specified edge or center.</summary>
-        <returns>To be added.</returns>
+        <returns>The sequence after ellipsis processing, with its original length retained when <paramref name="preserveLength" /> is true.</returns>
         <remarks>
           <para>Returns the original text if it fits in the specified width given the properties of the specified Paint, or, if it does not fit, a copy with ellipsis character added at the specified edge or center. If preserveLength is specified, the returned copy will be padded with zero-width spaces to preserve the original length and offsets instead of truncating. If callback is non-null, it will be called to report the start and end of the ellipsized range. TextDirection is determined by the first strong directional character.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#ellipsize(java.lang.CharSequence,%20android.text.TextPaint,%20float,%20android.text.TextUtils.TruncateAt,%20boolean,%20android.text.TextUtils.EllipsizeCallback)" title="Reference documentation">Android reference for <code>android.text.TextUtils.ellipsize</code>.</a></format></para>
@@ -965,13 +964,12 @@
         <Parameter Name="destoff" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <param name="dest">To be added.</param>
-        <param name="destoff">To be added.</param>
-        <summary>
-        </summary>
+        <param name="s">The source character sequence.</param>
+        <param name="start">The first source character index to copy.</param>
+        <param name="end">The source index at which copying stops, excluding that character.</param>
+        <param name="dest">The character array that receives the copied text.</param>
+        <param name="destoff">The first destination array index to write.</param>
+        <summary>Copies a range of characters into an array.</summary>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#getChars(java.lang.CharSequence,%20int,%20int,%20char[],%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.getChars</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1000,12 +998,12 @@
         <Parameter Name="destoff" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <param name="dest">To be added.</param>
-        <param name="destoff">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="s">The source character sequence.</param>
+        <param name="start">The first source character index to copy.</param>
+        <param name="end">The source index at which copying stops, excluding that character.</param>
+        <param name="dest">The character array that receives the copied text.</param>
+        <param name="destoff">The first destination array index to write.</param>
+        <summary>Copies a range of characters into an array.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1087,11 +1085,10 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="text">The text in which to move forward.</param>
+        <param name="offset">The current character offset.</param>
+        <summary>Finds the next text offset without splitting a surrogate pair or replacement span.</summary>
+        <returns>The next offset, skipping a surrogate pair or replacement span as a unit, or the text length when already at the end.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#getOffsetAfter(java.lang.CharSequence,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.getOffsetAfter</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1117,10 +1114,10 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text in which to move forward.</param>
+        <param name="offset">The current character offset.</param>
+        <summary>Finds the next text offset without splitting a surrogate pair.</summary>
+        <returns>The next offset, advancing over a complete surrogate pair when present, or the text length when already at the end.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1150,11 +1147,10 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="text">The text in which to move backward.</param>
+        <param name="offset">The current character offset.</param>
+        <summary>Finds the preceding text offset without splitting a surrogate pair or replacement span.</summary>
+        <returns>The preceding offset, skipping a surrogate pair or replacement span as a unit, or zero when already at the start.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#getOffsetBefore(java.lang.CharSequence,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.getOffsetBefore</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1180,10 +1176,10 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="text">The text in which to move backward.</param>
+        <param name="offset">The current character offset.</param>
+        <summary>Finds the preceding text offset without splitting a surrogate pair.</summary>
+        <returns>The preceding offset, moving over a complete surrogate pair when present, or zero when already at the start.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1214,12 +1210,12 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
+        <param name="source">The text that contains the range to reverse.</param>
+        <param name="start">The first character index to include.</param>
+        <param name="end">The character index at which the range stops, excluding that character.</param>
         <summary>This function only reverses individual <c>char</c>s and not their associated
             spans.</summary>
-        <returns>To be added.</returns>
+        <returns>The selected range in reverse character order, with right-to-left mirror characters substituted where defined.</returns>
         <remarks>
           <para>This function only reverses individual <c>char</c>s and not their associated
             spans. It doesn't support surrogate pairs (that correspond to non-BMP code points), combining
@@ -1267,12 +1263,12 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
+        <param name="source">The text that contains the range to reverse.</param>
+        <param name="start">The first character index to include.</param>
+        <param name="end">The character index at which the range stops, excluding that character.</param>
         <summary>This function only reverses individual <c>char</c>s and not their associated
             spans.</summary>
-        <returns>To be added.</returns>
+        <returns>A character sequence for the selected range in reverse order, with right-to-left mirror characters substituted where defined.</returns>
         <remarks>
           <para>This function only reverses individual <c>char</c>s and not their associated
             spans. It doesn't support surrogate pairs (that correspond to non-BMP code points), combining
@@ -1315,11 +1311,11 @@
         <Parameter Name="s" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
+        <param name="s">The text whose trimmed length is measured.</param>
         <summary>Returns the length that the specified CharSequence would have if
             spaces and ASCII control characters were trimmed from the start and end,
             as by <c>String#trim</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>The length after excluding leading and trailing characters with values at most U+0020.</returns>
         <remarks>
           <para>Returns the length that the specified CharSequence would have if
             spaces and ASCII control characters were trimmed from the start and end,
@@ -1355,11 +1351,11 @@
         <Parameter Name="s" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
+        <param name="s">The text whose trimmed length is measured.</param>
         <summary>Returns the length that the specified CharSequence would have if
             spaces and ASCII control characters were trimmed from the start and end,
             as by <c>String#trim</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>The length after excluding leading and trailing characters with values at most U+0020.</returns>
         <remarks>
           <para>Returns the length that the specified CharSequence would have if
             spaces and ASCII control characters were trimmed from the start and end,
@@ -1443,11 +1439,10 @@
         <Parameter Name="needle" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="needle">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="needle">The sequence of characters to find.</param>
+        <summary>Finds the first occurrence of a character sequence.</summary>
+        <returns>The first matching index, or -1 if no match exists. An empty search sequence returns zero.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1479,11 +1474,10 @@
         <Parameter Name="ch" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <summary>Finds the first occurrence of a character.</summary>
+        <returns>The first matching character index, or -1 if the character is absent.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20char)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1509,10 +1503,10 @@
         <Parameter Name="ch" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <summary>Finds the first occurrence of a character.</summary>
+        <returns>The first matching character index, or -1 if the character is absent.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20char)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1537,10 +1531,10 @@
         <Parameter Name="needle" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="needle">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="needle">The sequence of characters to find.</param>
+        <summary>Finds the first occurrence of a character sequence.</summary>
+        <returns>The first matching index, or -1 if no match exists. An empty search sequence returns zero.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1572,12 +1566,11 @@
         <Parameter Name="start" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="needle">To be added.</param>
-        <param name="start">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="needle">The sequence of characters to find.</param>
+        <param name="start">The first character index at which to look for a match.</param>
+        <summary>Finds a character sequence at or after the specified index.</summary>
+        <returns>The first matching index, or -1 if no match exists. An empty search sequence returns <paramref name="start" />.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20java.lang.CharSequence,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1610,12 +1603,11 @@
         <Parameter Name="start" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <param name="start">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <param name="start">The first character index at which to look for a match.</param>
+        <summary>Finds a character at or after the specified index.</summary>
+        <returns>The first matching character index at or after <paramref name="start" />, or -1 if no match exists.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20char,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1642,11 +1634,11 @@
         <Parameter Name="start" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <param name="start">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <param name="start">The first character index at which to look for a match.</param>
+        <summary>Finds a character at or after the specified index.</summary>
+        <returns>The first matching character index at or after <paramref name="start" />, or -1 if no match exists.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20char,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1672,11 +1664,11 @@
         <Parameter Name="start" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="needle">To be added.</param>
-        <param name="start">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="needle">The sequence of characters to find.</param>
+        <param name="start">The first character index at which to look for a match.</param>
+        <summary>Finds a character sequence at or after the specified index.</summary>
+        <returns>The first matching index, or -1 if no match exists. An empty search sequence returns <paramref name="start" />.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20java.lang.CharSequence,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1709,13 +1701,12 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="needle">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="needle">The sequence of characters to find.</param>
+        <param name="start">The first character index at which to look for a match.</param>
+        <param name="end">The exclusive end offset that a nonempty match must not cross.</param>
+        <summary>Finds a character sequence within the specified text range.</summary>
+        <returns>The first matching index, or -1 if no match exists. An empty search sequence returns <paramref name="start" />.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20java.lang.CharSequence,%20int,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1749,13 +1740,12 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <param name="start">The first character index to include in the search.</param>
+        <param name="end">The character index at which the search stops, excluding that character.</param>
+        <summary>Finds a character within the specified text range.</summary>
+        <returns>The first matching index in the range, or -1 if the range has no match.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20char,%20int,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1783,12 +1773,12 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <param name="start">The first character index to include in the search.</param>
+        <param name="end">The character index at which the search stops, excluding that character.</param>
+        <summary>Finds a character within the specified text range.</summary>
+        <returns>The first matching index in the range, or -1 if the range has no match.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20char,%20int,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1815,12 +1805,12 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="needle">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="needle">The sequence of characters to find.</param>
+        <param name="start">The first character index at which to look for a match.</param>
+        <param name="end">The exclusive end offset that a nonempty match must not cross.</param>
+        <summary>Finds a character sequence within the specified text range.</summary>
+        <returns>The first matching index, or -1 if no match exists. An empty search sequence returns <paramref name="start" />.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#indexOf(java.lang.CharSequence,%20java.lang.CharSequence,%20int,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.indexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1850,9 +1840,9 @@
         <Parameter Name="str" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="str">To be added.</param>
+        <param name="str">The text whose Unicode code points are checked.</param>
         <summary>Returns whether the given CharSequence contains only digits.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if every code point is a digit, including when the text is empty; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns whether the given CharSequence contains only digits.</para>
           <para>
@@ -1886,9 +1876,9 @@
         <Parameter Name="str" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="str">To be added.</param>
+        <param name="str">The text whose Unicode code points are checked.</param>
         <summary>Returns whether the given CharSequence contains only digits.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if every code point is a digit, including when the text is empty; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns whether the given CharSequence contains only digits.</para>
           <para>
@@ -2004,9 +1994,9 @@
         <Parameter Name="str" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="str">To be added.</param>
+        <param name="str">The text to check for printable code points.</param>
         <summary>Returns whether the given CharSequence contains any printable characters.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the text contains a printable code point; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns whether the given CharSequence contains any printable characters.</para>
           <para>
@@ -2050,9 +2040,9 @@
         <Parameter Name="c" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
+        <param name="c">The UTF-16 character to classify.</param>
         <summary>Returns whether this character is a printable character.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the character is printable; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns whether this character is a printable character.</para>
           <para>This does not support non-BMP characters and should not be used.</para>
@@ -2088,9 +2078,9 @@
         <Parameter Name="str" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="str">To be added.</param>
+        <param name="str">The text to check for printable code points.</param>
         <summary>Returns whether the given CharSequence contains any printable characters.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> if the text contains a printable code point; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns whether the given CharSequence contains any printable characters.</para>
           <para>
@@ -2185,7 +2175,7 @@
                 calling object.toString(). If tokens is null, a NullPointerException will be thrown. If
                 tokens is empty, an empty string will be returned.</param>
         <summary>Returns a string containing the tokens joined by delimiters.</summary>
-        <returns>To be added.</returns>
+        <returns>The token text with delimiters between consecutive tokens, or an empty string when there are no tokens.</returns>
         <remarks>
           <para>Returns a string containing the tokens joined by delimiters.</para>
           <para>
@@ -2242,7 +2232,7 @@
                 calling object.toString(). If tokens is null, a NullPointerException will be thrown. If
                 tokens is an empty array, an empty string will be returned.</param>
         <summary>Returns a string containing the tokens joined by delimiters.</summary>
-        <returns>To be added.</returns>
+        <returns>The token text with delimiters between consecutive tokens, or an empty string when there are no tokens.</returns>
         <remarks>
           <para>Returns a string containing the tokens joined by delimiters.</para>
           <para>
@@ -2295,7 +2285,7 @@
                 calling object.toString(). If tokens is null, a NullPointerException will be thrown. If
                 tokens is empty, an empty string will be returned.</param>
         <summary>Returns a string containing the tokens joined by delimiters.</summary>
-        <returns>To be added.</returns>
+        <returns>The token text with delimiters between consecutive tokens, or an empty string when there are no tokens.</returns>
         <remarks>
           <para>Returns a string containing the tokens joined by delimiters.</para>
           <para>
@@ -2347,7 +2337,7 @@
                 calling object.toString(). If tokens is null, a NullPointerException will be thrown. If
                 tokens is an empty array, an empty string will be returned.</param>
         <summary>Returns a string containing the tokens joined by delimiters.</summary>
-        <returns>To be added.</returns>
+        <returns>The token text with delimiters between consecutive tokens, or an empty string when there are no tokens.</returns>
         <remarks>
           <para>Returns a string containing the tokens joined by delimiters.</para>
           <para>
@@ -2387,11 +2377,10 @@
         <Parameter Name="ch" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <summary>Finds the last occurrence of a character.</summary>
+        <returns>The last matching character index, or -1 if the character is absent.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#lastIndexOf(java.lang.CharSequence,%20char)" title="Reference documentation">Android reference for <code>android.text.TextUtils.lastIndexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2417,10 +2406,10 @@
         <Parameter Name="ch" Type="System.Char" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <summary>Finds the last occurrence of a character.</summary>
+        <returns>The last matching character index, or -1 if the character is absent.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#lastIndexOf(java.lang.CharSequence,%20char)" title="Reference documentation">Android reference for <code>android.text.TextUtils.lastIndexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2452,12 +2441,11 @@
         <Parameter Name="last" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <param name="last">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <param name="last">The greatest character index to include in the search.</param>
+        <summary>Finds the last occurrence of a character at or before an index.</summary>
+        <returns>The last matching index not greater than <paramref name="last" />, or -1 if no match exists.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#lastIndexOf(java.lang.CharSequence,%20char,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.lastIndexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2484,11 +2472,11 @@
         <Parameter Name="last" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <param name="last">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <param name="last">The greatest character index to include in the search.</param>
+        <summary>Finds the last occurrence of a character at or before an index.</summary>
+        <returns>The last matching index not greater than <paramref name="last" />, or -1 if no match exists.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#lastIndexOf(java.lang.CharSequence,%20char,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.lastIndexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2521,13 +2509,12 @@
         <Parameter Name="last" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="last">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <param name="start">The smallest character index to include in the search.</param>
+        <param name="last">The greatest character index to include in the search.</param>
+        <summary>Searches backward for a character within an inclusive index range.</summary>
+        <returns>The last matching index in the range, or -1 if the range has no match.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#lastIndexOf(java.lang.CharSequence,%20char,%20int,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.lastIndexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2555,12 +2542,12 @@
         <Parameter Name="last" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="s">To be added.</param>
-        <param name="ch">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="last">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="s">The text to search.</param>
+        <param name="ch">The character to find.</param>
+        <param name="start">The smallest character index to include in the search.</param>
+        <param name="last">The greatest character index to include in the search.</param>
+        <summary>Searches backward for a character within an inclusive index range.</summary>
+        <returns>The last matching index in the range, or -1 if the range has no match.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#lastIndexOf(java.lang.CharSequence,%20char,%20int,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.lastIndexOf</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2750,14 +2737,13 @@
         <Parameter Name="len" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="one">To be added.</param>
-        <param name="toffset">To be added.</param>
-        <param name="two">To be added.</param>
-        <param name="ooffset">To be added.</param>
-        <param name="len">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="one">The first character sequence to compare.</param>
+        <param name="toffset">The comparison start index in <paramref name="one" />.</param>
+        <param name="two">The second character sequence to compare.</param>
+        <param name="ooffset">The comparison start index in <paramref name="two" />.</param>
+        <param name="len">The number of characters to compare in each sequence.</param>
+        <summary>Compares two text ranges character by character.</summary>
+        <returns><see langword="true" /> if every compared character is equal; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#regionMatches(java.lang.CharSequence,%20int,%20java.lang.CharSequence,%20int,%20int)" title="Reference documentation">Android reference for <code>android.text.TextUtils.regionMatches</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -2786,13 +2772,13 @@
         <Parameter Name="len" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="one">To be added.</param>
-        <param name="toffset">To be added.</param>
-        <param name="two">To be added.</param>
-        <param name="ooffset">To be added.</param>
-        <param name="len">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="one">The first character sequence to compare.</param>
+        <param name="toffset">The comparison start index in <paramref name="one" />.</param>
+        <param name="two">The second character sequence to compare.</param>
+        <param name="ooffset">The comparison start index in <paramref name="two" />.</param>
+        <param name="len">The number of characters to compare in each sequence.</param>
+        <summary>Compares two text ranges character by character.</summary>
+        <returns><see langword="true" /> if every compared character is equal; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2831,12 +2817,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="template">To be added.</param>
-        <param name="sources">To be added.</param>
-        <param name="destinations">To be added.</param>
+        <param name="template">The original text from which to make the result.</param>
+        <param name="sources">The search strings whose first matches are marked for replacement.</param>
+        <param name="destinations">The replacement text values, indexed to correspond to <paramref name="sources" />.</param>
         <summary>Return a new CharSequence in which each of the source strings is
             replaced by the corresponding element of the destinations.</summary>
-        <returns>To be added.</returns>
+        <returns>A copy of the template with the located matches replaced by their corresponding destination values.</returns>
         <remarks>
           <para>Return a new CharSequence in which each of the source strings is
             replaced by the corresponding element of the destinations.</para>
@@ -2892,12 +2878,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="template">To be added.</param>
-        <param name="sources">To be added.</param>
-        <param name="destinations">To be added.</param>
+        <param name="template">The original text from which to make the result.</param>
+        <param name="sources">The search strings whose first matches are marked for replacement.</param>
+        <param name="destinations">The replacement character sequences, indexed to correspond to <paramref name="sources" />.</param>
         <summary>Return a new CharSequence in which each of the source strings is
             replaced by the corresponding element of the destinations.</summary>
-        <returns>To be added.</returns>
+        <returns>A copy of the template with the located matches replaced by their corresponding destination sequences.</returns>
         <remarks>
           <para>Return a new CharSequence in which each of the source strings is
             replaced by the corresponding element of the destinations.</para>
@@ -3192,9 +3178,9 @@
         <Parameter Name="source" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="source">The string to pass through the text conversion.</param>
+        <summary>Gets a string representation of the supplied text.</summary>
+        <returns>The supplied string value, or <see langword="null" /> when <paramref name="source" /> is null.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3223,10 +3209,9 @@
         <Parameter Name="source" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>
-        </summary>
-        <returns>To be added.</returns>
+        <param name="source">The character sequence to represent as immutable text.</param>
+        <summary>Gets an immutable string or spanned string for a character sequence.</summary>
+        <returns>The existing spanned string, a spanned copy, or plain string text, as appropriate; <see langword="null" /> for a null source.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/text/TextUtils#stringOrSpannedString(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.text.TextUtils.stringOrSpannedString</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -3259,12 +3244,12 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
+        <param name="source">The text from which to take characters.</param>
+        <param name="start">The first character index to include.</param>
+        <param name="end">The character index at which the range stops, excluding that character.</param>
         <summary>Create a new String object containing the given range of characters
             from the source string.</summary>
-        <returns>To be added.</returns>
+        <returns>The selected characters as a string without source span objects.</returns>
         <remarks>
           <para>Create a new String object containing the given range of characters
             from the source string.  This is different than simply calling
@@ -3304,12 +3289,12 @@
         <Parameter Name="end" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
+        <param name="source">The text from which to take characters.</param>
+        <param name="start">The first character index to include.</param>
+        <param name="end">The character index at which the range stops, excluding that character.</param>
         <summary>Create a new String object containing the given range of characters
             from the source string.</summary>
-        <returns>To be added.</returns>
+        <returns>The string value for the selected character range.</returns>
         <remarks>
           <para>Create a new String object containing the given range of characters
             from the source string.  This is different than simply calling
@@ -3442,9 +3427,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="cs">To be added.</param>
-        <param name="p">To be added.</param>
-        <param name="parcelableFlags">To be added.</param>
+        <param name="cs">The text and any supported spans to serialize.</param>
+        <param name="p">The parcel that receives the serialized text.</param>
+        <param name="parcelableFlags">The flags passed to each supported parcelable span writer.</param>
         <summary>Flatten a CharSequence and whatever styles can be copied across processes
             into the parcel.</summary>
         <remarks>
@@ -3503,9 +3488,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="cs">To be added.</param>
-        <param name="p">To be added.</param>
-        <param name="parcelableFlags">To be added.</param>
+        <param name="cs">The text to serialize.</param>
+        <param name="p">The parcel that receives the serialized text.</param>
+        <param name="parcelableFlags">The flags forwarded to the text writer. Plain strings have no parcelable spans that use these flags.</param>
         <summary>Flatten a CharSequence and whatever styles can be copied across processes
             into the parcel.</summary>
         <remarks>
