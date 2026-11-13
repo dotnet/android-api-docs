@@ -150,7 +150,11 @@
         <param name="temporal">the temporal object to adjust, not null</param>
         <summary>Adds this duration to the specified temporal object.</summary>
         <returns>an object of the same type with the adjustment made, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Adds this duration to the specified temporal object. This returns a temporal object of the same observable type as the input with this duration added. In most cases, it is clearer to reverse the calling pattern by using Temporal.plus(TemporalAmount).</para>
+<code lang="text/java">   // these two lines are equivalent, but the second approach is recommended
+   dateTime = thisDuration.addTo(dateTime);
+   dateTime = dateTime.plus(thisDuration);</code>
+<para>The calculation will add the seconds, then nanos. Only non-zero amounts will be added. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#addTo(java.time.temporal.Temporal)" title="Reference documentation">Java reference for <code>java.time.Duration.addTo</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -259,7 +263,7 @@
         <param name="divisor">the value to divide the duration by, positive or negative, not null</param>
         <summary>Returns number of whole times a specified Duration occurs within this Duration.</summary>
         <returns>number of whole times, rounded toward zero, a specified Duration occurs within this Duration, may be negative</returns>
-        <remarks>To be added.
+        <remarks><para>Returns number of whole times a specified Duration occurs within this Duration. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#dividedBy(java.time.Duration)" title="Reference documentation">Java reference for <code>java.time.Duration.dividedBy</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -558,10 +562,13 @@
         <Parameter Name="o" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="o">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="o">the object to be compared.</param>
+        <summary>Compares this object with the specified object for order.</summary>
+        <returns>a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.</returns>
+        <remarks>
+          <para>Compares this object with the specified object for order. Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object. The implementor must ensure signum(x.compareTo(y)) == -signum(y.compareTo(x)) for all x and y. (This implies that x.compareTo(y) must throw an exception if and only if y.compareTo(x) throws an exception.) The implementor must also ensure that the relation is transitive: (x.compareTo(y) &gt; 0 &amp;&amp; y.compareTo(z) &gt; 0) implies x.compareTo(z) &gt; 0. Finally, the implementor must ensure that x.compareTo(y)==0 implies that signum(x.compareTo(z)) == signum(y.compareTo(z)), for all z.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Comparable.html#compareTo(T)" title="Reference documentation">Java reference for <code>java.lang.Comparable.compareTo</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -674,7 +681,7 @@
         <param name="unit">the unit that the amount is measured in, must have an exact duration, not null</param>
         <summary>Returns a copy of this duration with the specified duration subtracted.</summary>
         <returns>a Duration based on this duration with the specified duration subtracted, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this duration with the specified duration subtracted. The duration amount is measured in terms of the specified unit. Only a subset of units are accepted by this method. The unit must either have an exact duration or be ChronoUnit.DAYS which is treated as 24 hours. Other units throw an exception. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#minus(long,java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.Duration.minus</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -853,7 +860,7 @@
         <param name="nanosToSubtract">the nanoseconds to subtract, positive or negative</param>
         <summary>Returns a copy of this duration with the specified duration in nanoseconds subtracted.</summary>
         <returns>a Duration based on this duration with the specified nanoseconds subtracted, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this duration with the specified duration in nanoseconds subtracted. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#minusNanos(long)" title="Reference documentation">Java reference for <code>java.time.Duration.minusNanos</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1005,7 +1012,7 @@
       <Docs>
         <summary>Returns a copy of this duration with the length negated.</summary>
         <returns>a Duration based on this duration with the amount negated, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this duration with the length negated. This method swaps the sign of the total length of this duration. For example, PT1.3S will be returned as PT-1.3S. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#negated()" title="Reference documentation">Java reference for <code>java.time.Duration.negated</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1075,10 +1082,13 @@
         <Parameter Name="days" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="days">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="days">the number of days, positive or negative</param>
+        <summary>Obtains a Duration representing a number of standard 24 hour days.</summary>
+        <returns>a Duration, not null</returns>
+        <remarks>
+          <para>Obtains a Duration representing a number of standard 24 hour days. The seconds are calculated based on the standard definition of a day, where each day is 86400 seconds which implies a 24 hour day. The nanosecond in second field is set to zero.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#ofDays(long)" title="Reference documentation">Java reference for <code>java.time.Duration.ofDays</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OfHours">
@@ -1219,7 +1229,7 @@
         <param name="nanos">the number of nanoseconds, positive or negative</param>
         <summary>Obtains a Duration representing a number of nanoseconds.</summary>
         <returns>a Duration, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains a Duration representing a number of nanoseconds. The seconds and nanoseconds are extracted from the specified nanoseconds.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#ofNanos(long)" title="Reference documentation">Java reference for <code>java.time.Duration.ofNanos</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1357,10 +1367,12 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The duration text, for example <c>PT15M</c>.</param>
+        <summary>Parses a duration from a string.</summary>
+        <returns>The duration represented by <paramref name="text" />.</returns>
+        <remarks>
+          <para>This string overload calls <see cref="M:Java.Time.Duration.Parse(Java.Lang.ICharSequence)" />. Its input format is based on ISO-8601 durations; each parsed day is exactly 24 hours.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Plus">
@@ -1431,7 +1443,7 @@
         <param name="unit">the unit that the amount is measured in, must have an exact duration, not null</param>
         <summary>Returns a copy of this duration with the specified duration added.</summary>
         <returns>a Duration based on this duration with the specified duration added, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this duration with the specified duration added. The duration amount is measured in terms of the specified unit. Only a subset of units are accepted by this method. The unit must either have an exact duration or be ChronoUnit.DAYS which is treated as 24 hours. Other units throw an exception. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#plus(long,java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.Duration.plus</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1610,7 +1622,7 @@
         <param name="nanosToAdd">the nanoseconds to add, positive or negative</param>
         <summary>Returns a copy of this duration with the specified duration in nanoseconds added.</summary>
         <returns>a Duration based on this duration with the specified nanoseconds added, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this duration with the specified duration in nanoseconds added. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#plusNanos(long)" title="Reference documentation">Java reference for <code>java.time.Duration.plusNanos</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2395,7 +2407,7 @@
         <param name="unit">the unit to truncate to, not null</param>
         <summary>Returns a copy of this Duration truncated to the specified unit.</summary>
         <returns>a Duration based on this duration with the time truncated, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this Duration truncated to the specified unit. Truncating the duration returns a copy of the original with conceptual fields smaller than the specified unit set to zero. For example, truncating with the MINUTES unit will round down towards zero to the nearest minute, setting the seconds and nanoseconds to zero. The unit must have a duration that divides into the length of a standard day without remainder. This includes all time-based units on ChronoUnit and DAYS. Other ChronoUnits throw an exception. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#truncatedTo(java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.Duration.truncatedTo</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2505,7 +2517,7 @@
         <param name="seconds">the seconds to represent, may be negative</param>
         <summary>Returns a copy of this duration with the specified amount of seconds.</summary>
         <returns>a Duration based on this duration with the requested seconds, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this duration with the specified amount of seconds. This returns a duration with the specified seconds, retaining the nano-of-second part of this duration. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#withSeconds(long)" title="Reference documentation">Java reference for <code>java.time.Duration.withSeconds</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2534,9 +2546,12 @@
         <ReturnType>Java.Time.Duration</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Constant for a duration of zero.</summary>
+        <value>A duration of zero seconds and zero nanoseconds.</value>
+        <remarks>
+          <para>Constant for a duration of zero.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#ZERO" title="Reference documentation">Java reference for <code>java.time.Duration.ZERO</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

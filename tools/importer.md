@@ -681,6 +681,25 @@ Java-signature remarks repairs likewise require only an unmodified Java signatur
 the exact canonical Android source reference, and the exact Android attribution;
 authored nodes are preserved. Summary repair selection is XML-aware, including
 CDATA containing literal closing-tag text.
+The Java 21 `ZoneId.SHORT_IDS` remarks are withheld only for the exact
+`Java.Time.ZoneId.ShortIds` field-backed property, registered JNI field,
+managed declaration, canonical source URL/label, native generic field declaration,
+and complete obsolete alias-list paragraph. That paragraph promises fixed
+`EST`/`HST`/`MST` offsets; Android API 37.2 instead maps them to
+`America/Panama`, `Pacific/Honolulu`, and `America/Phoenix`.
+Verification uses `src/java/time/ZoneId.java:188-260` in the official
+`source-37.2_r01.zip` archive, SHA-256
+`9d637c3af6654a2f1b696b3d19c54bb77e38df2b0106116934703f314b3d4e84`.
+The guard does not change summary/value channels, rewrite existing documentation,
+or infer replacement prose. The logical remarks exclusion also covers nested
+paragraph placeholders and augmented or metadata-only remarks enrichment.
+Safe surrounding context cannot re-enable the obsolete paragraph; corrected,
+removed, changed, or code-only source remains eligible.
+`java-time-shortids-reference.html.b64` retains the exact native field section,
+SHA-256 `dd70e6054a051fda2cd8853067bd93a9cae744fe966fa655ee809085afc7efa7`.
+Registered offline production tests cover binding/source negatives, authored and
+prior-owned preservation, bounded sibling fills, BOM/newlines, and persisted repeats.
+
 The Java 21 `ZoneRules.getTransition(LocalDateTime)` example's `rule`/`rules`
 receiver typo can be repaired only for the exact managed member, source URL,
 original code block, and complete importer-owned source remarks. Authored

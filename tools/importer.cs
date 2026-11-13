@@ -2394,6 +2394,7 @@ static partial class ImporterProgram
             fieldDocs = WithoutKnownUnsafeIkeSourceChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutKnownUnsafeQuickSettingsChannels(owner.Id, fieldDocs);
             fieldDocs = WithoutUnsafeIcuNumberChannels(owner, fieldDocs);
+            fieldDocs = WithoutUnsafeJavaShortIdsRemarks(owner, fields[0], fieldDocs);
             fieldDocs = ProviderColumnProjection.WithoutUnsafeArtistTrackCountChannels(owner, page, fieldDocs);
             if (owner.SourceRequest.JavaPath == DalvikOpcodeProjection.JavaPath)
                 fieldDocs = fieldDocs with { QualityFirstFillOnly = true, UnsafeTargets = new Dictionary<string, string>() };
@@ -6108,6 +6109,57 @@ static partial class ImporterProgram
             return new AndroidTextRepairResult(text, []);
         var updated = blockText[..span.Start] + replacement + blockText[span.End..];
         return new AndroidTextRepairResult(text[..block.Start] + updated + text[block.End..], [target]);
+    }
+
+    const string JavaShortIdsMemberId = "P:Java.Time.ZoneId.ShortIds";
+    const string JavaShortIdsSourceUrl = JavaReference + "java.base/java/time/ZoneId.html#SHORT_IDS";
+    const string JavaShortIdsObsoleteParagraph =
+        "This maps as follows: EST - -05:00; HST - -10:00; MST - -07:00; " +
+        "ACT - Australia/Darwin; AET - Australia/Sydney; AGT - America/Argentina/Buenos_Aires; " +
+        "ART - Africa/Cairo; AST - America/Anchorage; BET - America/Sao_Paulo; BST - Asia/Dhaka; " +
+        "CAT - Africa/Harare; CNT - America/St_Johns; CST - America/Chicago; CTT - Asia/Shanghai; " +
+        "EAT - Africa/Addis_Ababa; ECT - Europe/Paris; IET - America/Indiana/Indianapolis; " +
+        "IST - Asia/Kolkata; JST - Asia/Tokyo; MIT - Pacific/Apia; NET - Asia/Yerevan; " +
+        "NST - Pacific/Auckland; PLT - Asia/Karachi; PNT - America/Phoenix; PRT - America/Puerto_Rico; " +
+        "PST - America/Los_Angeles; SST - Pacific/Guadalcanal; VST - Asia/Ho_Chi_Minh The map is unmodifiable.";
+
+    static SourceDocs WithoutUnsafeJavaShortIdsRemarks(DocsOwner owner, SourceMember source, SourceDocs docs)
+    {
+        var member = owner.Member;
+        var type = member?.Parent?.Parent;
+        if (owner.Id != JavaShortIdsMemberId ||
+            owner.MemberRegistration != new MemberRegistration("SHORT_IDS", null, true) ||
+            member is null || type is null || type.Name != "Type" ||
+            (string?)type.Attribute("FullName") != "Java.Time.ZoneId" ||
+            Registration.Type(type) != "java/time/ZoneId" ||
+            !IsMonoAndroidDeclaration(type) || !IsMonoAndroidDeclaration(member) ||
+            !HasSingleSignature(type, "TypeSignature", "DocId", "T:Java.Time.ZoneId") ||
+            !HasSingleSignature(type, "TypeSignature", "C#",
+                "public abstract class ZoneId : Java.Lang.Object, IDisposable, Java.IO.ISerializable") ||
+            !HasSingleSignature(member, "MemberSignature", "DocId", JavaShortIdsMemberId) ||
+            !HasSingleSignature(member, "MemberSignature", "C#",
+                "public static System.Collections.IDictionary? ShortIds { get; }") ||
+            member.Element("MemberType")?.Value != "Property" ||
+            member.Element("ReturnValue")?.Element("ReturnType")?.Value != "System.Collections.IDictionary" ||
+            member.Element("Parameters")?.Elements("Parameter").Any() == true ||
+            owner.SourceRequest?.Kind != "java" ||
+            owner.SourceRequest.JavaPath != "java/time/ZoneId" ||
+            owner.SourceRequest.Url != JavaReference + "java.base/java/time/ZoneId.html" ||
+            source.Name != "SHORT_IDS" || !source.IsField || source.IsConstructor ||
+            source.Declaration != "public static final Map<String,String> SHORT_IDS" ||
+            source.Url != JavaShortIdsSourceUrl ||
+            docs.SourceKind != "java" || docs.SourceUrl != JavaShortIdsSourceUrl ||
+            docs.SourceLabel != "java.time.ZoneId.SHORT_IDS" || docs.HasMalformedSourceMarkup ||
+            !docs.Paragraphs.Any(paragraph => !paragraph.IsCode &&
+                paragraph.Text.Contains(JavaShortIdsObsoleteParagraph, StringComparison.Ordinal)))
+            return docs;
+        var targets = docs.UnsafeTargets is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(docs.UnsafeTargets, StringComparer.Ordinal);
+        targets["remarks"] =
+            "The exact Java 21 SHORT_IDS paragraph promises fixed EST/HST/MST offsets, " +
+            "but Android API 37.2 maps those aliases to region IDs; no replacement mapping was inferred.";
+        return docs with { UnsafeTargets = targets, WithheldRemarks = docs.Paragraphs, HasRawExclusions = true };
     }
 
     const string KnownUnsafeZoneTransitionMemberId =
@@ -23431,6 +23483,7 @@ static partial class ImporterProgram
         TestKnownEapChannelCorrections(repositoryRoot);
         TestMediaRouteActionViewReturn(repositoryRoot);
         TestMloChannelValue(repositoryRoot);
+        TestJavaShortIdsRemarks(repositoryRoot);
         TestInsetsCurrentFractionValue(repositoryRoot);
         TestViewParentTextDirectionValue(repositoryRoot);
         TestChangeLogDataOriginChannel(repositoryRoot);
@@ -31398,6 +31451,264 @@ static partial class ImporterProgram
         {
             File.Delete(path);
             Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    static void TestJavaShortIdsRemarks(string repositoryRoot)
+    {
+        var fixture = Convert.FromBase64String(File.ReadAllText(Path.Combine(repositoryRoot,
+            "tools", "importer-fixtures", "java-time-shortids-reference.html.b64")).Trim());
+        Assert(Convert.ToHexString(SHA256.HashData(fixture)).ToLowerInvariant() ==
+            "dd70e6054a051fda2cd8853067bd93a9cae744fe966fa655ee809085afc7efa7",
+            "SHORT_IDS fixture retains the complete native Java 21 declaration bytes");
+        var html = Encoding.UTF8.GetString(fixture);
+        var request = SourceRequest.Create("java/time/ZoneId")!;
+        var page = SourcePage.Parse(request, html);
+        var native = page.Members.Single();
+        var raw = native.Docs!;
+        Assert(native.Declaration == "public static final Map<String,String> SHORT_IDS" &&
+            raw.Paragraphs.Any(paragraph => !paragraph.IsCode &&
+                paragraph.Text.Contains(JavaShortIdsObsoleteParagraph, StringComparison.Ordinal)),
+            "SHORT_IDS native fixture reproduces the full declared field and obsolete alias paragraph");
+        var root = XElement.Load(Path.Combine(repositoryRoot, "docs", "xml", "Java.Time", "ZoneId.xml"));
+        var member = new XElement(root.Element("Members")!.Elements("Member").Single(candidate =>
+            candidate.Elements("MemberSignature").Any(signature =>
+                (string?)signature.Attribute("Language") == "DocId" &&
+                (string?)signature.Attribute("Value") == JavaShortIdsMemberId)));
+        root.Element("Members")!.ReplaceNodes(member);
+        root.Element("Docs")!.ReplaceNodes(new XElement("summary", "Authored zone type summary."));
+        member.Element("Docs")!.ReplaceNodes(
+            new XElement("summary", "Authored alias summary."),
+            new XElement("value", "Authored alias value."),
+            new XElement("remarks", "To be added."));
+        var temporary = Path.Combine(Path.GetTempPath(), $"java-shortids-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(temporary);
+        var path = Path.Combine(repositoryRoot, "docs", "xml", "Java.Time",
+            $"ZoneId.shortids-self-test-{Guid.NewGuid():N}.xml");
+        var ordinal = 0;
+        try
+        {
+            void Save(XElement input, string source, bool bom = false, string newline = "\n")
+            {
+                var text = input.ToString(SaveOptions.DisableFormatting)
+                    .Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", newline, StringComparison.Ordinal);
+                File.WriteAllText(path, text, new UTF8Encoding(bom));
+                var sourceRequest = SourceRequest.Create(Registration.Type(input)!)!;
+                File.WriteAllText(Path.Combine(temporary,
+                    Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceRequest.Url)))
+                        .ToLowerInvariant() + ".html"), source, new UTF8Encoding(false));
+            }
+            JsonDocument Run(bool apply = true)
+            {
+                var report = Path.Combine(temporary, "report-" + ordinal++);
+                var arguments = new List<string>
+                {
+                    "--path", path, "--namespace", "Java.Time", "--member", "ShortIds",
+                    "--cache", temporary, "--offline", "--max-changes", "1", "--report", report,
+                };
+                if (apply)
+                    arguments.Add("--apply");
+                Assert(RunAsync(arguments.ToArray()).GetAwaiter().GetResult() == 0,
+                    "SHORT_IDS uses the bounded offline production pipeline");
+                var result = JsonDocument.Parse(File.ReadAllText(report + ".json"));
+                Assert(result.RootElement.GetProperty("errorCount").GetInt32() == 0,
+                    "SHORT_IDS production reports have no errors");
+                return result;
+            }
+            bool Excluded(JsonDocument report) => report.RootElement.GetProperty("entries")
+                .EnumerateArray().Any(entry => entry.GetProperty("member").GetString() == JavaShortIdsMemberId &&
+                    entry.GetProperty("target").GetString() == "remarks" &&
+                    entry.GetProperty("reason").GetString() == "source_channel_ambiguous");
+            void Repeat()
+            {
+                var before = File.ReadAllBytes(path);
+                using var result = Run();
+                Assert(result.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                    before.SequenceEqual(File.ReadAllBytes(path)),
+                    "SHORT_IDS persisted repeat preserves every input byte");
+            }
+            foreach (var (bom, newline) in new[] { (false, "\n"), (true, "\r\n") })
+            {
+                Save(root, html, bom, newline);
+                var before = File.ReadAllBytes(path);
+                using (var preview = Run(false))
+                    Assert(Excluded(preview) &&
+                        preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)),
+                        "SHORT_IDS preview withholds only the obsolete remarks without writing");
+                using (var result = Run())
+                    Assert(Excluded(result) && result.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)),
+                        "SHORT_IDS exclusion preserves authored channels, declarations, BOM and newlines");
+                Repeat();
+            }
+            foreach (var contextual in new[]
+            {
+                html.Replace("A map of zone overrides to enable the short time-zone names to be used.",
+                    "A hypothetical safe summary.", StringComparison.Ordinal),
+                html.Replace(" This maps as follows:", " Additional safe context.</p><p> This maps as follows:",
+                    StringComparison.Ordinal).Replace("The map is unmodifiable.",
+                    "The map is unmodifiable.</p><p>Additional safe trailing context.", StringComparison.Ordinal),
+            })
+            {
+                Save(root, contextual);
+                using var result = Run();
+                Assert(Excluded(result) && result.RootElement.GetProperty("appliedCount").GetInt32() == 0,
+                    "SHORT_IDS safe summary or surrounding context cannot re-enable the complete obsolete paragraph");
+                Repeat();
+            }
+            foreach (var authoredRemarks in new XElement[]
+            {
+                new("remarks", "Authored alias guidance."),
+                new("remarks", new XElement("para", new XElement("c", "Authored alias guidance."))),
+                new("remarks", new XCData("To be added.")),
+                new("remarks", "To be added.", new XComment("Authored note.")),
+                new("remarks", raw.Paragraphs.Select(DocumentationElement), ImporterSourceReference(raw)),
+            })
+            {
+                var authored = new XElement(root);
+                authored.Element("Members")!.Element("Member")!.Element("Docs")!.Element("remarks")!
+                    .ReplaceWith(authoredRemarks);
+                Save(authored, html);
+                Repeat();
+            }
+            foreach (var withheldRemarks in new XElement[]
+            {
+                new("remarks", new XElement("para", "To be added.")),
+                new("remarks", new XElement("para", "Authored introduction."),
+                    new XElement("para", "To be added.")),
+                new("remarks", new XElement("para", "To be added."), ImporterSourceReference(raw)),
+                new("remarks", "To be added.", ImporterSourceReference(raw)),
+                new("remarks", ImporterSourceReference(raw)),
+            })
+            {
+                var withheld = new XElement(root);
+                withheld.Element("Members")!.Element("Member")!.Element("Docs")!.Element("remarks")!
+                    .ReplaceWith(withheldRemarks);
+                Save(withheld, html, true, "\r\n");
+                var before = File.ReadAllBytes(path);
+                using (var preview = Run(false))
+                    Assert(preview.RootElement.GetProperty("wouldApplyCount").GetInt32() == 0 &&
+                        before.SequenceEqual(File.ReadAllBytes(path)),
+                        "SHORT_IDS nested or metadata-only remarks preview cannot expose the obsolete paragraph");
+                using (var result = Run())
+                    Assert(result.RootElement.GetProperty("appliedCount").GetInt32() == 0 &&
+                        result.RootElement.GetProperty("entries").EnumerateArray().Any(entry =>
+                            entry.GetProperty("reason").GetString() == "source_channel_ambiguous") &&
+                        before.SequenceEqual(File.ReadAllBytes(path)),
+                        "SHORT_IDS logical remarks exclusion protects nested, augmented and metadata-only layouts");
+                Repeat();
+            }
+            Save(root, html);
+            var loaded = LoadedFile.Load(repositoryRoot, path);
+            loaded.SelectOwners(JavaShortIdsMemberId);
+            var owner = loaded.Owners.Single();
+            foreach (var changed in new[]
+            {
+                raw with { SourceUrl = raw.SourceUrl + ".Other" },
+                raw with { SourceLabel = raw.SourceLabel + ".Other" },
+                raw with { SourceKind = "android" },
+                raw with { Paragraphs = raw.Paragraphs.Select(paragraph => paragraph with { IsCode = true }).ToList() },
+            })
+                Assert(WithoutUnsafeJavaShortIdsRemarks(owner, native, changed).UnsafeTargets is null,
+                    "SHORT_IDS requires canonical Java provenance and non-code obsolete prose");
+            Assert(WithoutUnsafeJavaShortIdsRemarks(owner,
+                    native with { Declaration = "public static final Collection<String> SHORT_IDS" }, raw)
+                    .UnsafeTargets is null,
+                "SHORT_IDS requires the complete native field declaration");
+            var safeValue = raw with { Returns = "Independent hypothetical field value." };
+            var guardedValue = WithoutUnsafeJavaShortIdsRemarks(owner, native, safeValue);
+            Assert(guardedValue.UnsafeTargets!.Keys.SequenceEqual(["remarks"]) &&
+                guardedValue.Returns == safeValue.Returns && guardedValue.Summary == safeValue.Summary &&
+                guardedValue.Paragraphs.SequenceEqual(safeValue.Paragraphs),
+                "SHORT_IDS guard withholds only remarks and does not rewrite summary, value or source prose");
+            foreach (var mutate in new Action<XElement>[]
+            {
+                input => input.SetAttributeValue("FullName", "Java.Time.OtherZoneId"),
+                input => input.Element("AssemblyInfo")!.Element("AssemblyName")!.Value = "Other.Assembly",
+                input => input.Elements("TypeSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", "T:Java.Time.OtherZoneId"),
+                input => input.Elements("TypeSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value", "public class ZoneId"),
+                input => input.Element("Members")!.Element("Member")!.Element("AssemblyInfo")!
+                    .Element("AssemblyName")!.Value = "Other.Assembly",
+                input => input.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "DocId").SetAttributeValue("Value", JavaShortIdsMemberId + ".Other"),
+                input => input.Element("Members")!.Element("Member")!.Elements("MemberSignature").Single(signature =>
+                    (string?)signature.Attribute("Language") == "C#").SetAttributeValue("Value",
+                        "public static System.Collections.IDictionary ShortIds { get; set; }"),
+                input => input.Element("Members")!.Element("Member")!.Element("ReturnValue")!
+                    .Element("ReturnType")!.Value = "Java.Util.IMap",
+            })
+            {
+                var changed = new XElement(root);
+                mutate(changed);
+                Save(changed, html);
+                using (var result = Run())
+                    Assert(!Excluded(result) && result.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                        "SHORT_IDS attached-owner metadata negative reaches ordinary production mapping");
+                Repeat();
+            }
+            var otherOwner = new XElement(root);
+            foreach (var attribute in otherOwner.Element("Attributes")!.Descendants("AttributeName"))
+                attribute.Value = attribute.Value.Replace("java/time/ZoneId", "java/time/OtherZoneId", StringComparison.Ordinal);
+            Save(otherOwner, html);
+            using (var result = Run())
+                Assert(!Excluded(result) && result.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "SHORT_IDS changed JNI owner and canonical source URL reach ordinary production mapping");
+            Repeat();
+            var renamed = new XElement(root);
+            foreach (var attribute in renamed.Element("Members")!.Element("Member")!.Descendants("AttributeName"))
+                attribute.Value = attribute.Value.Replace("SHORT_IDS", "OTHER_IDS", StringComparison.Ordinal);
+            Save(renamed, html.Replace("SHORT_IDS", "OTHER_IDS", StringComparison.Ordinal));
+            using (var result = Run())
+                Assert(!Excluded(result) && result.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "SHORT_IDS changed native field, anchor and label are outside the exact exclusion");
+            Repeat();
+            var removedStart = html.IndexOf(" This maps as follows:", StringComparison.Ordinal);
+            var removedEnd = html.IndexOf("</p>", removedStart, StringComparison.Ordinal);
+            var removed = html[..removedStart] + html[removedEnd..];
+            foreach (var future in new[]
+            {
+                html.Replace("EST - -05:00", "EST - America/Panama", StringComparison.Ordinal)
+                    .Replace("HST - -10:00", "HST - Pacific/Honolulu", StringComparison.Ordinal)
+                    .Replace("MST - -07:00", "MST - America/Phoenix", StringComparison.Ordinal),
+                removed,
+                html.Replace("EST - -05:00", "EST - Hypothetical changed source", StringComparison.Ordinal),
+                Regex.Replace(html, @"<div class=""block"">.*?</div>",
+                    "<div class=\"block\">Hypothetical safe source.<pre>" +
+                        WebUtility.HtmlEncode(JavaShortIdsObsoleteParagraph) + "</pre></div>",
+                    RegexOptions.Singleline | RegexOptions.CultureInvariant),
+            })
+            {
+                Save(root, future);
+                using (var result = Run())
+                    Assert(!Excluded(result) && result.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                        !File.ReadAllText(path).Contains("To be added.", StringComparison.Ordinal),
+                        "SHORT_IDS corrected, removed or changed obsolete paragraph remains ordinarily eligible");
+                Repeat();
+            }
+            Save(root, html.Replace("Map</a>", "Collection</a>", StringComparison.Ordinal));
+            using (var result = Run())
+                Assert(!Excluded(result) && result.RootElement.GetProperty("appliedCount").GetInt32() == 1,
+                    "SHORT_IDS changed native field type reaches the ordinary production mapper");
+            Repeat();
+            var sibling = new XElement(root);
+            sibling.Element("Members")!.Element("Member")!.Element("Docs")!.Element("summary")!.Value = "To be added.";
+            Save(sibling, html, true, "\r\n");
+            var expected = File.ReadAllText(path).Replace("<summary>To be added.</summary>",
+                $"<summary>{raw.Summary}</summary>", StringComparison.Ordinal);
+            using (var result = Run())
+                Assert(Excluded(result) && result.RootElement.GetProperty("appliedCount").GetInt32() == 1 &&
+                    File.ReadAllText(path) == expected &&
+                    File.ReadAllBytes(path).AsSpan().StartsWith(Encoding.UTF8.Preamble),
+                    "SHORT_IDS bounded safe-summary fill preserves every byte outside that placeholder");
+            Repeat();
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(temporary, recursive: true);
         }
     }
 
