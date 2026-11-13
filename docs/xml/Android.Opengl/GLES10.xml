@@ -878,7 +878,7 @@
       <MemberValue>5376</MemberValue>
       <Docs>
         <summary>Logical color operation that clears every result bit.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Use this value as the GlLogicOp opcode that produces zero color bits, not as a GlClear buffer mask.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlClearDepthf">
@@ -1254,12 +1254,11 @@
         <Parameter Name="pointer" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="size">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="stride">To be added.</param>
-        <param name="pointer">To be added.</param>
-        <summary>
-        </summary>
+        <param name="size">Four components per color.</param>
+        <param name="type">GL_UNSIGNED_BYTE, GL_FIXED, or GL_FLOAT for the Common profile.</param>
+        <param name="stride">The nonnegative byte spacing between elements; zero means tightly packed data.</param>
+        <param name="pointer">A non-null direct, native-order buffer whose current position addresses the first element, with no array buffer bound. Keep all data needed by later draws alive; Java retains only its latest pointer. Provide enough storage for every element those draws access.</param>
+        <summary>Sets the color array pointer used by later array draws.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1296,16 +1295,15 @@
         <Parameter Name="data" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="level">To be added.</param>
-        <param name="internalformat">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="border">To be added.</param>
-        <param name="imageSize">To be added.</param>
-        <param name="data">To be added.</param>
-        <summary>
-        </summary>
+        <param name="target">GL_TEXTURE_2D, or a supported extension image target.</param>
+        <param name="level">The mipmap level; for paletted formats, a negative level specifies the greatest included mipmap level.</param>
+        <param name="internalformat">The supported compressed-format token defining the payload layout.</param>
+        <param name="width">The image width in texels, satisfying the selected format's size restrictions.</param>
+        <param name="height">The image height in texels, satisfying the selected format's size restrictions.</param>
+        <param name="border">Zero; OpenGL ES texture images have no border.</param>
+        <param name="imageSize">The compressed payload size in bytes, matching the selected format and included levels.</param>
+        <param name="data">A non-null direct or accessible array-backed input buffer at its current position, with imageSize bytes available. Capacity is not checked; pixel-row alignment does not apply to compressed data.</param>
+        <summary>Defines a texture image from a supported compressed-format payload.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1343,17 +1341,16 @@
         <Parameter Name="data" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="level">To be added.</param>
-        <param name="xoffset">To be added.</param>
-        <param name="yoffset">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="imageSize">To be added.</param>
-        <param name="data">To be added.</param>
-        <summary>
-        </summary>
+        <param name="target">GL_TEXTURE_2D, or a supported extension image target.</param>
+        <param name="level">The level of the existing destination compressed image.</param>
+        <param name="xoffset">The destination horizontal texel offset, satisfying the format's block-alignment restrictions.</param>
+        <param name="yoffset">The destination vertical texel offset, satisfying the format's block-alignment restrictions.</param>
+        <param name="width">The nonnegative update width in texels, fitting the image and the format's block rules.</param>
+        <param name="height">The nonnegative update height in texels, fitting the image and the format's block rules.</param>
+        <param name="format">The existing image's compressed format; an extension must permit updates because the required paletted formats do not.</param>
+        <param name="imageSize">The compressed update's size in bytes, matching its format and dimensions.</param>
+        <param name="data">A non-null direct or accessible array-backed input buffer at its current position, with imageSize bytes available. Capacity is not checked; pixel-row alignment does not apply.</param>
+        <summary>Updates an existing compressed texture region when its format supports subimage updates.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1615,7 +1612,7 @@
       <MemberValue>2884</MemberValue>
       <Docs>
         <summary>Capability token controlling polygon face culling.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Use this capability token with GlEnable or GlDisable. GlCullFace separately selects which polygon faces are culled.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlCw">
@@ -1726,10 +1723,9 @@
         <Parameter Name="textures" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <param name="textures">To be added.</param>
-        <summary>
-        </summary>
+        <param name="n">The nonnegative number of texture names to delete.</param>
+        <param name="textures">A non-null input direct, native-order buffer at its current position, with room for n unsigned texture-name bit patterns. JNI compares bytes with n rather than integer entries; array-backed cleanup is unsafe.</param>
+        <summary>Deletes named texture objects; zero and unused names are ignored.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1761,11 +1757,10 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <param name="textures">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>
-        </summary>
+        <param name="n">The nonnegative number of texture names to delete.</param>
+        <param name="textures">A non-null input array starting at offset, with room for n unsigned texture-name bit patterns.</param>
+        <param name="offset">The nonnegative starting array index, measured in texture names rather than bytes.</param>
+        <summary>Deletes named texture objects; zero and unused names are ignored.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2191,12 +2186,11 @@
         <Parameter Name="indices" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="mode">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="indices">To be added.</param>
-        <summary>
-        </summary>
+        <param name="mode">The supported point, line, or triangle primitive-mode token.</param>
+        <param name="count">The nonnegative number of indices to read.</param>
+        <param name="type">GL_UNSIGNED_BYTE or GL_UNSIGNED_SHORT, or a supported extension index type.</param>
+        <param name="indices">A non-null direct or accessible array-backed input buffer at its current position. Provide count indices of the selected type; JNI compares remaining bytes with count, not count times the index width. Each index must address valid enabled-array data. Use client memory with no element-array buffer bound.</param>
+        <summary>Draws primitives by reading indices into the enabled vertex arrays.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3276,10 +3270,9 @@
         <Parameter Name="textures" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <param name="textures">To be added.</param>
-        <summary>
-        </summary>
+        <param name="n">The nonnegative number of texture names to generate.</param>
+        <param name="textures">A non-null output direct, native-order buffer at its current position, with room for n unsigned texture-name bit patterns. JNI compares bytes with n rather than integer entries; array-backed cleanup is unsafe.</param>
+        <summary>Reserves unused texture names; binding a name creates its texture object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3311,11 +3304,10 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="n">To be added.</param>
-        <param name="textures">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>
-        </summary>
+        <param name="n">The nonnegative number of texture names to generate.</param>
+        <param name="textures">A non-null output array starting at offset, with room for n unsigned texture-name bit patterns.</param>
+        <param name="offset">The nonnegative starting array index, measured in texture names rather than bytes.</param>
+        <summary>Reserves unused texture names; binding a name creates its texture object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3403,10 +3395,9 @@
         <Parameter Name="params" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="pname">To be added.</param>
-        <param name="params">To be added.</param>
-        <summary>
-        </summary>
+        <param name="pname">The supported GL state selector, which determines the required number of output integers.</param>
+        <param name="params">A non-null direct, native-order output buffer at its current position with room for every integer returned for pname. The JNI count table is incomplete; for example, GL_MAX_VIEWPORT_DIMS needs two entries even when the table checks only one. This generic helper checks integer entries, not bytes, but array-backed cleanup is unsafe.</param>
+        <summary>Gets the selected GL state using GL's integer state-conversion rules.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3438,11 +3429,10 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="pname">To be added.</param>
-        <param name="params">To be added.</param>
-        <param name="offset">To be added.</param>
-        <summary>
-        </summary>
+        <param name="pname">The supported GL state selector, which determines the required number of output integers.</param>
+        <param name="params">A non-null output array starting at offset with room for every integer returned for pname. The JNI count table is incomplete; for example, GL_MAX_VIEWPORT_DIMS needs two entries even when the table checks only one.</param>
+        <param name="offset">The nonnegative starting array index, measured in integer entries rather than bytes.</param>
+        <summary>Gets the selected GL state using GL's integer state-conversion rules.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6321,11 +6311,10 @@
         <Parameter Name="pointer" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="stride">To be added.</param>
-        <param name="pointer">To be added.</param>
-        <summary>
-        </summary>
+        <param name="type">GL_BYTE, GL_SHORT, GL_FIXED, or GL_FLOAT for the Common profile.</param>
+        <param name="stride">The nonnegative byte spacing between elements; zero means tightly packed data.</param>
+        <param name="pointer">A non-null direct, native-order buffer whose current position addresses the first element, with no array buffer bound. Keep all data needed by later draws alive; Java retains only its latest pointer. Provide enough storage for every element those draws access.</param>
+        <summary>Sets the normal array pointer used by later array draws.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7200,7 +7189,7 @@
       <MemberValue>2833</MemberValue>
       <Docs>
         <summary>Selects point diameter in window pixels.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Use this state selector to query the nominal point diameter. It is not a capability token for GlEnable.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlPointSizex">
@@ -7581,15 +7570,14 @@
         <Parameter Name="pixels" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="x">To be added.</param>
-        <param name="y">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="pixels">To be added.</param>
-        <summary>
-        </summary>
+        <param name="x">The source rectangle's left window coordinate in pixels.</param>
+        <param name="y">The source rectangle's bottom window coordinate in pixels.</param>
+        <param name="width">The nonnegative read width in pixels.</param>
+        <param name="height">The nonnegative read height in pixels.</param>
+        <param name="format">GL_RGBA with GL_UNSIGNED_BYTE, or the implementation's supported color-read format paired with its supported type.</param>
+        <param name="type">GL_UNSIGNED_BYTE with GL_RGBA, or the implementation's supported color-read type paired with its supported format.</param>
+        <param name="pixels">A non-null direct or accessible array-backed output buffer at its current position, with enough bytes for the selected format, type, dimensions, and GL_PACK_ALIGNMENT. Capacity is not checked.</param>
+        <summary>Copies a color-buffer rectangle into client memory in bottom-to-top row order.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -7977,7 +7965,7 @@
       <MemberValue>32928</MemberValue>
       <Docs>
         <summary>Capability token applying the configured sample-coverage mask.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Use this capability token to enable or disable sample-coverage mask modification. GlSampleCoverage separately sets its fraction and inversion.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlSampleCoveragex">
@@ -8838,12 +8826,11 @@
         <Parameter Name="pointer" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="size">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="stride">To be added.</param>
-        <param name="pointer">To be added.</param>
-        <summary>
-        </summary>
+        <param name="size">Two, three, or four coordinates per element.</param>
+        <param name="type">GL_BYTE, GL_SHORT, GL_FIXED, or GL_FLOAT for the Common profile.</param>
+        <param name="stride">The nonnegative byte spacing between elements; zero means tightly packed data.</param>
+        <param name="pointer">A non-null direct, native-order buffer whose current position addresses the first element, with no array buffer bound. Keep all data needed by later draws alive; Java retains only its latest pointer. Provide enough storage for every element those draws access.</param>
+        <summary>Sets the texture-coordinate array pointer for the client-active texture unit.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -9095,17 +9082,16 @@
         <Parameter Name="pixels" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="level">To be added.</param>
-        <param name="internalformat">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="border">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="pixels">To be added.</param>
-        <summary>
-        </summary>
+        <param name="target">GL_TEXTURE_2D, or a supported extension image target.</param>
+        <param name="level">The nonnegative mipmap level; zero is the base image.</param>
+        <param name="internalformat">The image format; core OpenGL ES requires the same value as format.</param>
+        <param name="width">The nonnegative image width in texels, within the supported dimension and texture-size restrictions.</param>
+        <param name="height">The nonnegative image height in texels, within the supported dimension and texture-size restrictions.</param>
+        <param name="border">Zero; OpenGL ES texture images have no border.</param>
+        <param name="format">The supported input color format, matching internalformat.</param>
+        <param name="type">The supported component or packed-pixel type compatible with format.</param>
+        <param name="pixels">A direct or accessible array-backed input buffer at its current position, or null to allocate undefined image contents. For non-null input, supply the complete image including GL_UNPACK_ALIGNMENT row padding; capacity is not checked.</param>
+        <summary>Defines a texture image from pixel data, or allocates it without initial data.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -9213,17 +9199,16 @@
         <Parameter Name="pixels" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="target">To be added.</param>
-        <param name="level">To be added.</param>
-        <param name="xoffset">To be added.</param>
-        <param name="yoffset">To be added.</param>
-        <param name="width">To be added.</param>
-        <param name="height">To be added.</param>
-        <param name="format">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="pixels">To be added.</param>
-        <summary>
-        </summary>
+        <param name="target">GL_TEXTURE_2D, or a supported extension image target.</param>
+        <param name="level">The nonnegative level of the existing destination image.</param>
+        <param name="xoffset">The nonnegative horizontal destination texel offset.</param>
+        <param name="yoffset">The nonnegative vertical destination texel offset.</param>
+        <param name="width">The nonnegative update width in texels; the destination range must fit the image.</param>
+        <param name="height">The nonnegative update height in texels; the destination range must fit the image.</param>
+        <param name="format">The supported input color format compatible with the existing image.</param>
+        <param name="type">The supported component or packed-pixel type compatible with format.</param>
+        <param name="pixels">For a nonempty update, a non-null direct or accessible array-backed input buffer at its current position. Supply the complete update including GL_UNPACK_ALIGNMENT row padding. JNI also accepts null, but supplies no pixel data and checks no capacity.</param>
+        <summary>Replaces a rectangular region of an existing texture image with pixel data.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -10866,12 +10851,11 @@
         <Parameter Name="pointer" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="size">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="stride">To be added.</param>
-        <param name="pointer">To be added.</param>
-        <summary>
-        </summary>
+        <param name="size">Two, three, or four coordinates per vertex.</param>
+        <param name="type">GL_BYTE, GL_SHORT, GL_FIXED, or GL_FLOAT for the Common profile.</param>
+        <param name="stride">The nonnegative byte spacing between elements; zero means tightly packed data.</param>
+        <param name="pointer">A non-null direct, native-order buffer whose current position addresses the first element, with no array buffer bound. Keep all data needed by later draws alive; Java retains only its latest pointer. Provide enough storage for every element those draws access.</param>
+        <summary>Sets the vertex array pointer used by later array draws.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
