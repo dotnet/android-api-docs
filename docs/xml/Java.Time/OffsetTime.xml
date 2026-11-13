@@ -114,7 +114,11 @@
         <param name="temporal">the target object to be adjusted, not null</param>
         <summary>Adjusts the specified temporal object to have the same offset and time as this object.</summary>
         <returns>the adjusted object, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Adjusts the specified temporal object to have the same offset and time as this object. This returns a temporal object of the same observable type as the input with the offset and time changed to be the same as this. The adjustment is equivalent to using Temporal.with(TemporalField, long) twice, passing ChronoField.NANO_OF_DAY and ChronoField.OFFSET_SECONDS as the fields. In most cases, it is clearer to reverse the calling pattern by using Temporal.with(TemporalAdjuster):</para>
+<code lang="text/java">   // these two lines are equivalent, but the second approach is recommended
+   temporal = thisOffsetTime.adjustInto(temporal);
+   temporal = temporal.with(thisOffsetTime);</code>
+<para>This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#adjustInto(java.time.temporal.Temporal)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.adjustInto</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -221,7 +225,7 @@
         <param name="formatter">the formatter to use, not null</param>
         <summary>Formats this time using the specified formatter.</summary>
         <returns>the formatted time string, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Formats this time using the specified formatter. This time will be passed to the formatter to produce a string.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#format(java.time.format.DateTimeFormatter)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.format</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -447,7 +451,7 @@
         <param name="other">the other time to compare to, not null</param>
         <summary>Checks if the instant of this OffsetTime is before that of the specified time applying both times to a common date.</summary>
         <returns>true if this is before the instant of the specified time</returns>
-        <remarks>To be added.
+        <remarks><para>Checks if the instant of this OffsetTime is before that of the specified time applying both times to a common date. This method differs from the comparison in compareTo(java.time.OffsetTime) in that it only compares the instant of the time. This is equivalent to converting both times to an instant using the same date and comparing the instants.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#isBefore(java.time.OffsetTime)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.isBefore</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -560,7 +564,7 @@
         <param name="unit">the unit to check, null returns false</param>
         <summary>Checks if the specified unit is supported.</summary>
         <returns>true if the unit can be added/subtracted, false if not</returns>
-        <remarks>To be added.
+        <remarks><para>Checks if the specified unit is supported. This checks if the specified unit can be added to, or subtracted from, this offset-time. If false, then calling the plus(long, TemporalUnit) and minus methods will throw an exception. If the unit is a ChronoUnit then the query is implemented here. The supported units are: NANOS; MICROS; MILLIS; SECONDS; MINUTES; HOURS; HALF_DAYS All other ChronoUnit instances will return false. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.isSupportedBy(Temporal) passing this as the argument. Whether the unit is supported is determined by the unit.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#isSupported(java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.isSupported</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -615,10 +619,13 @@
         <Parameter Name="o" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="o">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="o">the object to be compared.</param>
+        <summary>Compares this object with the specified object for order.</summary>
+        <returns>a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.</returns>
+        <remarks>
+          <para>Compares this object with the specified object for order. Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object. The implementor must ensure signum(x.compareTo(y)) == -signum(y.compareTo(x)) for all x and y. (This implies that x.compareTo(y) must throw an exception if and only if y.compareTo(x) throws an exception.) The implementor must also ensure that the relation is transitive: (x.compareTo(y) &gt; 0 &amp;&amp; y.compareTo(z) &gt; 0) implies x.compareTo(z) &gt; 0. Finally, the implementor must ensure that x.compareTo(y)==0 implies that signum(x.compareTo(z)) == signum(y.compareTo(z)), for all z.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Comparable.html#compareTo(T)" title="Reference documentation">Java reference for <code>java.lang.Comparable.compareTo</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -687,9 +694,12 @@
         <ReturnType>Java.Time.OffsetTime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>The maximum supported OffsetTime, '23:59:59.999999999-18:00'.</summary>
+        <value>The time and offset <c>23:59:59.999999999-18:00</c>.</value>
+        <remarks>
+          <para>The maximum supported OffsetTime, '23:59:59.999999999-18:00'. This is the time just before midnight at the end of the day in the minimum offset (larger negative offsets are later on the time-line). This combines LocalTime.MAX and ZoneOffset.MIN. This could be used by an application as a "far future" date.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#MAX" title="Reference documentation">Java reference for <code>java.time.OffsetTime.MAX</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Min">
@@ -716,9 +726,12 @@
         <ReturnType>Java.Time.OffsetTime</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>The minimum supported OffsetTime, '00:00:00+18:00'.</summary>
+        <value>The time and offset <c>00:00:00+18:00</c>.</value>
+        <remarks>
+          <para>The minimum supported OffsetTime, '00:00:00+18:00'. This is the time of midnight at the start of the day in the maximum offset (larger offsets are earlier on the time-line). This combines LocalTime.MIN and ZoneOffset.MAX. This could be used by an application as a "far past" date.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#MIN" title="Reference documentation">Java reference for <code>java.time.OffsetTime.MIN</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Minus">
@@ -789,7 +802,7 @@
         <param name="unit">the unit of the amount to subtract, not null</param>
         <summary>Returns a copy of this time with the specified amount subtracted.</summary>
         <returns>an OffsetTime based on this time with the specified amount subtracted, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this time with the specified amount subtracted. This returns an OffsetTime, based on this one, with the amount in terms of the unit subtracted. If it is not possible to subtract the amount, because the unit is not supported or for some other reason, an exception is thrown. This method is equivalent to plus(long, TemporalUnit) with the amount negated. See that method for a full description of how addition, and thus subtraction, works. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#minus(long,java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.minus</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -896,7 +909,7 @@
         <param name="nanos">the nanos to subtract, may be negative</param>
         <summary>Returns a copy of this OffsetTime with the specified number of nanoseconds subtracted.</summary>
         <returns>an OffsetTime based on this time with the nanoseconds subtracted, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this OffsetTime with the specified number of nanoseconds subtracted. This subtracts the specified number of nanoseconds from this time, returning a new time. The calculation wraps around midnight. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#minusNanos(long)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.minusNanos</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1044,9 +1057,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Obtains the current time from the system clock in the default time-zone.</summary>
+        <returns>the current time using the system clock and default time-zone, not null</returns>
+        <remarks>
+          <para>Obtains the current time from the system clock in the default time-zone. This will query the system clock in the default time-zone to obtain the current time. The offset will be calculated from the time-zone in the clock. Using this method will prevent the ability to use an alternate clock for testing because the clock is hard-coded.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#now()" title="Reference documentation">Java reference for <code>java.time.OffsetTime.now</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Now">
@@ -1115,7 +1131,7 @@
         <param name="zone">the zone ID to use, not null</param>
         <summary>Obtains the current time from the system clock in the specified time-zone.</summary>
         <returns>the current time using the system clock, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains the current time from the system clock in the specified time-zone. This will query the system clock to obtain the current time. Specifying the time-zone avoids dependence on the default time-zone. The offset will be calculated from the specified time-zone. Using this method will prevent the ability to use an alternate clock for testing because the clock is hard-coded.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#now(java.time.ZoneId)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.now</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1196,7 +1212,7 @@
         <param name="offset">the zone offset, not null</param>
         <summary>Obtains an instance of OffsetTime from an hour, minute, second and nanosecond.</summary>
         <returns>the offset time, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains an instance of OffsetTime from an hour, minute, second and nanosecond. This creates an offset time with the four specified fields. This method exists primarily for writing test cases. Non test-code will typically use other methods to create an offset time. LocalTime has two additional convenience variants of the equivalent factory method taking fewer arguments. They are not provided here to reduce the footprint of the API.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#of(int,int,int,int,java.time.ZoneOffset)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.of</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1265,7 +1281,7 @@
         <param name="zone">the time-zone, which may be an offset, not null</param>
         <summary>Obtains an instance of OffsetTime from an Instant and zone ID.</summary>
         <returns>the offset time, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains an instance of OffsetTime from an Instant and zone ID. This creates an offset time with the same instant as that specified. Finding the offset from UTC/Greenwich is simple as there is only one valid offset for each instant. The date component of the instant is dropped during the conversion. This means that the conversion can never fail due to the instant being out of the valid range of dates.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#ofInstant(java.time.Instant,java.time.ZoneId)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.ofInstant</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1329,10 +1345,12 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The time and offset text, for example <c>10:15:30+01:00</c>.</param>
+        <summary>Parses an ISO time with a UTC offset from a string.</summary>
+        <returns>The time and offset read from <paramref name="text" />.</returns>
+        <remarks>
+          <para>This string overload calls <see cref="M:Java.Time.OffsetTime.Parse(Java.Lang.ICharSequence)" /> and uses <see cref="P:Java.Time.Format.DateTimeFormatter.IsoOffsetTime" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -1397,11 +1415,13 @@
         <Parameter Name="formatter" Type="Java.Time.Format.DateTimeFormatter" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="formatter">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The string that contains the time and offset fields.</param>
+        <param name="formatter">The formatter that reads the time and offset fields.</param>
+        <summary>Parses an offset time string with the specified formatter.</summary>
+        <returns>The time and offset read from <paramref name="text" />.</returns>
+        <remarks>
+          <para>This string overload calls <see cref="M:Java.Time.OffsetTime.Parse(Java.Lang.ICharSequence,Java.Time.Format.DateTimeFormatter)" />. The supplied formatter determines the input format.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Plus">
@@ -1511,7 +1531,7 @@
         <param name="hours">the hours to add, may be negative</param>
         <summary>Returns a copy of this OffsetTime with the specified number of hours added.</summary>
         <returns>an OffsetTime based on this time with the hours added, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this OffsetTime with the specified number of hours added. This adds the specified number of hours to this time, returning a new time. The calculation wraps around midnight. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#plusHours(long)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.plusHours</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1700,7 +1720,7 @@
         <param name="field">the field to query the range for, not null</param>
         <summary>Gets the range of valid values for the specified field.</summary>
         <returns>the range of valid values for the field, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Gets the range of valid values for the specified field. The range object expresses the minimum and maximum valid values for a field. This time is used to enhance the accuracy of the returned range. If it is not possible to return the range, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the query is implemented here. The supported fields will return appropriate range instances. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.rangeRefinedBy(TemporalAccessor) passing this as the argument. Whether the range can be obtained is determined by the field.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#range(java.time.temporal.TemporalField)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.range</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1915,7 +1935,7 @@
         <param name="unit">the unit to truncate to, not null</param>
         <summary>Returns a copy of this OffsetTime with the time truncated.</summary>
         <returns>an OffsetTime based on this time with the time truncated, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this OffsetTime with the time truncated. Truncation returns a copy of the original time with fields smaller than the specified unit set to zero. For example, truncating with the minutes unit will set the second-of-minute and nano-of-second field to zero. The unit must have a duration that divides into the length of a standard day without remainder. This includes all supplied time units on ChronoUnit and DAYS. Other units throw an exception. The offset does not affect the calculation and will be the same in the result. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#truncatedTo(java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.truncatedTo</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2104,7 +2124,7 @@
         <param name="minute">the minute-of-hour to set in the result, from 0 to 59</param>
         <summary>Returns a copy of this OffsetTime with the minute-of-hour altered.</summary>
         <returns>an OffsetTime based on this time with the requested minute, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this OffsetTime with the minute-of-hour altered. The offset does not affect the calculation and will be the same in the result. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetTime.html#withMinute(int)" title="Reference documentation">Java reference for <code>java.time.OffsetTime.withMinute</code>.</a></format></para>
         </remarks>
       </Docs>

@@ -121,7 +121,11 @@
         <param name="temporal">the target object to be adjusted, not null</param>
         <summary>Adjusts the specified temporal object to have this month-day.</summary>
         <returns>the adjusted object, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Adjusts the specified temporal object to have this month-day. This returns a temporal object of the same observable type as the input with the month and day-of-month changed to be the same as this. The adjustment is equivalent to using Temporal.with(TemporalField, long) twice, passing ChronoField.MONTH_OF_YEAR and ChronoField.DAY_OF_MONTH as the fields. If the specified temporal object does not use the ISO calendar system then a DateTimeException is thrown. In most cases, it is clearer to reverse the calling pattern by using Temporal.with(TemporalAdjuster):</para>
+<code lang="text/java">   // these two lines are equivalent, but the second approach is recommended
+   temporal = thisMonthDay.adjustInto(temporal);
+   temporal = temporal.with(thisMonthDay);</code>
+<para>This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/MonthDay.html#adjustInto(java.time.temporal.Temporal)" title="Reference documentation">Java reference for <code>java.time.MonthDay.adjustInto</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -345,7 +349,7 @@
         <param name="field">the field to get, not null</param>
         <summary>Gets the value of the specified field from this month-day as an int.</summary>
         <returns>the value for the field</returns>
-        <remarks>To be added.
+        <remarks><para>Gets the value of the specified field from this month-day as an int. This queries this month-day for the value of the specified field. The returned value will always be within the valid range of values for the field. If it is not possible to return the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the query is implemented here. The supported fields will return valid values based on this month-day. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.getFrom(TemporalAccessor) passing this as the argument. Whether the value can be obtained, and what the value represents, is determined by the field.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/MonthDay.html#get(java.time.temporal.TemporalField)" title="Reference documentation">Java reference for <code>java.time.MonthDay.get</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -455,7 +459,7 @@
         <param name="other">the other month-day to compare to, not null</param>
         <summary>Checks if this month-day is before the specified month-day.</summary>
         <returns>true if this point is before the specified month-day</returns>
-        <remarks>To be added.
+        <remarks><para>Checks if this month-day is before the specified month-day.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/MonthDay.html#isBefore(java.time.MonthDay)" title="Reference documentation">Java reference for <code>java.time.MonthDay.isBefore</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -596,10 +600,13 @@
         <Parameter Name="o" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="o">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="o">the object to be compared.</param>
+        <summary>Compares this object with the specified object for order.</summary>
+        <returns>a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.</returns>
+        <remarks>
+          <para>Compares this object with the specified object for order. Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object. The implementor must ensure signum(x.compareTo(y)) == -signum(y.compareTo(x)) for all x and y. (This implies that x.compareTo(y) must throw an exception if and only if y.compareTo(x) throws an exception.) The implementor must also ensure that the relation is transitive: (x.compareTo(y) &gt; 0 &amp;&amp; y.compareTo(z) &gt; 0) implies x.compareTo(z) &gt; 0. Finally, the implementor must ensure that x.compareTo(y)==0 implies that signum(x.compareTo(z)) == signum(y.compareTo(z)), for all z.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Comparable.html#compareTo(T)" title="Reference documentation">Java reference for <code>java.lang.Comparable.compareTo</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -745,9 +752,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Obtains the current month-day from the system clock in the default time-zone.</summary>
+        <returns>the current month-day using the system clock and default time-zone, not null</returns>
+        <remarks>
+          <para>Obtains the current month-day from the system clock in the default time-zone. This will query the system clock in the default time-zone to obtain the current month-day. Using this method will prevent the ability to use an alternate clock for testing because the clock is hard-coded.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/MonthDay.html#now()" title="Reference documentation">Java reference for <code>java.time.MonthDay.now</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Now">
@@ -780,7 +790,7 @@
         <param name="clock">the clock to use, not null</param>
         <summary>Obtains the current month-day from the specified clock.</summary>
         <returns>the current month-day, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains the current month-day from the specified clock. This will query the specified clock to obtain the current month-day. Using this method allows the use of an alternate clock for testing. The alternate clock may be introduced using dependency injection.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/MonthDay.html#now(java.time.Clock)" title="Reference documentation">Java reference for <code>java.time.MonthDay.now</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -853,7 +863,7 @@
         <param name="dayOfMonth">the day-of-month to represent, from 1 to 31</param>
         <summary>Obtains an instance of MonthDay.</summary>
         <returns>the month-day, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains an instance of MonthDay. The day-of-month must be valid for the month within a leap year. Hence, for February, day 29 is valid. For example, passing in April and day 31 will throw an exception, as there can never be April 31st in any year. By contrast, passing in February 29th is permitted, as that month-day can sometimes be valid.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/MonthDay.html#of(java.time.Month,int)" title="Reference documentation">Java reference for <code>java.time.MonthDay.of</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -955,10 +965,12 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The month and day text, for example <c>--12-03</c>.</param>
+        <summary>Parses a month and day from a string without a year.</summary>
+        <returns>The month and day read from <paramref name="text" />.</returns>
+        <remarks>
+          <para>This string overload calls <see cref="M:Java.Time.MonthDay.Parse(Java.Lang.ICharSequence)" />. Its default format has two hyphens, a two-digit month, a hyphen, and a two-digit day.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -993,7 +1005,7 @@
         <param name="formatter">the formatter to use, not null</param>
         <summary>Obtains an instance of MonthDay from a text string using a specific formatter.</summary>
         <returns>the parsed month-day, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains an instance of MonthDay from a text string using a specific formatter. The text is parsed using the formatter, returning a month-day.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/MonthDay.html#parse(java.lang.CharSequence,java.time.format.DateTimeFormatter)" title="Reference documentation">Java reference for <code>java.time.MonthDay.parse</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1022,11 +1034,13 @@
         <Parameter Name="formatter" Type="Java.Time.Format.DateTimeFormatter" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="formatter">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The string that contains the month and day fields.</param>
+        <param name="formatter">The formatter that reads the month and day fields.</param>
+        <summary>Parses a month-day string with the specified formatter.</summary>
+        <returns>The month and day read from <paramref name="text" />.</returns>
+        <remarks>
+          <para>This string overload calls <see cref="M:Java.Time.MonthDay.Parse(Java.Lang.ICharSequence,Java.Time.Format.DateTimeFormatter)" />. The supplied formatter determines the input format.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Query">
@@ -1105,7 +1119,7 @@
         <param name="field">the field to query the range for, not null</param>
         <summary>Gets the range of valid values for the specified field.</summary>
         <returns>the range of valid values for the field, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Gets the range of valid values for the specified field. The range object expresses the minimum and maximum valid values for a field. This month-day is used to enhance the accuracy of the returned range. If it is not possible to return the range, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the query is implemented here. The supported fields will return appropriate range instances. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.rangeRefinedBy(TemporalAccessor) passing this as the argument. Whether the range can be obtained is determined by the field.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/MonthDay.html#range(java.time.temporal.TemporalField)" title="Reference documentation">Java reference for <code>java.time.MonthDay.range</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1282,7 +1296,7 @@
         <param name="month">the month-of-year to set in the returned month-day, from 1 (January) to 12 (December)</param>
         <summary>Returns a copy of this MonthDay with the month-of-year altered.</summary>
         <returns>a MonthDay based on this month-day with the requested month, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this MonthDay with the month-of-year altered. This returns a month-day with the specified month. If the day-of-month is invalid for the specified month, the day will be adjusted to the last valid day-of-month. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/MonthDay.html#withMonth(int)" title="Reference documentation">Java reference for <code>java.time.MonthDay.withMonth</code>.</a></format></para>
         </remarks>
       </Docs>
