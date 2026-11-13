@@ -261,9 +261,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="type">The event-category value passed to the bound JNI call as a primitive integer.</param>
-        <summary><para>Requests the primitive-integer JNI entry point named <c>getTypeResource</c>.</para><para>This binding requests the JNI signature <c>(I)I</c>, with a primitive integer argument. Android's declared helper instead accepts <c>java.lang.Integer</c>, with signature <c>(Ljava/lang/Integer;)I</c>. The framework declaration therefore does not match this binding's request. If only the label text is needed, use <see cref="M:Android.Provider.ContactsContract.CommonDataKinds.Event.GetTypeLabel(Android.Content.Res.Resources,Android.Provider.EventDataKind,System.String)" />.</para></summary>
-        <returns>The integer returned by the resolved JNI target, if lookup and invocation succeed.</returns>
+        <param name="type">The event-category value forwarded as a primitive integer; the binding body does not box it as <c>java.lang.Integer</c>.</param>
+        <summary><para>Exposes a primitive-integer JNI request that does not match Android's boxed-integer helper.</para><para>This binding requests <c>getTypeResource(I)I</c>. Android's declared helper instead accepts <c>java.lang.Integer</c>, with signature <c>(Ljava/lang/Integer;)I</c>. When only that boxed helper is available and no matching replacement or companion target exists, lookup fails before invocation. If only the label text is needed, use <see cref="M:Android.Provider.ContactsContract.CommonDataKinds.Event.GetTypeLabel(Android.Content.Res.Resources,Android.Provider.EventDataKind,System.String)" />.</para></summary>
+        <returns>No value when the framework exposes only <c>getTypeResource(java.lang.Integer)</c> and neither an explicit replacement nor a same-signature companion supplies <c>getTypeResource(int)</c>; lookup fails before invocation.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
