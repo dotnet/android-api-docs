@@ -376,7 +376,7 @@
         <param name="offsetDuration">the duration to add, not null</param>
         <summary>Obtains a clock that returns instants from the specified clock with the specified duration added.</summary>
         <returns>a clock based on the base clock with the duration added, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains a clock that returns instants from the specified clock with the specified duration added. This clock wraps another clock, returning instants that are later by the specified duration. If the duration is negative, the instants will be earlier than the current date and time. The main use case for this is to simulate running in the future or in the past. A duration of zero would have no offsetting effect. Passing zero will return the underlying clock. The returned implementation is immutable, thread-safe and Serializable providing that the base clock is.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Clock.html#offset(java.time.Clock,java.time.Duration)" title="Reference documentation">Java reference for <code>java.time.Clock.offset</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -475,9 +475,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Obtains a clock that returns the current instant using the best available system clock, converting to date and time using the UTC time-zone.</summary>
+        <returns>a clock that uses the best available system clock in the UTC zone, not null</returns>
+        <remarks>
+          <para>Obtains a clock that returns the current instant using the best available system clock, converting to date and time using the UTC time-zone. This clock, rather than systemDefaultZone(), should be used when you need the current instant without the date or time. This clock is based on the best available system clock. This may use System.currentTimeMillis(), or a higher resolution clock if one is available. Conversion from instant to date or time uses the UTC time-zone. The returned implementation is immutable, thread-safe and Serializable. It is equivalent to system(ZoneOffset.UTC).</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Clock.html#systemUTC()" title="Reference documentation">Java reference for <code>java.time.Clock.systemUTC</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -582,7 +585,7 @@
         <param name="tickDuration">the duration of each visible tick, not negative, not null</param>
         <summary>Obtains a clock that returns instants from the specified clock truncated to the nearest occurrence of the specified duration.</summary>
         <returns>a clock that ticks in whole units of the duration, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains a clock that returns instants from the specified clock truncated to the nearest occurrence of the specified duration. This clock will only tick as per the specified duration. Thus, if the duration is half a second, the clock will return instants truncated to the half second. The tick duration must be positive. If it has a part smaller than a whole millisecond, then the whole duration must divide into one second without leaving a remainder. All normal tick durations will match these criteria, including any multiple of hours, minutes, seconds and milliseconds, and sensible nanosecond durations, such as 20ns, 250,000ns and 500,000ns. A duration of zero or one nanosecond would have no truncation effect. Passing one of these will return the underlying clock. Implementations may use a caching strategy for performance reasons. As such, it is possible that the start of the requested duration observed via this clock will be later than that observed directly via the underlying clock. The returned implementation is immutable, thread-safe and Serializable providing that the base clock is.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Clock.html#tick(java.time.Clock,java.time.Duration)" title="Reference documentation">Java reference for <code>java.time.Clock.tick</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -653,7 +656,7 @@
         <param name="zone">the time-zone to use to convert the instant to date-time, not null</param>
         <summary>Obtains a clock that returns the current instant ticking in whole minutes using the best available system clock.</summary>
         <returns>a clock that ticks in whole minutes using the specified zone, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains a clock that returns the current instant ticking in whole minutes using the best available system clock. This clock will always have the nano-of-second and second-of-minute fields set to zero. This ensures that the visible time ticks in whole minutes. The underlying clock is the best available system clock, equivalent to using system(ZoneId). Implementations may use a caching strategy for performance reasons. As such, it is possible that the start of the minute observed via this clock will be later than that observed directly via the underlying clock. The returned implementation is immutable, thread-safe and Serializable. It is equivalent to tick(system(zone), Duration.ofMinutes(1)).</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Clock.html#tickMinutes(java.time.ZoneId)" title="Reference documentation">Java reference for <code>java.time.Clock.tickMinutes</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -759,7 +762,7 @@
       <Docs>
         <summary>Gets the time-zone being used to create dates and times.</summary>
         <value>the time-zone being used to interpret instants, not null</value>
-        <remarks>To be added.
+        <remarks><para>Gets the time-zone being used to create dates and times. A clock will typically obtain the current instant and then convert that to a date or time using a time-zone. This method returns the time-zone used.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Clock.html#getZone()" title="Reference documentation">Java reference for <code>java.time.Clock.getZone</code>.</a></format></para>
         </remarks>
       </Docs>

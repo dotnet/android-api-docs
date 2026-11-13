@@ -121,7 +121,11 @@
         <param name="temporal">the temporal object to adjust, not null</param>
         <summary>Adds this period to the specified temporal object.</summary>
         <returns>an object of the same type with the adjustment made, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Adds this period to the specified temporal object. This returns a temporal object of the same observable type as the input with this period added. If the temporal has a chronology, it must be the ISO chronology. In most cases, it is clearer to reverse the calling pattern by using Temporal.plus(TemporalAmount).</para>
+<code lang="text/java">   // these two lines are equivalent, but the second approach is recommended
+   dateTime = thisPeriod.addTo(dateTime);
+   dateTime = dateTime.plus(thisPeriod);</code>
+<para>The calculation operates as follows. First, the chronology of the temporal is checked to ensure it is ISO chronology or null. Second, if the months are zero, the years are added if non-zero, otherwise the combination of years and months is added if non-zero. Finally, any days are added. This approach ensures that a partial period can be added to a partial date. For example, a period of years and/or months can be added to a YearMonth, but a period including days cannot. The approach also adds years and months together when necessary, which ensures correct behaviour at the end of the month. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Period.html#addTo(java.time.temporal.Temporal)" title="Reference documentation">Java reference for <code>java.time.Period.addTo</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -271,7 +275,7 @@
         <param name="amount">the temporal amount to convert, not null</param>
         <summary>Obtains an instance of Period from a temporal amount.</summary>
         <returns>the equivalent period, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains an instance of Period from a temporal amount. This obtains a period based on the specified amount. A TemporalAmount represents an amount of time, which may be date-based or time-based, which this factory extracts to a Period. The conversion loops around the set of units from the amount and uses the YEARS, MONTHS and DAYS units to create a period. If any other units are found then an exception is thrown. If the amount is a ChronoPeriod then it must use the ISO chronology.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Period.html#from(java.time.temporal.TemporalAmount)" title="Reference documentation">Java reference for <code>java.time.Period.from</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -612,7 +616,7 @@
         <param name="yearsToSubtract">the years to subtract, positive or negative</param>
         <summary>Returns a copy of this period with the specified years subtracted.</summary>
         <returns>a Period based on this period with the specified years subtracted, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this period with the specified years subtracted. This subtracts the amount from the years unit in a copy of this period. The months and days units are unaffected. For example, "1 year, 6 months and 3 days" minus 2 years returns "-1 years, 6 months and 3 days". This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Period.html#minusYears(long)" title="Reference documentation">Java reference for <code>java.time.Period.minusYears</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -764,7 +768,7 @@
       <Docs>
         <summary>Returns a copy of this period with the years and months normalized.</summary>
         <returns>a Period based on this period with excess months normalized to years, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this period with the years and months normalized. This normalizes the years and months units, leaving the days unit unchanged. The months unit is adjusted to have an absolute value less than 12, with the years unit being adjusted to compensate. For example, a period of "1 Year and 15 months" will be normalized to "2 years and 3 months". The sign of the years and months units will be the same after normalization. For example, a period of "1 year and -25 months" will be normalized to "-1 year and -1 month". This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Period.html#normalized()" title="Reference documentation">Java reference for <code>java.time.Period.normalized</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -944,10 +948,13 @@
         <Parameter Name="years" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="years">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="years">the number of years, positive or negative</param>
+        <summary>Obtains a Period representing a number of years.</summary>
+        <returns>the period of years, not null</returns>
+        <remarks>
+          <para>Obtains a Period representing a number of years. The resulting period will have the specified years. The months and days units will be zero.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Period.html#ofYears(int)" title="Reference documentation">Java reference for <code>java.time.Period.ofYears</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -980,7 +987,15 @@
         <param name="text">the text to parse, not null</param>
         <summary>Obtains a Period from a text string such as PnYnMnD.</summary>
         <returns>the parsed period, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains a Period from a text string such as PnYnMnD. This will parse the string produced by toString() which is based on the ISO-8601 period formats PnYnMnD and PnW. The string starts with an optional sign, denoted by the ASCII negative or positive symbol. If negative, the whole period is negated. The ASCII letter "P" is next in upper or lower case. There are then four sections, each consisting of a number and a suffix. At least one of the four sections must be present. The sections have suffixes in ASCII of "Y", "M", "W" and "D" for years, months, weeks and days, accepted in upper or lower case. The suffixes must occur in order. The number part of each section must consist of ASCII digits. The number may be prefixed by the ASCII negative or positive symbol. The number must parse to an int. The leading plus/minus sign, and negative values for other units are not part of the ISO-8601 standard. In addition, ISO-8601 does not permit mixing between the PnYnMnD and PnW formats. Any week-based input is multiplied by 7 and treated as a number of days. For example, the following are valid inputs:</para>
+<code lang="text/java">   "P2Y"             -- Period.ofYears(2)
+   "P3M"             -- Period.ofMonths(3)
+   "P4W"             -- Period.ofWeeks(4)
+   "P5D"             -- Period.ofDays(5)
+   "P1Y2M3D"         -- Period.of(1, 2, 3)
+   "P1Y2M3W4D"       -- Period.of(1, 2, 25)
+   "P-1Y2M"          -- Period.of(-1, 2, 0)
+   "-P1Y2M"          -- Period.of(-1, -2, 0)</code>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Period.html#parse(java.lang.CharSequence)" title="Reference documentation">Java reference for <code>java.time.Period.parse</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1008,10 +1023,12 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The period text, for example <c>P1Y2M3D</c>.</param>
+        <summary>Parses a period of years, months, and days from a string.</summary>
+        <returns>The period represented by <paramref name="text" />.</returns>
+        <remarks>
+          <para>This string overload calls <see cref="M:Java.Time.Period.Parse(Java.Lang.ICharSequence)" />. The input format is based on ISO-8601 periods. Each parsed week contributes seven days to the result.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Plus">
@@ -1119,7 +1136,7 @@
         <param name="monthsToAdd">the months to add, positive or negative</param>
         <summary>Returns a copy of this period with the specified months added.</summary>
         <returns>a Period based on this period with the specified months added, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this period with the specified months added. This adds the amount to the months unit in a copy of this period. The years and days units are unaffected. For example, "1 year, 6 months and 3 days" plus 2 months returns "1 year, 8 months and 3 days". This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Period.html#plusMonths(long)" title="Reference documentation">Java reference for <code>java.time.Period.plusMonths</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1419,7 +1436,7 @@
         <param name="months">the months to represent, may be negative</param>
         <summary>Returns a copy of this period with the specified amount of months.</summary>
         <returns>a Period based on this period with the requested months, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this period with the specified amount of months. This sets the amount of the months unit in a copy of this period. The years and days units are unaffected. The months unit is not automatically normalized with the years unit. This means that a period of "15 months" is different to a period of "1 year and 3 months". This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Period.html#withMonths(int)" title="Reference documentation">Java reference for <code>java.time.Period.withMonths</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1529,9 +1546,12 @@
         <ReturnType>Java.Time.Period</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>A constant for a period of zero.</summary>
+        <value>A period of zero years, zero months, and zero days.</value>
+        <remarks>
+          <para>A constant for a period of zero.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Period.html#ZERO" title="Reference documentation">Java reference for <code>java.time.Period.ZERO</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
