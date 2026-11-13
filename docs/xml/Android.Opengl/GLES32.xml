@@ -2575,12 +2575,12 @@
         <Parameter Name="basevertex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mode">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="indices">To be added.</param>
-        <param name="basevertex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mode">The primitive-mode token forwarded to GL when the JNI size test passes.</param>
+        <param name="count">The nonnegative requested index count. JNI incorrectly compares remaining bytes with count minus basevertex, not the storage needed for count indices.</param>
+        <param name="type">The GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, or GL_UNSIGNED_INT token forwarded to GL; the JNI capacity test does not account for the index width.</param>
+        <param name="indices">A non-null direct, native-order index buffer at its current position, with the full count indices available and GL_ELEMENT_ARRAY_BUFFER unbound. Do not rely on the incorrect JNI size test. Its byte threshold can reject otherwise valid index storage.</param>
+        <param name="basevertex">The signed vertex-index bias passed to GL. Choose it so JNI's unchecked signed 32-bit count minus basevertex calculation does not overflow.</param>
+        <summary>Unsafe legacy Buffer mapping with an incorrect JNI size test. Prefer the integer-offset GlDrawElementsInstancedBaseVertex overload with one instance for element-buffer drawing.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2618,13 +2618,13 @@
         <Parameter Name="basevertex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mode">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="indices">To be added.</param>
-        <param name="instanceCount">To be added.</param>
-        <param name="basevertex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mode">The primitive-mode token forwarded to GL when the JNI size test passes.</param>
+        <param name="count">The nonnegative requested index count. JNI incorrectly compares remaining bytes with count minus basevertex, not the storage needed for count indices.</param>
+        <param name="type">The GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, or GL_UNSIGNED_INT token forwarded to GL; the JNI capacity test does not account for the index width.</param>
+        <param name="indices">A non-null direct, native-order index buffer at its current position, with the full count indices available and GL_ELEMENT_ARRAY_BUFFER unbound. Do not rely on the incorrect JNI size test. This wrapper has no explicit null guard and does not recover the original array base during cleanup.</param>
+        <param name="instanceCount">The nonnegative requested instance count, forwarded without JNI validation if its size test passes.</param>
+        <param name="basevertex">The signed vertex-index bias passed to GL. Choose it so JNI's unchecked signed 32-bit count minus basevertex calculation does not overflow.</param>
+        <summary>Unsafe legacy Buffer mapping: a failed JNI size test silently skips the draw, and array-backed cleanup is unsafe. Prefer the integer-offset overload.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2707,14 +2707,14 @@
         <Parameter Name="basevertex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mode">To be added.</param>
-        <param name="start">To be added.</param>
-        <param name="end">To be added.</param>
-        <param name="count">To be added.</param>
-        <param name="type">To be added.</param>
-        <param name="indices">To be added.</param>
-        <param name="basevertex">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="mode">The primitive-mode token forwarded to GL when the JNI size test passes.</param>
+        <param name="start">The unsigned lower bound for non-restart indices before the vertex bias; JNI casts this Int32 bit pattern to GLuint.</param>
+        <param name="end">The unsigned upper bound for non-restart indices before the vertex bias, not below start; JNI casts this Int32 bit pattern to GLuint.</param>
+        <param name="count">The nonnegative requested index count. JNI incorrectly compares remaining bytes with count minus basevertex, not the storage needed for count indices.</param>
+        <param name="type">The GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, or GL_UNSIGNED_INT token forwarded to GL; the JNI capacity test does not account for the index width.</param>
+        <param name="indices">A non-null direct, native-order index buffer at its current position, with the full count indices available and GL_ELEMENT_ARRAY_BUFFER unbound. Do not rely on the incorrect JNI size test. Its byte threshold can reject otherwise valid index storage.</param>
+        <param name="basevertex">The signed vertex-index bias passed to GL. Choose it so JNI's unchecked signed 32-bit count minus basevertex calculation does not overflow.</param>
+        <summary>Unsafe legacy Buffer mapping with an incorrect JNI size test. Prefer the integer-offset GlDrawElementsInstancedBaseVertex overload with one instance for element-buffer drawing.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6754,7 +6754,7 @@
       <MemberValue>37566</MemberValue>
       <Docs>
         <summary>Selects the minimum and maximum homogeneous clip-coordinate bounds for primitives.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Query eight floats with GlGetFloatv: minimum X, Y, Z, W, then maximum X, Y, Z, W. Allocate the complete result; the inherited JNI query-size table does not check all eight values. This queries stored bounding-box state, not the tessellation shader's gl_BoundingBox output.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlPrimitiveRestartForPatchesSupported">
