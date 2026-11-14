@@ -44,7 +44,7 @@
   </Attributes>
   <Docs>
     <summary>A request for a prompt to be displayed to the user.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The request carries a prompt insight and the result receiver used for its response. Parceling preserves both pieces of data.</remarks>
   </Docs>
   <Members>
     <Member MemberName="Creator">
@@ -71,9 +71,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the parcel factory for prompt requests.</summary>
+        <value>The creator that reads prompt requests and creates request arrays.</value>
+        <remarks>Reading a request restores its prompt insight and result receiver from the parcel.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -104,9 +104,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports this request's parcel content flags.</summary>
+        <returns>Zero.</returns>
+        <remarks>The implementation returns zero without combining flags from the stored prompt or receiver.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -191,9 +191,9 @@
         <ReturnType>Android.App.PersonalContext.Insight.PromptInsight</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the prompt carried by this request.</summary>
+        <value>The prompt insight stored in the request.</value>
+        <remarks>The request requires a non-null prompt, including when reconstructed from a parcel.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -296,10 +296,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel to receive the request's data.</param>
+        <param name="flags">The flags passed to the typed-object parcel writers.</param>
+        <summary>Writes the prompt and its result receiver to a parcel.</summary>
+        <remarks>The prompt is written through its insight wrapper, followed by the result receiver.</remarks>
       </Docs>
     </Member>
   </Members>

@@ -46,7 +46,7 @@
     <summary>Represents an App Function execution request specified by <c>ContextUnderstanderService</c>
             and fulfilled by <c>InsightRendererService</c> instances that live within trusted UI components
             like SysUI &amp; Recents.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The action stores a required app-function execution request. Constructing or reading the action does not execute that request.</remarks>
   </Docs>
   <Members>
     <Member MemberName="Creator">
@@ -73,9 +73,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the parcel factory for remote app-function actions.</summary>
+        <value>The creator that reads actions and creates action arrays.</value>
+        <remarks>Reading an action restores its required execution request from the parcel.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -106,9 +106,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports this action's parcel content flags.</summary>
+        <returns>Zero.</returns>
+        <remarks>The implementation returns zero without querying the stored request's content flags.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -194,8 +194,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the underlying <c>ExecuteAppFunctionRequest</c> to be executed.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The execution request supplied to the action builder.</value>
+        <remarks>The getter only reads the stored request; it does not execute the app function.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -298,10 +298,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel to receive the action's execution request.</param>
+        <param name="flags">The flags passed to the request's typed-object parcel writer.</param>
+        <summary>Writes this action's execution request to a parcel.</summary>
+        <remarks>The method writes the stored request as one typed object; it does not execute it.</remarks>
       </Docs>
     </Member>
   </Members>

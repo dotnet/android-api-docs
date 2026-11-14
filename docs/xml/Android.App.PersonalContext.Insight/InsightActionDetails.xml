@@ -44,7 +44,7 @@
   </Attributes>
   <Docs>
     <summary>Contains the details of an action to be performed, either as an <c>PendingIntent</c> or a <c>RemoteAction</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The builder can store pending-intent, remote-action, and app-function actions together, but requires at least one. The receiver can choose which stored action to use.</remarks>
   </Docs>
   <Members>
     <Member MemberName="ActionHasAppFunction">
@@ -80,7 +80,7 @@
       <MemberValue>4</MemberValue>
       <Docs>
         <summary>The action details contain a <c>RemoteAppFunctionAction</c>.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This bit has value 4 and can be combined with the other action-presence bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionHasPendingIntent">
@@ -116,7 +116,7 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>The action details contain an <c>PendingIntent</c>.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This bit has value 1 and can be combined with the other action-presence bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionHasRemoteAction">
@@ -152,7 +152,7 @@
       <MemberValue>2</MemberValue>
       <Docs>
         <summary>The action details contain a <c>RemoteAction</c>.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This bit has value 2 and can be combined with the other action-presence bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionTypeAppFunction">
@@ -188,7 +188,7 @@
       <MemberValue>4</MemberValue>
       <Docs>
         <summary>The action details contain a <c>RemoteAppFunctionAction</c>.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This older name has the same numeric value, 4, as ActionHasAppFunction.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionTypePendingIntent">
@@ -224,7 +224,7 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>The action details contain an <c>PendingIntent</c>.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This older name has the same numeric value, 1, as ActionHasPendingIntent.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionTypeRemoteAction">
@@ -260,7 +260,7 @@
       <MemberValue>2</MemberValue>
       <Docs>
         <summary>The action details contain a <c>RemoteAction</c>.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This older name has the same numeric value, 2, as ActionHasRemoteAction.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionTypes">
@@ -288,8 +288,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the action types contained in this action details.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The combined presence bits for the stored actions.</value>
+        <remarks>Each non-null action contributes its corresponding bit. Several bits can be set at the same time.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -316,9 +316,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the parcel factory for insight action details.</summary>
+        <value>The creator that reads action details and creates arrays of them.</value>
+        <remarks>Reading restores the action-type bits, pending intent, remote action, and app-function action in that order.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -349,9 +349,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports these action details' parcel content flags.</summary>
+        <returns>Zero.</returns>
+        <remarks>The implementation returns zero without combining content flags from the stored actions.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HasActionType">
@@ -388,10 +388,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="actionType">To be added.</param>
+        <param name="actionType">The action-presence bits to test.</param>
         <summary>Returns whether the action details has the given action type.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns><see langword="true" /> if every requested bit is set; otherwise, <see langword="false" />.</returns>
+        <remarks>The test compares the bitwise intersection with the full argument. A zero argument therefore returns true.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -485,8 +485,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the <c>PendingIntent</c> these details contain, or null if there is no <c>PendingIntent</c>.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The stored pending intent, or <see langword="null" /> if no pending intent was set.</value>
+        <remarks>A remote action or app-function action can still be present when this property is null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoteAction">
@@ -522,8 +522,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the <c>RemoteAction</c> these details contain, or null if there is no remote action.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The stored remote action, or <see langword="null" /> if no remote action was set.</value>
+        <remarks>A pending intent or app-function action can still be present when this property is null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RemoteAppFunctionAction">
@@ -560,8 +560,8 @@
       <Docs>
         <summary>Returns the <c>RemoteAppFunctionAction</c> these details contain, or null if there is no
             <c>RemoteAppFunctionAction</c>.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The stored app-function action, or <see langword="null" /> if none was set.</value>
+        <remarks>A pending intent or remote action can still be present when this property is null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -664,10 +664,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel to receive the action details.</param>
+        <param name="flags">The flags passed to each stored action's typed-object parcel writer.</param>
+        <summary>Writes the presence bits and stored actions to a parcel.</summary>
+        <remarks>The method writes the bits first, then the pending intent, remote action, and app-function action.</remarks>
       </Docs>
     </Member>
   </Members>

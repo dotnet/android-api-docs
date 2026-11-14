@@ -31,7 +31,7 @@
   </Attributes>
   <Docs>
     <summary>A response containing the result of a prompt interaction.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The response pairs a prompt request with an optional result insight. A null result represents cancellation.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -66,10 +66,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="promptRequest">To be added.</param>
-        <param name="contextInsight">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="promptRequest">The request to which this response belongs. Must not be <see langword="null" />.</param>
+        <param name="contextInsight">The result insight, or <see langword="null" /> if the user cancelled the prompt.</param>
+        <summary>Creates a response for a prompt request and its optional result.</summary>
+        <remarks>The constructor requires a request but accepts a null result.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ContextInsight">
@@ -104,9 +104,9 @@
         <ReturnType>Android.App.PersonalContext.Insight.ContextInsight</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the result supplied for the prompt.</summary>
+        <value>The result insight, or <see langword="null" /> for cancellation.</value>
+        <remarks>A null result indicates that the user cancelled the prompt.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -164,9 +164,9 @@
         <ReturnType>Android.App.PersonalContext.Insight.PromptRequest</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the request to which this response belongs.</summary>
+        <value>The request supplied to the response constructor.</value>
+        <remarks>The response constructor requires a non-null request, including for a cancellation response.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

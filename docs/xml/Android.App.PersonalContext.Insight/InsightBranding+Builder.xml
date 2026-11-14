@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for <c>InsightBranding</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The builder keeps one color per color category and one icon per category-and-position pair. Build copies both collections.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -51,8 +51,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Starts branding with no icons or colors.</summary>
+        <remarks>The icon-entry set and color mapping are initially empty.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -81,8 +81,8 @@
       <Parameters />
       <Docs>
         <summary>Builds the <c>InsightBranding</c>.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new branding object containing the configured icons and colors.</returns>
+        <remarks>The result copies the icon-entry set and clones the color mapping, so later builder changes do not change those collections in the result.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -151,11 +151,11 @@
         <Parameter Name="color" Type="Android.Graphics.Color" />
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="color">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The color category to configure.</param>
+        <param name="color">The color to store for that category.</param>
+        <summary>Stores a color in the selected category.</summary>
+        <returns>This builder, for further configuration.</returns>
+        <remarks>A second call for the same category replaces its previous color without changing other categories.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetIcon">
@@ -200,11 +200,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="icon">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The icon category to configure.</param>
+        <param name="icon">The icon to store, or <see langword="null" /> to clear position 0 in this category.</param>
+        <summary>Sets or clears the icon at position 0 in a category.</summary>
+        <returns>This builder, for further configuration.</returns>
+        <remarks>This overload calls the position-taking overload with position 0. Other positions are not changed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetIcon">
@@ -250,12 +250,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="type">To be added.</param>
-        <param name="position">To be added.</param>
-        <param name="icon">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="type">The icon category to configure.</param>
+        <param name="position">The position key within that category.</param>
+        <param name="icon">The icon to store, or <see langword="null" /> to clear this category-and-position entry.</param>
+        <summary>Sets or clears the icon at a selected category and position.</summary>
+        <returns>This builder, for further configuration.</returns>
+        <remarks>The method first removes any existing entry with both keys. A non-null icon then becomes the replacement; other entries are not changed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

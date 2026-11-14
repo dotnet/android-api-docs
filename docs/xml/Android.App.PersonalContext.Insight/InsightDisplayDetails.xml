@@ -45,7 +45,7 @@
   <Docs>
     <summary>This class captures a common set of display elements associated with a <c>ContextInsight</c>
             produced by the <c>android.service.personalcontext.understander.ContextUnderstanderService</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>A builder supplies a title, an icon, or both. Content description and subtitle are optional and can be cleared independently.</remarks>
   </Docs>
   <Members>
     <Member MemberName="ContentDescription">
@@ -68,9 +68,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the content description as a managed string.</summary>
+        <value>The text of ContentDescriptionFormatted, or <see langword="null" /> if no description is set.</value>
+        <remarks>This convenience property converts the character sequence to a string. Use ContentDescriptionFormatted to access the Java character sequence.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentDescriptionFormatted">
@@ -99,7 +99,7 @@
       <Docs>
         <summary>Returns the content description of the insight.</summary>
         <value>the content description of the insight.</value>
-        <remarks>To be added.</remarks>
+        <remarks>The builder leaves this value null initially. SetContentDescription can replace or clear it.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -134,9 +134,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the parcel factory for insight display details.</summary>
+        <value>The creator that reads display details and creates arrays of them.</value>
+        <remarks>Reading restores the title, icon, content description, and subtitle in the order written.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -167,9 +167,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports these display details' parcel content flags.</summary>
+        <returns>Zero.</returns>
+        <remarks>The implementation returns zero without querying the icon's content flags.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Icon">
@@ -198,7 +198,7 @@
       <Docs>
         <summary>Returns the icon of the insight.</summary>
         <value>the icon of the insight.</value>
-        <remarks>To be added.</remarks>
+        <remarks>The icon is null when the title-only builder constructor was used.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -287,9 +287,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the subtitle as a managed string.</summary>
+        <value>The text of SubtitleFormatted, or <see langword="null" /> if no subtitle is set.</value>
+        <remarks>This convenience property converts the character sequence to a string. Use SubtitleFormatted to access the Java character sequence.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SubtitleFormatted">
@@ -318,7 +318,7 @@
       <Docs>
         <summary>Returns the subtitle of the insight.</summary>
         <value>the subtitle of the insight.</value>
-        <remarks>To be added.</remarks>
+        <remarks>The builder leaves this value null initially. SetSubtitle can replace or clear it.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -411,9 +411,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the title as a managed string.</summary>
+        <value>The text of TitleFormatted, or <see langword="null" /> if the builder was created with only an icon.</value>
+        <remarks>This convenience property converts the character sequence to a string. Use TitleFormatted to access the Java character sequence.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TitleFormatted">
@@ -442,7 +442,7 @@
       <Docs>
         <summary>Returns the title of the insight.</summary>
         <value>the title of the insight.</value>
-        <remarks>To be added.</remarks>
+        <remarks>The title is null when the icon-only builder constructor was used.</remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteToParcel">
@@ -487,10 +487,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel to receive the display data.</param>
+        <param name="flags">The flags passed to the icon's typed-object parcel writer.</param>
+        <summary>Writes the title, icon, content description, and subtitle to a parcel.</summary>
+        <remarks>The text fields use character-sequence parcel writers. The icon is written as a typed object.</remarks>
       </Docs>
     </Member>
   </Members>
