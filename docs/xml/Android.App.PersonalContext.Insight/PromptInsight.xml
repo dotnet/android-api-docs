@@ -32,7 +32,7 @@
   <Docs>
     <summary>An insight that acts as a stand-in for data that will be provided on-demand by the understander
             during disambiguation.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>A prompt stores display details, an optional count of choices, and an optional pending intent. The count is available only when <see cref="P:Android.App.PersonalContext.Insight.PromptInsight.HasCount" /> is true.</remarks>
   </Docs>
   <Members>
     <Member MemberName="Count">
@@ -60,8 +60,8 @@
       </ReturnValue>
       <Docs>
         <summary>Gets a count of the number of options that will be presented.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The stored choice count; use it only when <see cref="P:Android.App.PersonalContext.Insight.PromptInsight.HasCount" /> is true.</value>
+        <remarks>A new builder, or a call to its ClearCount method, stores -1. SetCount accepts only positive counts.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Details">
@@ -88,9 +88,9 @@
         <ReturnType>Android.App.PersonalContext.Insight.InsightDisplayDetails</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the visual information for this prompt.</summary>
+        <value>The display details supplied to the prompt builder.</value>
+        <remarks>Display details are required whether or not a count or pending intent is supplied.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HasCount">
@@ -118,8 +118,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns a boolean indicating if a count was provided.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> if the stored count is greater than zero; otherwise, <see langword="false" />.</value>
+        <remarks>Check this property before using Count. A cleared or unspecified count is not a choice count.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -185,9 +185,9 @@
         <ReturnType>Android.App.PendingIntent</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the pending intent associated with this prompt.</summary>
+        <value>The pending intent set on the builder, or <see langword="null" /> if none is set.</value>
+        <remarks>The getter only reads the stored intent; it does not launch it.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

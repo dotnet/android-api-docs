@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for a <c>InsightFilter</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The builder starts with no type restriction. Each added type joins a set of accepted canonical Java class names.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -52,7 +52,7 @@
       <Parameters />
       <Docs>
         <summary>Create a new instance of the Builder.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>The initial type-name set is empty, which leaves insight type unrestricted.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AddInsightType">
@@ -82,10 +82,10 @@
         <Parameter Name="insightClass" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
-        <param name="insightClass">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="insightClass">The Java insight class whose canonical name is to be added.</param>
+        <summary>Adds a Java class's canonical name to the accepted type set.</summary>
+        <returns>This builder, for further configuration.</returns>
+        <remarks>This overload obtains the class's canonical name and passes it to the string overload.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AddInsightType">
@@ -115,10 +115,10 @@
         <Parameter Name="insightType" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="insightType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="insightType">The canonical Java class name to accept.</param>
+        <summary>Adds a type name to the accepted type set.</summary>
+        <returns>This builder, for further configuration.</returns>
+        <remarks>Repeated names do not create duplicate entries. Once the set is nonempty, ordinary type matching accepts only listed names.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -147,8 +147,8 @@
       <Parameters />
       <Docs>
         <summary>Builds the new InsightFilter.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new filter containing the configured type-name set.</returns>
+        <remarks>The filter copies the builder's set. Later additions to the builder do not change that filter's set.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">

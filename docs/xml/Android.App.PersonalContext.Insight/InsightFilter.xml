@@ -44,7 +44,7 @@
   </Attributes>
   <Docs>
     <summary>Filter for insight renderers to indicate which insights they want to receive.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>An empty set of insight types imposes no type restriction. Adding types restricts ordinary type matching to those canonical Java class names.</remarks>
   </Docs>
   <Members>
     <Member MemberName="Creator">
@@ -71,9 +71,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the parcel factory for insight filters.</summary>
+        <value>The creator that reads filters and creates filter arrays.</value>
+        <remarks>The creator restores the allowed type names from the parcel.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -104,9 +104,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports this filter's parcel content flags.</summary>
+        <returns>Zero.</returns>
+        <remarks>The filter serializes its type-name set and reports no special parcel content bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="InsightTypes">
@@ -133,9 +133,9 @@
         <ReturnType>System.Collections.Generic.ICollection&lt;System.String&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the type names accepted by this filter.</summary>
+        <value>The set of canonical Java insight class names.</value>
+        <remarks>An empty set leaves insight type unrestricted. Duplicate names added to the builder produce only one set entry.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -221,8 +221,8 @@
       </ReturnValue>
       <Docs>
         <summary>Pre-built <c>InsightFilter</c> that only allows insights with a RenderToken attached.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The shared filter reserved for render-token delivery.</value>
+        <remarks>Unlike a builder with no types, this filter has a type-name entry chosen not to match insight classes.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -325,10 +325,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel to receive the filter's type names.</param>
+        <param name="flags">The parcel flags. This implementation does not use them.</param>
+        <summary>Writes the filter's allowed type-name set to a parcel.</summary>
+        <remarks>The method writes the names as an array set. It does not serialize insight instances.</remarks>
       </Docs>
     </Member>
   </Members>
