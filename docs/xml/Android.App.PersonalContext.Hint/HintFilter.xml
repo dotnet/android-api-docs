@@ -44,7 +44,7 @@
   </Attributes>
   <Docs>
     <summary>Filter for hint refiners and understanders to indicate which hints they want to receive.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>Criteria can be added by package name or Java hint class; each criterion carries filtering flags.</remarks>
   </Docs>
   <Members>
     <Member MemberName="Creator">
@@ -71,9 +71,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the decoder for hint-filter parcels.</summary>
+        <value>The creator for hint filters and filter arrays.</value>
+        <remarks>Decoding reads the filter-entry set selected by the native workflow mode.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -104,9 +104,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports descriptor flags for the filter's parcel contents.</summary>
+        <returns>Zero.</returns>
+        <remarks>This filter implementation reports no special descriptor bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FilterTypeAllowed">
@@ -142,7 +142,7 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>Flag indicating that only hints matching this filter should be included.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Required entries are also marked allowed by the native filter-entry constructor.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FilterTypeNone">
@@ -178,7 +178,7 @@
       <MemberValue>0</MemberValue>
       <Docs>
         <summary>Flag indicating no filter is applied</summary>
-        <remarks>To be added.</remarks>
+        <remarks>When used to query entries, zero requests no particular flag bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FilterTypeRequired">
@@ -214,7 +214,7 @@
       <MemberValue>2</MemberValue>
       <Docs>
         <summary>Flag indicating that the returned set must include a hint that matches this filter.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Adding a required entry also enables its allowed bit.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetHintTypes">
@@ -255,7 +255,7 @@
             <c>ContextHint</c> classes</param>
         <summary>Returns the <c>ContextHint</c> classes within this filter.</summary>
         <returns>A set of classes in the filter that match the supplied filter type flags.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>All requested flag bits must be present on an entry. Native class-loading failures are logged and omitted from the result.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetPackages">
@@ -295,7 +295,7 @@
         <param name="filter">the <c>FilterType</c> flags that should be set on the matching filters.</param>
         <summary>Returns the publishing packages checked for within this filter.</summary>
         <returns>A set of package names in the filter that match the supplied filter type flags.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>An entry must contain all requested bits. Requesting <see cref="F:Android.App.PersonalContext.Hint.HintFilterType.None" /> includes package entries regardless of their flag bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HintTypes">
@@ -324,7 +324,7 @@
       <Docs>
         <summary>Returns the <c>ContextHint</c> classes within this filter.</summary>
         <value>A set of classes in the filter that match the supplied filter type flags.</value>
-        <remarks>To be added.</remarks>
+        <remarks>This query applies no flag-bit restriction. Native class-loading failures are logged and omitted.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -411,7 +411,7 @@
       <Docs>
         <summary>Returns the publishing packages checked for within this filter.</summary>
         <value>A set of package names in the filter.</value>
-        <remarks>To be added.</remarks>
+        <remarks>This query includes package entries without selecting a particular flag combination.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -514,10 +514,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel that receives the filter entries.</param>
+        <param name="flags">Parcel-writing options; this implementation does not use them.</param>
+        <summary>Writes the filter criteria to a parcel.</summary>
+        <remarks>The native implementation serializes the active filter-entry representation.</remarks>
       </Docs>
     </Member>
   </Members>

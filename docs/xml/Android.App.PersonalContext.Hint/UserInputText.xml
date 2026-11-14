@@ -45,7 +45,7 @@
   <Docs>
     <summary>Represents information about the text a user is actively typing or entering into an input field
             within an application.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The data combine entered text and field bounds with separate field-category and input-source codes.</remarks>
   </Docs>
   <Members>
     <Member MemberName="Creator">
@@ -72,9 +72,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the decoder for user-input-text parcels.</summary>
+        <value>The creator for user-input-text objects and arrays.</value>
+        <remarks>Decoding restores the text, field bounds, field category, and input source.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -105,9 +105,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports descriptor flags for the serialized input-text data.</summary>
+        <returns>Zero.</returns>
+        <remarks>The native input-text implementation sets no special descriptor bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FieldType">
@@ -135,8 +135,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the type of the input field in which the user entered the text.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The category recorded for the input field.</value>
+        <remarks>The builder starts with <see cref="F:Android.App.PersonalContext.Hint.UserInputTextFieldType.Unknown" /> and changes the category through its field-type setter.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FieldTypeSearchBox">
@@ -172,7 +172,7 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>The user input is captured from a search box.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This describes the input-field category, not how the text was entered.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FieldTypeUnknown">
@@ -208,7 +208,7 @@
       <MemberValue>0</MemberValue>
       <Docs>
         <summary>The field type is unknown.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This is the field category used by a new builder until another category is selected.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -294,8 +294,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the text content entered by the user.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The user-entered text stored in these input details.</value>
+        <remarks>The native diagnostic string omits the entered text.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -385,8 +385,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the source of the user input text.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The recorded category describing how the input text was obtained.</value>
+        <remarks>This source category is independent of the input-field category.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UserInputTextSourceClicked">
@@ -422,7 +422,7 @@
       <MemberValue>3</MemberValue>
       <Docs>
         <summary>The user input text source is a clicked suggestion provided outside of the host application.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>An accepted autofill suggestion is an example of this external-suggestion category.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UserInputTextSourceInferred">
@@ -458,7 +458,7 @@
       <MemberValue>2</MemberValue>
       <Docs>
         <summary>The user input text source is not typed directly by the user, but inferred from the UI.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This can describe text placed in a search box after choosing a suggestion within the host app.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UserInputTextSourceTyped">
@@ -494,7 +494,7 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>The user input text source is typed by the user.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>The builder does not infer this value from the text; select it explicitly when known.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UserInputTextSourceUnknown">
@@ -530,7 +530,7 @@
       <MemberValue>0</MemberValue>
       <Docs>
         <summary>The user input text source is unknown.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>A new builder uses this source category until another is selected.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ViewNodeBoundingBox">
@@ -558,8 +558,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the screen relative bounding box of the input field.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The screen-relative rectangle recorded for the input field.</value>
+        <remarks>The bounds are serialized independently of the text and category codes.</remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteToParcel">
@@ -600,10 +600,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel that receives the user-input details.</param>
+        <param name="flags">Options forwarded to the input-field rectangle's parcel writer.</param>
+        <summary>Writes the input text, bounds, and category codes to a parcel.</summary>
+        <remarks>The field category and input source are serialized as separate integer codes.</remarks>
       </Docs>
     </Member>
   </Members>

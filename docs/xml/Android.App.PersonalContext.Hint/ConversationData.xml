@@ -44,7 +44,7 @@
   </Attributes>
   <Docs>
     <summary>A snapshot of a conversation's data at a specific moment in time.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The snapshot records message data, input-box state, keyboard state, and the processing interval.</remarks>
   </Docs>
   <Members>
     <Member MemberName="ChatMessages">
@@ -72,8 +72,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the chat messages in the conversation.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The list of messages recorded in the snapshot; it can be empty.</value>
+        <remarks>The native builder retains the supplied message order; it does not sort the list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ComponentName">
@@ -101,8 +101,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the component name of the activity that contains the conversation.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The component of the activity that contains the conversation.</value>
+        <remarks>The activity component is serialized separately from the conversation's text data.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ConversationTitle">
@@ -130,8 +130,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the title of the conversation.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The title recorded for the conversation.</value>
+        <remarks>The builder requires a title string but does not reject an empty title.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -158,9 +158,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the decoder for conversation-snapshot parcels.</summary>
+        <value>The creator for conversation snapshots and their arrays.</value>
+        <remarks>Decoding restores the processing interval, activity and input state, and message list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -191,9 +191,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports parcel-content descriptor flags for the snapshot.</summary>
+        <returns>Zero.</returns>
+        <remarks>This native implementation reports no special descriptor bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HasNewMessage">
@@ -221,8 +221,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether there is a new message in view.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> if the snapshot records a new message in view; otherwise, <see langword="false" />.</value>
+        <remarks>The result is the snapshot's stored indicator; it is not recomputed from the message list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="InputBoxAutofillId">
@@ -258,8 +258,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the autofill id of the input box in the conversation.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The input-box identifier, or <see langword="null" /> when unavailable.</value>
+        <remarks>The value can be absent when the input box was not found or autofill was disabled.</remarks>
       </Docs>
     </Member>
     <Member MemberName="InputBoxText">
@@ -287,8 +287,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the text in the input box.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The text recorded in the conversation's input box.</value>
+        <remarks>This is input-box content, separate from the conversation's message list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="IsKeyboardShown">
@@ -316,8 +316,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether the keyboard was shown at the time the conversation was parsed.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> if the keyboard was shown when the snapshot was parsed; otherwise, <see langword="false" />.</value>
+        <remarks>This is recorded state, not a live keyboard-visibility query.</remarks>
       </Docs>
     </Member>
     <Member MemberName="IsLastMessageFromTheUser">
@@ -345,8 +345,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether the last message in the conversation is from the user.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> if the last message is recorded as coming from the user; otherwise, <see langword="false" />.</value>
+        <remarks>This indicator is supplied to the builder separately from the message list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -432,8 +432,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the timestamp when the conversation finished processing in milliseconds since epoch.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The processing end time in milliseconds since the Unix epoch.</value>
+        <remarks>The native builder records this time without checking it against the start time.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ProcessingStartTimestampMillis">
@@ -462,8 +462,8 @@
       <Docs>
         <summary>Returns the timestamp when the message was first seen and the processing of the
             conversation started in milliseconds since epoch.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The recorded processing start time in milliseconds since the Unix epoch.</value>
+        <remarks>This marks the recorded start of processing; the end time is stored separately.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -566,10 +566,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel that receives this conversation snapshot.</param>
+        <param name="flags">Options forwarded to the activity, component, and input-box identifier parcel writers.</param>
+        <summary>Writes the conversation snapshot to a parcel.</summary>
+        <remarks>The parcel includes the new-message indicator as well as the keyboard and last-author indicators.</remarks>
       </Docs>
     </Member>
   </Members>

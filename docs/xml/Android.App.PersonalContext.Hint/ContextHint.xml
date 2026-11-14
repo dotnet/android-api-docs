@@ -32,7 +32,7 @@
   <Docs>
     <summary>A <c>ContextHint</c> holds information about the device or user that may be useful to an
             understander.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>This base class provides hint identity, creation time, and publishing metadata shared by concrete hint types.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -82,9 +82,9 @@
         <ReturnType>System.Collections.Generic.ICollection&lt;Android.App.PersonalContext.Hint.ContextHint&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the source hints recorded for attribution.</summary>
+        <value>The parent or source hints recorded for this hint.</value>
+        <remarks>Unpublished hints start with no attribution hints.</remarks>
       </Docs>
     </Member>
     <Member MemberName="CreationTimeMillis">
@@ -112,8 +112,8 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the time this hint was created in milliseconds since epoch.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>Creation time expressed as milliseconds since the Unix epoch.</value>
+        <remarks>The default native construction path records the current time.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HintId">
@@ -140,9 +140,9 @@
         <ReturnType>Java.Util.UUID</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the unique identifier carried by this hint.</summary>
+        <value>The hint's UUID.</value>
+        <remarks>Default native construction allocates a random UUID; parcel decoding restores the serialized identifier.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HintTypeName">
@@ -169,9 +169,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the name used to identify the native hint type.</summary>
+        <value>The native type-name string for this hint.</value>
+        <remarks>The base implementation uses the Java class's canonical name.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -230,8 +230,8 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the time when the hint was published in milliseconds since epoch.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>Publication time in milliseconds since the Unix epoch, or zero for an unpublished hint.</value>
+        <remarks>This publishing time is separate from <see cref="P:Android.App.PersonalContext.Hint.ContextHint.CreationTimeMillis" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="PublishingPackage">
@@ -266,9 +266,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the package name recorded as this hint's publisher.</summary>
+        <value>The publishing package name, or <see langword="null" /> for an unpublished hint.</value>
+        <remarks>Default construction leaves this value unset; publishing metadata is attached separately.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
