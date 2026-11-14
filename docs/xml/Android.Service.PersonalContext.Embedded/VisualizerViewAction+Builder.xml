@@ -27,7 +27,9 @@
   </Attributes>
   <Docs>
     <summary>Builder for creating <c>VisualizerViewAction</c> instances.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Choose no more than one insight-delivery, attribution, or feedback action. Session closure is a separate setting that can be used with any one of these actions or on its own.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -53,7 +55,9 @@
       <Docs>
         <summary>Creates a new <c>Builder</c> that defaults to not closing the visualization session on
             trigger.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The builder initially has no insight or feedback action. Select an action or enable session closure before calling <see cref="M:Android.Service.PersonalContext.Embedded.VisualizerViewAction.Builder.Build" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -82,8 +86,10 @@
       <Parameters />
       <Docs>
         <summary>Builds a new <c>VisualizerViewAction</c> from this builder's configuration.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new action containing the current insight, feedback, and session-closure settings.</returns>
+        <remarks>
+          <para>If no insight or feedback action is selected and session closure is disabled, this method throws <see cref="T:Java.Lang.IllegalStateException" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -144,10 +150,12 @@
         <Parameter Name="insight" Type="Android.Service.PersonalContext.Insight.ContextInsight" />
       </Parameters>
       <Docs>
-        <param name="insight">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="insight">The non-null insight to use for the attribution request.</param>
+        <summary>Selects attribution for an insight as the view action.</summary>
+        <returns>This builder, so that the session-closure setting can also be configured.</returns>
+        <remarks>
+          <para>The action requests attribution when the view is activated. If an insight-delivery, attribution, or feedback action was already selected on this builder, this method throws <see cref="T:Java.Lang.IllegalStateException" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetEgressInsight">
@@ -177,10 +185,12 @@
         <Parameter Name="insight" Type="Android.Service.PersonalContext.Insight.ContextInsight" />
       </Parameters>
       <Docs>
-        <param name="insight">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="insight">The non-null insight to deliver to the client application.</param>
+        <summary>Selects insight delivery to the client as the view action.</summary>
+        <returns>This builder, so that the session-closure setting can also be configured.</returns>
+        <remarks>
+          <para>The action requests delivery when the view is activated. If an insight-delivery, attribution, or feedback action was already selected on this builder, this method throws <see cref="T:Java.Lang.IllegalStateException" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetFeedbackRequest">
@@ -210,10 +220,13 @@
         <Parameter Name="feedbackRequest" Type="Android.App.PersonalContext.Understander.FeedbackRequest" />
       </Parameters>
       <Docs>
-        <param name="feedbackRequest">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="feedbackRequest">The non-null request containing the feedback details.</param>
+        <summary>Selects a feedback request as the view action.</summary>
+        <returns>This builder, so that the session-closure setting can also be configured.</returns>
+        <remarks>
+          <para>The action uses the feedback activity supplied with the session's understand result. Without that activity, the feedback action has no effect.</para>
+          <para>If an insight-delivery, attribution, or feedback action was already selected on this builder, this method throws <see cref="T:Java.Lang.IllegalStateException" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetShouldCloseSessionOnTriggered">
@@ -243,10 +256,12 @@
         <Parameter Name="shouldCloseSessionOnTriggered" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="shouldCloseSessionOnTriggered">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="shouldCloseSessionOnTriggered"><see langword="true" /> to close the session when the action is activated; <see langword="false" /> to leave it open.</param>
+        <summary>Configures whether the view action closes the visualization session.</summary>
+        <returns>This builder with the updated session-closure setting.</returns>
+        <remarks>
+          <para>When enabled, the action requests a close callback with <see cref="F:Android.Service.PersonalContext.Embedded.InsightVisualizerSessionCloseReason.UserButtonPress" /> as the reason. This setting does not select or replace an insight or feedback action.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

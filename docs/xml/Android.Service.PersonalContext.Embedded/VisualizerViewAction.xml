@@ -44,7 +44,9 @@
   </Attributes>
   <Docs>
     <summary>Class representing interactive actions attached to a view in a visualization generated in <c>InsightVisualizerSession#createRemoteViewsForHints</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Create an action with <see cref="T:Android.Service.PersonalContext.Embedded.VisualizerViewAction.Builder" />. One action can request insight delivery, attribution, or feedback, and can also request session closure. An action can instead request session closure alone.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="Attach">
@@ -100,7 +102,9 @@
                 if none.</param>
         <summary>Attaches the specified short-click and/or long-click actions to the target view inside a
             <c>RemoteViews</c> hierarchy.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>At least one of the two actions must be supplied. The method packages the actions in a broadcast pending intent and assigns it to the view's click handler, then cancels the pending intent to release its resources. The personal context framework handles the packaged actions rather than sending that broadcast.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="AttributionInsight">
@@ -137,8 +141,10 @@
       <Docs>
         <summary>Returns the <c>ContextInsight</c> configured to report an attribution event when triggered,
             or null if this action does not perform attribution.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The insight selected for attribution, or <see langword="null" /> when attribution is not configured.</value>
+        <remarks>
+          <para>This is the insight supplied to <see cref="M:Android.Service.PersonalContext.Embedded.VisualizerViewAction.Builder.SetAttributionInsight(Android.Service.PersonalContext.Insight.ContextInsight)" /> when the action was built.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateIntent">
@@ -184,7 +190,9 @@
                 if none.</param>
         <summary>Converts the specified actions into an <c>Intent</c> intended for use with <c>RemoteViews#setOnClickPendingIntent(int, PendingIntent)</c>.</summary>
         <returns>An <c>Intent</c> containing the actions parceled as extras.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The intent contains a separate extra for each supplied action. If both arguments are <see langword="null" />, the method throws <see cref="T:Java.Lang.IllegalArgumentException" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -211,9 +219,11 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the factory that restores view actions from parcels.</summary>
+        <value>The parcelable creator for <see cref="T:Android.Service.PersonalContext.Embedded.VisualizerViewAction" /> instances.</value>
+        <remarks>
+          <para>The creator reads the optional insight and feedback data and the session-closure setting written by <see cref="M:Android.Service.PersonalContext.Embedded.VisualizerViewAction.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -244,9 +254,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports the special-object flags for this action's parcel representation.</summary>
+        <returns>Zero.</returns>
+        <remarks>
+          <para>This implementation always returns zero; it does not calculate flags from the optional action data.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="EgressInsight">
@@ -283,8 +295,10 @@
       <Docs>
         <summary>Returns the <c>ContextInsight</c> configured to be egressed to the client app when
             triggered, or null if this action does not perform egress.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The insight selected for delivery to the client, or <see langword="null" /> when delivery is not configured.</value>
+        <remarks>
+          <para>This is the insight supplied to <see cref="M:Android.Service.PersonalContext.Embedded.VisualizerViewAction.Builder.SetEgressInsight(Android.Service.PersonalContext.Insight.ContextInsight)" /> when the action was built.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FeedbackRequest">
@@ -321,8 +335,10 @@
       <Docs>
         <summary>Returns the <c>FeedbackRequest</c> configured to be provided to the feedback activity when
             triggered, or null if this action does not perform feedback.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The configured feedback request, or <see langword="null" /> when feedback is not configured.</value>
+        <remarks>
+          <para>When the feedback activity opens, this request is passed as a parcelable intent extra using the personal context manager's feedback-request key.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -410,8 +426,10 @@
       <Docs>
         <summary>Returns whether triggering this action will end the visualization session, causing the
             visualization to stop displaying.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns><see langword="true" /> if the action is configured to close the session; otherwise, <see langword="false" />.</returns>
+        <remarks>
+          <para>The setting is independent of the action's optional insight or feedback data. It is <see langword="false" /> unless the builder enables session closure.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -514,10 +532,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel that receives this action's data.</param>
+        <param name="flags">The parcel-write options passed to the optional insight and feedback objects.</param>
+        <summary>Writes this action's settings to a parcel.</summary>
+        <remarks>
+          <para>The method writes presence markers and data for the optional delivery insight, attribution insight, and feedback request, followed by the session-closure setting.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

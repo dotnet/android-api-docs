@@ -26,7 +26,10 @@
   </Attributes>
   <Docs>
     <summary>Interface representing an active interactive visualization session with a client application.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>An understander can return this session for an embedded visualization request. Later hint updates go to this session instead of starting another understand request.</para>
+      <para>Session callbacks use the understander's configured executor, or the main looper when no executor is configured.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="Close">
@@ -55,7 +58,9 @@
       <Parameters />
       <Docs>
         <summary>Ends the visualization session permanently.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Closing the session removes its visualization and stops further visualization requests. Closing an already closed session has no effect.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Close">
@@ -94,7 +99,9 @@
       <Docs>
         <param name="reason">the reason why this visualization session was closed.</param>
         <summary>Ends the visualization session permanently.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The default Java implementation calls <see cref="M:Android.Service.PersonalContext.Embedded.IInsightVisualizerSession.Close" /> without passing the reason. Closing an already closed session has no effect.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CreateRemoteViewsForHints">
@@ -140,7 +147,11 @@
         <summary>Requests a <c>RemoteViews</c> visualization for the given set of hints and configuration.</summary>
         <returns>the <c>RemoteViews</c> containing the visualization, or null if a visualization
                 cannot be generated</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The framework requests views when the client first connects, when hints arrive, or when the client configuration changes. Requests for one session do not run concurrently.</para>
+          <para>The client configuration limits the available size. Content that exceeds the available height is clipped; content that exceeds the available width scrolls horizontally. Returning <see langword="null" /> ends the session.</para>
+          <para>Use <see cref="T:Android.Service.PersonalContext.Embedded.VisualizerViewAction" /> to attach personal context actions to individual views. Intents attached directly as click pending intents are not executed on a click.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>
