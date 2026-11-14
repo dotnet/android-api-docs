@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for <c>ChatMessageData</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>Configure the text, author, reference time, and message direction before building. Context metadata is optional.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -51,8 +51,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates a builder with no message fields configured.</summary>
+        <remarks>There is no default for the outgoing/incoming choice; set it before building the message.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -81,8 +81,8 @@
       <Parameters />
       <Docs>
         <summary>Builds the <c>ChatMessageData</c>.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The message created from the configured builder values.</returns>
+        <remarks>Text, author, reference time, and an explicit outgoing/incoming choice are required. Context metadata can be omitted.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -143,10 +143,10 @@
         <Parameter Name="author" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="author">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="author">The author string to record for the message.</param>
+        <summary>Sets the author associated with the message text.</summary>
+        <returns>This builder with its author updated.</returns>
+        <remarks>The author must not be <see langword="null" />; an empty string is not rejected.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetContextData">
@@ -176,10 +176,10 @@
         <Parameter Name="contextData" Type="Android.App.PersonalContext.Hint.ChatMessageContextData" />
       </Parameters>
       <Docs>
-        <param name="contextData">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="contextData">The message-view metadata to attach.</param>
+        <summary>Attaches context data to the message being built.</summary>
+        <returns>The builder with the context metadata attached.</returns>
+        <remarks>This input is optional, but this setter does not accept <see langword="null" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetOutgoingMessage">
@@ -209,10 +209,10 @@
         <Parameter Name="isOutgoingMessage" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isOutgoingMessage">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="isOutgoingMessage"><see langword="true" /> to mark an outgoing message; <see langword="false" /> otherwise.</param>
+        <summary>Records whether the message is outgoing.</summary>
+        <returns>This builder after the message direction is set.</returns>
+        <remarks>Call this method even for an incoming message so that the required direction is set.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetReferenceTimeMillis">
@@ -242,10 +242,10 @@
         <Parameter Name="referenceTimeMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="referenceTimeMillis">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="referenceTimeMillis">The message reference time, in milliseconds since the Unix epoch.</param>
+        <summary>Sets the reference timestamp using an epoch-millisecond value.</summary>
+        <returns>The builder with the reference time recorded.</returns>
+        <remarks>The millisecond value is converted to the native timestamp representation.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetText">
@@ -275,10 +275,10 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The message content to store.</param>
+        <summary>Records the text content of the message.</summary>
+        <returns>This builder with its message text stored.</returns>
+        <remarks>The text cannot be <see langword="null" />; an empty message string is accepted.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

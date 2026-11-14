@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for <c>ConversationData</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The processing times, activity component, input text, title, three Boolean indicators, and message list must all be configured. The input-box identifier is optional.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -51,8 +51,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates an unconfigured conversation-snapshot builder.</summary>
+        <remarks>The Boolean indicators are initially unset, not <see langword="false" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -81,8 +81,8 @@
       <Parameters />
       <Docs>
         <summary>Builds the <c>ConversationData</c>.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The conversation snapshot assembled from the builder values.</returns>
+        <remarks>All required values must be supplied, including explicit values for each Boolean indicator. The input-box identifier may be absent.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -143,10 +143,10 @@
         <Parameter Name="chatMessages" Type="System.Collections.Generic.IList&lt;Android.App.PersonalContext.Hint.ChatMessageData&gt;" />
       </Parameters>
       <Docs>
-        <param name="chatMessages">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="chatMessages">The messages in their conversation display order; the list may be empty.</param>
+        <summary>Sets the messages to record in the conversation snapshot.</summary>
+        <returns>This builder with the message list recorded.</returns>
+        <remarks>Supply messages in display order; the native setter does not sort them.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetComponentName">
@@ -176,10 +176,10 @@
         <Parameter Name="componentName" Type="Android.Content.ComponentName" />
       </Parameters>
       <Docs>
-        <param name="componentName">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="componentName">The component of the activity that contains the conversation.</param>
+        <summary>Records the activity component for the conversation.</summary>
+        <returns>The builder with the activity component stored.</returns>
+        <remarks>A non-null component is required when the snapshot is built.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetConversationTitle">
@@ -209,10 +209,10 @@
         <Parameter Name="conversationTitle" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="conversationTitle">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="conversationTitle">The title string to store in the snapshot.</param>
+        <summary>Sets the conversation title for the snapshot.</summary>
+        <returns>This builder with the title recorded.</returns>
+        <remarks>The title must be non-null at build time; an empty title is accepted.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetHasNewMessage">
@@ -242,10 +242,10 @@
         <Parameter Name="hasNewMessage" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="hasNewMessage">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="hasNewMessage"><see langword="true" /> to record a new message in view; <see langword="false" /> otherwise.</param>
+        <summary>Sets whether the snapshot contains a new message in view.</summary>
+        <returns>The builder after recording the new-message indicator.</returns>
+        <remarks>Set this indicator explicitly, including when its value is <see langword="false" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetInputBoxAutofillId">
@@ -282,10 +282,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="inputBoxAutofillId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="inputBoxAutofillId">The input-box identifier, or <see langword="null" /> if it is unavailable.</param>
+        <summary>Records the optional autofill identifier of the input box.</summary>
+        <returns>This builder with the input-box identifier updated.</returns>
+        <remarks>This value can be omitted or cleared with <see langword="null" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetInputBoxText">
@@ -315,10 +315,10 @@
         <Parameter Name="inputBoxText" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="inputBoxText">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="inputBoxText">The text currently recorded in the conversation's input box.</param>
+        <summary>Sets the input-box text for the conversation snapshot.</summary>
+        <returns>The builder with its input-box text recorded.</returns>
+        <remarks>The text must be non-null at build time. An empty input box can be represented by an empty string.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetKeyboardShown">
@@ -348,10 +348,10 @@
         <Parameter Name="isKeyboardShown" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isKeyboardShown">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="isKeyboardShown"><see langword="true" /> if the keyboard was shown when the conversation was parsed; <see langword="false" /> otherwise.</param>
+        <summary>Records keyboard visibility for the snapshot.</summary>
+        <returns>This builder after the keyboard indicator is set.</returns>
+        <remarks>This records snapshot state; it does not show or hide the keyboard.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLastMessageFromTheUser">
@@ -381,10 +381,10 @@
         <Parameter Name="isLastMessageFromTheUser" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isLastMessageFromTheUser">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="isLastMessageFromTheUser"><see langword="true" /> if the last message came from the user; <see langword="false" /> otherwise.</param>
+        <summary>Records whether the user sent the last message.</summary>
+        <returns>The builder with the last-message-author indicator stored.</returns>
+        <remarks>This indicator is not calculated from the supplied message list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetProcessingEndTimestampMillis">
@@ -414,10 +414,10 @@
         <Parameter Name="processingEndTimestampMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="processingEndTimestampMillis">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="processingEndTimestampMillis">The processing end time, in milliseconds since the Unix epoch.</param>
+        <summary>Sets the end of the recorded processing interval.</summary>
+        <returns>This builder with the processing end time stored.</returns>
+        <remarks>The setter does not check whether this time follows the processing start time.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetProcessingStartTimestampMillis">
@@ -447,10 +447,10 @@
         <Parameter Name="processingStartTimestampMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="processingStartTimestampMillis">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="processingStartTimestampMillis">The processing start time, in milliseconds since the Unix epoch.</param>
+        <summary>Sets the start of the recorded processing interval.</summary>
+        <returns>The builder with the processing start time stored.</returns>
+        <remarks>The processing end time is configured separately.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for <c>CapturedText</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The native build operation also requires a last-update time. This binding does not expose a setter for that value.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -51,8 +51,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates an unconfigured captured-text builder.</summary>
+        <remarks>No view data or capture timestamps are initialized by this constructor.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -81,8 +81,8 @@
       <Parameters />
       <Docs>
         <summary>Returns the built <c>CapturedText</c>.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The captured-text object, if all required native builder values are present.</returns>
+        <remarks>Text, description, view ID, bounds, resource ID, and a last-update time are required. The timestamp setter is not exposed by this binding.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -143,10 +143,10 @@
         <Parameter Name="resourceId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="resourceId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="resourceId">The resource-name string for the view.</param>
+        <summary>Sets the resource identifier to include in the captured view data.</summary>
+        <returns>This builder with the resource identifier stored.</returns>
+        <remarks>A <see langword="null" /> identifier is rejected; the string is not parsed or normalized.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetViewId">
@@ -176,10 +176,10 @@
         <Parameter Name="viewId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="viewId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="viewId">The identifier to associate with the captured view.</param>
+        <summary>Records the identifier of the captured view.</summary>
+        <returns>The builder on which the view identifier was set.</returns>
+        <remarks>The supplied identifier must not be <see langword="null" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetViewNodeBoundingBox">
@@ -209,10 +209,10 @@
         <Parameter Name="viewNodeBoundingBox" Type="Android.Graphics.Rect" />
       </Parameters>
       <Docs>
-        <param name="viewNodeBoundingBox">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="viewNodeBoundingBox">The captured view's bounds in screen coordinates, in pixels.</param>
+        <summary>Sets the rectangle occupied by the captured view.</summary>
+        <returns>This builder with the view bounds recorded.</returns>
+        <remarks>The bounds argument cannot be <see langword="null" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetViewNodeDescription">
@@ -242,10 +242,10 @@
         <Parameter Name="viewNodeDescription" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="viewNodeDescription">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="viewNodeDescription">The view's accessibility description.</param>
+        <summary>Records the captured view's content description.</summary>
+        <returns>The builder with the content description stored.</returns>
+        <remarks>The description must be non-null; an empty string is accepted.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetViewNodeText">
@@ -275,10 +275,10 @@
         <Parameter Name="viewNodeText" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="viewNodeText">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="viewNodeText">The text captured from the view.</param>
+        <summary>Sets the view text to store in the captured data.</summary>
+        <returns>This builder after the text has been recorded.</returns>
+        <remarks>The text must not be <see langword="null" />. An empty string is permitted.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

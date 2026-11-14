@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for a <c>HintFilter</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>Build copies the configured filter entries, so later additions to this builder do not change a filter already built.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -52,7 +52,7 @@
       <Parameters />
       <Docs>
         <summary>Creates a new instance of a <c>HintFilter</c><c>Builder</c>.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Starts with no package or hint-type criteria.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AddHintType">
@@ -90,11 +90,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="hintClass">To be added.</param>
-        <param name="filterType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="hintClass">The Java class of a <see cref="T:Android.App.PersonalContext.Hint.ContextHint" /> subtype to match.</param>
+        <param name="filterType">The filtering flags to record for this class criterion.</param>
+        <summary>Adds a Java hint-class criterion to the filter.</summary>
+        <returns>This builder with the hint-class criterion added.</returns>
+        <remarks>The criterion is recorded by Java class name. A required criterion is also marked allowed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AddPackage">
@@ -132,11 +132,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="packageName">To be added.</param>
-        <param name="filterType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="packageName">The package-name string to add as a criterion.</param>
+        <param name="filterType">The filtering flags to associate with this package criterion.</param>
+        <summary>Adds a package-name criterion to the filter.</summary>
+        <returns>The builder after the package criterion is added.</returns>
+        <remarks>The entry is added with the selected flags. A required entry also receives the allowed bit.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -165,8 +165,8 @@
       <Parameters />
       <Docs>
         <summary>Builds the new HintFilter.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A filter containing a snapshot of the configured criteria.</returns>
+        <remarks>Both empty and populated builders can be built; no minimum criterion count is checked.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">

@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for <c>NotificationDetails</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>All five values must be supplied, including the post time.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -51,8 +51,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates a notification-details builder with no fields set.</summary>
+        <remarks>There is no default notification, package, post time, key, or user.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -81,8 +81,8 @@
       <Parameters />
       <Docs>
         <summary>Builds the <c>NotificationDetails</c>.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The notification details assembled from the configured fields.</returns>
+        <remarks>Building rejects any missing input before creating the native details object.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -143,10 +143,10 @@
         <Parameter Name="key" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The stable key that identifies the notification.</param>
+        <summary>Records the notification's identifying key.</summary>
+        <returns>This builder with the notification key stored.</returns>
+        <remarks>The key is required and must be non-null; its format is not parsed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetNotification">
@@ -176,10 +176,10 @@
         <Parameter Name="notification" Type="Android.App.Notification" />
       </Parameters>
       <Docs>
-        <param name="notification">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="notification">The notification payload to record.</param>
+        <summary>Sets the payload for the notification details.</summary>
+        <returns>The builder with its notification payload set.</returns>
+        <remarks>A <see langword="null" /> notification payload is rejected.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPackageName">
@@ -209,10 +209,10 @@
         <Parameter Name="packageName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="packageName">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="packageName">The package name of the posting app.</param>
+        <summary>Records which app posted the notification.</summary>
+        <returns>This builder after the posting package is set.</returns>
+        <remarks>The name cannot be <see langword="null" />. The setter does not check whether that package is installed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetPostTimeMillis">
@@ -242,10 +242,10 @@
         <Parameter Name="postTimeMillis" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="postTimeMillis">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="postTimeMillis">The post time, in milliseconds since the Unix epoch.</param>
+        <summary>Sets the notification's recorded post time.</summary>
+        <returns>The builder with the post timestamp recorded.</returns>
+        <remarks>Zero is a supplied timestamp; leaving the value unset is different and prevents building.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetUser">
@@ -275,10 +275,10 @@
         <Parameter Name="user" Type="Android.OS.UserHandle" />
       </Parameters>
       <Docs>
-        <param name="user">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="user">The user handle associated with the notification.</param>
+        <summary>Associates the notification details with a user.</summary>
+        <returns>This builder with the user handle stored.</returns>
+        <remarks>A <see langword="null" /> user handle is rejected.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
