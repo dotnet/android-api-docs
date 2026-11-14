@@ -13,8 +13,8 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Defines the operations for an incremental, non-cryptographic hash calculation.</summary>
+    <remarks>Derived classes implement data accumulation, reset, and hash output. The output length is fixed when the instance is created.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -31,9 +31,9 @@
         <Parameter Name="hashLengthInBytes" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="hashLengthInBytes">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="hashLengthInBytes">The number of bytes in each hash result. This value must be positive.</param>
+        <summary>Sets the hash output length for a derived algorithm.</summary>
+        <remarks>The length must be at least one byte. A smaller value causes an ArgumentOutOfRangeException.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Append">
@@ -59,9 +59,9 @@
         <Parameter Name="source" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="source">The byte array to add to the current calculation.</param>
+        <summary>Adds the array contents to the current hash calculation.</summary>
+        <remarks>The method checks for null, then passes the array contents to the span-based Append implementation. A null source causes an ArgumentNullException.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Append">
@@ -87,9 +87,9 @@
         <Parameter Name="stream" Type="System.IO.Stream" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="stream">The stream to read from its current position.</param>
+        <summary>Reads a stream and adds its remaining contents to the current hash calculation.</summary>
+        <remarks>The method uses the stream's CopyTo operation to pass bytes to Append. It does not close the source stream. A null stream causes an ArgumentNullException.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Append">
@@ -109,9 +109,9 @@
         <Parameter Name="source" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="source">The bytes to add to the current calculation.</param>
+        <summary>When overridden, adds the supplied bytes to the current hash calculation.</summary>
+        <remarks>A derived implementation processes these bytes as the next part of the accumulated input.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AppendAsync">
@@ -138,11 +138,11 @@
         <Parameter Name="cancellationToken" Type="System.Threading.CancellationToken" />
       </Parameters>
       <Docs>
-        <param name="stream">To be added.</param>
-        <param name="cancellationToken">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="stream">The stream to read from its current position.</param>
+        <param name="cancellationToken">The token passed to the asynchronous stream copy to request cancellation.</param>
+        <summary>Reads a stream asynchronously and adds its remaining contents to the current hash calculation.</summary>
+        <returns>A task that represents the stream copy and hash accumulation.</returns>
+        <remarks>The method uses CopyToAsync with the supplied cancellation token. It does not close the source stream. A null stream causes an ArgumentNullException.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCurrentHash">
@@ -166,9 +166,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns the current hash without resetting the calculation.</summary>
+        <returns>A new byte array that contains the hash of the accumulated input.</returns>
+        <remarks>A new array of <see cref="P:System.IO.Hashing.NonCryptographicHashAlgorithm.HashLengthInBytes" /> bytes receives the result from GetCurrentHashCore. The accumulated input is retained.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCurrentHash">
@@ -188,10 +188,10 @@
         <Parameter Name="destination" Type="System.Span&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="destination">The buffer that receives the hash. Its length must be at least HashLengthInBytes.</param>
+        <summary>Writes the current hash without resetting the calculation.</summary>
+        <returns>The number of bytes written, equal to HashLengthInBytes.</returns>
+        <remarks>The destination must have at least HashLengthInBytes bytes, or the method throws an ArgumentException. Only the hash-sized prefix is passed to GetCurrentHashCore.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCurrentHashCore">
@@ -211,9 +211,9 @@
         <Parameter Name="destination" Type="System.Span&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="destination">The hash-sized buffer that the implementation must fill.</param>
+        <summary>When overridden, writes the current hash without changing the accumulated state.</summary>
+        <remarks>The base class supplies a destination of exactly HashLengthInBytes bytes. The implementation must write all of those bytes and must not assume that they are initially zero.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetHashAndReset">
@@ -237,9 +237,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns the current hash and resets the calculation.</summary>
+        <returns>A new byte array that contains the hash calculated before the reset.</returns>
+        <remarks>A new array of HashLengthInBytes bytes receives the result from GetHashAndResetCore.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetHashAndReset">
@@ -259,10 +259,10 @@
         <Parameter Name="destination" Type="System.Span&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="destination">The buffer that receives the hash. Its length must be at least HashLengthInBytes.</param>
+        <summary>Writes the current hash and resets the calculation.</summary>
+        <returns>The number of bytes written, equal to HashLengthInBytes.</returns>
+        <remarks>The destination must have at least HashLengthInBytes bytes. If it is too short, an ArgumentException is thrown before the calculation is reset. Only the hash-sized prefix is passed to GetHashAndResetCore.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetHashAndResetCore">
@@ -282,9 +282,9 @@
         <Parameter Name="destination" Type="System.Span&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="destination">The hash-sized buffer that receives the result before reset.</param>
+        <summary>Writes the current hash and restores the initial calculation state.</summary>
+        <remarks>The base implementation calls <see cref="M:System.IO.Hashing.NonCryptographicHashAlgorithm.GetCurrentHashCore(System.Span{System.Byte})" /> followed by <see cref="M:System.IO.Hashing.NonCryptographicHashAlgorithm.Reset" />. The destination is exactly HashLengthInBytes bytes long and need not be zero-filled. Overrides must write that many bytes and preserve the same observable reset behavior.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetHashCode">
@@ -312,9 +312,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Throws because this method does not return the calculated hash.</summary>
+        <returns>No value is returned; the method always throws NotSupportedException.</returns>
+        <remarks>This member is obsolete with a compile-time error and always throws NotSupportedException. Use <see cref="M:System.IO.Hashing.NonCryptographicHashAlgorithm.GetCurrentHash" /> or <see cref="M:System.IO.Hashing.NonCryptographicHashAlgorithm.GetHashAndReset" /> to retrieve a calculated hash.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HashLengthInBytes">
@@ -331,9 +331,9 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the size of the hash output in bytes.</summary>
+        <value>The positive number of bytes in a hash result.</value>
+        <remarks>The constructor sets this value. It does not change as data is appended or the calculation is reset.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -351,8 +351,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>When overridden, restores the initial hash calculation state.</summary>
+        <remarks>After reset, the implementation starts a new calculation rather than continuing the prior input.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryGetCurrentHash">
@@ -373,11 +373,11 @@
         <Parameter Name="bytesWritten" Type="System.Int32" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <param name="bytesWritten">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="destination">The buffer that receives the current hash.</param>
+        <param name="bytesWritten">HashLengthInBytes on success, or zero if the destination is too short.</param>
+        <summary>Tries to write the current hash without resetting the calculation.</summary>
+        <returns>true if the destination has at least HashLengthInBytes bytes; otherwise, false.</returns>
+        <remarks>A destination shorter than HashLengthInBytes causes a false result with no bytes written. On success, only the hash-sized prefix is written. The accumulated input is retained.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryGetHashAndReset">
@@ -398,11 +398,11 @@
         <Parameter Name="bytesWritten" Type="System.Int32" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <param name="bytesWritten">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="destination">The buffer that receives the hash before reset.</param>
+        <param name="bytesWritten">HashLengthInBytes on success, or zero if the destination is too short.</param>
+        <summary>Tries to write the current hash and then reset the calculation.</summary>
+        <returns>true if the hash was written and the calculation reset; otherwise, false.</returns>
+        <remarks>A destination shorter than HashLengthInBytes causes a false result with no bytes written and no reset. On success, only the hash-sized prefix is written and the calculation is reset.</remarks>
       </Docs>
     </Member>
   </Members>
