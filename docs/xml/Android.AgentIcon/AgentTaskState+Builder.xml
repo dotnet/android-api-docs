@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for <c>AgentTaskState</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>Configures an icon, its accessibility description, animation settings, and an optional activity action. Call <see cref="M:Android.AgentIcon.AgentTaskState.Builder.Build" /> to create the state.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -54,9 +54,9 @@
         <Parameter Name="other" Type="Android.AgentIcon.AgentTaskState+Builder" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="other">The builder whose settings are copied.</param>
+        <summary>Creates a builder from another state builder.</summary>
+        <remarks>The icon, description, and click-action references are copied without cloning those objects. Both animation settings are also copied.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -87,7 +87,7 @@
         <param name="icon">the icon to display.</param>
         <param name="contentDescription">the content description for accessibility.</param>
         <summary>Creates a new Builder.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>The icon and description must not be null. Animation looping and interruption are initially disabled, and the click action is initially null.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -115,10 +115,10 @@
         <Parameter Name="contentDescription" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="icon">To be added.</param>
-        <param name="contentDescription">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="icon">The non-null icon for the state.</param>
+        <param name="contentDescription">The non-null accessibility description for the icon.</param>
+        <summary>Creates a state builder with an icon and a string description.</summary>
+        <remarks>This is the string overload of the character-sequence constructor. Animation looping and interruption are initially disabled, and the click action is initially null.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -147,8 +147,8 @@
       <Parameters />
       <Docs>
         <summary>Creates the <c>AgentTaskState</c> instance.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new state containing the current builder settings.</returns>
+        <remarks>The state validates the icon, description, and optional activity action. Oversized icons are scaled down during construction; this method does not submit the state to the status bar.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -216,10 +216,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="action">An activity pending intent, or <see langword="null" /> for no click action.</param>
+        <summary>Sets the action for a click on the state icon.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+          <para>A non-null action that does not target an activity is rejected. Systems without agent-task launch support ignore this action; on supported systems a null action makes the icon non-clickable.</para>
+          <para>To receive the clicked element's screen bounds, use a mutable pending intent with <see cref="F:Android.Content.FillInFlags.SourceBounds" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetIconAndContentDescription">
@@ -250,11 +253,11 @@
         <Parameter Name="contentDescription" Type="Java.Lang.ICharSequence" />
       </Parameters>
       <Docs>
-        <param name="icon">To be added.</param>
-        <param name="contentDescription">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="icon">The non-null icon for the next state.</param>
+        <param name="contentDescription">The non-null accessibility description for that icon.</param>
+        <summary>Replaces the state icon and its accessibility description.</summary>
+        <returns>This builder.</returns>
+        <remarks>Use a monochrome icon for system tinting. Both arguments must be non-null; this setter retains their object references.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetIconAndContentDescription">
@@ -281,11 +284,11 @@
         <Parameter Name="contentDescription" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="icon">To be added.</param>
-        <param name="contentDescription">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="icon">The non-null icon for the next state.</param>
+        <param name="contentDescription">The non-null accessibility description for that icon, as a string.</param>
+        <summary>Replaces the state icon and its string accessibility description.</summary>
+        <returns>This builder.</returns>
+        <remarks>This is the string overload of the character-sequence setter. Both arguments must be non-null. Use a monochrome icon for system tinting.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetShouldInterruptPreviousAnimation">
@@ -315,10 +318,10 @@
         <Parameter Name="shouldInterruptPreviousAnimation" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="shouldInterruptPreviousAnimation">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="shouldInterruptPreviousAnimation"><see langword="true" /> to interrupt the previous state's animated icon; <see langword="false" /> to wait for its normal completion.</param>
+        <summary>Sets whether this state can interrupt the previous icon animation.</summary>
+        <returns>This builder.</returns>
+        <remarks>This setting has no effect when the previous state icon is not animated.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetShouldLoopAnimation">
@@ -348,10 +351,13 @@
         <Parameter Name="shouldLoopAnimation" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="shouldLoopAnimation">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="shouldLoopAnimation"><see langword="true" /> to request repetition or continued animation within system limits; <see langword="false" /> for normal non-looping playback.</param>
+        <summary>Sets whether the state icon animation should repeat.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+          <para>With looping enabled, the system limits repetitions of finite animations and the run time of infinite animations. Finite animations normally finish before a state change unless the next state requests interruption; infinite animations can stop at any frame.</para>
+          <para>With looping disabled, finite animations play once, subject to system limits, and infinite animations run briefly, for about three seconds. Static icons ignore this setting.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

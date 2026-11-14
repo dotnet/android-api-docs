@@ -44,7 +44,10 @@
   </Attributes>
   <Docs>
     <summary>Information about a one-time agent-related event to communicate to the user.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>An event temporarily occupies status-bar space and can hide the current state icon. It must contain text, icons, or both. Content appears in the order leading icons, text, then trailing icons, with empty parts omitted.</para>
+      <para>Space limits can shorten or omit content. The system can suppress an event when events arrive too frequently, the status bar is hidden, or more important status information must be shown.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="Background">
@@ -81,7 +84,7 @@
       <Docs>
         <summary>Background icon to use for the event.</summary>
         <value>the background to use for the event. If <c>null</c>, the implementation will decide.</value>
-        <remarks>To be added.</remarks>
+        <remarks>The system scales and centers the icon within a mask without changing its proportions. A wide image helps avoid cropping at the top and bottom; a null value lets the system choose the background.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ClickAction">
@@ -119,7 +122,10 @@
         <summary>
           <c>PendingIntent</c> to send when the event text in the status bar is clicked.</summary>
         <value>the action to execute when the element is clicked.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The action must target an activity. When agent-task launches are supported, a null value uses the application's default agent-task action. Systems without launch support ignore this value.</para>
+          <para>To receive the clicked element's screen bounds, use a mutable pending intent with <see cref="F:Android.Content.FillInFlags.SourceBounds" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentDescription">
@@ -150,9 +156,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the event's accessibility description as a string.</summary>
+        <value>The string representation of <see cref="P:Android.AgentIcon.AgentTaskEvent.ContentDescriptionFormatted" />, or <see langword="null" /> when no description was supplied.</value>
+        <remarks>The description covers the whole event, including text and icons. When it is absent, display can use the event text or a system-selected description.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentDescriptionFormatted">
@@ -189,7 +195,7 @@
       <Docs>
         <summary>Returns the content description for this element.</summary>
         <value>the content description associated with this whole element.</value>
-        <remarks>To be added.</remarks>
+        <remarks>The description covers the whole event, including text and icons. A null value lets display fall back to the event text or a system-selected description.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -216,9 +222,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the factory that reads task events from parcels.</summary>
+        <value>The parcel factory for <see cref="T:Android.AgentIcon.AgentTaskEvent" /> objects and arrays.</value>
+        <remarks>The factory reconstructs and validates the data written by <see cref="M:Android.AgentIcon.AgentTaskEvent.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -249,9 +255,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports the special-object contents mask for this event.</summary>
+        <returns>Zero.</returns>
+        <remarks>This implementation returns zero without combining contents masks from the event's icons or click action.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -339,7 +345,7 @@
         <summary>List of leading icons to show at the start of the event content, before any text (if
             available) or the trailing icons.</summary>
         <value>the list of leading icons</value>
-        <remarks>To be added.</remarks>
+        <remarks>The list can be empty only when the event has text or trailing icons. Display can omit icons when space is limited. The getter copies the list but does not clone its icon objects.</remarks>
       </Docs>
     </Member>
     <Member MemberName="MaxAllowedLeadingIcons">
@@ -368,7 +374,7 @@
       <Docs>
         <summary>Maximum allowed number of leading icons to appear before the text (if any).</summary>
         <value>the maximum number of allowed leading icons</value>
-        <remarks>To be added.</remarks>
+        <remarks>The current limit is one leading icon. Building an event truncates a longer leading-icon list to this limit.</remarks>
       </Docs>
     </Member>
     <Member MemberName="MaxAllowedTrailingIcons">
@@ -397,7 +403,7 @@
       <Docs>
         <summary>Maximum allowed number of trailing icons to appear after the text (if any).</summary>
         <value>the maximum number of allowed trailing icons</value>
-        <remarks>To be added.</remarks>
+        <remarks>The current limit is three trailing icons. Building an event truncates a longer trailing-icon list to this limit.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Text">
@@ -428,9 +434,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the event text as a string.</summary>
+        <value>The string representation of <see cref="P:Android.AgentIcon.AgentTaskEvent.TextFormatted" />, or <see langword="null" /> when the event has no text.</value>
+        <remarks>This is the string form of the character-sequence property. Empty or null text requires at least one icon, and display can shorten text to fit the available space.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TextFormatted">
@@ -467,7 +473,7 @@
       <Docs>
         <summary>Optional text to show to the user.</summary>
         <value>the text to show as part of the event.</value>
-        <remarks>To be added.</remarks>
+        <remarks>Empty or null text requires at least one leading or trailing icon. Display can shorten the text to fit the available space.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -559,7 +565,7 @@
         <summary>List of trailing icons to show at the end of the event content, after the text (if available)
             or the leading icons.</summary>
         <value>the list of trailing icons</value>
-        <remarks>To be added.</remarks>
+        <remarks>The list can be empty only when the event has text or leading icons. Display can omit icons when space is limited. The getter copies the list but does not clone its icon objects.</remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteToParcel">
@@ -600,10 +606,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel that receives the event data.</param>
+        <param name="flags">Write options passed when writing text and individual parcelable fields.</param>
+        <summary>Writes the event data to a parcel.</summary>
+        <remarks>The parcel contains the text, background, icon lists, click action, accessibility description, and any extension content.</remarks>
       </Docs>
     </Member>
   </Members>

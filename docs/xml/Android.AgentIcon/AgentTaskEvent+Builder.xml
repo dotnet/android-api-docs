@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for <c>AgentTaskEvent</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>Configures text, icons, a background, an accessibility description, and an optional activity action. A built event must contain text, icons, or both.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -54,9 +54,9 @@
         <Parameter Name="other" Type="Android.AgentIcon.AgentTaskEvent+Builder" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="other">The event builder whose settings are copied.</param>
+        <summary>Creates a builder from another event builder.</summary>
+        <remarks>The icon lists are copied without cloning their icons. Text, background, click action, description, and extension content retain the source builder's object references.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -85,7 +85,7 @@
       <Docs>
         <param name="text">the text to show.</param>
         <summary>Creates a new Builder with a given non-empty text for the event.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>The text must not be null or empty. Both icon lists are initially empty.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -112,9 +112,9 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="text">The non-null, non-empty text for the event.</param>
+        <summary>Creates an event builder with string text.</summary>
+        <remarks>This is the string overload of the character-sequence constructor. Both icon lists are initially empty.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -145,7 +145,7 @@
         <param name="leadingIcons">a list of leading icons for the event.</param>
         <param name="trailingIcons">a list of trailing icons for the event.</param>
         <summary>Creates a new Builder with given lists of leading and trailing icons.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>The lists must not be null, must not contain null icons, and must not both be empty. Their contents are copied without cloning the icons. Text is initially null; building the event truncates each list to its permitted limit. Icons retain their colors and can be scaled to fit.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -174,8 +174,8 @@
       <Parameters />
       <Docs>
         <summary>Creates the <c>AgentTaskEvent</c> instance.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new event containing the current builder settings.</returns>
+        <remarks>The event limits each icon list to its permitted size, rejects an event with neither text nor icons, and scales oversized icons down. This method does not submit the event to the status bar.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -243,10 +243,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="background">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="background">The background icon, or <see langword="null" /> to let the system choose a background.</param>
+        <summary>Selects the event background.</summary>
+        <returns>This builder.</returns>
+        <remarks>The system centers the scaled image within a mask while retaining its proportions. A wide image helps avoid cropping at the top and bottom.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetClickAction">
@@ -283,10 +283,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="action">An activity pending intent, or <see langword="null" /> to use the default event click action on supported systems.</param>
+        <summary>Sets the action for a click on the event.</summary>
+        <returns>This builder.</returns>
+        <remarks>
+          <para>A non-null action that does not target an activity is rejected. When agent-task launches are supported, a null value uses the application's default agent-task action. Systems without launch support ignore this setting.</para>
+          <para>To receive the clicked element's screen bounds, use a mutable pending intent with <see cref="F:Android.Content.FillInFlags.SourceBounds" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetContentDescription">
@@ -323,10 +326,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="contentDescription">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="contentDescription">A description of the entire event, or <see langword="null" /> for display fallback.</param>
+        <summary>Sets the event's accessibility description.</summary>
+        <returns>This builder.</returns>
+        <remarks>Describe both icons and text. If no description is supplied, display can use the event text or a system-selected description.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetContentDescription">
@@ -359,10 +362,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="contentDescription">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="contentDescription">A string description of the entire event, or <see langword="null" /> for display fallback.</param>
+        <summary>Sets the event's string accessibility description.</summary>
+        <returns>This builder.</returns>
+        <remarks>This is the string overload of the character-sequence setter. Describe both icons and text; a null description lets display use the event text or a system-selected description.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetLeadingIcons">
@@ -392,10 +395,10 @@
         <Parameter Name="leadingIcons" Type="System.Collections.Generic.IList&lt;Android.Graphics.Drawables.Icon&gt;" />
       </Parameters>
       <Docs>
-        <param name="leadingIcons">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="leadingIcons">The non-null list of icons before the event text. The list can be empty but must not contain null elements.</param>
+        <summary>Selects the icons at the start of the event.</summary>
+        <returns>This builder.</returns>
+        <remarks>The list is copied without cloning its icons. Building the event truncates it to <see cref="P:Android.AgentIcon.AgentTaskEvent.MaxAllowedLeadingIcons" />. Icons retain their colors and can be scaled to fit; an empty list requires text or trailing icons.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetText">
@@ -432,10 +435,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The event text, or <see langword="null" /> for no text.</param>
+        <summary>Replaces the event text.</summary>
+        <returns>This builder.</returns>
+        <remarks>Keep text short for the limited status-bar space. Empty or null text requires at least one leading or trailing icon when the event is built.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetText">
@@ -468,10 +471,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The event text as a string, or <see langword="null" /> for no text.</param>
+        <summary>Replaces the event text with a string.</summary>
+        <returns>This builder.</returns>
+        <remarks>This is the string overload of the character-sequence setter. Keep the text short; empty or null text requires at least one leading or trailing icon when the event is built.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetTrailingIcons">
@@ -501,10 +504,10 @@
         <Parameter Name="trailingIcons" Type="System.Collections.Generic.IList&lt;Android.Graphics.Drawables.Icon&gt;" />
       </Parameters>
       <Docs>
-        <param name="trailingIcons">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="trailingIcons">The non-null list of icons after the event text. The list can be empty but must not contain null elements.</param>
+        <summary>Selects the icons at the end of the event.</summary>
+        <returns>This builder.</returns>
+        <remarks>The list is copied without cloning its icons. Building the event truncates it to <see cref="P:Android.AgentIcon.AgentTaskEvent.MaxAllowedTrailingIcons" />. Icons retain their colors and can be scaled to fit; an empty list requires text or leading icons.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

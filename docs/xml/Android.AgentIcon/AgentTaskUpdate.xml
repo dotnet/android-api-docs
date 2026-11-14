@@ -44,7 +44,10 @@
   </Attributes>
   <Docs>
     <summary>Data to request a change in the UI for Agent Task space in the status bar.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>A non-null state replaces the current state; a null state leaves it unchanged. A non-null event requests a temporary display, which the system may be unable to show.</para>
+      <para>Set both values in one update to select the state that follows the event. An update with neither value makes no change.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="AgentTaskEvent">
@@ -80,8 +83,8 @@
       </ReturnValue>
       <Docs>
         <summary>An event to show in the status bar for a short period of time.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The requested event, or <see langword="null" /> when this update requests no event.</value>
+        <remarks>An event request does not guarantee display. Check the event result in <see cref="T:Android.AgentIcon.AgentTaskOutcome" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AgentTaskState">
@@ -117,8 +120,8 @@
       </ReturnValue>
       <Docs>
         <summary>The next state to show in the status bar space.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The requested state, or <see langword="null" /> to retain the current state.</value>
+        <remarks>Omitting a state does not reset the status-bar icon to its default state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -145,9 +148,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the factory that reads task updates from parcels.</summary>
+        <value>The parcel factory for <see cref="T:Android.AgentIcon.AgentTaskUpdate" /> objects and arrays.</value>
+        <remarks>The factory reads the state followed by the event, in the order used by <see cref="M:Android.AgentIcon.AgentTaskUpdate.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -178,9 +181,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports the special-object contents mask for this update.</summary>
+        <returns>Zero.</returns>
+        <remarks>This implementation returns zero without combining contents masks from the state or event.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -341,10 +344,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel that receives the update data.</param>
+        <param name="flags">Write options passed to the state and event parcel writers.</param>
+        <summary>Writes the update data to a parcel.</summary>
+        <remarks>The state is written before the event. Either value can be null.</remarks>
       </Docs>
     </Member>
   </Members>

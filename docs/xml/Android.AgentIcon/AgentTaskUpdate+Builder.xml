@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for <c>AgentTaskUpdate</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>A builder can supply a state, an event, or both. The resulting update keeps the selected object references.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -52,7 +52,7 @@
       <Parameters />
       <Docs>
         <summary>Creates a new Builder.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>The state and event are initially null, so an update built without further changes requests no status-bar change.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -79,9 +79,9 @@
         <Parameter Name="other" Type="Android.AgentIcon.AgentTaskUpdate+Builder" />
       </Parameters>
       <Docs>
-        <param name="other">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="other">The builder whose state and event selections are copied.</param>
+        <summary>Creates a builder from another builder's selections.</summary>
+        <remarks>The state and event references are copied; the referenced objects are not cloned.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -110,8 +110,8 @@
       <Parameters />
       <Docs>
         <summary>Creates the <c>AgentTaskUpdate</c> instance.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>A new update containing the selected state and event.</returns>
+        <remarks>This method does not submit the update to the status bar.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -179,10 +179,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="agentTaskEvent">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="agentTaskEvent">The event to request, or <see langword="null" /> to request no new event.</param>
+        <summary>Selects the event for the update.</summary>
+        <returns>This builder.</returns>
+        <remarks>This selection does not change the builder's state selection.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetAgentTaskState">
@@ -219,10 +219,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="agentTaskState">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="agentTaskState">The state to request, or <see langword="null" /> to leave the current state unchanged.</param>
+        <summary>Selects the state for the update.</summary>
+        <returns>This builder.</returns>
+        <remarks>A null state in an update does not restore the default state. To restore it, submit a null request to the platform's <c>StatusBarManager.setAgentTask</c> method.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
