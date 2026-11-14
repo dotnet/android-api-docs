@@ -27,7 +27,9 @@
   </Attributes>
   <Docs>
     <summary>Builder for creating an <c>UnderstandResult</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>The builder keeps the originating request and starts with no response insights, feedback activity, or visualization session. Destination setters validate their input against that request.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -56,7 +58,9 @@
       <Docs>
         <param name="request">the request for which an understand result is being built</param>
         <summary>Creates a new builder for an <c>UnderstandResult</c> for the given request.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The constructor stores the request for subsequent destination checks and rejects a null request.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -86,7 +90,9 @@
       <Docs>
         <summary>Builds and returns a new <c>UnderstandResult</c> instance.</summary>
         <returns>a new <c>UnderstandResult</c> instance</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Each call creates a result with a copy of the current destination mapping. The insight objects, feedback pending intent, and visualization session are not cloned.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -154,10 +160,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="feedbackActivity">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="feedbackActivity">The pending intent for feedback on this request's insights or visualizations, or <see langword="null" /> to leave no feedback activity.</param>
+        <summary>Assigns the feedback activity intent to the result being built.</summary>
+        <returns>This builder, with the feedback activity value updated.</returns>
+        <remarks>
+          <para>The setter replaces the stored pending intent and accepts null. Calling it does not launch the activity.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetResponseForDestination">
@@ -188,11 +196,13 @@
         <Parameter Name="insight" Type="Android.App.PersonalContext.Insight.ContextInsight" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <param name="insight">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="destination">A single destination flag included in the originating request.</param>
+        <param name="insight">The non-null insight to associate with that destination.</param>
+        <summary>Stores an insight for one requested destination.</summary>
+        <returns>This builder, with the destination's response updated.</returns>
+        <remarks>
+          <para>The setter rejects a null insight, a destination not present in the request, or a value that does not contain exactly one set bit. Setting the same destination again replaces its previous insight.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetVisualizerSession">
@@ -229,10 +239,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="session">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="session">The visualization session to store, or <see langword="null" /> to leave no session.</param>
+        <summary>Assigns the visualization session for an embedded destination.</summary>
+        <returns>This builder, with the visualization session value updated.</returns>
+        <remarks>
+          <para>The originating request must include the embedded destination, even when the supplied session is null. Otherwise, the setter rejects the assignment with an illegal-argument exception.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
