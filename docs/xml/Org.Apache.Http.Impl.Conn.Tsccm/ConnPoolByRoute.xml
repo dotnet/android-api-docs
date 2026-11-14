@@ -117,10 +117,10 @@
         <Parameter Name="op" Type="Org.Apache.Http.Conn.IClientConnectionOperator" />
       </Parameters>
       <Docs>
-        <param name="rospl">To be added.</param>
-        <param name="op">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rospl">The route-specific pool that will track the new entry.</param>
+        <param name="op">The operator used to create the entry's connection.</param>
+        <summary>Creates an entry for a route and records it as issued.</summary>
+        <returns>The new entry registered with the route-specific pool.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -147,8 +147,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Creates the queue used to hold available pool entries.</summary>
+        <returns>A new linked-list queue for free connection entries.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -181,8 +181,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Creates the map used to find a pool by its HTTP route.</summary>
+        <returns>A new hash map from routes to their route-specific pools.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -209,8 +209,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <summary>Creates the queue used to track threads waiting for a connection.</summary>
+        <returns>A new linked-list queue for waiting-thread records.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -266,8 +266,8 @@
         <Parameter Name="entry" Type="Org.Apache.Http.Impl.Conn.Tsccm.BasicPoolEntry" />
       </Parameters>
       <Docs>
-        <param name="entry">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="entry">The entry to close and remove from its route-specific pool.</param>
+        <summary>Closes an entry's connection and updates pool tracking; the caller must first remove it from the free queue.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -294,7 +294,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Removes and deletes the entry at the head of the free connection queue.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -320,8 +320,8 @@
         <ReturnType>Java.Util.IQueue</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the queue of pool entries available for reuse.</summary>
+        <value>The queue of entries released as reusable.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -422,13 +422,13 @@
         <Parameter Name="aborter" Type="Org.Apache.Http.Impl.Conn.Tsccm.WaitingThreadAborter" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="state">To be added.</param>
-        <param name="timeout">To be added.</param>
-        <param name="tunit">To be added.</param>
-        <param name="aborter">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="route">The HTTP route for the requested connection.</param>
+        <param name="state">The preferred connection state when selecting a free entry.</param>
+        <param name="timeout">The wait duration; zero or a negative value means no time limit.</param>
+        <param name="tunit">The unit for a positive timeout; it can be <see langword="null" /> when there is no time limit.</param>
+        <param name="aborter">The object connected to the waiting-thread record so the wait can be aborted.</param>
+        <summary>Obtains an entry for a route, waiting for capacity when necessary.</summary>
+        <returns>An entry issued for the requested route.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -458,10 +458,10 @@
         <Parameter Name="state" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="rospl">To be added.</param>
-        <param name="state">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="rospl">The route-specific pool from which to allocate an entry.</param>
+        <param name="state">The preferred state to match; if no entry matches, another free entry can be reset and used.</param>
+        <summary>Allocates an available entry for a route, discarding entries whose validity has expired.</summary>
+        <returns>A valid free entry, or <see langword="null" /> if none is available.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -491,10 +491,10 @@
         <Parameter Name="create" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <param name="create">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="route">The HTTP route used to look up the pool.</param>
+        <param name="create"><see langword="true" /> to create a pool when the route has none; otherwise, <see langword="false" />.</param>
+        <summary>Finds the pool for a route and optionally creates it.</summary>
+        <returns>The route's pool, or <see langword="null" /> when none exists and creation was not requested.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -523,8 +523,8 @@
         <Parameter Name="route" Type="Org.Apache.Http.Conn.Routing.HttpRoute" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="route">The route whose issued entry was lost.</param>
+        <summary>Decrements connection tracking for a lost entry and notifies a waiting thread.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -589,8 +589,8 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the total connection limit used by this pool.</summary>
+        <value>The maximum total connection count used when allocating entries.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -619,9 +619,9 @@
         <Parameter Name="route" Type="Org.Apache.Http.Conn.Routing.HttpRoute" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="route">The HTTP route for the new pool.</param>
+        <summary>Creates a route-specific pool using the configured limit for that route.</summary>
+        <returns>A new pool for the supplied route.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -651,10 +651,10 @@
         <Parameter Name="rospl" Type="Org.Apache.Http.Impl.Conn.Tsccm.RouteSpecificPool" />
       </Parameters>
       <Docs>
-        <param name="cond">To be added.</param>
-        <param name="rospl">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
+        <param name="cond">The condition on which the requesting thread will wait.</param>
+        <param name="rospl">The associated route-specific pool, or <see langword="null" />.</param>
+        <summary>Creates a record that associates a waiting condition with a route-specific pool.</summary>
+        <returns>A new waiting-thread record for the supplied condition and pool.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -683,8 +683,8 @@
         <Parameter Name="rospl" Type="Org.Apache.Http.Impl.Conn.Tsccm.RouteSpecificPool" />
       </Parameters>
       <Docs>
-        <param name="rospl">To be added.</param>
-        <summary>To be added.</summary>
+        <param name="rospl">The route-specific pool to check first, or <see langword="null" /> to use the global wait queue.</param>
+        <summary>Wakes a route-specific waiter if one exists, otherwise a waiter from the global queue.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -710,8 +710,8 @@
         <ReturnType>Org.Apache.Http.Conn.IClientConnectionOperator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the connection operator used to create pool entries.</summary>
+        <value>The operator supplied when this pool creates a connection entry.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -770,8 +770,8 @@
         <ReturnType>System.Collections.IDictionary</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the map from HTTP routes to their connection pools.</summary>
+        <value>The mapping whose keys are routes and whose values are route-specific pools.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -867,8 +867,8 @@
         <ReturnType>Java.Util.IQueue</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
+        <summary>Gets or sets the global queue of threads waiting for connections.</summary>
+        <value>The waiting-thread records used when no route-specific waiter is selected.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
