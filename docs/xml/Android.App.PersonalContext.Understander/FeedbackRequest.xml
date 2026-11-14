@@ -44,7 +44,7 @@
   </Attributes>
   <Docs>
     <summary>Request details for user feedback.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The request retains its source insight and initial feedback flags. The constructor rejects flags that include both positive and negative feedback.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -79,10 +79,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="properties">To be added.</param>
+        <param name="source">The insight associated with the feedback.</param>
+        <param name="properties">The initial feedback flags. <see cref="F:Android.App.PersonalContext.Understander.FeedbackRequestProperties.Positive" /> and <see cref="F:Android.App.PersonalContext.Understander.FeedbackRequestProperties.Negative" /> cannot be set together.</param>
         <summary>Creates a new <c>FeedbackRequest</c> with the given source and properties.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Stores the supplied insight and flags. The Java constructor throws <c>IllegalArgumentException</c> if both positive and negative flags are set.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -109,9 +109,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the factory used to read feedback requests from a parcel.</summary>
+        <value>The factory for <see cref="T:Android.App.PersonalContext.Understander.FeedbackRequest" /> instances and arrays.</value>
+        <remarks>The factory reads the insight wrapper and feedback flags written by <see cref="M:Android.App.PersonalContext.Understander.FeedbackRequest.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -142,9 +142,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports the special-object descriptor bits for this request.</summary>
+        <returns>Zero.</returns>
+        <remarks>This implementation returns zero without inspecting the source insight.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FeedbackPropertyNegative">
@@ -180,7 +180,7 @@
       <MemberValue>2</MemberValue>
       <Docs>
         <summary>Negative feedback property.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Marks negative feedback. The constructor rejects this flag together with <see cref="F:Android.App.PersonalContext.Understander.FeedbackRequest.FeedbackPropertyPositive" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FeedbackPropertyPositive">
@@ -216,7 +216,7 @@
       <MemberValue>1</MemberValue>
       <Docs>
         <summary>Positive feedback property.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Marks positive feedback. The constructor rejects this flag together with <see cref="F:Android.App.PersonalContext.Understander.FeedbackRequest.FeedbackPropertyNegative" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FeedbackPropertyUnknown">
@@ -252,7 +252,7 @@
       <MemberValue>0</MemberValue>
       <Docs>
         <summary>Unknown feedback property.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This zero value sets neither the positive nor the negative feedback bit.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -339,7 +339,7 @@
       <Docs>
         <summary>Returns the set of feedback property flags for this request.</summary>
         <value>a flag set composed of <c>FeedbackProperty</c> flags.</value>
-        <remarks>To be added.</remarks>
+        <remarks>Returns the flags stored when this request was constructed or read from a parcel.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Source">
@@ -367,8 +367,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the source <c>ContextInsight</c> that this feedback request is for.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The insight stored in this request.</value>
+        <remarks>Returns the stored insight without changing the feedback flags.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -471,10 +471,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel to receive the request data.</param>
+        <param name="flags">Parcel write options passed to the source insight's parcel wrapper.</param>
+        <summary>Writes the feedback request to a parcel.</summary>
+        <remarks>Writes the source insight through its parcel wrapper, followed by the feedback flags.</remarks>
       </Docs>
     </Member>
   </Members>
