@@ -13,8 +13,8 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Calculates a four-byte XXH32 non-cryptographic hash.</summary>
+    <remarks>Byte results use big-endian order. The algorithm accepts a seed; the default seed is zero. Use Append for incremental input or the static Hash methods for a complete input.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -28,8 +28,8 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Starts a new XXH32 calculation.</summary>
+        <remarks>The calculation uses seed zero and produces 4-byte results.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -46,9 +46,9 @@
         <Parameter Name="seed" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="seed">The seed used for this instance's XXH32 calculations.</param>
+        <summary>Starts a new XXH32 calculation with a specified seed.</summary>
+        <remarks>The seed is retained when the calculation is reset.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Append">
@@ -68,9 +68,9 @@
         <Parameter Name="source" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="source">The next bytes to include in the XXH32 input.</param>
+        <summary>Adds bytes to the current XXH32 calculation.</summary>
+        <remarks>The bytes extend the existing input rather than start a new calculation.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -94,9 +94,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Copies the current XXH32 calculation into a new instance.</summary>
+        <returns>A new XxHash32 instance with a copy of the current calculation state.</returns>
+        <remarks>The copy retains the accumulated state and seed. The two instances can then receive different input independently.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCurrentHashAsUInt32">
@@ -120,9 +120,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Gets the current XXH32 result as an unsigned integer.</summary>
+        <returns>The 32-bit XXH32 value for the accumulated input.</returns>
+        <remarks>Reading the result does not reset or change the accumulated calculation state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCurrentHashCore">
@@ -142,9 +142,9 @@
         <Parameter Name="destination" Type="System.Span&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="destination">The hash-sized buffer that receives the 4-byte result.</param>
+        <summary>Writes the current XXH32 result without resetting the calculation.</summary>
+        <remarks>The result occupies 4 bytes in big-endian order. The inherited public hash-output methods validate the destination length before they call this method.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -170,10 +170,10 @@
         <Parameter Name="source" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete byte array to hash with XXH32.</param>
+        <summary>Calculates the XXH32 hash of the supplied input.</summary>
+        <returns>A new array containing the 4-byte XXH32 result in big-endian order.</returns>
+        <remarks>The result is a new 4-byte array in big-endian order. A null source causes an ArgumentNullException. The calculation uses seed zero.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -200,11 +200,11 @@
         <Parameter Name="seed" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete byte array to hash with XXH32.</param>
+        <param name="seed">The seed for this XXH32 calculation.</param>
+        <summary>Calculates the XXH32 hash of the supplied input.</summary>
+        <returns>A new array containing the 4-byte XXH32 result in big-endian order.</returns>
+        <remarks>The result is a new 4-byte array in big-endian order. A null source causes an ArgumentNullException.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -231,11 +231,11 @@
         <Parameter Name="seed" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete byte span to hash with XXH32.</param>
+        <param name="seed">The seed for this XXH32 calculation. The default is zero.</param>
+        <summary>Calculates the XXH32 hash of the supplied input.</summary>
+        <returns>A new array containing the 4-byte XXH32 result in big-endian order.</returns>
+        <remarks>The result is a new 4-byte array in big-endian order.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -257,12 +257,12 @@
         <Parameter Name="seed" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="destination">To be added.</param>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete input for the XXH32 calculation.</param>
+        <param name="destination">The output buffer, which must have at least 4 bytes.</param>
+        <param name="seed">The seed for this XXH32 calculation. The default is zero.</param>
+        <summary>Calculates XXH32 and writes the result to a buffer.</summary>
+        <returns>The number of bytes written, always 4.</returns>
+        <remarks>The destination must have at least 4 bytes, or an ArgumentException is thrown. The first 4 bytes receive the result in big-endian order; remaining bytes are not changed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HashToUInt32">
@@ -289,11 +289,11 @@
         <Parameter Name="seed" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete input for the XXH32 calculation.</param>
+        <param name="seed">The seed for this XXH32 calculation. The default is zero.</param>
+        <summary>Calculates the XXH32 hash as an unsigned integer.</summary>
+        <returns>The 32-bit XXH32 value for the supplied input.</returns>
+        <remarks>This static method calculates a result from the supplied input without using an instance's accumulated state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -311,8 +311,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Starts the XXH32 calculation again with no accumulated input.</summary>
+        <remarks>The original seed is retained.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryHash">
@@ -335,13 +335,13 @@
         <Parameter Name="seed" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="destination">To be added.</param>
-        <param name="bytesWritten">To be added.</param>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete input for the XXH32 calculation.</param>
+        <param name="destination">The buffer that receives the 4-byte result.</param>
+        <param name="bytesWritten">4 on success, or zero if the destination is too short.</param>
+        <param name="seed">The seed for this XXH32 calculation. The default is zero.</param>
+        <summary>Tries to calculate XXH32 and write the result to a buffer.</summary>
+        <returns>true if the destination has at least 4 bytes and the result was written; otherwise, false.</returns>
+        <remarks>A destination shorter than 4 bytes is not changed. On success, the first 4 bytes receive the result in big-endian order; remaining bytes are not changed.</remarks>
       </Docs>
     </Member>
   </Members>
