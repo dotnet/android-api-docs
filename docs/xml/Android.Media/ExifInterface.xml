@@ -447,7 +447,7 @@
       <Docs>
         <param name="defaultValue">the value to return if the tag is not available.</param>
         <summary>Return the altitude in meters.</summary>
-        <returns>To be added.</returns>
+        <returns>The altitude in meters with the GPS altitude-reference sign applied, or <paramref name="defaultValue" /> if the altitude or reference is unavailable.</returns>
         <remarks>
           <para>Return the altitude in meters. If the exif tag does not exist, return
             &lt;var&gt;defaultValue&lt;/var&gt;.</para>
@@ -497,7 +497,7 @@
         <param name="tag">the name of the tag.</param>
         <summary>Returns the value of the specified tag or <c>null</c> if there
             is no such tag in the image file.</summary>
-        <returns>To be added.</returns>
+        <returns>The tag value as text, or <see langword="null" /> if the tag is missing or its compatibility conversion cannot produce a value.</returns>
         <remarks>
           <para>Returns the value of the specified tag or <c>null</c> if there
             is no such tag in the image file.</para>
@@ -548,7 +548,7 @@
         <Parameter Name="tag" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="tag">To be added.</param>
+        <param name="tag">The non-null EXIF tag name whose stored value bytes are requested.</param>
         <summary>Returns the raw bytes for the value of the requested tag inside the image
             file, or <c>null</c> if the tag is not contained.</summary>
         <returns>raw bytes for the value of the requested tag, or <c>null</c> if
@@ -597,7 +597,7 @@
         <param name="defaultValue">the value to return if the tag is not available.</param>
         <summary>Returns the double value of the tag that is specified as rational or contains a
             double-formatted value.</summary>
-        <returns>To be added.</returns>
+        <returns>The tag's numeric value, or <paramref name="defaultValue" /> if the tag is missing or cannot be converted to a double.</returns>
         <remarks>
           <para>Returns the double value of the tag that is specified as rational or contains a
             double-formatted value. If there is no such tag in the image file or the value cannot be
@@ -643,7 +643,7 @@
         <param name="tag">the name of the tag.</param>
         <param name="defaultValue">the value to return if the tag is not available.</param>
         <summary>Returns the integer value of the specified tag.</summary>
-        <returns>To be added.</returns>
+        <returns>The tag's integer value, or <paramref name="defaultValue" /> if the tag is missing or cannot be converted to an integer.</returns>
         <remarks>
           <para>Returns the integer value of the specified tag. If there is no such tag
             in the image file or the value cannot be parsed as integer, return
@@ -695,7 +695,7 @@
         <Parameter Name="tag" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="tag">To be added.</param>
+        <param name="tag">The non-null EXIF tag name whose original byte offset and stored length are requested.</param>
         <summary>Returns the offset and length of the requested tag inside the image file,
             or <c>null</c> if the tag is not contained.</summary>
         <returns>two-element array, the offset in the first value, and length in
@@ -743,9 +743,9 @@
         <Parameter Name="output" Type="System.Single[]" />
       </Parameters>
       <Docs>
-        <param name="output">To be added.</param>
+        <param name="output">An array with room for latitude at index zero and longitude at index one, in degrees. On Android API 37.2, a conversion failure can occur after latitude has been written.</param>
         <summary>Stores the latitude and longitude value in a float array.</summary>
-        <returns>To be added.</returns>
+        <returns><see langword="true" /> after both coordinates have been converted and written; <see langword="false" /> if required GPS tags are missing or coordinate conversion fails.</returns>
         <remarks>
           <para>Stores the latitude and longitude value in a float array. The first element is
             the latitude, and the second element is the longitude. Returns false if the
@@ -791,7 +791,7 @@
       <Docs>
         <summary>Returns the JPEG compressed thumbnail inside the image file, or <c>null</c> if there is no
             JPEG compressed thumbnail.</summary>
-        <returns>To be added.</returns>
+        <returns>The JPEG thumbnail data, or <see langword="null" /> when there is no readable JPEG-compressed thumbnail.</returns>
         <remarks>
           <para>Returns the JPEG compressed thumbnail inside the image file, or <c>null</c> if there is no
             JPEG compressed thumbnail.
@@ -842,7 +842,7 @@
       <Docs>
         <summary>Returns the thumbnail bytes inside the image file, regardless of the compression type of the
             thumbnail image.</summary>
-        <returns>To be added.</returns>
+        <returns>The stored thumbnail data regardless of compression type, or <see langword="null" /> when no thumbnail exists or the thumbnail cannot be read.</returns>
         <remarks>
           <para>Returns the thumbnail bytes inside the image file, regardless of the compression type of the
             thumbnail image.</para>
@@ -936,7 +936,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns number of milliseconds since Jan.</summary>
-        <value>To be added.</value>
+        <value>The GPS date and time as milliseconds since the UTC Unix epoch, or -1 when the required tags are missing or cannot be parsed.</value>
         <remarks>
           <para>Returns number of milliseconds since Jan. 1, 1970, midnight UTC.
             Returns -1 if the date time information if not available.</para>
@@ -982,7 +982,7 @@
       <Docs>
         <param name="tag">the name of the tag.</param>
         <summary>Returns true if the image file has the given attribute defined.</summary>
-        <returns>To be added.</returns>
+        <returns>Whether a stored attribute with the requested tag name is found in any of the parsed EXIF tag groups.</returns>
         <remarks>
           <para>Returns true if the image file has the given attribute defined.</para>
           <para>
@@ -1019,7 +1019,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns true if the image file has a thumbnail.</summary>
-        <value>To be added.</value>
+        <value>The stored indication that the parsed image contains a thumbnail; this does not guarantee that its bytes can be read or decoded.</value>
         <remarks>
           <para>Returns true if the image file has a thumbnail.</para>
           <para>
@@ -1066,7 +1066,7 @@
         <param name="mimeType">the string value of mime type</param>
         <summary>Returns whether ExifInterface currently supports reading data from the specified mime type
             or not.</summary>
-        <returns>To be added.</returns>
+        <returns>Whether the MIME type is in the reader's supported-type list. This does not validate an image's contents or establish support for writing that format.</returns>
         <remarks>
           <para>Returns whether ExifInterface currently supports reading data from the specified mime type
             or not.</para>
@@ -1109,7 +1109,7 @@
       <Docs>
         <summary>Returns true if thumbnail image is JPEG Compressed, or false if either thumbnail image does
             not exist or thumbnail image is uncompressed.</summary>
-        <value>To be added.</value>
+        <value><see langword="true" /> when a thumbnail is present and its compression identifier is one of the recognized JPEG forms; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns true if thumbnail image is JPEG Compressed, or false if either thumbnail image does
             not exist or thumbnail image is uncompressed.</para>
@@ -7169,7 +7169,7 @@
       <Docs>
         <summary>Creates and returns a Bitmap object of the thumbnail image based on the byte array and the
             thumbnail compression value, or <c>null</c> if the compression type is unsupported.</summary>
-        <value>To be added.</value>
+        <value>A bitmap decoded from a JPEG thumbnail or constructed from supported uncompressed RGB data; <see langword="null" /> if no thumbnail is present or its compression is unsupported.</value>
         <remarks>
           <para>Creates and returns a Bitmap object of the thumbnail image based on the byte array and the
             thumbnail compression value, or <c>null</c> if the compression type is unsupported.</para>

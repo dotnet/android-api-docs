@@ -100,8 +100,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Initializes a cloud-media provider subclass.</summary>
+        <remarks><para>The provider installs its authority-specific URI routes when <see cref="M:Android.Provider.CloudMediaProvider.AttachInfo(Android.Content.Context,Android.Content.PM.ProviderInfo)" /> receives the provider metadata.</para></remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -155,8 +155,8 @@
         <Parameter Name="info" Type="Android.Content.PM.ProviderInfo" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
-        <param name="info">To be added.</param>
+        <param name="context">The context passed to the base content-provider attachment.</param>
+        <param name="info">Provider metadata whose authority initializes the cloud-media URI routes.</param>
         <summary>Implementation is provided by the parent class.</summary>
         <remarks>
           <para>Implementation is provided by the parent class. Cannot be overridden.</para>
@@ -216,11 +216,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="method">To be added.</param>
-        <param name="arg">To be added.</param>
-        <param name="extras">To be added.</param>
+        <param name="method">The request name. Names that start with <c>android:</c> select platform cloud-media operations.</param>
+        <param name="arg">The argument passed to the base provider for a non-platform request; platform cloud-media operations do not use it.</param>
+        <param name="extras">Arguments for the selected cloud-media operation. A platform request with no bundle uses an empty bundle.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>The bundle produced by the selected platform operation, or the result of the base provider for a non-platform request.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Cannot be overridden.</para>
           <para>
@@ -263,9 +263,9 @@
         <Parameter Name="uri" Type="Android.Net.Uri" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
+        <param name="uri">Not used; canonical URI conversion is not supported.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>This method does not return; it throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Throws by default, and
             cannot be overridden.</para>
@@ -325,9 +325,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="selection">To be added.</param>
-        <param name="selectionArgs">To be added.</param>
+        <param name="uri">Not used; this provider does not accept delete operations.</param>
+        <param name="selection">Not used; delete operations do not evaluate a selection.</param>
+        <param name="selectionArgs">Not used; delete operations do not bind selection arguments.</param>
         <summary>Implementation is provided by the parent class.</summary>
         <returns>The number of rows affected.</returns>
         <remarks>
@@ -373,9 +373,9 @@
         <Parameter Name="uri" Type="Android.Net.Uri" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
+        <param name="uri">Not used; MIME-type queries are not supported.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>This method does not return; it throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Throws by default, and
             cannot be overridden.</para>
@@ -420,10 +420,10 @@
         <Parameter Name="values" Type="Android.Content.ContentValues" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="values">To be added.</param>
+        <param name="uri">Not used; this provider does not accept insert operations.</param>
+        <param name="values">Not used; this provider does not insert the supplied values.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>This method does not return; it throws <see cref="T:Java.Lang.UnsupportedOperationException" />.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Throws by default, and
             cannot be overridden.</para>
@@ -508,7 +508,7 @@
         <param name="config">containing configuration parameters for CloudMediaSurfaceController CloudMediaProviderContract.EXTRA_LOOPING_PLAYBACK_ENABLED CloudMediaProviderContract.EXTRA_SURFACE_CONTROLLER_AUDIO_MUTE_ENABLED. This value cannot be null.</param>
         <param name="callback">CloudMediaSurfaceStateChangedCallback to send state updates for Surface to picker launched via MediaStore.ACTION_PICK_IMAGES This value cannot be null.</param>
         <summary>Returns a CloudMediaSurfaceController used for rendering the preview of media items, or null if preview rendering is not supported.</summary>
-        <returns>To be added.</returns>
+        <returns>A preview-surface controller when supplied by a subclass. The base method returns <see langword="null" />.</returns>
         <remarks>
           <para>Returns a CloudMediaSurfaceController used for rendering the preview of media items, or null if preview rendering is not supported.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#onCreateCloudMediaSurfaceController(android.os.Bundle,%20android.provider.CloudMediaProvider.CloudMediaSurfaceStateChangedCallback)" title="Reference documentation">Android reference for <code>android.provider.CloudMediaProvider.onCreateCloudMediaSurfaceController</code>.</a></format></para>
@@ -542,7 +542,7 @@
       <Parameters />
       <Docs>
         <summary>Returns the CloudMediaProviderContract.Capabilities of this CloudMediaProvider.</summary>
-        <returns>To be added.</returns>
+        <returns>The capability set used to select supported cloud-provider APIs. The base method builds the default set.</returns>
         <remarks>
           <para>Returns the CloudMediaProviderContract.Capabilities of this CloudMediaProvider. This object is used to determine which APIs can be safely invoked during runtime. If not overridden the default capabilities are used. IMPORTANT: This method is performance critical and should avoid long running or expensive operations.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/CloudMediaProvider#onGetCapabilities()" title="Reference documentation">Android reference for <code>android.provider.CloudMediaProvider.onGetCapabilities</code>.</a></format></para>
@@ -1479,10 +1479,10 @@
         <Parameter Name="mode" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="mode">To be added.</param>
+        <param name="uri">A URI whose last path segment supplies the media ID to open.</param>
+        <param name="mode">Not used to select an access mode; the provider opens the media through <see cref="M:Android.Provider.CloudMediaProvider.OnOpenMedia(System.String,Android.OS.Bundle,Android.OS.CancellationSignal)" />.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>The file descriptor returned by the media-opening callback.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Cannot be overridden.</para>
           <para>
@@ -1534,11 +1534,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="mode">To be added.</param>
-        <param name="signal">To be added.</param>
+        <param name="uri">A URI whose last path segment supplies the media ID to open.</param>
+        <param name="mode">Not used to select an access mode; the provider opens the media through <see cref="M:Android.Provider.CloudMediaProvider.OnOpenMedia(System.String,Android.OS.Bundle,Android.OS.CancellationSignal)" />.</param>
+        <param name="signal">The cancellation signal forwarded to the media-opening callback.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>The file descriptor returned by the media-opening callback.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Cannot be overridden.</para>
           <para>
@@ -1590,11 +1590,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="mimeTypeFilter">To be added.</param>
-        <param name="opts">To be added.</param>
+        <param name="uri">A URI whose last path segment supplies the media ID for the preview.</param>
+        <param name="mimeTypeFilter">Not used to select a format; this override requests a cloud-media preview.</param>
+        <param name="opts">Preview options, including the requested size and thumbnail settings.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>The asset descriptor returned by the preview-opening callback.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Cannot be overridden.</para>
           <para>
@@ -1654,12 +1654,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="mimeTypeFilter">To be added.</param>
-        <param name="opts">To be added.</param>
-        <param name="signal">To be added.</param>
+        <param name="uri">A URI whose last path segment supplies the media ID for the preview.</param>
+        <param name="mimeTypeFilter">Not used to select a format; this override requests a cloud-media preview.</param>
+        <param name="opts">Preview options, including the requested size and thumbnail settings.</param>
+        <param name="signal">The cancellation signal forwarded to the preview-opening callback.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>The asset descriptor returned by the preview-opening callback.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Cannot be overridden.</para>
           <para>
@@ -1726,12 +1726,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="projection">To be added.</param>
-        <param name="queryArgs">To be added.</param>
-        <param name="cancellationSignal">To be added.</param>
+        <param name="uri">The URI that selects the cloud-media collection or search operation.</param>
+        <param name="projection">Not used to select columns; the selected cloud-media callback supplies the cursor.</param>
+        <param name="queryArgs">Arguments for the selected callback. Routing keys can be removed before the callback receives this bundle.</param>
+        <param name="cancellationSignal">The cancellation signal forwarded to category, media-set, suggestion, and search callbacks.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>The cursor returned by the callback selected by the URI.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Cannot be overridden.</para>
           <para>
@@ -1806,13 +1806,13 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="projection">To be added.</param>
-        <param name="selection">To be added.</param>
-        <param name="selectionArgs">To be added.</param>
-        <param name="sortOrder">To be added.</param>
+        <param name="uri">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
+        <param name="projection">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
+        <param name="selection">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
+        <param name="selectionArgs">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
+        <param name="sortOrder">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>This overload does not return. Use <see cref="M:Android.Provider.CloudMediaProvider.Query(Android.Net.Uri,System.String[],Android.OS.Bundle,Android.OS.CancellationSignal)" /> for supported cloud-media queries.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Throws by default, and
             cannot be overridden.</para>
@@ -1892,14 +1892,14 @@
         <Parameter Name="cancellationSignal" Type="Android.OS.CancellationSignal" />
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="projection">To be added.</param>
-        <param name="selection">To be added.</param>
-        <param name="selectionArgs">To be added.</param>
-        <param name="sortOrder">To be added.</param>
-        <param name="cancellationSignal">To be added.</param>
+        <param name="uri">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
+        <param name="projection">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
+        <param name="selection">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
+        <param name="selectionArgs">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
+        <param name="sortOrder">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
+        <param name="cancellationSignal">Not used; this SQL-style query overload always throws an unsupported-operation exception.</param>
         <summary>Implementation is provided by the parent class.</summary>
-        <returns>To be added.</returns>
+        <returns>This overload does not return. Use <see cref="M:Android.Provider.CloudMediaProvider.Query(Android.Net.Uri,System.String[],Android.OS.Bundle,Android.OS.CancellationSignal)" /> for supported cloud-media queries.</returns>
         <remarks>
           <para>Implementation is provided by the parent class. Throws by default, and
             cannot be overridden.</para>
@@ -2022,10 +2022,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="uri">To be added.</param>
-        <param name="values">To be added.</param>
-        <param name="selection">To be added.</param>
-        <param name="selectionArgs">To be added.</param>
+        <param name="uri">Not used; this provider does not accept update operations.</param>
+        <param name="values">Not used; this provider does not apply the supplied values.</param>
+        <param name="selection">Not used; update operations do not evaluate a selection.</param>
+        <param name="selectionArgs">Not used; update operations do not bind selection arguments.</param>
         <summary>Implementation is provided by the parent class.</summary>
         <returns>the number of rows affected.</returns>
         <remarks>

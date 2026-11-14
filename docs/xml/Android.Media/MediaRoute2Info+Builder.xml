@@ -195,7 +195,7 @@
       <Docs>
         <param name="feature">a feature that the route has. May be one of predefined features such as MediaRoute2Info.FEATURE_LIVE_AUDIO, MediaRoute2Info.FEATURE_LIVE_VIDEO or MediaRoute2Info.FEATURE_REMOTE_PLAYBACK or a custom feature defined by a provider. This value cannot be null.</param>
         <summary>Adds a feature for the route.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied feature added.</returns>
         <remarks>
           <para>Adds a feature for the route.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#addFeature(java.lang.String)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.addFeature</code>.</a></format></para>
@@ -232,7 +232,7 @@
       <Docs>
         <param name="features">features that the route has. May include predefined features such as MediaRoute2Info.FEATURE_LIVE_AUDIO, MediaRoute2Info.FEATURE_LIVE_VIDEO or MediaRoute2Info.FEATURE_REMOTE_PLAYBACK or custom features defined by a provider. This value cannot be null.</param>
         <summary>Adds features for the route.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied features added.</returns>
         <remarks>
           <para>Adds features for the route. A route must support at least one route type.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#addFeatures(java.util.Collection&lt;java.lang.String&gt;)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.addFeatures</code>.</a></format></para>
@@ -266,7 +266,7 @@
       <Parameters />
       <Docs>
         <summary>Builds the <c>MediaRoute2Info media route info</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>A new route description created from the builder's settings.</returns>
         <remarks>
           <para>Builds the <c>MediaRoute2Info media route info</c>.</para>
           <para>
@@ -308,7 +308,7 @@
       <Parameters />
       <Docs>
         <summary>Clears the features of the route.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with an empty feature list.</returns>
         <remarks>
           <para>Clears the features of the route. A route must support at least one route type.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#clearFeatures()" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.clearFeatures</code>.</a></format></para>
@@ -381,9 +381,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="packageName">To be added.</param>
+        <param name="packageName">The client package name to record for the route, or <see langword="null" />.</param>
         <summary>Sets the package name of the app using the route.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied client package name recorded.</returns>
         <remarks>
           <para>Sets the package name of the app using the route.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setClientPackageName(java.lang.String)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setClientPackageName</code>.</a></format></para>
@@ -420,7 +420,7 @@
       <Docs>
         <param name="connectionState">Value is one of the following: MediaRoute2Info.CONNECTION_STATE_DISCONNECTED MediaRoute2Info.CONNECTION_STATE_CONNECTING MediaRoute2Info.CONNECTION_STATE_CONNECTED</param>
         <summary>Sets the route's connection state.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied connection state recorded.</returns>
         <remarks>
           <para>Sets the route's connection state. MediaRoute2Info.CONNECTION_STATE_DISCONNECTED, MediaRoute2Info.CONNECTION_STATE_CONNECTING, or MediaRoute2Info.CONNECTION_STATE_CONNECTED.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setConnectionState(int)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setConnectionState</code>.</a></format></para>
@@ -455,9 +455,9 @@
         <Parameter Name="id" Type="System.Collections.Generic.ICollection&lt;System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
+        <param name="id">The collection of IDs to use for route deduplication.</param>
         <summary>Sets the deduplication IDs of the route.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied deduplication IDs recorded.</returns>
         <remarks>
           <para>Sets the deduplication IDs of the route.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setDeduplicationIds(java.util.Set&lt;java.lang.String&gt;)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setDeduplicationIds</code>.</a></format></para>
@@ -499,9 +499,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="description">To be added.</param>
+        <param name="description">The description to store for the route, or <see langword="null" /> for no description.</param>
         <summary>Sets the user-visible description of the route.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied description recorded.</returns>
         <remarks>
           <para>Sets the user-visible description of the route.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setDescription(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setDescription</code>.</a></format></para>
@@ -539,10 +539,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="description">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="description">The display description to assign to the route, or <see langword="null" /> for no description.</param>
+        <summary>Stores a display description for the route being built.</summary>
+        <returns>A route builder with the supplied display description recorded.</returns>
+        <remarks>This overload converts a non-null description to a Java string and calls the character-sequence overload.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetExtras">
@@ -579,9 +579,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="extras">To be added.</param>
+        <param name="extras">The bundle whose entries are to be stored as route extras, or <see langword="null" /> to clear the extras.</param>
         <summary>Sets a bundle of extras for the route.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with its extras set from the supplied bundle.</returns>
         <remarks>
           <para>Sets a bundle of extras for the route. Note: The extras will not affect the result of MediaRoute2Info.equals(Object).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setExtras(android.os.Bundle)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setExtras</code>.</a></format></para>
@@ -623,9 +623,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="iconUri">To be added.</param>
+        <param name="iconUri">The icon URI to store for the route, or <see langword="null" /> for no icon URI.</param>
         <summary>Sets the URI of the icon representing this route.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied icon URI recorded.</returns>
         <remarks>
           <para>Sets the URI of the icon representing this route. This icon will be used in picker UIs if available.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setIconUri(android.net.Uri)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setIconUri</code>.</a></format></para>
@@ -662,7 +662,7 @@
       <Docs>
         <param name="requiredPermissions">the list of all permissions which must be held in order to see this route. This value cannot be null.</param>
         <summary>Limits the visibility of this route to holders of a set of permissions.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied permission set recorded as one visibility requirement.</returns>
         <remarks>
           <para>Limits the visibility of this route to holders of a set of permissions. Calls to this method override any previous calls of setRequiredPermissions(Set) or setRequiredPermissions(List).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setRequiredPermissions(java.util.Set&lt;java.lang.String&gt;)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setRequiredPermissions</code>.</a></format></para>
@@ -699,7 +699,7 @@
       <Docs>
         <param name="requiresOneOf">a list of Sets of permissions. Holding all permissions in at least one of the Sets is required for the route to be visible. This value cannot be null.</param>
         <summary>Limits the visibility of this route to holders of one of a set of permissions.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied alternative permission sets recorded.</returns>
         <remarks>
           <para>Limits the visibility of this route to holders of one of a set of permissions. Calls to this method override any previous calls of setRequiredPermissions(Set) or setRequiredPermissions(List).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setRequiredPermissions(java.util.List&lt;java.util.Set&lt;java.lang.String&gt;&gt;)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setRequiredPermissions</code>.</a></format></para>
@@ -736,7 +736,7 @@
       <Docs>
         <param name="suitabilityStatus">Value is one of the following: MediaRoute2Info.SUITABILITY_STATUS_SUITABLE_FOR_DEFAULT_TRANSFER MediaRoute2Info.SUITABILITY_STATUS_SUITABLE_FOR_MANUAL_TRANSFER MediaRoute2Info.SUITABILITY_STATUS_NOT_SUITABLE_FOR_TRANSFER</param>
         <summary>Sets route suitability status.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied suitability status recorded.</returns>
         <remarks>
           <para>Sets route suitability status. The default value is MediaRoute2Info.SUITABILITY_STATUS_SUITABLE_FOR_DEFAULT_TRANSFER. Apps are not supposed to set MediaRoute2Info.SUITABILITY_STATUS_NOT_SUITABLE_FOR_TRANSFER. Publishing a non-system route with such status throws SecurityException.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setSuitabilityStatus(int)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setSuitabilityStatus</code>.</a></format></para>
@@ -780,7 +780,7 @@
       <Docs>
         <param name="type">Value is one of the following: MediaRoute2Info.TYPE_UNKNOWN MediaRoute2Info.TYPE_BUILTIN_SPEAKER MediaRoute2Info.TYPE_WIRED_HEADSET MediaRoute2Info.TYPE_WIRED_HEADPHONES MediaRoute2Info.TYPE_BLUETOOTH_A2DP MediaRoute2Info.TYPE_HDMI MediaRoute2Info.TYPE_HDMI_ARC MediaRoute2Info.TYPE_HDMI_EARC MediaRoute2Info.TYPE_LINE_DIGITAL MediaRoute2Info.TYPE_LINE_ANALOG MediaRoute2Info.TYPE_AUX_LINE MediaRoute2Info.TYPE_USB_DEVICE MediaRoute2Info.TYPE_USB_ACCESSORY MediaRoute2Info.TYPE_DOCK MediaRoute2Info.TYPE_USB_HEADSET MediaRoute2Info.TYPE_HEARING_AID MediaRoute2Info.TYPE_BLE_HEADSET MediaRoute2Info.TYPE_MULTICHANNEL_SPEAKER_GROUP MediaRoute2Info.TYPE_REMOTE_TV MediaRoute2Info.TYPE_REMOTE_SPEAKER MediaRoute2Info.TYPE_REMOTE_AUDIO_VIDEO_RECEIVER MediaRoute2Info.TYPE_REMOTE_TABLET MediaRoute2Info.TYPE_REMOTE_TABLET_DOCKED MediaRoute2Info.TYPE_REMOTE_COMPUTER MediaRoute2Info.TYPE_REMOTE_GAME_CONSOLE MediaRoute2Info.TYPE_REMOTE_CAR MediaRoute2Info.TYPE_REMOTE_SMARTWATCH MediaRoute2Info.TYPE_REMOTE_SMARTPHONE MediaRoute2Info.TYPE_GROUP</param>
         <summary>Sets the route's type.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied route type recorded.</returns>
         <remarks>
           <para>Sets the route's type.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setType(int)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setType</code>.</a></format></para>
@@ -814,7 +814,7 @@
       <Parameters />
       <Docs>
         <summary>Sets the visibility of this route to public.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder configured for public visibility.</returns>
         <remarks>
           <para>Sets the visibility of this route to public. By default, unless you call setVisibilityRestricted(Set), the new route will be public. Public routes are visible to any application with a matching feature. Calls to this method override previous calls to setVisibilityPublic() and setVisibilityRestricted(Set).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setVisibilityPublic()" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setVisibilityPublic</code>.</a></format></para>
@@ -851,7 +851,7 @@
       <Docs>
         <param name="allowedPackages">set of package names which are allowed to see this route. This value cannot be null.</param>
         <summary>Sets the visibility of this route to restricted.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder configured for restricted visibility with the supplied package names.</returns>
         <remarks>
           <para>Sets the visibility of this route to restricted. Routes with restricted visibility are only visible to its publisher application and applications whose package name is included in the provided allowedPackages set with a matching feature. Calls to this method override previous calls to setVisibilityPublic() and setVisibilityRestricted(Set).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setVisibilityRestricted(java.util.Set&lt;java.lang.String&gt;)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setVisibilityRestricted</code>.</a></format></para>
@@ -890,7 +890,7 @@
         <param name="allowedPackages">set of package names which are allowed to see this route. This value cannot be null.</param>
         <param name="alsoAllowPrivileged">whether packages not explicitly listed in allowedPackages, but holding privileged routing permissions, can also see this route.</param>
         <summary>Sets the visibility of this route to restricted.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied package list and privileged-package visibility setting recorded.</returns>
         <remarks>
           <para>Sets the visibility of this route to restricted.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setVisibilityRestricted(java.util.Set&lt;java.lang.String&gt;,%20boolean)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setVisibilityRestricted</code>.</a></format></para>
@@ -925,9 +925,9 @@
         <Parameter Name="volume" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="volume">To be added.</param>
+        <param name="volume">The current volume to record for the route, or zero when it is unknown.</param>
         <summary>Sets the route's current volume, or 0 if unknown.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied current volume recorded.</returns>
         <remarks>
           <para>Sets the route's current volume, or 0 if unknown.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setVolume(int)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setVolume</code>.</a></format></para>
@@ -964,7 +964,7 @@
       <Docs>
         <param name="volumeHandling">Value is one of the following: MediaRoute2Info.PLAYBACK_VOLUME_FIXED MediaRoute2Info.PLAYBACK_VOLUME_VARIABLE</param>
         <summary>Sets the route's volume handling.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied volume-handling mode recorded.</returns>
         <remarks>
           <para>Sets the route's volume handling.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setVolumeHandling(int)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setVolumeHandling</code>.</a></format></para>
@@ -999,9 +999,9 @@
         <Parameter Name="volumeMax" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="volumeMax">To be added.</param>
+        <param name="volumeMax">The maximum volume to record for the route, or zero when it is unknown.</param>
         <summary>Sets the route's maximum volume, or 0 if unknown.</summary>
-        <returns>To be added.</returns>
+        <returns>A route builder with the supplied maximum volume recorded.</returns>
         <remarks>
           <para>Sets the route's maximum volume, or 0 if unknown.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaRoute2Info.Builder#setVolumeMax(int)" title="Reference documentation">Android reference for <code>android.media.MediaRoute2Info.Builder.setVolumeMax</code>.</a></format></para>

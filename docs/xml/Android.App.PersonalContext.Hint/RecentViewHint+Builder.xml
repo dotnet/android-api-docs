@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder used to create a <c>RecentViewHint</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>Set the source activity before building. Captured-text entries can be added, and the locus identifier is optional.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -52,7 +52,7 @@
       <Parameters />
       <Docs>
         <summary>Creates an instance of <c>Builder</c>.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Starts with no captured text, no source activity, and no locus identifier.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AddCapturedText">
@@ -82,10 +82,10 @@
         <Parameter Name="capturedText" Type="Android.App.PersonalContext.Hint.CapturedText" />
       </Parameters>
       <Docs>
-        <param name="capturedText">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="capturedText">The non-null text capture to append.</param>
+        <summary>Appends one captured-text entry to the hint being built.</summary>
+        <returns>This builder with the text capture appended.</returns>
+        <remarks>Each call appends one entry; no duplicate check is made.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -113,9 +113,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
+        <summary>Creates a recent-view hint from the recorded text captures and source activity.</summary>
         <returns>the built <c>RecentViewHint</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>The source activity is required. An empty captured-text list is permitted, and the locus identifier is optional.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -183,10 +183,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="locusId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="locusId">The locus identifier to record, or <see langword="null" /> to clear it.</param>
+        <summary>Sets the optional locus identifier for the hint.</summary>
+        <returns>The builder with the locus identifier updated.</returns>
+        <remarks>A <see langword="null" /> value removes a previously recorded locus identifier.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetSourceAppActivityComponentName">
@@ -216,10 +216,10 @@
         <Parameter Name="sourceAppActivityComponentName" Type="Android.Content.ComponentName" />
       </Parameters>
       <Docs>
-        <param name="sourceAppActivityComponentName">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="sourceAppActivityComponentName">The activity component from which the text captures came.</param>
+        <summary>Records the source activity for the captured view text.</summary>
+        <returns>This builder with the source activity stored.</returns>
+        <remarks>The component must be non-null and must be set before building.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

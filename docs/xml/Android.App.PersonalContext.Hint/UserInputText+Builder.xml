@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for <c>UserInputText</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>Text and bounds are required. Field type and text source default to their <c>Unknown</c> values.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -51,8 +51,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates an input-text builder with unknown categories.</summary>
+        <remarks>Both categories start as <c>Unknown</c>; text and bounds are initially unset.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -81,8 +81,8 @@
       <Parameters />
       <Docs>
         <summary>Builds a new <c>UserInputText</c> instance.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The user-input details created from the builder values.</returns>
+        <remarks>The native operation rejects missing text or bounds; an empty text string is allowed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -150,10 +150,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="fieldType">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="fieldType">The input-field category to record.</param>
+        <summary>Sets the category of the field that received the text.</summary>
+        <returns>This builder with the field category recorded.</returns>
+        <remarks>This changes the recorded category only; it does not inspect the input view.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetText">
@@ -183,10 +183,10 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The entered text to store.</param>
+        <summary>Records the user's input text.</summary>
+        <returns>The builder after storing the entered text.</returns>
+        <remarks>The text must not be <see langword="null" />; an empty string is accepted.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetUserInputTextSource">
@@ -223,10 +223,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="userInputTextSource">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="userInputTextSource">The category describing how the input text was obtained.</param>
+        <summary>Sets the recorded source of the input text.</summary>
+        <returns>This builder with the input-source category stored.</returns>
+        <remarks>The builder records the supplied source code; it does not infer the source from the text.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetViewNodeBoundingBox">
@@ -256,10 +256,10 @@
         <Parameter Name="viewNodeBoundingBox" Type="Android.Graphics.Rect" />
       </Parameters>
       <Docs>
-        <param name="viewNodeBoundingBox">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="viewNodeBoundingBox">The input field's screen-relative rectangle.</param>
+        <summary>Records the bounds of the input field.</summary>
+        <returns>The builder with the input-field bounds stored.</returns>
+        <remarks>The rectangle must not be <see langword="null" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

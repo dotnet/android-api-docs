@@ -44,7 +44,7 @@
   </Attributes>
   <Docs>
     <summary>Data for a single message within a conversation.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>Message text and author are stored separately from optional context metadata.</remarks>
   </Docs>
   <Members>
     <Member MemberName="Author">
@@ -72,8 +72,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the author of the message.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The author string recorded for the message.</value>
+        <remarks>The native diagnostic string omits the author to reduce accidental logging of message data.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ContextData">
@@ -109,8 +109,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the context metadata associated with this message, if any.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>Additional message-view data, or <see langword="null" /> when no metadata is available.</value>
+        <remarks>The native getter can convert older content-capture metadata when no context-data value was stored.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -137,9 +137,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the parcel decoder for chat-message data.</summary>
+        <value>The creator for chat-message objects and arrays.</value>
+        <remarks>Decoding restores the message text, author, reference time, direction, and optional metadata.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -170,9 +170,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports descriptor flags for the message's parcel representation.</summary>
+        <returns>Zero.</returns>
+        <remarks>No special descriptor bits are set by the native message implementation.</remarks>
       </Docs>
     </Member>
     <Member MemberName="IsOutgoingMessage">
@@ -200,8 +200,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns <c>true</c> if this is an outgoing message, and <c>false</c> otherwise.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> for an outgoing message; <see langword="false" /> otherwise.</value>
+        <remarks>The builder requires an explicit outgoing/incoming choice; it does not default to <see langword="false" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -287,8 +287,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the timestamp of when the message was sent or received in milliseconds since epoch.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The message reference time in milliseconds since the Unix epoch.</value>
+        <remarks>For content-capture messages, this time describes when the message text was detected.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Text">
@@ -316,8 +316,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the text of the message.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The text content recorded for the message.</value>
+        <remarks>The native diagnostic string leaves out the message text.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -420,10 +420,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel in which to record this message.</param>
+        <param name="flags">Flags forwarded to the optional metadata parcel writers.</param>
+        <summary>Serializes the message and its metadata to a parcel.</summary>
+        <remarks>The reference time is written in milliseconds, and the outgoing/incoming state is written as a Boolean.</remarks>
       </Docs>
     </Member>
   </Members>

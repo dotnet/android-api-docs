@@ -44,7 +44,7 @@
   </Attributes>
   <Docs>
     <summary>Represents text content captured from a single UI element (a "view node") on the user's screen.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The captured data include text, a content description, view identifiers, bounds, and capture times.</remarks>
   </Docs>
   <Members>
     <Member MemberName="Creator">
@@ -71,9 +71,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the parcel decoder for captured-text objects.</summary>
+        <value>The creator that reads captured-text parcels and allocates captured-text arrays.</value>
+        <remarks>The decoder restores the view strings, bounds, resource identifier, and capture times from the parcel.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -104,9 +104,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports special-object descriptor flags for the parcel representation.</summary>
+        <returns>Zero.</returns>
+        <remarks>This implementation does not set any special-object descriptor bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -193,8 +193,8 @@
       <Docs>
         <summary>Returns the view's <see href="https://developer.android.com/guide/topics/resources/providing-resources#fromXmlSyntax">fully
             qualified resource ID</see>.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The resource-name string stored for the view.</value>
+        <remarks>The builder rejects a <see langword="null" /> identifier but does not parse the resource-name string.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -284,8 +284,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns a unique identifier for the UI element (e.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The identifier recorded for the captured view.</value>
+        <remarks>The builder does not validate the identifier's format.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ViewNodeBoundingBox">
@@ -313,8 +313,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the screen relative bounding box of the text element, in pixels.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The view's rectangle in screen coordinates, measured in pixels.</value>
+        <remarks>The bounds are written as a typed rectangle in the parcel.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ViewNodeDescription">
@@ -342,8 +342,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the accessibility content description of the UI element.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The accessibility description recorded for the view.</value>
+        <remarks>The description is stored separately from the view's text.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ViewNodeLastSeenMillis">
@@ -372,8 +372,8 @@
       <Docs>
         <summary>Returns the timestamp when the view node was last seen on screen by the Content Capture
             framework in milliseconds since epoch.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The last-seen time in milliseconds since the Unix epoch, or zero when no last-seen time is stored.</value>
+        <remarks>This timestamp is separate from the time of the last content update. A node still in the view hierarchy can have a zero last-seen time.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ViewNodeLastUpdatedMillis">
@@ -401,8 +401,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the timestamp when the view node was last updated in milliseconds since epoch.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The last update time in milliseconds since the Unix epoch.</value>
+        <remarks>The native getter converts the stored update timestamp to whole milliseconds.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ViewNodeText">
@@ -430,8 +430,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the actual text from the UI element.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The text recorded from the view.</value>
+        <remarks>This is the view text, not its separate accessibility description.</remarks>
       </Docs>
     </Member>
     <Member MemberName="WriteToParcel">
@@ -472,10 +472,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel that receives this captured text.</param>
+        <param name="flags">Options passed to the bounding rectangle's parcel writer.</param>
+        <summary>Writes the captured view data to a parcel.</summary>
+        <remarks>Timestamps are written in milliseconds. A separate Boolean records whether a last-seen timestamp is present.</remarks>
       </Docs>
     </Member>
   </Members>

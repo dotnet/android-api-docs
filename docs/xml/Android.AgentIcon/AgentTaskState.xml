@@ -44,7 +44,7 @@
   </Attributes>
   <Docs>
     <summary>Information about the agent's current state.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>A state supplies the agent's status-bar icon and accessibility description. Its animation settings control repetition and whether a previous state's animation can be interrupted.</remarks>
   </Docs>
   <Members>
     <Member MemberName="ClickAction">
@@ -82,7 +82,10 @@
         <summary>
           <c>PendingIntent</c> to send when the state icon in the status bar is clicked.</summary>
         <value>the action to execute when the element is clicked.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The action must target an activity. On systems that support agent-task launches, a null action makes the state icon non-clickable; systems without that support ignore this action.</para>
+          <para>To receive the clicked element's screen bounds, use a mutable pending intent with <see cref="F:Android.Content.FillInFlags.SourceBounds" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentDescription">
@@ -113,9 +116,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the state icon's accessibility description as a string.</summary>
+        <value>The string representation of <see cref="P:Android.AgentIcon.AgentTaskState.ContentDescriptionFormatted" />.</value>
+        <remarks>This is the string form of the character-sequence property. The description is combined with the application name and can be hidden in sensitive contexts.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ContentDescriptionFormatted">
@@ -144,7 +147,7 @@
       <Docs>
         <summary>Content description associated with <c>#getIcon</c>.</summary>
         <value>a description of the icon.</value>
-        <remarks>To be added.</remarks>
+        <remarks>The description is combined with the application name for accessibility and can be hidden in sensitive contexts.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Creator">
@@ -171,9 +174,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the factory that reads task states from parcels.</summary>
+        <value>The parcel factory for <see cref="T:Android.AgentIcon.AgentTaskState" /> objects and arrays.</value>
+        <remarks>The factory reads the icon, description, animation settings, and click action written by <see cref="M:Android.AgentIcon.AgentTaskState.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -204,9 +207,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports the special-object contents mask for this state.</summary>
+        <returns>Zero.</returns>
+        <remarks>This implementation returns zero without combining contents masks from the icon or click action.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Icon">
@@ -235,7 +238,10 @@
       <Docs>
         <summary>Icon to display in the status bar.</summary>
         <value>the icon representing the current state of the agent.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The icon remains the state icon until another state is sent. Use a monochrome icon so that the system can tint it for contrast.</para>
+          <para>Animations should be finite and shorter than three seconds; system limits can stop longer animations early. <see cref="M:Android.AgentIcon.AgentTaskState.ShouldLoopAnimation" /> controls repetition. A new state can interrupt the animation when its <see cref="M:Android.AgentIcon.AgentTaskState.ShouldInterruptPreviousAnimation" /> result is true.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -326,7 +332,7 @@
         <returns>
           <c>true</c> if this state's icon should interrupt the previous state's animation,
                     instead of playing it until completion.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>When true, a new state can replace an animated previous state without waiting for that animation to finish. This setting has no effect when the previous icon is not animated.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ShouldLoopAnimation">
@@ -358,7 +364,10 @@
         <returns>
           <c>true</c> if this state's icon should continue looping as long as is allowed by
             the system.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>When true, finite animations can repeat and infinite animations can continue, subject to system health and battery limits. Finite animations normally finish before a state change unless the next state requests interruption; infinite animations can stop at any frame.</para>
+          <para>When false, finite animations play once, subject to system limits, and infinite animations run briefly, for about three seconds. This setting has no effect for a static icon.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -461,10 +470,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel that receives the state data.</param>
+        <param name="flags">Write options passed to the icon, description, and click-action parcel writers.</param>
+        <summary>Writes the state data to a parcel.</summary>
+        <remarks>The parcel contains the icon, accessibility description, animation settings, and optional click action.</remarks>
       </Docs>
     </Member>
   </Members>

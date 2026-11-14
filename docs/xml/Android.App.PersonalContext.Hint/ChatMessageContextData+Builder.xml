@@ -27,7 +27,7 @@
   </Attributes>
   <Docs>
     <summary>Builder for <c>ChatMessageContextData</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>Set both raw display labels and the autofill identifier before building the context data.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -51,8 +51,8 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Creates a builder with no message-context values configured.</summary>
+        <remarks>The time label, date label, and autofill identifier have no defaults.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -80,9 +80,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Creates message-context data from the configured labels and view identifier.</summary>
+        <returns>The configured message-context data.</returns>
+        <remarks>All three inputs must be set; the native operation rejects an unset value.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -143,10 +143,10 @@
         <Parameter Name="autofillId" Type="Android.Views.Autofill.AutofillId" />
       </Parameters>
       <Docs>
-        <param name="autofillId">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="autofillId">The autofill identifier of the view containing the message.</param>
+        <summary>Associates the message context with a view identifier.</summary>
+        <returns>This builder with the autofill identifier recorded.</returns>
+        <remarks>A non-null identifier is required for the built context data.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRawDateString">
@@ -176,10 +176,10 @@
         <Parameter Name="rawDateString" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="rawDateString">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="rawDateString">The date label shown with the message.</param>
+        <summary>Records the message view's date label.</summary>
+        <returns>The builder after storing the date label.</returns>
+        <remarks>Provide the display label without parsing it. The label must not be <see langword="null" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetRawTimeString">
@@ -209,10 +209,10 @@
         <Parameter Name="rawTimeString" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="rawTimeString">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="rawTimeString">The time label displayed with the message.</param>
+        <summary>Stores the message view's time label.</summary>
+        <returns>This builder with the time label retained.</returns>
+        <remarks>Supply the label as displayed; a <see langword="null" /> label is rejected.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

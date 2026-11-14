@@ -1281,10 +1281,12 @@
         <Parameter Name="fn" Type="Java.Util.Functions.IFunction" />
       </Parameters>
       <Docs>
-        <param name="fn">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="fn">The function that receives the failed completion's exception and computes a replacement value.</param>
+        <summary>Creates a dependent future that can recover from a failed completion with an asynchronously computed value.</summary>
+        <returns>A dependent future that receives the original successful value or the value computed by <paramref name="fn" />.</returns>
+        <remarks>
+          <para>The recovery function uses this future's default executor. It is not called when this future completes successfully. If the function throws, the dependent future completes exceptionally.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExceptionallyAsync">
@@ -1318,11 +1320,13 @@
         <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
       </Parameters>
       <Docs>
-        <param name="fn">To be added.</param>
-        <param name="executor">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="fn">The function that receives the failed completion's exception and computes a replacement value.</param>
+        <param name="executor">The executor used to run the recovery function.</param>
+        <summary>Creates a dependent future that can recover from a failed completion using the specified executor.</summary>
+        <returns>A dependent future that receives the original successful value or the value computed by <paramref name="fn" />.</returns>
+        <remarks>
+          <para>The recovery function is not called when this future completes successfully. If the function throws, the dependent future completes exceptionally.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExceptionallyCompose">
@@ -1355,10 +1359,12 @@
         <Parameter Name="fn" Type="Java.Util.Functions.IFunction" />
       </Parameters>
       <Docs>
-        <param name="fn">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="fn">The function that receives the failed completion's exception and supplies a recovery stage.</param>
+        <summary>Creates a dependent future that can recover from a failed completion by following another stage.</summary>
+        <returns>A dependent future that receives the original successful value or follows the completion of the stage supplied by <paramref name="fn" />.</returns>
+        <remarks>
+          <para>The recovery function is not called when this future completes successfully. If recovery is needed, the dependent future follows the returned stage's value or failure. If the function throws, the dependent future completes exceptionally.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExceptionallyComposeAsync">
@@ -1391,10 +1397,12 @@
         <Parameter Name="fn" Type="Java.Util.Functions.IFunction" />
       </Parameters>
       <Docs>
-        <param name="fn">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="fn">The function that receives the failed completion's exception and supplies a recovery stage.</param>
+        <summary>Creates a dependent future that can recover from a failed completion with a stage supplied asynchronously.</summary>
+        <returns>A dependent future that receives the original successful value or follows the completion of the stage supplied by <paramref name="fn" />.</returns>
+        <remarks>
+          <para>The recovery function uses this future's default executor. It is not called when this future completes successfully. The dependent future follows the returned stage's value or failure; if the function throws, it completes exceptionally.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExceptionallyComposeAsync">
@@ -1428,11 +1436,13 @@
         <Parameter Name="executor" Type="Java.Util.Concurrent.IExecutor" />
       </Parameters>
       <Docs>
-        <param name="fn">To be added.</param>
-        <param name="executor">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="fn">The function that receives the failed completion's exception and supplies a recovery stage.</param>
+        <param name="executor">The executor used to run the recovery function.</param>
+        <summary>Creates a dependent future that can recover from a failed completion with a stage supplied using the specified executor.</summary>
+        <returns>A dependent future that receives the original successful value or follows the completion of the stage supplied by <paramref name="fn" />.</returns>
+        <remarks>
+          <para>The recovery function is not called when this future completes successfully. The dependent future follows the returned stage's value or failure; if the function throws, it completes exceptionally.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ExceptionNow">
@@ -1463,9 +1473,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Gets the failure of an already failed future without waiting for completion.</summary>
+        <returns>The completion exception, with an available cause unwrapped from a <see cref="T:Java.Util.Concurrent.CompletionException" />.</returns>
+        <remarks>
+          <para>This method throws <see cref="T:Java.Lang.IllegalStateException" /> if the future is incomplete, cancelled, or successfully completed.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="FailedFuture">
@@ -2449,9 +2461,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Gets the value of an already successful future without waiting for completion.</summary>
+        <returns>The successful completion value, which can be <see langword="null" />.</returns>
+        <remarks>
+          <para>This method throws <see cref="T:Java.Lang.IllegalStateException" /> if the future is incomplete, cancelled, or completed exceptionally.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="RunAfterBoth">
@@ -2837,9 +2851,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Gets the current completion state of this future.</summary>
+        <returns>The running, successful, failed, or cancelled state observed by this call.</returns>
+        <remarks>
+          <para>An incomplete future reports the running state. A completed future reports success, failure, or cancellation according to its stored outcome.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SupplyAsync">

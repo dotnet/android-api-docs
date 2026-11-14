@@ -30,8 +30,10 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Defines operators for combining source and destination colors.</summary>
+    <remarks>
+      <para>Where used below, <c>s</c> and <c>d</c> are normalized premultiplied components of the source and destination, and <c>sa</c> and <c>da</c> are their alpha values. Source-over alpha means <c>sa + da - sa * da</c>.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="Clear">
@@ -59,7 +61,7 @@
       </ReturnValue>
       <Docs>
         <summary>Destination pixels covered by the source are cleared to 0.</summary>
-        <value>To be added.</value>
+        <value>The operator that sets all output components to zero.</value>
         <remarks>
           <para>Destination pixels covered by the source are cleared to 0.</para>
           <para>\(\alpha_{out} = 0\)</para>
@@ -94,7 +96,7 @@
       </ReturnValue>
       <Docs>
         <summary>Replaces hue and saturation of destination with hue and saturation of source, leaving luminosity unchanged.</summary>
-        <value>To be added.</value>
+        <value>The non-separable operator that takes hue and saturation from the source and luminosity from the destination.</value>
         <remarks>
           <para>Replaces hue and saturation of destination with hue and saturation of source, leaving luminosity unchanged.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/BlendMode#COLOR" title="Reference documentation">Android reference for <code>android.graphics.BlendMode.COLOR</code>.</a></format></para>
@@ -126,9 +128,11 @@
         <ReturnType>Android.Graphics.BlendMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Makes destination darker to reflect source.</summary>
+        <value>The operator that darkens the destination according to the source components.</value>
+        <remarks>
+          <para>For color components, use <c>d + s * (1 - da)</c> when <c>d == da</c>. Otherwise, use <c>d * (1 - sa)</c> when <c>s == 0</c>. In the remaining case, use <c>sa * (da - min(da, (da - d) * sa / s)) + s * (1 - da) + d * (1 - sa)</c>. Alpha uses source-over.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ColorDodge">
@@ -155,9 +159,11 @@
         <ReturnType>Android.Graphics.BlendMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Makes destination brighter to reflect source.</summary>
+        <value>The operator that brightens the destination according to the source components.</value>
+        <remarks>
+          <para>For color components, use <c>s * (1 - da)</c> when <c>d == 0</c>. Otherwise, use <c>s + d * (1 - sa)</c> when <c>s == sa</c>. In the remaining case, use <c>sa * min(da, d * sa / (sa - s)) + s * (1 - da) + d * (1 - sa)</c>. Alpha uses source-over.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Darken">
@@ -184,9 +190,11 @@
         <ReturnType>Android.Graphics.BlendMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Retains the smallest component of the source and destination pixels.</summary>
+        <value>The operator that combines the darker alpha-weighted color contributions.</value>
+        <remarks>
+          <para>The color result is <c>s + d - max(s * da, d * sa)</c>. Alpha uses source-over.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Difference">
@@ -214,7 +222,7 @@
       </ReturnValue>
       <Docs>
         <summary>Subtracts darker from lighter with higher contrast.</summary>
-        <value>To be added.</value>
+        <value>The operator with color result <c>s + d - 2 * min(s * da, d * sa)</c> and source-over alpha.</value>
         <remarks>
           <para>Subtracts darker from lighter with higher contrast.</para>
           <para>\begin{equation} \alpha_{out} = \alpha_{src} + \alpha_{dst} - \alpha_{src} * \alpha_{dst} \end{equation}</para>
@@ -249,7 +257,7 @@
       </ReturnValue>
       <Docs>
         <summary>The source pixels are discarded, leaving the destination intact.</summary>
-        <value>To be added.</value>
+        <value>The operator that keeps the destination components unchanged.</value>
         <remarks>
           <para>The source pixels are discarded, leaving the destination intact.</para>
           <para>\(\alpha_{out} = \alpha_{dst}\)</para>
@@ -284,7 +292,7 @@
       </ReturnValue>
       <Docs>
         <summary>Discards the destination pixels that are not covered by source pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator <c>d * sa + s * (1 - da)</c>.</value>
         <remarks>
           <para>Discards the destination pixels that are not covered by source pixels. Draws remaining destination pixels over source pixels.</para>
           <para>\(\alpha_{out} = \alpha_{src}\)</para>
@@ -319,7 +327,7 @@
       </ReturnValue>
       <Docs>
         <summary>Keeps the destination pixels that cover source pixels, discards the remaining source and destination pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator that scales the destination by the source alpha.</value>
         <remarks>
           <para>Keeps the destination pixels that cover source pixels, discards the remaining source and destination pixels.</para>
           <para>\(\alpha_{out} = \alpha_{src} * \alpha_{dst}\)</para>
@@ -354,7 +362,7 @@
       </ReturnValue>
       <Docs>
         <summary>Keeps the destination pixels that are not covered by source pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator that scales the destination by one minus the source alpha.</value>
         <remarks>
           <para>Keeps the destination pixels that are not covered by source pixels. Discards destination pixels that are covered by source pixels. Discards all source pixels.</para>
           <para>\(\alpha_{out} = (1 - \alpha_{src}) * \alpha_{dst}\)</para>
@@ -389,7 +397,7 @@
       </ReturnValue>
       <Docs>
         <summary>The source pixels are drawn behind the destination pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator that adds the source contribution behind the destination.</value>
         <remarks>
           <para>The source pixels are drawn behind the destination pixels.</para>
           <para>\(\alpha_{out} = \alpha_{dst} + (1 - \alpha_{dst}) * \alpha_{src}\)</para>
@@ -424,7 +432,7 @@
       </ReturnValue>
       <Docs>
         <summary>Subtracts darker from lighter with lower contrast.</summary>
-        <value>To be added.</value>
+        <value>The operator with color result <c>s + d - 2 * s * d</c> and source-over alpha.</value>
         <remarks>
           <para>Subtracts darker from lighter with lower contrast.</para>
           <para>\begin{equation} \alpha_{out} = \alpha_{src} + \alpha_{dst} - \alpha_{src} * \alpha_{dst} \end{equation}</para>
@@ -458,9 +466,11 @@
         <ReturnType>Android.Graphics.BlendMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Makes destination lighter or darker, depending on source.</summary>
+        <value>The operator that switches between multiply and screen according to the source component.</value>
+        <remarks>
+          <para>Start with <c>s * (1 - da) + d * (1 - sa)</c>. Add <c>2 * s * d</c> when <c>2 * s &lt;= sa</c>; otherwise, add <c>sa * da - 2 * (da - d) * (sa - s)</c>. Alpha uses source-over.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Hue">
@@ -488,7 +498,7 @@
       </ReturnValue>
       <Docs>
         <summary>Replaces hue of destination with hue of source, leaving saturation and luminosity unchanged.</summary>
-        <value>To be added.</value>
+        <value>The non-separable operator that takes hue from the source while retaining destination saturation and luminosity.</value>
         <remarks>
           <para>Replaces hue of destination with hue of source, leaving saturation and luminosity unchanged.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/BlendMode#HUE" title="Reference documentation">Android reference for <code>android.graphics.BlendMode.HUE</code>.</a></format></para>
@@ -559,9 +569,11 @@
         <ReturnType>Android.Graphics.BlendMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Retains the largest component of the source and destination pixel.</summary>
+        <value>The operator that combines the lighter alpha-weighted color contributions.</value>
+        <remarks>
+          <para>The color result is <c>s + d - min(s * da, d * sa)</c>. Alpha uses source-over.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Luminosity">
@@ -589,7 +601,7 @@
       </ReturnValue>
       <Docs>
         <summary>Replaces luminosity of destination with luminosity of source, leaving hue and saturation unchanged.</summary>
-        <value>To be added.</value>
+        <value>The non-separable operator that takes luminosity from the source while retaining destination hue and saturation.</value>
         <remarks>
           <para>Replaces luminosity of destination with luminosity of source, leaving hue and saturation unchanged.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/BlendMode#LUMINOSITY" title="Reference documentation">Android reference for <code>android.graphics.BlendMode.LUMINOSITY</code>.</a></format></para>
@@ -622,7 +634,7 @@
       </ReturnValue>
       <Docs>
         <summary>Multiplies the source and destination pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator that multiplies corresponding source and destination components, including alpha.</value>
         <remarks>
           <para>Multiplies the source and destination pixels.</para>
           <para>\(\alpha_{out} = \alpha_{src} * \alpha_{dst}\)</para>
@@ -657,7 +669,7 @@
       </ReturnValue>
       <Docs>
         <summary>Multiplies the source and destination pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator that adds <c>s * d</c> to the source and destination contributions outside their overlap.</value>
         <remarks>
           <para>Multiplies the source and destination pixels.</para>
           <para>\(\alpha_{out} = \alpha_{src} + \alpha_{dst} - \alpha_{src} * \alpha_{dst}\)</para>
@@ -691,9 +703,11 @@
         <ReturnType>Android.Graphics.BlendMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Multiplies or screens the source and destination depending on the destination color.</summary>
+        <value>The operator that switches between multiply and screen according to the destination component.</value>
+        <remarks>
+          <para>Start with <c>s * (1 - da) + d * (1 - sa)</c>. Add <c>2 * s * d</c> when <c>2 * d &lt;= da</c>; otherwise, add <c>sa * da - 2 * (da - d) * (sa - s)</c>. Alpha uses source-over.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Plus">
@@ -721,7 +735,7 @@
       </ReturnValue>
       <Docs>
         <summary>Adds the source pixels to the destination pixels and saturates the result.</summary>
-        <value>To be added.</value>
+        <value>The operator that adds corresponding normalized components and limits each sum to one.</value>
         <remarks>
           <para>Adds the source pixels to the destination pixels and saturates the result.</para>
           <para>\(\alpha_{out} = max(0, min(\alpha_{src} + \alpha_{dst}, 1))\)</para>
@@ -755,9 +769,11 @@
         <ReturnType>Android.Graphics.BlendMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Uses source saturation with destination hue and luminosity.</summary>
+        <value>The non-separable operator that changes destination saturation using the source.</value>
+        <remarks>
+          <para>The overlap color starts from the destination RGB triple. Its component spread is adjusted using the source, then its luminosity is adjusted using the destination. The overlap result is clipped before the source and destination contributions outside the overlap are added. Alpha uses source-over.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Screen">
@@ -785,7 +801,7 @@
       </ReturnValue>
       <Docs>
         <summary>Adds the source and destination pixels, then subtracts the source pixels multiplied by the destination.</summary>
-        <value>To be added.</value>
+        <value>The operator <c>s + d - s * d</c>.</value>
         <remarks>
           <para>Adds the source and destination pixels, then subtracts the source pixels multiplied by the destination.</para>
           <para>\(\alpha_{out} = \alpha_{src} + \alpha_{dst} - \alpha_{src} * \alpha_{dst}\)</para>
@@ -819,9 +835,11 @@
         <ReturnType>Android.Graphics.BlendMode</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Makes destination lighter or darker, depending on source.</summary>
+        <value>The operator that varies the destination through a piecewise curve selected by the source.</value>
+        <remarks>
+          <para>The calculation uses <c>d / da</c>, or zero when <c>da == 0</c>. It selects one formula when <c>2 * s &lt;= sa</c>. For larger source components, it selects a polynomial or square-root formula according to <c>4 * d &lt;= da</c>. The non-overlap contribution is <c>s * (1 - da) + d * (1 - sa)</c>. Alpha uses source-over.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Src">
@@ -849,7 +867,7 @@
       </ReturnValue>
       <Docs>
         <summary>The source pixels replace the destination pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator that keeps the source components unchanged.</value>
         <remarks>
           <para>The source pixels replace the destination pixels.</para>
           <para>\(\alpha_{out} = \alpha_{src}\)</para>
@@ -884,7 +902,7 @@
       </ReturnValue>
       <Docs>
         <summary>Discards the source pixels that do not cover destination pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator <c>s * da + d * (1 - sa)</c>.</value>
         <remarks>
           <para>Discards the source pixels that do not cover destination pixels. Draws remaining source pixels over destination pixels.</para>
           <para>\(\alpha_{out} = \alpha_{dst}\)</para>
@@ -919,7 +937,7 @@
       </ReturnValue>
       <Docs>
         <summary>Keeps the source pixels that cover the destination pixels, discards the remaining source and destination pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator that scales the source by the destination alpha.</value>
         <remarks>
           <para>Keeps the source pixels that cover the destination pixels, discards the remaining source and destination pixels.</para>
           <para>\(\alpha_{out} = \alpha_{src} * \alpha_{dst}\)</para>
@@ -954,7 +972,7 @@
       </ReturnValue>
       <Docs>
         <summary>Keeps the source pixels that do not cover destination pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator that scales the source by one minus the destination alpha.</value>
         <remarks>
           <para>Keeps the source pixels that do not cover destination pixels. Discards source pixels that cover destination pixels. Discards all destination pixels.</para>
           <para>\(\alpha_{out} = (1 - \alpha_{dst}) * \alpha_{src}\)</para>
@@ -989,7 +1007,7 @@
       </ReturnValue>
       <Docs>
         <summary>The source pixels are drawn over the destination pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator that adds the destination contribution behind the source.</value>
         <remarks>
           <para>The source pixels are drawn over the destination pixels.</para>
           <para>\(\alpha_{out} = \alpha_{src} + (1 - \alpha_{src}) * \alpha_{dst}\)</para>
@@ -1176,7 +1194,7 @@
       </ReturnValue>
       <Docs>
         <summary>Discards the source and destination pixels where source pixels cover destination pixels.</summary>
-        <value>To be added.</value>
+        <value>The operator that combines only the source and destination contributions outside their overlap.</value>
         <remarks>
           <para>Discards the source and destination pixels where source pixels cover destination pixels. Draws remaining source pixels.</para>
           <para>\(\alpha_{out} = (1 - \alpha_{dst}) * \alpha_{src} + (1 - \alpha_{src}) * \alpha_{dst}\)</para>

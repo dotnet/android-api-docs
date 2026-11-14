@@ -145,7 +145,7 @@
       <Docs>
         <summary>Gets the list of currently active <c>RoutingController routing controllers</c> on which
             media can be played.</summary>
-        <value>To be added.</value>
+        <value>The active routing controllers currently reported by this router's implementation.</value>
         <remarks>
           <para>Gets the list of currently active <c>RoutingController routing controllers</c> on which
             media can be played.</para>
@@ -230,9 +230,9 @@
         <Parameter Name="id" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="id">To be added.</param>
+        <param name="id">The identifier compared with each currently reported controller's identifier.</param>
         <summary>Gets a <c>RoutingController</c> whose ID is equal to the given ID.</summary>
-        <returns>To be added.</returns>
+        <returns>The matching controller, or <see langword="null" /> when no reported controller has that identifier.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -275,9 +275,9 @@
         <ReturnType>Android.Media.MediaRouter2+GetControllerHintsHandler</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Exposes the managed delegate used to obtain provider hints for controller creation.</summary>
+        <value>The controller-hints delegate held by the generated listener, or <see langword="null" /> when no delegate is stored.</value>
+        <remarks>This property holds a callback, not a cached hints bundle. The callback's route argument and returned bundle describe an individual controller-creation request.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetInstance">
@@ -307,9 +307,9 @@
         <Parameter Name="context" Type="Android.Content.Context" />
       </Parameters>
       <Docs>
-        <param name="context">To be added.</param>
+        <param name="context">The context whose application context is used when the process's local router is first created.</param>
         <summary>Gets an instance of the media router associated with the context.</summary>
-        <returns>To be added.</returns>
+        <returns>The process's local media-router instance, created on first use and then reused.</returns>
         <remarks>
           <para>Gets an instance of the media router associated with the context.</para>
           <para>
@@ -362,7 +362,7 @@
                 invalidated due to lost permissions.</param>
         <summary>Returns a proxy MediaRouter2 instance that allows you to control the routing of an app
             specified by <c>clientPackageName</c>.</summary>
-        <returns>To be added.</returns>
+        <returns>The proxy router found or created for the specified client package and context user, with the supplied invalidation callback.</returns>
         <remarks>
           <para>Returns a proxy MediaRouter2 instance that allows you to control the routing of an app
             specified by <c>clientPackageName</c>.</para>
@@ -433,7 +433,7 @@
       <Parameters />
       <Docs>
         <summary>Returns the current <c>RouteListingPreference</c> of the target router.</summary>
-        <returns>To be added.</returns>
+        <returns>The stored route-listing preference for the target router, or <see langword="null" /> when none is set.</returns>
         <remarks>
           <para>Returns the current <c>RouteListingPreference</c> of the target router.</para>
           <para>If this instance was created using <c>#getInstance(Context, String)</c>, then it returns
@@ -511,7 +511,7 @@
       </Parameters>
       <Docs>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="callback">To be added.</param>
+        <param name="callback">The callback to register for routing-controller updates.</param>
         <summary>Registers a <c>ControllerCallback</c>.</summary>
         <remarks>
           <para>
@@ -556,7 +556,7 @@
       </Parameters>
       <Docs>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="deviceSuggestionsUpdatesCallback">To be added.</param>
+        <param name="deviceSuggestionsUpdatesCallback">The callback to register for suggested-device updates from the target router.</param>
         <summary>Registers the given callback to be invoked when the SuggestedDeviceInfo of the target router changes.</summary>
         <remarks>
           <para>Registers the given callback to be invoked when the SuggestedDeviceInfo of the target router changes. Calls using a previously registered callback will overwrite the previous executor.</para>
@@ -595,8 +595,8 @@
       </Parameters>
       <Docs>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="routeCallback">To be added.</param>
-        <param name="preference">To be added.</param>
+        <param name="routeCallback">The callback to register for route updates.</param>
+        <param name="preference">The local router's discovery preference; a proxy router follows its target app's preference instead.</param>
         <summary>Registers a callback to discover routes and to receive events when they change.</summary>
         <remarks>
           <para>
@@ -641,7 +641,7 @@
       </Parameters>
       <Docs>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="routeListingPreferenceCallback">To be added.</param>
+        <param name="routeListingPreferenceCallback">The consumer to register for target-router listing-preference updates.</param>
         <summary>Registers the given callback to be invoked when the <c>RouteListingPreference</c> of the
             target router changes.</summary>
         <remarks>
@@ -733,7 +733,7 @@
         <Parameter Name="scanRequest" Type="Android.Media.MediaRouter2+ScanRequest" />
       </Parameters>
       <Docs>
-        <param name="scanRequest">To be added.</param>
+        <param name="scanRequest">The scan settings combined with the router's other active scan requests.</param>
         <summary>Requests the system to actively scan for routes based on the router's route discovery preference.</summary>
         <returns>A unique ScanToken that identifies the scan request. This value cannot be null.</returns>
         <remarks>
@@ -967,7 +967,7 @@
         <Parameter Name="volume" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="route">To be added.</param>
+        <param name="route">The route supplied to the proxy router's volume request; an unselected route may not be affected.</param>
         <param name="volume">The new volume value between 0 and <c>MediaRoute2Info#getVolumeMax</c>.</param>
         <summary>Sets the volume for a specific route.</summary>
         <remarks>
@@ -1066,7 +1066,7 @@
         <Parameter Name="sessionToken" Type="Android.Media.Session.MediaSession+Token" />
       </Parameters>
       <Docs>
-        <param name="sessionToken">To be added.</param>
+        <param name="sessionToken">The media-session token supplied to the system output-switcher request.</param>
         <summary>Shows the system output switcher dialog for a specific MediaSession.</summary>
         <returns>true if the output switcher dialog is being shown, or false if the call is ignored because the app is in the background.</returns>
         <remarks>
@@ -1143,7 +1143,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets a <c>RoutingController</c> which can control the routes provided by system.</summary>
-        <value>To be added.</value>
+        <value>The router's stored controller for system-managed routes.</value>
         <remarks>
           <para>
             <format type="text/html">
@@ -1293,7 +1293,7 @@
         <Parameter Name="callback" Type="Android.Media.MediaRouter2+ControllerCallback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
+        <param name="callback">The previously registered controller callback to remove.</param>
         <summary>Unregisters a <c>ControllerCallback</c>.</summary>
         <remarks>
           <para>
@@ -1336,7 +1336,7 @@
         <Parameter Name="callback" Type="Android.Media.MediaRouter2+IDeviceSuggestionsUpdatesCallback" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
+        <param name="callback">The previously registered suggested-device callback to remove.</param>
         <summary>Unregisters the given callback to not receive SuggestedDeviceInfo change events.</summary>
         <remarks>
           <para>Unregisters the given callback to not receive SuggestedDeviceInfo change events.</para>
@@ -1415,7 +1415,7 @@
         <Parameter Name="callback" Type="Java.Util.Functions.IConsumer" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
+        <param name="callback">The previously registered listing-preference consumer to remove.</param>
         <summary>Unregisters the given callback to not receive <c>RouteListingPreference</c> change events.</summary>
         <remarks>
           <para>Unregisters the given callback to not receive <c>RouteListingPreference</c> change events.</para>

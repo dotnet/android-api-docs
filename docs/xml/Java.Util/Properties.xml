@@ -246,11 +246,11 @@
         <Parameter Name="remappingFunction" Type="Java.Util.Functions.IBiFunction" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="remappingFunction">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The non-null key whose mapping is to be computed.</param>
+        <param name="remappingFunction">The non-null function called with the key and its current value, or <see langword="null" /> when absent.</param>
+        <summary>Computes a value for a key from its current mapping, if any.</summary>
+        <returns>The computed value, or <see langword="null" /> if no mapping remains.</returns>
+        <remarks>A null function result removes an existing entry or leaves an absent key unmapped. The function must not modify this map during computation. This operation uses this object's entries, not its default property list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ComputeIfAbsent">
@@ -281,11 +281,11 @@
         <Parameter Name="mappingFunction" Type="Java.Util.Functions.IFunction" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="mappingFunction">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The non-null key to look up or add.</param>
+        <param name="mappingFunction">The non-null function that computes a value from the absent key.</param>
+        <summary>Computes and stores a value only when this object has no entry for the key.</summary>
+        <returns>The existing or computed value, or <see langword="null" /> if the function produces no value.</returns>
+        <remarks>A null function result is not stored. The function must not modify this map during computation. Entries in the default property list do not prevent this computation.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ComputeIfPresent">
@@ -316,11 +316,11 @@
         <Parameter Name="remappingFunction" Type="Java.Util.Functions.IBiFunction" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="remappingFunction">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The non-null key whose existing entry is to be updated.</param>
+        <param name="remappingFunction">The non-null function called with the key and its current value.</param>
+        <summary>Computes a replacement only when this object contains an entry for the key.</summary>
+        <returns>The replacement value, or <see langword="null" /> if the key was absent or the entry was removed.</returns>
+        <remarks>A null function result removes the entry. The function must not modify this map during computation. Entries in the default property list are not considered.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Defaults">
@@ -345,7 +345,7 @@
       <Docs>
         <summary>A property list that contains default values for any keys not
             found in this property list.</summary>
-        <value>To be added.</value>
+        <value>The fallback property list used when a property lookup finds no local string value, or <see langword="null" /> if no fallback list is set.</value>
         <remarks>
           <para>A property list that contains default values for any keys not
             found in this property list.</para>
@@ -390,9 +390,9 @@
         <Parameter Name="action" Type="Java.Util.Functions.IBiConsumer" />
       </Parameters>
       <Docs>
-        <param name="action">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="action">The non-null operation to call with each key and its current value.</param>
+        <summary>Calls the specified operation for each entry stored in this object.</summary>
+        <remarks>This operation visits local entries, including non-string keys and values. It does not visit entries that exist only in the default property list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetOrDefault">
@@ -423,11 +423,11 @@
         <Parameter Name="defaultValue" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="defaultValue">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The non-null key to look up.</param>
+        <param name="defaultValue">The result to use when this object has no entry for the key.</param>
+        <summary>Looks up a local entry and uses the specified result when the key is absent.</summary>
+        <returns>The local mapped value, or <paramref name="defaultValue" /> if no local mapping exists.</returns>
+        <remarks>Unlike a property lookup through <see cref="M:Java.Util.Properties.GetProperty(System.String)" />, this operation does not search the default property list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetProperty">
@@ -951,12 +951,12 @@
         <Parameter Name="remappingFunction" Type="Java.Util.Functions.IBiFunction" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
-        <param name="remappingFunction">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The non-null key whose mapping is to be added or updated.</param>
+        <param name="value">The non-null value to store when the key is absent, or to pass to the function when present.</param>
+        <param name="remappingFunction">The non-null function called with the existing value and the supplied value.</param>
+        <summary>Adds a value for an absent key or combines it with an existing local value.</summary>
+        <returns>The resulting value, or <see langword="null" /> if the function removes the entry.</returns>
+        <remarks>A null function result removes the entry. The function must not update other mappings during computation. This operation does not use or change the default property list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="PropertyNames">
@@ -1033,11 +1033,11 @@
         <Parameter Name="value" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The non-null key to associate with the value.</param>
+        <param name="value">The non-null value to store.</param>
+        <summary>Adds or replaces a local key-value entry.</summary>
+        <returns>The previous local value, or <see langword="null" /> if the key had no local entry.</returns>
+        <remarks>The key and value can be non-string objects. This operation changes only the local entries, not the default property list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="PutAll">
@@ -1074,9 +1074,9 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="t">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="t">The non-null map whose entries are to be stored.</param>
+        <summary>Adds the supplied map's entries, replacing local values for matching keys.</summary>
+        <remarks>Null keys and null values are not accepted. The default property list is not changed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="PutIfAbsent">
@@ -1107,11 +1107,11 @@
         <Parameter Name="value" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The non-null key for the proposed local entry.</param>
+        <param name="value">The non-null value to store if the local key is absent.</param>
+        <summary>Adds a local entry only when this object has no entry for the key.</summary>
+        <returns>The existing local value, or <see langword="null" /> if the entry was added.</returns>
+        <remarks>A value present only in the default property list does not prevent insertion.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Replace">
@@ -1142,11 +1142,11 @@
         <Parameter Name="value" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="value">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The non-null key whose local entry is to change.</param>
+        <param name="value">The non-null replacement value.</param>
+        <summary>Changes the value of an existing local entry.</summary>
+        <returns>The previous local value, or <see langword="null" /> if the key was absent locally.</returns>
+        <remarks>Entries in the default property list are not considered or changed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Replace">
@@ -1178,12 +1178,12 @@
         <Parameter Name="newValue" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="key">To be added.</param>
-        <param name="oldValue">To be added.</param>
-        <param name="newValue">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="key">The non-null key whose local entry is to change.</param>
+        <param name="oldValue">The non-null value that must equal the current local value.</param>
+        <param name="newValue">The non-null replacement value.</param>
+        <summary>Changes a local entry only when its current value matches the expected value.</summary>
+        <returns><see langword="true" /> if the local entry was replaced; otherwise, <see langword="false" />.</returns>
+        <remarks>Entries in the default property list are not considered or changed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ReplaceAll">
@@ -1213,9 +1213,9 @@
         <Parameter Name="function" Type="Java.Util.Functions.IBiFunction" />
       </Parameters>
       <Docs>
-        <param name="function">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="function">The non-null function that computes a non-null replacement from each key and its current value.</param>
+        <summary>Updates each local entry's value with the result of the specified function.</summary>
+        <remarks>This operation includes non-string entries but does not change the default property list. A null result from the function is rejected.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Save">

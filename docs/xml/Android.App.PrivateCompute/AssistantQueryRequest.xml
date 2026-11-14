@@ -44,7 +44,19 @@
   </Attributes>
   <Docs>
     <summary>Request object specifically for Assistant Query Egress operations.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Request object specifically for Assistant Query Egress operations. Binds this request to the AssistantQueryResponse type.</para>
+      <para>These requests are subject to system validations, rate limits, and user consent. If the non-PCC process does not return the response in a reasonable timeframe, the platform will unbind from the non-PCC process and return PccEgressException.ERROR_NO_RESPONSE_FROM_EGRESS_SERVICE via the callback.</para>
+      <para>A request is considered invalid and will cause PccSandboxManager.egressData to throw IllegalArgumentException synchronously if:</para>
+      <para>The request or its Query payload is null.</para>
+      <para>The Query.getSessionId() or Query.getQueryString() is null.</para>
+      <para>The session ID has already been used (reused/replayed).</para>
+      <para>The query string size exceeds the maximum allowed limit (10 KB).</para>
+      <para>The calling package does not contain the user-chosen default Assistant.</para>
+      <para>A request will cause PccSandboxManager.egressData to throw IllegalStateException synchronously if: The user has not consented to egress for the Assistant service; The egress rate limit has been exceeded. The system enforces two limits:; A maximum of 100 successful egress calls in a rolling 24-hour window; A maximum of 200 total egress attempts in a rolling 24-hour window.</para>
+      <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/privatecompute/AssistantQueryRequest" title="Reference documentation">Android reference for <code>android.app.privatecompute.AssistantQueryRequest</code>.</a></format></para>
+      <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="Creator">
@@ -106,9 +118,13 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Returns the query payload associated with this request.</summary>
+        <returns>The Query payload. This value cannot be null.</returns>
+        <remarks>
+          <para>Returns the query payload associated with this request.</para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/privatecompute/AssistantQueryRequest#getQuery()" title="Reference documentation">Android reference for <code>android.app.privatecompute.AssistantQueryRequest.getQuery</code>.</a></format></para>
+          <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">

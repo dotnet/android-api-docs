@@ -194,7 +194,7 @@
         <param name="zone">the zone ID to use, not null</param>
         <summary>Returns a zoned date-time from this date at the earliest valid time according to the rules in the time-zone.</summary>
         <returns>the zoned date-time formed from this date and the earliest valid time for the zone, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a zoned date-time from this date at the earliest valid time according to the rules in the time-zone. Time-zone rules, such as daylight savings, mean that not every local date-time is valid for the specified zone, thus the local date-time may not be midnight. In most cases, there is only one valid offset for a local date-time. In the case of an overlap, there are two valid offsets, and the earlier one is used, corresponding to the first occurrence of midnight on the date. In the case of a gap, the zoned date-time will represent the instant just after the gap. If the zone ID is a ZoneOffset, then the result always has a time of midnight. To convert to a specific time in a given time-zone call atTime(LocalTime) followed by LocalDateTime.atZone(ZoneId).</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#atStartOfDay(java.time.ZoneId)" title="Reference documentation">Java reference for <code>java.time.LocalDate.atStartOfDay</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -343,7 +343,7 @@
         <param name="second">the second-of-minute to represent, from 0 to 59</param>
         <summary>Combines this date with a time to create a LocalDateTime.</summary>
         <returns>the local date-time formed from this date and the specified time, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Combines this date with a time to create a LocalDateTime. This returns a LocalDateTime formed from this date at the specified hour, minute and second. The nanosecond field will be set to zero. The individual time fields must be within their valid range. All possible combinations of date and time are valid.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#atTime(int,int,int)" title="Reference documentation">Java reference for <code>java.time.LocalDate.atTime</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -451,10 +451,13 @@
         <Parameter Name="obj" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="obj">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="obj">The other date to compare with this date.</param>
+        <summary>Compares this object with the specified object for order.</summary>
+        <returns>a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.</returns>
+        <remarks>
+          <para>Compares this object with the specified object for order. Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object. The implementor must ensure signum(x.compareTo(y)) == -signum(y.compareTo(x)) for all x and y. (This implies that x.compareTo(y) must throw an exception if and only if y.compareTo(x) throws an exception.) The implementor must also ensure that the relation is transitive: (x.compareTo(y) &gt; 0 &amp;&amp; y.compareTo(z) &gt; 0) implies x.compareTo(z) &gt; 0. Finally, the implementor must ensure that x.compareTo(y)==0 implies that signum(x.compareTo(z)) == signum(y.compareTo(z)), for all z.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Comparable.html#compareTo(T)" title="Reference documentation">Java reference for <code>java.lang.Comparable.compareTo</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="CompareTo">
@@ -636,9 +639,12 @@
         <ReturnType>Java.Time.LocalDate</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>The epoch year LocalDate, '1970-01-01'.</summary>
+        <value>The date <c>1970-01-01</c>.</value>
+        <remarks>
+          <para>The epoch year LocalDate, '1970-01-01'.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#EPOCH" title="Reference documentation">Java reference for <code>java.time.LocalDate.EPOCH</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Era">
@@ -784,7 +790,7 @@
         <param name="field">the field to get, not null</param>
         <summary>Gets the value of the specified field from this date as an int.</summary>
         <returns>the value for the field</returns>
-        <remarks>To be added.
+        <remarks><para>Gets the value of the specified field from this date as an int. This queries this date for the value of the specified field. The returned value will always be within the valid range of values for the field. If it is not possible to return the value, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the query is implemented here. The supported fields will return valid values based on this date, except EPOCH_DAY and PROLEPTIC_MONTH which are too large to fit in an int and throw an UnsupportedTemporalTypeException. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.getFrom(TemporalAccessor) passing this as the argument. Whether the value can be obtained, and what the value represents, is determined by the field.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#get(java.time.temporal.TemporalField)" title="Reference documentation">Java reference for <code>java.time.LocalDate.get</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -900,7 +906,13 @@
         <param name="other">the other date to compare to, not null</param>
         <summary>Checks if this date is before the specified date.</summary>
         <returns>true if this date is before the specified date</returns>
-        <remarks>To be added.
+        <remarks><para>Checks if this date is before the specified date. This checks to see if this date represents a point on the local time-line before the other date.</para>
+<code lang="text/java">   LocalDate a = LocalDate.of(2012, 6, 30);
+   LocalDate b = LocalDate.of(2012, 7, 1);
+   a.isBefore(b) == true
+   a.isBefore(a) == false
+   b.isBefore(a) == false</code>
+<para>This method only considers the position of the two dates on the local time-line. It does not take into account the chronology, or calendar system. This is different from the comparison in compareTo(ChronoLocalDate), but is the same approach as ChronoLocalDate.timeLineOrder().</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#isBefore(java.time.chrono.ChronoLocalDate)" title="Reference documentation">Java reference for <code>java.time.LocalDate.isBefore</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1260,9 +1272,12 @@
         <ReturnType>Java.Time.LocalDate</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>The maximum supported LocalDate, '+999999999-12-31'.</summary>
+        <value>The date <c>+999999999-12-31</c>.</value>
+        <remarks>
+          <para>The maximum supported LocalDate, '+999999999-12-31'. This could be used by an application as a "far future" date.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#MAX" title="Reference documentation">Java reference for <code>java.time.LocalDate.MAX</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Min">
@@ -1289,9 +1304,12 @@
         <ReturnType>Java.Time.LocalDate</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>The minimum supported LocalDate, '-999999999-01-01'.</summary>
+        <value>The date <c>-999999999-01-01</c>.</value>
+        <remarks>
+          <para>The minimum supported LocalDate, '-999999999-01-01'. This could be used by an application as a "far past" date.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#MIN" title="Reference documentation">Java reference for <code>java.time.LocalDate.MIN</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Minus">
@@ -1362,7 +1380,7 @@
         <param name="unit">the unit of the amount to subtract, not null</param>
         <summary>Returns a copy of this date with the specified amount subtracted.</summary>
         <returns>a LocalDate based on this date with the specified amount subtracted, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this date with the specified amount subtracted. This returns a LocalDate, based on this one, with the amount in terms of the unit subtracted. If it is not possible to subtract the amount, because the unit is not supported or for some other reason, an exception is thrown. This method is equivalent to plus(long, TemporalUnit) with the amount negated. See that method for a full description of how addition, and thus subtraction, works. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#minus(long,java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.LocalDate.minus</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1537,7 +1555,7 @@
       <Docs>
         <summary>Gets the month-of-year field using the Month enum.</summary>
         <value>the month-of-year, not null</value>
-        <remarks>To be added.
+        <remarks><para>Gets the month-of-year field using the Month enum. This method returns the enum Month for the month. This avoids confusion as to what int values mean. If you need access to the primitive int value then the enum provides the int value.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#getMonth()" title="Reference documentation">Java reference for <code>java.time.LocalDate.getMonth</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1611,9 +1629,12 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Obtains the current date from the system clock in the default time-zone.</summary>
+        <returns>the current date using the system clock and default time-zone, not null</returns>
+        <remarks>
+          <para>Obtains the current date from the system clock in the default time-zone. This will query the system clock in the default time-zone to obtain the current date. Using this method will prevent the ability to use an alternate clock for testing because the clock is hard-coded.</para>
+          <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#now()" title="Reference documentation">Java reference for <code>java.time.LocalDate.now</code>.</a></format></para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Now">
@@ -1722,7 +1743,7 @@
         <param name="dayOfMonth">the day-of-month to represent, from 1 to 31</param>
         <summary>Obtains an instance of LocalDate from a year, month and day.</summary>
         <returns>the local date, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains an instance of LocalDate from a year, month and day. This returns a LocalDate with the specified year, month and day-of-month. The day must be valid for the year and month, otherwise an exception will be thrown.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#of(int,java.time.Month,int)" title="Reference documentation">Java reference for <code>java.time.LocalDate.of</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1797,7 +1818,7 @@
         <param name="epochDay">the Epoch Day to convert, based on the epoch 1970-01-01</param>
         <summary>Obtains an instance of LocalDate from the epoch day count.</summary>
         <returns>the local date, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains an instance of LocalDate from the epoch day count. This returns a LocalDate with the specified epoch-day. The EPOCH_DAY is a simple incrementing count of days where day 0 is 1970-01-01. Negative numbers represent earlier days.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#ofEpochDay(long)" title="Reference documentation">Java reference for <code>java.time.LocalDate.ofEpochDay</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1872,7 +1893,7 @@
         <param name="dayOfYear">the day-of-year to represent, from 1 to 366</param>
         <summary>Obtains an instance of LocalDate from a year and day-of-year.</summary>
         <returns>the local date, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Obtains an instance of LocalDate from a year and day-of-year. This returns a LocalDate with the specified year and day-of-year. The day-of-year must be valid for the year, otherwise an exception will be thrown.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#ofYearDay(int,int)" title="Reference documentation">Java reference for <code>java.time.LocalDate.ofYearDay</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1936,10 +1957,12 @@
         <Parameter Name="text" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The date text, for example <c>2007-12-03</c>.</param>
+        <summary>Parses an ISO local date from a string.</summary>
+        <returns>The local date read from <paramref name="text" />.</returns>
+        <remarks>
+          <para>This string overload calls <see cref="M:Java.Time.LocalDate.Parse(Java.Lang.ICharSequence)" /> and uses <see cref="P:Java.Time.Format.DateTimeFormatter.IsoLocalDate" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Parse">
@@ -2004,11 +2027,13 @@
         <Parameter Name="formatter" Type="Java.Time.Format.DateTimeFormatter" />
       </Parameters>
       <Docs>
-        <param name="text">To be added.</param>
-        <param name="formatter">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="text">The string that contains the date fields.</param>
+        <param name="formatter">The formatter that reads the date fields.</param>
+        <summary>Parses a local date string with the specified formatter.</summary>
+        <returns>The local date read from <paramref name="text" />.</returns>
+        <remarks>
+          <para>This string overload calls <see cref="M:Java.Time.LocalDate.Parse(Java.Lang.ICharSequence,Java.Time.Format.DateTimeFormatter)" />. The supplied formatter determines the input format.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Plus">
@@ -2118,7 +2143,7 @@
         <param name="daysToAdd">the days to add, may be negative</param>
         <summary>Returns a copy of this LocalDate with the specified number of days added.</summary>
         <returns>a LocalDate based on this date with the days added, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this LocalDate with the specified number of days added. This method adds the specified amount to the days field incrementing the month and year fields as necessary to ensure the result remains valid. The result is only invalid if the maximum/minimum year is exceeded. For example, 2008-12-31 plus one day would result in 2009-01-01. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#plusDays(long)" title="Reference documentation">Java reference for <code>java.time.LocalDate.plusDays</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2307,7 +2332,7 @@
         <param name="field">the field to query the range for, not null</param>
         <summary>Gets the range of valid values for the specified field.</summary>
         <returns>the range of valid values for the field, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Gets the range of valid values for the specified field. The range object expresses the minimum and maximum valid values for a field. This date is used to enhance the accuracy of the returned range. If it is not possible to return the range, because the field is not supported or for some other reason, an exception is thrown. If the field is a ChronoField then the query is implemented here. The supported fields will return appropriate range instances. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.rangeRefinedBy(TemporalAccessor) passing this as the argument. Whether the range can be obtained is determined by the field.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#range(java.time.temporal.TemporalField)" title="Reference documentation">Java reference for <code>java.time.LocalDate.range</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2410,9 +2435,11 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Gets this date as a day count relative to <c>1970-01-01</c>.</summary>
+        <returns>Zero for <c>1970-01-01</c>, a negative count for earlier dates, or a positive count for later dates.</returns>
+        <remarks>
+          <para>The count uses the ISO calendar and changes by one for each calendar day. No time zone is used.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToEpochSecond">
@@ -2604,7 +2631,7 @@
         <param name="newValue">the new value of the field in the result</param>
         <summary>Returns a copy of this date with the specified field set to a new value.</summary>
         <returns>a LocalDate based on this with the specified field set, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this date with the specified field set to a new value. This returns a LocalDate, based on this one, with the value for the specified field changed. This can be used to change any supported field, such as the year, month or day-of-month. If it is not possible to set the value, because the field is not supported or for some other reason, an exception is thrown. In some cases, changing the specified field can cause the resulting date to become invalid, such as changing the month from 31st January to February would make the day-of-month invalid. In cases like this, the field is responsible for resolving the date. Typically it will choose the previous valid date, which would be the last valid day of February in this example. If the field is a ChronoField then the adjustment is implemented here. The supported fields behave as follows: DAY_OF_WEEK - Returns a LocalDate with the specified day-of-week. The date is adjusted up to 6 days forward or backward within the boundary of a Monday to Sunday week; ALIGNED_DAY_OF_WEEK_IN_MONTH - Returns a LocalDate with the specified aligned-day-of-week. The date is adjusted to the specified month-based aligned-day-of-week. Aligned weeks are counted such that the first week of a given month starts on the first day of that month. This may cause the date to be moved up to 6 days into the following month; ALIGNED_DAY_OF_WEEK_IN_YEAR - Returns a LocalDate with the specified aligned-day-of-week. The date is adjusted to the specified year-based aligned-day-of-week. Aligned weeks are counted such that the first week of a given year starts on the first day of that year. This may cause the date to be moved up to 6 days into the following year; DAY_OF_MONTH - Returns a LocalDate with the specified day-of-month. The month and year will be unchanged. If the day-of-month is invalid for the year and month, then a DateTimeException is thrown; DAY_OF_YEAR - Returns a LocalDate with the specified day-of-year. The year will be unchanged. If the day-of-year is invalid for the year, then a DateTimeException is thrown; EPOCH_DAY - Returns a LocalDate with the specified epoch-day. This completely replaces the date and is equivalent to ofEpochDay(long); ALIGNED_WEEK_OF_MONTH - Returns a LocalDate with the specified aligned-week-of-month. Aligned weeks are counted such that the first week of a given month starts on the first day of that month. This adjustment moves the date in whole week chunks to match the specified week. The result will have the same day-of-week as this date. This may cause the date to be moved into the following month; ALIGNED_WEEK_OF_YEAR - Returns a LocalDate with the specified aligned-week-of-year. Aligned weeks are counted such that the first week of a given year starts on the first day of that year. This adjustment moves the date in whole week chunks to match the specified week. The result will have the same day-of-week as this date. This may cause the date to be moved into the following year; MONTH_OF_YEAR - Returns a LocalDate with the specified month-of-year. The year will be unchanged. The day-of-month will also be unchanged, unless it would be invalid for the new month and year. In that case, the day-of-month is adjusted to the maximum valid value for the new month and year; PROLEPTIC_MONTH - Returns a LocalDate with the specified proleptic-month. The day-of-month will be unchanged, unless it would be invalid for the new month and year. In that case, the day-of-month is adjusted to the maximum valid value for the new month and year; YEAR_OF_ERA - Returns a LocalDate with the specified year-of-era. The era and month will be unchanged. The day-of-month will also be unchanged, unless it would be invalid for the new month and year. In that case, the day-of-month is adjusted to the maximum valid value for the new month and year; YEAR - Returns a LocalDate with the specified year. The month will be unchanged. The day-of-month will also be unchanged, unless it would be invalid for the new month and year. In that case, the day-of-month is adjusted to the maximum valid value for the new month and year; ERA - Returns a LocalDate with the specified era. The year-of-era and month will be unchanged. The day-of-month will also be unchanged, unless it would be invalid for the new month and year. In that case, the day-of-month is adjusted to the maximum valid value for the new month and year. In all cases, if the new value is outside the valid range of values for the field then a DateTimeException will be thrown. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.adjustInto(Temporal, long) passing this as the argument. In this case, the field determines whether and how to adjust the instant. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#with(java.time.temporal.TemporalField,long)" title="Reference documentation">Java reference for <code>java.time.LocalDate.with</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2675,7 +2702,7 @@
         <param name="dayOfYear">the day-of-year to set in the result, from 1 to 365-366</param>
         <summary>Returns a copy of this LocalDate with the day-of-year altered.</summary>
         <returns>a LocalDate based on this date with the requested day, not null</returns>
-        <remarks>To be added.
+        <remarks><para>Returns a copy of this LocalDate with the day-of-year altered. If the resulting date is invalid, an exception is thrown. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalDate.html#withDayOfYear(int)" title="Reference documentation">Java reference for <code>java.time.LocalDate.withDayOfYear</code>.</a></format></para>
         </remarks>
       </Docs>
