@@ -31,7 +31,7 @@
   </Attributes>
   <Docs>
     <summary>Client facing access to the PersonalContext service.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The manager reads Personal Context settings and registers listeners for service-wide, per-application, and enabled-understander changes. It also sends prompt choices and understander registration responses to the receivers associated with those requests.</remarks>
   </Docs>
   <Members>
     <Member MemberName="ActionLaunchPersonalContextUnderstanderConsentIntro">
@@ -58,8 +58,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Identifies the activity action for an understander's consent introduction.</summary>
+        <remarks>An activity in the understander's package handles this action. If no introduction activity is specified, the consent flow goes directly to the system consent dialog.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ActionPersonalContextEnabledChanged">
@@ -86,8 +86,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Identifies the broadcast action for changes to the service-wide Personal Context enabled state.</summary>
+        <remarks>Only registered receivers receive this broadcast. Read <see cref="P:Android.App.PersonalContext.PersonalContextManager.IsEnabled" /> to obtain the service's current enabled state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DestinationAugmentedAutofill">
@@ -120,7 +120,7 @@
       <MemberValue>16</MemberValue>
       <Docs>
         <summary>Destination for augmented autofill responses that show inline in the IME's suggestion bar.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This destination accepts augmented autofill insights. Use <see cref="F:Android.App.PersonalContext.PersonalContextManagerDestination.AugmentedAutofill" /> instead of this obsolete constant.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DestinationEmbedded">
@@ -153,7 +153,7 @@
       <MemberValue>32</MemberValue>
       <Docs>
         <summary>Destination for an embedded visualization.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>An agent understander must provide a visualization session for this destination; an insight response is ignored. Use <see cref="F:Android.App.PersonalContext.PersonalContextManagerDestination.Embedded" /> instead of this obsolete constant.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DestinationNotification">
@@ -186,7 +186,7 @@
       <MemberValue>2</MemberValue>
       <Docs>
         <summary>Destination for suggestion chips in notifications.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This destination accepts notification insights. Use <see cref="F:Android.App.PersonalContext.PersonalContextManagerDestination.Notification" /> instead of this obsolete constant.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DestinationRemoteAutofill">
@@ -220,7 +220,7 @@
       <Docs>
         <summary>Destination for screen whispers in the status bar that fill in text in an app's text input on
             activation.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This destination accepts screen-whisper autofill insights. Use <see cref="F:Android.App.PersonalContext.PersonalContextManagerDestination.RemoteAutofill" /> instead of this obsolete constant.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DestinationScreenWhisper">
@@ -253,7 +253,7 @@
       <MemberValue>4</MemberValue>
       <Docs>
         <summary>Destination for screen whispers in the status bar.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This destination accepts screen-whisper insights. Use <see cref="F:Android.App.PersonalContext.PersonalContextManagerDestination.ScreenWhisper" /> instead of this obsolete constant.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DestinationUniversal">
@@ -287,7 +287,7 @@
       <Docs>
         <summary>Destination for a general-purpose surface for displaying insights that is provided by the
             device manufacturer.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This destination is available only to manufacturer-provided understanders. Use <see cref="F:Android.App.PersonalContext.PersonalContextManagerDestination.Universal" /> instead of this obsolete constant.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DestinationUnknown">
@@ -320,7 +320,7 @@
       <MemberValue>0</MemberValue>
       <Docs>
         <summary>Unknown destination type.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>The framework does not deliberately send this destination and ignores any response. Use <see cref="F:Android.App.PersonalContext.PersonalContextManagerDestination.Unknown" /> instead of this obsolete constant.</remarks>
       </Docs>
     </Member>
     <Member MemberName="EnabledUnderstanders">
@@ -347,9 +347,9 @@
         <ReturnType>System.Collections.Generic.IList&lt;Android.Content.ComponentName&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the component names of the enabled Personal Context understanders.</summary>
+        <value>The list of understander components that are currently enabled.</value>
+        <remarks>Use <see cref="M:Android.App.PersonalContext.PersonalContextManager.RegisterUnderstanderCallback(Java.Util.Concurrent.IExecutor,Java.Lang.IRunnable)" /> for change notifications, then read this property again to obtain the updated list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraFeedbackRequest">
@@ -376,8 +376,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Identifies the extra that carries an understander's feedback request.</summary>
+        <remarks>The bundle used to start the understander's feedback activity stores its feedback request under this key.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ExtraPromptRequest">
@@ -404,8 +404,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Identifies the extra that carries the request associated with a prompt.</summary>
+        <remarks>The value stored under this key is a <see cref="T:Android.App.PersonalContext.Insight.PromptRequest" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="InvokeIsPersonalContextModeEnabled">
@@ -439,10 +439,10 @@
         <Parameter Name="packageName" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="packageName">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="packageName">The package whose Personal Context data-collection setting is queried.</param>
+        <summary>Checks whether Personal Context data collection is enabled for a specified package.</summary>
+        <returns><see langword="true" /> if collection is enabled for the package; otherwise, <see langword="false" />.</returns>
+        <remarks>This overload queries <paramref name="packageName" /> rather than selecting the calling package automatically. Android applies access checks when an application queries another package's setting.</remarks>
       </Docs>
     </Member>
     <Member MemberName="IsEnabled">
@@ -470,8 +470,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether the Personal Context service is enabled system-wide.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> if the service is enabled system-wide; otherwise, <see langword="false" />.</value>
+        <remarks>This property reads the service-wide state. Use <see cref="P:Android.App.PersonalContext.PersonalContextManager.IsPersonalContextModeEnabled" /> for the calling package's data-collection setting.</remarks>
       </Docs>
     </Member>
     <Member MemberName="IsPersonalContextModeEnabled">
@@ -499,8 +499,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns <c>true</c> if personal context data collection is enabled for the calling package.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> if collection is enabled for the calling package; otherwise, <see langword="false" />.</value>
+        <remarks>The getter uses the package name from the manager's context. To query a specified package instead, use <see cref="M:Android.App.PersonalContext.PersonalContextManager.InvokeIsPersonalContextModeEnabled(System.String)" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -558,8 +558,8 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Identifies the Personal Context system service.</summary>
+        <remarks>The service name is <c>personal_context</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterOnPersonalContextEnabledChangedListener">
@@ -590,10 +590,10 @@
         <Parameter Name="listener" Type="Java.Lang.IRunnable" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">The executor that runs the listener when the enabled state changes.</param>
+        <param name="listener">The listener to register for service-wide enabled-state changes.</param>
+        <summary>Registers a listener for changes to the service-wide Personal Context enabled state.</summary>
+        <remarks>The notification does not carry the new state; read <see cref="P:Android.App.PersonalContext.PersonalContextManager.IsEnabled" /> in response. Pass the registered listener to <see cref="M:Android.App.PersonalContext.PersonalContextManager.UnregisterOnPersonalContextEnabledChangedListener(Java.Lang.IRunnable)" /> to remove it.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterOnPersonalContextModeChangedListener">
@@ -624,10 +624,10 @@
         <Parameter Name="listener" Type="Android.App.PersonalContext.PersonalContextManager+IOnPersonalContextModeChangedListener" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">The executor that runs the listener for setting changes.</param>
+        <param name="listener">The listener to register for the calling package.</param>
+        <summary>Registers a listener for changes to the calling application's Personal Context mode.</summary>
+        <remarks>The manager selects the package name from its context. The callback receives that package name, not the new enabled state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterOnPersonalContextModeChangedListener">
@@ -663,11 +663,11 @@
         <Parameter Name="listener" Type="Android.App.PersonalContext.PersonalContextManager+IOnPersonalContextModeChangedListener" />
       </Parameters>
       <Docs>
-        <param name="packageName">To be added.</param>
-        <param name="executor">To be added.</param>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="packageName">The package whose Personal Context mode changes are monitored.</param>
+        <param name="executor">The executor that runs the listener for setting changes.</param>
+        <param name="listener">The listener to register for the specified package.</param>
+        <summary>Registers a listener for changes to a specified package's Personal Context mode.</summary>
+        <remarks>The manager checks access to the package's setting before it stores the listener. If that check raises a security exception, the listener is not registered.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RegisterUnderstanderCallback">
@@ -698,10 +698,10 @@
         <Parameter Name="callback" Type="Java.Lang.IRunnable" />
       </Parameters>
       <Docs>
-        <param name="executor">To be added.</param>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="executor">The executor that runs the callback when the enabled-understander list changes.</param>
+        <param name="callback">The callback to register for changes to the enabled-understander list.</param>
+        <summary>Registers for notifications that the enabled Personal Context understanders have changed.</summary>
+        <remarks>Registration requires no permission. When notified, read <see cref="P:Android.App.PersonalContext.PersonalContextManager.EnabledUnderstanders" /> to obtain the updated list.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RespondToPrompt">
@@ -731,9 +731,9 @@
         <Parameter Name="promptResponse" Type="Android.App.PersonalContext.Insight.PromptResponse" />
       </Parameters>
       <Docs>
-        <param name="promptResponse">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="promptResponse">The response that identifies the prompt request and any chosen insight.</param>
+        <summary>Sends a prompt response to the receiver in its associated request.</summary>
+        <remarks>The response must not be <see langword="null" />. If it contains a chosen insight, the manager includes that insight in the result bundle; otherwise, it sends the bundle without a chosen insight.</remarks>
       </Docs>
     </Member>
     <Member MemberName="RespondToUnderstanderRegistrationRequest">
@@ -763,9 +763,9 @@
         <Parameter Name="response" Type="Android.App.PersonalContext.Understander.RegistrationResponse" />
       </Parameters>
       <Docs>
-        <param name="response">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="response">The registration response and its associated request.</param>
+        <summary>Sends an understander registration result to the requesting receiver.</summary>
+        <remarks>The response must not be <see langword="null" />. The manager sends its response code to the result receiver in the associated registration request.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
@@ -861,7 +861,7 @@
       <Docs>
         <summary>Understander type for a personal context understander that is provided by the user-selected
             digital assistant on the device, implementing <c>android.app.personalcontext.understander.ContextUnderstanderService</c>.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>User consent is required before this understander can participate. Use <see cref="F:Android.App.PersonalContext.PersonalContextManagerUnderstanderType.Agent" /> instead of this obsolete constant.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UnderstanderTypeOem">
@@ -895,7 +895,7 @@
       <Docs>
         <summary>Understander type for a personal context understander that is provided by the device
             manufacturer, implementing <c>android.app.personalcontext.understander.ContextUnderstanderService</c>.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>This understander requires user consent and has more limited data export than an agent understander. Use <see cref="F:Android.App.PersonalContext.PersonalContextManagerUnderstanderType.Oem" /> instead of this obsolete constant.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UnderstanderTypeUnknown">
@@ -928,7 +928,7 @@
       <MemberValue>0</MemberValue>
       <Docs>
         <summary>Unknown understander type.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>Use <see cref="F:Android.App.PersonalContext.PersonalContextManagerUnderstanderType.Unknown" /> for this unknown provider category instead of the obsolete constant.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UnregisterOnPersonalContextEnabledChangedListener">
@@ -958,9 +958,9 @@
         <Parameter Name="listener" Type="Java.Lang.IRunnable" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="listener">The listener supplied when registering for enabled-state changes.</param>
+        <summary>Removes a service-wide Personal Context enabled-state listener.</summary>
+        <remarks>The manager removes the matching listener registration. Other listeners remain registered.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UnregisterOnPersonalContextModeChangedListener">
@@ -990,9 +990,9 @@
         <Parameter Name="listener" Type="Android.App.PersonalContext.PersonalContextManager+IOnPersonalContextModeChangedListener" />
       </Parameters>
       <Docs>
-        <param name="listener">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="listener">The listener supplied when registering for application mode changes.</param>
+        <summary>Removes a Personal Context application-mode listener.</summary>
+        <remarks>This method removes the matching listener whether it was registered for the calling package or for a specified package.</remarks>
       </Docs>
     </Member>
     <Member MemberName="UnregisterUnderstanderCallback">
@@ -1022,9 +1022,9 @@
         <Parameter Name="callback" Type="Java.Lang.IRunnable" />
       </Parameters>
       <Docs>
-        <param name="callback">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="callback">The callback supplied when registering for enabled-understander changes.</param>
+        <summary>Removes an enabled-understander change callback.</summary>
+        <remarks>The manager removes the matching callback registration. Other callbacks remain registered.</remarks>
       </Docs>
     </Member>
   </Members>
