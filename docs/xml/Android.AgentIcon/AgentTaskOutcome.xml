@@ -44,7 +44,7 @@
   </Attributes>
   <Docs>
     <summary>Outcome of a call to <c>android.app.StatusBarManager#setAgentTask</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>The result records state changes and event display separately. Ignore each result when its corresponding state or event was absent from the update.</remarks>
   </Docs>
   <Members>
     <Member MemberName="Creator">
@@ -71,9 +71,9 @@
         <ReturnType>Android.OS.IParcelableCreator</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>Gets the factory that reads task outcomes from parcels.</summary>
+        <value>The parcel factory for <see cref="T:Android.AgentIcon.AgentTaskOutcome" /> objects and arrays.</value>
+        <remarks>The factory reconstructs an outcome from the result bits written by <see cref="M:Android.AgentIcon.AgentTaskOutcome.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="DescribeContents">
@@ -104,9 +104,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Reports the special-object contents mask for this outcome.</summary>
+        <returns>Zero.</returns>
+        <remarks>This implementation returns zero without inspecting the outcome bits.</remarks>
       </Docs>
     </Member>
     <Member MemberName="IsEventShown">
@@ -134,8 +134,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns <c>true</c> if the event has been displayed to the user in the status bar.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> when the outcome records that the event was shown; otherwise, <see langword="false" />.</value>
+        <remarks>Ignore this value when the update did not include an <see cref="T:Android.AgentIcon.AgentTaskEvent" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="IsStateChanged">
@@ -163,8 +163,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns <c>true</c> if the state has been successfully changed to the requested state.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value><see langword="true" /> when the outcome records a successful state change; otherwise, <see langword="false" />.</value>
+        <remarks>Ignore this value when the update did not include an <see cref="T:Android.AgentIcon.AgentTaskState" />.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">
@@ -325,10 +325,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="dest">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="dest">The parcel that receives the outcome data.</param>
+        <param name="flags">Parcel write options. This implementation does not use this argument.</param>
+        <summary>Writes the outcome data to a parcel.</summary>
+        <remarks>The state-change and event-display bits are stored together as one integer.</remarks>
       </Docs>
     </Member>
   </Members>
