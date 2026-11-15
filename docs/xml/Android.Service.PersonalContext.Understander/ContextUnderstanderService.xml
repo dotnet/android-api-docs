@@ -31,7 +31,11 @@
   </Attributes>
   <Docs>
     <summary>This is the base class for understander services to implement, handling service details.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Implement this service to process incoming hints and return insights for the requested destinations through <see cref="M:Android.Service.PersonalContext.Understander.ContextUnderstanderService.OnUnderstand(Android.Service.PersonalContext.Understander.UnderstandRequest)" />.</para>
+      <para>Declare the service with the <c>android.permission.BIND_CONTEXT_COMPONENT_SERVICE</c> permission and an intent filter for <see cref="F:Android.Service.PersonalContext.Understander.ContextUnderstanderService.ServiceInterface" />. The hosting application also needs the <c>android.permission.PERSONAL_CONTEXT_RECEIVE_HINTS</c> and <c>android.permission.PERSONAL_CONTEXT_PUBLISH_INSIGHTS</c> permissions.</para>
+      <para>Agent understanders can return a visualization session for an embedded destination. Session calls use the executor configured through <see cref="M:Android.Service.PersonalContext.Understander.ContextUnderstanderService.SetExecutor(Java.Util.Concurrent.IExecutor)" />, or the main looper when no executor is configured.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -55,8 +59,10 @@
       </Attributes>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Initializes the base state of an understander service.</summary>
+        <remarks>
+          <para>No callback executor is configured at construction. Binding the service selects a main-looper executor unless <see cref="M:Android.Service.PersonalContext.Understander.ContextUnderstanderService.SetExecutor(Java.Util.Concurrent.IExecutor)" /> has supplied one.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -144,10 +150,12 @@
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="intent">The binding intent, whose extras can enable delegation to the legacy understander API, or <see langword="null" />.</param>
+        <summary>Creates the binder that handles requests for this understander service.</summary>
+        <returns>A new binder for the service's configured callback executor.</returns>
+        <remarks>
+          <para>If no executor has been set, this method configures one for the main looper. The framework's workflow flag selects the binder implementation; both paths create a binder.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnConnected">
@@ -176,7 +184,9 @@
       <Parameters />
       <Docs>
         <summary>Called when the understander has been configured and is ready to receive insights.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The first component configuration calls this method. The base implementation takes no action; complete initialization work in an override before returning.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnHandleEvent">
@@ -207,11 +217,13 @@
         <Parameter Name="e" Type="Android.Service.PersonalContext.Insight.Interaction.InsightEvent" />
       </Parameters>
       <Docs>
-        <param name="e">To be added.</param>
+        <param name="e">The insight interaction event passed to the service callback.</param>
         <param name="packageName">the package of the application reporting the event.</param>
         <param name="event">The reported <c>InsightEvent</c>.</param>
         <summary>Override this method to receive logging events for actions taken on the insight.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The callback receives an interaction reported for an insight published by this service. The base implementation ignores the event.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OnUnderstand">
@@ -245,7 +257,9 @@
         <summary>Called when a new hint is available.</summary>
         <returns>an <c>UnderstandResult</c> that this <c>ContextUnderstanderService</c> generated
                 by processing the incoming hints.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Override this method to process the request's hints and build responses for its destinations. The base implementation either returns an empty result or delegates to the legacy understander API, according to the framework flag and binding intent.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ServiceInterface">
@@ -273,7 +287,9 @@
       </ReturnValue>
       <Docs>
         <summary>The <c>Intent</c> action that must be declared as handled by the service.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The action value is <c>android.service.personalcontext.understander.ContextUnderstanderService</c>. Use it in the service's manifest intent filter.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="SetExecutor">
@@ -305,7 +321,9 @@
       <Docs>
         <param name="executor">The <c>Executor</c> to run calls on.</param>
         <summary>Sets the executor to be used when methods are invoked on this service.</summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Set the executor during service creation, before binding. Binding uses a main-looper executor only when this field has not been set.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

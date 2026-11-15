@@ -31,7 +31,9 @@
   </Attributes>
   <Docs>
     <summary>Result for <c>ContextUnderstanderService#onUnderstand(UnderstandRequest)</c>.</summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Create results with <see cref="T:Android.Service.PersonalContext.Understander.UnderstandResult.Builder" />. Each result stores a copy of the builder's destination-to-insight mapping, along with its optional feedback activity and visualization session.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="FeedbackActivity">
@@ -67,8 +69,10 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the <c>PendingIntent</c> that can be used to launch the feedback activity.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The feedback activity intent supplied to the builder, or <see langword="null" /> if none was supplied.</value>
+        <remarks>
+          <para>The getter returns the stored pending intent; it does not launch the activity.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetResponseForDestination">
@@ -102,10 +106,12 @@
         <Parameter Name="destination" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
+        <param name="destination">The destination key used to look up a response insight.</param>
         <summary>Gets the response insight for the given destination, if any.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <returns>The insight stored for the destination, or <see langword="null" /> when the result has no mapping for that key.</returns>
+        <remarks>
+          <para>This method performs a lookup using the complete integer key. It does not combine responses for a set of destination flags.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -235,8 +241,10 @@
       <Docs>
         <summary>Gets the <c>InsightVisualizerSession</c> to provide interactive visualizations to a client
             app, if any.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <value>The visualization session supplied to the builder, or <see langword="null" /> if none was supplied.</value>
+        <remarks>
+          <para>The getter returns the session stored in the result. The builder requires the request to include the embedded destination before a session can be assigned.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

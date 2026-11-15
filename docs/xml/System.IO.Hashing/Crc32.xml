@@ -13,8 +13,8 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Calculates the four-byte CRC-32 used by ITU-T V.42 and IEEE 802.3.</summary>
+    <remarks>Byte results use little-endian order. CRC-32 has incompatible variants; this implementation does not use the CRC defined by ITU-T I.363.5. If this implementation's CRC bytes follow the original message, the CRC of the combined input is the fixed byte sequence 1C DF 44 21.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -28,8 +28,8 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Starts a new CRC-32 calculation.</summary>
+        <remarks>The calculation starts with no input and produces 4-byte results.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Append">
@@ -49,9 +49,9 @@
         <Parameter Name="source" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="source">The next bytes to include in the CRC-32 input.</param>
+        <summary>Adds bytes to the current CRC-32 calculation.</summary>
+        <remarks>The bytes extend the existing input rather than start a new calculation.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -75,9 +75,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Copies the current CRC-32 calculation into a new instance.</summary>
+        <returns>A new Crc32 instance with a copy of the current calculation state.</returns>
+        <remarks>The copy retains the accumulated state. The two instances can then receive different input independently.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCurrentHashAsUInt32">
@@ -101,9 +101,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Gets the current CRC-32 result as an unsigned integer.</summary>
+        <returns>The 32-bit CRC-32 value for the accumulated input.</returns>
+        <remarks>Reading the result does not reset or change the accumulated calculation state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCurrentHashCore">
@@ -123,9 +123,9 @@
         <Parameter Name="destination" Type="System.Span&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="destination">The hash-sized buffer that receives the 4-byte result.</param>
+        <summary>Writes the current CRC-32 result without resetting the calculation.</summary>
+        <remarks>The result occupies 4 bytes in little-endian order. The inherited public hash-output methods validate the destination length before they call this method.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetHashAndResetCore">
@@ -145,9 +145,9 @@
         <Parameter Name="destination" Type="System.Span&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="destination">The hash-sized buffer that receives the 4-byte result before reset.</param>
+        <summary>Writes the current CRC-32 result and restores the initial CRC state.</summary>
+        <remarks>The result occupies 4 bytes in little-endian order. The state is reset after the result is written.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -173,10 +173,10 @@
         <Parameter Name="source" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete byte array to hash with CRC-32.</param>
+        <summary>Calculates the CRC-32 hash of the supplied input.</summary>
+        <returns>A new array containing the 4-byte CRC-32 result in little-endian order.</returns>
+        <remarks>The result is a new 4-byte array in little-endian order. A null source causes an ArgumentNullException.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -202,10 +202,10 @@
         <Parameter Name="source" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete byte span to hash with CRC-32.</param>
+        <summary>Calculates the CRC-32 hash of the supplied input.</summary>
+        <returns>A new array containing the 4-byte CRC-32 result in little-endian order.</returns>
+        <remarks>The result is a new 4-byte array in little-endian order.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -226,11 +226,11 @@
         <Parameter Name="destination" Type="System.Span&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="destination">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete input for the CRC-32 calculation.</param>
+        <param name="destination">The output buffer, which must have at least 4 bytes.</param>
+        <summary>Calculates CRC-32 and writes the result to a buffer.</summary>
+        <returns>The number of bytes written, always 4.</returns>
+        <remarks>The destination must have at least 4 bytes, or an ArgumentException is thrown. The first 4 bytes receive the result in little-endian order; remaining bytes are not changed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HashToUInt32">
@@ -256,10 +256,10 @@
         <Parameter Name="source" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete input for the CRC-32 calculation.</param>
+        <summary>Calculates the CRC-32 hash as an unsigned integer.</summary>
+        <returns>The 32-bit CRC-32 value for the supplied input.</returns>
+        <remarks>This static method calculates a result from the supplied input without using an instance's accumulated state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -277,8 +277,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Starts the CRC-32 calculation again with no accumulated input.</summary>
+        <remarks>The CRC state returns to its initial value.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryHash">
@@ -300,12 +300,12 @@
         <Parameter Name="bytesWritten" Type="System.Int32" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="destination">To be added.</param>
-        <param name="bytesWritten">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete input for the CRC-32 calculation.</param>
+        <param name="destination">The buffer that receives the 4-byte result.</param>
+        <param name="bytesWritten">4 on success, or zero if the destination is too short.</param>
+        <summary>Tries to calculate CRC-32 and write the result to a buffer.</summary>
+        <returns>true if the destination has at least 4 bytes and the result was written; otherwise, false.</returns>
+        <remarks>A destination shorter than 4 bytes is not changed. On success, the first 4 bytes receive the result in little-endian order; remaining bytes are not changed.</remarks>
       </Docs>
     </Member>
   </Members>

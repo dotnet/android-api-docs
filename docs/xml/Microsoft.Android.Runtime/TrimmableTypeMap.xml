@@ -27,7 +27,10 @@
             and provides peer creation, invoker resolution, and native
             method registration. All proxy attribute access is encapsulated here.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+      <para>Generated startup code supplies maps for Java peer proxy lookup. The maps can be one merged pair of dictionaries or separate pairs for each assembly. Initialization is allowed only once.</para>
+      <para>See the <see href="https://github.com/dotnet/android/blob/261d2ce4894cb33942179f113f723eb6ec22f011/src/Mono.Android/Microsoft.Android.Runtime/TrimmableTypeMap.cs#L43-L84">runtime implementation</see> and the <see href="https://github.com/dotnet/android/blob/261d2ce4894cb33942179f113f723eb6ec22f011/src/Microsoft.Android.Sdk.TrimmableTypeMap/Generator/RootTypeMapAssemblyGenerator.cs#L205-L241">startup code generator</see>.</para>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName="Initialize">
@@ -48,12 +51,15 @@
         <Parameter Name="proxyMap" Type="System.Collections.Generic.IReadOnlyDictionary&lt;System.Type,System.Type&gt;" />
       </Parameters>
       <Docs>
-        <param name="typeMap">To be added.</param>
-        <param name="proxyMap">To be added.</param>
+        <param name="typeMap">The generated map from JNI names and alias keys to types that carry Java peer proxy or alias metadata.</param>
+        <param name="proxyMap">The generated map from managed types to types that carry Java peer proxy or alias metadata.</param>
         <summary>
             Initializes the singleton with a single merged typemap universe.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Neither dictionary can be <see langword="null" />. A null argument causes an <c>ArgumentNullException</c>. A second initialization causes an <c>InvalidOperationException</c>. Generated startup code uses this overload for a merged map.</para>
+          <para>See the <see href="https://github.com/dotnet/android/blob/261d2ce4894cb33942179f113f723eb6ec22f011/src/Mono.Android/Microsoft.Android.Runtime/TrimmableTypeMap.cs#L43-L51">initializer</see>, the <see href="https://github.com/dotnet/android/blob/261d2ce4894cb33942179f113f723eb6ec22f011/src/Mono.Android/Microsoft.Android.Runtime/SingleUniverseTypeMap.cs#L21-L80">dictionary lookup implementation</see>, and the <see href="https://github.com/dotnet/android/blob/261d2ce4894cb33942179f113f723eb6ec22f011/src/Microsoft.Android.Sdk.TrimmableTypeMap/Generator/RootTypeMapAssemblyGenerator.cs#L233-L241">overload selection</see>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Initialize">
@@ -74,12 +80,16 @@
         <Parameter Name="proxyMaps" Type="System.Collections.Generic.IReadOnlyDictionary&lt;System.Type,System.Type&gt;[]" />
       </Parameters>
       <Docs>
-        <param name="typeMaps">To be added.</param>
-        <param name="proxyMaps">To be added.</param>
+        <param name="typeMaps">The per-assembly maps from JNI names and alias keys to types that carry Java peer proxy or alias metadata. Each entry pairs with the entry at the same index in <paramref name="proxyMaps" />.</param>
+        <param name="proxyMaps">The per-assembly maps from managed types to types that carry Java peer proxy or alias metadata. Each entry pairs with the entry at the same index in <paramref name="typeMaps" />.</param>
         <summary>
             Initializes the singleton with multiple per-assembly typemap universes.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>The arrays must have the same length, and <paramref name="typeMaps" /> must contain at least one entry. Neither array nor any dictionary entry can be <see langword="null" />. A null array or dictionary causes an <c>ArgumentNullException</c>; an empty <paramref name="typeMaps" /> array or unequal lengths cause an <c>ArgumentException</c>. A second initialization causes an <c>InvalidOperationException</c>.</para>
+          <para>Managed-type lookup checks the map pairs in array order and uses the first matching proxy. Generated startup code uses this overload for separate per-assembly maps.</para>
+          <para>See the <see href="https://github.com/dotnet/android/blob/261d2ce4894cb33942179f113f723eb6ec22f011/src/Mono.Android/Microsoft.Android.Runtime/TrimmableTypeMap.cs#L56-L84">initializer</see>, the <see href="https://github.com/dotnet/android/blob/261d2ce4894cb33942179f113f723eb6ec22f011/src/Mono.Android/Microsoft.Android.Runtime/SingleUniverseTypeMap.cs#L21-L27">dictionary validation</see>, the <see href="https://github.com/dotnet/android/blob/261d2ce4894cb33942179f113f723eb6ec22f011/src/Mono.Android/Microsoft.Android.Runtime/AggregateTypeMap.cs#L31-L43">lookup order</see>, and the <see href="https://github.com/dotnet/android/blob/261d2ce4894cb33942179f113f723eb6ec22f011/src/Microsoft.Android.Sdk.TrimmableTypeMap/Generator/RootTypeMapAssemblyGenerator.cs#L266-L301">per-assembly startup code</see>.</para>
+        </remarks>
       </Docs>
     </Member>
   </Members>

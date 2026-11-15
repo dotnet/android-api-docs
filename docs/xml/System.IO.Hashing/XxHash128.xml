@@ -19,8 +19,8 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Calculates a sixteen-byte XXH128 non-cryptographic hash.</summary>
+    <remarks>Byte results use big-endian order, with the high 64 bits before the low 64 bits. The default seed is zero.</remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -34,8 +34,8 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Starts a new XXH128 calculation.</summary>
+        <remarks>The calculation uses seed zero and produces 16-byte results.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
@@ -52,9 +52,9 @@
         <Parameter Name="seed" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="seed">The seed used for this instance's XXH128 calculations.</param>
+        <summary>Starts a new XXH128 calculation with a specified seed.</summary>
+        <remarks>The seed is retained when the calculation is reset.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Append">
@@ -74,9 +74,9 @@
         <Parameter Name="source" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="source">The next bytes to include in the XXH128 input.</param>
+        <summary>Adds bytes to the current XXH128 calculation.</summary>
+        <remarks>The bytes extend the existing input rather than start a new calculation.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -100,9 +100,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Copies the current XXH128 calculation into a new instance.</summary>
+        <returns>A new XxHash128 instance with a copy of the current calculation state.</returns>
+        <remarks>The copy retains the accumulated state and seed. The two instances can then receive different input independently.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCurrentHashAsUInt128">
@@ -126,9 +126,9 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Gets the current XXH128 result as an unsigned integer.</summary>
+        <returns>The 128-bit XXH128 value for the accumulated input.</returns>
+        <remarks>Reading the result does not reset or change the accumulated calculation state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCurrentHashCore">
@@ -148,9 +148,9 @@
         <Parameter Name="destination" Type="System.Span&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="destination">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="destination">The hash-sized buffer that receives the 16-byte result.</param>
+        <summary>Writes the current XXH128 result without resetting the calculation.</summary>
+        <remarks>The result occupies 16 bytes in big-endian order. The inherited public hash-output methods validate the destination length before they call this method.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -176,10 +176,10 @@
         <Parameter Name="source" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete byte array to hash with XXH128.</param>
+        <summary>Calculates the XXH128 hash of the supplied input.</summary>
+        <returns>A new array containing the 16-byte XXH128 result in big-endian order.</returns>
+        <remarks>The result is a new 16-byte array in big-endian order. A null source causes an ArgumentNullException. The calculation uses seed zero.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -206,11 +206,11 @@
         <Parameter Name="seed" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete byte array to hash with XXH128.</param>
+        <param name="seed">The seed for this XXH128 calculation.</param>
+        <summary>Calculates the XXH128 hash of the supplied input.</summary>
+        <returns>A new array containing the 16-byte XXH128 result in big-endian order.</returns>
+        <remarks>The result is a new 16-byte array in big-endian order. A null source causes an ArgumentNullException.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -237,11 +237,11 @@
         <Parameter Name="seed" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete byte span to hash with XXH128.</param>
+        <param name="seed">The seed for this XXH128 calculation. The default is zero.</param>
+        <summary>Calculates the XXH128 hash of the supplied input.</summary>
+        <returns>A new array containing the 16-byte XXH128 result in big-endian order.</returns>
+        <remarks>The result is a new 16-byte array in big-endian order.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Hash">
@@ -263,12 +263,12 @@
         <Parameter Name="seed" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="destination">To be added.</param>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete input for the XXH128 calculation.</param>
+        <param name="destination">The output buffer, which must have at least 16 bytes.</param>
+        <param name="seed">The seed for this XXH128 calculation. The default is zero.</param>
+        <summary>Calculates XXH128 and writes the result to a buffer.</summary>
+        <returns>The number of bytes written, always 16.</returns>
+        <remarks>The destination must have at least 16 bytes, or an ArgumentException is thrown. The first 16 bytes receive the result in big-endian order; remaining bytes are not changed.</remarks>
       </Docs>
     </Member>
     <Member MemberName="HashToUInt128">
@@ -295,11 +295,11 @@
         <Parameter Name="seed" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete input for the XXH128 calculation.</param>
+        <param name="seed">The seed for this XXH128 calculation. The default is zero.</param>
+        <summary>Calculates the XXH128 hash as an unsigned integer.</summary>
+        <returns>The 128-bit XXH128 value for the supplied input.</returns>
+        <remarks>This static method calculates a result from the supplied input without using an instance's accumulated state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -317,8 +317,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Starts the XXH128 calculation again with no accumulated input.</summary>
+        <remarks>The original seed is retained.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryHash">
@@ -341,13 +341,13 @@
         <Parameter Name="seed" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="source">To be added.</param>
-        <param name="destination">To be added.</param>
-        <param name="bytesWritten">To be added.</param>
-        <param name="seed">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="source">The complete input for the XXH128 calculation.</param>
+        <param name="destination">The buffer that receives the 16-byte result.</param>
+        <param name="bytesWritten">16 on success, or zero if the destination is too short.</param>
+        <param name="seed">The seed for this XXH128 calculation. The default is zero.</param>
+        <summary>Tries to calculate XXH128 and write the result to a buffer.</summary>
+        <returns>true if the destination has at least 16 bytes and the result was written; otherwise, false.</returns>
+        <remarks>A destination shorter than 16 bytes is not changed. On success, the first 16 bytes receive the result in big-endian order; remaining bytes are not changed.</remarks>
       </Docs>
     </Member>
   </Members>
