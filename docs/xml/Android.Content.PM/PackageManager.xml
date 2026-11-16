@@ -15105,13 +15105,18 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="caller">To be added.</param>
-        <param name="specifics">To be added.</param>
-        <param name="intent">To be added.</param>
-        <param name="flags">To be added.</param>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <param name="caller">The activity component to exclude from the intended query results, or <see langword="null" /> for no caller exclusion.</param>
+        <param name="specifics">Optional intents whose resolved activities are placed before the general results in the intended query, or <see langword="null" />.</param>
+        <param name="intent">The general intent used to find the remaining activity choices in the intended query.</param>
+        <param name="flags">The integer query options passed by the current binding. The intended Android list overload requires a <see cref="T:Android.Content.PM.PackageManager.ResolveInfoFlags" /> object instead.</param>
+        <summary>Intended to find activity choices for a general intent and optional specific intents; this overload has a known JNI binding defect.</summary>
+        <returns>For the intended query, activity results for <paramref name="specifics" /> followed by remaining matches for <paramref name="intent" />, or an empty list if no activities remain. This is not a result guarantee for the incorrectly registered overload.</returns>
+        <remarks>
+          <para>Binding limitation: In .NET for Android 37.2.31, this overload is registered with a Java list and an integer flags argument. Android declares its list overload with a <c>PackageManager.ResolveInfoFlags</c> object instead. The generated binding passes the integer directly; it does not construct that flags object. This defect is tracked in <format type="text/html"><a href="https://github.com/dotnet/android/issues/13576">dotnet/android#13576</a></format>.</para>
+          <para>The parameter and result descriptions document the intended Android query, not a successful call through this incorrect registration. They do not establish the behavior of every receiver or application-specific JNI remapping.</para>
+          <para>The intended query places resolved specific intents first, in their input order, then retains the remaining general results. A <see langword="null" /> specifics list omits the specific choices. A non-null caller requests removal of a matching activity from the results.</para>
+          <para>Implementation evidence: <format type="text/html"><a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/1cdfff555f4a21f71ccc978290e2e212e2f8b168/core/java/android/app/ApplicationPackageManager.java#L1538-L1584">Android list-overload argument and result handling</a></format>, <format type="text/html"><a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/1cdfff555f4a21f71ccc978290e2e212e2f8b168/services/core/java/com/android/server/pm/ResolveIntentHelper.java#L595-L773">activity ordering and caller filtering</a></format>, and the <format type="text/html"><a href="https://github.com/dotnet/android/blob/c6663f24d64147d204525b3ba0c2762c6176bfc9/src/Mono.Android/methodmap.csv#L742">binding's flags mapping</a></format>.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="QueryIntentContentProviders">
