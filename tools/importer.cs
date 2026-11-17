@@ -40061,10 +40061,14 @@ static partial class ImporterProgram
         JavadocStarsPattern,
     ];
     const string JavaIdentifierPattern = @"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*";
+    // A Java constant: optional qualifiers, then an upper-case name, or a name with an underscore such as TYPE_1xRTT.
+    const string JavaConstantPattern = @"(?:[A-Za-z_][A-Za-z0-9_]*\.)*[A-Z](?:[A-Z0-9]*_[A-Za-z0-9_]*|[A-Z0-9]+)";
     static readonly Regex EnumValueListRegex = new(
         @"Value is (?:one of the following|either 0 or a combination of the following): " +
-        $@"(?<items>{JavaIdentifierPattern}(?:; {JavaIdentifierPattern})*)(?![A-Za-z0-9_])",
+        $@"(?<items>{JavaConstantPattern}(?: {JavaConstantPattern})+|{JavaIdentifierPattern}(?:; {JavaIdentifierPattern})*)(?![A-Za-z0-9_])",
         RegexOptions.CultureInvariant);
+    static readonly Regex TrailingConstantRegex = new(
+        $@"^[;,]?\s+{JavaConstantPattern}(?![A-Za-z0-9_])", RegexOptions.CultureInvariant);
     static readonly Regex RepairDocIdRegex = new(
         @"<MemberSignature Language=""DocId"" Value=""(?<id>[^""]+)""|<TypeSignature Language=""DocId"" Value=""(?<id>[^""]+)""",
         RegexOptions.CultureInvariant);
@@ -40625,8 +40629,16 @@ static partial class ImporterProgram
             return;
         }
         var match = matches[0];
+        if (TrailingConstantRegex.IsMatch(channel.Value[(match.Index + match.Length)..]))
+        {
+            skip(id, target, EnumValueListsPattern, "partial_list",
+                "Another constant-like token follows the value list, so the complete list is not exact.");
+            return;
+        }
+        var items = match.Groups["items"].Value;
+        var separator = items.Contains("; ", StringComparison.Ordinal) || !items.Contains(' ') ? "; " : " ";
         var crefs = new List<string>();
-        foreach (var item in match.Groups["items"].Value.Split("; "))
+        foreach (var item in items.Split(separator))
         {
             var candidates = fields
                 .Where(field => field.JavaName == item || field.JavaName.EndsWith("." + item, StringComparison.Ordinal))
@@ -40656,7 +40668,7 @@ static partial class ImporterProgram
             return;
         }
         var lead = match.Value[..(match.Value.IndexOf(": ", StringComparison.Ordinal) + 2)];
-        var replacement = lead + string.Join("; ", crefs.Select(cref =>
+        var replacement = lead + string.Join(separator, crefs.Select(cref =>
             $"<see cref=\"{SecurityElementEscape(cref).Replace("\"", "&quot;", StringComparison.Ordinal)}\" />"));
         edits.Add(new DocumentationRepairEdit(
             span.ContentStart + first, span.ContentStart + first + match.Value.Length, replacement,
@@ -41203,7 +41215,7 @@ static partial class ImporterProgram
                 "M:Fixture.RepairDocs.Sample.SetMode(Fixture.RepairDocs.SampleMode)",
                 "[Android.Runtime.Register(\"setMode\", \"(Lfixture/repair/SampleMode;)V\", \"\")]", "System.Void",
                 "<Parameter Name=\"mode\" Type=\"Fixture.RepairDocs.SampleMode\" />", $$"""
-                    <param name="mode">The mode. Value is one of the following: Sample.MODE_A; Sample.Inner.MODE_B</param>
+                    <param name="mode">The mode. Value is one of the following: Sample.MODE_A; Sample.Inner.MODE_1xB</param>
                     <summary>Resets the mode to its default (e.</summary>
                     <remarks>
                       <para>Resets the mode to its default (e.g. no
@@ -41296,6 +41308,14 @@ static partial class ImporterProgram
                       <para>Uses an address ID (e.g. ike</para>
                     </remarks>
             """)}}
+            {{Member("SetPair", "public void SetPair (Fixture.RepairDocs.SampleMode first, Fixture.RepairDocs.SampleMode second);",
+                "M:Fixture.RepairDocs.Sample.SetPair(Fixture.RepairDocs.SampleMode,Fixture.RepairDocs.SampleMode)",
+                "[Android.Runtime.Register(\"setPair\", \"(II)V\", \"\")]", "System.Void",
+                "<Parameter Name=\"first\" Type=\"Fixture.RepairDocs.SampleMode\" /><Parameter Name=\"second\" Type=\"Fixture.RepairDocs.SampleMode\" />", """
+                    <param name="first">Value is one of the following: MODE_A Sample.Inner.MODE_1xB</param>
+                    <param name="second">Value is one of the following: Sample.MODE_A; Sample.Inner.MODE_1xB MODE_C</param>
+                    <summary>Sets a pair.</summary>
+            """)}}
               </Members>
             </Type>
             """;
@@ -41310,7 +41330,7 @@ static partial class ImporterProgram
             </Type>
             """;
         var expected = sample
-            .Replace("The mode. Value is one of the following: Sample.MODE_A; Sample.Inner.MODE_B",
+            .Replace("The mode. Value is one of the following: Sample.MODE_A; Sample.Inner.MODE_1xB",
                 "The mode. Value is one of the following: <see cref=\"F:Fixture.RepairDocs.SampleMode.ModeA\" />; <see cref=\"F:Fixture.RepairDocs.SampleMode.ModeB\" />")
             .Replace("<summary>Resets the mode to its default (e.</summary>",
                 "<summary>Resets the mode to its default (e.g. no mode) values.</summary>")
@@ -41318,7 +41338,9 @@ static partial class ImporterProgram
             .Replace("<summary>Uses GSMA TS.</summary>", "<summary>Uses GSMA TS.43 standard.</summary>")
             .Replace("<summary>Gets the mode. *</summary>", "<summary>Gets the mode.</summary>")
             .Replace("following: Sample.MODE_A</value>",
-                "following: <see cref=\"F:Fixture.RepairDocs.SampleMode.ModeA\" /></value>");
+                "following: <see cref=\"F:Fixture.RepairDocs.SampleMode.ModeA\" /></value>")
+            .Replace("following: MODE_A Sample.Inner.MODE_1xB</param>",
+                "following: <see cref=\"F:Fixture.RepairDocs.SampleMode.ModeA\" /> <see cref=\"F:Fixture.RepairDocs.SampleMode.ModeB\" /></param>");
         var firstAndroid = expected.IndexOf(AndroidLine, StringComparison.Ordinal);
         expected = expected.Remove(firstAndroid, AndroidLine.Length).Replace(StartJavaBlock, "").Replace(CtorJavaBlock, "")
             .Replace("<summary>Configures a soft access point (a.</summary>",
@@ -41332,7 +41354,7 @@ static partial class ImporterProgram
         try
         {
             File.WriteAllText(Path.Combine(directory, "SampleMode.xml"), EnumType("SampleMode",
-                ("ModeA", "fixture/repair/Sample.MODE_A"), ("ModeB", "fixture/repair/Sample$Inner.MODE_B")));
+                ("ModeA", "fixture/repair/Sample.MODE_A"), ("ModeB", "fixture/repair/Sample$Inner.MODE_1xB")));
             File.WriteAllText(Path.Combine(directory, "SampleKind.xml"), EnumType("SampleKind",
                 ("KindX", "fixture/repair/Sample.KIND_X"), ("KindAlias", "fixture/repair/Sample.KIND_X")));
             File.WriteAllText(Path.Combine(directory, "Sample+Inner.xml"), inner);
@@ -41374,13 +41396,14 @@ static partial class ImporterProgram
                 File.WriteAllText(path, input, new UTF8Encoding(bom));
                 var bytes = File.ReadAllBytes(path);
                 var preview = Run().Report;
-                Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 11 &&
+                Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 12 &&
                     preview.GetProperty("errorCount").GetInt32() == 0 &&
                     File.ReadAllBytes(path).SequenceEqual(bytes),
                     "repair dry run finds every exact repair and is read-only");
                 foreach (var (status, reason, expectedCount) in new[]
                 {
-                    ("would_apply", "enum-value-lists:enum_field_crefs", 2),
+                    ("would_apply", "enum-value-lists:enum_field_crefs", 3),
+                    ("skipped", "enum-value-lists:partial_list", 1),
                     ("skipped", "enum-value-lists:integer_type_preserved", 1),
                     ("skipped", "enum-value-lists:unmapped_constant", 1),
                     ("skipped", "enum-value-lists:ambiguous_constant", 1),
@@ -41406,12 +41429,12 @@ static partial class ImporterProgram
                     Count(bounded, "skipped", "truncated-summaries:max_changes_reached") +
                     Count(bounded, "skipped", "duplicate-reference-links:max_changes_reached") +
                     Count(bounded, "skipped", "nested-type-crefs:max_changes_reached") +
-                    Count(bounded, "skipped", "javadoc-stars:max_changes_reached") == 10,
+                    Count(bounded, "skipped", "javadoc-stars:max_changes_reached") == 11,
                     "repair apply honors --max-changes");
                 var rest = Run("--apply").Report;
                 var resultBytes = File.ReadAllBytes(path);
                 var resultText = File.ReadAllText(path);
-                Assert(rest.GetProperty("appliedCount").GetInt32() == 10 &&
+                Assert(rest.GetProperty("appliedCount").GetInt32() == 11 &&
                     resultBytes.AsSpan().StartsWith(Encoding.UTF8.Preamble) == bom &&
                     resultText == expected.ReplaceLineEndings(newline),
                     "repair apply writes only the exact expected spans and keeps encoding and newlines");
@@ -41438,7 +41461,7 @@ static partial class ImporterProgram
             var protect = Path.Combine(directory, "protect.txt");
             File.WriteAllText(protect, $"{Relative(repositoryRoot, path)}:{line}-{line}\n");
             var guarded = Run("--protect-lines", protect).Report;
-            Assert(guarded.GetProperty("wouldApplyCount").GetInt32() == 10 &&
+            Assert(guarded.GetProperty("wouldApplyCount").GetInt32() == 11 &&
                 Count(guarded, "skipped", "enum-value-lists:protected_span") == 1,
                 "repair --protect-lines skips protected spans");
             Assert(Run("--pattern", "unknown").Code == 2, "repair rejects unknown patterns");
