@@ -559,6 +559,7 @@
         <returns>this, for chaining, not null</returns>
         <remarks>
           <para>Appends a localized pattern to the formatter using the requested template. This appends a localized section to the builder, suitable for outputting a date, time or date-time combination. The format of the localized section is lazily looked up based on three items: the requestedTemplate specified to this method; the Locale of the DateTimeFormatter; the Chronology of the DateTimeFormatter unless overridden. During formatting, the chronology is obtained from the temporal object being formatted, which may have been overridden by DateTimeFormatter.withChronology(Chronology). During parsing, if a chronology has already been parsed, then it is used. Otherwise the default from DateTimeFormatter.withChronology(Chronology) is used, with IsoChronology as the fallback.</para>
+          <para>The requested template is a series of typical pattern symbols in canonical order from the largest date or time unit to the smallest, which can be expressed with the following regular expression:</para>
           <code lang="text/java">     "G{0,5}" +        // Era
      "y*" +            // Year
      "Q{0,5}" +        // Quarter
@@ -571,6 +572,7 @@
      "m{0,2}" +        // Minute of Hour
      "s{0,2}" +        // Second of Minute
      "[vz]{0,4}"       // Zone</code>
+          <para>All pattern symbols are optional, and each pattern symbol represents a field, for example, 'M' represents the Month field. The number of the pattern symbol letters follows the same presentation, such as "number" or "text" as in the Patterns for Formatting and Parsing section of <see cref="T:Java.Time.Format.DateTimeFormatter" />. Other pattern symbols in the requested template are invalid.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/format/DateTimeFormatterBuilder.html#appendLocalized(java.lang.String)" title="Reference documentation">Java reference for <code>java.time.format.DateTimeFormatterBuilder.appendLocalized</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1015,7 +1017,7 @@
         <param name="width">the width of the value, from one to nineteen</param>
         <summary>Appends the value of a date-time field to the formatter using a fixed width, zero-padded number.</summary>
         <returns>this, for chaining, not null</returns>
-        <remarks>The fixed width requires exactly the specified number of digits during parsing.</remarks>
+        <remarks>In strict parsing, the value must have exactly the specified number of digits. In lenient parsing, this rule applies only when adjacent value parsing is active.</remarks>
       </Docs>
     </Member>
     <Member MemberName="AppendValue">
