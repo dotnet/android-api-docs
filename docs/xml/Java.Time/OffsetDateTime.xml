@@ -123,7 +123,11 @@
         <summary>Adjusts the specified temporal object to have the same offset, date and time as this object.</summary>
         <returns>the adjusted object, not null</returns>
         <remarks>
-          <para>Adjusts the specified temporal object to have the same offset, date and time as this object. This returns a temporal object of the same observable type as the input with the offset, date and time changed to be the same as this. The adjustment is equivalent to using Temporal.with(TemporalField, long) three times, passing ChronoField.EPOCH_DAY, ChronoField.NANO_OF_DAY and ChronoField.OFFSET_SECONDS as the fields. In most cases, it is clearer to reverse the calling pattern by using Temporal.with(TemporalAdjuster): This instance is immutable and unaffected by this method call.</para>
+          <para>Adjusts the specified temporal object to have the same offset, date and time as this object. This returns a temporal object of the same observable type as the input with the offset, date and time changed to be the same as this. The adjustment is equivalent to using Temporal.with(TemporalField, long) three times, passing ChronoField.EPOCH_DAY, ChronoField.NANO_OF_DAY and ChronoField.OFFSET_SECONDS as the fields. In most cases, it is clearer to reverse the calling pattern by using Temporal.with(TemporalAdjuster):</para>
+<code lang="text/java">   // these two lines are equivalent, but the second approach is recommended
+   temporal = thisOffsetDateTime.adjustInto(temporal);
+   temporal = temporal.with(thisOffsetDateTime);</code>
+<para>This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#adjustInto(java.time.temporal.Temporal)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.adjustInto</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -2786,7 +2790,16 @@
         <summary>Returns an adjusted copy of this date-time.</summary>
         <returns>an OffsetDateTime based on this with the adjustment made, not null</returns>
         <remarks>
-          <para>Returns an adjusted copy of this date-time. This returns an OffsetDateTime, based on this one, with the date-time adjusted. The adjustment takes place using the specified adjuster strategy object. Read the documentation of the adjuster to understand what adjustment will be made. A simple adjuster might simply set the one of the fields, such as the year field. A more complex adjuster might set the date to the last day of the month. A selection of common adjustments is provided in TemporalAdjusters. These include finding the "last day of the month" and "next Wednesday". Key date-time classes also implement the TemporalAdjuster interface, such as Month and MonthDay. The adjuster is responsible for handling special cases, such as the varying lengths of month and leap years. For example this code returns a date on the last day of July: The classes LocalDate, LocalTime and ZoneOffset implement TemporalAdjuster, thus this method can be used to change the date, time or offset: The result of this method is obtained by invoking the TemporalAdjuster.adjustInto(Temporal) method on the specified adjuster passing this as the argument. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns an adjusted copy of this date-time. This returns an OffsetDateTime, based on this one, with the date-time adjusted. The adjustment takes place using the specified adjuster strategy object. Read the documentation of the adjuster to understand what adjustment will be made. A simple adjuster might simply set the one of the fields, such as the year field. A more complex adjuster might set the date to the last day of the month. A selection of common adjustments is provided in TemporalAdjusters. These include finding the "last day of the month" and "next Wednesday". Key date-time classes also implement the TemporalAdjuster interface, such as Month and MonthDay. The adjuster is responsible for handling special cases, such as the varying lengths of month and leap years. For example this code returns a date on the last day of July:</para>
+<code lang="text/java">  import static java.time.Month.*;
+  import static java.time.temporal.TemporalAdjusters.*;
+
+  result = offsetDateTime.with(JULY).with(lastDayOfMonth());</code>
+<para>The classes LocalDate, LocalTime and ZoneOffset implement TemporalAdjuster, thus this method can be used to change the date, time or offset:</para>
+<code lang="text/java">  result = offsetDateTime.with(date);
+  result = offsetDateTime.with(time);
+  result = offsetDateTime.with(offset);</code>
+<para>The result of this method is obtained by invoking the TemporalAdjuster.adjustInto(Temporal) method on the specified adjuster passing this as the argument. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#with(java.time.temporal.TemporalAdjuster)" title="Reference documentation">Java reference for <code>java.time.OffsetDateTime.with</code>.</a></format></para>
         </remarks>
       </Docs>
