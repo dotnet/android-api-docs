@@ -40091,10 +40091,10 @@ static partial class ImporterProgram
         @"(?<=[^\s*/>])(?<star>\s+\*)(?=\s*</(?:summary|remarks|param|returns|value|para|exception|typeparam)>)",
         RegexOptions.CultureInvariant);
     static readonly Regex TruncatedSummaryEndRegex = new(
-        @"(?<![A-Za-z.])(?:e\.g|i\.e|e|i|vs|etc|cf|viz)\.$", RegexOptions.CultureInvariant);
+        @"(?<![A-Za-z.])(?:e\.g|i\.e|e|i|a\.k\.a|vs|etc|cf|viz)\.$", RegexOptions.CultureInvariant);
     static readonly HashSet<string> NonTerminalAbbreviations = new(StringComparer.Ordinal)
     {
-        "e.g.", "i.e.", "e.", "i.", "vs.", "cf.", "viz.", "approx.", "incl.", "resp.",
+        "e.g.", "i.e.", "e.", "i.", "a.k.a.", "vs.", "cf.", "viz.", "approx.", "incl.", "resp.",
     };
     static readonly HashSet<string> IntegerTypes = new(StringComparer.Ordinal)
     {
@@ -40111,7 +40111,11 @@ static partial class ImporterProgram
         string Target,
         string Reason,
         string Detail,
-        IReadOnlyList<string> NewCrefs);
+        IReadOnlyList<string> NewCrefs)
+    {
+        // Ordinal of the channel inside its Docs block; stable when a repair changes a cref attribute.
+        public int Channel { get; init; } = -1;
+    }
 
     sealed record RawElementSpan(int Start, int ContentStart, int ContentEnd, int End);
 
@@ -40190,6 +40194,10 @@ static partial class ImporterProgram
 
     static string NormalizeWhitespace(string value) =>
         Regex.Replace(value, @"\s+", " ", RegexOptions.CultureInvariant).Trim();
+
+    static bool BracketsBalanced(string value) =>
+        value.Count(character => character == '(') == value.Count(character => character == ')') &&
+        value.Count(character => character == '[') == value.Count(character => character == ']');
 
     static int[] LineStarts(string text)
     {
@@ -40386,7 +40394,7 @@ static partial class ImporterProgram
                 }
                 builder.Append(file.Text, position, file.Text.Length - position);
                 var text = builder.ToString();
-                var failure = VerifyDocumentationRepairs(file, text, accepted, index, patterns);
+                var failure = VerifyDocumentationRepairs(file, text, accepted, candidates, index, patterns);
                 if (failure is not null)
                 {
                     remaining += accepted.Count;
@@ -40449,7 +40457,8 @@ static partial class ImporterProgram
         string repositoryRoot,
         string? path)
     {
-        var spans = new Dictionary<string, List<(int First, int Last)>>(StringComparer.Ordinal);
+        var spans = new Dictionary<string, List<(int First, int Last)>>(
+            OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
         if (path is null)
             return spans;
         foreach (var raw in File.ReadAllLines(ResolvePath(repositoryRoot, path)))
@@ -40504,8 +40513,9 @@ static partial class ImporterProgram
             var docs = owner.Element("Docs");
             if (docs is null)
                 continue;
-            foreach (var channel in docs.Elements())
+            foreach (var (channel, ordinal) in docs.Elements().Select((channel, ordinal) => (channel, ordinal)))
             {
+                var firstEdit = edits.Count;
                 var target = ChannelTarget(channel);
                 var span = FindRawElementSpan(text, lineStarts, channel);
                 if (span is null)
@@ -40560,6 +40570,8 @@ static partial class ImporterProgram
                             "trailing_javadoc_star", "Removed a trailing Javadoc comment marker.", []));
                     }
                 }
+                for (var editIndex = firstEdit; editIndex < edits.Count; editIndex++)
+                    edits[editIndex] = edits[editIndex] with { Channel = ordinal };
             }
         }
         return edits;
@@ -40812,7 +40824,7 @@ static partial class ImporterProgram
             if (after < paragraph.Length && paragraph[after] != ' ')
                 continue;
             var token = TokenBefore(index);
-            if (NonTerminalAbbreviations.Contains(token))
+            if (NonTerminalAbbreviations.Contains(token) || !BracketsBalanced(paragraph[..after]))
                 continue;
             var following = after < paragraph.Length ? paragraph[(after + 1)..] : "";
             if (following.Length > 0 && char.IsLower(following[0]))
@@ -40842,6 +40854,12 @@ static partial class ImporterProgram
         if (restored.Length <= rawSummary.Length)
         {
             Report("summary_complete", "No longer sentence was found.");
+            return;
+        }
+        if (!BracketsBalanced(restored) || restored.EndsWith(':'))
+        {
+            Report("incomplete_sentence",
+                "The first remarks sentence has unbalanced brackets or ends with a colon, so the remarks text is incomplete.");
             return;
         }
         if (restored[rawSummary.Length..].Contains("&lt;", StringComparison.Ordinal))
@@ -40970,7 +40988,7 @@ static partial class ImporterProgram
         var fragment = reference[(hash + 1)..];
         var open = fragment.IndexOf('(');
         var name = open < 0 ? fragment : fragment[..open];
-        var expectedName = memberName == ".ctor" ? path[(path.LastIndexOf('.') + 1)..] : memberName;
+        var expectedName = memberName == ".ctor" ? path[(path.LastIndexOfAny(['/', '.']) + 1)..] : memberName;
         if (name != expectedName)
             return false;
         if (jniSignature is null)
@@ -41040,6 +41058,7 @@ static partial class ImporterProgram
         LoadedFile file,
         string text,
         IReadOnlyList<DocumentationRepairEdit> edits,
+        IReadOnlyList<DocumentationRepairEdit> candidates,
         DocumentationRepairIndex index,
         HashSet<string> patterns)
     {
@@ -41087,9 +41106,13 @@ static partial class ImporterProgram
         };
         var scratch = new ImportReport { Mode = "verify", Offline = true, MaxChanges = 0 };
         var again = FindDocumentationRepairs(repeated, LineStarts(text), index, patterns, null, scratch);
-        var changed = edits.Select(edit => (edit.Pattern, edit.Member, edit.Target)).ToHashSet();
-        if (again.FirstOrDefault(edit => changed.Contains((edit.Pattern, edit.Member, edit.Target))) is { } repeat)
-            return $"The {repeat.Pattern} repair for {repeat.Member} {repeat.Target} is not idempotent.";
+        static (string, string, int) Key(DocumentationRepairEdit edit) => (edit.Pattern, edit.Member, edit.Channel);
+        var deferred = candidates.Except(edits).GroupBy(Key).ToDictionary(group => group.Key, group => group.Count());
+        foreach (var group in again.GroupBy(Key).Where(group => edits.Any(edit => Key(edit) == group.Key)))
+        {
+            if (group.Count() > deferred.GetValueOrDefault(group.Key))
+                return $"The {group.Key.Item1} repair for {group.Key.Item2} {group.First().Target} is not idempotent.";
+        }
         return null;
     }
 }
@@ -41158,6 +41181,8 @@ static partial class ImporterProgram
         const string AndroidLine = "          <para><format type=\"text/html\"><a href=\"https://developer.android.com/reference/fixture/repair/Sample#setMode(fixture.repair.SampleMode,%20java.lang.String)\" title=\"Reference documentation\">Android reference for <code>fixture.repair.Sample.setMode</code>.</a></format></para>\n";
         const string StartJavaBlock = "          <para>\n            <format type=\"text/html\">\n              <a href=\"https://developer.android.com/reference/fixture/repair/Sample#start()\" title=\"Reference documentation\">Java documentation for <code>fixture.repair.Sample.start()</code>.</a>\n            </format>\n          </para>\n";
         const string StartAndroidLine = "          <para><format type=\"text/html\"><a href=\"https://developer.android.com/reference/fixture/repair/Sample#start(int)\" title=\"Reference documentation\">Android reference for <code>fixture.repair.Sample.start</code>.</a></format></para>\n";
+        const string CtorJavaBlock = "          <para>\n            <format type=\"text/html\">\n              <a href=\"https://developer.android.com/reference/fixture/repair/Sample#Sample()\" title=\"Reference documentation\">Java documentation for <code>fixture.repair.Sample.Sample()</code>.</a>\n            </format>\n          </para>\n";
+        const string CtorAndroidLine = "          <para><format type=\"text/html\"><a href=\"https://developer.android.com/reference/fixture/repair/Sample#Sample(int)\" title=\"Reference documentation\">Android reference for <code>fixture.repair.Sample.Sample</code>.</a></format></para>\n";
         var sample = $$"""
             <Type Name="Sample" FullName="Fixture.RepairDocs.Sample">
               <TypeSignature Language="C#" Value="public class Sample" />
@@ -41185,7 +41210,7 @@ static partial class ImporterProgram
                       mode) values. Other text.</para>
                       {{JavaLink}}
             {{AndroidLine}}        </remarks>
-                    <exception cref="T:Fixture.RepairDocs.Sample+Inner">Inner failure.</exception>
+                    <exception cref="T:Fixture.RepairDocs.Sample+Inner">Inner failure; see <see cref="T:Fixture.RepairDocs.Sample+Inner" />.</exception>
                     <exception cref="T:Fixture.RepairDocs.Sample+Missing">Missing failure.</exception>
             """)}}
             {{Member("SetCount", "public void SetCount (int count);",
@@ -41239,6 +41264,38 @@ static partial class ImporterProgram
                       <para>Pauses the sample (e.g.. More.</para>
                     </remarks>
             """)}}
+            {{Member(".ctor", "public Sample (int code);",
+                "M:Fixture.RepairDocs.Sample.#ctor(System.Int32)",
+                "[Android.Runtime.Register(\".ctor\", \"(I)V\", \"\")]", "System.Void",
+                "<Parameter Name=\"code\" Type=\"System.Int32\" />", $$"""
+                    <summary>Creates a sample.</summary>
+                    <remarks>
+            {{CtorJavaBlock}}{{CtorAndroidLine}}        </remarks>
+            """)}}
+            {{Member("Configure", "public void Configure ();",
+                "M:Fixture.RepairDocs.Sample.Configure",
+                "[Android.Runtime.Register(\"configure\", \"()V\", \"\")]", "System.Void", "", """
+                    <summary>Configures a soft access point (a.</summary>
+                    <remarks>
+                      <para>Configures a soft access point (a.k.a. Soft AP, SAP). More.</para>
+                    </remarks>
+            """)}}
+            {{Member("Follow", "public void Follow ();",
+                "M:Fixture.RepairDocs.Sample.Follow",
+                "[Android.Runtime.Register(\"follow\", \"()V\", \"\")]", "System.Void", "", """
+                    <summary>Uses a mode (e.</summary>
+                    <remarks>
+                      <para>Uses a mode (e.g. fast) as follows:</para>
+                    </remarks>
+            """)}}
+            {{Member("Identify", "public void Identify ();",
+                "M:Fixture.RepairDocs.Sample.Identify",
+                "[Android.Runtime.Register(\"identify\", \"()V\", \"\")]", "System.Void", "", """
+                    <summary>Uses an address ID (e.</summary>
+                    <remarks>
+                      <para>Uses an address ID (e.g. ike</para>
+                    </remarks>
+            """)}}
               </Members>
             </Type>
             """;
@@ -41263,7 +41320,9 @@ static partial class ImporterProgram
             .Replace("following: Sample.MODE_A</value>",
                 "following: <see cref=\"F:Fixture.RepairDocs.SampleMode.ModeA\" /></value>");
         var firstAndroid = expected.IndexOf(AndroidLine, StringComparison.Ordinal);
-        expected = expected.Remove(firstAndroid, AndroidLine.Length).Replace(StartJavaBlock, "");
+        expected = expected.Remove(firstAndroid, AndroidLine.Length).Replace(StartJavaBlock, "").Replace(CtorJavaBlock, "")
+            .Replace("<summary>Configures a soft access point (a.</summary>",
+                "<summary>Configures a soft access point (a.k.a. Soft AP, SAP).</summary>");
         Assert(expected.Contains(AndroidLine, StringComparison.Ordinal),
             "repair fixture keeps the unverified Android reference paragraph");
 
@@ -41315,7 +41374,7 @@ static partial class ImporterProgram
                 File.WriteAllText(path, input, new UTF8Encoding(bom));
                 var bytes = File.ReadAllBytes(path);
                 var preview = Run().Report;
-                Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 8 &&
+                Assert(preview.GetProperty("wouldApplyCount").GetInt32() == 11 &&
                     preview.GetProperty("errorCount").GetInt32() == 0 &&
                     File.ReadAllBytes(path).SequenceEqual(bytes),
                     "repair dry run finds every exact repair and is read-only");
@@ -41325,14 +41384,15 @@ static partial class ImporterProgram
                     ("skipped", "enum-value-lists:integer_type_preserved", 1),
                     ("skipped", "enum-value-lists:unmapped_constant", 1),
                     ("skipped", "enum-value-lists:ambiguous_constant", 1),
-                    ("would_apply", "truncated-summaries:first_remarks_sentence", 2),
+                    ("would_apply", "truncated-summaries:first_remarks_sentence", 3),
+                    ("skipped", "truncated-summaries:incomplete_sentence", 2),
                     ("skipped", "truncated-summaries:ambiguous_sentence_end", 1),
                     ("skipped", "truncated-summaries:summary_complete", 1),
                     ("skipped", "truncated-summaries:no_matching_remarks", 1),
                     ("would_apply", "duplicate-reference-links:other_member_target", 1),
                     ("skipped", "duplicate-reference-links:no_link_matches_registration", 1),
-                    ("would_apply", "duplicate-reference-links:java_link_other_member", 1),
-                    ("would_apply", "nested-type-crefs:dotted_docid", 1),
+                    ("would_apply", "duplicate-reference-links:java_link_other_member", 2),
+                    ("would_apply", "nested-type-crefs:dotted_docid", 2),
                     ("skipped", "nested-type-crefs:unresolved_dotted_cref", 1),
                     ("would_apply", "javadoc-stars:trailing_javadoc_star", 1),
                 })
@@ -41346,12 +41406,12 @@ static partial class ImporterProgram
                     Count(bounded, "skipped", "truncated-summaries:max_changes_reached") +
                     Count(bounded, "skipped", "duplicate-reference-links:max_changes_reached") +
                     Count(bounded, "skipped", "nested-type-crefs:max_changes_reached") +
-                    Count(bounded, "skipped", "javadoc-stars:max_changes_reached") == 7,
+                    Count(bounded, "skipped", "javadoc-stars:max_changes_reached") == 10,
                     "repair apply honors --max-changes");
                 var rest = Run("--apply").Report;
                 var resultBytes = File.ReadAllBytes(path);
                 var resultText = File.ReadAllText(path);
-                Assert(rest.GetProperty("appliedCount").GetInt32() == 7 &&
+                Assert(rest.GetProperty("appliedCount").GetInt32() == 10 &&
                     resultBytes.AsSpan().StartsWith(Encoding.UTF8.Preamble) == bom &&
                     resultText == expected.ReplaceLineEndings(newline),
                     "repair apply writes only the exact expected spans and keeps encoding and newlines");
@@ -41363,15 +41423,22 @@ static partial class ImporterProgram
 
             File.WriteAllText(path, sample);
             var selected = Run("--pattern", NestedTypeCrefsPattern).Report;
-            Assert(selected.GetProperty("wouldApplyCount").GetInt32() == 1 &&
-                Count(selected, "would_apply", "nested-type-crefs:dotted_docid") == 1,
+            Assert(selected.GetProperty("wouldApplyCount").GetInt32() == 2 &&
+                Count(selected, "would_apply", "nested-type-crefs:dotted_docid") == 2,
                 "repair --pattern selects one pattern");
+            var partial = Run("--pattern", NestedTypeCrefsPattern, "--apply", "--max-changes", "1").Report;
+            var remainder = Run("--pattern", NestedTypeCrefsPattern, "--apply").Report;
+            Assert(partial.GetProperty("appliedCount").GetInt32() == 1 &&
+                partial.GetProperty("errorCount").GetInt32() == 0 &&
+                remainder.GetProperty("appliedCount").GetInt32() == 1,
+                "repair verification accepts a channel whose second repair is deferred by --max-changes");
+            File.WriteAllText(path, sample);
             var line = sample[..sample.IndexOf("Value is one of the following: Sample.MODE_A; Sample.Inner", StringComparison.Ordinal)]
                 .Count(character => character == '\n') + 1;
             var protect = Path.Combine(directory, "protect.txt");
             File.WriteAllText(protect, $"{Relative(repositoryRoot, path)}:{line}-{line}\n");
             var guarded = Run("--protect-lines", protect).Report;
-            Assert(guarded.GetProperty("wouldApplyCount").GetInt32() == 7 &&
+            Assert(guarded.GetProperty("wouldApplyCount").GetInt32() == 10 &&
                 Count(guarded, "skipped", "enum-value-lists:protected_span") == 1,
                 "repair --protect-lines skips protected spans");
             Assert(Run("--pattern", "unknown").Code == 2, "repair rejects unknown patterns");
