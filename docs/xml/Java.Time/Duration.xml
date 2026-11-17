@@ -1050,7 +1050,10 @@
         <summary>Obtains a Duration representing an amount in the specified unit.</summary>
         <returns>a Duration, not null</returns>
         <remarks>
-          <para>Obtains a Duration representing an amount in the specified unit. The parameters represent the two parts of a phrase like '6 Hours'. For example: Only a subset of units are accepted by this method. The unit must either have an exact duration or be ChronoUnit.DAYS which is treated as 24 hours. Other units throw an exception.</para>
+          <para>Obtains a Duration representing an amount in the specified unit. The parameters represent the two parts of a phrase like '6 Hours'. For example:</para>
+<code lang="text/java">  Duration.of(3, SECONDS);
+  Duration.of(465, HOURS);</code>
+<para>Only a subset of units are accepted by this method. The unit must either have an exact duration or be ChronoUnit.DAYS which is treated as 24 hours. Other units throw an exception.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#of(long,java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.Duration.of</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1304,6 +1307,9 @@
         <returns>a Duration, not null</returns>
         <remarks>
           <para>Obtains a Duration representing a number of seconds and an adjustment in nanoseconds. This method allows an arbitrary number of nanoseconds to be passed in. The factory will alter the values of the second and nanosecond in order to ensure that the stored nanosecond is in the range 0 to 999,999,999. For example, the following will result in exactly the same duration:</para>
+<code lang="text/java">  Duration.ofSeconds(3, 1);
+  Duration.ofSeconds(4, -999_999_999);
+  Duration.ofSeconds(2, 1000_000_001);</code>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#ofSeconds(long,long)" title="Reference documentation">Java reference for <code>java.time.Duration.ofSeconds</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1340,6 +1346,14 @@
         <returns>the parsed duration, not null</returns>
         <remarks>
           <para>Obtains a Duration from a text string such as PnDTnHnMn.nS. This will parse a textual representation of a duration, including the string produced by toString(). The formats accepted are based on the ISO-8601 duration format PnDTnHnMn.nS with days considered to be exactly 24 hours. The string starts with an optional sign, denoted by the ASCII negative or positive symbol. If negative, the whole period is negated. The ASCII letter "P" is next in upper or lower case. There are then four sections, each consisting of a number and a suffix. The sections have suffixes in ASCII of "D", "H", "M" and "S" for days, hours, minutes and seconds, accepted in upper or lower case. The suffixes must occur in order. The ASCII letter "T" must occur before the first occurrence, if any, of an hour, minute or second section. At least one of the four sections must be present, and if "T" is present there must be at least one section after the "T". The number part of each section must consist of one or more ASCII digits. The number may be prefixed by the ASCII negative or positive symbol. The number of days, hours and minutes must parse to a long. The number of seconds must parse to a long with optional fraction. The decimal point may be either a dot or a comma. The fractional part may have from zero to 9 digits. The leading plus/minus sign, and negative values for other units are not part of the ISO-8601 standard. Examples:</para>
+<code lang="text/java">    "PT20.345S" -- parses as "20.345 seconds"
+    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+    "PT-6H3M"    -- parses as "-6 hours and +3 minutes"
+    "-PT6H3M"    -- parses as "-6 hours and -3 minutes"
+    "-PT-6H+3M"  -- parses as "+6 hours and -3 minutes"</code>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html#parse(java.lang.CharSequence)" title="Reference documentation">Java reference for <code>java.time.Duration.parse</code>.</a></format></para>
         </remarks>
       </Docs>
