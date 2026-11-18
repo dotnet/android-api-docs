@@ -47,7 +47,14 @@
           <para>Each pixel is 16 bits, representing a depth ranging measurement from a depth camera or similar sensor. The 16-bit sample consists of a confidence value and the actual ranging measurement.</para>
           <para>The confidence value is an estimate of correctness for this sample. It is encoded in the 3 most significant bits of the sample, with a value of 0 representing 100% confidence, a value of 1 representing 0% confidence, a value of 2 representing 1/7, a value of 3 representing 2/7, and so on.</para>
           <para>As an example, the following sample extracts the range and confidence from the first pixel of a DEPTH16-format Image, and converts the confidence to a floating-point value between 0 and 1.f inclusive, with 1.f representing maximum confidence:</para>
-          <para>This format assumes an even width an even height a horizontal stride multiple of 16 pixels</para>
+          <code lang="text/java">ShortBuffer shortDepthBuffer = img.getPlanes()[0].getBuffer().asShortBuffer();
+short depthSample = shortDepthBuffer.get()
+short depthRange = (short) (depthSample &amp; 0x1FFF);
+short depthConfidence = (short) ((depthSample &gt;&gt; 13) &amp; 0x7);
+float depthPercentage = depthConfidence == 0 ? 1.f : (depthConfidence - 1) / 7.f;</code>
+          <para>This format assumes an even width, an even height, and a horizontal stride multiple of 16 pixels.</para>
+          <code lang="text/java">y_size = stride * height</code>
+          <para>When produced by a camera, the units for the range are millimeters.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#DEPTH16" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.DEPTH16</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>
@@ -115,7 +122,13 @@
         <summary>
           <para>Android sparse depth point cloud format. A variable-length list of 3D points plus a confidence value, with each point represented by four floats; first the X, Y, Z position coordinates, and then the confidence value.</para>
           <para>The number of points is (size of the buffer in bytes) / 16. The coordinate system and units of the position values depend on the source of the point cloud data. The confidence value is between 0.f and 1.f, inclusive, with 0 representing 0% confidence and 1.f representing 100% confidence in the measured position values.</para>
-          <para>As an example, the following code extracts the first depth point in a DEPTH_POINT_CLOUD format Image: For camera devices that support the DEPTH_OUTPUT capability, DEPTH_POINT_CLOUD coordinates have units of meters, and the coordinate system is defined by the camera's pose transforms: CameraCharacteristics.LENS_POSE_TRANSLATION and CameraCharacteristics.LENS_POSE_ROTATION. That means the origin is the optical center of the camera device, and the positive Z axis points along the camera's optical axis, toward the scene.</para>
+          <para>As an example, the following code extracts the first depth point in a DEPTH_POINT_CLOUD format Image:</para>
+          <code lang="text/java">FloatBuffer floatDepthBuffer = img.getPlanes()[0].getBuffer().asFloatBuffer();
+float x = floatDepthBuffer.get();
+float y = floatDepthBuffer.get();
+float z = floatDepthBuffer.get();
+float confidence = floatDepthBuffer.get();</code>
+          <para>For camera devices that support the DEPTH_OUTPUT capability, DEPTH_POINT_CLOUD coordinates have units of meters, and the coordinate system is defined by the camera's pose transforms: CameraCharacteristics.LENS_POSE_TRANSLATION and CameraCharacteristics.LENS_POSE_ROTATION. That means the origin is the optical center of the camera device, and the positive Z axis points along the camera's optical axis, toward the scene.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#DEPTH_POINT_CLOUD" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.DEPTH_POINT_CLOUD</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>
@@ -439,7 +452,15 @@
           <para>Android 10-bit raw format</para>
           <para>This is a single-plane, 10-bit per pixel, densely packed (in each row), unprocessed format, usually representing raw Bayer-pattern images coming from an image sensor.</para>
           <para>In an image buffer with this format, starting from the first pixel of each row, each 4 consecutive pixels are packed into 5 bytes (40 bits). Each one of the first 4 bytes contains the top 8 bits of each pixel, The fifth byte contains the 2 least significant bits of the 4 pixels, the exact layout data for each 4 consecutive pixels is illustrated below ( Pi[j] stands for the jth bit of the ith pixel):</para>
-          <para>This format assumes a width multiple of 4 pixels an even height</para>
+          <code lang="text">         bit 7    bit 6    bit 5    bit 4    bit 3    bit 2    bit 1    bit 0
+Byte 0:  P0[9]    P0[8]    P0[7]    P0[6]    P0[5]    P0[4]    P0[3]    P0[2]
+Byte 1:  P1[9]    P1[8]    P1[7]    P1[6]    P1[5]    P1[4]    P1[3]    P1[2]
+Byte 2:  P2[9]    P2[8]    P2[7]    P2[6]    P2[5]    P2[4]    P2[3]    P2[2]
+Byte 3:  P3[9]    P3[8]    P3[7]    P3[6]    P3[5]    P3[4]    P3[3]    P3[2]
+Byte 4:  P3[1]    P3[0]    P2[1]    P2[0]    P1[1]    P1[0]    P0[1]    P0[0]</code>
+          <para>This format assumes a width multiple of 4 pixels and an even height.</para>
+          <code lang="text/java">size = row stride * height</code>
+          <para>where the row stride is in bytes, not pixels.</para>
           <para>Since this is a densely packed format, the pixel stride is always 0. The application must use the pixel data layout defined in above table to access each row data. When row stride is equal to width * (10 / 8), there will be no padding bytes at the end of each row, the entire image data is densely packed. When stride is larger than width * (10 / 8), padding bytes will be present at the end of each row.</para>
           <para>For example, the Image object can provide data in this format from a CameraDevice (if supported) through a ImageReader object. The Image#getPlanes() will return a single plane containing the pixel data. The pixel stride is always 0 in Image.Plane.getPixelStride(), and the Image.Plane.getRowStride() describes the vertical neighboring pixel distance (in bytes) between adjacent rows.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#RAW10" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.RAW10</code>.</a></format></para>
@@ -478,7 +499,13 @@
           <para>Android 12-bit raw format</para>
           <para>This is a single-plane, 12-bit per pixel, densely packed (in each row), unprocessed format, usually representing raw Bayer-pattern images coming from an image sensor.</para>
           <para>In an image buffer with this format, starting from the first pixel of each row, each two consecutive pixels are packed into 3 bytes (24 bits). The first and second byte contains the top 8 bits of first and second pixel. The third byte contains the 4 least significant bits of the two pixels, the exact layout data for each two consecutive pixels is illustrated below (Pi[j] stands for the jth bit of the ith pixel):</para>
-          <para>This format assumes a width multiple of 4 pixels an even height</para>
+          <code lang="text">         bit 7    bit 6    bit 5    bit 4    bit 3    bit 2    bit 1    bit 0
+Byte 0:  P0[11]   P0[10]   P0[ 9]   P0[ 8]   P0[ 7]   P0[ 6]   P0[ 5]   P0[ 4]
+Byte 1:  P1[11]   P1[10]   P1[ 9]   P1[ 8]   P1[ 7]   P1[ 6]   P1[ 5]   P1[ 4]
+Byte 2:  P1[ 3]   P1[ 2]   P1[ 1]   P1[ 0]   P0[ 3]   P0[ 2]   P0[ 1]   P0[ 0]</code>
+          <para>This format assumes a width multiple of 4 pixels and an even height.</para>
+          <code lang="text/java">size = row stride * height</code>
+          <para>where the row stride is in bytes, not pixels.</para>
           <para>Since this is a densely packed format, the pixel stride is always 0. The application must use the pixel data layout defined in above table to access each row data. When row stride is equal to width * (12 / 8), there will be no padding bytes at the end of each row, the entire image data is densely packed. When stride is larger than width * (12 / 8), padding bytes will be present at the end of each row.</para>
           <para>For example, the Image object can provide data in this format from a CameraDevice (if supported) through a ImageReader object. The Image#getPlanes() will return a single plane containing the pixel data. The pixel stride is always 0 in Image.Plane.getPixelStride(), and the Image.Plane.getRowStride() describes the vertical neighboring pixel distance (in bytes) between adjacent rows.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#RAW12" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.RAW12</code>.</a></format></para>
@@ -516,9 +543,18 @@
         <summary>
           <para>Android 14-bit raw format</para>
           <para>This is a single-plane, 14-bit per pixel, densely packed (in each row), unprocessed format, usually representing raw Bayer-pattern images coming from an image sensor.</para>
-          <para>In an image buffer with this format, starting from the first pixel of each row, each four consecutive pixels are packed into 7 bytes (56 bits). The first four bytes contain the most significant 8 bits of the first 4 pixels.</para>
-          <para>This format assumes a width multiple of 4 pixels; an even height</para>
+          <para>In an image buffer with this format, starting from the first pixel of each row, each four consecutive pixels are packed into 7 bytes (56 bits). The first four bytes contain the most significant 8 bits of the first 4 pixels. The last three bytes contain the 6 least significant bits of the four pixels, packed one after the other, the exact layout data for each four consecutive pixels is illustrated below (Pi[j] stands for the jth bit of the ith pixel):</para>
+          <code lang="text">         bit 7    bit 6    bit 5    bit 4    bit 3    bit 2    bit 1    bit 0
+Byte 0:  P0[13]   P0[12]   P0[11]   P0[10]   P0[ 9]   P0[ 8]   P0[ 7]   P0[ 6]
+Byte 1:  P1[13]   P1[12]   P1[11]   P1[10]   P1[ 9]   P1[ 8]   P1[ 7]   P1[ 6]
+Byte 2:  P2[13]   P2[12]   P2[11]   P2[10]   P2[ 9]   P2[ 8]   P2[ 7]   P2[ 6]
+Byte 3:  P3[13]   P3[12]   P3[11]   P3[10]   P3[ 9]   P3[ 8]   P3[ 7]   P3[ 6]
+Byte 4:  P1[ 1]   P1[ 0]   P0[ 5]   P0[ 4]   P0[ 3]   P0[ 2]   P0[ 1]   P0[ 0]
+Byte 5:  P2[ 3]   P2[ 2]   P2[ 1]   P2[ 0]   P1[ 5]   P1[ 4]   P1[ 3]   P1[ 2]
+Byte 6:  P3[ 5]   P3[ 4]   P3[ 3]   P3[ 2]   P3[ 1]   P3[ 0]   P2[ 5]   P2[ 4]</code>
+          <para>This format assumes a width multiple of 4 pixels and an even height.</para>
           <code lang="text/java">size = row stride * height</code>
+          <para>where the row stride is in bytes, not pixels.</para>
           <para>Since this is a densely packed format, the pixel stride is always 0. The application must use the pixel data layout defined in above table to access each row data. When row stride is equal to width * (14 / 8), there will be no padding bytes at the end of each row, the entire image data is densely packed. When stride is larger than width * (14 / 8), padding bytes will be present at the end of each row.</para>
           <para>For example, the Image object can provide data in this format from a CameraDevice (if supported) through a ImageReader object. The Image#getPlanes() will return a single plane containing the pixel data. The pixel stride is always 0 in Image.Plane.getPixelStride(), and the Image.Plane.getRowStride() describes the vertical neighboring pixel distance (in bytes) between adjacent rows.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#RAW14" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.RAW14</code>.</a></format></para>
@@ -916,9 +952,16 @@
           <para>Android YUV format.</para>
           <para>This format is exposed to software decoders and applications.</para>
           <para>YV12 is a 4:2:0 YCrCb planar format comprised of a WxH Y plane followed by (W/2) x (H/2) Cr and Cb planes.</para>
-          <para>This format assumes an even width an even height a horizontal stride multiple of 16 pixels a vertical stride equal to the height</para>
+          <para>This format assumes an even width, an even height, a horizontal stride multiple of 16 pixels, and a vertical stride equal to the height.</para>
+          <code lang="text/java">y_size = stride * height
+c_stride = ALIGN(stride/2, 16)
+c_size = c_stride * height/2
+size = y_size + c_size * 2
+cr_offset = y_size
+cb_offset = y_size + c_size</code>
           <para>For the android.hardware.camera2 API, the YUV_420_888 format is recommended for YUV output instead.</para>
           <para>For the older camera API, this format is guaranteed to be supported for Camera preview images since API level 12; for earlier API versions, check Camera.Parameters.getSupportedPreviewFormats(). Note that for camera preview callback use (see Camera.setPreviewCallback(PreviewCallback) ), the stride value is the smallest possible; that is, it is equal to:</para>
+          <code lang="text/java">stride = ALIGN(width, 16)</code>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/ImageFormat#YV12" title="Reference documentation">Android reference for <code>android.graphics.ImageFormat.YV12</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </summary>
