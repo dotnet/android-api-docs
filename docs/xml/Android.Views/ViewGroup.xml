@@ -1928,9 +1928,9 @@
         <param name="container">the container</param>
         <summary>Dispatches saving hierarchy state for this view only, excluding its children.</summary>
         <remarks>
-          <para>Dispatches <c>#saveHierarchyState(android.util.SparseArray)</c> for this view only, not
+          <para>Dispatches <see cref="M:Android.Views.View.SaveHierarchyState(Android.Util.SparseArray)" /> for this view only, not
             for its children. Use this when overriding
-            <c>#dispatchSaveInstanceState(android.util.SparseArray)</c> so a subclass can save its
+            <see cref="M:Android.Views.View.DispatchSaveInstanceState(Android.Util.SparseArray)" /> so a subclass can save its
             own state without saving its children's state.</para>
           <para>
             <format type="text/html">
@@ -2380,7 +2380,7 @@
         <param name="region">The transparent region for this ViewAncestor (window).</param>
         <summary>This is used by the RootView to perform an optimization when
  the view hierarchy contains one or several SurfaceView.</summary>
-        <returns>The result of the gather transparent region operation.</returns>
+        <returns>Returns true if the effective visibility of the view at this point is opaque, regardless of the transparent region; returns false if it is possible for underlying windows to be seen behind the view.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2795,7 +2795,7 @@
  A <c>null</c> value is valid (in case you are not interested in this result)</param>
         <summary>Compute the visible part of a rectangular region defined in terms of a child view's
  coordinates.</summary>
-        <returns>The result of the get child visible rect operation.</returns>
+        <returns>true if the resulting rectangle is not empty, false otherwise</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2934,7 +2934,7 @@
         coordinates of the child to invalidate</param>
         <param name="dirty">The area within the child that is invalid</param>
         <summary>Don't call or override this method.</summary>
-        <returns>The result of the invalidate child in parent operation.</returns>
+        <returns>the parent of this ViewParent or null</returns>
         <remarks>
           <para>Don't call or override this method. It is used for the implementation of
             the view hierarchy.</para>
@@ -3132,7 +3132,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the layout animation controller used to animate the group's
-            children.; Sets the layout animation controller used to animate the group's
+            children. -or- Sets the layout animation controller used to animate the group's
             children after the first layout.</summary>
         <value>the current animation controller</value>
         <remarks>
@@ -3186,7 +3186,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the animation listener to which layout animation events are
-            sent.; Specifies the animation listener to which layout animation events must
+            sent. -or- Specifies the animation listener to which layout animation events must
             be sent.</summary>
         <value>an <c>android.view.animation.Animation.AnimationListener</c></value>
         <remarks>
@@ -3236,7 +3236,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the basis of alignment during layout operations on this ViewGroup:
-            either <c>#LAYOUT_MODE_CLIP_BOUNDS</c> or <c>#LAYOUT_MODE_OPTICAL_BOUNDS</c>.</summary>
+            either <see cref="F:Android.Views.ViewLayoutMode.ClipBounds" /> or <see cref="F:Android.Views.ViewLayoutMode.OpticalBounds" />.</summary>
         <value>the layout mode to use during layout operations</value>
         <remarks>
           <para>Property getter documentation:</para>
@@ -4081,7 +4081,7 @@
         <param name="velocityY">Vertical velocity in pixels per second</param>
         <param name="consumed">true if the child consumed the fling, false otherwise</param>
         <summary>Request a fling from a nested scroll.</summary>
-        <returns>The result of the on nested fling operation.</returns>
+        <returns>true if this parent consumed or otherwise reacted to the fling</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -4128,7 +4128,7 @@
         <param name="velocityX">Horizontal velocity in pixels per second</param>
         <param name="velocityY">Vertical velocity in pixels per second</param>
         <summary>React to a nested fling before the target view consumes it.</summary>
-        <returns>The result of the on nested pre fling operation.</returns>
+        <returns>true if this parent consumed the fling ahead of the target view</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -4499,7 +4499,7 @@
                          <see cref="F:Android.Views.View.ScrollAxisVertical" /> or both</param>
         <summary>React to a descendant view initiating a nestable scroll operation, claiming the
  nested scroll operation if appropriate.</summary>
-        <returns>The result of the on start nested scroll operation.</returns>
+        <returns>true if this ViewParent accepts the nested scroll operation</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -5275,7 +5275,7 @@
         false otherwise</param>
         <summary>Called when a child of this group wants a particular rectangle to be
  positioned onto the screen.</summary>
-        <returns>The result of the request child rectangle on screen operation.</returns>
+        <returns>Whether the group scrolled to handle the operation</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5350,7 +5350,7 @@
         <param name="child">The child which requests sending the event.</param>
         <param name="e">The event to be sent.</param>
         <summary>Called by a child to request from its parent to send an <see cref="T:Android.Views.Accessibility.AccessibilityEvent" />.</summary>
-        <returns>The result of the request send accessibility event operation.</returns>
+        <returns>True if the event was sent.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5873,7 +5873,7 @@
       <Docs>
         <param name="originalView">The source view where the context menu was first invoked</param>
         <summary>Bring up a context menu for the specified view or its ancestors.</summary>
-        <returns>The result of the show context menu for child operation.</returns>
+        <returns><c>true</c> if the context menu was shown, <c>false</c> otherwise</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5912,11 +5912,11 @@
         <Parameter Name="y" Type="System.Single" />
       </Parameters>
       <Docs>
-        <param name="originalView">The Android.Views.View value used for original view.</param>
-        <param name="x">The System.Single value used for x.</param>
-        <param name="y">The System.Single value used for y.</param>
+        <param name="originalView">the source view where the context menu was first invoked</param>
+        <param name="x">the X coordinate in pixels relative to the original view to which the menu should be anchored, or <see cref="F:System.Single.NaN" /> to disable anchoring</param>
+        <param name="y">the Y coordinate in pixels relative to the original view to which the menu should be anchored, or <see cref="F:System.Single.NaN" /> to disable anchoring</param>
         <summary>Requests that this parent show a context menu for the specified child at the supplied coordinates.</summary>
-        <returns>The result of the show context menu for child operation.</returns>
+        <returns><c>true</c> if the context menu was shown, <c>false</c> otherwise</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5953,7 +5953,7 @@
         <param name="callback">The callback that will handle lifecycle events for the action mode</param>
         <summary>Start an action mode for the specified view with the default type
  <see cref="F:Android.Views.ActionModeType.Primary" />.</summary>
-        <returns>The result of the start action mode for child operation.</returns>
+        <returns>The new action mode if it was started, null otherwise</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5999,11 +5999,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="originalView">The Android.Views.View value used for original view.</param>
-        <param name="callback">The Android.Views.ActionMode+ICallback value used for callback.</param>
-        <param name="type">The Android.Views.ActionModeType value used for type.</param>
+        <param name="originalView">The source view where the action mode was first invoked</param>
+        <param name="callback">The callback that will handle lifecycle events for the action mode</param>
+        <param name="type">One of <see cref="F:Android.Views.ActionModeType.Primary" /> or <see cref="F:Android.Views.ActionModeType.Floating" />.</param>
         <summary>Starts a contextual action mode for the specified child using the supplied callback and type.</summary>
-        <returns>The result of the start action mode for child operation.</returns>
+        <returns>The new action mode if it was started, null otherwise</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
