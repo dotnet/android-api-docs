@@ -563,7 +563,7 @@
         <param name="op">String: This value cannot be null.</param>
         <param name="uid">int</param>
         <param name="packageName">String: This value cannot be null.</param>
-        <summary>Checks whether the given op for a package is active, i.e.</summary>
+        <summary>Checks whether the given op for a package is active, i.e. did someone call startOp(String, int, String) without finishOp(String, int, String) yet.</summary>
         <returns><see langword="true" /> if the system reports that the operation has been started for the UID and package without a matching finish; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Checks whether the given op for a package is active, i.e. did someone call startOp(String, int, String) without finishOp(String, int, String) yet. If you don't hold the android.Manifest.permission.WATCH_APPOPS permission you can query only for your UID.</para>
@@ -753,7 +753,7 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>Special mode that means "allow only when app is in foreground.</summary>
+        <summary>Special mode that means "allow only when app is in foreground." This is not returned from unsafeCheckOp(String, int, String), noteOp(String, int, String), startOp(String, int, String).</summary>
         <remarks>
           <para>Special mode that means "allow only when app is in foreground." This is not returned from unsafeCheckOp(String, int, String), noteOp(String, int, String), startOp(String, int, String). Rather, unsafeCheckOp(String, int, String) will always return MODE_ALLOWED (because it is always possible for it to be ultimately allowed, depending on the app's background state), and noteOp(String, int, String) and startOp(String, int, String) will return MODE_ALLOWED when the app being checked is currently in the foreground, otherwise MODE_IGNORED. The only place you will this normally see this value is through unsafeCheckOpRaw(String, int, String), which returns the actual raw mode of the op. Note that because you can't know the current state of the app being checked (and it can change at any point), you can only treat the result here as an indication that it will vary between MODE_ALLOWED and MODE_IGNORED depending on changes in the background state of the app. You thus must always use noteOp(String, int, String) or startOp(String, int, String) to do the actual check for access to the op.</para>
           <para>
