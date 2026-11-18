@@ -59,6 +59,43 @@ channels are reported, not guessed. The managed self-tests exercise actual
 dry runs, bounded applies, encoding and newline preservation, changed metadata,
 protected content, and byte-identical repeat runs without network access.
 
+## Recurring documentation repairs
+
+Use `--repair-docs` to fix recurring errors in existing documentation. This
+mode does not use the network or fill placeholders. It changes text from any
+era, including text that was written before AI-assisted authoring.
+
+```powershell
+dotnet run tools\importer.cs -- --repair-docs --self-test
+dotnet run tools\importer.cs -- --repair-docs --path docs\xml --max-changes 10000 --report artifacts\repair-preview
+dotnet run tools\importer.cs -- --repair-docs --pattern nested-type-crefs --path docs\xml --max-changes 11 --protect-lines artifacts\open-pr-lines.txt --apply --report artifacts\repair-crefs
+```
+
+Select one or more patterns with `--pattern`. The default is all patterns:
+
+| Pattern | Repair | Not changed (reported) |
+| --- | --- | --- |
+| `enum-value-lists` | In a `param`, `returns` or `value` channel whose managed type is an enum, replaces each Java constant in `Value is one of the following: ...` or `Value is either 0 or a combination of the following: ...` with a `<see cref="F:..." />` to the enum field. Lists may use `; ` or single spaces between constants; the separator is kept. A constant maps to a field only through that enum's `IntDefinition` `JniField`; the class qualification in the text must match the end of the JNI field name. | Integer-typed channels (correct as written), other types, other channels, lists followed by another constant-like token, and lists with an unmapped or ambiguous constant. |
+| `truncated-summaries` | Restores a plain-text summary that an earlier first-sentence extraction cut at an abbreviation or a dotted token (`(e.`, `i.`, `TS.`, `802.`), when the first remarks paragraph starts with the summary text. The new summary is the first sentence of that paragraph, with whitespace collapsed. `e.g.`, `i.e.`, `vs.` and similar abbreviations do not end a sentence. | Summaries with markup, no matching remarks, an ambiguous sentence end (`etc.`, a capitalized word directly after a period), escaped HTML, inline markup before the sentence ends, or a sentence longer than 400 characters. |
+| `duplicate-reference-links` | When remarks have one `Java documentation for` link and one single-line `Android reference for` paragraph, compares both targets with the owner's `Register` name and JNI signature. If the Java link matches, the added Android paragraph is removed. If only the Android link matches, the Java link paragraph, which names another overload, is removed. | Owners without a registration, other layouts, and pairs where neither link matches. |
+| `nested-type-crefs` | Replaces `+` with `.` in a `cref` when only the dotted form is a DocId in `docs/xml`. | Crefs whose dotted form does not exist. |
+| `javadoc-stars` | Removes a stray Javadoc ` *` directly before the closing tag of a channel or paragraph. | |
+
+`--protect-lines <file>` skips repairs that touch listed line spans, for example
+spans that an open pull request changes. Each line has the form
+`docs/xml/<path>.xml:<first>-<last>`; lines that start with `#` are ignored.
+Derive the spans from `git diff -U0` against the pull request's merge base and
+add one line of padding on each side.
+
+Each repair replaces an exact lexical span inside one `<Docs>` channel and
+keeps BOM, newlines and all other bytes. Before a file is written, the mode
+parses the result, checks that XML outside `<Docs>`, the channel list and the
+placeholder count are unchanged, checks that every new cref resolves, and runs
+the detection again to prove the repair is idempotent. `--max-changes` counts
+repairs; review both reports before each scoped `--apply`. The self-tests run
+the production path for dry runs, bounded applies, BOM/CRLF variants, pattern
+selection, protected spans, unresolved crefs and byte-identical repeats.
+
 ## Android and Java reference import
 
 ### Repeated Parcelable and Java enum members
