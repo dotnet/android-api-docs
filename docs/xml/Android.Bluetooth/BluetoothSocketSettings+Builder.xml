@@ -172,6 +172,7 @@
         <returns>This builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets the authentication requirement for the Bluetooth socket.</para>
+          <para>Defaults to false.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocketSettings.Builder#setAuthenticationRequired(boolean)" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothSocketSettings.Builder.setAuthenticationRequired</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -209,6 +210,7 @@
         <returns>This builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets the encryption requirement for the Bluetooth socket.</para>
+          <para>Defaults to false.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocketSettings.Builder#setEncryptionRequired(boolean)" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothSocketSettings.Builder.setEncryptionRequired</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -246,6 +248,9 @@
         <returns>This builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets the L2CAP PSM (Protocol/Service Multiplexer) for the Bluetooth socket.</para>
+          <para>This is only used for BluetoothSocket.TYPE_LE sockets.</para>
+          <para>Valid PSM values for BluetoothSocket.TYPE_LE sockets is ranging from 128 (0x80) to 255 (0xFF).</para>
+          <para>Application using this API is responsible for obtaining protocol/service multiplexer (PSM) value from remote device.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocketSettings.Builder#setL2capPsm(int)" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothSocketSettings.Builder.setL2capPsm</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -283,6 +288,9 @@
         <returns>This builder.</returns>
         <remarks>
           <para>Sets the RFCOMM service name associated with the Bluetooth socket.</para>
+          <para>This name is used to identify the service when a remote device searches for it using SDP.</para>
+          <para>This is only used for BluetoothSocket.TYPE_RFCOMM sockets.</para>
+          <para>Defaults to null.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocketSettings.Builder#setRfcommServiceName(java.lang.String)" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothSocketSettings.Builder.setRfcommServiceName</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -320,6 +328,9 @@
         <returns>This builder.</returns>
         <remarks>
           <para>Sets the RFCOMM service UUID associated with the Bluetooth socket.</para>
+          <para>This UUID is used to uniquely identify the service when a remote device searches for it using SDP.</para>
+          <para>This is only used for BluetoothSocket.TYPE_RFCOMM sockets.</para>
+          <para>Defaults to null.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocketSettings.Builder#setRfcommUuid(java.util.UUID)" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothSocketSettings.Builder.setRfcommUuid</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -352,11 +363,13 @@
         <Parameter Name="socketType" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="socketType">The type of socket. Value is one of the following: BluetoothSocket.TYPE_RFCOMM; BluetoothSocket.TYPE_SCO; BluetoothSocket.TYPE_L2CAP; BluetoothSocket.TYPE_LE</param>
+        <param name="socketType">The type of socket. Value is one of the following: BluetoothSocket.TYPE_RFCOMM; BluetoothSocket.TYPE_LE</param>
         <summary>Sets the socket type.</summary>
         <returns>This builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets the socket type.</para>
+          <para>Must be one of: BluetoothSocket.TYPE_RFCOMM; BluetoothSocket.TYPE_LE</para>
+          <para>Defaults to BluetoothSocket.TYPE_RFCOMM.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/bluetooth/BluetoothSocketSettings.Builder#setSocketType(int)" title="Reference documentation">Android reference for <code>android.bluetooth.BluetoothSocketSettings.Builder.setSocketType</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
