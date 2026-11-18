@@ -204,11 +204,11 @@
         <remarks>
           <para>Adds a sanitizer for one or more field.</para>
           <para>When a sanitizer is set for a field, the AutofillValue is sent to the sanitizer before a save request is triggered.</para>
-          <para>Typically used to avoid displaying the save UI for values that are autofilled but reformattedby the app.</para>
+          <para>Typically used to avoid displaying the save UI for values that are autofilled but reformattedby the app. For example, to remove spaces between every 4 digits of a credit card number:</para>
           <code lang="text/java">builder.addSanitizer(new TextValueSanitizer(
     Pattern.compile("^(\\d{4})\\s?(\\d{4})\\s?(\\d{4})\\s?(\\d{4})$", "$1$2$3$4")),
     ccNumberId);</code>
-          <para>The same sanitizer can be reused to sanitize multiple fields.</para>
+          <para>The same sanitizer can be reused to sanitize multiple fields. For example, to trim both the username and password fields:</para>
           <code lang="text/java">builder.addSanitizer(
     new TextValueSanitizer(Pattern.compile("^\\s*(.*)\\s*$"), "$1"),
         usernameId, passwordId);</code>
@@ -677,8 +677,10 @@
         <returns>this builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets an object used to validate the user input - if the input is not valid, the autofill save UI is not shown.</para>
-          <para>Typically used to validate credit card numbers.</para>
+          <para>Typically used to validate credit card numbers. Examples:</para>
+          <para>Validator for a credit number that must have exactly 16 digits:</para>
           <code lang="text/java">Validator validator = new RegexValidator(ccNumberId, Pattern.compile(""^\\d{16}$"))</code>
+          <para>Validator for a credit number that must pass a Luhn checksum and either have 16 digits, or 15 digits starting with 108:</para>
           <code lang="text/java">import static android.service.autofill.Validators.and;
 import static android.service.autofill.Validators.or;
 
@@ -690,11 +692,13 @@ Validator validator =
       new RegexValidator(ccNumberId, Pattern.compile("^108\\d{12}$"))
     )
   );</code>
+          <para>Note: the example above is just for illustrative purposes; the same validator could be created using a single regex for the OR part:</para>
           <code lang="text/java">Validator validator =
   and(
     new LuhnChecksumValidator(ccNumberId),
     new RegexValidator(ccNumberId, Pattern.compile(""^(\\d{16}|108\\d{12})$"))
   );</code>
+          <para>Validator for a credit number contained in just 4 fields and that must have exactly 4 digits on each field:</para>
           <code lang="text/java">import static android.service.autofill.Validators.and;
 
 Validator validator =
