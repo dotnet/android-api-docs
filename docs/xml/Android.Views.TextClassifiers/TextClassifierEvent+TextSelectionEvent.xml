@@ -42,6 +42,88 @@
     <summary>This class represents events that are related to the smart text selection feature.</summary>
     <remarks>
       <para>This class represents events that are related to the smart text selection feature.</para>
+      <code lang="text/java">// User started a selection. e.g. "York" in text "New York City, NY".
+new TextSelectionEvent.Builder(TYPE_SELECTION_STARTED)
+    .setEventContext(classificationContext)
+    .setEventIndex(0)
+    .build();
+
+// System smart-selects a recognized entity. e.g. "New York City".
+new TextSelectionEvent.Builder(TYPE_SMART_SELECTION_MULTI)
+    .setEventContext(classificationContext)
+    .setResultId(textSelection.getId())
+    .setRelativeWordStartIndex(-1) // Goes back one word to "New" from "York".
+    .setRelativeWordEndIndex(2)    // Goes forward 2 words from "York" to start of ",".
+    .setEntityTypes(textClassification.getEntity(0))
+    .setScore(textClassification.getConfidenceScore(entityType))
+    .setEventIndex(1)
+    .build();
+
+// User resets the selection to the original selection. i.e. "York".
+new TextSelectionEvent.Builder(TYPE_SELECTION_RESET)
+    .setEventContext(classificationContext)
+    .setResultId(textSelection.getId())
+    .setRelativeSuggestedWordStartIndex(-1) // Repeated from above.
+    .setRelativeSuggestedWordEndIndex(2)    // Repeated from above.
+    .setRelativeWordStartIndex(0)           // Original selection is always at (0, 1].
+    .setRelativeWordEndIndex(1)
+    .setEntityTypes(textClassification.getEntity(0))
+    .setScore(textClassification.getConfidenceScore(entityType))
+    .setEventIndex(2)
+    .build();
+
+// User modified the selection. e.g. "New".
+new TextSelectionEvent.Builder(TYPE_SELECTION_MODIFIED)
+    .setEventContext(classificationContext)
+    .setResultId(textSelection.getId())
+    .setRelativeSuggestedWordStartIndex(-1) // Repeated from above.
+    .setRelativeSuggestedWordEndIndex(2)    // Repeated from above.
+    .setRelativeWordStartIndex(-1)          // Goes backward one word from "York" to
+    "New".
+    .setRelativeWordEndIndex(0)             // Goes backward one word to exclude "York".
+    .setEntityTypes(textClassification.getEntity(0))
+    .setScore(textClassification.getConfidenceScore(entityType))
+    .setEventIndex(3)
+    .build();
+
+// Smart (contextual) actions (at indices, 0, 1, 2) presented to the user.
+// e.g. "Map", "Ride share", "Explore".
+new TextSelectionEvent.Builder(TYPE_ACTIONS_SHOWN)
+    .setEventContext(classificationContext)
+    .setResultId(textClassification.getId())
+    .setEntityTypes(textClassification.getEntity(0))
+    .setScore(textClassification.getConfidenceScore(entityType))
+    .setActionIndices(0, 1, 2)
+    .setEventIndex(4)
+    .build();
+
+// User chooses the "Copy" action.
+new TextSelectionEvent.Builder(TYPE_COPY_ACTION)
+    .setEventContext(classificationContext)
+    .setResultId(textClassification.getId())
+    .setEntityTypes(textClassification.getEntity(0))
+    .setScore(textClassification.getConfidenceScore(entityType))
+    .setEventIndex(5)
+    .build();
+
+// User chooses smart action at index 1. i.e. "Ride share".
+new TextSelectionEvent.Builder(TYPE_SMART_ACTION)
+    .setEventContext(classificationContext)
+    .setResultId(textClassification.getId())
+    .setEntityTypes(textClassification.getEntity(0))
+    .setScore(textClassification.getConfidenceScore(entityType))
+    .setActionIndices(1)
+    .setEventIndex(5)
+    .build();
+
+// Selection dismissed.
+new TextSelectionEvent.Builder(TYPE_SELECTION_DESTROYED)
+    .setEventContext(classificationContext)
+    .setResultId(textClassification.getId())
+    .setEntityTypes(textClassification.getEntity(0))
+    .setScore(textClassification.getConfidenceScore(entityType))
+    .setEventIndex(6)
+    .build();</code>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassifierEvent.TextSelectionEvent" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassifierEvent.TextSelectionEvent</code>.</a>

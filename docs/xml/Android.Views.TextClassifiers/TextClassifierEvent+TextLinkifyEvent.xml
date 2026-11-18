@@ -42,6 +42,34 @@
     <summary>This class represents events that are related to the smart linkify feature.</summary>
     <remarks>
       <para>This class represents events that are related to the smart linkify feature.</para>
+      <code lang="text/java">// User clicked on a link.
+new TextLinkifyEvent.Builder(TYPE_LINK_CLICKED)
+    .setEventContext(classificationContext)
+    .setResultId(textClassification.getId())
+    .setEntityTypes(textClassification.getEntity(0))
+    .setScore(textClassification.getConfidenceScore(entityType))
+    .setEventIndex(0)
+    .build();
+
+// Smart (contextual) actions presented to the user in response to a link click.
+new TextLinkifyEvent.Builder(TYPE_ACTIONS_SHOWN)
+    .setEventContext(classificationContext)
+    .setResultId(textClassification.getId())
+    .setEntityTypes(textClassification.getEntity(0))
+    .setScore(textClassification.getConfidenceScore(entityType))
+    .setActionIndices(range(textClassification.getActions().size()))
+    .setEventIndex(1)
+    .build();
+
+// User chooses smart action at index 0.
+new TextLinkifyEvent.Builder(TYPE_SMART_ACTION)
+    .setEventContext(classificationContext)
+    .setResultId(textClassification.getId())
+    .setEntityTypes(textClassification.getEntity(0))
+    .setScore(textClassification.getConfidenceScore(entityType))
+    .setActionIndices(0)
+    .setEventIndex(2)
+    .build();</code>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassifierEvent.TextLinkifyEvent" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassifierEvent.TextLinkifyEvent</code>.</a>

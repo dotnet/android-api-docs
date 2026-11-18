@@ -45,7 +45,38 @@
   <Docs>
     <summary>Information for generating a widget to handle classified text.</summary>
     <remarks>
-      <para>Information for generating a widget to handle classified text. A TextClassification object contains icons, labels, onClickListeners and intents that may be used to build a widget that can be used to act on classified text. There is the concept of a primary action and other secondary actions. e.g. building a view that, when clicked, shares the classified text with the preferred app: e.g. starting an action mode with menu items that can handle the classified text:</para>
+      <para>Information for generating a widget to handle classified text. A TextClassification object contains icons, labels, onClickListeners and intents that may be used to build a widget that can be used to act on classified text. There is the concept of a primary action and other secondary actions. e.g. building a view that, when clicked, shares the classified text with the preferred app:</para>
+      <code lang="text/java">// Called preferably outside the UiThread.
+TextClassification classification = textClassifier.classifyText(allText, 10, 25);
+
+// Called on the UiThread.
+Button button = new Button(context);
+button.setCompoundDrawablesWithIntrinsicBounds(classification.getIcon(), null, null, null);
+button.setText(classification.getLabel());
+button.setOnClickListener(v -&gt; classification.getActions().get(0).getActionIntent().send());</code>
+      <para>e.g. starting an action mode with menu items that can handle the classified text:</para>
+      <code lang="text/java">// Called preferably outside the UiThread.
+final TextClassification classification = textClassifier.classifyText(allText, 10, 25);
+
+// Called on the UiThread.
+view.startActionMode(new ActionMode.Callback() {
+
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        for (int i = 0; i &lt; classification.getActions().size(); ++i) {
+           RemoteAction action = classification.getActions().get(i);
+           menu.add(Menu.NONE, i, 20, action.getTitle())
+              .setIcon(action.getIcon());
+        }
+        return true;
+    }
+
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        classification.getActions().get(item.getItemId()).getActionIntent().send();
+        return true;
+    }
+
+    ...
+});</code>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/view/textclassifier/TextClassification" title="Reference documentation">Android reference for <code>android.view.textclassifier.TextClassification</code>.</a>
@@ -800,7 +831,7 @@
       </Parameters>
       <Docs>
         <param name="dest">Parcel: The Parcel in which the object should be written. This value cannot be null.</param>
-        <param name="flags">int: Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: Parcelable.PARCELABLE_WRITE_RETURN_VALUE</param>
+        <param name="flags">int: Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: <see cref="F:Android.OS.ParcelableWriteFlags.ReturnValue" /></param>
         <summary>Flatten this object in to a Parcel.</summary>
         <remarks>
           <para>Flatten this object in to a Parcel.</para>
