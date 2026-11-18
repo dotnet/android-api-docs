@@ -195,8 +195,14 @@
             value is obtained by applying the <c>BiFunction</c> to the current
             value and the next input element, after which the resulting value is
             produced downstream.</para>
-          <para>Example:
-            {</para>
+          <para>Example:</para>
+<code lang="text/java">// will contain: ["1", "12", "123", "1234", "12345", "123456", "1234567", "12345678", "123456789"]
+List&lt;String&gt; numberStrings =
+    Stream.of(1,2,3,4,5,6,7,8,9)
+          .gather(
+              Gatherers.scan(() -&gt; "", (string, number) -&gt; string + number)
+           )
+          .toList();</code>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/stream/Gatherers#scan(java.util.function.Supplier%3CR%3E,%20java.util.function.BiFunction%3C?%20super%20R,%20?%20super%20T,%20?%20extends%20R%3E)" title="Reference documentation">Java documentation for <code>java.util.stream.Gatherers.scan(java.util.function.Supplier&lt;R&gt;, java.util.function.BiFunction&lt;? super R, ? super T, ? extends R&gt;)</code>.</a>
@@ -318,8 +324,10 @@
             -- encounter-ordered groups of elements -- of a fixed size.
             If the stream is empty then no window will be produced.
             The last window may contain fewer elements than the supplied window size.</para>
-          <para>Example:
-            {</para>
+          <para>Example:</para>
+<code lang="text/java">// will contain: [[1, 2, 3], [4, 5, 6], [7, 8]]
+List&lt;List&lt;Integer&gt;&gt; windows =
+    Stream.of(1,2,3,4,5,6,7,8).gather(Gatherers.windowFixed(3)).toList();</code>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/stream/Gatherers#windowFixed(int)" title="Reference documentation">Java documentation for <code>java.util.stream.Gatherers.windowFixed(int)</code>.</a>
@@ -384,8 +392,14 @@
             If the stream is empty then no window will be produced. If the size of
             the stream is smaller than the window size then only one window will
             be produced, containing all elements in the stream.</para>
-          <para>Example:
-            {</para>
+          <para>Example:</para>
+<code lang="text/java">// will contain: [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8]]
+List&lt;List&lt;Integer&gt;&gt; windows2 =
+    Stream.of(1,2,3,4,5,6,7,8).gather(Gatherers.windowSliding(2)).toList();
+
+// will contain: [[1, 2, 3, 4, 5, 6], [2, 3, 4, 5, 6, 7], [3, 4, 5, 6, 7, 8]]
+List&lt;List&lt;Integer&gt;&gt; windows6 =
+    Stream.of(1,2,3,4,5,6,7,8).gather(Gatherers.windowSliding(6)).toList();</code>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/util/stream/Gatherers#windowSliding(int)" title="Reference documentation">Java documentation for <code>java.util.stream.Gatherers.windowSliding(int)</code>.</a>

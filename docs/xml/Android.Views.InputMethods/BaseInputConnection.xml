@@ -144,7 +144,7 @@
       <Parameters />
       <Docs>
         <summary>Default implementation does nothing.</summary>
-        <returns>true if a batch edit is now in progress, false otherwise. Since this method starts a batch edit, that means it will always return true unless the input connection is no longer valid.</returns>
+        <returns>true if a batch edit is now in progress, false otherwise. The default implementation does nothing and always returns false.</returns>
         <remarks>
           <para>Default implementation does nothing.</para>
           <para>
@@ -488,7 +488,7 @@
         <Parameter Name="newCursorPosition" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">The text to commit. This may include styles.</param>
+        <param name="text">The text to commit.</param>
         <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <summary>Default implementation replaces any existing composing text with the given text.</summary>
         <returns>true on success, false if the input connection is no longer valid.</returns>
@@ -880,7 +880,7 @@
  constants are defined so that you can simply pass the current
  <see cref="P:Android.Views.InputMethods.EditorInfo.InputType" /> value
  directly in to here.</param>
-        <summary>The default implementation uses TextUtils.</summary>
+        <summary>The default implementation uses TextUtils.getCapsMode to get the cursor caps mode for the current selection position in the editable text, unless in fallback mode in which case 0 is always returned.</summary>
         <returns>the caps mode flags that are in effect at the current cursor position. See TYPE_TEXT_FLAG_CAPS_* in InputType.</returns>
         <remarks>
           <para>The default implementation uses TextUtils.getCapsMode to get the cursor caps mode for the
@@ -2033,7 +2033,7 @@
         <Parameter Name="newCursorPosition" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="text">The composing text with styles if necessary. If no style object attached to the text, the default style for composing text is used. See Spanned for how to attach style object to the text. SpannableString and SpannableStringBuilder are two implementations of the interface Spanned.</param>
+        <param name="text">The composing text. The default style for composing text is used.</param>
         <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <summary>The default implementation places the given text into the editable, replacing any existing
             composing text.</summary>
