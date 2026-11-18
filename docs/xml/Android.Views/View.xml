@@ -25494,7 +25494,7 @@
       <Docs>
         <param name="action">The action that will be executed.</param>
         <summary>Posts an action to run on this view UI thread.</summary>
-        <returns>Returns true if the action was successfully placed in to the message queue. Returns false on failure, usually because the looper processing the message queue is exiting.</returns>
+        <returns><c>true</c> if the view accepted the action. If the view is attached to a window, this means that the action was placed in the message queue. If the view is not attached, the action is kept in a pending queue and is placed in the message queue when the view is attached. <c>false</c> on failure, usually because the looper processing the message queue is exiting. A result of <c>true</c> does not mean that the action will run.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -25582,7 +25582,7 @@
         <param name="action">The action that will be executed.</param>
         <param name="delayMillis">The delay (in milliseconds) until the action will be executed.</param>
         <summary>Posts an action to run on this view UI thread after a delay.</summary>
-        <returns>true if the action was successfully placed in to the message queue. Returns false on failure, usually because the looper processing the message queue is exiting. Note that a result of true does not mean the action will be processed -- if the looper is quit before the delivery time of the message occurs then the message will be dropped.</returns>
+        <returns><c>true</c> if the view accepted the action. If the view is attached to a window, this means that the action was placed in the message queue. If the view is not attached, the action is kept in a pending queue and is placed in the message queue when the view is attached. <c>false</c> on failure, usually because the looper processing the message queue is exiting. A result of <c>true</c> does not mean that the action will run: if the looper is quit before the delivery time of the message, the message is dropped.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -27195,7 +27195,7 @@
       <Docs>
         <param name="action">The action to remove from the message handling queue</param>
         <summary>Removes pending executions of the specified action from this view's message queue.</summary>
-        <returns>true if this view could ask the Handler to remove the action, false otherwise. When the returned value is true, the action may or may not have been actually removed from the message queue (for instance, if the action was not in the queue already.)</returns>
+        <returns><c>false</c> if no managed wrapper is registered for <paramref name="action" />, for example because the action was not posted through an <see cref="T:System.Action" /> overload or has already run. Otherwise <c>true</c>: the action is removed from the pending queue of the view and, if the view is attached to a window, from the message queue. A result of <c>true</c> does not mean that the action was still pending.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
