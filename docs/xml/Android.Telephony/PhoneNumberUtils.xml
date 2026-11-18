@@ -364,7 +364,7 @@
         <param name="bytes">The buffer that contains the BCD digit bytes, without a type-of-address byte.</param>
         <param name="offset">The zero-based index of the first BCD digit byte to decode.</param>
         <param name="length">The number of bytes to decode, starting at <paramref name="offset" />.</param>
-        <param name="bcdExtType">Value is one of the following: BCD_EXTENDED_TYPE_EF_ADN BCD_EXTENDED_TYPE_CALLED_PARTY</param>
+        <param name="bcdExtType">Value is one of the following: <see cref="F:Android.Telephony.BcdExtendedType.TypeEfAdn" /> <see cref="F:Android.Telephony.BcdExtendedType.TypeCalledParty" /></param>
         <summary>Like calledPartyBCDToString, but field does not start with a
             TOA byte.</summary>
         <returns>The number fragment decoded from the requested BCD bytes.</returns>
@@ -417,7 +417,7 @@
         <param name="offset">should point to the TOA (aka. TON/NPI) octet after the length byte</param>
         <param name="length">is the number of bytes including TOA byte
                            and must be at least 2</param>
-        <summary>3GPP TS 24.</summary>
+        <summary>3GPP TS 24.008 10.5.4.7 Called Party BCD Number</summary>
         <returns>partial string on invalid decode</returns>
         <remarks>
           <para>3GPP TS 24.008 10.5.4.7
@@ -483,7 +483,7 @@
         <param name="length">is the number of bytes including TOA byte
                            and must be at least 2</param>
         <param name="bcdExtType">used to determine the extended bcd coding</param>
-        <summary>3GPP TS 24.</summary>
+        <summary>3GPP TS 24.008 10.5.4.7 Called Party BCD Number</summary>
         <returns>partial string on invalid decode</returns>
         <remarks>
           <para>3GPP TS 24.008 10.5.4.7
@@ -630,7 +630,7 @@
       </Parameters>
       <Docs>
         <param name="input">The phone-number text whose keypad letters are to be converted to digits.</param>
-        <summary>Translates any alphabetic letters (i.</summary>
+        <summary>Translates any alphabetic letters (i.e. [A-Za-z]) in the specified phone number into the equivalent numeric digits, according to the phone keypad letter mapping described in ITU E.161 and ISO/IEC 9995-8.</summary>
         <returns>the input string, with alpha letters converted to numeric
                     digits using the phone keypad letter mapping.  For example,
                     an input of "1-800-GOOG-411" will return "1-800-4664-411".</returns>
@@ -812,8 +812,7 @@
       </Parameters>
       <Docs>
         <param name="phoneNumber">The phone-number text that can include separators and post-dial instructions.</param>
-        <summary>Extracts the network address portion and canonicalizes
-             (filters out separators.</summary>
+        <summary>Extracts the network address portion and canonicalizes (filters out separators.) Network address portion is everything up to DTMF control digit separators (pause or wait), but without non-dialable characters.</summary>
         <returns>The network portion with separators removed and digits normalized, ending before the first pause or wait; <see langword="null" /> if the input is null.</returns>
         <remarks>
           <para>Extracts the network address portion and canonicalizes
@@ -2289,7 +2288,7 @@
       </Parameters>
       <Docs>
         <param name="number">the number to perform the replacement on.</param>
-        <summary>Replaces all unicode(e.</summary>
+        <summary>Replaces all unicode(e.g. Arabic, Persian) digits with their decimal digit equivalents.</summary>
         <returns>the replaced number.</returns>
         <remarks>
           <para>Replaces all unicode(e.g. Arabic, Persian) digits with their decimal digit equivalents.</para>
