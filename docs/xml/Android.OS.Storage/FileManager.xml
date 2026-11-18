@@ -33,9 +33,12 @@
     <summary>System service manager for handling privileged, long-running file operations.</summary>
     <remarks>
       <para>System service manager for handling privileged, long-running file operations.</para>
-      <para>The FileManager provides an API for applications to request asynchronous file operations such as moving or copying files. These operations are executed by the system service (`FileService`) on a background thread to ensure application responsiveness and system stability. Usage Overview</para>
-      <para>Interacting with the file operation service generally involves three steps: Enqueueing a Request: Use enqueueOperation(FileOperationRequest) to submit a new operation. This method returns immediately with a FileOperationEnqueueResult, which contains a unique Request ID (if successful) or an error code (if the system is busy); Tracking Progress (Optional): Apps can poll the current status of an operation using fetchResult(String) or simply wait for completion; Handling Completion: To receive a notification when the operation finishes (either successfully or with a failure), call registerCompletionListener(String). The system will send a broadcast ACTION_FILE_OPERATION_COMPLETED to your package when the operation reaches a terminal state. Concurrency and Limits</para>
+      <para>The FileManager provides an API for applications to request asynchronous file operations such as moving or copying files. These operations are executed by the system service (`FileService`) on a background thread to ensure application responsiveness and system stability.</para>
+      <para>Usage Overview</para>
+      <para>Interacting with the file operation service generally involves three steps: Enqueueing a Request: Use enqueueOperation(FileOperationRequest) to submit a new operation. This method returns immediately with a FileOperationEnqueueResult, which contains a unique Request ID (if successful) or an error code (if the system is busy); Tracking Progress (Optional): Apps can poll the current status of an operation using fetchResult(String) or simply wait for completion; Handling Completion: To receive a notification when the operation finishes (either successfully or with a failure), call registerCompletionListener(String). The system will send a broadcast ACTION_FILE_OPERATION_COMPLETED to your package when the operation reaches a terminal state.</para>
+      <para>Concurrency and Limits</para>
       <para>The system enforces limits on the number of concurrent pending operations to prevent resource exhaustion. If the system is under heavy load, enqueueOperation(FileOperationRequest) may return a result with the error code FileOperationResult.ERROR_BUSY. Applications should handle this case gracefully, potentially by retrying later.</para>
+      <para>Additionally, the system caps the number of individual file failures reported in a <see cref="T:Android.OS.Storage.Operations.FileOperationResult" /> to the value returned from <see cref="P:Android.OS.Storage.FileManager.MaxReportedFailures" />. If granular failure reporting is critical for your use case, avoid enqueueing operations that involve more files than the failure reporting limit in a single request.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/os/storage/FileManager" title="Reference documentation">Android reference for <code>android.os.storage.FileManager</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -141,7 +144,7 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Extra for <c>#ACTION_FILE_OPERATION_COMPLETED</c>: The Request ID (String).</summary>
+        <summary>Extra for <see cref="F:Android.OS.Storage.FileManager.ActionFileOperationCompleted" />: The Request ID (String).</summary>
         <remarks>
           <para>Extra for ACTION_FILE_OPERATION_COMPLETED: The Request ID (String).</para>
           <para>This ID matches the one returned by enqueueOperation(FileOperationRequest).</para>
@@ -174,7 +177,7 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Extra for <c>#ACTION_FILE_OPERATION_COMPLETED</c>: The result (<c>android.os.storage.operations.FileOperationResult</c>).</summary>
+        <summary>Extra for <see cref="F:Android.OS.Storage.FileManager.ActionFileOperationCompleted" />: The result (<c>android.os.storage.operations.FileOperationResult</c>).</summary>
         <remarks>
           <para>Extra for ACTION_FILE_OPERATION_COMPLETED: The result (FileOperationResult).</para>
           <para>This parcelable object contains detailed information about the final state of the operation.</para>
@@ -216,7 +219,7 @@
         <Parameter Name="requestId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="requestId">The unique ID of the request to query, as returned by <c>#enqueueOperation</c>.</param>
+        <param name="requestId">The unique ID of the request to query, as returned by <see cref="M:Android.OS.Storage.FileManager.EnqueueOperation(Android.OS.Storage.Operations.FileOperationRequest)" />.</param>
         <summary>Retrieves the current result of a file operation.</summary>
         <returns>A <c>FileOperationResult</c> object containing the current status, or <c>null</c>
                 if the request ID is unknown or has been culled from history.</returns>
@@ -320,7 +323,7 @@
         <Parameter Name="requestId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="requestId">The unique ID of the request to monitor, as returned by <c>#enqueueOperation</c>.</param>
+        <param name="requestId">The unique ID of the request to monitor, as returned by <see cref="M:Android.OS.Storage.FileManager.EnqueueOperation(Android.OS.Storage.Operations.FileOperationRequest)" />.</param>
         <summary>Registers a listener for the completion of a specific file operation.</summary>
         <remarks>
           <para>Registers a listener for the completion of a specific file operation.</para>
