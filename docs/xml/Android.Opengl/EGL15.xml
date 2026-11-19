@@ -113,7 +113,6 @@
         <returns>EglConditionSatisfied if the object is signaled, EglTimeoutExpired if the wait times out, or EGL14.EglFalse if EGL reports an error.</returns>
         <remarks>
           <para>The flush flag affects only the context currently bound to this thread. When the fence was issued in another context, that context must flush its own command stream so that the wait can complete.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglClientWaitSync.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -449,7 +448,6 @@
         <returns>The created image, or null if EGL returns EGL_NO_IMAGE.</returns>
         <remarks>
           <para>The target and attributes select the source resource and, where applicable, its mipmap level or depth slice. This Android overload requires an attribute array even when no optional attributes are needed; supply an EGL14.EglNone terminator at the selected offset.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglCreateImage.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -492,8 +490,7 @@
         <summary>Exposes a platform-pixmap surface entry point that is not implemented by the Android JNI wrapper.</summary>
         <returns>This Android binding does not return a surface; it throws Java.Lang.UnsupportedOperationException.</returns>
         <remarks>
-          <para>The pinned Android implementation always throws Java.Lang.UnsupportedOperationException for this overload. It does not call the Khronos eglCreatePlatformPixmapSurface function or validate the supplied arguments.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglCreatePlatformPixmapSurface.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
+          <para>The Android implementation always throws Java.Lang.UnsupportedOperationException for this overload. It does not call the Khronos eglCreatePlatformPixmapSurface function or validate the supplied arguments.</para>
         </remarks>
       </Docs>
     </Member>
@@ -537,7 +534,6 @@
         <returns>A wrapper for the returned EGL surface; its native handle is zero if EGL reports surface-creation failure.</returns>
         <remarks>
           <para>The native window representation is defined by the platform used to obtain dpy. This overload passes the buffer's storage address, not a Java Surface object, to EGL. The attribute array must contain its terminator at or after offset.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglCreatePlatformWindowSurface.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -579,7 +575,6 @@
         <returns>A wrapper for the new synchronization object. If EGL creation fails, the returned wrapper has a zero native handle.</returns>
         <remarks>
           <para>For a fence synchronization object, supply an attribute list containing only EGL14.EglNone. The JNI wrapper requires this array even though the native EGL API also permits a null attribute list.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglCreateSync.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -617,7 +612,6 @@
         <returns>true if EGL destroys the image successfully; otherwise, false.</returns>
         <remarks>
           <para>After destruction, the image cannot be used to create additional EGL image target resources. Resources already created as siblings of the image may still be used.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglDestroyImage.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -655,7 +649,6 @@
         <returns>true if EGL accepts the destruction request; otherwise, false.</returns>
         <remarks>
           <para>When waits are pending, EGL retains the object until its associated fence or OpenCL event has completed and it no longer blocks those waits. Without pending waits, deletion is immediate.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglDestroySync.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -726,7 +719,6 @@
         <returns>A wrapper for the EGL display connection; its native handle is zero if no matching display is available or EGL reports failure.</returns>
         <remarks>
           <para>The platform extension defines the accepted native display representation and optional attributes. Repeating the same native request returns the same EGL display handle; this does not promise that managed wrapper instances are identical.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglGetPlatformDisplay.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -1277,7 +1269,6 @@
         <value>An EGLContext wrapper whose native handle is zero.</value>
         <remarks>
           <para>Use this wrapper, rather than null, when an EGL15 operation requires EGL_NO_CONTEXT. The JNI handle conversion rejects a null object reference.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglCreateImage.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -1309,7 +1300,6 @@
         <value>An EGLDisplay wrapper whose native handle is zero.</value>
         <remarks>
           <para>The binding represents EGL_NO_DISPLAY with a zero-handle object, not a null reference.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglGetPlatformDisplay.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -1341,7 +1331,6 @@
         <value>null, the Java EGL_NO_IMAGE field value.</value>
         <remarks>
           <para>The native EglCreateImage wrapper returns this null value when EGL reports EGL_NO_IMAGE.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglCreateImage.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -1402,7 +1391,6 @@
         <value>An EGLSurface wrapper whose native handle is zero.</value>
         <remarks>
           <para>The binding represents EGL_NO_SURFACE with a zero-handle object, not a null reference.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglCreatePlatformWindowSurface.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -1433,8 +1421,7 @@
         <summary>Gets the Java field value used for the absence of an EGL synchronization object.</summary>
         <value>null, the Java EGL_NO_SYNC field value.</value>
         <remarks>
-          <para>The Java field is null. In contrast, the pinned EglCreateSync JNI implementation constructs an EGLSync with a zero native handle when EGL reports creation failure.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglCreateSync.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
+          <para>The Java field is null. In contrast, the EglCreateSync JNI implementation constructs an EGLSync with a zero native handle when EGL reports creation failure.</para>
         </remarks>
       </Docs>
     </Member>
@@ -1851,7 +1838,6 @@
         <returns>true if EGL queued the server-side wait successfully; otherwise, false.</returns>
         <remarks>
           <para>Only command execution for the current client API context is delayed. Other contexts are not stopped, and the calling thread can continue to submit commands. A supporting client API context must be current.</para>
-          <para>Sources: <see href="https://github.com/KhronosGroup/EGL-Registry/blob/8e56e86e65687697ef54114cdb1afabdfac756bf/sdk/docs/man/eglWaitSync.xml">the EGL specification</see> and <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/jni/android_opengl_EGL15.cpp">the Android JNI implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
