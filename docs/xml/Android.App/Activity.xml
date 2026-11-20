@@ -66,10 +66,69 @@
       <para>For more information about using fragments, read the Fragments developer guide.</para>
       <para>Activities in the system are managed as activity stacks. When a new activity is started, it is usually placed on the top of the current stack and becomes the running activity -- the previous activity always remains below it in the stack, and will not come to the foreground again until the new activity exits. There can be one or multiple activity stacks visible on screen.</para>
       <para>An activity has essentially four states:</para>
+      <list type="bullet">
+        <item>
+          <term>If an activity is in the foreground of the screen (at the highest position of the topmost stack), it is active or running. This is usually the activity that the user is currently interacting with.</term>
+        </item>
+        <item>
+          <term>If an activity has lost focus but is still presented to the user, it is visible. It is possible if a new non-full-sized or transparent activity has focus on top of your activity, another activity has higher position in multi-window mode, or the activity itself is not focusable in current windowing mode. Such activity is completely alive (it maintains all state and member information and remains attached to the window manager).</term>
+        </item>
+        <item>
+          <term>If an activity is completely obscured by another activity, it is stopped or hidden. It still retains all state and member information, however, it is no longer visible to the user so its window is hidden and it will often be killed by the system when memory is needed elsewhere.</term>
+        </item>
+        <item>
+          <term>The system can drop the activity from memory by either asking it to finish, or simply killing its process, making it destroyed. When it is displayed again to the user, it must be completely restarted and restored to its previous state.</term>
+        </item>
+      </list>
       <para>The following diagram shows the important state paths of an activity. The square rectangles represent callback methods you can implement to perform operations when the activity moves between states. The colored ovals are major states the activity can be in.</para>
       <para>There are three key loops you may be interested in monitoring within your activity: The entire lifetime of an activity happens between the first call to onCreate(Bundle) through to a single final call to onDestroy(). An activity will do all setup of "global" state in onCreate(), and release all remaining resources in onDestroy(). For example, if it has a thread running in the background to download data from the network, it may create that thread in onCreate() and then stop the thread in onDestroy(). The visible lifetime of an activity happens between a call to onStart() until a corresponding call to onStop(). During this time the user can see the activity on-screen, though it may not be in the foreground and interacting with the user. Between these two methods you can maintain resources that are needed to show the activity to the user. For example, you can register a BroadcastReceiver in onStart() to monitor for changes that impact your UI, and unregister it in onStop() when the user no longer sees what you are displaying. The onStart() and onStop() methods can be called multiple times, as the activity becomes visible and hidden to the user. The foreground lifetime of an activity happens between a call to onResume() until a corresponding call to onPause(). During this time the activity is visible, active and interacting with the user. An activity can frequently go between the resumed and paused states -- for example when the device goes to sleep, when an activity result is delivered, when a new intent is delivered -- so the code in these methods should be fairly lightweight. The entire lifecycle of an activity is defined by the following Activity methods. All of these are hooks that you can override to do appropriate work when the activity changes state. All activities will implement onCreate(Bundle) to do their initial setup; many will also implement onPause() to commit changes to data and prepare to pause interacting with the user, and onStop() to handle no longer being visible on screen. You should always call up to your superclass when implementing these methods.</para>
+      <code lang="text/java">public class Activity extends ApplicationContext {
+    protected void onCreate(Bundle savedInstanceState);
+
+    protected void onStart();
+
+    protected void onRestart();
+
+    protected void onResume();
+
+    protected void onPause();
+
+    protected void onStop();
+
+    protected void onDestroy();
+}</code>
       <para>In general the movement through an activity's lifecycle looks like this:</para>
-      <para>Always followed by onStart(). No onStart() onRestart() Called after your activity has been stopped, prior to it being started again. Always followed by onStart() No onStart() onStart() Called when the activity is becoming visible to the user. Followed by onResume() if the activity comes to the foreground, or onStop() if it becomes hidden. No onResume() or onStop() onResume() Called when the activity will start interacting with the user. At this point your activity is at the top of its activity stack, with user input going to it. Always followed by onPause(). No onPause() onPause() Called when the activity loses foreground state, is no longer focusable or before transition to stopped/hidden or destroyed state. The activity is still visible to user, so it's recommended to keep it visually active and continue updating the UI. Implementations of this method must be very quick because the next activity will not be resumed until this method returns. Followed by either onResume() if the activity returns back to the front, or onStop() if it becomes invisible to the user. Pre-Build.VERSION_CODES.HONEYCOMB onResume() or onStop() onStop() Called when the activity is no longer visible to the user. This may happen either because a new activity is being started on top, an existing one is being brought in front of this one, or this one is being destroyed. This is typically used to stop animations and refreshing the UI, etc. Followed by either onRestart() if this activity is coming back to interact with the user, or onDestroy() if this activity is going away. Yes onRestart() or onDestroy() onDestroy() The final call you receive before your activity is destroyed. This can happen either because the activity is finishing (someone called Activity.finish on it), or because the system is temporarily destroying this instance of the activity to save space. You can distinguish between these two scenarios with the Activity.isFinishing method. Yes nothing Note the "Killable" column in the above table -- for those methods that are marked as being killable, after that method returns the process hosting the activity may be killed by the system at any time without another line of its code being executed. Because of this, you should use the onPause() method to write any persistent data (such as user edits) to storage. In addition, the method onSaveInstanceState(Bundle) is called before placing the activity in such a background state, allowing you to save away any dynamic instance state in your activity into the given Bundle, to be later received in onCreate(Bundle) if the activity needs to be re-created. See the Process Lifecycle section for more information on how the lifecycle of a process is tied to the activities it is hosting. Note that it is important to save persistent data in onPause() instead of onSaveInstanceState(Bundle) because the latter is not part of the lifecycle callbacks, so will not be called in every situation as described in its documentation.</para>
+      <list type="bullet">
+        <item>
+          <term>onCreate()</term>
+          <description>Called when the activity is first created. This is where you should do all of your normal static set up: create views, bind data to lists, etc. This method also provides you with a Bundle containing the activity's previously frozen state, if there was one. Always followed by onStart(). Killable: No. Next: onStart().</description>
+        </item>
+        <item>
+          <term>onRestart()</term>
+          <description>Called after your activity has been stopped, prior to it being started again. Always followed by onStart(). Killable: No. Next: onStart().</description>
+        </item>
+        <item>
+          <term>onStart()</term>
+          <description>Called when the activity is becoming visible to the user. Followed by onResume() if the activity comes to the foreground, or onStop() if it becomes hidden. Killable: No. Next: onResume() or onStop().</description>
+        </item>
+        <item>
+          <term>onResume()</term>
+          <description>Called when the activity will start interacting with the user. At this point your activity is at the top of its activity stack, with user input going to it. Always followed by onPause(). Killable: No. Next: onPause().</description>
+        </item>
+        <item>
+          <term>onPause()</term>
+          <description>Called when the activity loses foreground state, is no longer focusable or before transition to stopped/hidden or destroyed state. The activity is still visible to user, so it's recommended to keep it visually active and continue updating the UI. Implementations of this method must be very quick because the next activity will not be resumed until this method returns. Followed by either onResume() if the activity returns back to the front, or onStop() if it becomes invisible to the user. Killable: Pre-Build.VERSION_CODES.HONEYCOMB. Next: onResume() or onStop().</description>
+        </item>
+        <item>
+          <term>onStop()</term>
+          <description>Called when the activity is no longer visible to the user. This may happen either because a new activity is being started on top, an existing one is being brought in front of this one, or this one is being destroyed. This is typically used to stop animations and refreshing the UI, etc. Followed by either onRestart() if this activity is coming back to interact with the user, or onDestroy() if this activity is going away. Killable: Yes. Next: onRestart() or onDestroy().</description>
+        </item>
+        <item>
+          <term>onDestroy()</term>
+          <description>The final call you receive before your activity is destroyed. This can happen either because the activity is finishing (someone called Activity.finish on it), or because the system is temporarily destroying this instance of the activity to save space. You can distinguish between these two scenarios with the Activity.isFinishing method. Killable: Yes. Next: nothing.</description>
+        </item>
+      </list>
+      <para>Note the "Killable" column in the above table -- for those methods that are marked as being killable, after that method returns the process hosting the activity may be killed by the system at any time without another line of its code being executed. Because of this, you should use the onPause() method to write any persistent data (such as user edits) to storage. In addition, the method onSaveInstanceState(Bundle) is called before placing the activity in such a background state, allowing you to save away any dynamic instance state in your activity into the given Bundle, to be later received in onCreate(Bundle) if the activity needs to be re-created. See the Process Lifecycle section for more information on how the lifecycle of a process is tied to the activities it is hosting. Note that it is important to save persistent data in onPause() instead of onSaveInstanceState(Bundle) because the latter is not part of the lifecycle callbacks, so will not be called in every situation as described in its documentation.</para>
       <para>Be aware that these semantics will change slightly between applications targeting platforms starting with Build.VERSION_CODES.HONEYCOMB vs. those targeting prior platforms. Starting with Honeycomb, an application is not in the killable state until its onStop() has returned. This impacts when onSaveInstanceState(Bundle) may be called (it may be safely called after onPause()) and allows an application to safely wait until onStop() to save persistent state.</para>
       <para>For applications targeting platforms starting with Build.VERSION_CODES.P onSaveInstanceState(Bundle) will always be called after onStop(), so an application may safely perform fragment transactions in onStop() and will be able to save persistent state later.</para>
       <para>For those methods that are not marked as being killable, the activity's process will not be killed by the system starting from the time the method is called and continuing after it returns. Thus an activity is in the killable state, for example, between after onStop() to the start of onResume(). Keep in mind that under extreme memory pressure the system can kill the application process at any time.</para>
@@ -81,6 +140,34 @@
       <para>Sometimes you want to get a result back from an activity when it ends. For example, you may start an activity that lets the user pick a person in a list of contacts; when it ends, it returns the person that was selected. To do this, you call the android.app.Activity.startActivityForResult(Intent,int) version with a second integer parameter identifying the call. The result will come back through your onActivityResult(int, int, Intent) method.</para>
       <para>When an activity exits, it can call setResult(int) to return data back to its parent. It must always supply a result code, which can be the standard results RESULT_CANCELED, RESULT_OK, or any custom values starting at RESULT_FIRST_USER. In addition, it can optionally return back an Intent containing any additional data it wants. All of this information appears back on the parent's Activity.onActivityResult(), along with the integer identifier it originally supplied.</para>
       <para>If a child activity fails for any reason (such as crashing), the parent activity will receive a result with the code RESULT_CANCELED.</para>
+      <code lang="text/java">public class MyActivity extends Activity {
+    ...
+
+    static final int PICK_CONTACT_REQUEST = 0;
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+            // When the user center presses, let them pick a contact.
+            startActivityForResult(
+                new Intent(Intent.ACTION_PICK,
+                new Uri("content://contacts")),
+                PICK_CONTACT_REQUEST);
+           return true;
+        }
+        return false;
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode,
+            Intent data) {
+        if (requestCode == PICK_CONTACT_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                // A contact was picked.  Here we will just display it
+                // to the user.
+                startActivity(new Intent(Intent.ACTION_VIEW, data));
+            }
+        }
+    }
+}</code>
       <para>There are generally two kinds of persistent state that an activity will deal with: shared document-like data (typically stored in a SQLite database using a content provider) and internal state such as user preferences.</para>
       <para>For content provider data, we suggest that activities use an "edit in place" user model. That is, any edits a user makes are effectively made immediately without requiring an additional confirmation step. Supporting this model is generally a simple matter of following two rules:</para>
       <para>When creating a new document, the backing database entry or file for it is created immediately. For example, if the user chooses to write a new email, a new entry for that email is created as soon as they start entering data, so that if they go to any other activity after that point this email will now appear in the list of drafts.</para>
@@ -90,6 +177,30 @@
       <para>The Activity class also provides an API for managing internal persistent state associated with an activity. This can be used, for example, to remember the user's preferred initial display in a calendar (day view or week view) or the user's default home page in a web browser.</para>
       <para>Activity persistent state is managed with the method getPreferences(int), allowing you to retrieve and modify a set of name/value pairs associated with the activity. To use preferences that are shared across multiple application components (activities, receivers, services, providers), you can use the underlying Context.getSharedPreferences() method to retrieve a preferences object stored under a specific name. (Note that it is not possible to share settings data across application packages -- for that you will need a content provider.)</para>
       <para>Here is an excerpt from a calendar activity that stores the user's preferred view mode in its persistent settings:</para>
+      <code lang="text/java">public class CalendarActivity extends Activity {
+    ...
+
+    static final int DAY_VIEW_MODE = 0;
+    static final int WEEK_VIEW_MODE = 1;
+
+    private SharedPreferences mPrefs;
+    private int mCurViewMode;
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mPrefs = getSharedPreferences(getLocalClassName(), MODE_PRIVATE);
+        mCurViewMode = mPrefs.getInt("view_mode", DAY_VIEW_MODE);
+    }
+
+    protected void onPause() {
+        super.onPause();
+
+        SharedPreferences.Editor ed = mPrefs.edit();
+        ed.putInt("view_mode", mCurViewMode);
+        ed.commit();
+    }
+}</code>
       <para>The ability to start a particular Activity can be enforced when it is declared in its manifest's &lt;activity&gt; tag. By doing so, other applications will need to declare a corresponding &lt;uses-permission&gt; element in their own manifest to be able to start that activity. When starting an Activity you can set Intent.FLAG_GRANT_READ_URI_PERMISSION and/or Intent.FLAG_GRANT_WRITE_URI_PERMISSION on the Intent. This will grant the Activity access to the specific URIs in the Intent. Access will remain until the Activity has finished (it will remain across the hosting process being killed and other temporary destruction). As of Build.VERSION_CODES.GINGERBREAD, if the Activity was already created and a new Intent is being delivered to onNewIntent(Intent), any newly granted URI permissions will be added to the existing ones it holds. See the Security and Permissions document for more information on permissions and security in general. Process Lifecycle The Android system attempts to keep an application process around for as long as possible, but eventually will need to remove old processes when memory runs low. As described in Activity Lifecycle, the decision about which process to remove is intimately tied to the state of the user's interaction with it. In general, there are four states a process can be in based on the activities running in it, listed here in order of importance. The system will kill less important processes (the last ones) before it resorts to killing more important processes (the first ones). The foreground activity (the activity at the top of the screen that the user is currently interacting with) is considered the most important. Its process will only be killed as a last resort, if it uses more memory than is available on the device. Generally at this point the device has reached a memory paging state, so this is required in order to keep the user interface responsive. A visible activity (an activity that is visible to the user but not in the foreground, such as one sitting behind a foreground dialog or next to other activities in multi-window mode) is considered extremely important and will not be killed unless that is required to keep the foreground activity running. A background activity (an activity that is not visible to the user and has been stopped) is no longer critical, so the system may safely kill its process to reclaim memory for other foreground or visible processes. If its process needs to be killed, when the user navigates back to the activity (making it visible on the screen again), its onCreate(Bundle) method will be called with the savedInstanceState it had previously supplied in onSaveInstanceState(Bundle) so that it can restart itself in the same state as the user last left it. An empty process is one hosting no activities or other application components (such as Service or BroadcastReceiver classes). These are killed very quickly by the system as memory becomes low. For this reason, any background operation you do outside of an activity must be executed in the context of an activity BroadcastReceiver or Service to ensure that the system knows it needs to keep your process around. Sometimes an Activity may need to do a long-running operation that exists independently of the activity lifecycle itself. An example may be a camera application that allows you to upload a picture to a web site. The upload may take a long time, and the application should allow the user to leave the application while it is executing. To accomplish this, your Activity should start a Service in which the upload takes place. This allows the system to properly prioritize your process (considering it to be more important than other non-visible applications) for the duration of the upload, independent of whether the original activity is paused, stopped, or finished.</para>
       <para>
         <format type="text/html">
@@ -4037,6 +4148,13 @@
         <returns>A description of what the user is doing.  It should be short and
                     sweet (only a few words).</returns>
         <remarks>
+          <para>Generate a new description for this activity. This method is called before stopping the activity and can, if desired, return some textual description of its current state to be displayed to the user.</para>
+          <para>The default implementation returns null, which will cause you to inherit the description from the previous activity. If all activities return null, generally the label of the top activity will be used as the description.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#onCreateDescription()" title="Reference documentation">Android reference for <code>android.app.Activity.onCreateDescription</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -7320,8 +7438,6 @@
         <remarks>
           <para>Called as part of the activity lifecycle when an activity is about to go into the background as the result of user choice. For example, when the user presses the Home key, onUserLeaveHint() will be called, but when an incoming phone call causes the in-call Activity to be automatically brought to the foreground, onUserLeaveHint() will not be called on the activity being interrupted. In cases when it is invoked, this method is called right before the activity's onPause() callback. This callback and onUserInteraction() are intended to help activities manage status bar notifications intelligently; specifically, for helping activities determine the proper time to cancel a notification.</para>
           <para>See also:</para>
-          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
-          <para>Last updated 2026-08-03 UTC.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onUserLeaveHint()" title="Reference documentation">Android reference for <code>android.app.Activity.onUserLeaveHint</code>.</a>
@@ -7667,9 +7783,25 @@
           <para>Customizes the animation for activity transitions. This method provides a robust way to override transition animations at runtime and can be called at any point in the activity's lifecycle. It is particularly useful for handling predictive back animations, for which overridePendingTransition(int, int) is not suitable.</para>
           <para>The specified animations will be applied only when this activity is at the top of the task stack during the transition. For example, to customize the opening animation for an Activity B started from Activity A, call this method in B's onCreate with overrideType = OVERRIDE_TRANSITION_OPEN. To customize the closing animation when returning from B to A, call this method in B with overrideType = OVERRIDE_TRANSITION_CLOSE.</para>
           <para>Animation Precedence:</para>
+          <list type="bullet">
+            <item>
+              <term>Animations set by overridePendingTransition(int, int) have the highest priority.</term>
+            </item>
+            <item>
+              <term>Animations set by this method have higher priority than those defined by Window.setWindowAnimations(int).</term>
+            </item>
+          </list>
           <para>Predictive Back Animation:</para>
           <para>When predictive back is enabled (see enableOnBackInvokedCallback in the manifest), the system may control the preview phase of the back animation. The custom transition defined by enterAnim and exitAnim is then applied only after the back gesture is committed.</para>
           <para>Limitations:</para>
+          <list type="bullet">
+            <item>
+              <term>This method, along with overridePendingTransition(int, int) and Window.setWindowAnimations(int), is ignored if the activity is started with ActivityOptions.makeSceneTransitionAnimation(Activity, android.util.Pair[]).</term>
+            </item>
+            <item>
+              <term>As of Android 11, this method cannot be used to customize cross-task transitions.</term>
+            </item>
+          </list>
           <para>See also:</para>
           <para>
             <format type="text/html">
@@ -7731,9 +7863,25 @@
           <para>Customizes the animation and background color for activity transitions. This method provides a robust way to override transition animations at runtime and can be called at any point in the activity's lifecycle. It is particularly useful for handling predictive back animations, for which overridePendingTransition(int, int) is not suitable.</para>
           <para>The specified animations will be applied only when this activity is at the top of the task stack during the transition. For example, to customize the opening animation for an Activity B started from Activity A, call this method in B's onCreate with overrideType = OVERRIDE_TRANSITION_OPEN. To customize the closing animation when returning from B to A, call this method in B with overrideType = OVERRIDE_TRANSITION_CLOSE.</para>
           <para>Animation Precedence:</para>
+          <list type="bullet">
+            <item>
+              <term>Animations set by overridePendingTransition(int, int) have the highest priority.</term>
+            </item>
+            <item>
+              <term>Animations set by this method have higher priority than those defined by Window.setWindowAnimations(int).</term>
+            </item>
+          </list>
           <para>Predictive Back Animation:</para>
           <para>When predictive back is enabled (see enableOnBackInvokedCallback in the manifest), the system may control the preview phase of the back animation. The custom transition defined by enterAnim and exitAnim is then applied only after the back gesture is committed.</para>
           <para>Limitations:</para>
+          <list type="bullet">
+            <item>
+              <term>This method, along with overridePendingTransition(int, int) and Window.setWindowAnimations(int), is ignored if the activity is started with ActivityOptions.makeSceneTransitionAnimation(Activity, android.util.Pair[]).</term>
+            </item>
+            <item>
+              <term>As of Android 11, this method cannot be used to customize cross-task transitions.</term>
+            </item>
+          </list>
           <para>See also:</para>
           <para>
             <format type="text/html">
@@ -9768,6 +9916,12 @@
         <param name="isPersistent">A legacy persistence flag that the current platform implementation ignores.</param>
         <summary>This member is deprecated.</summary>
         <remarks>
+          <para>As of Build.VERSION_CODES.GINGERBREAD this is a no-op.</para>
+          <para>
+            <format type="text/html">
+              <a href="https://developer.android.com/reference/android/app/Activity#setPersistent(boolean)" title="Reference documentation">Android reference for <code>android.app.Activity.setPersistent</code>.</a>
+            </format>
+          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -10496,6 +10650,31 @@
           <para>Enable or disable virtual reality (VR) mode for this Activity. VR mode is a hint to Android system to switch to a mode optimized for VR applications while this Activity has user focus.</para>
           <para>It is recommended that applications additionally declare R.attr.enableVrMode in their manifest to allow for smooth activity transitions when switching between VR activities.</para>
           <para>If the requested VrListenerService component is not available, VR mode will not be started. Developers can handle this case as follows:</para>
+          <code lang="text/java">String servicePackage = "com.whatever.app";
+String serviceClass = "com.whatever.app.MyVrListenerService";
+
+// Name of the component of the VrListenerService to start.
+ComponentName serviceComponent = new ComponentName(servicePackage, serviceClass);
+
+try {
+   setVrModeEnabled(true, myComponentName);
+} catch (PackageManager.NameNotFoundException e) {
+       List&lt;ApplicationInfo&gt; installed = getPackageManager().getInstalledApplications(0);
+       boolean isInstalled = false;
+       for (ApplicationInfo app : installed) {
+           if (app.packageName.equals(servicePackage)) {
+               isInstalled = true;
+               break;
+           }
+       }
+       if (isInstalled) {
+           // Package is installed, but not enabled in Settings.  Let user enable it.
+           startActivity(new Intent(Settings.ACTION_VR_LISTENER_SETTINGS));
+       } else {
+           // Package is not installed.  Send an intent to download this.
+           sentIntentToLaunchAppStore(servicePackage);
+       }
+}</code>
           <para>See also:</para>
           <para>Throws: PackageManager.NameNotFoundException if the given component to run as a VrListenerService is not installed, or has not been enabled in user settings.</para>
           <para>
