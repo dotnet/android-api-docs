@@ -28,7 +28,7 @@
   <Docs since="5">
     <summary>Provides access to the system wallpaper.</summary>
     <remarks>
-      <para>Provides access to the system wallpaper. With WallpaperManager, you can get the current wallpaper, get the desired dimensions for the wallpaper, set the wallpaper, and more. An app can check whether wallpapers are supported for the current user, by calling isWallpaperSupported(), and whether setting of wallpapers is allowed, by calling isSetWallpaperAllowed(). Any public APIs added to WallpaperManager should have a corresponding stub in ERROR(DisabledWallpaperManager/android.app.DisabledWallpaperManager DisabledWallpaperManager).</para>
+      <para>Provides access to the system wallpaper. With WallpaperManager, you can get the current wallpaper, get the desired dimensions for the wallpaper, set the wallpaper, and more. An app can check whether wallpapers are supported for the current user, by calling isWallpaperSupported(), and whether setting of wallpapers is allowed, by calling isSetWallpaperAllowed(). Any public APIs added to WallpaperManager should have a corresponding stub in DisabledWallpaperManager.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/WallpaperManager" title="Reference documentation">Android reference for <code>android.app.WallpaperManager</code>.</a>
@@ -339,7 +339,7 @@
         <param name="which">int: A bitwise combination of FLAG_SYSTEM or FLAG_LOCK Value is either 0 or a combination of the following: <see cref="F:Android.App.WallpaperManagerFlags.System" /> <see cref="F:Android.App.WallpaperManagerFlags.Lock" /></param>
         <summary>Remove one or more currently set wallpapers, reverting to the system default display for each one.</summary>
         <remarks>
-          <para>Remove one or more currently set wallpapers, reverting to the system default display for each one. On success, the intent Intent.ACTION_WALLPAPER_CHANGED is broadcast. When called with which=FLAG_LOCK, clear the lockscreen wallpaper. The home screen wallpaper will become visible on the lock screen. When called with which=FLAG_SYSTEM, revert the home screen wallpaper to default. The lockscreen wallpaper will be unchanged: if the previous wallpaper was shared between home and lock screen, it will become lock screen only. When called with which=(FLAG_LOCK | FLAG_SYSTEM), put the default wallpaper on both home and lock screen, removing any user defined wallpaper. . Requires Manifest.permission.SET_WALLPAPER</para>
+          <para>Remove one or more currently set wallpapers, reverting to the system default display for each one. On success, the intent Intent.ACTION_WALLPAPER_CHANGED is broadcast. When called with which=FLAG_LOCK, clear the lockscreen wallpaper. The home screen wallpaper will become visible on the lock screen. When called with which=FLAG_SYSTEM, revert the home screen wallpaper to default. The lockscreen wallpaper will be unchanged: if the previous wallpaper was shared between home and lock screen, it will become lock screen only. When called with which=(FLAG_LOCK | FLAG_SYSTEM), put the default wallpaper on both home and lock screen, removing any user defined wallpaper. Requires Manifest.permission.SET_WALLPAPER</para>
           <para>Throws: IOException If an error occurs reverting to the built-in wallpaper.</para>
           <para>
             <format type="text/html">
@@ -916,7 +916,6 @@
         <returns>A Drawable presenting the specified wallpaper image, or null if no built-in default image for that wallpaper type exists.</returns>
         <remarks>
           <para>Obtain a drawable for the specified built-in static system wallpaper.</para>
-          <para>Throws: Parameters</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#getBuiltInDrawable(int)" title="Reference documentation">Android reference for <code>android.app.WallpaperManager.getBuiltInDrawable</code>.</a>
@@ -1020,12 +1019,6 @@
         <returns>A Drawable presenting the built-in default wallpaper image of the given type, or null if no default image of that type is defined on this device.</returns>
         <remarks>
           <para>Returns a drawable for the built-in static wallpaper of the specified type. Based on the parameters, the drawable can be cropped and scaled.</para>
-          <para>Throws: Parameters</para>
-          <para>Throws: outWidth int: The width of the returned drawable</para>
-          <para>Throws: outHeight int</para>
-          <para>Throws: scaleToFit boolean: If true, scale the wallpaper down rather than just cropping it</para>
-          <para>Throws: horizontalAlignment float: A float value between 0 and 1 specifying where to crop the image; 0 for left-aligned, 0.5 for horizontal center-aligned, and 1 for right-aligned</para>
-          <para>Throws: verticalAlignment float: A float value between 0 and 1 specifying where to crop the image; 0 for top-aligned, 0.5 for vertical center-aligned, and 1 for bottom-aligned</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#getBuiltInDrawable(int,%20int,%20boolean,%20float,%20float,%20int)" title="Reference documentation">Android reference for <code>android.app.WallpaperManager.getBuiltInDrawable</code>.</a>
@@ -1115,7 +1108,6 @@
           <para>When called with which=FLAG_SYSTEM, if there is a live wallpaper on home screen, the built-in default wallpaper is returned.</para>
           <para>When called with which=FLAG_LOCK, if there is a live wallpaper on lock screen, or if the lock screen and home screen share the same wallpaper engine, null is returned.</para>
           <para>getWallpaperInfo(int) can be used to determine whether there is a live wallpaper on a specified screen type.</para>
-          <para>Throws: Parameters</para>
           <para>Throws: SecurityException as described in the note</para>
           <para>
             <format type="text/html">
@@ -1165,7 +1157,6 @@
         <returns>An optimized Drawable object for the requested wallpaper, or null in some cases as specified in getDrawable(int).</returns>
         <remarks>
           <para>Important note: only apps with Manifest.permission.MANAGE_EXTERNAL_STORAGE should use this method. Otherwise, a SecurityException will be thrown. Like getDrawable(int), but the returned Drawable has a number of limitations to reduce its overhead as much as possible. It will never scale the wallpaper (only centering it if the requested bounds do match the bitmap bounds, which should not be typical), doesn't allow setting an alpha, color filter, or other attributes, etc. The bounds of the returned drawable will be initialized to the same bounds as the wallpaper, so normally you will not need to touch it. The drawable also assumes that it will be used in a context running in the same density as the screen (not in density compatibility mode). Requires Manifest.permission.MANAGE_EXTERNAL_STORAGE or android.Manifest.permission.READ_WALLPAPER_INTERNAL</para>
-          <para>Throws: Parameters</para>
           <para>Throws: SecurityException as described in the note</para>
           <para>
             <format type="text/html">
@@ -1508,7 +1499,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns whether wallpapers are supported for the calling user.</summary>
-        <value>Whether the wallpaper service reports wallpaper support for the calling package.</value>
+        <value><see langword="true" /> if wallpapers are supported for the calling user; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Returns whether wallpapers are supported for the calling user. If this function returns false, any attempts to changing the wallpaper will have no effect, and any attempt to obtain of the wallpaper will return null.</para>
           <para>
@@ -1637,7 +1628,6 @@
         <remarks>
           <para>Important note: only apps with Manifest.permission.MANAGE_EXTERNAL_STORAGE should use this method. Otherwise, a SecurityException will be thrown. Equivalent to getDrawable(int).</para>
           <para>See also:</para>
-          <para>Throws: Parameters</para>
           <para>Throws: SecurityException as described in the note</para>
           <para>
             <format type="text/html">
@@ -1724,7 +1714,6 @@
         <returns>An optimized Drawable object for the requested wallpaper. This value may be null.</returns>
         <remarks>
           <para>Important note: only apps with Manifest.permission.MANAGE_EXTERNAL_STORAGE should use this method. Otherwise, a SecurityException will be thrown. Equivalent to getFastDrawable(int).</para>
-          <para>Throws: Parameters</para>
           <para>Throws: SecurityException as described in the note</para>
           <para>
             <format type="text/html">
@@ -1974,7 +1963,6 @@
         <remarks>
           <para>Version of setBitmap(Bitmap,Rect,boolean) that allows the caller to specify which of the supported wallpaper categories to set. Requires Manifest.permission.SET_WALLPAPER</para>
           <para>See also:</para>
-          <para>Throws: java.io.IOException</para>
           <para>Throws: IllegalArgumentException if the Bitmap is null</para>
           <para>Throws: IOException</para>
           <para>
@@ -2119,7 +2107,6 @@
         <remarks>
           <para>Version of setResource(int) that allows the caller to specify which of the supported wallpaper categories to set. Requires Manifest.permission.SET_WALLPAPER</para>
           <para>See also:</para>
-          <para>Throws: java.io.IOException</para>
           <para>Throws: IOException</para>
           <para>
             <format type="text/html">
@@ -2274,7 +2261,6 @@
         <remarks>
           <para>Version of setStream(InputStream,Rect,boolean) that allows the caller to specify which of the supported wallpaper categories to set. Requires Manifest.permission.SET_WALLPAPER</para>
           <para>See also:</para>
-          <para>Throws: java.io.IOException</para>
           <para>Throws: IOException</para>
           <para>
             <format type="text/html">
@@ -2394,8 +2380,6 @@
         <summary>For use only by the current home application, to specify the size of wallpaper it would like to use.</summary>
         <remarks>
           <para>For use only by the current home application, to specify the size of wallpaper it would like to use. This allows such applications to have a virtual wallpaper that is larger than the physical screen, matching the size of their workspace. Calling this method from apps other than the active home app is not guaranteed to work properly. Other apps that supply wallpaper imagery should use getDesiredMinimumWidth() and getDesiredMinimumHeight() and construct a wallpaper that matches those dimensions. This method requires the caller to hold the permission Manifest.permission.SET_WALLPAPER_HINTS.</para>
-          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
-          <para>Last updated 2026-08-03 UTC.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/WallpaperManager#suggestDesiredDimensions(int,%20int)" title="Reference documentation">Android reference for <code>android.app.WallpaperManager.suggestDesiredDimensions</code>.</a>
