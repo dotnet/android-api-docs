@@ -144,6 +144,7 @@
         <summary>Broadcast Action: A new data based SMS message has been received by the device.</summary>
         <remarks>
           <para>Broadcast Action: A new data based SMS message has been received by the device. This intent will be delivered to all registered receivers as a notification. The intent will have the following extra values:</para>
+          <list type="bullet"><item><term>"pdus" - An Object[] of byte[]s containing the PDUs that make up the message.</term></item></list>
           <para>The extra values can be extracted using getMessagesFromIntent(Intent).</para>
           <para>If a BroadcastReceiver encounters an error while processing this intent it should set the result code appropriately.</para>
           <para>Requires Manifest.permission.RECEIVE_SMS to receive.</para>
@@ -759,6 +760,7 @@
         <summary>Broadcast Action: A new Cell Broadcast message has been received by the device.</summary>
         <remarks>
           <para>Broadcast Action: A new Cell Broadcast message has been received by the device. The intent will have the following extra values:</para>
+          <list type="bullet"><item><term>"message" - An SmsCbMessage object containing the broadcast message data. This is not an emergency alert, so ETWS and CMAS data will be null.</term></item></list>
           <para>The extra values can be extracted using getMessagesFromIntent(Intent).</para>
           <para>If a BroadcastReceiver encounters an error while processing this intent it should set the result code appropriately.</para>
           <para>Requires Manifest.permission.RECEIVE_SMS to receive.</para>
@@ -790,6 +792,7 @@
         <summary>Broadcast Action: A new text-based SMS message has been received by the device.</summary>
         <remarks>
           <para>Broadcast Action: A new text-based SMS message has been received by the device. This intent will only be delivered to the default sms app. That app is responsible for writing the message and notifying the user. The intent will have the following extra values:</para>
+          <list type="bullet"><item><term>"pdus" - An Object[] of byte[]s containing the PDUs that make up the message.</term></item><item><term>"format" - A String describing the format of the PDUs. It can be either "3gpp" or "3gpp2".</term></item><item><term>"subscription" - An optional long value of the subscription id which received the message.</term></item><item><term>"slot" - An optional int value of the SIM slot containing the subscription.</term></item><item><term>"phone" - An optional int value of the phone id associated with the subscription.</term></item><item><term>"errorCode" - An optional int error code associated with receiving the message.</term></item><item><term>"NETWORK_SECURITY_EVENT_ALERT_CATEGORY" - An optional int indicating the NetworkSecurityEvent.AlertCategory detected for the SMS message.</term></item></list>
           <para>The extra values can be extracted using getMessagesFromIntent(Intent).</para>
           <para>If a BroadcastReceiver encounters an error while processing this intent it should set the result code appropriately.</para>
           <para>Note: The broadcast receiver that filters for this intent must declare Manifest.permission.BROADCAST_SMS as a required permission in the &lt;receiver&gt; tag. Requires Manifest.permission.RECEIVE_SMS to receive.</para>
@@ -851,6 +854,7 @@
         <summary>Broadcast Action: A new text-based SMS message has been received by the device.</summary>
         <remarks>
           <para>Broadcast Action: A new text-based SMS message has been received by the device. This intent will be delivered to all registered receivers as a notification. These apps are not expected to write the message or notify the user. The intent will have the following extra values:</para>
+          <list type="bullet"><item><term>"pdus" - An Object[] of byte[]s containing the PDUs that make up the message.</term></item><item><term>"NETWORK_SECURITY_EVENT_ALERT_CATEGORY" - An optional int indicating the NetworkSecurityEvent.AlertCategory detected for the SMS message.</term></item></list>
           <para>The extra values can be extracted using getMessagesFromIntent(Intent).</para>
           <para>If a BroadcastReceiver encounters an error while processing this intent it should set the result code appropriately.</para>
           <para>If the SMS message contains an SMS retriever hash, the intent will only be delivered to the app corresponding to the SMS retriever hash, and the list of apps listed here.</para>
@@ -883,6 +887,7 @@
         <summary>Broadcast Action: An incoming SMS has been rejected by the telephony framework.</summary>
         <remarks>
           <para>Broadcast Action: An incoming SMS has been rejected by the telephony framework. This intent is sent in lieu of any of the RECEIVED_ACTION intents. The intent will have the following extra value:</para>
+          <list type="bullet"><item><term>"result" - An int result code, e.g. RESULT_SMS_OUT_OF_MEMORY indicating the error returned to the network.</term></item></list>
           <para>Requires Manifest.permission.RECEIVE_SMS to receive.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/Telephony.Sms.Intents#SMS_REJECTED_ACTION" title="Reference documentation">Android reference for <code>android.provider.Telephony.Sms.Intents.SMS_REJECTED_ACTION</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -912,6 +917,7 @@
         <summary>Broadcast Action: A new CDMA SMS has been received containing Service Category Program Data (updates the list of enabled broadcast channels).</summary>
         <remarks>
           <para>Broadcast Action: A new CDMA SMS has been received containing Service Category Program Data (updates the list of enabled broadcast channels). The intent will have the following extra values:</para>
+          <list type="bullet"><item><term>"operations" - An array of CdmaSmsCbProgramData objects containing the service category operations (add/delete/clear) to perform.</term></item></list>
           <para>The extra values can be extracted using getMessagesFromIntent(Intent).</para>
           <para>If a BroadcastReceiver encounters an error while processing this intent it should set the result code appropriately.</para>
           <para>Requires Manifest.permission.RECEIVE_SMS to receive.</para>
@@ -1005,6 +1011,7 @@
         <summary>Broadcast Action: A new WAP PUSH message has been received by the device.</summary>
         <remarks>
           <para>Broadcast Action: A new WAP PUSH message has been received by the device. This intent will only be delivered to the default sms app. That app is responsible for writing the message and notifying the user. The intent will have the following extra values:</para>
+          <list type="bullet"><item><term>"transactionId" - (Integer) The WAP transaction ID</term></item><item><term>"pduType" - (Integer) The WAP PDU type</term></item><item><term>"header" - (byte[]) The header of the message</term></item><item><term>"data" - (byte[]) The data payload of the message</term></item><item><term>"contentTypeParameters" -(HashMap&lt;String,String&gt;) Any parameters associated with the content type (decoded from the WSP Content-Type header)</term></item><item><term>"subscription" - An optional long value of the subscription id which received the message.</term></item><item><term>"slot" - An optional int value of the SIM slot containing the subscription.</term></item><item><term>"phone" - An optional int value of the phone id associated with the subscription.</term></item></list>
           <para>If a BroadcastReceiver encounters an error while processing this intent it should set the result code appropriately.</para>
           <para>The contentTypeParameters extra value is map of content parameters keyed by their names.</para>
           <para>If any unassigned well-known parameters are encountered, the key of the map will be 'unassigned/0x...', where '...' is the hex value of the unassigned parameter. If a parameter has No-Value the value in the map will be null.</para>
@@ -1038,6 +1045,7 @@
         <summary>Broadcast Action: A new WAP PUSH message has been received by the device.</summary>
         <remarks>
           <para>Broadcast Action: A new WAP PUSH message has been received by the device. This intent will be delivered to all registered receivers as a notification. These apps are not expected to write the message or notify the user. The intent will have the following extra values:</para>
+          <list type="bullet"><item><term>"transactionId" - (Integer) The WAP transaction ID</term></item><item><term>"pduType" - (Integer) The WAP PDU type</term></item><item><term>"header" - (byte[]) The header of the message</term></item><item><term>"data" - (byte[]) The data payload of the message</term></item><item><term>"contentTypeParameters" - (HashMap&lt;String,String&gt;) Any parameters associated with the content type (decoded from the WSP Content-Type header)</term></item></list>
           <para>If a BroadcastReceiver encounters an error while processing this intent it should set the result code appropriately.</para>
           <para>The contentTypeParameters extra value is map of content parameters keyed by their names.</para>
           <para>If any unassigned well-known parameters are encountered, the key of the map will be 'unassigned/0x...', where '...' is the hex value of the unassigned parameter. If a parameter has No-Value the value in the map will be null.</para>
