@@ -825,6 +825,103 @@
         <remarks>
           <para>This method was deprecated in API level 21. Action bar navigation modes are deprecated and not supported by inline toolbar action bars. Consider using other common navigation patterns instead.</para>
           <para>Create and return a new Tab. This tab will not be included in the action bar until it is added. Very often tabs will be used to switch between Fragment objects. Here is a typical implementation of such tabs:</para>
+          <code lang="text/java">import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.widget.Toast;
+
+/**
+ * This demonstrates the use of action bar tabs and how they interact
+ * with other action bar features.
+ */
+public class FragmentTabs extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        final ActionBar bar = getActionBar();
+        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        bar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
+
+        bar.addTab(bar.newTab()
+                .setText("Simple")
+                .setTabListener(new TabListener&lt;FragmentStack.CountingFragment&gt;(
+                        this, "simple", FragmentStack.CountingFragment.class)));
+        bar.addTab(bar.newTab()
+                .setText("Contacts")
+                .setTabListener(new TabListener&lt;LoaderCursor.CursorLoaderListFragment&gt;(
+                        this, "contacts", LoaderCursor.CursorLoaderListFragment.class)));
+        bar.addTab(bar.newTab()
+                .setText("Apps")
+                .setTabListener(new TabListener&lt;LoaderCustom.AppListFragment&gt;(
+                        this, "apps", LoaderCustom.AppListFragment.class)));
+        bar.addTab(bar.newTab()
+                .setText("Throttle")
+                .setTabListener(new TabListener&lt;LoaderThrottle.ThrottledLoaderListFragment&gt;(
+                        this, "throttle", LoaderThrottle.ThrottledLoaderListFragment.class)));
+
+        if (savedInstanceState != null) {
+            bar.setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("tab", getActionBar().getSelectedNavigationIndex());
+    }
+
+    public static class TabListener&lt;T extends Fragment&gt; implements ActionBar.TabListener {
+        private final Activity mActivity;
+        private final String mTag;
+        private final Class&lt;T&gt; mClass;
+        private final Bundle mArgs;
+        private Fragment mFragment;
+
+        public TabListener(Activity activity, String tag, Class&lt;T&gt; clz) {
+            this(activity, tag, clz, null);
+        }
+
+        public TabListener(Activity activity, String tag, Class&lt;T&gt; clz, Bundle args) {
+            mActivity = activity;
+            mTag = tag;
+            mClass = clz;
+            mArgs = args;
+
+            // Check to see if we already have a fragment for this tab, probably
+            // from a previously saved state.  If so, deactivate it, because our
+            // initial state is that a tab isn't shown.
+            mFragment = mActivity.getFragmentManager().findFragmentByTag(mTag);
+            if (mFragment != null &amp;&amp; !mFragment.isDetached()) {
+                FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+                ft.detach(mFragment);
+                ft.commit();
+            }
+        }
+
+        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+            if (mFragment == null) {
+                mFragment = Fragment.instantiate(mActivity, mClass.getName(), mArgs);
+                ft.add(android.R.id.content, mFragment, mTag);
+            } else {
+                ft.attach(mFragment);
+            }
+        }
+
+        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+            if (mFragment != null) {
+                ft.detach(mFragment);
+            }
+        }
+
+        public void onTabReselected(Tab tab, FragmentTransaction ft) {
+            Toast.makeText(mActivity, "Reselected!", Toast.LENGTH_SHORT).show();
+        }
+    }
+}</code>
           <para>See also:</para>
           <para>
             <format type="text/html">
@@ -2113,8 +2210,6 @@
         <summary>Show the ActionBar if it is not currently showing.</summary>
         <remarks>
           <para>Show the ActionBar if it is not currently showing. If the window hosting the ActionBar does not have the feature Window.FEATURE_ACTION_BAR_OVERLAY it will resize application content to fit the new space available. If you are hiding the ActionBar through View.SYSTEM_UI_FLAG_FULLSCREEN, you should not call this function directly.</para>
-          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
-          <para>Last updated 2026-08-03 UTC.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/ActionBar#show()" title="Reference documentation">Android reference for <code>android.app.ActionBar.show</code>.</a>
