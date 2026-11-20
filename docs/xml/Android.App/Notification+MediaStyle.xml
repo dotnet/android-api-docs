@@ -25,6 +25,14 @@
     <summary>Notification style for media playback notifications.</summary>
     <remarks>
       <para>Notification style for media playback notifications. In the expanded form, Notification.bigContentView, up to 5 Notification.Actions specified with addAction will be shown as icon-only pushbuttons, suitable for transport controls. The Bitmap given to setLargeIcon() will be treated as album artwork. Unlike the other styles provided here, MediaStyle can also modify the standard-size Notification.contentView; by providing action indices to setShowActionsInCompactView(int) you can promote up to 3 actions to be displayed in the standard view alongside the usual content. Notifications created with MediaStyle will have their category set to CATEGORY_TRANSPORT unless you set a different category using setCategory(). Finally, if you attach a MediaSession.Token using android.app.Notification.MediaStyle.setMediaSession(MediaSession.Token), the System UI can identify this as a notification representing an active media session and respond accordingly (by showing album artwork in the lockscreen, for example). Starting at Android O any notification that has a media session attached with setMediaSession(MediaSession.Token) will be colorized. You can opt-out of this behavior by using Notification.Builder.setColorized(boolean). Starting at Android V the NO_CLEAR flag will be set for valid MediaStyle notifications. To use this style with your Notification, feed it to Notification.Builder.setStyle(android.app.Notification.Style) like so:</para>
+      <code lang="text/java">Notification noti = new Notification.Builder()
+    .setSmallIcon(R.drawable.ic_stat_player)
+    .setContentTitle("Track title")
+    .setContentText("Artist - Album")
+    .setLargeIcon(albumArtBitmap))
+    .setStyle(new Notification.MediaStyle()
+        .setMediaSession(mySession))
+    .build();</code>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/Notification.MediaStyle" title="Reference documentation">Android reference for <code>android.app.Notification.MediaStyle</code>.</a>
@@ -339,8 +347,6 @@
         <returns>This Android.App.Notification.MediaStyle instance, allowing calls to be chained.</returns>
         <remarks>
           <para>Request up to 3 actions (by index in the order of addition) to be shown in the compact notification view.</para>
-          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
-          <para>Last updated 2026-08-03 UTC.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.MediaStyle#setShowActionsInCompactView(int[])" title="Reference documentation">Android reference for <code>android.app.Notification.MediaStyle.setShowActionsInCompactView</code>.</a>

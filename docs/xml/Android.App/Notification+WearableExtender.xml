@@ -1707,7 +1707,22 @@
         <returns>this object for method chaining</returns>
         <remarks>
           <para>This method was deprecated in API level 29. Display intents are no longer supported.</para>
-          <para>Set an intent to launch inside of an activity view when displaying this notification. The PendingIntent provided should be for an activity. The activity to launch needs to allow embedding, must be exported, and should have an empty task affinity. It is also recommended to use the device default light theme. Example AndroidManifest.xml entry:</para>
+          <para>Set an intent to launch inside of an activity view when displaying this notification. The PendingIntent provided should be for an activity.</para>
+          <code lang="text/java">Intent displayIntent = new Intent(context, MyDisplayActivity.class);
+PendingIntent displayPendingIntent = PendingIntent.getActivity(context,
+        0, displayIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE_UNAUDITED);
+Notification notif = new Notification.Builder(context)
+        .extend(new Notification.WearableExtender()
+                .setDisplayIntent(displayPendingIntent)
+                .setCustomSizePreset(Notification.WearableExtender.SIZE_MEDIUM))
+        .build();</code>
+          <para>The activity to launch needs to allow embedding, must be exported, and should have an empty task affinity. It is also recommended to use the device default light theme.</para>
+          <para>Example AndroidManifest.xml entry:</para>
+          <code lang="text/java">&lt;activity android:name="com.example.MyDisplayActivity"
+    android:exported="true"
+    android:allowEmbedded="true"
+    android:taskAffinity=""
+    android:theme="@android:style/Theme.DeviceDefault.Light" /&gt;</code>
           <para>See also:</para>
           <para>
             <format type="text/html">
@@ -2053,8 +2068,6 @@
         <returns>This Android.App.Notification.WearableExtender instance, allowing calls to be chained.</returns>
         <remarks>
           <para>Set whether the scrolling position for the contents of this notification should start at the bottom of the contents instead of the top when the contents are too long to display within the screen. Default is false (start scroll at the top).</para>
-          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
-          <para>Last updated 2026-08-03 UTC.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.WearableExtender#setStartScrollBottom(boolean)" title="Reference documentation">Android reference for <code>android.app.Notification.WearableExtender.setStartScrollBottom</code>.</a>
