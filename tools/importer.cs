@@ -41226,6 +41226,11 @@ static partial class ImporterProgram
     static readonly Regex EscapedInlineTagRegex = new(
         @"&lt;(?<tag>strong|b|em|i|code|var)&gt;(?<body>(?:[^<>&]|&(?:amp|quot|apos|#[0-9]+|#x[0-9A-Fa-f]+);){1,200}?)&lt;/\k<tag>&gt;",
         RegexOptions.CultureInvariant);
+    static readonly Regex InlineElementEndRegex = new(
+        @"(?:</(?:c|b|i|see|paramref|typeparamref|a)>|<(?:see|paramref|typeparamref)\b[^<>]*/>)$", RegexOptions.CultureInvariant);
+    static readonly Regex InlineElementStartRegex = new(
+        @"^<(?:c|b|i|see|paramref|typeparamref|a)\b", RegexOptions.CultureInvariant);
+    static readonly Regex MarkupTagRegex = new(@"<[^<>]*>", RegexOptions.CultureInvariant);
     static readonly Regex DoubleEscapedEntityRegex = new(
         @"&amp;(?<entity>lt|gt|quot|apos|amp|#[1-9][0-9]{0,6}|#x[0-9A-Fa-f]{1,6});", RegexOptions.CultureInvariant);
     static readonly Regex MultipleEscapedEntityRegex = new(
@@ -41423,6 +41428,25 @@ static partial class ImporterProgram
         }
     }
 
+    static bool IsWordChar(char value) => char.IsLetterOrDigit(value) || value is '_' or '#';
+
+    static bool NeedsWordSeparator(char left, char right) =>
+        (IsWordChar(left) || left is ')' or ':') && (IsWordChar(right) || right is '(');
+
+    static char LastVisibleChar(string markup)
+    {
+        var visible = WebUtility.HtmlDecode(MarkupTagRegex.Replace(markup, ""));
+        return visible.Length == 0 ? ' ' : visible[^1];
+    }
+
+    static char FirstVisibleChar(string markup)
+    {
+        if (Regex.IsMatch(markup, @"^<(?:see|paramref|typeparamref)\b[^<>]*/>", RegexOptions.CultureInvariant))
+            return 'a';
+        var visible = WebUtility.HtmlDecode(MarkupTagRegex.Replace(markup, ""));
+        return visible.Length == 0 ? ' ' : visible[0];
+    }
+
     static void FindEscapedHtmlRepairs(
         string text,
         int[] lineStarts,
@@ -41477,8 +41501,17 @@ static partial class ImporterProgram
                 "code" => "c",
                 _ => "i",
             };
+            // An escaped tag renders as text, so a converted element next to another inline element can join two words.
+            var body = WebUtility.HtmlDecode(match.Groups["body"].Value);
+            var wordy = body.Any(char.IsLetterOrDigit);
+            var prefix = content[..match.Index];
+            var suffix = content[(match.Index + match.Length)..];
+            var leading = wordy && InlineElementEndRegex.Match(prefix) is { Success: true } endTag &&
+                NeedsWordSeparator(endTag.Value.EndsWith("/>", StringComparison.Ordinal) ? 'a' : LastVisibleChar(prefix), body[0]);
+            var trailing = wordy && InlineElementStartRegex.IsMatch(suffix) &&
+                NeedsWordSeparator(body[^1], FirstVisibleChar(suffix));
             edits.Add(new DocumentationRepairEdit(
-                start, end, $"<{tag}>{match.Groups["body"].Value}</{tag}>", EscapedHtmlPattern, id, target,
+                start, end, $"{(leading ? " " : "")}<{tag}>{match.Groups["body"].Value}</{tag}>{(trailing ? " " : "")}", EscapedHtmlPattern, id, target,
                 "escaped_inline_tag", $"&lt;{match.Groups["tag"].Value}&gt; -> <{tag}>", []));
         }
 
@@ -42058,7 +42091,7 @@ static partial class ImporterProgram
                 {{Member("IndexOf", "public int IndexOf (int value);", "M:Fixture.RepairDocs.Sample.IndexOf(System.Int32)",
                     "[Android.Runtime.Register(\"indexOf\", \"(I)I\", \"\")]", "System.Int32",
                     "<Parameter Name=\"value\" Type=\"System.Int32\" />", $$"""
-                        <summary>Finds &lt;strong&gt;one&lt;/strong&gt; value; a&lt;b&gt;c&lt;/b&gt; stays.</summary>
+                        <summary>Finds &lt;strong&gt;one&lt;/strong&gt; value; a&lt;b&gt;c&lt;/b&gt; stays; <c>Map</c>&lt;i&gt;keys&lt;/i&gt;<c>x</c> in <c>[a, </c>&lt;i&gt;n&lt;/i&gt;<c>)</c>, <i>v</i>&lt;b&gt;:&lt;/b&gt;<i>a</i>, (&lt;i&gt;T0&lt;/i&gt;<c>=x</c>).</summary>
                         <remarks>
                           <para>See also:</para>
                           <code>Map&amp;lt;K, V&amp;gt; map;</code>
@@ -42110,7 +42143,7 @@ static partial class ImporterProgram
                 ("skipped", "ai-source-links:inline_citation", 1),
                 ("would_apply", "regex-links:regex_marker_removed", 1),
                 ("skipped", "regex-links:registration_mismatch", 1),
-                ("would_apply", "escaped-html:escaped_inline_tag", 1),
+                ("would_apply", "escaped-html:escaped_inline_tag", 5),
                 ("would_apply", "escaped-html:double_escaped_entity", 2),
                 ("skipped", "escaped-html:discusses_escaping", 1),
                 ("would_apply", "empty-see-also:empty_heading", 1),
@@ -42124,7 +42157,7 @@ static partial class ImporterProgram
             }
             Assert(found.GetProperty("errorCount").GetInt32() == 0 && File.ReadAllText(path) == patterned,
                 "new repair patterns dry run is read-only");
-            Assert(Run([.. newPatterns, "--apply"]).Report.GetProperty("appliedCount").            GetInt32() == 8,
+            Assert(Run([.. newPatterns, "--apply"]).Report.GetProperty("appliedCount").GetInt32() == 12,
                 "new repair patterns apply every exact repair");
             var repaired = File.ReadAllText(path);
             XDocument.Parse(repaired);
@@ -42133,7 +42166,7 @@ static partial class ImporterProgram
                 repaired.Contains("cs.android.com/Sample", StringComparison.Ordinal) &&
                 repaired.Contains("#indexOf(int)\" title=\"Reference documentation\">Java documentation for <code>fixture.repair.Sample.indexOf(int)</code>", StringComparison.Ordinal) &&
                 repaired.Contains("#lastIndexOf(.*int)", StringComparison.Ordinal) &&
-                repaired.Contains("<summary>Finds <b>one</b> value; a&lt;b&gt;c&lt;/b&gt; stays.</summary>", StringComparison.Ordinal) &&
+                repaired.Contains("<summary>Finds <b>one</b> value; a&lt;b&gt;c&lt;/b&gt; stays; <c>Map</c> <i>keys</i> <c>x</c> in <c>[a, </c><i>n</i><c>)</c>, <i>v</i><b>:</b><i>a</i>, (<i>T0</i><c>=x</c>).</summary>", StringComparison.Ordinal) &&
                 repaired.Contains("<code>Map&lt;K, V&gt; map;</code>", StringComparison.Ordinal) &&
                 repaired.Contains("Escapes &lt;em&gt;text&lt;/em&gt; and &amp;amp;lt; values.", StringComparison.Ordinal) &&
                 !repaired.Contains("<para>See also:</para>", StringComparison.Ordinal) &&
