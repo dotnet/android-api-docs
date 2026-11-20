@@ -650,9 +650,8 @@
             with removing the old window if the activity has changed.</returns>
         <remarks>
           <para>Start a new activity running in the group. Every activity you start must have a unique string ID associated with it -- this is used to keep track of the activity, so that if you later call startActivity() again on it the same activity object will be retained. When there had previously been an activity started under this id, it may either be destroyed and a new one started, or the current one re-used, based on these conditions, in order:</para>
+                    <list type="bullet"><item><term>If the Intent maps to a different activity component than is currently running, the current activity is finished and a new one started.</term></item><item><term>If the current activity uses a non-multiple launch mode (such as singleTop), or the Intent has the Intent.FLAG_ACTIVITY_SINGLE_TOP flag set, then the current activity will remain running and its Activity.onNewIntent() method called.</term></item><item><term>If the new Intent is the same (excluding extras) as the previous one, and the new Intent does not have the Intent.FLAG_ACTIVITY_CLEAR_TOP set, then the current activity will remain running as-is.</term></item><item><term>Otherwise, the current activity will be finished and a new one started.</term></item></list>
           <para>If the given Intent can not be resolved to an available Activity, this method throws ActivityNotFoundException. Warning: There is an issue where, if the Intent does not include an explicit component, we can restore the state for a different activity class than was previously running when the state was saved (if the set of available activities changes between those points).</para>
-          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
-          <para>Last updated 2026-08-03 UTC.</para>
           <para>Throws: android.content.ActivityNotFoundException</para>
           <para>
             <format type="text/html">
