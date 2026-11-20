@@ -47,13 +47,13 @@
             <see href="http://www.unicode.org/reports/tr35/tr35-collation.html#Root_Collation">CLDR root sort order</see>.</para>
       <para>For information about the collation rule syntax and details about customization, please refer to the <see href="https://unicode-org.github.io/icu/userguide/collation/customization">Collation customization</see>
             section of the User Guide.</para>
-      <para>&lt;strong&gt;Note&lt;/strong&gt; that there are some differences between the Collation rule syntax used in Java and ICU4J:
+      <para><b>Note</b> that there are some differences between the Collation rule syntax used in Java and ICU4J:
             
             &lt;ul&gt;
             &lt;li&gt;According to the JDK documentation: &lt;br&gt;
             <i>Modifier '!' : Turns on Thai/Lao vowel-consonant swapping. If this rule is in force when a Thai vowel of the range
-            &amp;#92;U0E40-&amp;#92;U0E44 precedes a Thai consonant of the range &amp;#92;U0E01-&amp;#92;U0E2E OR a Lao vowel of the range
-            &amp;#92;U0EC0-&amp;#92;U0EC4 precedes a Lao consonant of the range &amp;#92;U0E81-&amp;#92;U0EAE then the vowel is placed after the
+            &#92;U0E40-&#92;U0E44 precedes a Thai consonant of the range &#92;U0E01-&#92;U0E2E OR a Lao vowel of the range
+            &#92;U0EC0-&#92;U0EC4 precedes a Lao consonant of the range &#92;U0E81-&#92;U0EAE then the vowel is placed after the
             consonant for collation purposes.
             &lt;br&gt;
             If a rule is without the modifier '!', the Thai/Lao vowel-consonant swapping is not turned on.
@@ -62,19 +62,19 @@
             states that it has to be supported to ensure a correct sorting order. If a '!' is encountered, it is ignored.&lt;/li&gt;
             &lt;li&gt;As mentioned in the documentation of the base class Collator, compatibility decomposition mode is not supported.&lt;/li&gt;
             &lt;/ul&gt;</para>
-      <para>&lt;strong&gt;Examples&lt;/strong&gt;</para>
+      <para><b>Examples</b></para>
       <para>Creating Customized RuleBasedCollators: &lt;blockquote&gt;</para>
-      <code lang="text/java">String simple = "&amp;amp; a &amp;lt; b &amp;lt; c &amp;lt; d";
+      <code lang="text/java">String simple = "&amp; a &lt; b &lt; c &lt; d";
             RuleBasedCollator simpleCollator = new RuleBasedCollator(simple);
             
-            String norwegian = "&amp;amp; a , A &amp;lt; b , B &amp;lt; c , C &amp;lt; d , D &amp;lt; e , E "
-                               + "&amp;lt; f , F &amp;lt; g , G &amp;lt; h , H &amp;lt; i , I &amp;lt; j , "
-                               + "J &amp;lt; k , K &amp;lt; l , L &amp;lt; m , M &amp;lt; n , N &amp;lt; "
-                               + "o , O &amp;lt; p , P &amp;lt; q , Q &amp;lt;r , R &amp;lt;s , S &amp;lt; "
-                               + "t , T &amp;lt; u , U &amp;lt; v , V &amp;lt; w , W &amp;lt; x , X "
-                               + "&amp;lt; y , Y &amp;lt; z , Z &amp;lt; &amp;#92;u00E5 = a&amp;#92;u030A "
-                               + ", &amp;#92;u00C5 = A&amp;#92;u030A ; aa , AA &amp;lt; &amp;#92;u00E6 "
-                               + ", &amp;#92;u00C6 &amp;lt; &amp;#92;u00F8 , &amp;#92;u00D8";
+            String norwegian = "&amp; a , A &lt; b , B &lt; c , C &lt; d , D &lt; e , E "
+                               + "&lt; f , F &lt; g , G &lt; h , H &lt; i , I &lt; j , "
+                               + "J &lt; k , K &lt; l , L &lt; m , M &lt; n , N &lt; "
+                               + "o , O &lt; p , P &lt; q , Q &lt;r , R &lt;s , S &lt; "
+                               + "t , T &lt; u , U &lt; v , V &lt; w , W &lt; x , X "
+                               + "&lt; y , Y &lt; z , Z &lt; &#92;u00E5 = a&#92;u030A "
+                               + ", &#92;u00C5 = A&#92;u030A ; aa , AA &lt; &#92;u00E6 "
+                               + ", &#92;u00C6 &lt; &#92;u00F8 , &#92;u00D8";
             RuleBasedCollator norwegianCollator = new RuleBasedCollator(norwegian);
             </code>
       <para>&lt;/blockquote&gt;
@@ -100,7 +100,7 @@
             Making changes to an existing RuleBasedCollator to create a new <c>Collator</c> object, by appending changes to
             the existing rule: &lt;blockquote&gt;</para>
       <code lang="text/java">// Create a new Collator object with additional rules
-            String addRules = "&amp;amp; C &amp;lt; ch, cH, Ch, CH";
+            String addRules = "&amp; C &lt; ch, cH, Ch, CH";
             RuleBasedCollator myCollator =
                 new RuleBasedCollator(en_USCollator.getRules() + addRules);
             // myCollator contains the new rules
@@ -109,15 +109,15 @@
             
             How to change the order of non-spacing accents: &lt;blockquote&gt;</para>
       <code lang="text/java">// old rule with main accents
-            String oldRules = "= &amp;#92;u0301 ; &amp;#92;u0300 ; &amp;#92;u0302 ; &amp;#92;u0308 "
-                            + "; &amp;#92;u0327 ; &amp;#92;u0303 ; &amp;#92;u0304 ; &amp;#92;u0305 "
-                            + "; &amp;#92;u0306 ; &amp;#92;u0307 ; &amp;#92;u0309 ; &amp;#92;u030A "
-                            + "; &amp;#92;u030B ; &amp;#92;u030C ; &amp;#92;u030D ; &amp;#92;u030E "
-                            + "; &amp;#92;u030F ; &amp;#92;u0310 ; &amp;#92;u0311 ; &amp;#92;u0312 "
-                            + "&amp;lt; a , A ; ae, AE ; &amp;#92;u00e6 , &amp;#92;u00c6 "
-                            + "&amp;lt; b , B &amp;lt; c, C &amp;lt; e, E &amp;amp; C &amp;lt; d , D";
+            String oldRules = "= &#92;u0301 ; &#92;u0300 ; &#92;u0302 ; &#92;u0308 "
+                            + "; &#92;u0327 ; &#92;u0303 ; &#92;u0304 ; &#92;u0305 "
+                            + "; &#92;u0306 ; &#92;u0307 ; &#92;u0309 ; &#92;u030A "
+                            + "; &#92;u030B ; &#92;u030C ; &#92;u030D ; &#92;u030E "
+                            + "; &#92;u030F ; &#92;u0310 ; &#92;u0311 ; &#92;u0312 "
+                            + "&lt; a , A ; ae, AE ; &#92;u00e6 , &#92;u00c6 "
+                            + "&lt; b , B &lt; c, C &lt; e, E &amp; C &lt; d , D";
             // change the order of accent characters
-            String addOn = "&amp;amp; &amp;#92;u0300 ; &amp;#92;u0308 ; &amp;#92;u0302";
+            String addOn = "&amp; &#92;u0300 ; &#92;u0308 ; &#92;u0302";
             RuleBasedCollator myCollator = new RuleBasedCollator(oldRules + addOn);
             </code>
       <para>&lt;/blockquote&gt;
@@ -129,9 +129,9 @@
                                    = (RuleBasedCollator)Collator.getInstance(Locale.US);
             // add a few Japanese characters to sort before English characters
             // suppose the last character before the first base letter 'a' in
-            // the English collation rule is &amp;#92;u2212
-            String jaString = "&amp;amp; &amp;#92;u2212 &amp;lt;&amp;#92;u3041, &amp;#92;u3042 &amp;lt;&amp;#92;u3043, "
-                              + "&amp;#92;u3044";
+            // the English collation rule is &#92;u2212
+            String jaString = "&amp; &#92;u2212 &lt;&#92;u3041, &#92;u3042 &lt;&#92;u3043, "
+                              + "&#92;u3044";
             RuleBasedCollator myJapaneseCollator
                          = new RuleBasedCollator(en_USCollator.getRules() + jaString);
             </code>
@@ -882,7 +882,7 @@
       </ReturnValue>
       <Docs>
         <param name="flag">true to turn numeric collation on and false to turn it off</param>
-        <summary>Method to retrieve the numeric collation value. -or- &lt;strong&gt;[icu]&lt;/strong&gt; When numeric collation is turned on, this Collator makes
+        <summary>Method to retrieve the numeric collation value. -or- <b>[icu]</b> When numeric collation is turned on, this Collator makes
             substrings of digits sort according to their numeric values.</summary>
         <value>true if numeric collation is turned on, false otherwise</value>
         <remarks>
@@ -895,7 +895,7 @@
             </format>
           </para>
           <para>Property setter documentation:</para>
-          <para>&lt;strong&gt;[icu]&lt;/strong&gt; When numeric collation is turned on, this Collator makes
+          <para><b>[icu]</b> When numeric collation is turned on, this Collator makes
             substrings of digits sort according to their numeric values.</para>
           <para>This is a way to get '100' to sort AFTER '2'. Note that the longest
             digit substring that can be treated as a single unit is
@@ -1456,10 +1456,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>&lt;strong&gt;[icu]&lt;/strong&gt; Gets the variable top value of a Collator.</summary>
+        <summary><b>[icu]</b> Gets the variable top value of a Collator.</summary>
         <value>the variable top primary weight</value>
         <remarks>
-          <para>&lt;strong&gt;[icu]&lt;/strong&gt; Gets the variable top value of a Collator.</para>
+          <para><b>[icu]</b> Gets the variable top value of a Collator.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/RuleBasedCollator#getVariableTop()" title="Reference documentation">Java documentation for <code>android.icu.text.RuleBasedCollator.getVariableTop()</code>.</a>

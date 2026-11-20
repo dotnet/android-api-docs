@@ -63,31 +63,31 @@
                 private int videoTrackIndex = -1;
                 private int bytesWrittenCount = 0;
             
-                &amp;#64;Override
-                public void onSeekMapFound(int i, &amp;#64;NonNull MediaFormat mediaFormat) {
+                &#64;Override
+                public void onSeekMapFound(int i, &#64;NonNull MediaFormat mediaFormat) {
                   // Do nothing.
                 }
             
-                &amp;#64;Override
-                public void onTrackDataFound(int i, &amp;#64;NonNull TrackData trackData) {
+                &#64;Override
+                public void onTrackDataFound(int i, &#64;NonNull TrackData trackData) {
                   MediaFormat mediaFormat = trackData.mediaFormat;
-                  if (videoTrackIndex == -1 &amp;amp;&amp;amp;
+                  if (videoTrackIndex == -1 &amp;&amp;
                       mediaFormat
-                          .getString(MediaFormat.KEY_MIME, &amp;#47;* defaultValue= *&amp;#47; "")
+                          .getString(MediaFormat.KEY_MIME, &#47;* defaultValue= *&#47; "")
                           .startsWith("video/")) {
                     videoTrackIndex = i;
                   }
                 }
             
-                &amp;#64;Override
-                public void onSampleDataFound(int trackIndex, &amp;#64;NonNull InputReader inputReader)
+                &#64;Override
+                public void onSampleDataFound(int trackIndex, &#64;NonNull InputReader inputReader)
                     throws IOException {
                   int numberOfBytesToRead = (int) inputReader.getLength();
                   if (videoTrackIndex != trackIndex) {
                     // Discard contents.
                     inputReader.read(
                         discardedDataBuffer,
-                        &amp;#47;* offset= *&amp;#47; 0,
+                        &#47;* offset= *&#47; 0,
                         Math.min(discardDataBuffer.length, numberOfBytesToRead));
                   } else {
                     ensureSpaceInBuffer(numberOfBytesToRead);
@@ -97,14 +97,14 @@
                   }
                 }
             
-                &amp;#64;Override
+                &#64;Override
                 public void onSampleCompleted(
                     int trackIndex,
                     long timeMicros,
                     int flags,
                     int size,
                     int offset,
-                    &amp;#64;Nullable CryptoInfo cryptoData) {
+                    &#64;Nullable CryptoInfo cryptoData) {
                   if (videoTrackIndex != trackIndex) {
                     return; // It's not the video track. Ignore.
                   }
@@ -114,22 +114,22 @@
                       sampleDataBuffer,
                       sampleStartOffset,
                       sampleData,
-                      &amp;#47;* destPos= *&amp;#47; 0,
+                      &#47;* destPos= *&#47; 0,
                       size);
                   // Place trailing bytes at the start of the buffer.
                   System.arraycopy(
                       sampleDataBuffer,
                       bytesWrittenCount - offset,
                       sampleDataBuffer,
-                      &amp;#47;* destPos= *&amp;#47; 0,
-                      &amp;#47;* size= *&amp;#47; offset);
+                      &#47;* destPos= *&#47; 0,
+                      &#47;* size= *&#47; offset);
                   bytesWrittenCount = bytesWrittenCount - offset;
                   publishSample(sampleData, timeMicros, flags);
                 }
             
                private void ensureSpaceInBuffer(int numberOfBytesToRead) {
                  int requiredLength = bytesWrittenCount + numberOfBytesToRead;
-                 if (requiredLength &amp;gt; sampleDataBuffer.length) {
+                 if (requiredLength &gt; sampleDataBuffer.length) {
                    sampleDataBuffer = Arrays.copyOf(sampleDataBuffer, requiredLength);
                  }
                }

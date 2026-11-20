@@ -45,10 +45,10 @@
             
             &lt;h3&gt;General remarks about the API:&lt;/h3&gt;
             
-            The &amp;quot;limit&amp;quot; of a sequence of characters is the position just after
+            The &quot;limit&quot; of a sequence of characters is the position just after
             their last character, i.e., one more than that position.</para>
-      <para>Some of the API methods provide access to &amp;quot;runs&amp;quot;. Such a
-            &amp;quot;run&amp;quot; is defined as a sequence of characters that are at the same
+      <para>Some of the API methods provide access to &quot;runs&quot;. Such a
+            &quot;run&quot; is defined as a sequence of characters that are at the same
             embedding level after performing the Bidi algorithm.
             
             &lt;h3&gt;Basic concept: paragraph&lt;/h3&gt;
@@ -94,7 +94,7 @@
       <para>Note: The numeric values of the related constants will not change:
             They are tied to the use of 7-bit byte values (plus the override bit)
             and of the byte data type in this API.</para>
-      <para>&lt;b&gt;See Also:&lt;/b&gt;
+      <para><b>See Also:</b>
             &lt;ul&gt;
             &lt;li&gt;<c>#LEVEL_DEFAULT_LTR</c>&lt;li&gt;<c>#LEVEL_DEFAULT_RTL</c>&lt;li&gt;<c>#LEVEL_OVERRIDE</c>&lt;li&gt;<c>#MAX_EXPLICIT_LEVEL</c>&lt;li&gt;<c>#setPara</c>&lt;/ul&gt;
             
@@ -102,14 +102,14 @@
             Reordering mode values indicate which variant of the Bidi algorithm to
             use.
             
-            &lt;b&gt;See Also:&lt;/b&gt;
+            <b>See Also:</b>
             &lt;ul&gt;
             &lt;li&gt;<c>#setReorderingMode</c>&lt;li&gt;<c>#REORDER_DEFAULT</c>&lt;li&gt;<c>#REORDER_NUMBERS_SPECIAL</c>&lt;li&gt;<c>#REORDER_GROUP_NUMBERS_WITH_R</c>&lt;li&gt;<c>#REORDER_RUNS_ONLY</c>&lt;li&gt;<c>#REORDER_INVERSE_NUMBERS_AS_L</c>&lt;li&gt;<c>#REORDER_INVERSE_LIKE_DIRECT</c>&lt;li&gt;<c>#REORDER_INVERSE_FOR_NUMBERS_SPECIAL</c>&lt;/ul&gt;
             
             &lt;h3&gt;Basic concept: Reordering Options&lt;/h3&gt;
             Reordering options can be applied during Bidi text transformations.
             
-            &lt;b&gt;See Also:&lt;/b&gt;
+            <b>See Also:</b>
             &lt;ul&gt;
             &lt;li&gt;<c>#setReorderingOptions</c>&lt;li&gt;<c>#OPTION_DEFAULT</c>&lt;li&gt;<c>#OPTION_INSERT_MARKS</c>&lt;li&gt;<c>#OPTION_REMOVE_CONTROLS</c>&lt;li&gt;<c>#OPTION_STREAMING</c>&lt;/ul&gt;
             
@@ -214,10 +214,10 @@
                      // iterate over style runs
                      if (direction == Bidi.LTR) {
                          int styleLimit;
-                         for (i = 0; i &amp;lt; styleRunCount; ++i) {
+                         for (i = 0; i &lt; styleRunCount; ++i) {
                              styleLimit = styleRuns[i].limit;
-                             if (start &amp;lt; styleLimit) {
-                                 if (styleLimit &amp;gt; limit) {
+                             if (start &lt; styleLimit) {
+                                 if (styleLimit &gt; limit) {
                                      styleLimit = limit;
                                  }
                                  renderRun(text, start, styleLimit,
@@ -231,14 +231,14 @@
                      } else {
                          int styleStart;
             
-                         for (i = styleRunCount-1; i &amp;gt;= 0; --i) {
-                             if (i &amp;gt; 0) {
+                         for (i = styleRunCount-1; i &gt;= 0; --i) {
+                             if (i &gt; 0) {
                                  styleStart = styleRuns[i-1].limit;
                              } else {
                                  styleStart = 0;
                              }
-                             if (limit &amp;gt;= styleStart) {
-                                 if (styleStart &amp;lt; start) {
+                             if (limit &gt;= styleStart) {
+                                 if (styleStart &lt; start) {
                                      styleStart = start;
                                  }
                                  renderRun(text, styleStart, limit, direction,
@@ -258,7 +258,7 @@
                      byte direction = line.getDirection();
                      if (direction != Bidi.MIXED) {
                          // unidirectional
-                         if (styleRunCount &amp;lt;= 1) {
+                         if (styleRunCount &lt;= 1) {
                              renderRun(text, start, limit, direction, styleRuns[0].style);
                          } else {
                              renderDirectionalRun(text, start, limit, direction,
@@ -275,18 +275,18 @@
                              e.printStackTrace();
                              return;
                          }
-                         if (styleRunCount &amp;lt;= 1) {
+                         if (styleRunCount &lt;= 1) {
                              int style = styleRuns[0].style;
             
                              // iterate over directional runs
-                             for (i = 0; i &amp;lt; count; ++i) {
+                             for (i = 0; i &lt; count; ++i) {
                                  run = line.getVisualRun(i);
                                  renderRun(text, run.getStart(), run.getLimit(),
                                            run.getDirection(), style);
                              }
                          } else {
                              // iterate over both directional and style runs
-                             for (i = 0; i &amp;lt; count; ++i) {
+                             for (i = 0; i &lt; count; ++i) {
                                  run = line.getVisualRun(i);
                                  renderDirectionalRun(text, run.getStart(),
                                                       run.getLimit(), run.getDirection(),
@@ -310,18 +310,18 @@
                          e.printStackTrace();
                          return;
                      }
-                     byte paraLevel = (byte)(1 &amp;amp; para.getParaLevel());
+                     byte paraLevel = (byte)(1 &amp; para.getParaLevel());
                      StyleRun styleRun = new StyleRun(length, styleNormal);
             
-                     if (styleRuns == null || styleRunCount &amp;lt;= 0) {
+                     if (styleRuns == null || styleRunCount &lt;= 0) {
                          styleRuns = new StyleRun[1];
                          styleRunCount = 1;
                          styleRuns[0] = styleRun;
                      }
-                     // assume styleRuns[styleRunCount-1].limit&amp;gt;=length
+                     // assume styleRuns[styleRunCount-1].limit&gt;=length
             
                      int width = getTextWidth(text, 0, length, styleRuns, styleRunCount);
-                     if (width &amp;lt;= lineWidth) {
+                     if (width &lt;= lineWidth) {
                          // everything fits onto one line
             
                          // prepare rendering a new line from either left or right
@@ -350,7 +350,7 @@
                              // from either left or right
                              startLine(paraLevel, width);
             
-                             if (styleRunStart &amp;gt; 0) {
+                             if (styleRunStart &gt; 0) {
                                  int newRunCount = styleRuns.length - styleRunStart;
                                  StyleRun[] newRuns = new StyleRun[newRunCount];
                                  System.arraycopy(styleRuns, styleRunStart, newRuns, 0,
@@ -366,7 +366,7 @@
                              }
                              start = limit;
                              styleRunStart = styleRunLimit - 1;
-                             if (start &amp;gt;= styleRuns[styleRunStart].limit) {
+                             if (start &gt;= styleRuns[styleRunStart].limit) {
                                  ++styleRunStart;
                              }
                          }
@@ -2201,19 +2201,19 @@
              bidi.setPara(text, Bidi.RTL, null);
              int i, count=bidi.countRuns(), logicalStart, visualIndex=0, length;
              BidiRun run;
-             for (i = 0; i &amp;lt; count; ++i) {
+             for (i = 0; i &lt; count; ++i) {
                  run = bidi.getVisualRun(i);
                  logicalStart = run.getStart();
                  length = run.getLength();
                  if (Bidi.LTR == run.getEmbeddingLevel()) {
                      do { // LTR
                          show_char(text.charAt(logicalStart++), visualIndex++);
-                     } while (--length &amp;gt; 0);
+                     } while (--length &gt; 0);
                  } else {
                      logicalStart += length;  // logicalLimit
                      do { // RTL
                          show_char(text.charAt(--logicalStart), visualIndex++);
-                     } while (--length &amp;gt; 0);
+                     } while (--length &gt; 0);
                  }
              }
             </code>
@@ -2413,7 +2413,7 @@
             Some elements of the source array may have no mapping in the
             destination array. In that case, their value will be
             the special value <c>MAP_NOWHERE</c>.
-            All elements must be &amp;gt;=0 or equal to <c>MAP_NOWHERE</c>.
+            All elements must be &gt;=0 or equal to <c>MAP_NOWHERE</c>.
             Some elements in the source map may have a value greater than the
             srcMap.length if the destination array has more elements than the
             source array.
@@ -4893,7 +4893,7 @@
                    (same index) character if the level has the
                    <c>LEVEL_OVERRIDE</c> bit set.&lt;br&gt;&lt;br&gt;
                    Aside from that bit, it must be
-                   <c>paraLevel&amp;lt;=embeddingLevels[]&amp;lt;=MAX_EXPLICIT_LEVEL</c>,
+                   <c>paraLevel&lt;=embeddingLevels[]&lt;=MAX_EXPLICIT_LEVEL</c>,
                    except that level 0 is always allowed.
                    Level 0 for a paragraph separator prevents reordering of paragraphs;
                    this only works reliably if <c>LEVEL_OVERRIDE</c>
@@ -4907,7 +4907,7 @@
                    Bidi operations. However, the <c>setPara()</c> and
                    <c>setLine()</c> methods may modify some or all of the
                    levels.&lt;br&gt;&lt;br&gt;
-                   &lt;strong&gt;Note:&lt;/strong&gt; the <c>embeddingLevels</c> array must
+                   <b>Note:</b> the <c>embeddingLevels</c> array must
                    have one entry for each character in <c>text</c>.</param>
         <summary>Perform the Unicode Bidi algorithm.</summary>
         <remarks>
@@ -4995,7 +4995,7 @@
                    (same index) character if the level has the
                    <c>LEVEL_OVERRIDE</c> bit set.&lt;br&gt;&lt;br&gt;
                    Aside from that bit, it must be
-                   <c>paraLevel&amp;lt;=embeddingLevels[]&amp;lt;=MAX_EXPLICIT_LEVEL</c>,
+                   <c>paraLevel&lt;=embeddingLevels[]&lt;=MAX_EXPLICIT_LEVEL</c>,
                    except that level 0 is always allowed.
                    Level 0 for a paragraph separator prevents reordering of paragraphs;
                    this only works reliably if <c>LEVEL_OVERRIDE</c>
@@ -5009,7 +5009,7 @@
                    Bidi operations. However, the <c>setPara()</c> and
                    <c>setLine()</c> methods may modify some or all of the
                    levels.&lt;br&gt;&lt;br&gt;
-                   &lt;strong&gt;Note:&lt;/strong&gt; the <c>embeddingLevels</c> array must
+                   <b>Note:</b> the <c>embeddingLevels</c> array must
                    have one entry for each character in <c>text</c>.</param>
         <summary>Perform the Unicode Bidi algorithm.</summary>
         <remarks>

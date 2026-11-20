@@ -33,8 +33,8 @@
       <para>A reusable synchronization barrier, similar in functionality to
             <c>CyclicBarrier</c> and <c>CountDownLatch</c> but supporting
             more flexible usage.</para>
-      <para>&lt;b&gt;Registration.&lt;/b&gt; Unlike the case for other barriers, the
-            number of parties &lt;em&gt;registered&lt;/em&gt; to synchronize on a phaser
+      <para><b>Registration.</b> Unlike the case for other barriers, the
+            number of parties <i>registered</i> to synchronize on a phaser
             may vary over time.  Tasks may be registered at any time (using
             methods <c>#register</c>, <c>#bulkRegister</c>, or forms of
             constructors establishing initial numbers of parties), and
@@ -44,7 +44,7 @@
             bookkeeping, so tasks cannot query whether they are registered.
             (However, you can introduce such bookkeeping by subclassing this
             class.)</para>
-      <para>&lt;b&gt;Synchronization.&lt;/b&gt; Like a <c>CyclicBarrier</c>, a <c>Phaser</c> may be repeatedly awaited.  Method <c>#arriveAndAwaitAdvance</c> has effect analogous to <c>java.util.concurrent.CyclicBarrier#await CyclicBarrier.await</c>. Each
+      <para><b>Synchronization.</b> Like a <c>CyclicBarrier</c>, a <c>Phaser</c> may be repeatedly awaited.  Method <c>#arriveAndAwaitAdvance</c> has effect analogous to <c>java.util.concurrent.CyclicBarrier#await CyclicBarrier.await</c>. Each
             generation of a phaser has an associated phase number. The phase
             number starts at zero, and advances when all parties arrive at the
             phaser, wrapping around to zero after reaching <c>Integer.MAX_VALUE</c>. The use of phase numbers enables independent
@@ -56,8 +56,8 @@
             
               &lt;li&gt;&lt;b&gt;Arrival.&lt;/b&gt; Methods <c>#arrive</c> and
                   <c>#arriveAndDeregister</c> record arrival.  These methods
-                  do not block, but return an associated &lt;em&gt;arrival phase
-                  number&lt;/em&gt;; that is, the phase number of the phaser to which
+                  do not block, but return an associated <i>arrival phase
+                  number</i>; that is, the phase number of the phaser to which
                   the arrival applied. When the final party for a given phase
                   arrives, an optional action is performed and the phase
                   advances.  These actions are performed by the party
@@ -83,7 +83,7 @@
                   parties.
             
             &lt;/ul&gt;</para>
-      <para>&lt;b&gt;Termination.&lt;/b&gt; A phaser may enter a &lt;em&gt;termination&lt;/em&gt;
+      <para><b>Termination.</b> A phaser may enter a <i>termination</i>
             state, that may be checked using method <c>#isTerminated</c>. Upon
             termination, all synchronization methods immediately return without
             waiting for advance, as indicated by a negative return value.
@@ -96,7 +96,7 @@
             number reaches a threshold. Method <c>#forceTermination</c> is
             also available to abruptly release waiting threads and allow them
             to terminate.</para>
-      <para>&lt;b&gt;Tiering.&lt;/b&gt; Phasers may be &lt;em&gt;tiered&lt;/em&gt; (i.e.,
+      <para><b>Tiering.</b> Phasers may be <i>tiered</i> (i.e.,
             constructed in tree structures) to reduce contention. Phasers with
             large numbers of parties that would otherwise experience heavy
             synchronization contention costs may instead be set up so that
@@ -112,7 +112,7 @@
             registered parties becomes zero as the result of an invocation of
             <c>#arriveAndDeregister</c>, the child phaser is deregistered
             from its parent.</para>
-      <para>&lt;b&gt;Monitoring.&lt;/b&gt; While synchronization methods may be invoked
+      <para><b>Monitoring.</b> While synchronization methods may be invoked
             only by registered parties, the current state of a phaser may be
             monitored by any caller.  At any given moment there are <c>#getRegisteredParties</c> parties in total, of which <c>#getArrivedParties</c> have arrived at the current phase (<c>#getPhase</c>).  When the remaining (<c>#getUnarrivedParties</c>)
             parties arrive, the phase advances.  The values returned by these
@@ -122,10 +122,10 @@
             informal monitoring.</para>
       <para>Memory consistency effects: Actions prior to any form of arrive
             method 
-            &lt;i&gt;happen-before&lt;/i&gt; a corresponding phase advance and
+            <i>happen-before</i> a corresponding phase advance and
             onAdvance actions (if present), which in turn <i>happen-before</i>
             actions following the phase advance.</para>
-      <para>&lt;b&gt;Sample usages:&lt;/b&gt;</para>
+      <para><b>Sample usages:</b></para>
       <para>A <c>Phaser</c> may be used instead of a <c>CountDownLatch</c>
             to control a one-shot action serving a variable number of parties.
             The typical idiom is for the method setting this up to first
@@ -211,7 +211,7 @@
             expected synchronization rates. A value as low as four may
             be appropriate for extremely small per-phase task bodies (thus
             high rates), or up to hundreds for extremely large ones.</para>
-      <para>&lt;b&gt;Implementation notes:&lt;/b&gt; This implementation restricts the
+      <para><b>Implementation notes:</b> This implementation restricts the
             maximum number of parties to 65535. Attempts to register additional
             parties result in <c>IllegalStateException</c>. However, you can and
             should create tiered phasers to accommodate arbitrarily large sets

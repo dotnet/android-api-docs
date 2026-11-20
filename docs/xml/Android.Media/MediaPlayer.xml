@@ -74,8 +74,8 @@
                following states:</para>
       <para>&lt;ul&gt;
                 &lt;li&gt;When a MediaPlayer object is just created using <c>new</c> or
-                    after <c>#reset()</c> is called, it is in the &lt;em&gt;Idle&lt;/em&gt; state; and after
-                    <c>#release()</c> is called, it is in the &lt;em&gt;End&lt;/em&gt; state. Between these
+                    after <c>#reset()</c> is called, it is in the <i>Idle</i> state; and after
+                    <c>#release()</c> is called, it is in the <i>End</i> state. Between these
                     two states is the life cycle of the MediaPlayer object.
                     &lt;ul&gt;
                     &lt;li&gt;There is a subtle but important difference between a newly constructed
@@ -87,14 +87,14 @@
                     <c>#setLooping(boolean)</c>,
                     <c>#setVolume(float, float)</c>, <c>#pause()</c>, <c>#start()</c>,
                     <c>#stop()</c>, <c>#seekTo(long, int)</c>, <c>#prepare()</c> or
-                    <c>#prepareAsync()</c> in the &lt;em&gt;Idle&lt;/em&gt; state for both cases. If any of these
+                    <c>#prepareAsync()</c> in the <i>Idle</i> state for both cases. If any of these
                     methods is called right after a MediaPlayer object is constructed,
                     the user supplied callback method OnErrorListener.onError() won't be
                     called by the internal player engine and the object state remains
                     unchanged; but if these methods are called right after <c>#reset()</c>,
                     the user supplied callback method OnErrorListener.onError() will be
                     invoked by the internal player engine and the object will be
-                    transfered to the &lt;em&gt;Error&lt;/em&gt; state. &lt;/li&gt;
+                    transfered to the <i>Error</i> state. &lt;/li&gt;
                     &lt;li&gt;You must keep a reference to a MediaPlayer instance to prevent it from being garbage
                     collected. If a MediaPlayer instance is garbage collected, <c>#release</c> will be
                     called, causing any ongoing playback to stop.
@@ -102,9 +102,9 @@
                     acquired resources, such as memory and codecs. Once you have called <c>#release</c>, you
                     must no longer interact with the released instance.
                     &lt;li&gt;MediaPlayer objects created using <c>new</c> is in the
-                    &lt;em&gt;Idle&lt;/em&gt; state, while those created with one
-                    of the overloaded convenient <c>create</c> methods are &lt;em&gt;NOT&lt;/em&gt;
-                    in the &lt;em&gt;Idle&lt;/em&gt; state. In fact, the objects are in the &lt;em&gt;Prepared&lt;/em&gt;
+                    <i>Idle</i> state, while those created with one
+                    of the overloaded convenient <c>create</c> methods are <i>NOT</i>
+                    in the <i>Idle</i> state. In fact, the objects are in the <i>Prepared</i>
                     state if the creation using <c>create</c> method is successful.
                     &lt;/li&gt;
                     &lt;/ul&gt;
@@ -121,11 +121,11 @@
                     <c>#setOnErrorListener(android.media.MediaPlayer.OnErrorListener)</c>.
                     &lt;ul&gt;
                     &lt;li&gt;It is important to note that once an error occurs, the
-                    MediaPlayer object enters the &lt;em&gt;Error&lt;/em&gt; state (except as noted
+                    MediaPlayer object enters the <i>Error</i> state (except as noted
                     above), even if an error listener has not been registered by the application.&lt;/li&gt;
-                    &lt;li&gt;In order to reuse a MediaPlayer object that is in the &lt;em&gt;
-                    Error&lt;/em&gt; state and recover from the error,
-                    <c>#reset()</c> can be called to restore the object to its &lt;em&gt;Idle&lt;/em&gt;
+                    &lt;li&gt;In order to reuse a MediaPlayer object that is in the <i>
+                    Error</i> state and recover from the error,
+                    <c>#reset()</c> can be called to restore the object to its <i>Idle</i>
                     state.&lt;/li&gt;
                     &lt;li&gt;It is good programming practice to have your application
                     register a OnErrorListener to look out for error notifications from
@@ -142,8 +142,8 @@
                     <c>#setDataSource(Context, Uri)</c>, or
                     <c>#setDataSource(FileDescriptor, long, long)</c>, or
                     <c>#setDataSource(MediaDataSource)</c> transfers a
-                    MediaPlayer object in the &lt;em&gt;Idle&lt;/em&gt; state to the
-                    &lt;em&gt;Initialized&lt;/em&gt; state.
+                    MediaPlayer object in the <i>Idle</i> state to the
+                    <i>Initialized</i> state.
                     &lt;ul&gt;
                     &lt;li&gt;An IllegalStateException is thrown if
                     setDataSource() is called in any other state.&lt;/li&gt;
@@ -153,15 +153,15 @@
                     <c>setDataSource</c> methods.&lt;/li&gt;
                     &lt;/ul&gt;
                     &lt;/li&gt;
-                &lt;li&gt;A MediaPlayer object must first enter the &lt;em&gt;Prepared&lt;/em&gt; state
+                &lt;li&gt;A MediaPlayer object must first enter the <i>Prepared</i> state
                     before playback can be started.
                     &lt;ul&gt;
                     &lt;li&gt;There are two ways (synchronous vs.
-                    asynchronous) that the &lt;em&gt;Prepared&lt;/em&gt; state can be reached:
+                    asynchronous) that the <i>Prepared</i> state can be reached:
                     either a call to <c>#prepare()</c> (synchronous) which
-                    transfers the object to the &lt;em&gt;Prepared&lt;/em&gt; state once the method call
+                    transfers the object to the <i>Prepared</i> state once the method call
                     returns, or a call to <c>#prepareAsync()</c> (asynchronous) which
-                    first transfers the object to the &lt;em&gt;Preparing&lt;/em&gt; state after the
+                    first transfers the object to the <i>Preparing</i> state after the
                     call returns (which occurs almost right away) while the internal
                     player engine continues working on the rest of preparation work
                     until the preparation work completes. When the preparation completes or when <c>#prepare()</c> call returns,
@@ -169,37 +169,37 @@
                     onPrepared() of the OnPreparedListener interface, if an
                     OnPreparedListener is registered beforehand via <c>#setOnPreparedListener(android.media.MediaPlayer.OnPreparedListener)</c>.&lt;/li&gt;
                     &lt;li&gt;It is important to note that
-                    the &lt;em&gt;Preparing&lt;/em&gt; state is a transient state, and the behavior
+                    the <i>Preparing</i> state is a transient state, and the behavior
                     of calling any method with side effect while a MediaPlayer object is
-                    in the &lt;em&gt;Preparing&lt;/em&gt; state is undefined.&lt;/li&gt;
+                    in the <i>Preparing</i> state is undefined.&lt;/li&gt;
                     &lt;li&gt;An IllegalStateException is
                     thrown if <c>#prepare()</c> or <c>#prepareAsync()</c> is called in
                     any other state.&lt;/li&gt;
-                    &lt;li&gt;While in the &lt;em&gt;Prepared&lt;/em&gt; state, properties
+                    &lt;li&gt;While in the <i>Prepared</i> state, properties
                     such as audio/sound volume, screenOnWhilePlaying, looping can be
                     adjusted by invoking the corresponding set methods.&lt;/li&gt;
                     &lt;/ul&gt;
                     &lt;/li&gt;
                 &lt;li&gt;To start the playback, <c>#start()</c> must be called. After
                     <c>#start()</c> returns successfully, the MediaPlayer object is in the
-                    &lt;em&gt;Started&lt;/em&gt; state. <c>#isPlaying()</c> can be called to test
-                    whether the MediaPlayer object is in the &lt;em&gt;Started&lt;/em&gt; state.
+                    <i>Started</i> state. <c>#isPlaying()</c> can be called to test
+                    whether the MediaPlayer object is in the <i>Started</i> state.
                     &lt;ul&gt;
-                    &lt;li&gt;While in the &lt;em&gt;Started&lt;/em&gt; state, the internal player engine calls
+                    &lt;li&gt;While in the <i>Started</i> state, the internal player engine calls
                     a user supplied OnBufferingUpdateListener.onBufferingUpdate() callback
                     method if a OnBufferingUpdateListener has been registered beforehand
                     via <c>#setOnBufferingUpdateListener(OnBufferingUpdateListener)</c>.
                     This callback allows applications to keep track of the buffering status
                     while streaming audio/video.&lt;/li&gt;
                     &lt;li&gt;Calling <c>#start()</c> has no effect
-                    on a MediaPlayer object that is already in the &lt;em&gt;Started&lt;/em&gt; state.&lt;/li&gt;
+                    on a MediaPlayer object that is already in the <i>Started</i> state.&lt;/li&gt;
                     &lt;/ul&gt;
                     &lt;/li&gt;
                 &lt;li&gt;Playback can be paused and stopped, and the current playback position
                     can be adjusted. Playback can be paused via <c>#pause()</c>. When the call to
                     <c>#pause()</c> returns, the MediaPlayer object enters the
-                    &lt;em&gt;Paused&lt;/em&gt; state. Note that the transition from the &lt;em&gt;Started&lt;/em&gt;
-                    state to the &lt;em&gt;Paused&lt;/em&gt; state and vice versa happens
+                    <i>Paused</i> state. Note that the transition from the <i>Started</i>
+                    state to the <i>Paused</i> state and vice versa happens
                     asynchronously in the player engine. It may take some time before
                     the state is updated in calls to <c>#isPlaying()</c>, and it can be
                     a number of seconds in the case of streamed content.
@@ -208,21 +208,21 @@
                     MediaPlayer object, and the resumed playback
                     position is the same as where it was paused. When the call to
                     <c>#start()</c> returns, the paused MediaPlayer object goes back to
-                    the &lt;em&gt;Started&lt;/em&gt; state.&lt;/li&gt;
+                    the <i>Started</i> state.&lt;/li&gt;
                     &lt;li&gt;Calling <c>#pause()</c> has no effect on
-                    a MediaPlayer object that is already in the &lt;em&gt;Paused&lt;/em&gt; state.&lt;/li&gt;
+                    a MediaPlayer object that is already in the <i>Paused</i> state.&lt;/li&gt;
                     &lt;/ul&gt;
                     &lt;/li&gt;
                 &lt;li&gt;Calling  <c>#stop()</c> stops playback and causes a
-                    MediaPlayer in the &lt;em&gt;Started&lt;/em&gt;, &lt;em&gt;Paused&lt;/em&gt;, &lt;em&gt;Prepared
-                    &lt;/em&gt; or &lt;em&gt;PlaybackCompleted&lt;/em&gt; state to enter the
-                    &lt;em&gt;Stopped&lt;/em&gt; state.
+                    MediaPlayer in the <i>Started</i>, <i>Paused</i>, <i>Prepared
+                    </i> or <i>PlaybackCompleted</i> state to enter the
+                    <i>Stopped</i> state.
                     &lt;ul&gt;
-                    &lt;li&gt;Once in the &lt;em&gt;Stopped&lt;/em&gt; state, playback cannot be started
+                    &lt;li&gt;Once in the <i>Stopped</i> state, playback cannot be started
                     until <c>#prepare()</c> or <c>#prepareAsync()</c> are called to set
-                    the MediaPlayer object to the &lt;em&gt;Prepared&lt;/em&gt; state again.&lt;/li&gt;
+                    the MediaPlayer object to the <i>Prepared</i> state again.&lt;/li&gt;
                     &lt;li&gt;Calling <c>#stop()</c> has no effect on a MediaPlayer
-                    object that is already in the &lt;em&gt;Stopped&lt;/em&gt; state.&lt;/li&gt;
+                    object that is already in the <i>Stopped</i> state.&lt;/li&gt;
                     &lt;/ul&gt;
                     &lt;/li&gt;
                 &lt;li&gt;The playback position can be adjusted with a call to
@@ -237,8 +237,8 @@
                     <c>#setOnSeekCompleteListener(OnSeekCompleteListener)</c>.&lt;/li&gt;
                     &lt;li&gt;Please
                     note that <c>#seekTo(long, int)</c> can also be called in the other states,
-                    such as &lt;em&gt;Prepared&lt;/em&gt;, &lt;em&gt;Paused&lt;/em&gt; and &lt;em&gt;PlaybackCompleted
-                    &lt;/em&gt; state. When <c>#seekTo(long, int)</c> is called in those states,
+                    such as <i>Prepared</i>, <i>Paused</i> and <i>PlaybackCompleted
+                    </i> state. When <c>#seekTo(long, int)</c> is called in those states,
                     one video frame will be displayed if the stream has video and the requested
                     position is valid.
                     &lt;/li&gt;
@@ -250,16 +250,16 @@
                     &lt;/li&gt;
                 &lt;li&gt;When the playback reaches the end of stream, the playback completes.
                     &lt;ul&gt;
-                    &lt;li&gt;If the looping mode was being set to &lt;var&gt;true&lt;/var&gt; with
+                    &lt;li&gt;If the looping mode was being set to <i>true</i> with
                     <c>#setLooping(boolean)</c>, the MediaPlayer object shall remain in
-                    the &lt;em&gt;Started&lt;/em&gt; state.&lt;/li&gt;
-                    &lt;li&gt;If the looping mode was set to &lt;var&gt;false
-                    &lt;/var&gt;, the player engine calls a user supplied callback method,
+                    the <i>Started</i> state.&lt;/li&gt;
+                    &lt;li&gt;If the looping mode was set to <i>false
+                    </i>, the player engine calls a user supplied callback method,
                     OnCompletion.onCompletion(), if a OnCompletionListener is registered
                     beforehand via <c>#setOnCompletionListener(OnCompletionListener)</c>.
-                    The invoke of the callback signals that the object is now in the &lt;em&gt;
-                    PlaybackCompleted&lt;/em&gt; state.&lt;/li&gt;
-                    &lt;li&gt;While in the &lt;em&gt;PlaybackCompleted&lt;/em&gt;
+                    The invoke of the callback signals that the object is now in the <i>
+                    PlaybackCompleted</i> state.&lt;/li&gt;
+                    &lt;li&gt;While in the <i>PlaybackCompleted</i>
                     state, calling <c>#start()</c> can restart the playback from the
                     beginning of the audio/video source.&lt;/li&gt;
             &lt;/ul&gt;
@@ -288,51 +288,51 @@
                 &lt;td&gt;{Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state does not change the
                     state. Calling this method in an invalid state transfers the object
-                    to the &lt;em&gt;Error&lt;/em&gt; state. &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+                    to the <i>Error</i> state. &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;getDuration &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Prepared, Started, Paused, Stopped, PlaybackCompleted}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Initialized, Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state does not change the
                     state. Calling this method in an invalid state transfers the object
-                    to the &lt;em&gt;Error&lt;/em&gt; state. &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+                    to the <i>Error</i> state. &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;getVideoHeight &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Initialized, Prepared, Started, Paused, Stopped,
                     PlaybackCompleted}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state does not change the
                     state. Calling this method in an invalid state transfers the object
-                    to the &lt;em&gt;Error&lt;/em&gt; state.  &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+                    to the <i>Error</i> state.  &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;getVideoWidth &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Initialized, Prepared, Started, Paused, Stopped,
                     PlaybackCompleted}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state does not change
                     the state. Calling this method in an invalid state transfers the
-                    object to the &lt;em&gt;Error&lt;/em&gt; state. &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+                    object to the <i>Error</i> state. &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;isPlaying &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Initialized, Prepared, Started, Paused, Stopped,
                      PlaybackCompleted}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state does not change
                     the state. Calling this method in an invalid state transfers the
-                    object to the &lt;em&gt;Error&lt;/em&gt; state. &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+                    object to the <i>Error</i> state. &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;pause &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Started, Paused, PlaybackCompleted}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Initialized, Prepared, Stopped, Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state transfers the
-                    object to the &lt;em&gt;Paused&lt;/em&gt; state. Calling this method in an
-                    invalid state transfers the object to the &lt;em&gt;Error&lt;/em&gt; state.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+                    object to the <i>Paused</i> state. Calling this method in an
+                    invalid state transfers the object to the <i>Error</i> state.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;prepare &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Initialized, Stopped}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Prepared, Started, Paused, PlaybackCompleted, Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state transfers the
-                    object to the &lt;em&gt;Prepared&lt;/em&gt; state. Calling this method in an
+                    object to the <i>Prepared</i> state. Calling this method in an
                     invalid state throws an IllegalStateException.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;prepareAsync &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Initialized, Stopped}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Prepared, Started, Paused, PlaybackCompleted, Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state transfers the
-                    object to the &lt;em&gt;Preparing&lt;/em&gt; state. Calling this method in an
+                    object to the <i>Preparing</i> state. Calling this method in an
                     invalid state throws an IllegalStateException.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;release &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;any &lt;/p&gt;&lt;/td&gt;
@@ -348,7 +348,7 @@
                 &lt;td&gt;{Idle, Initialized, Stopped, Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state does not change
                     the state. Calling this method in an invalid state transfers the
-                    object to the &lt;em&gt;Error&lt;/em&gt; state. &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+                    object to the <i>Error</i> state. &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;setAudioAttributes &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Initialized, Stopped, Prepared, Started, Paused,
                      PlaybackCompleted}&lt;/p&gt;&lt;/td&gt;
@@ -378,7 +378,7 @@
                 &lt;td&gt;{Initialized, Prepared, Started, Paused, Stopped, PlaybackCompleted,
                      Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state transfers the
-                    object to the &lt;em&gt;Initialized&lt;/em&gt; state. Calling this method in an
+                    object to the <i>Initialized</i> state. Calling this method in an
                     invalid state throws an IllegalStateException.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;setDisplay &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;any &lt;/p&gt;&lt;/td&gt;
@@ -400,7 +400,7 @@
                 &lt;td&gt;{Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state does not change
                     the state. Calling this method in an
-                    invalid state transfers the object to the &lt;em&gt;Error&lt;/em&gt; state.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+                    invalid state transfers the object to the <i>Error</i> state.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;isLooping &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;any &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{}&lt;/p&gt;&lt;/td&gt;
@@ -455,14 +455,14 @@
                 &lt;td&gt;{Prepared, Started, Paused, PlaybackCompleted}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Initialized, Stopped, Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state transfers the
-                    object to the &lt;em&gt;Started&lt;/em&gt; state. Calling this method in an
-                    invalid state transfers the object to the &lt;em&gt;Error&lt;/em&gt; state.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+                    object to the <i>Started</i> state. Calling this method in an
+                    invalid state transfers the object to the <i>Error</i> state.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;stop &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Prepared, Started, Stopped, Paused, PlaybackCompleted}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Initialized, Error}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;Successful invoke of this method in a valid state transfers the
-                    object to the &lt;em&gt;Stopped&lt;/em&gt; state. Calling this method in an
-                    invalid state transfers the object to the &lt;em&gt;Error&lt;/em&gt; state.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
+                    object to the <i>Stopped</i> state. Calling this method in an
+                    invalid state transfers the object to the <i>Error</i> state.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;
             &lt;tr&gt;&lt;td&gt;getTrackInfo &lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Prepared, Started, Stopped, Paused, PlaybackCompleted}&lt;/p&gt;&lt;/td&gt;
                 &lt;td&gt;{Idle, Initialized, Error}&lt;/p&gt;&lt;/td&gt;
@@ -483,7 +483,7 @@
             &lt;/table&gt;
             
             "Permissions"&gt;&lt;h3&gt;Permissions&lt;/h3&gt;</para>
-      <para>One may need to declare a corresponding WAKE_LOCK permission <c>android.R.styleable#AndroidManifestUsesPermission &amp;lt;uses-permission&amp;gt;</c>
+      <para>One may need to declare a corresponding WAKE_LOCK permission <c>android.R.styleable#AndroidManifestUsesPermission &lt;uses-permission&gt;</c>
             element.</para>
       <para>This class requires the <c>android.Manifest.permission#INTERNET</c> permission
             when used with network-based content.
@@ -665,7 +665,7 @@
         <param name="listener">The <c>AudioRouting.OnRoutingChangedListener</c> interface to receive
             notifications of rerouting events.</param>
         <param name="handler">Specifies the <c>Handler</c> object for the thread on which to execute
-            the callback. If &lt;code&gt;null&lt;/code&gt;, the handler on the main looper will be used.</param>
+            the callback. If <c>null</c>, the handler on the main looper will be used.</param>
         <summary>Adds an <c>AudioRouting.OnRoutingChangedListener</c> to receive notifications of routing
             changes on this MediaPlayer.</summary>
         <remarks>
@@ -1249,7 +1249,7 @@
       </Parameters>
       <Docs>
         <param name="context">the Context to use</param>
-        <param name="resid">the raw resource id (&lt;var&gt;R.raw.&amp;lt;something&gt;&lt;/var&gt;) for
+        <param name="resid">the raw resource id (&lt;var&gt;R.raw.&lt;something&gt;&lt;/var&gt;) for
                          the resource to use as the datasource</param>
         <summary>Convenience method to create a MediaPlayer for a given resource id.</summary>
         <returns>a MediaPlayer object, or null if creation failed</returns>
@@ -1364,7 +1364,7 @@
       </Parameters>
       <Docs>
         <param name="context">the Context to use</param>
-        <param name="resid">the raw resource id (&lt;var&gt;R.raw.&amp;lt;something&gt;&lt;/var&gt;) for
+        <param name="resid">the raw resource id (&lt;var&gt;R.raw.&lt;something&gt;&lt;/var&gt;) for
                          the resource to use as the datasource</param>
         <param name="audioAttributes">the <c>AudioAttributes</c> to be used by the media player.</param>
         <param name="audioSessionId">the audio session ID to be used by the media player,
@@ -3313,7 +3313,7 @@
         <remarks>
           <para>Selects a track.</para>
           <para>If a MediaPlayer is in invalid state, it throws an IllegalStateException exception.
-            If a MediaPlayer is in &lt;em&gt;Started&lt;/em&gt; state, the selected track is presented immediately.
+            If a MediaPlayer is in <i>Started</i> state, the selected track is presented immediately.
             If a MediaPlayer is not in Started state, it just marks the track to be played.</para>
           <para>In any valid state, if it is called multiple times on the same type of track (ie. Video,
             Audio, Timed Text), the most recent one will be chosen.</para>
@@ -3322,7 +3322,7 @@
             this function is called.</para>
           <para>Currently, only timed text, subtitle or audio tracks can be selected via this method.
             In addition, the support for selecting an audio track at runtime is pretty limited
-            in that an audio track can only be selected in the &lt;em&gt;Prepared&lt;/em&gt; state.</para>
+            in that an audio track can only be selected in the <i>Prepared</i> state.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaPlayer#selectTrack(int)" title="Reference documentation">Java documentation for <code>android.media.MediaPlayer.selectTrack(int)</code>.</a>
@@ -3786,7 +3786,7 @@
         <summary>Sets the data source as a content Uri.</summary>
         <remarks>
           <para>Sets the data source as a content Uri.</para>
-          <para>&lt;strong&gt;Note&lt;/strong&gt; that the cross domain redirection is allowed by default,
+          <para><b>Note</b> that the cross domain redirection is allowed by default,
             but that can be changed with key/value pairs through the headers parameter with
             "android-allow-cross-domain-redirect" as the key and "0" or "1" as the value to
             disallow or allow cross domain redirection.</para>
@@ -3916,7 +3916,7 @@
             a CookieHandler already, this API creates a CookieManager and populates its CookieStore with
             the provided cookies. If the app has installed its own handler already, this API requires the
             handler to be of CookieManager type such that the API can update the manager's CookieStore.</para>
-          <para>&lt;strong&gt;Note&lt;/strong&gt; that the cross domain redirection is allowed by default,
+          <para><b>Note</b> that the cross domain redirection is allowed by default,
             but that can be changed with key/value pairs through the headers parameter with
             "android-allow-cross-domain-redirect" as the key and "0" or "1" as the value to
             disallow or allow cross domain redirection.</para>

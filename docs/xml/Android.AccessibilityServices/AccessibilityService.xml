@@ -67,13 +67,13 @@
             &lt;/ul&gt;
             If either of these items is missing, the system will ignore the accessibility service.
             Following is an example declaration:</para>
-      <code lang="text/java">&amp;lt;service android:name=".MyAccessibilityService"
-                    android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"&amp;gt;
-                &amp;lt;intent-filter&amp;gt;
-                    &amp;lt;action android:name="android.accessibilityservice.AccessibilityService" /&amp;gt;
-                &amp;lt;/intent-filter&amp;gt;
+      <code lang="text/java">&lt;service android:name=".MyAccessibilityService"
+                    android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"&gt;
+                &lt;intent-filter&gt;
+                    &lt;action android:name="android.accessibilityservice.AccessibilityService" /&gt;
+                &lt;/intent-filter&gt;
                 . . .
-            &amp;lt;/service&amp;gt;</code>
+            &lt;/service&gt;</code>
       <para>&lt;h3&gt;Configuration&lt;/h3&gt;</para>
       <para>An accessibility service can be configured to receive specific types of accessibility events,
             listen only to specific packages, get events from each type only once in a given time frame,
@@ -83,20 +83,20 @@
             &lt;li&gt;
             Providing a <c>#SERVICE_META_DATA meta-data</c> entry in the manifest when declaring
             the service. A service declaration with a meta-data tag is presented below:</para>
-      <code lang="text/java">&amp;lt;service android:name=".MyAccessibilityService"&amp;gt;
-                &amp;lt;intent-filter&amp;gt;
-                    &amp;lt;action android:name="android.accessibilityservice.AccessibilityService" /&amp;gt;
-                &amp;lt;/intent-filter&amp;gt;
-                &amp;lt;meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibilityservice" /&amp;gt;
-            &amp;lt;/service&amp;gt;</code>
-      <para>&lt;strong&gt;Note:&lt;/strong&gt; This approach enables setting all properties.</para>
+      <code lang="text/java">&lt;service android:name=".MyAccessibilityService"&gt;
+                &lt;intent-filter&gt;
+                    &lt;action android:name="android.accessibilityservice.AccessibilityService" /&gt;
+                &lt;/intent-filter&gt;
+                &lt;meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibilityservice" /&gt;
+            &lt;/service&gt;</code>
+      <para><b>Note:</b> This approach enables setting all properties.</para>
       <para>For more details refer to <c>#SERVICE_META_DATA</c> and
-            <c>&amp;lt;{@link android.R.styleable#AccessibilityService accessibility-service}&amp;gt;</c>.</para>
+            <c>&lt;{@link android.R.styleable#AccessibilityService accessibility-service}&gt;</c>.</para>
       <para>&lt;/li&gt;
             &lt;li&gt;
             Calling <c>AccessibilityService#setServiceInfo(AccessibilityServiceInfo)</c>. Note
             that this method can be called any time to dynamically change the service configuration.</para>
-      <para>&lt;strong&gt;Note:&lt;/strong&gt; This approach enables setting only dynamically configurable properties:
+      <para><b>Note:</b> This approach enables setting only dynamically configurable properties:
             <c>AccessibilityServiceInfo#eventTypes</c>,
             <c>AccessibilityServiceInfo#feedbackType</c>,
             <c>AccessibilityServiceInfo#flags</c>,
@@ -116,7 +116,7 @@
             <c>AccessibilityService#findFocus(int)</c>,
             <c>AccessibilityService#getWindows()</c>, or
             <c>AccessibilityService#getRootInActiveWindow()</c>.</para>
-      <para>&lt;strong&gt;Note&lt;/strong&gt; An accessibility service may have requested to be notified for
+      <para><b>Note</b> An accessibility service may have requested to be notified for
             a subset of the event types, and thus be unaware when the node hierarchy has changed. It is also
             possible for a node to contain outdated information because the window content may change at any
             time.</para>
@@ -143,7 +143,7 @@
       <para>&lt;h3&gt;Notification strategy&lt;/h3&gt;</para>
       <para>All accessibility services are notified of all events they have requested, regardless of their
             feedback type.</para>
-      <para>&lt;strong&gt;Note:&lt;/strong&gt; The event notification timeout is useful to avoid propagating
+      <para><b>Note:</b> The event notification timeout is useful to avoid propagating
             events to the client too frequently since this is accomplished via an expensive
             interprocess call. One can think of the timeout as a criteria to determine when
             event generation has settled down.</para>
@@ -273,7 +273,7 @@
             This instance may be used to query the accessibility button's state and register listeners
             for interactions with and state changes for the accessibility button when
             <c>AccessibilityServiceInfo#FLAG_REQUEST_ACCESSIBILITY_BUTTON</c> is set.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; Not all devices are capable of displaying the accessibility button
+          <para><b>Note:</b> Not all devices are capable of displaying the accessibility button
             within a navigation area, and as such, use of this class should be considered only as an
             optional feature or shortcut on supported device implementations.</para>
           <para>
@@ -959,14 +959,14 @@
         <remarks>
           <para>Find the view that has the specified focus type. The search is performed
             across all windows.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; In order to access the windows your service has
+          <para><b>Note:</b> In order to access the windows your service has
             to declare the capability to retrieve window content by setting the
             <c>android.R.styleable#AccessibilityService_canRetrieveWindowContent</c>
             property in its meta-data. For details refer to <c>#SERVICE_META_DATA</c>.
             Also the service has to opt-in to retrieve the interactive windows by
             setting the <c>AccessibilityServiceInfo#FLAG_RETRIEVE_INTERACTIVE_WINDOWS</c>
             flag. Otherwise, the search will be performed only in the active window.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; If the view with <c>AccessibilityNodeInfo#FOCUS_INPUT</c>
+          <para><b>Note:</b> If the view with <c>AccessibilityNodeInfo#FOCUS_INPUT</c>
             is on an embedded view hierarchy which is embedded in a <c>android.view.SurfaceView</c> via
             <c>android.view.SurfaceView#setChildSurfacePackage</c>, there is a limitation that this API
             won't be able to find the node for the view. It's because views don't know about
@@ -1020,7 +1020,7 @@
         <remarks>
           <para>Get the controller for fingerprint gestures. This feature requires <c>AccessibilityServiceInfo#CAPABILITY_CAN_REQUEST_FINGERPRINT_GESTURES</c>.
             
-            &lt;strong&gt;Note: &lt;/strong&gt; The service must be connected before this method is called.</para>
+            <b>Note: </b> The service must be connected before this method is called.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/accessibilityservice/AccessibilityService#getFingerprintGestureController()" title="Reference documentation">Java documentation for <code>android.accessibilityservice.AccessibilityService.getFingerprintGestureController()</code>.</a>
@@ -3094,7 +3094,7 @@
             system's navigation area. This instance may be used to query the accessibility button's
             state and register listeners for interactions with and state changes for the accessibility
             button when <c>AccessibilityServiceInfo#FLAG_REQUEST_ACCESSIBILITY_BUTTON</c> is set.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; Not all devices are capable of displaying the accessibility button
+          <para><b>Note:</b> Not all devices are capable of displaying the accessibility button
             within a navigation area, and as such, use of this class should be considered only as an
             optional feature or shortcut on supported device implementations.</para>
           <para>
@@ -4268,7 +4268,7 @@
         <summary>Action to toggle docking the current app's window.</summary>
         <remarks>
           <para>Action to toggle docking the current app's window.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt;  It is effective only if it appears in <c>#getSystemActions()</c>.</para>
+          <para><b>Note:</b>  It is effective only if it appears in <c>#getSystemActions()</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/accessibilityservice/AccessibilityService#GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN" title="Reference documentation">Java documentation for <code>android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN</code>.</a>
@@ -4631,11 +4631,11 @@
         <remarks>
           <para>Called by the system when the user performs a specific gesture on the
             specific touch screen.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; To receive gestures an accessibility service must
+          <para><b>Note:</b> To receive gestures an accessibility service must
             request that the device is in touch exploration mode by setting the
             <c>AccessibilityServiceInfo#FLAG_REQUEST_TOUCH_EXPLORATION_MODE</c>
             flag.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; The default implementation calls <c>#onGesture(int)</c> when the
+          <para><b>Note:</b> The default implementation calls <c>#onGesture(int)</c> when the
             touch screen is default display.</para>
           <para>
             <format type="text/html">
@@ -4685,7 +4685,7 @@
           <para>Called by <c>#onGesture(AccessibilityGestureEvent)</c> when the user performs a specific
             gesture on the default display.
             
-            &lt;strong&gt;Note:&lt;/strong&gt; To receive gestures an accessibility service must
+            <b>Note:</b> To receive gestures an accessibility service must
             request that the device is in touch exploration mode by setting the
             <c>AccessibilityServiceInfo#FLAG_REQUEST_TOUCH_EXPLORATION_MODE</c>
             flag.</para>
@@ -4798,11 +4798,11 @@
             before they are passed to the rest of the system. This means that the events
             are first delivered here before they are passed to the device policy, the
             input method, or applications.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; It is important that key events are handled in such
+          <para><b>Note:</b> It is important that key events are handled in such
             a way that the event stream that would be passed to the rest of the system
             is well-formed. For example, handling the down event but not the up event
             and vice versa would generate an inconsistent event stream.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; The key events delivered in this method are copies
+          <para><b>Note:</b> The key events delivered in this method are copies
             and modifying them will have no effect on the events that will be passed
             to the system. This method is intended to perform purely filtering
             functionality.</para>
@@ -4856,7 +4856,7 @@
             including touch gestures. If this or any enabled service is using
             <c>AccessibilityServiceInfo#FLAG_REQUEST_TOUCH_EXPLORATION_MODE</c> then
             <c>#onMotionEvent</c> will not receive touchscreen events.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; The service must first request to listen to events using
+          <para><b>Note:</b> The service must first request to listen to events using
             <c>AccessibilityServiceInfo#setMotionEventSources</c>.
             <c>MotionEvent</c>s from sources in <c>AccessibilityServiceInfo#getMotionEventSources()</c>
             are not sent to the rest of the system. To stop listening to events from a given source, call
@@ -5055,7 +5055,7 @@
             can retrieve window content. The active window is the one that the user
             is currently touching or the window with input focus, if the user is not
             touching any window. It could be from any logical display.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; In order to access the root node your service has
+          <para><b>Note:</b> In order to access the root node your service has
             to declare the capability to retrieve window content by setting the
             <c>android.R.styleable#AccessibilityService_canRetrieveWindowContent</c>
             property in its meta-data. For details refer to <c>#SERVICE_META_DATA</c>.</para>
@@ -5186,9 +5186,9 @@
         <remarks>
           <para>Name under which an AccessibilityService component publishes information
             about itself. This meta-data must reference an XML resource containing an
-            <c>&amp;lt;{@link android.R.styleable#AccessibilityService accessibility-service}&amp;gt;</c>
+            <c>&lt;{@link android.R.styleable#AccessibilityService accessibility-service}&gt;</c>
             tag. This is a sample XML file configuring an accessibility service:</para>
-          <code lang="text/java">&amp;lt;accessibility-service
+          <code lang="text/java">&lt;accessibility-service
                 android:accessibilityEventTypes="typeViewClicked|typeViewFocused"
                 android:packageNames="foo.bar, foo.baz"
                 android:accessibilityFeedbackType="feedbackSpoken"
@@ -5198,7 +5198,7 @@
                 android:canRetrieveWindowContent="true"
                 android:canRequestTouchExplorationMode="true"
                 . . .
-            /&amp;gt;</code>
+            /&gt;</code>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/accessibilityservice/AccessibilityService#SERVICE_META_DATA" title="Reference documentation">Java documentation for <code>android.accessibilityservice.AccessibilityService.SERVICE_META_DATA</code>.</a>
@@ -5247,7 +5247,7 @@
         <summary>Sets the strokeWidth and color of the accessibility focus rectangle.</summary>
         <remarks>
           <para>Sets the strokeWidth and color of the accessibility focus rectangle.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; This setting persists until this or another active
+          <para><b>Note:</b> This setting persists until this or another active
             AccessibilityService changes it or the device reboots.</para>
           <para>
             <format type="text/html">
@@ -5885,7 +5885,7 @@
             are on top are reported first. Since the user can always
             interact with the window that has input focus by typing, the focused
             window is always returned (even if covered by a modal window).</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; In order to access the windows your service has
+          <para><b>Note:</b> In order to access the windows your service has
             to declare the capability to retrieve window content by setting the
             <c>android.R.styleable#AccessibilityService_canRetrieveWindowContent</c>
             property in its meta-data. For details refer to <c>#SERVICE_META_DATA</c>.
@@ -5942,7 +5942,7 @@
             are on top are reported first. Since the user can always
             interact with the window that has input focus by typing, the focused
             window is always returned (even if covered by a modal window).</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; In order to access the windows your service has
+          <para><b>Note:</b> In order to access the windows your service has
             to declare the capability to retrieve window content by setting the
             <c>android.R.styleable#AccessibilityService_canRetrieveWindowContent</c>
             property in its meta-data. For details refer to <c>#SERVICE_META_DATA</c>.

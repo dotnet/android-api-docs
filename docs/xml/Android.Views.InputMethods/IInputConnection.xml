@@ -168,14 +168,14 @@
             operations. The editor will try to avoid sending you updates
             about its state until <c>#endBatchEdit</c> is called. Batch
             edits nest.</para>
-          <para>&lt;strong&gt;IME authors:&lt;/strong&gt; use this to avoid getting
+          <para><b>IME authors:</b> use this to avoid getting
             calls to
             <c>android.inputmethodservice.InputMethodService#onUpdateSelection(int, int, int, int,
             int, int)</c> corresponding to intermediate state. Also, use this to avoid
             flickers that may arise from displaying intermediate state. Be
             sure to call <c>#endBatchEdit</c> for each call to this, or
             you may block updates in the editor.</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; while a batch edit is in
+          <para><b>Editor authors:</b> while a batch edit is in
             progress, take care not to send updates to the input method and
             not to update the display. IMEs use this intensively to this
             effect. Also please note that batch edits need to nest
@@ -280,7 +280,7 @@
         <remarks>
           <para>Called by the system up to only once to notify that the system is about to invalidate
             connection between the input method and the application.</para>
-          <para>&lt;strong&gt;Editor authors&lt;/strong&gt;: You can clear all the nested batch edit right now and
+          <para><b>Editor authors</b>: You can clear all the nested batch edit right now and
             you no longer need to handle subsequent callbacks on this connection, including
             <c>#beginBatchEdit()</c>}.  Note that although the system tries to call this method whenever
             possible, there may be a chance that this method is not called in some exceptional
@@ -339,10 +339,10 @@
             This will result in the same behavior as if the user had
             selected the completion from the actual UI. In all other
             respects, this behaves like <c>#commitText(CharSequence, int)</c>.</para>
-          <para>&lt;strong&gt;IME authors:&lt;/strong&gt; please take care to send the
+          <para><b>IME authors:</b> please take care to send the
             same object that you received through
             <c>android.inputmethodservice.InputMethodService#onDisplayCompletions(CompletionInfo[])</c>.</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; if you never call
+          <para><b>Editor authors:</b> if you never call
             <c>InputMethodSession#displayCompletions(CompletionInfo[])</c> or
             <c>InputMethodManager#displayCompletions(View, CompletionInfo[])</c> then
             a well-behaved IME should never call this on your input
@@ -352,7 +352,7 @@
             will cause the editor to call
             <c>android.inputmethodservice.InputMethodService#onUpdateSelection(int, int, int, int,
             int, int)</c> on the current IME after the batch input is over.
-            &lt;strong&gt;Editor authors&lt;/strong&gt;, for this to happen you need to
+            <b>Editor authors</b>, for this to happen you need to
             make the changes known to the input method by calling
             <c>InputMethodManager#updateSelection(View, int, int, int, int)</c>,
             but be careful to wait until the batch edit is over if one is
@@ -498,7 +498,7 @@
           <para>Calling this method will cause the editor to call
             <c>android.inputmethodservice.InputMethodService#onUpdateSelection(int, int, int, int,
             int, int)</c> on the current IME after the batch input is over.
-            &lt;strong&gt;Editor authors&lt;/strong&gt;, for this to happen you need to
+            <b>Editor authors</b>, for this to happen you need to
             make the changes known to the input method by calling
             <c>InputMethodManager#updateSelection(View, int, int, int, int)</c>,
             but be careful to wait until the batch edit is over if one is
@@ -567,7 +567,7 @@
           <para>Calling this method will cause the editor to call
             <c>android.inputmethodservice.InputMethodService#onUpdateSelection(int, int, int, int,
             int, int)</c> on the current IME after the batch input is over.
-            &lt;strong&gt;Editor authors&lt;/strong&gt;, for this to happen you need to
+            <b>Editor authors</b>, for this to happen you need to
             make the changes known to the input method by calling
             <c>InputMethodManager#updateSelection(View, int, int, int, int)</c>,
             but be careful to wait until the batch edit is over if one is
@@ -752,14 +752,14 @@
                    If this is greater than the number of existing characters between the cursor and
                    the end of the text, then this method does not fail but deletes all the characters in
                    that range.</param>
-        <summary>Delete &lt;var&gt;beforeLength&lt;/var&gt; characters of text before the
-            current cursor position, and delete &lt;var&gt;afterLength&lt;/var&gt;
+        <summary>Delete <i>beforeLength</i> characters of text before the
+            current cursor position, and delete <i>afterLength</i>
             characters of text after the current cursor position, excluding
             the selection.</summary>
         <returns>true on success, false if the input connection is no longer valid.</returns>
         <remarks>
-          <para>Delete &lt;var&gt;beforeLength&lt;/var&gt; characters of text before the
-            current cursor position, and delete &lt;var&gt;afterLength&lt;/var&gt;
+          <para>Delete <i>beforeLength</i> characters of text before the
+            current cursor position, and delete <i>afterLength</i>
             characters of text after the current cursor position, excluding
             the selection. Before and after refer to the order of the
             characters in the string, not to their visual representation:
@@ -774,14 +774,14 @@
             some characters in the composing span are deleted, the
             composing span will persist but get shortened by however many
             chars inside it have been removed.</para>
-          <para>&lt;strong&gt;IME authors:&lt;/strong&gt; please be careful not to
+          <para><b>IME authors:</b> please be careful not to
             delete only half of a surrogate pair. Also take care not to
             delete more characters than are in the editor, as that may have
             ill effects on the application. Calling this method will cause
             the editor to call
             <c>android.inputmethodservice.InputMethodService#onUpdateSelection(int, int, int, int,
             int, int)</c> on your service after the batch input is over.</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; please be careful of race
+          <para><b>Editor authors:</b> please be careful of race
             conditions in implementing this call. An IME can make a change
             to the text or change the selection position and use this
             method right away; you need to make sure the effects are
@@ -857,7 +857,7 @@
                 &lt;li&gt;This method does nothing if there are one or more invalid surrogate pairs in the
                 requested range.&lt;/li&gt;
             &lt;/ul&gt;</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; In addition to the requirement in
+          <para><b>Editor authors:</b> In addition to the requirement in
             <c>#deleteSurroundingText(int, int)</c>, make sure to do nothing when one ore more invalid
             surrogate pairs are found in the requested range.</para>
           <para>
@@ -904,9 +904,9 @@
         <remarks>
           <para>Tell the editor that you are done with a batch edit previously initiated with
             <c>#beginBatchEdit()</c>. This ends the latest batch only.</para>
-          <para>&lt;strong&gt;IME authors:&lt;/strong&gt; make sure you call this exactly once for each call to
+          <para><b>IME authors:</b> make sure you call this exactly once for each call to
             <c>#beginBatchEdit()</c>.</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; please be careful about batch edit nesting. Updates still
+          <para><b>Editor authors:</b> please be careful about batch edit nesting. Updates still
             to be held back until the end of the last batch edit.  In case you are delegating this API
             call to the one obtained from
             <c>android.widget.EditText#onCreateInputConnection(EditorInfo)</c>, there was an off-by-one
@@ -956,9 +956,9 @@
             currently active. This simply leaves the text as-is, removing
             any special composing styling or other state that was around
             it. The cursor position remains unchanged.</para>
-          <para>&lt;strong&gt;IME authors:&lt;/strong&gt; be aware that this call may be
+          <para><b>IME authors:</b> be aware that this call may be
             expensive with some editors.</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; please note that the cursor
+          <para><b>Editor authors:</b> please note that the cursor
             may be anywhere in the contents when this is called, including
             in the middle of the composing span or in a completely
             unrelated place. It must not move.</para>
@@ -1032,7 +1032,7 @@
             seconds to return). In either case, 0 is returned.</para>
           <para>This method does not affect the text in the editor in any
             way, nor does it affect the selection or composing spans.</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; please be careful of race
+          <para><b>Editor authors:</b> please be careful of race
             conditions in implementing this call. An IME can change the
             cursor position and use this method right away; you need to make
             sure the returned value is consistent with the results of the
@@ -1171,14 +1171,14 @@
           <para>If <c>#GET_TEXT_WITH_STYLES</c> is supplied as flags, the
             editor should return a <c>android.text.SpannableString</c>
             with all the spans set on the text.</para>
-          <para>&lt;strong&gt;IME authors:&lt;/strong&gt; please consider this will
+          <para><b>IME authors:</b> please consider this will
             trigger an IPC round-trip that will take some time. Assume this
             method consumes a lot of time. If you are using this to get the
             initial text around the cursor, you may consider using
             <c>EditorInfo#getInitialTextBeforeCursor(int, int)</c>,
             <c>EditorInfo#getInitialSelectedText(int)</c>, and
             <c>EditorInfo#getInitialTextAfterCursor(int, int)</c> to prevent IPC costs.</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; please be careful of race
+          <para><b>Editor authors:</b> please be careful of race
             conditions in implementing this call. An IME can make a change
             to the text or change the selection position and use this
             method right away; you need to make sure the returned value is
@@ -1237,17 +1237,17 @@
         <param name="afterLength">The expected length of the text after the cursor.</param>
         <param name="flags">Supplies additional options controlling how the text is returned. May be either
                          <c>0</c> or <c>#GET_TEXT_WITH_STYLES</c>.</param>
-        <summary>Gets the surrounding text around the current cursor, with &lt;var&gt;beforeLength&lt;/var&gt; characters
-            of text before the cursor (start of the selection), &lt;var&gt;afterLength&lt;/var&gt; characters of text
+        <summary>Gets the surrounding text around the current cursor, with <i>beforeLength</i> characters
+            of text before the cursor (start of the selection), <i>afterLength</i> characters of text
             after the cursor (end of the selection), and all of the selected text.</summary>
         <returns>an <c>android.view.inputmethod.SurroundingText</c> object describing the surrounding
             text and state of selection, or null if the input connection is no longer valid, or the
             editor can't comply with the request for some reason, or the application does not implement
             this method. The length of the returned text might be less than the sum of
-            &lt;var&gt;beforeLength&lt;/var&gt; and &lt;var&gt;afterLength&lt;/var&gt; .</returns>
+            <i>beforeLength</i> and <i>afterLength</i> .</returns>
         <remarks>
-          <para>Gets the surrounding text around the current cursor, with &lt;var&gt;beforeLength&lt;/var&gt; characters
-            of text before the cursor (start of the selection), &lt;var&gt;afterLength&lt;/var&gt; characters of text
+          <para>Gets the surrounding text around the current cursor, with <i>beforeLength</i> characters
+            of text before the cursor (start of the selection), <i>afterLength</i> characters of text
             after the cursor (end of the selection), and all of the selected text. The range are for java
             characters, not glyphs that can be multiple characters.</para>
           <para>This method may fail either if the input connection has become invalid (such as its
@@ -1258,7 +1258,7 @@
             selection or composing spans.</para>
           <para>If <c>#GET_TEXT_WITH_STYLES</c> is supplied as flags, the editor should return a
             <c>android.text.Spanned</c> with all the spans set on the text.</para>
-          <para>&lt;strong&gt;IME authors:&lt;/strong&gt; please consider this will trigger an IPC round-trip that
+          <para><b>IME authors:</b> please consider this will trigger an IPC round-trip that
             will take some time. Assume this method consumes a lot of time. If you are using this to get
             the initial surrounding text around the cursor, you may consider using
             <c>EditorInfo#getInitialTextBeforeCursor(int, int)</c>,
@@ -1311,12 +1311,12 @@
         <param name="n">The expected length of the text. This must be non-negative.</param>
         <param name="flags">Supplies additional options controlling how the text is
             returned. May be either <c>0</c> or <c>#GET_TEXT_WITH_STYLES</c>.</param>
-        <summary>Get &lt;var&gt;n&lt;/var&gt; characters of text after the current cursor
+        <summary>Get <i>n</i> characters of text after the current cursor
             position.</summary>
         <returns>the text after the cursor position; the length of the
-            returned text might be less than &lt;var&gt;n&lt;/var&gt;.</returns>
+            returned text might be less than <i>n</i>.</returns>
         <remarks>
-          <para>Get &lt;var&gt;n&lt;/var&gt; characters of text after the current cursor
+          <para>Get <i>n</i> characters of text after the current cursor
             position.</para>
           <para>This method may fail either if the input connection has
             become invalid (such as its process crashing) or the client is
@@ -1327,14 +1327,14 @@
           <para>If <c>#GET_TEXT_WITH_STYLES</c> is supplied as flags, the
             editor should return a <c>android.text.SpannableString</c>
             with all the spans set on the text.</para>
-          <para>&lt;strong&gt;IME authors:&lt;/strong&gt; please consider this will
+          <para><b>IME authors:</b> please consider this will
             trigger an IPC round-trip that will take some time. Assume this
             method consumes a lot of time. If you are using this to get the
             initial text around the cursor, you may consider using
             <c>EditorInfo#getInitialTextBeforeCursor(int, int)</c>,
             <c>EditorInfo#getInitialSelectedText(int)</c>, and
             <c>EditorInfo#getInitialTextAfterCursor(int, int)</c> to prevent IPC costs.</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; please be careful of race
+          <para><b>Editor authors:</b> please be careful of race
             conditions in implementing this call. An IME can make a change
             to the text and use this method right away; you need to make
             sure the returned value is consistent with the result of the
@@ -1391,12 +1391,12 @@
         <param name="n">The expected length of the text. This must be non-negative.</param>
         <param name="flags">Supplies additional options controlling how the text is
             returned. May be either <c>0</c> or <c>#GET_TEXT_WITH_STYLES</c>.</param>
-        <summary>Get &lt;var&gt;n&lt;/var&gt; characters of text before the current cursor
+        <summary>Get <i>n</i> characters of text before the current cursor
             position.</summary>
         <returns>the text before the cursor position; the length of the
-            returned text might be less than &lt;var&gt;n&lt;/var&gt;.</returns>
+            returned text might be less than <i>n</i>.</returns>
         <remarks>
-          <para>Get &lt;var&gt;n&lt;/var&gt; characters of text before the current cursor
+          <para>Get <i>n</i> characters of text before the current cursor
             position.</para>
           <para>This method may fail either if the input connection has
             become invalid (such as its process crashing) or the editor is
@@ -1407,7 +1407,7 @@
           <para>If <c>#GET_TEXT_WITH_STYLES</c> is supplied as flags, the
             editor should return a <c>android.text.SpannableString</c>
             with all the spans set on the text.</para>
-          <para>&lt;strong&gt;IME authors:&lt;/strong&gt; please consider this will
+          <para><b>IME authors:</b> please consider this will
             trigger an IPC round-trip that will take some time. Assume this
             method consumes a lot of time. Also, please keep in mind the
             Editor may choose to return less characters than requested even
@@ -1416,7 +1416,7 @@
             using <c>EditorInfo#getInitialTextBeforeCursor(int, int)</c>,
             <c>EditorInfo#getInitialSelectedText(int)</c>, and
             <c>EditorInfo#getInitialTextAfterCursor(int, int)</c> to prevent IPC costs.</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; please be careful of race
+          <para><b>Editor authors:</b> please be careful of race
             conditions in implementing this call. An IME can make a change
             to the text and use this method right away; you need to make
             sure the returned value is consistent with the result of the
@@ -1664,7 +1664,7 @@
         <Parameter Name="data" Type="Android.OS.Bundle" />
       </Parameters>
       <Docs>
-        <param name="action">Name of the command to be performed. This &lt;em&gt;must&lt;/em&gt;
+        <param name="action">Name of the command to be performed. This <i>must</i>
             be a scoped name, i.e. prefixed with a package name you own, so that
             different developers will not create conflicting commands.</param>
         <param name="data">Any data to include with the command.</param>
@@ -1993,12 +1993,12 @@
         <remarks>
           <para>Called back when the connected IME switches between fullscreen and normal modes.</para>
           <para />
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; There is a bug on
+          <para><b>Editor authors:</b> There is a bug on
             <c>android.os.Build.VERSION_CODES#O</c> and later devices that this method is called back
             on the main thread even when <c>#getHandler()</c> is overridden.  This bug is fixed in
             <c>android.os.Build.VERSION_CODES#TIRAMISU</c>.</para>
           <para />
-          <para>&lt;strong&gt;IME authors:&lt;/strong&gt; On <c>android.os.Build.VERSION_CODES#O</c> and later
+          <para><b>IME authors:</b> On <c>android.os.Build.VERSION_CODES#O</c> and later
             devices, input methods are no longer allowed to directly call this method at any time.
             To signal this event in the target application, input methods should always call
             <c>InputMethodService#updateFullscreenMode()</c> instead. This approach should work on API
@@ -2199,10 +2199,10 @@
             covered by or in vicinity of the given <c>bounds</c>. It can be used as a supplementary
             method to implement the handwriting gesture API -
             <c>#performHandwritingGesture(HandwritingGesture, Executor, IntConsumer)</c>.</para>
-          <para>&lt;strong&gt;Editor authors&lt;/strong&gt;: It's preferred that the editor returns a
+          <para><b>Editor authors</b>: It's preferred that the editor returns a
             <c>TextBoundsInfo</c> of all the text lines whose bounds intersect with the given
             <c>bounds</c>.</para>
-          <para>&lt;strong&gt;IME authors&lt;/strong&gt;: This method is expensive when the text is long. Please
+          <para><b>IME authors</b>: This method is expensive when the text is long. Please
             consider that both the text bounds computation and IPC round-trip to send the data are time
             consuming. It's preferable to only request text bounds in smaller areas.</para>
           <para>
@@ -2465,7 +2465,7 @@
             cause the editor to call
             <c>android.inputmethodservice.InputMethodService#onUpdateSelection(int, int, int, int,
             int, int)</c> on the current IME after the batch input is over.</para>
-          <para>&lt;strong&gt;Editor authors:&lt;/strong&gt; please keep in mind the
+          <para><b>Editor authors:</b> please keep in mind the
             text may be very similar or completely different than what was
             in the composing span at call time, or there may not be a
             composing span at all. Please note that although it's not
@@ -2730,7 +2730,7 @@
             the editor to call
             <c>android.inputmethodservice.InputMethodService#onUpdateSelection(int, int, int, int,
             int, int)</c> on the current IME after the batch input is over.
-            &lt;strong&gt;Editor authors&lt;/strong&gt;, for this to happen you need to
+            <b>Editor authors</b>, for this to happen you need to
             make the changes known to the input method by calling
             <c>InputMethodManager#updateSelection(View, int, int, int, int)</c>,
             but be careful to wait until the batch edit is over if one is
@@ -2787,12 +2787,12 @@
         <remarks>
           <para>Called by the system when it needs to take a snapshot of multiple text-related data in an
             atomic manner.</para>
-          <para>&lt;strong&gt;Editor authors&lt;/strong&gt;: Supporting this method is strongly encouraged. Atomically
+          <para><b>Editor authors</b>: Supporting this method is strongly encouraged. Atomically
             taken <c>TextSnapshot</c> is going to be really helpful for the system when optimizing IPCs
             in a safe and deterministic manner.  Return <c>null</c> if an atomically taken
             <c>TextSnapshot</c> is unavailable.  The system continues supporting such a scenario
             gracefully.</para>
-          <para>&lt;strong&gt;IME authors&lt;/strong&gt;: Currently IMEs cannot call this method directly and always
+          <para><b>IME authors</b>: Currently IMEs cannot call this method directly and always
             receive <c>null</c> as the result.</para>
           <para>
             <format type="text/html">
