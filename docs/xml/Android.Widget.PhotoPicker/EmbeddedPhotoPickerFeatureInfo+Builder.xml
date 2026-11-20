@@ -331,10 +331,13 @@
         <Parameter Name="highlightAlbumId" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="highlightAlbumId">One of the above mentioned string params specifying the album name. This value cannot be null.</param>
+        <param name="highlightAlbumId">One of the album values listed in the remarks, which specifies the album name. This value cannot be null.</param>
         <summary>Sets the album whose media items the embedded Photo Picker should highlight.</summary>
         <returns>This builder with the album highlight setting updated.</returns>
         <remarks>
+          <para>The app can choose to highlight media items of a photopicker album in the embedded photopicker in its expanded state. These can be one of Favorites, Camera, Screenshots, Videos or Downloads. In order to do so, the input value should be one of the album values:</para>
+          <list type="bullet"><item><term><see cref="F:Android.Provider.MediaStore.PickImagesHighlightAlbumFavorites" /> for the Favorites album</term></item><item><term><see cref="F:Android.Provider.MediaStore.PickImagesHighlightAlbumCamera" /> for the Camera album</term></item><item><term><see cref="F:Android.Provider.MediaStore.PickImagesHighlightAlbumScreenshots" /> for the Screenshots album</term></item><item><term><see cref="F:Android.Provider.MediaStore.PickImagesHighlightAlbumVideos" /> for the Videos album</term></item><item><term><see cref="F:Android.Provider.MediaStore.PickImagesHighlightAlbumDownloads" /> for the Downloads album</term></item></list>
+          <para>The value of this string param must not be empty or null in case the app wants to show a highlighted album media section. An empty value will result in simply ignoring the request for a highlighted media section. A null value will result in IllegalArgumentException being thrown. Any other value except the ones specified will also result in IllegalArgumentException to be thrown. The app can also choose to highlight media items based on a text query using <see cref="M:Android.Widget.PhotoPicker.EmbeddedPhotoPickerFeatureInfo.Builder.SetHighlightSearchMediaTextQuery(System.String)" />. Only one of album highlight or text highlight should be used at any point. Using both will result in IllegalArgumentException to be thrown.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/widget/photopicker/EmbeddedPhotoPickerFeatureInfo.Builder#setHighlightAlbumId(java.lang.String)" title="Reference documentation">Android reference for <code>android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo.Builder.setHighlightAlbumId</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -404,11 +407,14 @@
         <Parameter Name="highlightType" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="highlightType">One of the above mentioned int params specifying the highlight type.</param>
+        <param name="highlightType">One of the highlight type values listed in the remarks.</param>
         <summary>The app can choose to specify the highlight type i.e. the way in which the highlighted media results will be shown in the photopicker.</summary>
         <returns>This builder with the highlight display type updated.</returns>
         <remarks>
           <para>The app can choose to specify the highlight type i.e. the way in which the highlighted media results will be shown in the photopicker. The highlight type can be set for both album and search highlights.</para>
+          <para>The value can be one of:</para>
+          <list type="bullet"><item><term><see cref="F:Android.Provider.MediaStore.PickImagesHighlightTypeCollapsed" /> to show a highlighted media section in the photopicker.</term></item><item><term><see cref="F:Android.Provider.MediaStore.PickImagesHighlightTypeExpanded" /> to show a highlighted media results grid. If this is the preferred highlight type, the embedded picker must be launched in the expanded state initially by the app itself and <see cref="M:Android.Widget.PhotoPicker.EmbeddedPhotoPickerFeatureInfo.Builder.SetPickerLaunchedInExpandedState(System.Boolean)" /> must be set to true to indicate the same. If the embedded picker's initial expanded state is found to be false, then the request for <see cref="F:Android.Provider.MediaStore.PickImagesHighlightTypeExpanded" /> is ignored.</term></item></list>
+          <para>The default highlight type value will be <see cref="F:Android.Provider.MediaStore.PickImagesHighlightTypeCollapsed" />. Any other input highlight value will result in IllegalArgumentException to be thrown.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/widget/photopicker/EmbeddedPhotoPickerFeatureInfo.Builder#setHighlightType(int)" title="Reference documentation">Android reference for <code>android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo.Builder.setHighlightType</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -448,11 +454,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="launchTab">One of the above int params specifying the start destination for launching picker. Value is one of the following: <see cref="F:Android.Widget.PhotoPicker.EmbeddedPhotoPickerLaunchTab.Unset" />; <see cref="F:Android.Widget.PhotoPicker.EmbeddedPhotoPickerLaunchTab.Albums" />; <see cref="F:Android.Widget.PhotoPicker.EmbeddedPhotoPickerLaunchTab.Images" /></param>
-        <summary>The value of this int param must be set in case the app wants to launch to a particular start destination.</summary>
+        <param name="launchTab">One of the values listed in the remarks, which specifies the start destination for launching the picker. Value is one of the following: <see cref="F:Android.Widget.PhotoPicker.EmbeddedPhotoPickerLaunchTab.Unset" />; <see cref="F:Android.Widget.PhotoPicker.EmbeddedPhotoPickerLaunchTab.Albums" />; <see cref="F:Android.Widget.PhotoPicker.EmbeddedPhotoPickerLaunchTab.Images" /></param>
+        <summary>Specifies the default tab to display when the embedded PhotoPicker is first launched.</summary>
         <returns>A builder with the requested initial tab configured.</returns>
         <remarks>
-          <para>The value of this int param must be set in case the app wants to launch to a particular start destination.</para>
+          <para>Specifies the default tab to display when the embedded PhotoPicker is first launched.</para>
+          <para>The app can choose to launch to a specific tab in the embedded photopicker. This can be the Photos tab (which will be the default tab if not specified by the app) or the Collections tab. In order to do so, the input value should be one of the following values:</para>
+          <list type="bullet"><item><term><see cref="F:Android.Widget.PhotoPicker.EmbeddedPhotoPickerLaunchTab.Images" /> for the Photos tab.</term></item><item><term><see cref="F:Android.Widget.PhotoPicker.EmbeddedPhotoPickerLaunchTab.Albums" /> for the Collections tab.</term></item><item><term><see cref="F:Android.Widget.PhotoPicker.EmbeddedPhotoPickerLaunchTab.Unset" /> for the default tab.</term></item></list>
+          <para>The value of this parameter must be set in case the app wants to launch to a particular start destination.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/widget/photopicker/EmbeddedPhotoPickerFeatureInfo.Builder#setLaunchTab(int)" title="Reference documentation">Android reference for <code>android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo.Builder.setLaunchTab</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -807,7 +816,7 @@
         <summary>This method was deprecated in API level 37.1.</summary>
         <returns>This Builder object to allow for chaining of calls. This value cannot be null.</returns>
         <remarks>
-          <para>This method was deprecated in API level 37.1. Use (EmbeddedPhotoPickerUiCustomizationParams) to set all UI parameters, including embedded-specific ones.</para>
+          <para>This method was deprecated in API level 37.1. Use <see cref="M:Android.Widget.PhotoPicker.EmbeddedPhotoPickerFeatureInfo.Builder.SetEmbeddedUiCustomizationParams(Android.Widget.PhotoPicker.EmbeddedPhotoPickerUiCustomizationParams)" /> to set all UI parameters, including embedded-specific ones.</para>
           <para>Sets the ui customization params to apply to the Photo Picker.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/widget/photopicker/EmbeddedPhotoPickerFeatureInfo.Builder#setUiCustomizationParams(android.widget.photopicker.PhotoPickerUiCustomizationParams)" title="Reference documentation">Android reference for <code>android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo.Builder.setUiCustomizationParams</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
