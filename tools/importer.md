@@ -80,6 +80,24 @@ Select one or more patterns with `--pattern`. The default is all patterns:
 | `duplicate-reference-links` | When remarks have one `Java documentation for` link and one single-line `Android reference for` paragraph, compares both targets with the owner's `Register` name and JNI signature. If the Java link matches, the added Android paragraph is removed. If only the Android link matches, the Java link paragraph, which names another overload, is removed. | Owners without a registration, other layouts, and pairs where neither link matches. |
 | `nested-type-crefs` | Replaces `+` with `.` in a `cref` when only the dotted form is a DocId in `docs/xml`. | Crefs whose dotted form does not exist. |
 | `javadoc-stars` | Removes a stray Javadoc ` *` directly before the closing tag of a channel or paragraph. | |
+| `ai-source-links` | Removes a whole-line paragraph that only cites an implementation source file (`android.googlesource.com`, `cs.android.com`, `github.com/aosp-mirror`, `github.com/apache`, `github.com/dotnet/java-interop/blob`, `github.com/dotnet/android/blob`, or a marker such as `Implementation source:` or `Verified against`). The other text of the paragraph may only be words such as "See the Android 16 implementation". Requires `--baseline`. | Citations that the baseline file also has, citations inside other text (`inline_citation`, which needs a manual rewrite), a paragraph that shares a line with other content, and a paragraph that is the only content of its channel. Official `Java documentation for` and developer.android.com links are not citations. |
+| `regex-links` | Removes a leftover regular expression `.*` from a `Java documentation for` link, for example `#indexOf(.*int)` becomes `#indexOf(int)` in the href and in the code text. | Links whose code text does not match the href, and links whose member name or JNI parameter types do not match the owner's `Register` attribute. |
+| `escaped-html` | Changes an escaped inline tag pair that renders as literal text to ECMA XML: `&lt;strong&gt;` and `&lt;b&gt;` become `<b>`, `&lt;em&gt;`, `&lt;i&gt;` and `&lt;var&gt;` become `<i>`, and `&lt;code&gt;` becomes `<c>`. Changes a double-escaped entity such as `&amp;lt;`, `&amp;quot;` or `&amp;#92;` to `&lt;`, `&quot;` or `&#92;`. | Text inside `c`, `code`, `pre` or `format` (for tag pairs) and inside `format` (for entities), tags not separated from the words around them, channels that talk about escaping, entities with more than two escape levels, and other named entities such as `&amp;nbsp;`. |
+| `empty-see-also` | Removes a whole-line `<para>See also:</para>` heading that has no items after it. The targets are not restored here because the tool does not use the network; `restore-altmember` restores the `<altmember>` elements that the baseline had for the same members. | A summary that is only `See also:` (it must not become empty), and a heading followed by a list or by `see` elements. |
+| `getter-setter-hrefs` | For a property, restores the baseline `Java documentation for` href when the current href names another member than the code text, for example a setter anchor for `getFoo()`. Requires `--baseline`. | Methods and constructors, and links without exactly one matching baseline href. |
+| `restore-altmember` | Appends the baseline `<altmember>` elements after the last channel when the member has none now. Requires `--baseline`. | Members that keep some `<altmember>` elements, and crefs that are not a DocId in `docs/xml`. |
+
+`ai-source-links`, `getter-setter-hrefs` and `restore-altmember` compare each
+file with the same file in `--baseline <directory>`, a copy of `docs\xml` from
+before AI-assisted authoring (commit `86f7744a1`). The default pattern set
+includes them only when `--baseline` is given. Create the copy outside the
+repository:
+
+```powershell
+New-Item -ItemType Directory C:\temp\docs-baseline | Out-Null
+git archive 86f7744a1 docs/xml | tar -x -C C:\temp\docs-baseline
+dotnet run tools\importer.cs -- --repair-docs --baseline C:\temp\docs-baseline\docs\xml --pattern restore-altmember --path docs\xml --max-changes 10000 --report artifacts\repair-altmember
+```
 
 `--protect-lines <file>` skips repairs that touch listed line spans, for example
 spans that an open pull request changes. Each line has the form
@@ -88,7 +106,8 @@ Derive the spans from `git diff -U0` against the pull request's merge base and
 add one line of padding on each side.
 
 Each repair replaces an exact lexical span inside one `<Docs>` channel and
-keeps BOM, newlines and all other bytes. Before a file is written, the mode
+keeps BOM, newlines and all other bytes; `restore-altmember` only appends
+`<altmember>` elements after the last channel. Before a file is written, the mode
 parses the result, checks that XML outside `<Docs>`, the channel list and the
 placeholder count are unchanged, checks that every new cref resolves, and runs
 the detection again to prove the repair is idempotent. `--max-changes` counts

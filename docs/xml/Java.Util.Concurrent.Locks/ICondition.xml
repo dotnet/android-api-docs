@@ -41,14 +41,14 @@
             Where a <c>Lock</c> replaces the use of <c>synchronized</c> methods
             and statements, a <c>Condition</c> replaces the use of the Object
             monitor methods.</para>
-      <para>Conditions (also known as &lt;em&gt;condition queues&lt;/em&gt; or
-            &lt;em&gt;condition variables&lt;/em&gt;) provide a means for one thread to
-            suspend execution (to &amp;quot;wait&amp;quot;) until notified by another
+      <para>Conditions (also known as <i>condition queues</i> or
+            <i>condition variables</i>) provide a means for one thread to
+            suspend execution (to &quot;wait&quot;) until notified by another
             thread that some state condition may now be true.  Because access
             to this shared state information occurs in different threads, it
             must be protected, so a lock of some form is associated with the
             condition. The key property that waiting for a condition provides
-            is that it &lt;em&gt;atomically&lt;/em&gt; releases the associated lock and
+            is that it <i>atomically</i> releases the associated lock and
             suspends the current thread, just like <c>Object.wait</c>.</para>
       <para>A <c>Condition</c> instance is intrinsically bound to a lock.
             To obtain a <c>Condition</c> instance for a particular <c>Lock</c>
@@ -63,7 +63,7 @@
             only notifying a single thread at a time when items or spaces become
             available in the buffer. This can be achieved using two
             <c>Condition</c> instances.</para>
-      <code lang="text/java">class BoundedBuffer&amp;lt;E&amp;gt; {
+      <code lang="text/java">class BoundedBuffer&lt;E&gt; {
               &lt;b&gt;final Lock lock = new ReentrantLock();&lt;/b&gt;
               final Condition notFull  = &lt;b&gt;lock.newCondition(); &lt;/b&gt;
               final Condition notEmpty = &lt;b&gt;lock.newCondition(); &lt;/b&gt;
@@ -125,8 +125,8 @@
             will result in a <c>NullPointerException</c> being thrown.
             
             &lt;h2&gt;Implementation Considerations&lt;/h2&gt;</para>
-      <para>When waiting upon a <c>Condition</c>, a &amp;quot;&lt;em&gt;spurious
-            wakeup&lt;/em&gt;&amp;quot; is permitted to occur, in
+      <para>When waiting upon a <c>Condition</c>, a &quot;&lt;em&gt;spurious
+            wakeup&lt;/em&gt;&quot; is permitted to occur, in
             general, as a concession to the underlying platform semantics.
             This has little practical impact on most application programs as a
             <c>Condition</c> should always be waited upon in a loop, testing
@@ -197,7 +197,7 @@
             Thread#interrupt interrupted.</para>
           <para>The lock associated with this <c>Condition</c> is atomically
             released and the current thread becomes disabled for thread scheduling
-            purposes and lies dormant until &lt;em&gt;one&lt;/em&gt; of four things happens:
+            purposes and lies dormant until <i>one</i> of four things happens:
             &lt;ul&gt;
             &lt;li&gt;Some other thread invokes the <c>#signal</c> method for this
             <c>Condition</c> and the current thread happens to be chosen as the
@@ -206,11 +206,11 @@
             <c>Condition</c>; or
             &lt;li&gt;Some other thread Thread#interrupt interrupts the
             current thread, and interruption of thread suspension is supported; or
-            &lt;li&gt;A &amp;quot;&lt;em&gt;spurious wakeup&lt;/em&gt;&amp;quot; occurs.
+            &lt;li&gt;A &quot;&lt;em&gt;spurious wakeup&lt;/em&gt;&quot; occurs.
             &lt;/ul&gt;</para>
           <para>In all cases, before this method can return the current thread must
             re-acquire the lock associated with this condition. When the
-            thread returns it is &lt;em&gt;guaranteed&lt;/em&gt; to hold this lock.</para>
+            thread returns it is <i>guaranteed</i> to hold this lock.</para>
           <para>If the current thread:
             &lt;ul&gt;
             &lt;li&gt;has its interrupted status set on entry to this method; or
@@ -221,7 +221,7 @@
             interrupted status is cleared. It is not specified, in the first
             case, whether or not the test for interruption occurs before the lock
             is released.</para>
-          <para>&lt;b&gt;Implementation Considerations&lt;/b&gt;</para>
+          <para><b>Implementation Considerations</b></para>
           <para>The current thread is assumed to hold the lock associated with this
             <c>Condition</c> when this method is called.
             It is up to the implementation to determine if this is
@@ -343,7 +343,7 @@
             or the specified waiting time elapses.</para>
           <para>The lock associated with this condition is atomically
             released and the current thread becomes disabled for thread scheduling
-            purposes and lies dormant until &lt;em&gt;one&lt;/em&gt; of five things happens:
+            purposes and lies dormant until <i>one</i> of five things happens:
             &lt;ul&gt;
             &lt;li&gt;Some other thread invokes the <c>#signal</c> method for this
             <c>Condition</c> and the current thread happens to be chosen as the
@@ -353,11 +353,11 @@
             &lt;li&gt;Some other thread Thread#interrupt interrupts the
             current thread, and interruption of thread suspension is supported; or
             &lt;li&gt;The specified waiting time elapses; or
-            &lt;li&gt;A &amp;quot;&lt;em&gt;spurious wakeup&lt;/em&gt;&amp;quot; occurs.
+            &lt;li&gt;A &quot;&lt;em&gt;spurious wakeup&lt;/em&gt;&quot; occurs.
             &lt;/ul&gt;</para>
           <para>In all cases, before this method can return the current thread must
             re-acquire the lock associated with this condition. When the
-            thread returns it is &lt;em&gt;guaranteed&lt;/em&gt; to hold this lock.</para>
+            thread returns it is <i>guaranteed</i> to hold this lock.</para>
           <para>If the current thread:
             &lt;ul&gt;
             &lt;li&gt;has its interrupted status set on entry to this method; or
@@ -397,7 +397,7 @@
             Such precision loss would make it difficult for programmers to
             ensure that total waiting times are not systematically shorter
             than specified when re-waits occur.</para>
-          <para>&lt;b&gt;Implementation Considerations&lt;/b&gt;</para>
+          <para><b>Implementation Considerations</b></para>
           <para>The current thread is assumed to hold the lock associated with this
             <c>Condition</c> when this method is called.
             It is up to the implementation to determine if this is
@@ -452,24 +452,24 @@
           <para>Causes the current thread to wait until it is signalled.</para>
           <para>The lock associated with this condition is atomically
             released and the current thread becomes disabled for thread scheduling
-            purposes and lies dormant until &lt;em&gt;one&lt;/em&gt; of three things happens:
+            purposes and lies dormant until <i>one</i> of three things happens:
             &lt;ul&gt;
             &lt;li&gt;Some other thread invokes the <c>#signal</c> method for this
             <c>Condition</c> and the current thread happens to be chosen as the
             thread to be awakened; or
             &lt;li&gt;Some other thread invokes the <c>#signalAll</c> method for this
             <c>Condition</c>; or
-            &lt;li&gt;A &amp;quot;&lt;em&gt;spurious wakeup&lt;/em&gt;&amp;quot; occurs.
+            &lt;li&gt;A &quot;&lt;em&gt;spurious wakeup&lt;/em&gt;&quot; occurs.
             &lt;/ul&gt;</para>
           <para>In all cases, before this method can return the current thread must
             re-acquire the lock associated with this condition. When the
-            thread returns it is &lt;em&gt;guaranteed&lt;/em&gt; to hold this lock.</para>
+            thread returns it is <i>guaranteed</i> to hold this lock.</para>
           <para>If the current thread's interrupted status is set when it enters
             this method, or it is Thread#interrupt interrupted
             while waiting, it will continue to wait until signalled. When it finally
             returns from this method its interrupted status will still
             be set.</para>
-          <para>&lt;b&gt;Implementation Considerations&lt;/b&gt;</para>
+          <para><b>Implementation Considerations</b></para>
           <para>The current thread is assumed to hold the lock associated with this
             <c>Condition</c> when this method is called.
             It is up to the implementation to determine if this is
@@ -528,7 +528,7 @@
             or the specified deadline elapses.</para>
           <para>The lock associated with this condition is atomically
             released and the current thread becomes disabled for thread scheduling
-            purposes and lies dormant until &lt;em&gt;one&lt;/em&gt; of five things happens:
+            purposes and lies dormant until <i>one</i> of five things happens:
             &lt;ul&gt;
             &lt;li&gt;Some other thread invokes the <c>#signal</c> method for this
             <c>Condition</c> and the current thread happens to be chosen as the
@@ -538,11 +538,11 @@
             &lt;li&gt;Some other thread Thread#interrupt interrupts the
             current thread, and interruption of thread suspension is supported; or
             &lt;li&gt;The specified deadline elapses; or
-            &lt;li&gt;A &amp;quot;&lt;em&gt;spurious wakeup&lt;/em&gt;&amp;quot; occurs.
+            &lt;li&gt;A &quot;&lt;em&gt;spurious wakeup&lt;/em&gt;&quot; occurs.
             &lt;/ul&gt;</para>
           <para>In all cases, before this method can return the current thread must
             re-acquire the lock associated with this condition. When the
-            thread returns it is &lt;em&gt;guaranteed&lt;/em&gt; to hold this lock.</para>
+            thread returns it is <i>guaranteed</i> to hold this lock.</para>
           <para>If the current thread:
             &lt;ul&gt;
             &lt;li&gt;has its interrupted status set on entry to this method; or
@@ -572,7 +572,7 @@
                 lock.unlock();
               }
             }}</code>
-          <para>&lt;b&gt;Implementation Considerations&lt;/b&gt;</para>
+          <para><b>Implementation Considerations</b></para>
           <para>The current thread is assumed to hold the lock associated with this
             <c>Condition</c> when this method is called.
             It is up to the implementation to determine if this is
@@ -628,7 +628,7 @@
           <para>If any threads are waiting on this condition then one
             is selected for waking up. That thread must then re-acquire the
             lock before returning from <c>await</c>.</para>
-          <para>&lt;b&gt;Implementation Considerations&lt;/b&gt;</para>
+          <para><b>Implementation Considerations</b></para>
           <para>An implementation may (and typically does) require that the
             current thread hold the lock associated with this <c>Condition</c> when this method is called. Implementations must
             document this precondition and any actions taken if the lock is
@@ -674,7 +674,7 @@
           <para>If any threads are waiting on this condition then they are
             all woken up. Each thread must re-acquire the lock before it can
             return from <c>await</c>.</para>
-          <para>&lt;b&gt;Implementation Considerations&lt;/b&gt;</para>
+          <para><b>Implementation Considerations</b></para>
           <para>An implementation may (and typically does) require that the
             current thread hold the lock associated with this <c>Condition</c> when this method is called. Implementations must
             document this precondition and any actions taken if the lock is

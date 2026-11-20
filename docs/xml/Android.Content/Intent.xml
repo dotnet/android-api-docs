@@ -67,12 +67,12 @@
       <para>The primary pieces of information in an intent are:</para>
       <para>&lt;ul&gt;
               &lt;li&gt;</para>
-      <para>&lt;b&gt;action&lt;/b&gt; -- The general action to be performed, such as
+      <para><b>action</b> -- The general action to be performed, such as
                 <c>#ACTION_VIEW</c>, <c>#ACTION_EDIT</c>, <c>#ACTION_MAIN</c>,
                 etc.</para>
       <para>&lt;/li&gt;
               &lt;li&gt;</para>
-      <para>&lt;b&gt;data&lt;/b&gt; -- The data to operate on, such as a person record
+      <para><b>data</b> -- The data to operate on, such as a person record
                 in the contacts database, expressed as a <c>android.net.Uri</c>.</para>
       <para>&lt;/li&gt;
             &lt;/ul&gt;</para>
@@ -113,18 +113,18 @@
             attributes that you can also include with an intent:</para>
       <para>&lt;ul&gt;
                 &lt;li&gt;</para>
-      <para>&lt;b&gt;category&lt;/b&gt; -- Gives additional information about the action
+      <para><b>category</b> -- Gives additional information about the action
                     to execute.  For example, <c>#CATEGORY_LAUNCHER</c> means it should
                     appear in the Launcher as a top-level application, while
                     <c>#CATEGORY_ALTERNATIVE</c> means it should be included in a list
                     of alternative actions the user can perform on a piece of data.</para>
       <para>&lt;li&gt;</para>
-      <para>&lt;b&gt;type&lt;/b&gt; -- Specifies an explicit type (a MIME type) of the
+      <para><b>type</b> -- Specifies an explicit type (a MIME type) of the
                     intent data.  Normally the type is inferred from the data itself.
                     By setting this attribute, you disable that evaluation and force
                     an explicit type.</para>
       <para>&lt;li&gt;</para>
-      <para>&lt;b&gt;component&lt;/b&gt; -- Specifies an explicit name of a component
+      <para><b>component</b> -- Specifies an explicit name of a component
                     class to use for the intent.  Normally this is determined by looking
                     at the other information in the intent (the action, data/type, and
                     categories) and matching that with a component that can handle it.
@@ -132,7 +132,7 @@
                     and this component is used exactly as is.  By specifying this attribute,
                     all of the other Intent attributes become optional.</para>
       <para>&lt;li&gt;</para>
-      <para>&lt;b&gt;extras&lt;/b&gt; -- This is a <c>Bundle</c> of any additional information.
+      <para><b>extras</b> -- This is a <c>Bundle</c> of any additional information.
                     This can be used to provide extended information to the component.
                     For example, if we have a action to send an e-mail message, we could
                     also include extra pieces of data here to supply a subject, body,
@@ -179,25 +179,25 @@
             
             &lt;ul&gt;
                 &lt;li&gt;</para>
-      <para>&lt;b&gt;Explicit Intents&lt;/b&gt; have specified a component (via
+      <para><b>Explicit Intents</b> have specified a component (via
                 <c>#setComponent</c> or <c>#setClass</c>), which provides the exact
                 class to be run.  Often these will not include any other information,
                 simply being a way for an application to launch various internal
                 activities it has as the user interacts with the application.
             
                 &lt;li&gt;</para>
-      <para>&lt;b&gt;Implicit Intents&lt;/b&gt; have not specified a component;
+      <para><b>Implicit Intents</b> have not specified a component;
                 instead, they must include enough information for the system to
                 determine which of the available components is best to run for that
                 intent.
             &lt;/ul&gt;</para>
       <para>When using implicit intents, given such an arbitrary intent we need to
-            know what to do with it. This is handled by the process of &lt;em&gt;Intent
-            resolution&lt;/em&gt;, which maps an Intent to an <c>android.app.Activity</c>,
+            know what to do with it. This is handled by the process of <i>Intent
+            resolution</i>, which maps an Intent to an <c>android.app.Activity</c>,
             <c>BroadcastReceiver</c>, or <c>android.app.Service</c> (or sometimes two or
             more activities/receivers) that can handle it.</para>
       <para>The intent resolution mechanism basically revolves around matching an
-            Intent against all of the &amp;lt;intent-filter&amp;gt; descriptions in the
+            Intent against all of the &lt;intent-filter&gt; descriptions in the
             installed application packages.  (Plus, in the case of broadcasts, any <c>BroadcastReceiver</c>
             objects explicitly registered with <c>Context#registerReceiver</c>.)  More
             details on this can be found in the documentation on the <c>IntentFilter</c> class.</para>
@@ -209,24 +209,24 @@
             follows:</para>
       <para>&lt;ul&gt;
                 &lt;li&gt;</para>
-      <para>The &lt;b&gt;action&lt;/b&gt;, if given, must be listed by the component as
+      <para>The <b>action</b>, if given, must be listed by the component as
                     one it handles.</para>
       <para>&lt;li&gt;</para>
-      <para>The &lt;b&gt;type&lt;/b&gt; is retrieved from the Intent's data, if not
+      <para>The <b>type</b> is retrieved from the Intent's data, if not
                     already supplied in the Intent.  Like the action, if a type is
                     included in the intent (either explicitly or implicitly in its
                     data), then this must be listed by the component as one it handles.</para>
       <para>&lt;li&gt; For data that is not a <c>content:</c> URI and where no explicit
-                    type is included in the Intent, instead the &lt;b&gt;scheme&lt;/b&gt; of the
+                    type is included in the Intent, instead the <b>scheme</b> of the
                     intent data (such as <c>http:</c> or <c>mailto:</c>) is
                     considered. Again like the action, if we are matching a scheme it
                     must be listed by the component as one it can handle.
                 &lt;li&gt;</para>
-      <para>The &lt;b&gt;categories&lt;/b&gt;, if supplied, must &lt;em&gt;all&lt;/em&gt; be listed
+      <para>The <b>categories</b>, if supplied, must <i>all</i> be listed
                     by the activity as categories it handles.  That is, if you include
                     the categories <c>#CATEGORY_LAUNCHER</c> and
                     <c>#CATEGORY_ALTERNATIVE</c>, then you will only resolve to components
-                    with an intent that lists &lt;em&gt;both&lt;/em&gt; of those categories.
+                    with an intent that lists <i>both</i> of those categories.
                     Activities will very often need to support the
                     <c>#CATEGORY_DEFAULT</c> so that they can be found by
                     <c>Context#startActivity Context.startActivity()</c>.</para>
@@ -235,101 +235,101 @@
             allows a user to browse through a list of notes data and view details about
             individual items.  Text in italics indicates places where you would replace a
             name with one specific to your own package.</para>
-      <code lang="text/java">&amp;lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
-                  package="&lt;i&gt;com.android.notepad&lt;/i&gt;"&amp;gt;
-                &amp;lt;application android:icon="@drawable/app_notes"
-                        android:label="@string/app_name"&amp;gt;
+      <code lang="text/java">&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                  package="&lt;i&gt;com.android.notepad&lt;/i&gt;"&gt;
+                &lt;application android:icon="@drawable/app_notes"
+                        android:label="@string/app_name"&gt;
             
-                    &amp;lt;provider class=".NotePadProvider"
-                            android:authorities="&lt;i&gt;com.google.provider.NotePad&lt;/i&gt;" /&amp;gt;
+                    &lt;provider class=".NotePadProvider"
+                            android:authorities="&lt;i&gt;com.google.provider.NotePad&lt;/i&gt;" /&gt;
             
-                    &amp;lt;activity class=".NotesList" android:label="@string/title_notes_list"&amp;gt;
-                        &amp;lt;intent-filter&amp;gt;
-                            &amp;lt;action android:name="android.intent.action.MAIN" /&amp;gt;
-                            &amp;lt;category android:name="android.intent.category.LAUNCHER" /&amp;gt;
-                        &amp;lt;/intent-filter&amp;gt;
-                        &amp;lt;intent-filter&amp;gt;
-                            &amp;lt;action android:name="android.intent.action.VIEW" /&amp;gt;
-                            &amp;lt;action android:name="android.intent.action.EDIT" /&amp;gt;
-                            &amp;lt;action android:name="android.intent.action.PICK" /&amp;gt;
-                            &amp;lt;category android:name="android.intent.category.DEFAULT" /&amp;gt;
-                            &amp;lt;data android:mimeType="vnd.android.cursor.dir/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&amp;gt;
-                        &amp;lt;/intent-filter&amp;gt;
-                        &amp;lt;intent-filter&amp;gt;
-                            &amp;lt;action android:name="android.intent.action.GET_CONTENT" /&amp;gt;
-                            &amp;lt;category android:name="android.intent.category.DEFAULT" /&amp;gt;
-                            &amp;lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&amp;gt;
-                        &amp;lt;/intent-filter&amp;gt;
-                    &amp;lt;/activity&amp;gt;
+                    &lt;activity class=".NotesList" android:label="@string/title_notes_list"&gt;
+                        &lt;intent-filter&gt;
+                            &lt;action android:name="android.intent.action.MAIN" /&gt;
+                            &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+                        &lt;/intent-filter&gt;
+                        &lt;intent-filter&gt;
+                            &lt;action android:name="android.intent.action.VIEW" /&gt;
+                            &lt;action android:name="android.intent.action.EDIT" /&gt;
+                            &lt;action android:name="android.intent.action.PICK" /&gt;
+                            &lt;category android:name="android.intent.category.DEFAULT" /&gt;
+                            &lt;data android:mimeType="vnd.android.cursor.dir/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&gt;
+                        &lt;/intent-filter&gt;
+                        &lt;intent-filter&gt;
+                            &lt;action android:name="android.intent.action.GET_CONTENT" /&gt;
+                            &lt;category android:name="android.intent.category.DEFAULT" /&gt;
+                            &lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&gt;
+                        &lt;/intent-filter&gt;
+                    &lt;/activity&gt;
             
-                    &amp;lt;activity class=".NoteEditor" android:label="@string/title_note"&amp;gt;
-                        &amp;lt;intent-filter android:label="@string/resolve_edit"&amp;gt;
-                            &amp;lt;action android:name="android.intent.action.VIEW" /&amp;gt;
-                            &amp;lt;action android:name="android.intent.action.EDIT" /&amp;gt;
-                            &amp;lt;category android:name="android.intent.category.DEFAULT" /&amp;gt;
-                            &amp;lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&amp;gt;
-                        &amp;lt;/intent-filter&amp;gt;
+                    &lt;activity class=".NoteEditor" android:label="@string/title_note"&gt;
+                        &lt;intent-filter android:label="@string/resolve_edit"&gt;
+                            &lt;action android:name="android.intent.action.VIEW" /&gt;
+                            &lt;action android:name="android.intent.action.EDIT" /&gt;
+                            &lt;category android:name="android.intent.category.DEFAULT" /&gt;
+                            &lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&gt;
+                        &lt;/intent-filter&gt;
             
-                        &amp;lt;intent-filter&amp;gt;
-                            &amp;lt;action android:name="android.intent.action.INSERT" /&amp;gt;
-                            &amp;lt;category android:name="android.intent.category.DEFAULT" /&amp;gt;
-                            &amp;lt;data android:mimeType="vnd.android.cursor.dir/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&amp;gt;
-                        &amp;lt;/intent-filter&amp;gt;
+                        &lt;intent-filter&gt;
+                            &lt;action android:name="android.intent.action.INSERT" /&gt;
+                            &lt;category android:name="android.intent.category.DEFAULT" /&gt;
+                            &lt;data android:mimeType="vnd.android.cursor.dir/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&gt;
+                        &lt;/intent-filter&gt;
             
-                    &amp;lt;/activity&amp;gt;
+                    &lt;/activity&gt;
             
-                    &amp;lt;activity class=".TitleEditor" android:label="@string/title_edit_title"
-                            android:theme="@android:style/Theme.Dialog"&amp;gt;
-                        &amp;lt;intent-filter android:label="@string/resolve_title"&amp;gt;
-                            &amp;lt;action android:name="&lt;i&gt;com.android.notepad.action.EDIT_TITLE&lt;/i&gt;" /&amp;gt;
-                            &amp;lt;category android:name="android.intent.category.DEFAULT" /&amp;gt;
-                            &amp;lt;category android:name="android.intent.category.ALTERNATIVE" /&amp;gt;
-                            &amp;lt;category android:name="android.intent.category.SELECTED_ALTERNATIVE" /&amp;gt;
-                            &amp;lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&amp;gt;
-                        &amp;lt;/intent-filter&amp;gt;
-                    &amp;lt;/activity&amp;gt;
+                    &lt;activity class=".TitleEditor" android:label="@string/title_edit_title"
+                            android:theme="@android:style/Theme.Dialog"&gt;
+                        &lt;intent-filter android:label="@string/resolve_title"&gt;
+                            &lt;action android:name="&lt;i&gt;com.android.notepad.action.EDIT_TITLE&lt;/i&gt;" /&gt;
+                            &lt;category android:name="android.intent.category.DEFAULT" /&gt;
+                            &lt;category android:name="android.intent.category.ALTERNATIVE" /&gt;
+                            &lt;category android:name="android.intent.category.SELECTED_ALTERNATIVE" /&gt;
+                            &lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&gt;
+                        &lt;/intent-filter&gt;
+                    &lt;/activity&gt;
             
-                &amp;lt;/application&amp;gt;
-            &amp;lt;/manifest&amp;gt;</code>
+                &lt;/application&gt;
+            &lt;/manifest&gt;</code>
       <para>The first activity,
             <c>com.android.notepad.NotesList</c>, serves as our main
             entry into the app.  It can do three things as described by its three intent
             templates:
             &lt;ol&gt;
             &lt;li&gt;</para>
-      <code lang="text/java">&amp;lt;intent-filter&amp;gt;
-                &amp;lt;action android:name="{@link #ACTION_MAIN android.intent.action.MAIN}" /&amp;gt;
-                &amp;lt;category android:name="{@link #CATEGORY_LAUNCHER android.intent.category.LAUNCHER}" /&amp;gt;
-            &amp;lt;/intent-filter&amp;gt;</code>
+      <code lang="text/java">&lt;intent-filter&gt;
+                &lt;action android:name="{@link #ACTION_MAIN android.intent.action.MAIN}" /&gt;
+                &lt;category android:name="{@link #CATEGORY_LAUNCHER android.intent.category.LAUNCHER}" /&gt;
+            &lt;/intent-filter&gt;</code>
       <para>This provides a top-level entry into the NotePad application: the standard
             MAIN action is a main entry point (not requiring any other information in
             the Intent), and the LAUNCHER category says that this entry point should be
             listed in the application launcher.</para>
       <para>&lt;li&gt;</para>
-      <code lang="text/java">&amp;lt;intent-filter&amp;gt;
-                &amp;lt;action android:name="{@link #ACTION_VIEW android.intent.action.VIEW}" /&amp;gt;
-                &amp;lt;action android:name="{@link #ACTION_EDIT android.intent.action.EDIT}" /&amp;gt;
-                &amp;lt;action android:name="{@link #ACTION_PICK android.intent.action.PICK}" /&amp;gt;
-                &amp;lt;category android:name="{@link #CATEGORY_DEFAULT android.intent.category.DEFAULT}" /&amp;gt;
-                &amp;lt;data android:mimeType="vnd.android.cursor.dir/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&amp;gt;
-            &amp;lt;/intent-filter&amp;gt;</code>
+      <code lang="text/java">&lt;intent-filter&gt;
+                &lt;action android:name="{@link #ACTION_VIEW android.intent.action.VIEW}" /&gt;
+                &lt;action android:name="{@link #ACTION_EDIT android.intent.action.EDIT}" /&gt;
+                &lt;action android:name="{@link #ACTION_PICK android.intent.action.PICK}" /&gt;
+                &lt;category android:name="{@link #CATEGORY_DEFAULT android.intent.category.DEFAULT}" /&gt;
+                &lt;data android:mimeType="vnd.android.cursor.dir/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&gt;
+            &lt;/intent-filter&gt;</code>
       <para>This declares the things that the activity can do on a directory of
-            notes.  The type being supported is given with the &amp;lt;type&amp;gt; tag, where
+            notes.  The type being supported is given with the &lt;type&gt; tag, where
             <c>vnd.android.cursor.dir/vnd.google.note</c> is a URI from which
             a Cursor of zero or more items (<c>vnd.android.cursor.dir</c>) can
             be retrieved which holds our note pad data (<c>vnd.google.note</c>).
             The activity allows the user to view or edit the directory of data (via
             the VIEW and EDIT actions), or to pick a particular note and return it
             to the caller (via the PICK action).  Note also the DEFAULT category
-            supplied here: this is &lt;em&gt;required&lt;/em&gt; for the
+            supplied here: this is <i>required</i> for the
             <c>Context#startActivity Context.startActivity</c> method to resolve your
             activity when its component name is not explicitly specified.</para>
       <para>&lt;li&gt;</para>
-      <code lang="text/java">&amp;lt;intent-filter&amp;gt;
-                &amp;lt;action android:name="{@link #ACTION_GET_CONTENT android.intent.action.GET_CONTENT}" /&amp;gt;
-                &amp;lt;category android:name="{@link #CATEGORY_DEFAULT android.intent.category.DEFAULT}" /&amp;gt;
-                &amp;lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&amp;gt;
-            &amp;lt;/intent-filter&amp;gt;</code>
+      <code lang="text/java">&lt;intent-filter&gt;
+                &lt;action android:name="{@link #ACTION_GET_CONTENT android.intent.action.GET_CONTENT}" /&gt;
+                &lt;category android:name="{@link #CATEGORY_DEFAULT android.intent.category.DEFAULT}" /&gt;
+                &lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&gt;
+            &lt;/intent-filter&gt;</code>
       <para>This filter describes the ability to return to the caller a note selected by
             the user without needing to know where it came from.  The data type
             <c>vnd.android.cursor.item/vnd.google.note</c> is a URI from which
@@ -344,28 +344,28 @@
             NotesList activity:</para>
       <para>&lt;ul&gt;
                 &lt;li&gt;</para>
-      <para>&lt;b&gt;{ action=android.app.action.MAIN }&lt;/b&gt; matches all of the
+      <para><b>{ action=android.app.action.MAIN }</b> matches all of the
                     activities that can be used as top-level entry points into an
                     application.</para>
       <para>&lt;li&gt;</para>
-      <para>&lt;b&gt;{ action=android.app.action.MAIN,
-                    category=android.app.category.LAUNCHER }&lt;/b&gt; is the actual intent
+      <para><b>{ action=android.app.action.MAIN,
+                    category=android.app.category.LAUNCHER }</b> is the actual intent
                     used by the Launcher to populate its top-level list.</para>
       <para>&lt;li&gt;</para>
-      <para>&lt;b&gt;{ action=android.intent.action.VIEW
-                     data=content://com.google.provider.NotePad/notes }&lt;/b&gt;
+      <para><b>{ action=android.intent.action.VIEW
+                     data=content://com.google.provider.NotePad/notes }</b>
                     displays a list of all the notes under
                     "content://com.google.provider.NotePad/notes", which
                     the user can browse through and see the details on.</para>
       <para>&lt;li&gt;</para>
-      <para>&lt;b&gt;{ action=android.app.action.PICK
-                     data=content://com.google.provider.NotePad/notes }&lt;/b&gt;
+      <para><b>{ action=android.app.action.PICK
+                     data=content://com.google.provider.NotePad/notes }</b>
                     provides a list of the notes under
                     "content://com.google.provider.NotePad/notes", from which
                     the user can pick a note whose data URL is returned back to the caller.</para>
       <para>&lt;li&gt;</para>
-      <para>&lt;b&gt;{ action=android.app.action.GET_CONTENT
-                     type=vnd.android.cursor.item/vnd.google.note }&lt;/b&gt;
+      <para><b>{ action=android.app.action.GET_CONTENT
+                     type=vnd.android.cursor.item/vnd.google.note }</b>
                     is similar to the pick action, but allows the caller to specify the
                     kind of data they want back so that the system can find the appropriate
                     activity to pick something of that data type.</para>
@@ -376,12 +376,12 @@
             by its two intent templates:
             &lt;ol&gt;
             &lt;li&gt;</para>
-      <code lang="text/java">&amp;lt;intent-filter android:label="@string/resolve_edit"&amp;gt;
-                &amp;lt;action android:name="{@link #ACTION_VIEW android.intent.action.VIEW}" /&amp;gt;
-                &amp;lt;action android:name="{@link #ACTION_EDIT android.intent.action.EDIT}" /&amp;gt;
-                &amp;lt;category android:name="{@link #CATEGORY_DEFAULT android.intent.category.DEFAULT}" /&amp;gt;
-                &amp;lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&amp;gt;
-            &amp;lt;/intent-filter&amp;gt;</code>
+      <code lang="text/java">&lt;intent-filter android:label="@string/resolve_edit"&gt;
+                &lt;action android:name="{@link #ACTION_VIEW android.intent.action.VIEW}" /&gt;
+                &lt;action android:name="{@link #ACTION_EDIT android.intent.action.EDIT}" /&gt;
+                &lt;category android:name="{@link #CATEGORY_DEFAULT android.intent.category.DEFAULT}" /&gt;
+                &lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&gt;
+            &lt;/intent-filter&gt;</code>
       <para>The first, primary, purpose of this activity is to let the user interact
             with a single note, as decribed by the MIME type
             <c>vnd.android.cursor.item/vnd.google.note</c>.  The activity can
@@ -389,11 +389,11 @@
             DEFAULT category to allow the activity to be launched without explicitly
             specifying its component.</para>
       <para>&lt;li&gt;</para>
-      <code lang="text/java">&amp;lt;intent-filter&amp;gt;
-                &amp;lt;action android:name="{@link #ACTION_INSERT android.intent.action.INSERT}" /&amp;gt;
-                &amp;lt;category android:name="{@link #CATEGORY_DEFAULT android.intent.category.DEFAULT}" /&amp;gt;
-                &amp;lt;data android:mimeType="vnd.android.cursor.dir/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&amp;gt;
-            &amp;lt;/intent-filter&amp;gt;</code>
+      <code lang="text/java">&lt;intent-filter&gt;
+                &lt;action android:name="{@link #ACTION_INSERT android.intent.action.INSERT}" /&gt;
+                &lt;category android:name="{@link #CATEGORY_DEFAULT android.intent.category.DEFAULT}" /&gt;
+                &lt;data android:mimeType="vnd.android.cursor.dir/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&gt;
+            &lt;/intent-filter&gt;</code>
       <para>The secondary use of this activity is to insert a new note entry into
             an existing directory of notes.  This is used when the user creates a new
             note: the INSERT action is executed on the directory of notes, causing
@@ -406,14 +406,14 @@
                 &lt;li&gt;</para>
       <para>&lt;b&gt;{ action=android.intent.action.VIEW
                      data=content://com.google.provider.NotePad/notes/&lt;var&gt;{ID}&lt;/var&gt; }&lt;/b&gt;
-                    shows the user the content of note &lt;var&gt;{ID}&lt;/var&gt;.</para>
+                    shows the user the content of note <i>{ID}</i>.</para>
       <para>&lt;li&gt;</para>
       <para>&lt;b&gt;{ action=android.app.action.EDIT
                      data=content://com.google.provider.NotePad/notes/&lt;var&gt;{ID}&lt;/var&gt; }&lt;/b&gt;
-                    allows the user to edit the content of note &lt;var&gt;{ID}&lt;/var&gt;.</para>
+                    allows the user to edit the content of note <i>{ID}</i>.</para>
       <para>&lt;li&gt;</para>
-      <para>&lt;b&gt;{ action=android.app.action.INSERT
-                     data=content://com.google.provider.NotePad/notes }&lt;/b&gt;
+      <para><b>{ action=android.app.action.INSERT
+                     data=content://com.google.provider.NotePad/notes }</b>
                     creates a new, empty note in the notes list at
                     "content://com.google.provider.NotePad/notes"
                     and allows the user to edit it.  If they keep their changes, the URI
@@ -425,13 +425,13 @@
             application directly invokes (by explicitly setting its component in
             the Intent), but here we show a way you can publish alternative
             operations on existing data:</para>
-      <code lang="text/java">&amp;lt;intent-filter android:label="@string/resolve_title"&amp;gt;
-                &amp;lt;action android:name="&lt;i&gt;com.android.notepad.action.EDIT_TITLE&lt;/i&gt;" /&amp;gt;
-                &amp;lt;category android:name="{@link #CATEGORY_DEFAULT android.intent.category.DEFAULT}" /&amp;gt;
-                &amp;lt;category android:name="{@link #CATEGORY_ALTERNATIVE android.intent.category.ALTERNATIVE}" /&amp;gt;
-                &amp;lt;category android:name="{@link #CATEGORY_SELECTED_ALTERNATIVE android.intent.category.SELECTED_ALTERNATIVE}" /&amp;gt;
-                &amp;lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&amp;gt;
-            &amp;lt;/intent-filter&amp;gt;</code>
+      <code lang="text/java">&lt;intent-filter android:label="@string/resolve_title"&gt;
+                &lt;action android:name="&lt;i&gt;com.android.notepad.action.EDIT_TITLE&lt;/i&gt;" /&gt;
+                &lt;category android:name="{@link #CATEGORY_DEFAULT android.intent.category.DEFAULT}" /&gt;
+                &lt;category android:name="{@link #CATEGORY_ALTERNATIVE android.intent.category.ALTERNATIVE}" /&gt;
+                &lt;category android:name="{@link #CATEGORY_SELECTED_ALTERNATIVE android.intent.category.SELECTED_ALTERNATIVE}" /&gt;
+                &lt;data android:mimeType="vnd.android.cursor.item/&lt;i&gt;vnd.google.note&lt;/i&gt;" /&gt;
+            &lt;/intent-filter&gt;</code>
       <para>In the single intent template here, we
             have created our own private action called
             <c>com.android.notepad.action.EDIT_TITLE</c> which means to
@@ -458,7 +458,7 @@
       <para>&lt;b&gt;{ action=com.android.notepad.action.EDIT_TITLE
                      data=content://com.google.provider.NotePad/notes/&lt;var&gt;{ID}&lt;/var&gt; }&lt;/b&gt;
                     displays and allows the user to edit the title associated
-                    with note &lt;var&gt;{ID}&lt;/var&gt;.</para>
+                    with note <i>{ID}</i>.</para>
       <para>&lt;/ul&gt;
             
             &lt;h3&gt;Standard Activity Actions&lt;/h3&gt;</para>
@@ -473,7 +473,7 @@
             &lt;h3&gt;Standard Broadcast Actions&lt;/h3&gt;</para>
       <para>These are the current standard actions that Intent defines for receiving
             broadcasts (usually through <c>Context#registerReceiver</c> or a
-            &amp;lt;receiver&amp;gt; tag in a manifest).
+            &lt;receiver&gt; tag in a manifest).
             
             &lt;ul&gt;
                 &lt;li&gt; <c>#ACTION_TIME_TICK</c>&lt;li&gt; <c>#ACTION_TIME_CHANGED</c>&lt;li&gt; <c>#ACTION_TIMEZONE_CHANGED</c>&lt;li&gt; <c>#ACTION_BOOT_COMPLETED</c>&lt;li&gt; <c>#ACTION_PACKAGE_ADDED</c>&lt;li&gt; <c>#ACTION_PACKAGE_CHANGED</c>&lt;li&gt; <c>#ACTION_PACKAGE_REMOVED</c>&lt;li&gt; <c>#ACTION_PACKAGE_RESTARTED</c>&lt;li&gt; <c>#ACTION_PACKAGE_DATA_CLEARED</c>&lt;li&gt; <c>#ACTION_PACKAGES_SUSPENDED</c>&lt;li&gt; <c>#ACTION_PACKAGES_UNSUSPENDED</c>&lt;li&gt; <c>#ACTION_UID_REMOVED</c>&lt;li&gt; <c>#ACTION_BATTERY_CHANGED</c>&lt;li&gt; <c>#ACTION_POWER_CONNECTED</c>&lt;li&gt; <c>#ACTION_POWER_DISCONNECTED</c>&lt;li&gt; <c>#ACTION_SHUTDOWN</c>&lt;/ul&gt;</para>
@@ -618,7 +618,7 @@
         <summary>Create an intent with a given action.</summary>
         <remarks>
           <para>Create an intent with a given action.  All other fields (data, type,
-            class) are null.  Note that the action &lt;em&gt;must&lt;/em&gt; be in a
+            class) are null.  Note that the action <i>must</i> be in a
             namespace because Intents are used globally in the system -- for
             example the system VIEW action is android.intent.action.VIEW; an
             application's custom action would be something like
@@ -767,7 +767,7 @@
         <summary>Create an intent with a given action and for a given data url.</summary>
         <remarks>
           <para>Create an intent with a given action and for a given data url.  Note
-            that the action &lt;em&gt;must&lt;/em&gt; be in a namespace because Intents are
+            that the action <i>must</i> be in a namespace because Intents are
             used globally in the system -- for example the system VIEW action is
             android.intent.action.VIEW; an application's custom action would be
             something like com.google.app.myapp.CUSTOM_ACTION.</para>
@@ -1408,14 +1408,14 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Broadcast Action:  This is a &lt;em&gt;sticky broadcast&lt;/em&gt; containing the
+        <summary>Broadcast Action:  This is a <i>sticky broadcast</i> containing the
             charging state, level, and other information about the battery.</summary>
         <remarks>
-          <para>Broadcast Action:  This is a &lt;em&gt;sticky broadcast&lt;/em&gt; containing the
+          <para>Broadcast Action:  This is a <i>sticky broadcast</i> containing the
             charging state, level, and other information about the battery.
             See <c>android.os.BatteryManager</c> for documentation on the
             contents of the Intent.</para>
-          <para>You &lt;em&gt;cannot&lt;/em&gt; receive this through components declared
+          <para>You <i>cannot</i> receive this through components declared
             in manifests, only by explicitly registering for it with
             <c>Context#registerReceiver(BroadcastReceiver, IntentFilter)
             Context.registerReceiver()</c>.  See <c>#ACTION_BATTERY_LOW</c>,
@@ -1653,8 +1653,8 @@
           <para>Output: nothing.</para>
           <para>Note: there will be restrictions on which applications can initiate a
             call; most applications should use the <c>#ACTION_DIAL</c>.</para>
-          <para>Note: this Intent &lt;strong&gt;cannot&lt;/strong&gt; be used to call emergency
-            numbers.  Applications can &lt;strong&gt;dial&lt;/strong&gt; emergency numbers using
+          <para>Note: this Intent <b>cannot</b> be used to call emergency
+            numbers.  Applications can <b>dial</b> emergency numbers using
             <c>#ACTION_DIAL</c>, however.</para>
           <para>Note: This Intent can only be used to dial call forwarding MMI codes if the application
             using this intent is set as the default or system dialer. The system will treat any other
@@ -1867,7 +1867,7 @@
             nice title given by the caller such as "Send this photo with:".</para>
           <para>If you need to grant URI permissions through a chooser, you must specify
             the permissions to be granted on the ACTION_CHOOSER Intent
-            &lt;em&gt;in addition&lt;/em&gt; to the EXTRA_INTENT inside.  This means using
+            <i>in addition</i> to the EXTRA_INTENT inside.  This means using
             <c>#setClipData</c> to specify the URIs to be granted as well as
             <c>#FLAG_GRANT_READ_URI_PERMISSION</c> and/or
             <c>#FLAG_GRANT_WRITE_URI_PERMISSION</c> as appropriate.</para>
@@ -1985,7 +1985,7 @@
             application to make sure it sees the new changes.  Some system code that
             can not be restarted will need to watch for this action and handle it
             appropriately.</para>
-          <para>You &lt;em&gt;cannot&lt;/em&gt; receive this through components declared
+          <para>You <i>cannot</i> receive this through components declared
             in manifests, only by explicitly registering for it with
             <c>Context#registerReceiver(BroadcastReceiver, IntentFilter)
             Context.registerReceiver()</c>.</para>
@@ -2747,7 +2747,7 @@
             The extra data <c>#EXTRA_CHANGED_UID_LIST</c> contains a
             list of uids of packages whose availability changed.
             Note that the
-            packages in this list do &lt;em&gt;not&lt;/em&gt; receive this broadcast.
+            packages in this list do <i>not</i> receive this broadcast.
             The specified set of packages are now available on the system.</para>
           <para>Includes the following extras:
             &lt;ul&gt;
@@ -2989,7 +2989,7 @@
             restrictions as a Bundle of key/value pairs. The value types can be Boolean, String or
             String[] depending on the restriction type.</para>
           <para>The response should contain an extra <c>#EXTRA_RESTRICTIONS_LIST</c>,
-            which is of type <c>ArrayList&amp;lt;RestrictionEntry&amp;gt;</c>. It can also
+            which is of type <c>ArrayList&lt;RestrictionEntry&gt;</c>. It can also
             contain an extra <c>#EXTRA_RESTRICTIONS_INTENT</c>, which is of type <c>Intent</c>.
             The activity specified by that intent will be launched for a result which must contain
             one of the extras <c>#EXTRA_RESTRICTIONS_LIST</c> or <c>#EXTRA_RESTRICTIONS_BUNDLE</c>.
@@ -4769,7 +4769,7 @@
             should have a positive priority.
             Negative priorities are reserved for the system for this broadcast;
             using them may cause problems.</para>
-          <para>Any BroadcastReceiver receiving this Intent &lt;em&gt;must not&lt;/em&gt;
+          <para>Any BroadcastReceiver receiving this Intent <i>must not</i>
             abort the broadcast.</para>
           <para>Emergency calls cannot be intercepted using this mechanism, and
             other calls cannot be modified to call emergency numbers using this
@@ -5001,7 +5001,7 @@
         <remarks>
           <para>Broadcast Action: A new application package has been installed on the
             device. The data contains the name of the package.  Note that the
-            newly installed package does &lt;em&gt;not&lt;/em&gt; receive this broadcast.</para>
+            newly installed package does <i>not</i> receive this broadcast.</para>
           <para>May include the following extras:
             &lt;ul&gt;
             &lt;li&gt; <c>#EXTRA_UID</c> containing the integer uid assigned to the new package.
@@ -5104,7 +5104,7 @@
           <para>Broadcast Action: The user has cleared the data of a package.  This should
             be preceded by <c>#ACTION_PACKAGE_RESTARTED</c>, after which all of
             its persistent data is erased and this broadcast sent.
-            Note that the cleared package does &lt;em&gt;not&lt;/em&gt;
+            Note that the cleared package does <i>not</i>
             receive this broadcast. The data contains the name of the package.
             &lt;ul&gt;
             &lt;li&gt; <c>#EXTRA_UID</c> containing the integer uid assigned to the package. If the
@@ -5351,7 +5351,7 @@
         <remarks>
           <para>Broadcast Action: An existing application package has been removed from
             the device.  The data contains the name of the package.  The package
-            that is being removed does &lt;em&gt;not&lt;/em&gt; receive this Intent.
+            that is being removed does <i>not</i> receive this Intent.
             &lt;ul&gt;
             &lt;li&gt; <c>#EXTRA_UID</c> containing the integer uid previously assigned
             to the package.
@@ -5456,7 +5456,7 @@
           <para>Broadcast Action: The user has restarted a package, and all of its
             processes have been killed.  All runtime state
             associated with it (processes, alarms, notifications, etc) should
-            be removed.  Note that the restarted package does &lt;em&gt;not&lt;/em&gt;
+            be removed.  Note that the restarted package does <i>not</i>
             receive this broadcast.
             The data contains the name of the package.
             &lt;ul&gt;
@@ -6614,7 +6614,7 @@
             nothing to do with the screen turning off.  To determine the
             actual state of the screen, use <c>android.view.Display#getState</c>.</para>
           <para>See <c>android.os.PowerManager#isInteractive</c> for details.</para>
-          <para>You &lt;em&gt;cannot&lt;/em&gt; receive this through components declared in
+          <para>You <i>cannot</i> receive this through components declared in
             manifests, only by explicitly registering for it with
             <c>Context#registerReceiver(BroadcastReceiver, IntentFilter)
             Context.registerReceiver()</c>.</para>
@@ -6667,7 +6667,7 @@
             nothing to do with the screen turning on.  To determine the
             actual state of the screen, use <c>android.view.Display#getState</c>.</para>
           <para>See <c>android.os.PowerManager#isInteractive</c> for details.</para>
-          <para>You &lt;em&gt;cannot&lt;/em&gt; receive this through components declared in
+          <para>You <i>cannot</i> receive this through components declared in
             manifests, only by explicitly registering for it with
             <c>Context#registerReceiver(BroadcastReceiver, IntentFilter)
             Context.registerReceiver()</c>.</para>
@@ -7341,7 +7341,7 @@
         <summary>Broadcast Action: The current time has changed.</summary>
         <remarks>
           <para>Broadcast Action: The current time has changed.  Sent every
-            minute.  You &lt;em&gt;cannot&lt;/em&gt; receive this through components declared
+            minute.  You <i>cannot</i> receive this through components declared
             in manifests, only by explicitly registering for it with
             <c>Context#registerReceiver(BroadcastReceiver, IntentFilter)
             Context.registerReceiver()</c>.</para>
@@ -7858,7 +7858,7 @@
             <c>#ACTION_BOOT_COMPLETED</c> is sent.  This is sent as a foreground
             broadcast, since it is part of a visible user interaction; be as quick
             as possible when handling it.</para>
-          <para>&lt;b&gt;Note:&lt;/b&gt; This broadcast is not sent to the system user.</para>
+          <para><b>Note:</b> This broadcast is not sent to the system user.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#ACTION_USER_INITIALIZE" title="Reference documentation">Java documentation for <code>android.content.Intent.ACTION_USER_INITIALIZE</code>.</a>
@@ -7949,7 +7949,7 @@
           <para>Broadcast Action: Sent when the credential-encrypted private storage has
             become unlocked for the target user. This is only sent to registered
             receivers, not manifest receivers.</para>
-          <para>&lt;b&gt;Note:&lt;/b&gt; The user's actual state might have changed by the time the broadcast is
+          <para><b>Note:</b> The user's actual state might have changed by the time the broadcast is
             received. For example, the user could have been removed, started or stopped already,
             regardless of which broadcast you receive. Because of that, receivers should always check
             the current state of the user.</para>
@@ -8257,7 +8257,7 @@
         <remarks>
           <para>Broadcast Action:  The current system wallpaper has changed.  See
             <c>android.app.WallpaperManager</c> for retrieving the new wallpaper.
-            This should &lt;em&gt;only&lt;/em&gt; be used to determine when the wallpaper
+            This should <i>only</i> be used to determine when the wallpaper
             has changed to show the new wallpaper to the user.  You should certainly
             never, in response to this, change the wallpaper or other attributes of
             it such as the suggested size.  That would be unexpected, right?  You'd cause
@@ -8366,7 +8366,7 @@
         <remarks>
           <para>Add a new category to the intent.  Categories provide additional detail
             about the action the intent performs.  When resolving an intent, only
-            activities that provide &lt;em&gt;all&lt;/em&gt; of the requested categories will be
+            activities that provide <i>all</i> of the requested categories will be
             used.</para>
           <para>
             <format type="text/html">
@@ -8787,23 +8787,23 @@
             &lt;/ul&gt;
             If either of these items is missing, the system will ignore the accessibility shortcut
             target. Following is an example declaration:</para>
-          <code lang="text/java">&amp;lt;activity android:name=".MainActivity"
+          <code lang="text/java">&lt;activity android:name=".MainActivity"
             . . .
-              &amp;lt;intent-filter&amp;gt;
-                  &amp;lt;action android:name="android.intent.action.MAIN" /&amp;gt;
-                  &amp;lt;category android:name="android.intent.category.ACCESSIBILITY_SHORTCUT_TARGET" /&amp;gt;
-              &amp;lt;/intent-filter&amp;gt;
-              &amp;lt;meta-data android:name="android.accessibilityshortcut.target"
-                              android:resource="@xml/accessibilityshortcut" /&amp;gt;
-            &amp;lt;/activity&amp;gt;
+              &lt;intent-filter&gt;
+                  &lt;action android:name="android.intent.action.MAIN" /&gt;
+                  &lt;category android:name="android.intent.category.ACCESSIBILITY_SHORTCUT_TARGET" /&gt;
+              &lt;/intent-filter&gt;
+              &lt;meta-data android:name="android.accessibilityshortcut.target"
+                              android:resource="@xml/accessibilityshortcut" /&gt;
+            &lt;/activity&gt;
             </code>
           <para>This is a sample XML file configuring a accessibility shortcut target:</para>
-          <code lang="text/java">&amp;lt;accessibility-shortcut-target
+          <code lang="text/java">&lt;accessibility-shortcut-target
                 android:description="@string/shortcut_target_description"
                 android:summary="@string/shortcut_target_summary"
                 android:animatedImageDrawable="@drawable/shortcut_target_animated_image"
                 android:htmlDescription="@string/shortcut_target_html_description"
-                android:settingsActivity="com.example.android.shortcut.target.SettingsActivity" /&amp;gt;
+                android:settingsActivity="com.example.android.shortcut.target.SettingsActivity" /&gt;
             </code>
           <para>Both description and summary are necessary. The system will ignore the accessibility
             shortcut target if they are missing. The animated image and html description are supported
@@ -8856,7 +8856,7 @@
           <para>Supporting this category means that you would like your activity to be
             displayed in the set of alternative things the user can do, usually as
             part of the current activity's options menu.  You will usually want to
-            include a specific label in the &amp;lt;intent-filter&amp;gt; of this action
+            include a specific label in the &lt;intent-filter&gt; of this action
             describing to the user what it does.</para>
           <para>The action of IntentFilter with this category is important in that it
             describes the specific action the target will perform.  This generally
@@ -10710,7 +10710,7 @@
             directly used by Intent.  Applications should generally rely on the
             MIME type of the Intent itself, not what it may find in the ClipData.
             A common practice is to construct a ClipData for use with an Intent
-            with a MIME type of "*&amp;#47;*".</para>
+            with a MIME type of "*&#47;*".</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#setClipData(android.content.ClipData)" title="Reference documentation">Java documentation for <code>android.content.Intent.setClipData(android.content.ClipData)</code>.</a>
@@ -11312,7 +11312,7 @@
             For recurring alarms, this might be greater than 1 if the device was
             asleep or powered off at the time an earlier alarm would have been
             delivered.</para>
-          <para>Note: You must supply a &lt;b&gt;mutable&lt;/b&gt; <c>android.app.PendingIntent</c> to
+          <para>Note: You must supply a <b>mutable</b> <c>android.app.PendingIntent</c> to
             <c>AlarmManager</c> while setting your alarms to be able to read this value on receiving
             them. &lt;em&gt;Mutability of pending intents must be explicitly specified by apps targeting
             <c>Build.VERSION_CODES#S</c> or higher&lt;/em&gt;.</para>
@@ -13447,7 +13447,7 @@
         <remarks>
           <para>A constant String that is associated with the Intent, used with
             <c>#ACTION_SEND</c> to supply an alternative to <c>#EXTRA_TEXT</c>
-            as HTML formatted text.  Note that you &lt;em&gt;must&lt;/em&gt; also supply
+            as HTML formatted text.  Note that you <i>must</i> also supply
             <c>#EXTRA_TEXT</c>.</para>
           <para>
             <format type="text/html">
@@ -14622,7 +14622,7 @@
             the extras already present in the intent at <c>#EXTRA_INTENT</c>. If a replacement
             extra has the same key as an extra already present in the intent it will overwrite
             the extra from the intent.</para>
-          <para>&lt;em&gt;Examples:&lt;/em&gt;
+          <para><i>Examples:</i>
             &lt;ul&gt;
                 &lt;li&gt;An application may offer different <c>#EXTRA_TEXT</c> to an application
                 when sharing with it via <c>#ACTION_SEND</c>, augmenting a link with additional query
@@ -14803,7 +14803,7 @@
         <remarks>
           <para>Extra used in the response from a BroadcastReceiver that handles
             <c>#ACTION_GET_RESTRICTION_ENTRIES</c>. The type of the extra is
-            <c>ArrayList&amp;lt;RestrictionEntry&amp;gt;</c>.</para>
+            <c>ArrayList&lt;RestrictionEntry&gt;</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#EXTRA_RESTRICTIONS_LIST" title="Reference documentation">Java documentation for <code>android.content.Intent.EXTRA_RESTRICTIONS_LIST</code>.</a>
@@ -15937,7 +15937,7 @@
         <param name="other">Another Intent whose values are to be used to fill in
             the current one.</param>
         <param name="flags">Options to control which fields can be filled in.</param>
-        <summary>Copy the contents of &lt;var&gt;other&lt;/var&gt; in to this object, but only
+        <summary>Copy the contents of <i>other</i> in to this object, but only
             where fields are not defined by this object.</summary>
         <returns>Returns a bit mask of <c>#FILL_IN_ACTION</c>,
             <c>#FILL_IN_DATA</c>, <c>#FILL_IN_CATEGORIES</c>, <c>#FILL_IN_PACKAGE</c>,
@@ -15945,7 +15945,7 @@
             <c>#FILL_IN_SELECTOR</c> and <c>#FILL_IN_CLIP_DATA</c> indicating which fields were
             changed.</returns>
         <remarks>
-          <para>Copy the contents of &lt;var&gt;other&lt;/var&gt; in to this object, but only
+          <para>Copy the contents of <i>other</i> in to this object, but only
             where fields are not defined by this object.  For purposes of a field
             being defined, the following pieces of data in the Intent are
             considered to be separate fields:
@@ -16028,7 +16028,7 @@
         <remarks>
           <para>Determine if two intents are the same for the purposes of intent
             resolution (filtering). That is, if their action, data, type, identity,
-            class, and categories are the same.  This does &lt;em&gt;not&lt;/em&gt; compare
+            class, and categories are the same.  This does <i>not</i> compare
             any extra data included in the intents.  Note that technically when actually
             matching against an <c>IntentFilter</c> the identifier is ignored, while here
             it is directly compared for equality like the other fields.</para>
@@ -16227,7 +16227,7 @@
           <para>If set, the broadcast will be visible to receivers in Instant Apps. By default Instant Apps
             will not receive broadcasts.
             
-            &lt;em&gt;This flag has no effect when used by an Instant App.&lt;/em&gt;</para>
+            <i>This flag has no effect when used by an Instant App.</i></para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/Intent#FLAG_RECEIVER_VISIBLE_TO_INSTANT_APPS" title="Reference documentation">Java documentation for <code>android.content.Intent.FLAG_RECEIVER_VISIBLE_TO_INSTANT_APPS</code>.</a>
@@ -18488,7 +18488,7 @@
             way, and can use this function to ensure this is the case.</para>
           <para>The returned Intent has the given Activity component as its explicit
             component, <c>#ACTION_MAIN</c> as its action, and includes the
-            category <c>#CATEGORY_LAUNCHER</c>.  This does &lt;em&gt;not&lt;/em&gt; have
+            category <c>#CATEGORY_LAUNCHER</c>.  This does <i>not</i> have
             <c>#FLAG_ACTIVITY_NEW_TASK</c> set, though typically you will want
             to do that through <c>#addFlags(int)</c> on the returned Intent.</para>
           <para>
@@ -18551,7 +18551,7 @@
             same way, it is important that they use an Intent structured the same
             way, and can use this function to ensure this is the case.</para>
           <para>The returned Intent has <c>#ACTION_MAIN</c> as its action, and includes the
-            category <c>#CATEGORY_LAUNCHER</c>.  This does &lt;em&gt;not&lt;/em&gt; have
+            category <c>#CATEGORY_LAUNCHER</c>.  This does <i>not</i> have
             <c>#FLAG_ACTIVITY_NEW_TASK</c> set, though typically you will want
             to do that through <c>#addFlags(int)</c> on the returned Intent.</para>
           <para>
@@ -18806,7 +18806,7 @@
         <param name="resources">The Resources to use when inflating resources.</param>
         <param name="parser">The XML parser pointing at an "intent" tag.</param>
         <param name="attrs">The AttributeSet interface for retrieving extended
-            attribute data at the current &lt;var&gt;parser&lt;/var&gt; location.</param>
+            attribute data at the current <i>parser</i> location.</param>
         <summary>Parses the "intent" element (and its children) from XML and instantiates
             an Intent object.</summary>
         <returns>An Intent object matching the XML data.</returns>
@@ -22110,7 +22110,7 @@
             allowing it to be unique from other Intents that would otherwise look the same.  In
             particular, this will be used by <c>#filterEquals(Intent)</c> to determine if two
             Intents are the same as with other fields like <c>#setAction</c>.  However, unlike those
-            fields, the identifier is &lt;em&gt;never&lt;/em&gt; used for matching against an <c>IntentFilter</c>;
+            fields, the identifier is <i>never</i> used for matching against an <c>IntentFilter</c>;
             it is as if the identifier has not been set on the Intent.</para>
           <para>This can be used, for example, to make this Intent unique from other Intents that
             are otherwise the same, for use in creating a <c>android.app.PendingIntent</c>.  (Be aware

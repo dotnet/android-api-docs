@@ -20992,7 +20992,7 @@ static partial class ImporterProgram
             }
 
             var oldCombinedDefault = BiometricAllowedAuthenticatorsLead + " " +
-                BiometricAllowedAuthenticatorsWeakDefault + "; " +
+                BiometricAllowedAuthenticatorsWeakDefault + " " +
                 BiometricAllowedAuthenticatorsStrongDefault;
             var oldInvalid = original.Replace(
                 "<para>" + oldCombinedDefault + "</para>",
@@ -36259,6 +36259,7 @@ static partial class ImporterProgram
         public bool RepairDocs { get; private set; }
         public List<string> RepairPatterns { get; } = [];
         public string? ProtectLinesPath { get; private set; }
+        public string? BaselinePath { get; private set; }
         public bool Help { get; private set; }
         public int MaxChanges { get; private set; } = 25;
         public int Concurrency { get; private set; } = 4;
@@ -36325,6 +36326,9 @@ static partial class ImporterProgram
                     case "--protect-lines":
                         options.ProtectLinesPath = Value();
                         break;
+                    case "--baseline":
+                        options.BaselinePath = Value();
+                        break;
                     case "--path":
                         options.Paths.Add(Value());
                         break;
@@ -36364,8 +36368,12 @@ static partial class ImporterProgram
                 throw new ArgumentException("--managed-only and --repeated-only are separate modes.");
             if (options.RepairDocs && (options.ManagedOnly || options.RepeatedOnly))
                 throw new ArgumentException("--repair-docs is a separate mode.");
-            if (!options.RepairDocs && (options.RepairPatterns.Count > 0 || options.ProtectLinesPath is not null))
-                throw new ArgumentException("--pattern and --protect-lines require --repair-docs.");
+            if (!options.RepairDocs && (options.RepairPatterns.Count > 0 || options.ProtectLinesPath is not null ||
+                options.BaselinePath is not null))
+                throw new ArgumentException("--pattern, --protect-lines, and --baseline require --repair-docs.");
+            if (options.BaselinePath is null &&
+                options.RepairPatterns.FirstOrDefault(BaselineRepairPatterns.Contains) is { } needsBaseline)
+                throw new ArgumentException($"--pattern {needsBaseline} requires --baseline.");
             return options;
         }
 
@@ -36406,6 +36414,7 @@ static partial class ImporterProgram
               --repair-docs          Repair recurring documentation errors without network access
               --pattern <name>       Repair pattern for --repair-docs; repeatable (default: all)
               --protect-lines <file> Skip repairs on <path>:<first>-<last> line spans listed in the file
+              --baseline <directory> Pre-AI docs/xml copy for the baseline repair patterns
               --cache <directory>    Cache official pages by URL hash
               --report <path>        Write deterministic JSON and adjacent text reports
 
@@ -40051,6 +40060,12 @@ static partial class ImporterProgram
     const string DuplicateReferenceLinksPattern = "duplicate-reference-links";
     const string NestedTypeCrefsPattern = "nested-type-crefs";
     const string JavadocStarsPattern = "javadoc-stars";
+    const string AiSourceLinksPattern = "ai-source-links";
+    const string RegexLinksPattern = "regex-links";
+    const string EscapedHtmlPattern = "escaped-html";
+    const string EmptySeeAlsoPattern = "empty-see-also";
+    const string GetterSetterHrefsPattern = "getter-setter-hrefs";
+    const string RestoreAltmemberPattern = "restore-altmember";
     const int MaximumRestoredSummaryLength = 400;
     static readonly string[] DocumentationRepairPatterns =
     [
@@ -40059,6 +40074,19 @@ static partial class ImporterProgram
         DuplicateReferenceLinksPattern,
         NestedTypeCrefsPattern,
         JavadocStarsPattern,
+        AiSourceLinksPattern,
+        RegexLinksPattern,
+        EscapedHtmlPattern,
+        EmptySeeAlsoPattern,
+        GetterSetterHrefsPattern,
+        RestoreAltmemberPattern,
+    ];
+    // These patterns compare each file with a pre-AI copy of docs/xml (commit 86f7744a1).
+    static readonly string[] BaselineRepairPatterns =
+    [
+        AiSourceLinksPattern,
+        GetterSetterHrefsPattern,
+        RestoreAltmemberPattern,
     ];
     const string JavaIdentifierPattern = @"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*";
     // A Java constant: optional qualifiers, then an upper-case name, or a name with an underscore such as TYPE_1xRTT.
@@ -40327,8 +40355,13 @@ static partial class ImporterProgram
             var docsRoot = Path.Combine(repositoryRoot, "docs", "xml");
             var files = SelectFiles(repositoryRoot, docsRoot, options);
             var patterns = options.RepairPatterns.Count == 0
-                ? DocumentationRepairPatterns.ToHashSet(StringComparer.Ordinal)
+                ? DocumentationRepairPatterns
+                    .Where(pattern => options.BaselinePath is not null || !BaselineRepairPatterns.Contains(pattern))
+                    .ToHashSet(StringComparer.Ordinal)
                 : options.RepairPatterns.ToHashSet(StringComparer.Ordinal);
+            var baselineRoot = options.BaselinePath is null ? null : ResolvePath(repositoryRoot, options.BaselinePath);
+            if (baselineRoot is not null && !Directory.Exists(baselineRoot))
+                throw new ArgumentException($"--baseline directory does not exist: {options.BaselinePath}");
             var protectedSpans = LoadProtectedSpans(repositoryRoot, options.ProtectLinesPath);
             var index = RepairIndexOverride ?? DocumentationRepairIndex.Load(docsRoot);
             var remaining = options.MaxChanges;
@@ -40350,8 +40383,23 @@ static partial class ImporterProgram
                     continue;
                 report.FilesScanned++;
                 var lineStarts = LineStarts(file.Text);
+                RepairBaseline? baseline = null;
+                if (baselineRoot is not null)
+                {
+                    var baselinePath = Path.Combine(baselineRoot, Path.GetRelativePath(docsRoot, path));
+                    try
+                    {
+                        baseline = RepairBaseline.Load(baselinePath);
+                    }
+                    catch (Exception error) when (error is XmlException or IOException or UnauthorizedAccessException)
+                    {
+                        report.Entries.Add(ReportEntry.Error(
+                            file.RelativePath, "", "", "malformed_baseline_xml", error.Message));
+                        continue;
+                    }
+                }
                 var candidates = FindDocumentationRepairs(
-                    file, lineStarts, index, patterns, options.Member, report);
+                    file, lineStarts, index, patterns, options.Member, report, baseline);
                 var accepted = new List<DocumentationRepairEdit>();
                 var lastEnd = -1;
                 foreach (var edit in candidates.OrderBy(edit => edit.Start).ThenBy(edit => edit.End))
@@ -40398,7 +40446,7 @@ static partial class ImporterProgram
                 }
                 builder.Append(file.Text, position, file.Text.Length - position);
                 var text = builder.ToString();
-                var failure = VerifyDocumentationRepairs(file, text, accepted, candidates, index, patterns);
+                var failure = VerifyDocumentationRepairs(file, text, accepted, candidates, index, patterns, baseline);
                 if (failure is not null)
                 {
                     remaining += accepted.Count;
@@ -40491,7 +40539,8 @@ static partial class ImporterProgram
         DocumentationRepairIndex index,
         HashSet<string> patterns,
         string? memberFilter,
-        ImportReport report)
+        ImportReport report,
+        RepairBaseline? baseline)
     {
         var edits = new List<DocumentationRepairEdit>();
         var text = file.Text;
@@ -40574,9 +40623,21 @@ static partial class ImporterProgram
                             "trailing_javadoc_star", "Removed a trailing Javadoc comment marker.", []));
                     }
                 }
+                if (patterns.Contains(AiSourceLinksPattern) && baseline is not null)
+                    FindAiSourceLinkRepairs(text, lineStarts, id, channel, target, span, baseline, edits, Skip);
+                if (patterns.Contains(RegexLinksPattern))
+                    FindRegexLinkRepairs(file.Root, owner, id, target, span, content, edits, Skip);
+                if (patterns.Contains(EscapedHtmlPattern))
+                    FindEscapedHtmlRepairs(text, lineStarts, id, channel, target, span, content, edits, Skip);
+                if (patterns.Contains(EmptySeeAlsoPattern))
+                    FindEmptySeeAlsoRepairs(text, lineStarts, id, channel, target, span, edits, Skip);
+                if (patterns.Contains(GetterSetterHrefsPattern) && baseline is not null && channel.Name == "remarks")
+                    FindGetterSetterHrefRepairs(id, span, content, baseline, edits, Skip);
                 for (var editIndex = firstEdit; editIndex < edits.Count; editIndex++)
                     edits[editIndex] = edits[editIndex] with { Channel = ordinal };
             }
+            if (patterns.Contains(RestoreAltmemberPattern) && baseline is not null)
+                FindRestoreAltmemberRepairs(text, lineStarts, id, docs, baseline, index, edits, Skip);
         }
         return edits;
     }
@@ -41072,7 +41133,8 @@ static partial class ImporterProgram
         IReadOnlyList<DocumentationRepairEdit> edits,
         IReadOnlyList<DocumentationRepairEdit> candidates,
         DocumentationRepairIndex index,
-        HashSet<string> patterns)
+        HashSet<string> patterns,
+        RepairBaseline? baseline)
     {
         XDocument updated;
         try
@@ -41096,9 +41158,20 @@ static partial class ImporterProgram
         var updatedDocs = updated.Descendants("Docs").ToList();
         static string ChannelKey(XElement channel) =>
             channel.Name.LocalName + ":" + (string?)channel.Attribute("name");
+        // restore-altmember may only append altmember channels to a Docs block that has none.
+        var restoring = edits.Any(edit => edit.Pattern == RestoreAltmemberPattern);
+        bool SameChannels(XElement before, XElement after)
+        {
+            var first = before.Elements().Select(ChannelKey).ToList();
+            var second = after.Elements().Select(ChannelKey).ToList();
+            if (first.SequenceEqual(second))
+                return true;
+            return restoring && !first.Contains("altmember:") && second.Count > first.Count &&
+                second.Take(first.Count).SequenceEqual(first) &&
+                second.Skip(first.Count).All(key => key == "altmember:");
+        }
         if (originalDocs.Count != updatedDocs.Count ||
-            originalDocs.Zip(updatedDocs).Any(pair => !pair.First.Elements().Select(ChannelKey)
-                .SequenceEqual(pair.Second.Elements().Select(ChannelKey))))
+            originalDocs.Zip(updatedDocs).Any(pair => !SameChannels(pair.First, pair.Second)))
             return "The Docs channel structure changed.";
         static int Placeholders(XDocument document) => document.Descendants("Docs")
             .SelectMany(docs => docs.DescendantsAndSelf())
@@ -41117,7 +41190,7 @@ static partial class ImporterProgram
             Root = updated.Root!,
         };
         var scratch = new ImportReport { Mode = "verify", Offline = true, MaxChanges = 0 };
-        var again = FindDocumentationRepairs(repeated, LineStarts(text), index, patterns, null, scratch);
+        var again = FindDocumentationRepairs(repeated, LineStarts(text), index, patterns, null, scratch, baseline);
         static (string, string, int) Key(DocumentationRepairEdit edit) => (edit.Pattern, edit.Member, edit.Channel);
         var deferred = candidates.Except(edits).GroupBy(Key).ToDictionary(group => group.Key, group => group.Count());
         foreach (var group in again.GroupBy(Key).Where(group => edits.Any(edit => Key(edit) == group.Key)))
@@ -41126,6 +41199,483 @@ static partial class ImporterProgram
                 return $"The {group.Key.Item1} repair for {group.Key.Item2} {group.First().Target} is not idempotent.";
         }
         return null;
+    }
+}
+
+static partial class ImporterProgram
+{
+    static readonly Regex SourceCitationHrefRegex = new(
+        @"^https?://(?:android\.googlesource\.com/|(?:www\.)?github\.com/(?:aosp-mirror|dotnet/java-interop/blob|dotnet/android/blob|apache)/|cs\.android\.com/|raw\.githubusercontent\.com/(?:dotnet|aosp-mirror|apache)/)",
+        RegexOptions.CultureInvariant);
+    static readonly Regex SourceCitationAnyRegex = new(
+        @"href=""https?://(?:android\.googlesource\.com/|(?:www\.)?github\.com/(?:aosp-mirror|dotnet/java-interop/blob|dotnet/android/blob|apache)/|cs\.android\.com/|raw\.githubusercontent\.com/(?:dotnet|aosp-mirror|apache)/)|Implementation source:|Verified against|These details are based on the Android source|Implementation details are based on",
+        RegexOptions.CultureInvariant);
+    static readonly Regex SourceCitationMarkerRegex = new(
+        @"Implementation source:|Verified against|These details are based on the Android source|Implementation details are based on",
+        RegexOptions.CultureInvariant);
+    // Words that remain in a paragraph whose only purpose is to cite a source file.
+    static readonly Regex SourceCitationResidueRegex = new(
+        @"^(?:(?:see|also|the|and|source|sources|code|implementation|android|aosp|open|project|verified|against|these|this|details|are|is|based|on|in|from|java|platform|framework|frameworks|for|of|at|version|release|tag|r\d+|\d+(?:\.\d+)*)\b|[.,:;()-]|\s)*$",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+    static readonly Regex RegexLinkRegex = new(
+        @"<a href=""(?<href>[^""]*\(\.\*[^""]*)"" title=""Reference documentation"">Java documentation for <code>(?<code>[^<]*)</code>\.</a>",
+        RegexOptions.CultureInvariant);
+    static readonly Regex MemberRegisterRegex = new(
+        @"^\[(?:(?:get|set): )?Android\.Runtime\.Register\(""(?<name>[^""]+)""(?:, ""(?<signature>[^""]*)"", ""[^""]*"")?",
+        RegexOptions.CultureInvariant);
+    static readonly Regex EscapedInlineTagRegex = new(
+        @"&lt;(?<tag>strong|b|em|i|code|var)&gt;(?<body>(?:[^<>&]|&(?:amp|quot|apos|#[0-9]+|#x[0-9A-Fa-f]+);){1,200}?)&lt;/\k<tag>&gt;",
+        RegexOptions.CultureInvariant);
+    static readonly Regex DoubleEscapedEntityRegex = new(
+        @"&amp;(?<entity>lt|gt|quot|apos|amp|#[1-9][0-9]{0,6}|#x[0-9A-Fa-f]{1,6});", RegexOptions.CultureInvariant);
+    static readonly Regex MultipleEscapedEntityRegex = new(
+        @"&amp;amp;(?:amp;)*[A-Za-z#][A-Za-z0-9]*;", RegexOptions.CultureInvariant);
+    static readonly Regex UnsupportedEscapedEntityRegex = new(
+        @"&amp;(?!(?:lt|gt|quot|apos|amp);)[A-Za-z][A-Za-z0-9]*;", RegexOptions.CultureInvariant);
+    static readonly Regex EscapingDiscussionRegex = new(
+        @"(?i)\bescap|\bunescap|\bentit(?:y|ies)\b|\bencod|character reference|fromHtml|toHtml|escapeHtml",
+        RegexOptions.CultureInvariant);
+    static readonly Regex JavaDocumentationLinkWithCodeRegex = new(
+        @"<a href=""(?<href>[^""]+)"" title=""Reference documentation"">Java documentation for <code>(?<code>[^<]*)</code>\.</a>",
+        RegexOptions.CultureInvariant);
+
+    sealed class RepairBaseline
+    {
+        public required string Text { get; init; }
+        public required Dictionary<string, XElement> Owners { get; init; }
+
+        // Returns null when the file did not exist at the baseline.
+        public static RepairBaseline? Load(string path)
+        {
+            if (!File.Exists(path))
+                return null;
+            var text = File.ReadAllText(path);
+            var root = XDocument.Parse(text, LoadOptions.PreserveWhitespace).Root
+                ?? throw new XmlException("XML document has no root element.");
+            var typeName = (string?)root.Attribute("FullName") ?? (string?)root.Attribute("Name") ?? "";
+            var owners = new Dictionary<string, XElement>(StringComparer.Ordinal)
+            {
+                [SignatureValue(root, "TypeSignature", "DocId") ??
+                    (root.Name == "Namespace" ? $"N:{typeName}" : $"T:{typeName}")] = root,
+            };
+            foreach (var member in root.Element("Members")?.Elements("Member") ?? [])
+            {
+                owners.TryAdd(SignatureValue(member, "MemberSignature", "DocId") ??
+                    $"{typeName}.{(string?)member.Attribute("MemberName")}", member);
+            }
+            return new RepairBaseline { Text = text, Owners = owners };
+        }
+    }
+
+    // Expands [start, end) to whole lines when only spaces surround the element on its lines.
+    static (int Start, int End)? WholeLines(string text, int start, int end)
+    {
+        var lineStart = start;
+        while (lineStart > 0 && text[lineStart - 1] is ' ' or '\t')
+            lineStart--;
+        if (lineStart > 0 && text[lineStart - 1] is not ('\n' or '\r'))
+            return null;
+        var lineEnd = end;
+        while (lineEnd < text.Length && text[lineEnd] is ' ' or '\t')
+            lineEnd++;
+        if (lineEnd + 1 < text.Length && text[lineEnd] == '\r' && text[lineEnd + 1] == '\n')
+            return (lineStart, lineEnd + 2);
+        if (lineEnd < text.Length && text[lineEnd] is '\n' or '\r')
+            return (lineStart, lineEnd + 1);
+        return null;
+    }
+
+    static bool OnlyContent(string text, RawElementSpan channel, int start, int end) =>
+        string.IsNullOrWhiteSpace(text[channel.ContentStart..start] + text[end..channel.ContentEnd]);
+
+    static bool IsSourceCitationLink(XElement element)
+    {
+        if (element.Name == "see")
+            return element.Attribute("href") is { } href && SourceCitationHrefRegex.IsMatch(href.Value) &&
+                !element.Elements().Any(child => child.Name.LocalName is not ("c" or "code"));
+        if (element.Name != "format" || element.Elements().Count() != 1)
+            return false;
+        var anchor = element.Elements().Single();
+        return anchor.Name == "a" && anchor.Attribute("href") is { } link &&
+            SourceCitationHrefRegex.IsMatch(link.Value) &&
+            !anchor.Elements().Any(child => child.Name.LocalName is not ("c" or "code")) &&
+            element.Nodes().OfType<XText>().All(node => string.IsNullOrWhiteSpace(node.Value));
+    }
+
+    static void FindAiSourceLinkRepairs(
+        string text,
+        int[] lineStarts,
+        string id,
+        XElement channel,
+        string target,
+        RawElementSpan span,
+        RepairBaseline baseline,
+        List<DocumentationRepairEdit> edits,
+        Action<string, string, string, string, string> skip)
+    {
+        var whole = text[span.Start..span.End];
+        if (!SourceCitationAnyRegex.IsMatch(whole))
+            return;
+        var removed = new List<(int Start, int End)>();
+        foreach (var paragraph in channel.Elements("para"))
+        {
+            var paragraphSpan = FindRawElementSpan(text, lineStarts, paragraph);
+            if (paragraphSpan is null)
+                continue;
+            var raw = text[paragraphSpan.Start..paragraphSpan.End];
+            if (!SourceCitationAnyRegex.IsMatch(raw))
+                continue;
+            var links = paragraph.Elements().Where(IsSourceCitationLink).ToList();
+            var residue = NormalizeWhitespace(string.Concat(paragraph.Nodes().OfType<XText>().Select(node => node.Value)));
+            var citationOnly = paragraph.Elements().All(IsSourceCitationLink) &&
+                (links.Count > 0 || SourceCitationMarkerRegex.IsMatch(residue)) &&
+                SourceCitationResidueRegex.IsMatch(residue);
+            if (!citationOnly)
+                continue;
+            var hrefs = links.Select(link => (link.Name == "see" ? link : link.Elements().Single()).Attribute("href")!.Value).ToList();
+            if (hrefs.Any(href => baseline.Text.Contains(SecurityElementEscape(href), StringComparison.Ordinal)) ||
+                links.Count == 0 && baseline.Text.Contains(raw, StringComparison.Ordinal))
+            {
+                skip(id, target, AiSourceLinksPattern, "present_at_baseline",
+                    "The pre-AI baseline already has this citation.");
+                removed.Add((paragraphSpan.Start, paragraphSpan.End));
+                continue;
+            }
+            var lines = WholeLines(text, paragraphSpan.Start, paragraphSpan.End);
+            if (lines is null)
+            {
+                skip(id, target, AiSourceLinksPattern, "layout_unsupported",
+                    "The citation paragraph shares a line with other content.");
+                removed.Add((paragraphSpan.Start, paragraphSpan.End));
+                continue;
+            }
+            if (OnlyContent(text, span, lines.Value.Start, lines.Value.End))
+            {
+                skip(id, target, AiSourceLinksPattern, "only_content",
+                    "The citation paragraph is the only content of the channel.");
+                removed.Add((paragraphSpan.Start, paragraphSpan.End));
+                continue;
+            }
+            removed.Add((paragraphSpan.Start, paragraphSpan.End));
+            edits.Add(new DocumentationRepairEdit(
+                lines.Value.Start, lines.Value.End, "", AiSourceLinksPattern, id, target, "citation_paragraph",
+                $"Removed: {NormalizeWhitespace(paragraph.Value)} ({string.Join(", ", hrefs)})", []));
+        }
+        var rest = new StringBuilder(whole);
+        foreach (var (start, end) in removed)
+            rest.Remove(start - span.Start, end - start).Insert(start - span.Start, new string(' ', end - start));
+        var remaining = SourceCitationAnyRegex.Match(rest.ToString());
+        if (remaining.Success)
+        {
+            var restText = rest.ToString();
+            var context = NormalizeWhitespace(restText.Substring(Math.Max(0, remaining.Index - 80),
+                Math.Min(restText.Length - Math.Max(0, remaining.Index - 80), 240)));
+            var href = Regex.Match(restText[remaining.Index..], @"^href=""(?<v>[^""]+)""", RegexOptions.CultureInvariant);
+            var atBaseline = href.Success && baseline.Text.Contains(href.Groups["v"].Value, StringComparison.Ordinal);
+            skip(id, target, AiSourceLinksPattern, atBaseline ? "present_at_baseline" : "inline_citation",
+                $"A citation is part of other text and needs a manual rewrite: {context}");
+        }
+    }
+
+    static void FindRegexLinkRepairs(
+        XElement root,
+        XElement owner,
+        string id,
+        string target,
+        RawElementSpan span,
+        string content,
+        List<DocumentationRepairEdit> edits,
+        Action<string, string, string, string, string> skip)
+    {
+        var typeRegister = CSharpAttributes(root).Select(attribute => RegisterAttributeRegex.Match(attribute))
+            .FirstOrDefault(match => match.Success)?.Groups["name"].Value;
+        foreach (Match match in RegexLinkRegex.Matches(content))
+        {
+            var href = match.Groups["href"].Value;
+            var code = match.Groups["code"].Value;
+            var newHref = Regex.Replace(href, @"(?<=\(|,|%20)\.\*", "", RegexOptions.CultureInvariant);
+            var newCode = Regex.Replace(code, @"(?<=\(|,\s?)\.\*", "", RegexOptions.CultureInvariant);
+            var decoded = DecodeXmlAttribute(newHref);
+            var hash = decoded.IndexOf('#');
+            if (newHref.Contains(".*", StringComparison.Ordinal) || newCode.Contains(".*", StringComparison.Ordinal) ||
+                hash < 0 || !DecodeXmlAttribute(newCode).EndsWith("." + Uri.UnescapeDataString(decoded[(hash + 1)..]), StringComparison.Ordinal))
+            {
+                skip(id, target, RegexLinksPattern, "code_text_mismatch",
+                    $"The link text {code} does not name the same member as {href} after removing the regex markers.");
+                continue;
+            }
+            var registrations = owner == root ? [] : CSharpAttributes(owner)
+                .Select(attribute => MemberRegisterRegex.Match(attribute)).Where(register => register.Success).ToList();
+            if (typeRegister is null || !registrations.Any(register => ReferenceMatchesRegistration(
+                decoded, typeRegister, register.Groups["name"].Value,
+                register.Groups["signature"].Success ? register.Groups["signature"].Value : null)))
+            {
+                skip(id, target, RegexLinksPattern, "registration_mismatch",
+                    $"{decoded} does not match exactly one Java registration of the owner.");
+                continue;
+            }
+            var replacement = match.Value
+                .Replace($"href=\"{href}\"", $"href=\"{newHref}\"", StringComparison.Ordinal)
+                .Replace($"<code>{code}</code>", $"<code>{newCode}</code>", StringComparison.Ordinal);
+            edits.Add(new DocumentationRepairEdit(
+                span.ContentStart + match.Index, span.ContentStart + match.Index + match.Length, replacement,
+                RegexLinksPattern, id, target, "regex_marker_removed", $"{href} -> {newHref}", []));
+        }
+    }
+
+    static void FindEscapedHtmlRepairs(
+        string text,
+        int[] lineStarts,
+        string id,
+        XElement channel,
+        string target,
+        RawElementSpan span,
+        string content,
+        List<DocumentationRepairEdit> edits,
+        Action<string, string, string, string, string> skip)
+    {
+        var inline = EscapedInlineTagRegex.Matches(content);
+        var hasDouble = content.Contains("&amp;", StringComparison.Ordinal) &&
+            (DoubleEscapedEntityRegex.IsMatch(content) || UnsupportedEscapedEntityRegex.IsMatch(content));
+        if (inline.Count == 0 && !hasDouble)
+            return;
+        if (EscapingDiscussionRegex.IsMatch(channel.Value))
+        {
+            skip(id, target, EscapedHtmlPattern, "discusses_escaping",
+                "The text talks about escaping or HTML conversion, so the intended rendering is not certain.");
+            return;
+        }
+        var formatted = new List<(int Start, int End)>();
+        var code = new List<(int Start, int End)>();
+        foreach (var element in channel.Descendants().Where(element => element.Name.LocalName is "c" or "code" or "format" or "pre"))
+        {
+            if (FindRawElementSpan(text, lineStarts, element) is not { } elementSpan)
+            {
+                skip(id, target, EscapedHtmlPattern, "raw_layout_mismatch", "A nested element could not be located.");
+                return;
+            }
+            (element.Name == "format" ? formatted : code).Add((elementSpan.Start, elementSpan.End));
+        }
+        bool Inside(List<(int Start, int End)> spans, int start, int end) =>
+            spans.Any(range => start < range.End && range.Start < end);
+
+        foreach (Match match in inline)
+        {
+            var start = span.ContentStart + match.Index;
+            var end = start + match.Length;
+            if (Inside(formatted, start, end) || Inside(code, start, end))
+                continue;
+            var before = match.Index == 0 ? ' ' : content[match.Index - 1];
+            var after = match.Index + match.Length >= content.Length ? ' ' : content[match.Index + match.Length];
+            if (!(char.IsWhiteSpace(before) || before is '>' or '('))
+                continue;
+            if (!(char.IsWhiteSpace(after) || after is '<' or '.' or ',' or ';' or ':' or '!' or '?' or ')'))
+                continue;
+            var tag = match.Groups["tag"].Value switch
+            {
+                "strong" or "b" => "b",
+                "code" => "c",
+                _ => "i",
+            };
+            edits.Add(new DocumentationRepairEdit(
+                start, end, $"<{tag}>{match.Groups["body"].Value}</{tag}>", EscapedHtmlPattern, id, target,
+                "escaped_inline_tag", $"&lt;{match.Groups["tag"].Value}&gt; -> <{tag}>", []));
+        }
+
+        if (!hasDouble)
+            return;
+        if (MultipleEscapedEntityRegex.IsMatch(content))
+        {
+            skip(id, target, EscapedHtmlPattern, "multiple_escape_levels",
+                "The text has more than two escape levels; fix it manually.");
+            return;
+        }
+        if (UnsupportedEscapedEntityRegex.Match(content) is { Success: true } unsupported)
+        {
+            skip(id, target, EscapedHtmlPattern, "unsupported_entity",
+                $"{unsupported.Value} has no XML equivalent; fix it manually.");
+        }
+        var decodedContent = DoubleEscapedEntityRegex.Replace(content, match => $"&{match.Groups["entity"].Value};");
+        if (EscapedInlineTagRegex.Matches(decodedContent).Count > inline.Count)
+        {
+            skip(id, target, EscapedHtmlPattern, "would_create_inline_tag",
+                "Decoding would expose an escaped inline tag, so the intended rendering is not certain.");
+            return;
+        }
+        var count = 0;
+        foreach (Match match in DoubleEscapedEntityRegex.Matches(content))
+        {
+            var start = span.ContentStart + match.Index;
+            if (Inside(formatted, start, start + match.Length))
+            {
+                count = -1;
+                break;
+            }
+        }
+        if (count < 0)
+        {
+            skip(id, target, EscapedHtmlPattern, "inside_format",
+                "Double-escaped text inside format type=\"text/html\" needs a manual check.");
+            return;
+        }
+        foreach (Match match in DoubleEscapedEntityRegex.Matches(content))
+        {
+            var start = span.ContentStart + match.Index;
+            edits.Add(new DocumentationRepairEdit(
+                start, start + match.Length, $"&{match.Groups["entity"].Value};", EscapedHtmlPattern, id, target,
+                "double_escaped_entity", $"{match.Value} -> &{match.Groups["entity"].Value};", []));
+        }
+    }
+
+    static void FindEmptySeeAlsoRepairs(
+        string text,
+        int[] lineStarts,
+        string id,
+        XElement channel,
+        string target,
+        RawElementSpan span,
+        List<DocumentationRepairEdit> edits,
+        Action<string, string, string, string, string> skip)
+    {
+        if (!channel.HasElements && NormalizeWhitespace(channel.Value) == "See also:")
+        {
+            skip(id, target, EmptySeeAlsoPattern, "only_content",
+                "The channel has only \"See also:\"; it needs authored text, not an empty channel.");
+            return;
+        }
+        foreach (var paragraph in channel.Elements("para"))
+        {
+            if (paragraph.HasElements || NormalizeWhitespace(paragraph.Value) != "See also:")
+                continue;
+            var next = paragraph.ElementsAfterSelf().FirstOrDefault();
+            if (next is not null && (next.Name == "list" || next.Name == "para" && next.HasElements &&
+                next.Elements().All(element => element.Name == "see") &&
+                next.Nodes().OfType<XText>().All(node => string.IsNullOrWhiteSpace(node.Value.Replace(",", ""))))
+            )
+            {
+                skip(id, target, EmptySeeAlsoPattern, "items_follow",
+                    "The next element looks like the see-also list, so the heading is not empty.");
+                continue;
+            }
+            var paragraphSpan = FindRawElementSpan(text, lineStarts, paragraph);
+            var lines = paragraphSpan is null ? null : WholeLines(text, paragraphSpan.Start, paragraphSpan.End);
+            if (lines is null)
+            {
+                skip(id, target, EmptySeeAlsoPattern, "layout_unsupported",
+                    "The \"See also:\" paragraph shares a line with other content.");
+                continue;
+            }
+            if (OnlyContent(text, span, lines.Value.Start, lines.Value.End))
+            {
+                skip(id, target, EmptySeeAlsoPattern, "only_content",
+                    "The \"See also:\" paragraph is the only content of the channel.");
+                continue;
+            }
+            edits.Add(new DocumentationRepairEdit(
+                lines.Value.Start, lines.Value.End, "", EmptySeeAlsoPattern, id, target, "empty_heading",
+                "Removed a \"See also:\" heading that has no items.", []));
+        }
+    }
+
+    static string JavaMemberName(string value)
+    {
+        var open = value.IndexOf('(');
+        var head = open < 0 ? value : value[..open];
+        return head[(head.LastIndexOfAny(['.', '#']) + 1)..];
+    }
+
+    static void FindGetterSetterHrefRepairs(
+        string id,
+        RawElementSpan span,
+        string content,
+        RepairBaseline baseline,
+        List<DocumentationRepairEdit> edits,
+        Action<string, string, string, string, string> skip)
+    {
+        foreach (Match match in JavaDocumentationLinkWithCodeRegex.Matches(content))
+        {
+            var href = match.Groups["href"].Value;
+            var code = match.Groups["code"].Value;
+            var hash = href.IndexOf('#');
+            if (!id.StartsWith("P:", StringComparison.Ordinal) || hash < 0 || !code.Contains('(') ||
+                JavaMemberName(href[hash..]) == JavaMemberName(code))
+                continue;
+            var oldRemarks = baseline.Owners.TryGetValue(id, out var oldOwner)
+                ? oldOwner.Element("Docs")?.Element("remarks")?.ToString(SaveOptions.DisableFormatting)
+                : null;
+            var restored = oldRemarks is null ? [] : JavaDocumentationLinkWithCodeRegex.Matches(oldRemarks)
+                .Where(old => old.Groups["code"].Value == code).Select(old => old.Groups["href"].Value)
+                .Distinct(StringComparer.Ordinal).ToList();
+            if (restored.Count != 1 || restored[0].IndexOf('#') is var oldHash && oldHash < 0 ||
+                restored[0][..oldHash] != href[..hash] || JavaMemberName(restored[0][oldHash..]) != JavaMemberName(code))
+            {
+                skip(id, "remarks", GetterSetterHrefsPattern, "no_baseline_link",
+                    $"The baseline has no single link for {code} that names the same member; current href {href}.");
+                continue;
+            }
+            var group = match.Groups["href"];
+            edits.Add(new DocumentationRepairEdit(
+                span.ContentStart + group.Index, span.ContentStart + group.Index + group.Length, restored[0],
+                GetterSetterHrefsPattern, id, "remarks", "baseline_href", $"{href} -> {restored[0]}", []));
+        }
+    }
+
+    static void FindRestoreAltmemberRepairs(
+        string text,
+        int[] lineStarts,
+        string id,
+        XElement docs,
+        RepairBaseline baseline,
+        DocumentationRepairIndex index,
+        List<DocumentationRepairEdit> edits,
+        Action<string, string, string, string, string> skip)
+    {
+        if (!baseline.Owners.TryGetValue(id, out var oldOwner))
+            return;
+        var old = oldOwner.Element("Docs")?.Elements("altmember")
+            .Select(element => (string?)element.Attribute("cref")).OfType<string>().ToList() ?? [];
+        if (old.Count == 0)
+            return;
+        var current = docs.Elements("altmember").Select(element => (string?)element.Attribute("cref")).ToList();
+        if (current.Count > 0)
+        {
+            if (!old.Except(current).Any())
+                return;
+            skip(id, "altmember", RestoreAltmemberPattern, "partial_altmembers",
+                "The member keeps some altmember elements; compare them with the baseline manually.");
+            return;
+        }
+        var channels = docs.Elements().ToList();
+        var last = channels.LastOrDefault();
+        var lastSpan = last is null ? null : FindRawElementSpan(text, lineStarts, last);
+        var lineStart = lastSpan is null ? -1 : lineStarts[LineOf(lineStarts, lastSpan.Start) - 1];
+        if (lastSpan is null || !string.IsNullOrWhiteSpace(text[lineStart..lastSpan.Start]) && lineStart != lastSpan.Start)
+        {
+            skip(id, "altmember", RestoreAltmemberPattern, "layout_unsupported",
+                "The Docs block has no channel on its own line to follow.");
+            return;
+        }
+        var indent = text[lineStart..lastSpan.Start];
+        var newline = lastSpan.End < text.Length && text[lastSpan.End] == '\r' ? "\r\n" : "\n";
+        var restored = new List<string>();
+        foreach (var cref in old.Distinct(StringComparer.Ordinal))
+        {
+            if (index.DocIds.Contains(cref))
+                restored.Add(cref);
+            else
+                skip(id, "altmember", RestoreAltmemberPattern, "unresolved_cref",
+                    $"The baseline altmember {cref} is not a DocId in docs/xml.");
+        }
+        if (restored.Count == 0)
+            return;
+        edits.Add(new DocumentationRepairEdit(
+            lastSpan.End, lastSpan.End,
+            string.Concat(restored.Select(cref =>
+                $"{newline}{indent}<altmember cref=\"{SecurityElementEscape(cref).Replace("\"", "&quot;", StringComparison.Ordinal)}\" />")),
+            RestoreAltmemberPattern, id, "altmember", "baseline_altmember", string.Join(", ", restored), restored)
+        {
+            Channel = channels.Count - 1,
+        });
     }
 }
 
@@ -41478,6 +42028,123 @@ static partial class ImporterProgram
                 Console.SetOut(output);
             }
             Assert(unscoped == 1 && File.ReadAllText(path) == sample, "repair apply requires a write scope");
+
+            static string Link(string fragment, string code) =>
+                $"<para><format type=\"text/html\"><a href=\"https://developer.android.com/reference/fixture/repair/Sample#{fragment}\" title=\"Reference documentation\">Java documentation for <code>fixture.repair.Sample.{code}</code>.</a></format></para>";
+            const string Citation = "<para><format type=\"text/html\"><a href=\"https://android.googlesource.com/platform/Sample.java\">Android source: Sample.java</a></format>.</para>";
+            const string OldCitation = "<para><format type=\"text/html\"><a href=\"https://android.googlesource.com/platform/Old.java\">Android source</a></format></para>";
+            string Patterns(bool current) => $$"""
+                <Type Name="Sample" FullName="Fixture.RepairDocs.Sample">
+                  <TypeSignature Language="C#" Value="public class Sample" />
+                  <TypeSignature Language="DocId" Value="T:Fixture.RepairDocs.Sample" />
+                  <Attributes>
+                    <Attribute>
+                      <AttributeName Language="C#">[Android.Runtime.Register("fixture/repair/Sample", DoNotGenerateAcw=true)]</AttributeName>
+                    </Attribute>
+                  </Attributes>
+                  <Docs>
+                    <summary>Fixture.</summary>
+                  </Docs>
+                  <Members>
+                {{Member("Cite", "public void Cite ();", "M:Fixture.RepairDocs.Sample.Cite",
+                    "[Android.Runtime.Register(\"cite\", \"()V\", \"\")]", "System.Void", "", $$"""
+                        <summary>Cites.</summary>
+                        <remarks>
+                          <para>A fact.</para>
+                          {{(current ? Citation + "\n                  " : "")}}{{OldCitation}}
+                          {{(current ? "<para>See the <see href=\"https://cs.android.com/Sample\">source</see>; it returns 1.</para>" : "<para>Old.</para>")}}
+                        </remarks>
+                """)}}
+                {{Member("IndexOf", "public int IndexOf (int value);", "M:Fixture.RepairDocs.Sample.IndexOf(System.Int32)",
+                    "[Android.Runtime.Register(\"indexOf\", \"(I)I\", \"\")]", "System.Int32",
+                    "<Parameter Name=\"value\" Type=\"System.Int32\" />", $$"""
+                        <summary>Finds &lt;strong&gt;one&lt;/strong&gt; value; a&lt;b&gt;c&lt;/b&gt; stays.</summary>
+                        <remarks>
+                          <para>See also:</para>
+                          <code>Map&amp;lt;K, V&amp;gt; map;</code>
+                          {{Link("indexOf(.*int)", "indexOf(.*int)")}}
+                          {{Link("lastIndexOf(.*int)", "lastIndexOf(.*int)")}}
+                        </remarks>
+                """)}}
+                {{Member("Escape", "public void Escape ();", "M:Fixture.RepairDocs.Sample.Escape",
+                    "[Android.Runtime.Register(\"escape\", \"()V\", \"\")]", "System.Void", "", """
+                        <summary>See also:</summary>
+                        <remarks>Escapes &lt;em&gt;text&lt;/em&gt; and &amp;amp;lt; values.</remarks>
+                """)}}
+                {{Member("Level", "public int Level { get; }", "P:Fixture.RepairDocs.Sample.Level",
+                    "[get: Android.Runtime.Register(\"getLevel\", \"()I\", \"\")]", "System.Int32", "", $$"""
+                        <summary>Gets the level.</summary>
+                        <remarks>
+                          {{(current ? Link("setLevel(int)", "getLevel()") : Link("getLevel()", "getLevel()"))}}
+                        </remarks>
+                """)}}
+                {{Member("Alt", "public void Alt ();", "M:Fixture.RepairDocs.Sample.Alt",
+                    "[Android.Runtime.Register(\"alt\", \"()V\", \"\")]", "System.Void", "", $$"""
+                        <summary>Alt.</summary>
+                        <remarks>
+                          {{(current ? Link("Alt(int)", "Sample$Alt(int)") : Link("Sample$Alt(int)", "Sample$Alt(int)"))}}
+                        </remarks>{{(current ? "" : """
+
+                        <altmember cref="M:Fixture.RepairDocs.Sample.Stop(System.Int32)" />
+                        <altmember cref="M:Fixture.RepairDocs.Sample.Gone" />
+                """)}}
+                """)}}
+                  </Members>
+                </Type>
+                """;
+            var baselineRoot = Path.Combine(directory, "baseline");
+            var baselinePath = Path.Combine(baselineRoot, Path.GetRelativePath(docsRoot, path));
+            Directory.CreateDirectory(Path.GetDirectoryName(baselinePath)!);
+            File.WriteAllText(baselinePath, Patterns(current: false).ReplaceLineEndings("\n"));
+            var patterned = Patterns(current: true).ReplaceLineEndings("\n");
+            File.WriteAllText(path, patterned);
+            Assert(Run("--pattern", AiSourceLinksPattern).Code == 2, "baseline repair patterns require --baseline");
+            string[] newPatterns = ["--baseline", baselineRoot, "--pattern", AiSourceLinksPattern, "--pattern", RegexLinksPattern,
+                "--pattern", EscapedHtmlPattern, "--pattern", EmptySeeAlsoPattern, "--pattern", GetterSetterHrefsPattern,
+                "--pattern", RestoreAltmemberPattern];
+            var found = Run(newPatterns).Report;
+            foreach (var (status, reason, expectedCount) in new[]
+            {
+                ("would_apply", "ai-source-links:citation_paragraph", 1),
+                ("skipped", "ai-source-links:present_at_baseline", 1),
+                ("skipped", "ai-source-links:inline_citation", 1),
+                ("would_apply", "regex-links:regex_marker_removed", 1),
+                ("skipped", "regex-links:registration_mismatch", 1),
+                ("would_apply", "escaped-html:escaped_inline_tag", 1),
+                ("would_apply", "escaped-html:double_escaped_entity", 2),
+                ("skipped", "escaped-html:discusses_escaping", 1),
+                ("would_apply", "empty-see-also:empty_heading", 1),
+                ("skipped", "empty-see-also:only_content", 1),
+                ("would_apply", "getter-setter-hrefs:baseline_href", 1),
+                ("would_apply", "restore-altmember:baseline_altmember", 1),
+                ("skipped", "restore-altmember:unresolved_cref", 1),
+            })
+            {
+                Assert(Count(found, status, reason) == expectedCount, $"repair report records {status} {reason}");
+            }
+            Assert(found.GetProperty("errorCount").GetInt32() == 0 && File.ReadAllText(path) == patterned,
+                "new repair patterns dry run is read-only");
+            Assert(Run([.. newPatterns, "--apply"]).Report.GetProperty("appliedCount").            GetInt32() == 8,
+                "new repair patterns apply every exact repair");
+            var repaired = File.ReadAllText(path);
+            XDocument.Parse(repaired);
+            Assert(!repaired.Contains("Sample.java", StringComparison.Ordinal) &&
+                repaired.Contains(OldCitation, StringComparison.Ordinal) &&
+                repaired.Contains("cs.android.com/Sample", StringComparison.Ordinal) &&
+                repaired.Contains("#indexOf(int)\" title=\"Reference documentation\">Java documentation for <code>fixture.repair.Sample.indexOf(int)</code>", StringComparison.Ordinal) &&
+                repaired.Contains("#lastIndexOf(.*int)", StringComparison.Ordinal) &&
+                repaired.Contains("<summary>Finds <b>one</b> value; a&lt;b&gt;c&lt;/b&gt; stays.</summary>", StringComparison.Ordinal) &&
+                repaired.Contains("<code>Map&lt;K, V&gt; map;</code>", StringComparison.Ordinal) &&
+                repaired.Contains("Escapes &lt;em&gt;text&lt;/em&gt; and &amp;amp;lt; values.", StringComparison.Ordinal) &&
+                !repaired.Contains("<para>See also:</para>", StringComparison.Ordinal) &&
+                repaired.Contains("<summary>See also:</summary>", StringComparison.Ordinal) &&
+                repaired.Contains("Sample#getLevel()", StringComparison.Ordinal) &&
+                repaired.Contains("Sample#Alt(int)", StringComparison.Ordinal) &&
+                repaired.Contains("</remarks>\n        <altmember cref=\"M:Fixture.RepairDocs.Sample.Stop(System.Int32)\" />\n      </Docs>", StringComparison.Ordinal) &&
+                !repaired.Contains("Sample.Gone", StringComparison.Ordinal),
+                "new repair patterns write only the expected changes");
+            Assert(Run([.. newPatterns, "--apply"]).Report.GetProperty("appliedCount").GetInt32() == 0 &&
+                File.ReadAllText(path) == repaired, "new repair patterns are idempotent");
 
             File.WriteAllText(path, sample);
             RepairIndexOverride.DocIds.Remove("F:Fixture.RepairDocs.SampleMode.ModeA");
