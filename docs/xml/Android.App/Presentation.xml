@@ -36,10 +36,29 @@
       <para>The easiest way to choose a presentation display is to use the MediaRouter API. The media router service keeps track of which audio and video routes are available on the system. The media router sends notifications whenever routes are selected or unselected or when the preferred presentation display of a route changes. So an application can simply watch for these notifications and show or dismiss a presentation on the preferred presentation display automatically.</para>
       <para>The preferred presentation display is the display that the media router recommends that the application should use if it wants to show content on another display. Sometimes there may not be a preferred presentation display in which case the application should show its content locally without using a presentation.</para>
       <para>Here's how to use the media router to create and show a presentation on the preferred presentation display using MediaRouter.RouteInfo.getPresentationDisplay().</para>
+          <code lang="text/java">MediaRouter mediaRouter = (MediaRouter) context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+MediaRouter.RouteInfo route = mediaRouter.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_VIDEO);
+if (route != null) {
+    Display presentationDisplay = route.getPresentationDisplay();
+    if (presentationDisplay != null) {
+        Presentation presentation = new MyPresentation(context, presentationDisplay);
+        presentation.show();
+    }
+}</code>
       <para>The following sample code from ApiDemos demonstrates how to use the media router to automatically switch between showing content in the application's activity and showing the content in a presentation when a presentation display is available.</para>
       <para>Another way to choose a presentation display is to use the DisplayManager API directly. The display manager service provides functions to enumerate and describe all displays that are attached to the system including displays that may be used for presentations.</para>
       <para>The display manager keeps track of all displays in the system. However, not all displays are appropriate for showing presentations. For example, a presentation is disallowed on the same display as the application's top visible task to prevent it from obscuring its own content. Additionally, presentations on internal displays are restricted and may require the application's task to be focused on a different display to ensure the user is actively interacting with the application. Violating these rules will result in WindowManager.InvalidDisplayException being thrown when invoking show(). If the conditions for showing a presentation are no longer met while it is already visible, the system will automatically dismiss it and the application will receive the onStop() callback. When shown, a presentation will occlude other activities on the target display for security reasons.</para>
       <para>Here's how to identify suitable displays for showing presentations using DisplayManager.getDisplays(String) and the DisplayManager.DISPLAY_CATEGORY_PRESENTATION category.</para>
+          <code lang="text/java">DisplayManager displayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+Display[] presentationDisplays = displayManager.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION);
+if (presentationDisplays.length &gt; 0) {
+    // If there is more than one suitable presentation display, then we could consider
+    // giving the user a choice.  For this example, we simply choose the first display
+    // which is the one the system recommends as the preferred presentation display.
+    Display display = presentationDisplays[0];
+    Presentation presentation = new MyPresentation(context, presentationDisplay);
+    presentation.show();
+}</code>
       <para>The following sample code from ApiDemos demonstrates how to use the display manager to enumerate displays and show content on multiple presentation displays simultaneously.</para>
       <para>
         <format type="text/html">
