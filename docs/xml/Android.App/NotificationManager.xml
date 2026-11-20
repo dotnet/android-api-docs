@@ -126,6 +126,12 @@
         <summary>Activity Action: Launch an Automatic Zen Rule configuration screen Input: Optionally, EXTRA_AUTOMATIC_RULE_ID, if the configuration screen for an existing rule should be displayed.</summary>
         <remarks>
           <para>Activity Action: Launch an Automatic Zen Rule configuration screen Input: Optionally, EXTRA_AUTOMATIC_RULE_ID, if the configuration screen for an existing rule should be displayed. If the rule id is missing or null, apps should display a configuration screen where users can create a new instance of the rule. Output: Nothing You can have multiple activities handling this intent, if you support multiple rules. In order for the system to properly display all of your rule types so that users can create new instances or configure existing ones, you need to add some extra metadata (META_DATA_AUTOMATIC_RULE_TYPE) to your activity tag in your manifest. If you'd like to limit the number of rules a user can create from this flow, you can additionally optionally include META_DATA_RULE_INSTANCE_LIMIT. For example,</para>
+          <code lang="text/java">&lt;meta-data
+    android:name="android.service.zen.automatic.ruleType"
+    android:value="@string/my_condition_rule" /&gt;
+&lt;meta-data
+    android:name="android.service.zen.automatic.ruleInstanceLimit"
+    android:value="1" /&gt;</code>
           <para>See also:</para>
           <para>
             <format type="text/html">
@@ -2011,7 +2017,7 @@
         <summary>Recover a list of active notifications: ones that have been posted by the calling app that have not yet been dismissed by the user or cancel(String,int)ed by the app.</summary>
         <returns>An array of StatusBarNotification.</returns>
         <remarks>
-          <para>Recover a list of active notifications: ones that have been posted by the calling app that have not yet been dismissed by the user or cancel(String,int)ed by the app. StatusBarNotification object, including the original tag and id supplied to notify() (via getTag() and getId()) as well as a copy of the original Notification object (via StatusBarNotification.getNotification()).</para>
+          <para>Recover a list of active notifications: ones that have been posted by the calling app that have not yet been dismissed by the user or cancel(String,int)ed by the app. Each notification is embedded in a StatusBarNotification object, including the original tag and id supplied to notify() (via getTag() and getId()) as well as a copy of the original Notification object (via StatusBarNotification.getNotification()).</para>
           <para>From Build.VERSION_CODES.Q, will also return notifications you've posted as an app's notification delegate via NotificationManager.notifyAsPackage(String,String,int,Notification).</para>
           <para>
             <format type="text/html">
@@ -3312,7 +3318,7 @@
       <Docs>
         <summary>Returns whether the user wants silent notifications (see <c>#IMPORTANCE_LOW</c> to appear
             in the status bar.</summary>
-        <returns><see langword="true" /> when the setting requests hiding silent notification icons; otherwise, <see langword="false" />. The original reference description reverses this meaning.</returns>
+        <returns><see langword="true" /> when the setting requests hiding silent notification icons; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>Returns whether the user wants silent notifications (see IMPORTANCE_LOW to appear in the status bar. Only available for notification listeners.</para>
           <para>
@@ -3426,8 +3432,6 @@
         <returns>Whether the rule was successfully updated.</returns>
         <remarks>
           <para>Updates the given zen rule. Before Build.VERSION_CODES.VANILLA_ICE_CREAM, updating a rule that is not backed up by a ConditionProviderService will deactivate it if it was previously active. Starting with Build.VERSION_CODES.VANILLA_ICE_CREAM, this will only happen if the rule's definition is actually changing. Throws a SecurityException if policy access is not granted to this package. See isNotificationPolicyAccessGranted(). Callers can only update rules that they own. See AutomaticZenRule.getOwner.</para>
-          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
-          <para>Last updated 2026-08-03 UTC.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/NotificationManager#updateAutomaticZenRule(java.lang.String,%20android.app.AutomaticZenRule)" title="Reference documentation">Android reference for <code>android.app.NotificationManager.updateAutomaticZenRule</code>.</a>
