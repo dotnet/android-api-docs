@@ -51,9 +51,9 @@
             objects, you can guarantee this, of course -- but only if you don't make a
             mistake. If you have objects handed into you, or are creating objects using
             others handed into you, it is a different story. It all comes down to whether
-            you want to take the Blanche Dubois approach (&amp;quot;depend on the kindness of
-            strangers&amp;quot;) or the Andy Grove approach (&amp;quot;Only the Paranoid
-            Survive&amp;quot;).</para>
+            you want to take the Blanche Dubois approach (&quot;depend on the kindness of
+            strangers&quot;) or the Andy Grove approach (&quot;Only the Paranoid
+            Survive&quot;).</para>
       <para>For example, suppose we have a simple class:</para>
       <code lang="text/java">public class A {
                  protected Collection b;
@@ -143,7 +143,7 @@
       <para>&lt;h3&gt;&lt;b&gt;Immutable Objects&lt;/b&gt;&lt;/h3&gt;</para>
       <para>These are the easiest. You just use the interface to reflect that, by adding
             the following:</para>
-      <code lang="text/java">public class A implements Freezable&amp;lt;A&amp;gt; {
+      <code lang="text/java">public class A implements Freezable&lt;A&gt; {
               ...
               public final boolean isFrozen() {return true;}
               public final A freeze() {return this;}
@@ -173,7 +173,7 @@
       <para>Then take the setters (that is, any method that can change the internal state
             of the object), and add the following as the first statement:</para>
       <code lang="text/java">if (isFrozen()) {
-                 throw new UnsupportedOperationException(&amp;quot;Attempt to modify frozen object&amp;quot;);
+                 throw new UnsupportedOperationException(&quot;Attempt to modify frozen object&quot;);
             }
             </code>
       <para>&lt;h4&gt;&lt;b&gt;Subclassing&lt;/b&gt;&lt;/h4&gt;</para>
@@ -185,7 +185,7 @@
       <para>&lt;h4&gt;&lt;b&gt;Internal Caches&lt;/b&gt;&lt;/h4&gt;</para>
       <para>Internal caches are cases where the object is logically unmodified, but
             internal state of the object changes. For example, there are const C++
-            functions that cast away the const on the &amp;quot;this&amp;quot; pointer in order
+            functions that cast away the const on the &quot;this&quot; pointer in order
             to modify an object cache. These cases are handled by mutexing the internal
             cache to ensure thread-safety. For example, suppose that UnicodeSet had an
             internal marker to the last code point accessed. In this case, the field is
@@ -196,27 +196,27 @@
             <c>frozen</c> or immutable (such as String or primitives). If you've
             never allowed internal access to these, then you are all done. For example,
             converting UnicodeSet to be <c>Freezable</c> is just accomplished
-            with the above steps. But remember that you <i>&lt;b&gt;have&lt;/b&gt;</i> allowed
+            with the above steps. But remember that you <i><b>have</b></i> allowed
             access to unsafe internals if you have any code like the following, in a
             getter, setter, or constructor:</para>
       <code lang="text/java">Collection getStuff() {
                  return stuff;
-            } // caller could keep reference &amp;amp; modify
+            } // caller could keep reference &amp; modify
             
             void setStuff(Collection x) {
                  stuff = x;
-            } // caller could keep reference &amp;amp; modify
+            } // caller could keep reference &amp; modify
             
             MyClass(Collection x) {
                  stuff = x;
-            } // caller could keep reference &amp;amp; modify
+            } // caller could keep reference &amp; modify
             </code>
-      <para>These also illustrated in the code sample in &lt;b&gt;Background&lt;/b&gt; above.</para>
+      <para>These also illustrated in the code sample in <b>Background</b> above.</para>
       <para>To deal with unsafe internals, the simplest course of action is to do the
             work in the <c>freeze()</c> function. Just make all of your internal
             fields frozen, and set the frozen flag. Any subsequent getter/setter will
             work properly. Here is an example:</para>
-      <para>&lt;b&gt;Warning!&lt;/b&gt; The 'frozen' boolean MUST be volatile, and must be set as the last statement
+      <para><b>Warning!</b> The 'frozen' boolean MUST be volatile, and must be set as the last statement
             in the method.</para>
       <code lang="text/java">public A freeze() {
                  if (!frozen) {

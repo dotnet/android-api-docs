@@ -46,8 +46,8 @@
             the Portable Operating System Interface (POSIX) family of standards.</para>
       <para>Operating systems that implement the <see href="http://www.opengroup.org">
             POSIX</see> family of standards commonly use file systems that have a
-            file &lt;em&gt;owner&lt;/em&gt;, &lt;em&gt;group-owner&lt;/em&gt;, and related &lt;em&gt;access
-            permissions&lt;/em&gt;. This file attribute view provides read and write access
+            file <i>owner</i>, <i>group-owner</i>, and related <i>access
+            permissions</i>. This file attribute view provides read and write access
             to these attributes.</para>
       <para>The <c>#readAttributes() readAttributes</c> method is used to read the
             file's attributes. The file <c>PosixFileAttributes#owner() owner</c> is
@@ -59,12 +59,12 @@
       <para>The <c>PosixFileAttributes#permissions() permissions</c> attribute is a
             set of access permissions. This file attribute view provides access to the nine
             permission defined by the <c>PosixFilePermission</c> class.
-            These nine permission bits determine the &lt;em&gt;read&lt;/em&gt;, &lt;em&gt;write&lt;/em&gt;, and
-            &lt;em&gt;execute&lt;/em&gt; access for the file owner, group, and others (others
+            These nine permission bits determine the <i>read</i>, <i>write</i>, and
+            <i>execute</i> access for the file owner, group, and others (others
             meaning identities other than the owner and members of the group). Some
             operating systems and file systems may provide additional permission bits
             but access to these other bits is not defined by this class in this release.</para>
-      <para>&lt;b&gt;Usage Example:&lt;/b&gt;
+      <para><b>Usage Example:</b>
             Suppose we need to print out the owner and access permissions of a file:</para>
       <code lang="text/java">Path file = ...
                 PosixFileAttributes attrs = Files.getFileAttributeView(file, PosixFileAttributeView.class)
@@ -89,7 +89,7 @@
             &lt;tbody&gt;
              &lt;tr&gt;
                 &lt;th scope="row"&gt; "permissions" &lt;/th&gt;
-                &lt;td&gt; <c>Set</c>&amp;lt;<c>PosixFilePermission</c>&amp;gt; &lt;/td&gt;
+                &lt;td&gt; <c>Set</c>&lt;<c>PosixFilePermission</c>&gt; &lt;/td&gt;
               &lt;/tr&gt;
               &lt;tr&gt;
                 &lt;th scope="row"&gt; "group" &lt;/th&gt;
@@ -116,14 +116,14 @@
             asFileAttribute</c> method to construct a <c>FileAttribute</c> when creating a
             file:</para>
       <code lang="text/java">Path path = ...
-                Set&amp;lt;PosixFilePermission&amp;gt; perms =
+                Set&lt;PosixFilePermission&gt; perms =
                     EnumSet.of(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE, GROUP_READ);
                 Files.createFile(path, PosixFilePermissions.asFileAttribute(perms));
             </code>
       <para>When the access permissions are set at file creation time then the actual
             value of the permissions may differ that the value of the attribute object.
             The reasons for this are implementation specific. On UNIX systems, for
-            example, a process has a &lt;em&gt;umask&lt;/em&gt; that impacts the permission bits
+            example, a process has a <i>umask</i> that impacts the permission bits
             of newly created files. Where an implementation supports the setting of
             the access permissions, and the underlying file system supports access
             permissions, then it is required that the value of the actual access

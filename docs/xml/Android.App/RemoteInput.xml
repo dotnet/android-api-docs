@@ -42,7 +42,19 @@
     <summary>A <c>RemoteInput</c> object specifies input to be collected from a user to be passed along with
             an intent inside a <c>android.app.PendingIntent</c> that is sent.</summary>
     <remarks>
-      <para>A RemoteInput object specifies input to be collected from a user to be passed along with an intent inside a PendingIntent that is sent. Always use RemoteInput.Builder to create instances of this class. See Replying to notifications for more information on how to use this class. The following example adds a RemoteInput to a Notification.Action, sets the result key as quick_reply, and sets the label as Quick reply. Users are prompted to input a response when they trigger the action. The results are sent along with the intent and can be retrieved with the result key (provided to the Builder constructor) from the Bundle returned by getResultsFromIntent(Intent). When the PendingIntent is fired, the intent inside will contain the input results if collected. To access these results, use the getResultsFromIntent(Intent) function. The result values will present under the result key passed to the Builder constructor.</para>
+      <para>A RemoteInput object specifies input to be collected from a user to be passed along with an intent inside a PendingIntent that is sent. Always use RemoteInput.Builder to create instances of this class. See Replying to notifications for more information on how to use this class. The following example adds a RemoteInput to a Notification.Action, sets the result key as quick_reply, and sets the label as Quick reply. Users are prompted to input a response when they trigger the action. The results are sent along with the intent and can be retrieved with the result key (provided to the Builder constructor) from the Bundle returned by getResultsFromIntent(Intent).</para>
+      <code lang="text/java">public static final String KEY_QUICK_REPLY_TEXT = "quick_reply";
+Notification.Action action = new Notification.Action.Builder(
+        R.drawable.reply, "Reply", actionIntent)
+        .addRemoteInput(new RemoteInput.Builder(KEY_QUICK_REPLY_TEXT)
+                .setLabel("Quick reply").build())
+        .build();</code>
+      <para>When the PendingIntent is fired, the intent inside will contain the input results if collected. To access these results, use the getResultsFromIntent(Intent) function. The result values will present under the result key passed to the Builder constructor.</para>
+      <code lang="text/java">public static final String KEY_QUICK_REPLY_TEXT = "quick_reply";
+Bundle results = RemoteInput.getResultsFromIntent(intent);
+if (results != null) {
+    CharSequence quickReplyResult = results.getCharSequence(KEY_QUICK_REPLY_TEXT);
+}</code>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/RemoteInput" title="Reference documentation">Android reference for <code>android.app.RemoteInput</code>.</a>
@@ -650,6 +662,11 @@
         <returns>A map from MIME type to result URI for the specified remote-input key, or null when no matching data result exists.</returns>
         <remarks>
           <para>Similar as getResultsFromIntent(Intent) but retrieves data results for a specific RemoteInput result. To retrieve a value use:</para>
+          <code lang="text/java">Map&lt;String, Uri&gt; results =
+    RemoteInput.getDataResultsFromIntent(intent, REMOTE_INPUT_KEY);
+if (results != null) {
+  Uri data = results.get(MIME_TYPE_OF_INTEREST);
+}</code>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/RemoteInput#getDataResultsFromIntent(android.content.Intent,%20java.lang.String)" title="Reference documentation">Android reference for <code>android.app.RemoteInput.getDataResultsFromIntent</code>.</a>
@@ -737,7 +754,6 @@
             be returned.</returns>
         <remarks>
           <para>Get the source of the RemoteInput results.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/RemoteInput#getResultsSource(android.content.Intent)" title="Reference documentation">Android reference for <code>android.app.RemoteInput.getResultsSource</code>.</a>
@@ -1021,7 +1037,6 @@
         <summary>Set the source of the RemoteInput results.</summary>
         <remarks>
           <para>Set the source of the RemoteInput results. This method should only be called by remote input collection services (e.g. NotificationListenerService) when sending results to a pending intent.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/RemoteInput#setResultsSource(android.content.Intent,%20int)" title="Reference documentation">Android reference for <code>android.app.RemoteInput.setResultsSource</code>.</a>
@@ -1230,8 +1245,6 @@
         <summary>Flatten this object in to a Parcel.</summary>
         <remarks>
           <para>Flatten this object in to a Parcel.</para>
-          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
-          <para>Last updated 2026-08-03 UTC.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/RemoteInput#writeToParcel(android.os.Parcel,%20int)" title="Reference documentation">Android reference for <code>android.app.RemoteInput.writeToParcel</code>.</a>

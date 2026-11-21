@@ -44,10 +44,10 @@
       <para>An asynchronous channel group is created by invoking the <c>#withFixedThreadPool withFixedThreadPool</c> or <c>#withCachedThreadPool
             withCachedThreadPool</c> methods defined here. Channels are bound to a group by
             specifying the group when constructing the channel. The associated thread
-            pool is &lt;em&gt;owned&lt;/em&gt; by the group; termination of the group results in the
+            pool is <i>owned</i> by the group; termination of the group results in the
             shutdown of the associated thread pool.</para>
       <para>In addition to groups created explicitly, the Java virtual machine
-            maintains a system-wide &lt;em&gt;default group&lt;/em&gt; that is constructed
+            maintains a system-wide <i>default group</i> that is constructed
             automatically. Asynchronous channels that do not specify a group at
             construction time are bound to the default group. The default group has an
             associated thread pool that creates new threads as needed. The default group
@@ -93,7 +93,7 @@
       <para>The completion handler for an I/O operation initiated on a channel bound
             to a group is guaranteed to be invoked by one of the pooled threads in the
             group. This ensures that the completion handler is run by a thread with the
-            expected &lt;em&gt;identity&lt;/em&gt;.</para>
+            expected <i>identity</i>.</para>
       <para>Where an I/O operation completes immediately, and the initiating thread
             is one of the pooled threads in the group then the completion handler may
             be invoked directly by the initiating thread. To avoid stack overflow, an
@@ -102,12 +102,12 @@
             handler directly by the initiating thread (see <c>AsynchronousServerSocketChannel#accept(Object,CompletionHandler) accept</c>).
             
             "shutdown"&gt;&lt;h2&gt;Shutdown and Termination&lt;/h2&gt;</para>
-      <para>The <c>#shutdown() shutdown</c> method is used to initiate an &lt;em&gt;orderly
-            shutdown&lt;/em&gt; of a group. An orderly shutdown marks the group as shutdown;
+      <para>The <c>#shutdown() shutdown</c> method is used to initiate an <i>orderly
+            shutdown</i> of a group. An orderly shutdown marks the group as shutdown;
             further attempts to construct a channel that binds to the group will throw
             <c>ShutdownChannelGroupException</c>. Whether or not a group is shutdown can
             be tested using the <c>#isShutdown() isShutdown</c> method. Once shutdown,
-            the group &lt;em&gt;terminates&lt;/em&gt; when all asynchronous channels that are bound to
+            the group <i>terminates</i> when all asynchronous channels that are bound to
             the group are closed, all actively executing completion handlers have run to
             completion, and resources used by the group are released. No attempt is made
             to stop or interrupt threads that are executing completion handlers. The
@@ -115,7 +115,7 @@
             terminated, and the <c>#awaitTermination awaitTermination</c> method can be
             used to block until the group has terminated.</para>
       <para>The <c>#shutdownNow() shutdownNow</c> method can be used to initiate a
-            &lt;em&gt;forceful shutdown&lt;/em&gt; of the group. In addition to the actions performed
+            <i>forceful shutdown</i> of the group. In addition to the actions performed
             by an orderly shutdown, the <c>shutdownNow</c> method closes all open channels
             in the group as if by invoking the <c>AsynchronousChannel#close close</c>
             method.</para>
@@ -605,7 +605,7 @@
             on asynchronous channels in the group. It may reuse previously constructed
             threads when they are available.</para>
           <para>The <c>initialSize</c> parameter may be used by the implementation
-            as a &lt;em&gt;hint&lt;/em&gt; as to the initial number of tasks it may submit. For
+            as a <i>hint</i> as to the initial number of tasks it may submit. For
             example, it may be used to indicate the initial number of threads that
             wait on I/O events.</para>
           <para>The executor is intended to be used exclusively by the resulting
@@ -720,7 +720,7 @@
             executes tasks submitted to dispatch completion results for operations
             initiated on asynchronous channels in the group.</para>
           <para>Care should be taken when configuring the executor service. It
-            should support &lt;em&gt;direct handoff&lt;/em&gt; or &lt;em&gt;unbounded queuing&lt;/em&gt; of
+            should support <i>direct handoff</i> or <i>unbounded queuing</i> of
             submitted tasks, and the thread that invokes the <c>ExecutorService#execute execute</c> method should never invoke the task
             directly. An implementation may mandate additional constraints.</para>
           <para>The executor is intended to be used exclusively by the resulting

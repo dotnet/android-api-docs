@@ -58,10 +58,49 @@
     <remarks>
       <para>This class was deprecated in API level 30. Use RecyclerView or use ExpandableListView directly</para>
       <para>An activity that displays an expandable list of items by binding to a data source implementing the ExpandableListAdapter, and exposes event handlers when the user selects an item. ExpandableListActivity hosts a ExpandableListView object that can be bound to different data sources that provide a two-levels of data (the top-level is group, and below each group are children). Binding, screen layout, and row layout are discussed in the following sections. Screen Layout</para>
-      <para>ExpandableListActivity has a default layout that consists of a single, full-screen, centered expandable list. However, if you desire, you can customize the screen layout by setting your own view layout with setContentView() in onCreate(). To do this, your own view MUST contain an ExpandableListView object with the id ":id/list" (or R.id.list if it's in code) Optionally, your custom view can contain another view object of any type to display when the list view is empty. This "empty list" notifier must have an id "android:empty". Note that when an empty view is present, the expandable list view will be hidden when there is no data to display. The following code demonstrates an (ugly) custom screen layout. It has a list with a green background, and an alternate red "no data" message.</para>
+      <para>ExpandableListActivity has a default layout that consists of a single, full-screen, centered expandable list. However, if you desire, you can customize the screen layout by setting your own view layout with setContentView() in onCreate(). To do this, your own view MUST contain an ExpandableListView object with the id "@android:id/list" (or R.id.list if it's in code) Optionally, your custom view can contain another view object of any type to display when the list view is empty. This "empty list" notifier must have an id "android:empty". Note that when an empty view is present, the expandable list view will be hidden when there is no data to display. The following code demonstrates an (ugly) custom screen layout. It has a list with a green background, and an alternate red "no data" message.</para>
+      <code lang="text/xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"&gt;
+
+    &lt;ExpandableListView android:id="@id/android:list"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#00FF00"
+              android:layout_weight="1"
+              android:drawSelectorOnTop="false"/&gt;
+
+    &lt;TextView android:id="@id/android:empty"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#FF0000"
+              android:text="No data"/&gt;
+&lt;/LinearLayout&gt;</code>
       <para>Row Layout</para>
+      <para>The ExpandableListAdapter set in the ExpandableListActivity via setListAdapter(ExpandableListAdapter) provides the Views for each row. This adapter has separate methods for providing the group Views and child Views. There are a couple provided ExpandableListAdapters that simplify use of adapters: SimpleCursorTreeAdapter and SimpleExpandableListAdapter.</para>
       <para>With these, you can specify the layout of individual rows for groups and children in the list. These constructor takes a few parameters that specify layout resources for groups and children. It also has additional parameters that let you specify which data field to associate with which object in the row layout resource. The SimpleCursorTreeAdapter fetches data from Cursors and the SimpleExpandableListAdapter fetches data from Lists of Maps.</para>
       <para>Android provides some standard row layout resources. These are in the R.layout class, and have names such as simple_list_item_1, simple_list_item_2, and two_line_list_item. The following layout XML is the source for the resource two_line_list_item, which displays two data fields,one above the other, for each list row.</para>
+      <code lang="text/xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"&gt;
+
+    &lt;TextView android:id="@+id/text1"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/&gt;
+
+    &lt;TextView android:id="@+id/text2"
+        android:textSize="16sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/&gt;
+&lt;/LinearLayout&gt;</code>
       <para>You must identify the data bound to each TextView object in this layout. The syntax for this is discussed in the next section.</para>
       <para>Binding to Data</para>
       <para>You bind the ExpandableListActivity's ExpandableListView object to data using a class that implements the ExpandableListAdapter interface. Android provides two standard list adapters: SimpleExpandableListAdapter for static data (Maps), and SimpleCursorTreeAdapter for Cursor query results.</para>
@@ -199,7 +238,6 @@
         <value>The activity's expandable-list widget, initializing default list content when necessary.</value>
         <remarks>
           <para>Get the activity's expandable list view widget. This can be used to get the selection, set the selection, and many other useful functions.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/ExpandableListActivity#getExpandableListView()" title="Reference documentation">Android reference for <code>android.app.ExpandableListActivity.getExpandableListView</code>.</a>
@@ -208,6 +246,7 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+        <altmember cref="T:Android.Widget.ExpandableListView" />
       </Docs>
     </Member>
     <Member MemberName="Java.Interop.IJavaPeerable.UnregisterFromRuntime">

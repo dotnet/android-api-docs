@@ -1045,7 +1045,7 @@
         <param name="region">The region to operate on the current clip, based on op</param>
         <param name="op">How the clip is modified</param>
         <summary>Modify the current clip with the specified region.</summary>
-        <returns>The Android 16 base compatibility implementation returns <see langword="false" /> without changing the clip.</returns>
+        <returns><see langword="true" /> if the resulting clip is non-empty. On API level 26 and later, the method does not change the clip and returns <see langword="false" />.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1576,7 +1576,7 @@
             bitmap's original width/height (e.g. BlurMaskFilter), then the bitmap will be drawn as if it
             were in a Shader with CLAMP mode. Thus the color outside of the original width/height will be
             the edge color replicated.</para>
-          <para>This function &lt;em&gt;ignores the density associated with the bitmap&lt;/em&gt;. This is because the
+          <para>This function <i>ignores the density associated with the bitmap</i>. This is because the
             source and destination rectangle coordinate spaces are in their respective densities, so must
             already have the appropriate scaling factor applied.</para>
           <para>
@@ -1647,7 +1647,7 @@
             bitmap's original width/height (e.g. BlurMaskFilter), then the bitmap will be drawn as if it
             were in a Shader with CLAMP mode. Thus the color outside of the original width/height will be
             the edge color replicated.</para>
-          <para>This function &lt;em&gt;ignores the density associated with the bitmap&lt;/em&gt;. This is because the
+          <para>This function <i>ignores the density associated with the bitmap</i>. This is because the
             source and destination rectangle coordinate spaces are in their respective densities, so must
             already have the appropriate scaling factor applied.</para>
           <para>
@@ -1775,7 +1775,7 @@
         <param name="y">The vertical position of the bitmap's upper-left corner.</param>
         <param name="width">The number of pixel colors read from each row.</param>
         <param name="height">The number of rows read from the color array.</param>
-        <param name="hasAlpha"><see langword="true" /> to retain alpha in native 32-bit storage; <see langword="false" /> selects opaque RGB565 storage in the Android 16 implementation.</param>
+        <param name="hasAlpha">True if the alpha channel of the colors contains valid values. If false, the alpha byte is ignored (assumed to be 0xFF for every pixel).</param>
         <param name="paint">The paint used to draw the bitmap (may be null)</param>
         <summary>Legacy version of drawBitmap(int[] colors, .</summary>
         <remarks>
@@ -2275,7 +2275,7 @@
         <param name="inner">The inner rectangular bounds of the roundRect to be drawn</param>
         <param name="innerRadii">Array of 8 float representing the x, y corner radii for top left,
                               top right, bottom right, bottom left corners respectively on the
-                              outer rounded rectangle</param>
+                              inner rounded rectangle</param>
         <param name="paint">The paint used to draw the double roundRect</param>
         <summary>Draws a double rounded rectangle using the specified paint.</summary>
         <remarks>
@@ -2335,7 +2335,7 @@
         <param name="outerRy">The y-radius of the oval used to round the corners on the outer rectangle</param>
         <param name="inner">The inner rectangular bounds of the roundRect to be drawn</param>
         <param name="innerRx">The x-radius of the oval used to round the corners on the inner rectangle</param>
-        <param name="innerRy">The y-radius of the oval used to round the corners on the outer rectangle</param>
+        <param name="innerRy">The y-radius of the oval used to round the corners on the inner rectangle</param>
         <param name="paint">The paint used to draw the double roundRect</param>
         <summary>Draws a double rounded rectangle using the specified paint.</summary>
         <remarks>
@@ -2989,7 +2989,7 @@
           <para>Save the canvas state, draw the picture, and restore the canvas state.
             This differs from picture.draw(canvas), which does not perform any
             save/restore.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; This forces the picture to internally call
+          <para><b>Note:</b> This forces the picture to internally call
             <c>Picture#endRecording</c> in order to prepare for playback.</para>
           <para>
             <format type="text/html">
@@ -4846,7 +4846,7 @@
           <para>Completely replace the current matrix with the specified matrix. If the
             matrix parameter is null, then the current matrix is reset to identity.
 
-            &lt;strong&gt;Note:&lt;/strong&gt; it is recommended to use <c>#concat(Matrix)</c>,
+            <b>Note:</b> it is recommended to use <c>#concat(Matrix)</c>,
             <c>#scale(float, float)</c>, <c>#translate(float, float)</c> and
             <c>#rotate(float)</c> instead of this method.</para>
           <para>
@@ -5541,7 +5541,7 @@
         <remarks>
           <para>Based on saveFlags, can save the current matrix and clip onto a private
             stack.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; if possible, use the
+          <para><b>Note:</b> if possible, use the
             parameter-less save(). It is simpler and faster than individually
             disabling the saving of matrix or clip with this method.</para>
           <para>Subsequent calls to translate,scale,rotate,skew,concat or clipRect,
@@ -5640,7 +5640,7 @@
         <remarks>
           <para>This behaves the same as save(), but in addition it allocates and
             redirects drawing to an offscreen rendering target.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; this method is very expensive,
+          <para><b>Note:</b> this method is very expensive,
             incurring more than double rendering cost for contained content. Avoid
             using this method when possible and instead use a
             <c>android.view.View#LAYER_TYPE_HARDWARE hardware layer</c> on a View
@@ -5719,7 +5719,7 @@
         <remarks>
           <para>This behaves the same as save(), but in addition it allocates and
             redirects drawing to an offscreen bitmap.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; this method is very expensive,
+          <para><b>Note:</b> this method is very expensive,
             incurring more than double rendering cost for contained content. Avoid
             using this method, especially if the bounds provided are large. It is
             recommended to use a <c>android.view.View#LAYER_TYPE_HARDWARE hardware layer</c> on a View
@@ -5980,7 +5980,7 @@
         <remarks>
           <para>This behaves the same as save(), but in addition it allocates and
             redirects drawing to an offscreen bitmap.</para>
-          <para>&lt;strong&gt;Note:&lt;/strong&gt; this method is very expensive,
+          <para><b>Note:</b> this method is very expensive,
             incurring more than double rendering cost for contained content. Avoid
             using this method, especially if the bounds provided are large. It is
             recommended to use a <c>android.view.View#LAYER_TYPE_HARDWARE hardware layer</c> on a View

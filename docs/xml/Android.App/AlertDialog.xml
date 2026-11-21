@@ -41,7 +41,10 @@
   <Docs since="1">
     <summary>A subclass of Dialog that can display one, two or three buttons.</summary>
     <remarks>
-      <para>A subclass of Dialog that can display one, two or three buttons. If you only want to display a String in this dialog box, use the setMessage() method. If you want to display a more complex view, look up the FrameLayout called "custom" and add your view to it: The AlertDialog class takes care of automatically setting WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM for you based on whether any views in the dialog return true from View.onCheckIsTextEditor(). Generally you want this set for a Dialog without text editors, so that it will be placed on top of the current input method UI. You can modify this behavior by forcing the flag to your desired mode after calling onCreate(Bundle). Developer Guides For more information about creating dialogs, read the Dialogs developer guide.</para>
+      <para>A subclass of Dialog that can display one, two or three buttons. If you only want to display a String in this dialog box, use the setMessage() method. If you want to display a more complex view, look up the FrameLayout called "custom" and add your view to it:</para>
+      <code lang="text/java">FrameLayout fl = findViewById(android.R.id.custom);
+fl.addView(myView, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));</code>
+      <para>The AlertDialog class takes care of automatically setting WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM for you based on whether any views in the dialog return true from View.onCheckIsTextEditor(). Generally you want this set for a Dialog without text editors, so that it will be placed on top of the current input method UI. You can modify this behavior by forcing the flag to your desired mode after calling onCreate(Bundle). Developer Guides For more information about creating dialogs, read the Dialogs developer guide.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/AlertDialog" title="Reference documentation">Android reference for <code>android.app.AlertDialog</code>.</a>
@@ -76,7 +79,6 @@
         <summary>Creates an alert dialog that uses the default alert dialog theme.</summary>
         <remarks>
           <para>Creates an alert dialog that uses the default alert dialog theme. The default alert dialog theme is defined by R.attr.alertDialogTheme within the parent context's theme.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlertDialog#AlertDialog(android.content.Context)" title="Reference documentation">Android reference for <code>android.app.AlertDialog.AlertDialog</code>.</a>
@@ -115,7 +117,6 @@
         <summary>Creates an alert dialog that uses an explicit theme resource.</summary>
         <remarks>
           <para>Creates an alert dialog that uses an explicit theme resource. The specified theme resource (themeResId) is applied on top of the parent context's theme. It may be specified as a style resource containing a fully-populated theme, such as R.style.Theme_Material_Dialog, to replace all attributes in the parent context's theme including primary and accent colors. To preserve attributes such as primary and accent colors, the themeResId may instead be specified as an overlay theme such as R.style.ThemeOverlay_Material_Dialog. This will override only the window attributes necessary to style the alert window as a dialog. Alternatively, the themeResId may be specified as 0 to use the parent context's resolved value for R.attr.alertDialogTheme.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlertDialog#AlertDialog(android.content.Context,%20int)" title="Reference documentation">Android reference for <code>android.app.AlertDialog.AlertDialog</code>.</a>
@@ -177,8 +178,11 @@
         <param name="cancelListener">DialogInterface.OnCancelListener</param>
         <summary>Creates an alert dialog that uses the default alert dialog theme and a custom cancel listener.</summary>
         <remarks>
-          <para>Creates an alert dialog that uses the default alert dialog theme and a custom cancel listener. This is functionally identical to: The default alert dialog theme is defined by R.attr.alertDialogTheme within the parent context's theme.</para>
-          <para>See also:</para>
+          <para>Creates an alert dialog that uses the default alert dialog theme and a custom cancel listener. This is functionally identical to:</para>
+          <code lang="text/java">AlertDialog dialog = new AlertDialog(context);
+dialog.setCancelable(cancelable);
+dialog.setOnCancelListener(cancelListener);</code>
+          <para>The default alert dialog theme is defined by R.attr.alertDialogTheme within the parent context's theme.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlertDialog#AlertDialog(android.content.Context,%20boolean,%20android.content.DialogInterface.OnCancelListener)" title="Reference documentation">Android reference for <code>android.app.AlertDialog.AlertDialog</code>.</a>
@@ -1293,9 +1297,8 @@
       </Parameters>
       <Docs>
         <param name="customTitleView">View</param>
-        <summary>See also:</summary>
+        <summary>Sets the title of the dialog to the custom view <paramref name="customTitleView" />.</summary>
         <remarks>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlertDialog#setCustomTitle(android.view.View)" title="Reference documentation">Android reference for <code>android.app.AlertDialog.setCustomTitle</code>.</a>

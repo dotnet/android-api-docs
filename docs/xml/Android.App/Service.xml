@@ -49,10 +49,416 @@
       <para>A Service is an application component representing either an application's desire to perform a longer-running operation while not interacting with the user or to supply functionality for other applications to use. Each service class must have a corresponding &lt;service&gt; declaration in its package's AndroidManifest.xml. Services can be started with Context.startService() and Context.bindService(). Note that services, like other application objects, run in the main thread of their hosting process. This means that, if your service is going to do any CPU intensive (such as MP3 playback) or blocking (such as networking) operations, it should spawn its own thread in which to do that work. More information on this can be found in Processes and Threads. The JobIntentService class is available as a standard implementation of Service that has its own thread where it schedules its work to be done.</para>
       <para>Topics covered here: What is a Service? Service Lifecycle Permissions Process Lifecycle Local Service Sample Remote Messenger Service Sample Developer Guides For a detailed discussion about how to create services, read the Services developer guide.</para>
       <para>Most confusion about the Service class actually revolves around what it is not:</para>
+      <list type="bullet">
+        <item>
+          <term>A Service is not a separate process. The Service object itself does not imply it is running in its own process; unless otherwise specified, it runs in the same process as the application it is part of.</term>
+        </item>
+        <item>
+          <term>A Service is not a thread. It is not a means itself to do work off of the main thread (to avoid Application Not Responding errors).</term>
+        </item>
+      </list>
       <para>Thus a Service itself is actually very simple, providing two main features:</para>
+      <list type="bullet">
+        <item>
+          <term>A facility for the application to tell the system about something it wants to be doing in the background (even when the user is not directly interacting with the application). This corresponds to calls to Context.startService(), which ask the system to schedule work for the service, to be run until the service or someone else explicitly stop it.</term>
+        </item>
+        <item>
+          <term>A facility for an application to expose some of its functionality to other applications. This corresponds to calls to Context.bindService(), which allows a long-standing connection to be made to the service in order to interact with it.</term>
+        </item>
+      </list>
       <para>When a Service component is actually created, for either of these reasons, all that the system actually does is instantiate the component and call its onCreate() and any other appropriate callbacks on the main thread. It is up to the Service to implement these with the appropriate behavior, such as creating a secondary thread in which it does its work.</para>
       <para>Note that because Service itself is so simple, you can make your interaction with it as simple or complicated as you want: from treating it as a local Java object that you make direct method calls on (as illustrated by Local Service Sample), to providing a full remoteable interface using AIDL.</para>
-      <para>There are two reasons that a service can be run by the system. If someone calls Context.startService() then the system will retrieve the service (creating it and calling its onCreate() method if needed) and then call its onStartCommand(Intent, int, int) method with the arguments supplied by the client. The service will at this point continue running until Context.stopService() or stopSelf() is called. Note that multiple calls to Context.startService() do not nest (though they do result in multiple corresponding calls to onStartCommand()), so no matter how many times it is started a service will be stopped once Context.stopService() or stopSelf() is called; however, services can use their stopSelf(int) method to ensure the service is not stopped until started intents have been processed. For started services, there are two additional major modes of operation they can decide to run in, depending on the value they return from onStartCommand(): START_STICKY is used for services that are explicitly started and stopped as needed, while START_NOT_STICKY or START_REDELIVER_INTENT are used for services that should only remain running while processing any commands sent to them. See the linked documentation for more detail on the semantics. Clients can also use Context.bindService() to obtain a persistent connection to a service. This likewise creates the service if it is not already running (calling onCreate() while doing so), but does not call onStartCommand(). The client will receive the IBinder object that the service returns from its onBind(Intent) method, allowing the client to then make calls back to the service. The service will remain running as long as the connection is established (whether or not the client retains a reference on the service's IBinder). Usually the IBinder returned is for a complex interface that has been written in aidl. A service can be both started and have connections bound to it. In such a case, the system will keep the service running as long as either it is started or there are one or more connections to it with the Context.BIND_AUTO_CREATE flag. Once neither of these situations hold, the service's onDestroy() method is called and the service is effectively terminated. All cleanup (stopping threads, unregistering receivers) should be complete upon returning from onDestroy(). Permissions Global access to a service can be enforced when it is declared in its manifest's &lt;service&gt; tag. By doing so, other applications will need to declare a corresponding &lt;uses-permission&gt; element in their own manifest to be able to start, stop, or bind to the service. As of Build.VERSION_CODES.GINGERBREAD, when using Context.startService(Intent), you can also set Intent.FLAG_GRANT_READ_URI_PERMISSION and/or Intent.FLAG_GRANT_WRITE_URI_PERMISSION on the Intent. This will grant the Service temporary access to the specific URIs in the Intent. Access will remain until the Service has called stopSelf(int) for that start command or a later one, or until the Service has been completely stopped. This works for granting access to the other apps that have not requested the permission protecting the Service, or even when the Service is not exported at all. In addition, a service can protect individual IPC calls into it with permissions, by calling the ContextWrapper.checkCallingPermission(String) method before executing the implementation of that call. See the Security and Permissions document for more information on permissions and security in general. Process Lifecycle The Android system will attempt to keep the process hosting a service around as long as the service has been started or has clients bound to it. When running low on memory and needing to kill existing processes, the priority of a process hosting the service will be the higher of the following possibilities: If the service is currently executing code in its onCreate(), onStartCommand(), or onDestroy() methods, then the hosting process will be a foreground process to ensure this code can execute without being killed. If the service has been started, then its hosting process is considered to be less important than any processes that are currently visible to the user on-screen, but more important than any process not visible. Because only a few processes are generally visible to the user, this means that the service should not be killed except in low memory conditions. However, since the user is not directly aware of a background service, in that state it is considered a valid candidate to kill, and you should be prepared for this to happen. In particular, long-running services will be increasingly likely to kill and are guaranteed to be killed (and restarted if appropriate) if they remain started long enough. If there are clients bound to the service, then the service's hosting process is never less important than the most important client. That is, if one of its clients is visible to the user, then the service itself is considered to be visible. The way a client's importance impacts the service's importance can be adjusted through Context.BIND_ABOVE_CLIENT, Context.BIND_ALLOW_OOM_MANAGEMENT, Context.BIND_WAIVE_PRIORITY, Context.BIND_IMPORTANT, and Context.BIND_ADJUST_WITH_ACTIVITY. A started service can use the startForeground(int,Notification) API to put the service in a foreground state, where the system considers it to be something the user is actively aware of and thus not a candidate for killing when low on memory. (It is still theoretically possible for the service to be killed under extreme memory pressure from the current foreground application, but in practice this should not be a concern.) Note this means that most of the time your service is running, it may be killed by the system if it is under heavy memory pressure. If this happens, the system will later try to restart the service. An important consequence of this is that if you implement onStartCommand() to schedule work to be done asynchronously or in another thread, then you may want to use START_FLAG_REDELIVERY to have the system re-deliver an Intent for you so that it does not get lost if your service is killed while processing it. Other application components running in the same process as the service (such as an Activity) can, of course, increase the importance of the overall process beyond just the importance of the service itself. Local Service Sample One of the most common uses of a Service is as a secondary component running alongside other parts of an application, in the same process as the rest of the components. All components of an .apk run in the same process unless explicitly stated otherwise, so this is a typical situation. When used in this way, by assuming the components are in the same process, you can greatly simplify the interaction between them: clients of the service can simply cast the IBinder they receive from it to a concrete class published by the service. An example of this use of a Service is shown here. First is the Service itself, publishing a custom class when bound: With that done, one can now write client code that directly accesses the running service, such as: Remote Messenger Service Sample If you need to be able to write a Service that can perform complicated communication with clients in remote processes (beyond simply the use of Context.startService to send commands to it), then you can use the Messenger class instead of writing full AIDL files. An example of a Service that uses Messenger as its client interface is shown here. First is the Service itself, publishing a Messenger to an internal Handler when bound: If we want to make this service run in a remote process (instead of the standard one for its .apk), we can use android:process in its manifest tag to specify one: Note that the name "remote" chosen here is arbitrary, and you can use other names if you want additional processes. The ':' prefix appends the name to your package's standard process name. With that done, clients can now bind to the service and send messages to it. Note that this allows clients to register with it to receive messages back as well:</para>
+      <para>There are two reasons that a service can be run by the system. If someone calls Context.startService() then the system will retrieve the service (creating it and calling its onCreate() method if needed) and then call its onStartCommand(Intent, int, int) method with the arguments supplied by the client. The service will at this point continue running until Context.stopService() or stopSelf() is called. Note that multiple calls to Context.startService() do not nest (though they do result in multiple corresponding calls to onStartCommand()), so no matter how many times it is started a service will be stopped once Context.stopService() or stopSelf() is called; however, services can use their stopSelf(int) method to ensure the service is not stopped until started intents have been processed. For started services, there are two additional major modes of operation they can decide to run in, depending on the value they return from onStartCommand(): START_STICKY is used for services that are explicitly started and stopped as needed, while START_NOT_STICKY or START_REDELIVER_INTENT are used for services that should only remain running while processing any commands sent to them. See the linked documentation for more detail on the semantics. Clients can also use Context.bindService() to obtain a persistent connection to a service. This likewise creates the service if it is not already running (calling onCreate() while doing so), but does not call onStartCommand(). The client will receive the IBinder object that the service returns from its onBind(Intent) method, allowing the client to then make calls back to the service. The service will remain running as long as the connection is established (whether or not the client retains a reference on the service's IBinder). Usually the IBinder returned is for a complex interface that has been written in aidl. A service can be both started and have connections bound to it. In such a case, the system will keep the service running as long as either it is started or there are one or more connections to it with the Context.BIND_AUTO_CREATE flag. Once neither of these situations hold, the service's onDestroy() method is called and the service is effectively terminated. All cleanup (stopping threads, unregistering receivers) should be complete upon returning from onDestroy(). Permissions Global access to a service can be enforced when it is declared in its manifest's &lt;service&gt; tag. By doing so, other applications will need to declare a corresponding &lt;uses-permission&gt; element in their own manifest to be able to start, stop, or bind to the service. As of Build.VERSION_CODES.GINGERBREAD, when using Context.startService(Intent), you can also set Intent.FLAG_GRANT_READ_URI_PERMISSION and/or Intent.FLAG_GRANT_WRITE_URI_PERMISSION on the Intent. This will grant the Service temporary access to the specific URIs in the Intent. Access will remain until the Service has called stopSelf(int) for that start command or a later one, or until the Service has been completely stopped. This works for granting access to the other apps that have not requested the permission protecting the Service, or even when the Service is not exported at all. In addition, a service can protect individual IPC calls into it with permissions, by calling the ContextWrapper.checkCallingPermission(String) method before executing the implementation of that call. See the Security and Permissions document for more information on permissions and security in general. Process Lifecycle The Android system will attempt to keep the process hosting a service around as long as the service has been started or has clients bound to it. When running low on memory and needing to kill existing processes, the priority of a process hosting the service will be the higher of the following possibilities: If the service is currently executing code in its onCreate(), onStartCommand(), or onDestroy() methods, then the hosting process will be a foreground process to ensure this code can execute without being killed. If the service has been started, then its hosting process is considered to be less important than any processes that are currently visible to the user on-screen, but more important than any process not visible. Because only a few processes are generally visible to the user, this means that the service should not be killed except in low memory conditions. However, since the user is not directly aware of a background service, in that state it is considered a valid candidate to kill, and you should be prepared for this to happen. In particular, long-running services will be increasingly likely to kill and are guaranteed to be killed (and restarted if appropriate) if they remain started long enough. If there are clients bound to the service, then the service's hosting process is never less important than the most important client. That is, if one of its clients is visible to the user, then the service itself is considered to be visible. The way a client's importance impacts the service's importance can be adjusted through Context.BIND_ABOVE_CLIENT, Context.BIND_ALLOW_OOM_MANAGEMENT, Context.BIND_WAIVE_PRIORITY, Context.BIND_IMPORTANT, and Context.BIND_ADJUST_WITH_ACTIVITY. A started service can use the startForeground(int,Notification) API to put the service in a foreground state, where the system considers it to be something the user is actively aware of and thus not a candidate for killing when low on memory. (It is still theoretically possible for the service to be killed under extreme memory pressure from the current foreground application, but in practice this should not be a concern.) Note this means that most of the time your service is running, it may be killed by the system if it is under heavy memory pressure. If this happens, the system will later try to restart the service. An important consequence of this is that if you implement onStartCommand() to schedule work to be done asynchronously or in another thread, then you may want to use START_FLAG_REDELIVERY to have the system re-deliver an Intent for you so that it does not get lost if your service is killed while processing it. Other application components running in the same process as the service (such as an Activity) can, of course, increase the importance of the overall process beyond just the importance of the service itself. Local Service Sample One of the most common uses of a Service is as a secondary component running alongside other parts of an application, in the same process as the rest of the components. All components of an .apk run in the same process unless explicitly stated otherwise, so this is a typical situation. When used in this way, by assuming the components are in the same process, you can greatly simplify the interaction between them: clients of the service can simply cast the IBinder they receive from it to a concrete class published by the service. An example of this use of a Service is shown here. First is the Service itself, publishing a custom class when bound:</para>
+      <code lang="text/java">public class LocalService extends Service {
+    private NotificationManager mNM;
+
+    // Unique Identification Number for the Notification.
+    // We use it on Notification start, and to cancel it.
+    private int NOTIFICATION = R.string.local_service_started;
+
+    /**
+     * Class for clients to access.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with
+     * IPC.
+     */
+    public class LocalBinder extends Binder {
+        LocalService getService() {
+            return LocalService.this;
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+
+        // Display a notification about us starting.  We put an icon in the status bar.
+        showNotification();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("LocalService", "Received start id " + startId + ": " + intent);
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        // Cancel the persistent notification.
+        mNM.cancel(NOTIFICATION);
+
+        // Tell the user we stopped.
+        Toast.makeText(this, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
+    // This is the object that receives interactions from clients.  See
+    // RemoteService for a more complete example.
+    private final IBinder mBinder = new LocalBinder();
+
+    /**
+     * Show a notification while this service is running.
+     */
+    private void showNotification() {
+        // In this sample, we'll use the same text for the ticker and the expanded notification
+        CharSequence text = getText(R.string.local_service_started);
+
+        // The PendingIntent to launch our activity if the user selects this notification
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, LocalServiceActivities.Controller.class), 0);
+
+        // Set the info for the views that show in the notification panel.
+        Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.drawable.stat_sample)  // the status icon
+                .setTicker(text)  // the status text
+                .setWhen(System.currentTimeMillis())  // the time stamp
+                .setContentTitle(getText(R.string.local_service_label))  // the label of the entry
+                .setContentText(text)  // the contents of the entry
+                .setContentIntent(contentIntent)  // The intent to send when the entry is clicked
+                .build();
+
+        // Send the notification.
+        mNM.notify(NOTIFICATION, notification);
+    }
+}</code>
+      <para>With that done, one can now write client code that directly accesses the running service, such as:</para>
+      <code lang="text/java">/**
+ * Example of binding and unbinding to the local service.
+ * bind to, receiving an object through which it can communicate with the service.
+ *
+ * Note that this is implemented as an inner class only keep the sample
+ * all together; typically this code would appear in some separate class.
+ */
+public static class Binding extends Activity {
+    // Don't attempt to unbind from the service unless the client has received some
+    // information about the service's state.
+    private boolean mShouldUnbind;
+
+    // To invoke the bound service, first make sure that this value
+    // is not null.
+    private LocalService mBoundService;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // This is called when the connection with the service has been
+            // established, giving us the service object we can use to
+            // interact with the service.  Because we have bound to a explicit
+            // service that we know is running in our own process, we can
+            // cast its IBinder to a concrete class and directly access it.
+            mBoundService = ((LocalService.LocalBinder)service).getService();
+
+            // Tell the user about this for our demo.
+            Toast.makeText(Binding.this, R.string.local_service_connected,
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            // Because it is running in our same process, we should never
+            // see this happen.
+            mBoundService = null;
+            Toast.makeText(Binding.this, R.string.local_service_disconnected,
+                    Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    void doBindService() {
+        // Attempts to establish a connection with the service.  We use an
+        // explicit class name because we want a specific service
+        // implementation that we know will be running in our own process
+        // (and thus won't be supporting component replacement by other
+        // applications).
+        if (bindService(new Intent(Binding.this, LocalService.class),
+                mConnection, Context.BIND_AUTO_CREATE)) {
+            mShouldUnbind = true;
+        } else {
+            Log.e("MY_APP_TAG", "Error: The requested service doesn't " +
+                    "exist, or this client isn't allowed access to it.");
+        }
+    }
+
+    void doUnbindService() {
+        if (mShouldUnbind) {
+            // Release information about the service's state.
+            unbindService(mConnection);
+            mShouldUnbind = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        doUnbindService();
+    }
+}</code>
+      <para>Remote Messenger Service Sample If you need to be able to write a Service that can perform complicated communication with clients in remote processes (beyond simply the use of Context.startService to send commands to it), then you can use the Messenger class instead of writing full AIDL files. An example of a Service that uses Messenger as its client interface is shown here. First is the Service itself, publishing a Messenger to an internal Handler when bound:</para>
+      <code lang="text/java">public class MessengerService extends Service {
+    /** For showing and hiding our notification. */
+    NotificationManager mNM;
+    /** Keeps track of all current registered clients. */
+    ArrayList&lt;Messenger&gt; mClients = new ArrayList&lt;Messenger&gt;();
+    /** Holds last value set by a client. */
+    int mValue = 0;
+
+    /**
+     * Command to the service to register a client, receiving callbacks
+     * from the service.  The Message's replyTo field must be a Messenger of
+     * the client where callbacks should be sent.
+     */
+    static final int MSG_REGISTER_CLIENT = 1;
+
+    /**
+     * Command to the service to unregister a client, ot stop receiving callbacks
+     * from the service.  The Message's replyTo field must be a Messenger of
+     * the client as previously given with MSG_REGISTER_CLIENT.
+     */
+    static final int MSG_UNREGISTER_CLIENT = 2;
+
+    /**
+     * Command to service to set a new value.  This can be sent to the
+     * service to supply a new value, and will be sent by the service to
+     * any registered clients with the new value.
+     */
+    static final int MSG_SET_VALUE = 3;
+
+    /**
+     * Handler of incoming messages from clients.
+     */
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_REGISTER_CLIENT:
+                    mClients.add(msg.replyTo);
+                    break;
+                case MSG_UNREGISTER_CLIENT:
+                    mClients.remove(msg.replyTo);
+                    break;
+                case MSG_SET_VALUE:
+                    mValue = msg.arg1;
+                    for (int i=mClients.size()-1; i&gt;=0; i--) {
+                        try {
+                            mClients.get(i).send(Message.obtain(null,
+                                    MSG_SET_VALUE, mValue, 0));
+                        } catch (RemoteException e) {
+                            // The client is dead.  Remove it from the list;
+                            // we are going through the list from back to front
+                            // so this is safe to do inside the loop.
+                            mClients.remove(i);
+                        }
+                    }
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
+
+    /**
+     * Target we publish for clients to send messages to IncomingHandler.
+     */
+    final Messenger mMessenger = new Messenger(new IncomingHandler());
+
+    @Override
+    public void onCreate() {
+        mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+
+        // Display a notification about us starting.
+        showNotification();
+    }
+
+    @Override
+    public void onDestroy() {
+        // Cancel the persistent notification.
+        mNM.cancel(R.string.remote_service_started);
+
+        // Tell the user we stopped.
+        Toast.makeText(this, R.string.remote_service_stopped, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * When binding to the service, we return an interface to our messenger
+     * for sending messages to the service.
+     */
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mMessenger.getBinder();
+    }
+
+    /**
+     * Show a notification while this service is running.
+     */
+    private void showNotification() {
+        // In this sample, we'll use the same text for the ticker and the expanded notification
+        CharSequence text = getText(R.string.remote_service_started);
+
+        // The PendingIntent to launch our activity if the user selects this notification
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, Controller.class), 0);
+
+        // Set the info for the views that show in the notification panel.
+        Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.drawable.stat_sample)  // the status icon
+                .setTicker(text)  // the status text
+                .setWhen(System.currentTimeMillis())  // the time stamp
+                .setContentTitle(getText(R.string.local_service_label))  // the label of the entry
+                .setContentText(text)  // the contents of the entry
+                .setContentIntent(contentIntent)  // The intent to send when the entry is clicked
+                .build();
+
+        // Send the notification.
+        // We use a string id because it is a unique number.  We use it later to cancel.
+        mNM.notify(R.string.remote_service_started, notification);
+    }
+}</code>
+      <para>If we want to make this service run in a remote process (instead of the standard one for its .apk), we can use android:process in its manifest tag to specify one:</para>
+      <code lang="text/java">&lt;service android:name=".app.MessengerService"
+        android:process=":remote" /&gt;</code>
+      <para>Note that the name "remote" chosen here is arbitrary, and you can use other names if you want additional processes. The ':' prefix appends the name to your package's standard process name. With that done, clients can now bind to the service and send messages to it. Note that this allows clients to register with it to receive messages back as well:</para>
+      <code lang="text/java">/**
+ * Example of binding and unbinding to the remote service.
+ * This demonstrates the implementation of a service which the client will
+ * bind to, interacting with it through an aidl interface.
+ *
+ * Note that this is implemented as an inner class only keep the sample
+ * all together; typically this code would appear in some separate class.
+ */
+public static class Binding extends Activity {
+    /** Messenger for communicating with service. */
+    Messenger mService = null;
+    /** Flag indicating whether we have called bind on the service. */
+    boolean mIsBound;
+    /** Some text view we are using to show state information. */
+    TextView mCallbackText;
+
+    /**
+     * Handler of incoming messages from service.
+     */
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MessengerService.MSG_SET_VALUE:
+                    mCallbackText.setText("Received from service: " + msg.arg1);
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
+
+    /**
+     * Target we publish for clients to send messages to IncomingHandler.
+     */
+    final Messenger mMessenger = new Messenger(new IncomingHandler());
+
+    /**
+     * Class for interacting with the main interface of the service.
+     */
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className,
+                IBinder service) {
+            // This is called when the connection with the service has been
+            // established, giving us the service object we can use to
+            // interact with the service.  We are communicating with our
+            // service through an IDL interface, so get a client-side
+            // representation of that from the raw service object.
+            mService = new Messenger(service);
+            mCallbackText.setText("Attached.");
+
+            // We want to monitor the service for as long as we are
+            // connected to it.
+            try {
+                Message msg = Message.obtain(null,
+                        MessengerService.MSG_REGISTER_CLIENT);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+
+                // Give it some value as an example.
+                msg = Message.obtain(null,
+                        MessengerService.MSG_SET_VALUE, this.hashCode(), 0);
+                mService.send(msg);
+            } catch (RemoteException e) {
+                // In this case the service has crashed before we could even
+                // do anything with it; we can count on soon being
+                // disconnected (and then reconnected if it can be restarted)
+                // so there is no need to do anything here.
+            }
+
+            // As part of the sample, tell the user what happened.
+            Toast.makeText(Binding.this, R.string.remote_service_connected,
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            mService = null;
+            mCallbackText.setText("Disconnected.");
+
+            // As part of the sample, tell the user what happened.
+            Toast.makeText(Binding.this, R.string.remote_service_disconnected,
+                    Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    void doBindService() {
+        // Establish a connection with the service.  We use an explicit
+        // class name because there is no reason to be able to let other
+        // applications replace our component.
+        bindService(new Intent(Binding.this,
+                MessengerService.class), mConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+        mCallbackText.setText("Binding.");
+    }
+
+    void doUnbindService() {
+        if (mIsBound) {
+            // If we have received the service, and hence registered with
+            // it, then now is the time to unregister.
+            if (mService != null) {
+                try {
+                    Message msg = Message.obtain(null,
+                            MessengerService.MSG_UNREGISTER_CLIENT);
+                    msg.replyTo = mMessenger;
+                    mService.send(msg);
+                } catch (RemoteException e) {
+                    // There is nothing special we need to do if the service
+                    // has crashed.
+                }
+            }
+
+            // Detach our existing connection.
+            unbindService(mConnection);
+            mIsBound = false;
+            mCallbackText.setText("Unbinding.");
+        }
+    }
+}</code>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/Service" title="Reference documentation">Android reference for <code>android.app.Service</code>.</a>
@@ -189,8 +595,6 @@
         <summary>Print the Service's state into the given stream.</summary>
         <remarks>
           <para>Print the Service's state into the given stream. This gets invoked if you run "adb shell dumpsys activity service &lt;yourservicename&gt;" (note that for this command to work, the service must be running, and you must specify a fully-qualified service name). This is distinct from "dumpsys &lt;servicename&gt;", which only works for named system services and which invokes the IBinder.dump method on the IBinder interface registered with ServiceManager.</para>
-          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
-          <para>Last updated 2026-08-03 UTC.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Service#dump(java.io.FileDescriptor,%20java.io.PrintWriter,%20java.lang.String[])" title="Reference documentation">Android reference for <code>android.app.Service.dump</code>.</a>
@@ -335,7 +739,7 @@
         <param name="intent">The Intent that was used to bind to this service,
             as given to <c>android.content.Context#bindService
             Context.bindService</c>.  Note that any extras that were included with
-            the Intent at that point will &lt;em&gt;not&lt;/em&gt; be seen here.</param>
+            the Intent at that point will <i>not</i> be seen here.</param>
         <summary>Return the communication channel to the service.</summary>
         <returns>Return an IBinder through which clients can call on to the 
                     service.</returns>
@@ -522,7 +926,7 @@
         <param name="intent">The Intent that was used to bind to this service,
             as given to <c>android.content.Context#bindService
             Context.bindService</c>.  Note that any extras that were included with
-            the Intent at that point will &lt;em&gt;not&lt;/em&gt; be seen here.</param>
+            the Intent at that point will <i>not</i> be seen here.</param>
         <summary>Called when new clients have connected to the service, after it had
             previously been notified that all had disconnected in its
             <c>#onUnbind</c>.</summary>
@@ -634,7 +1038,6 @@
             constants associated with the <c>#START_CONTINUATION_MASK</c> bits.</returns>
         <remarks>
           <para>Called by the system every time a client explicitly starts the service by calling Context.startService(Intent), providing the arguments it supplied and a unique integer token representing the start request. Do not call this method directly. For backwards compatibility, the default implementation calls onStart(Intent, int) and returns either START_STICKY or START_STICKY_COMPATIBILITY. Note that the system calls this on your service's main thread. A service's main thread is the same thread where UI operations take place for Activities running in the same process. You should always avoid stalling the main thread's event loop. When doing long-running operations, network calls, or heavy disk I/O, you should kick off a new thread, or use AsyncTask.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Service#onStartCommand(android.content.Intent,%20int,%20int)" title="Reference documentation">Android reference for <code>android.app.Service.onStartCommand</code>.</a>
@@ -643,6 +1046,7 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 5" />
+        <altmember cref="M:Android.App.Service.StopSelfResult(System.Int32)" />
       </Docs>
     </Member>
     <Member MemberName="OnTaskRemoved">
@@ -849,7 +1253,7 @@
         <param name="intent">The Intent that was used to bind to this service,
             as given to <c>android.content.Context#bindService
             Context.bindService</c>.  Note that any extras that were included with
-            the Intent at that point will &lt;em&gt;not&lt;/em&gt; be seen here.</param>
+            the Intent at that point will <i>not</i> be seen here.</param>
         <summary>Called when all clients have disconnected from a particular interface
             published by the service.</summary>
         <returns>Return true if you would like to have the service's
@@ -936,7 +1340,6 @@
           <para>Apps targeting API Build.VERSION_CODES.P or later must request the permission Manifest.permission.FOREGROUND_SERVICE in order to use this API.</para>
           <para>Apps built with SDK version Build.VERSION_CODES.Q or later can specify the foreground service types using attribute R.attr.foregroundServiceType in service element of manifest file. The value of attribute R.attr.foregroundServiceType can be multiple flags ORed together.</para>
           <para>Note: Beginning with SDK Version Build.VERSION_CODES.S, apps targeting SDK Version Build.VERSION_CODES.S or higher are not allowed to start foreground services from the background. See Behavior changes: Apps targeting Android 12 for more details. Note: Beginning with SDK Version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, apps targeting SDK Version Build.VERSION_CODES.UPSIDE_DOWN_CAKE or higher are not allowed to start foreground services without specifying a valid foreground service type in the manifest attribute R.attr.foregroundServiceType. See Behavior changes: Apps targeting Android 14 for more details.</para>
-          <para>See also:</para>
           <para>Throws: ForegroundServiceStartNotAllowedException If the app targeting API is Build.VERSION_CODES.S or later, and the service is restricted from becoming foreground service due to background restriction.</para>
           <para>Throws: InvalidForegroundServiceTypeException If the app targeting API is Build.VERSION_CODES.UPSIDE_DOWN_CAKE or later, and the manifest attribute R.attr.foregroundServiceType is set to invalid types(i.e. ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE).</para>
           <para>Throws: MissingForegroundServiceTypeException If the app targeting API is Build.VERSION_CODES.UPSIDE_DOWN_CAKE or later, and the manifest attribute R.attr.foregroundServiceType is not set.</para>
@@ -949,6 +1352,7 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 5" />
+        <altmember cref="M:Android.App.Service.StopForeground(System.Boolean)" />
       </Docs>
     </Member>
     <Member MemberName="StartForeground">
@@ -1004,7 +1408,6 @@
           <para>An overloaded version of startForeground(int,Notification) with additional foregroundServiceType parameter. Apps built with SDK version Build.VERSION_CODES.Q or later can specify the foreground service types using attribute R.attr.foregroundServiceType in service element of manifest file. The value of attribute R.attr.foregroundServiceType can be multiple flags ORed together.</para>
           <para>The foregroundServiceType parameter must be a subset flags of what is specified in manifest attribute R.attr.foregroundServiceType, if not, an IllegalArgumentException is thrown. Specify foregroundServiceType parameter as ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST to use all flags that is specified in manifest attribute foregroundServiceType.</para>
           <para>Note: Beginning with SDK Version Build.VERSION_CODES.S, apps targeting SDK Version Build.VERSION_CODES.S or higher are not allowed to start foreground services from the background. See Behavior changes: Apps targeting Android 12 for more details. Note: Beginning with SDK Version Build.VERSION_CODES.UPSIDE_DOWN_CAKE, apps targeting SDK Version Build.VERSION_CODES.UPSIDE_DOWN_CAKE or higher are not allowed to start foreground services without specifying a valid foreground service type in the manifest attribute R.attr.foregroundServiceType, and the parameter foregroundServiceType here must not be the ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE. See Behavior changes: Apps targeting Android 14 for more details.</para>
-          <para>See also:</para>
           <para>Throws: ForegroundServiceStartNotAllowedException If the app targeting API is Build.VERSION_CODES.S or later, and the service is restricted from becoming foreground service due to background restriction.</para>
           <para>Throws: InvalidForegroundServiceTypeException If the app targeting API is Build.VERSION_CODES.UPSIDE_DOWN_CAKE or later, and the manifest attribute R.attr.foregroundServiceType or the param foregroundServiceType is set to invalid types(i.e.ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE).</para>
           <para>Throws: MissingForegroundServiceTypeException If the app targeting API is Build.VERSION_CODES.UPSIDE_DOWN_CAKE or later, and the manifest attribute R.attr.foregroundServiceType is not set and the param foregroundServiceType is set to ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST.</para>
@@ -1062,7 +1465,6 @@
           <para>Remove this service from foreground state, allowing it to be killed if more memory is needed. This does not stop the service from running (for that you use stopSelf() or related methods), just takes it out of the foreground state. If STOP_FOREGROUND_REMOVE is supplied, the service's associated notification will be cancelled immediately.</para>
           <para>If STOP_FOREGROUND_DETACH is supplied, the service's association with the notification will be severed. If the notification had not yet been shown, due to foreground-service notification deferral policy, it is immediately posted when stopForeground(STOP_FOREGROUND_DETACH) is called. In all cases, the notification remains shown even after this service is stopped fully and destroyed.</para>
           <para>If zero is passed as the argument, the result will be the legacy behavior as defined prior to Android L: the notification will remain posted until the service is fully stopped, at which time it will automatically be cancelled.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Service#stopForeground(int)" title="Reference documentation">Android reference for <code>android.app.Service.stopForeground</code>.</a>
@@ -1106,7 +1508,6 @@
         <remarks>
           <para>This method was deprecated in API level 33. call stopForeground(int) and pass either STOP_FOREGROUND_REMOVE or STOP_FOREGROUND_DETACH explicitly instead.</para>
           <para>Legacy version of stopForeground(int).</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Service#stopForeground(boolean)" title="Reference documentation">Android reference for <code>android.app.Service.stopForeground</code>.</a>
@@ -1268,7 +1669,6 @@
         <summary>Stop the service, if it was previously started.</summary>
         <remarks>
           <para>Stop the service, if it was previously started. This is the same as calling Context.stopService(Intent) for this particular service.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Service#stopSelf()" title="Reference documentation">Android reference for <code>android.app.Service.stopSelf</code>.</a>
@@ -1277,6 +1677,7 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+        <altmember cref="M:Android.App.Service.StopSelfResult(System.Int32)" />
       </Docs>
     </Member>
     <Member MemberName="StopSelf">
@@ -1306,7 +1707,6 @@
         <summary>Old version of <c>#stopSelfResult</c> that doesn't return a result.</summary>
         <remarks>
           <para>Old version of stopSelfResult(int) that doesn't return a result.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Service#stopSelf(int)" title="Reference documentation">Android reference for <code>android.app.Service.stopSelf</code>.</a>
@@ -1315,6 +1715,7 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+        <altmember cref="M:Android.App.Service.StopSelfResult(System.Int32)" />
       </Docs>
     </Member>
     <Member MemberName="StopSelfResult">
@@ -1342,12 +1743,11 @@
       <Docs>
         <param name="startId">The most recent start identifier received in <c>#onStart</c>.</param>
         <summary>Stop the service if the most recent time it was started was 
-            &lt;var&gt;startId&lt;/var&gt;.</summary>
+            <i>startId</i>.</summary>
         <returns>Returns true if the startId matches the last start request
             and the service will be stopped, else false.</returns>
         <remarks>
           <para>Stop the service if the most recent time it was started was startId. This is the same as calling Context.stopService(Intent) for this particular service but allows you to safely avoid stopping if there is a start request from a client that you haven't yet seen in onStart(Intent, int). Be careful about ordering of your calls to this function.. If you call this function with the most-recently received ID before you have called it for previously received IDs, the service will be immediately stopped anyway. If you may end up processing IDs out of order (such as by dispatching them on separate threads), then you are responsible for stopping them in the same order you received them.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Service#stopSelfResult(int)" title="Reference documentation">Android reference for <code>android.app.Service.stopSelfResult</code>.</a>
@@ -1356,6 +1756,7 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+        <altmember cref="M:Android.App.Service.StopSelf" />
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

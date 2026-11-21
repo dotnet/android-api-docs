@@ -31,12 +31,11 @@
   <Docs since="1">
     <summary>Define an interface to serialization of XML Infoset.</summary>
     <remarks>
-      <para>The serializer operations are defined in the <see href="https://android.googlesource.com/platform/libcore/+/fff4fcc0cf7f080cf2511cbb57561482b13b218f/xml/src/main/java/org/xmlpull/v1/XmlSerializer.java">Android 16 serializer interface</see>. Prefix generation, element state, and chainable return values are illustrated by the pinned <see href="https://android.googlesource.com/platform/libcore/+/9edf43dfcc35c761d97eb9156ac4254152ddbc55/xml/src/main/java/org/kxml2/io/KXmlSerializer.java">Android KXmlSerializer implementation</see>.</para>
-      <para>The .NET stream overload uses the <see href="https://github.com/dotnet/android/blob/d26fa45e3e67c39c3e4064743543e2740edd4dbb/src/Mono.Android/Android.Runtime/OutputStreamAdapter.cs">output-stream adapter</see>. Closing that adapter closes the underlying .NET stream; these methods do not provide a leave-open option.</para>
+      <para>The .NET stream overload uses an output-stream adapter. Closing that adapter closes the underlying .NET stream; these methods do not provide a leave-open option.</para>
       <para>Define an interface to serialization of XML Infoset.
             This interface abstracts away if serialized XML is XML 1.0 compatible text or
             other formats of XML 1.0 serializations (such as binary XML for example with WBXML).</para>
-      <para>&lt;b&gt;PLEASE NOTE:&lt;/b&gt; This interface will be part of XmlPull 1.2 API.
+      <para><b>PLEASE NOTE:</b> This interface will be part of XmlPull 1.2 API.
             It is included as basis for discussion. It may change in any way.</para>
       <para>Exceptions that may be thrown are: IOException or runtime exception
             (more runtime exceptions can be thrown but are not declared and as such
@@ -49,7 +48,7 @@
                when requesting setting unimplemented feature/property
                (UnsupportedOperationException would be better but it is not in MIDP)
              &lt;/ul&gt;</para>
-      <para>&lt;b&gt;NOTE:&lt;/b&gt; writing  CDSECT, ENTITY_REF, IGNORABLE_WHITESPACE,
+      <para><b>NOTE:</b> writing  CDSECT, ENTITY_REF, IGNORABLE_WHITESPACE,
              PROCESSING_INSTRUCTION, COMMENT, and DOCDECL in some implementations
             may not be supported (for example when serializing to WBXML).
             In such case IllegalStateException will be thrown and it is recommended
@@ -325,7 +324,7 @@
         <returns>This serializer, so that further write calls can be chained.</returns>
         <remarks>
           <para>Write end tag. Repetition of namespace and name is just for avoiding errors.</para>
-          <para>&lt;b&gt;Background:&lt;/b&gt; in kXML endTag had no arguments, and non matching tags were
+          <para><b>Background:</b> in kXML endTag had no arguments, and non matching tags were
              very difficult to find...
             If namespace is null no namespace prefix is printed but just name.
             If namespace is empty string then serializer will make sure that
@@ -405,9 +404,9 @@
         <summary>Write all pending output to the stream.</summary>
         <remarks>
           <para>Write all pending output to the stream.
-            If method startTag() or attribute() was called then start tag is closed (final &amp;gt;)
+            If method startTag() or attribute() was called then start tag is closed (final &gt;)
             before flush() is called on underlying output stream.</para>
-          <para>&lt;b&gt;NOTE:&lt;/b&gt; if there is need to close start tag
+          <para><b>NOTE:</b> if there is need to close start tag
             (so no more attribute() calls are allowed) but without flushing output
             call method text() with empty string (text("")).</para>
           <para>
@@ -453,7 +452,7 @@
         <returns>The value of named feature.</returns>
         <remarks>
           <para>Return the current value of the feature with given name.</para>
-          <para>&lt;strong&gt;NOTE:&lt;/strong&gt; unknown properties are &lt;strong&gt;always&lt;/strong&gt; returned as null</para>
+          <para><b>NOTE:</b> unknown properties are <b>always</b> returned as null</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlSerializer#getFeature(java.lang.String)" title="Reference documentation">Java documentation for <code>org.xmlpull.v1.XmlSerializer.getFeature(java.lang.String)</code>.</a>
@@ -504,9 +503,9 @@
           <para>Return namespace that corresponds to given prefix
             If there is no prefix bound to this namespace return null
             but if generatePrefix is false then return generated prefix.</para>
-          <para>&lt;b&gt;NOTE:&lt;/b&gt; if the prefix is empty string "" and default namespace is bound
+          <para><b>NOTE:</b> if the prefix is empty string "" and default namespace is bound
             to this prefix then empty string ("") is returned.</para>
-          <para>&lt;b&gt;NOTE:&lt;/b&gt; prefixes "xml" and "xmlns" are already bound
+          <para><b>NOTE:</b> prefixes "xml" and "xmlns" are already bound
               will have values as defined
             <see href="http://www.w3.org/TR/REC-xml-names/">Namespaces in XML specification</see></para>
           <para>
@@ -553,7 +552,7 @@
         <remarks>
           <para>Look up the value of a property.</para>
           <para>The property name is any fully-qualified URI. I</para>
-          <para>&lt;strong&gt;NOTE:&lt;/strong&gt; unknown properties are &lt;string&gt;always&lt;/strong&gt; returned as null</para>
+          <para><b>NOTE:</b> unknown properties are &lt;string&gt;always&lt;/strong&gt; returned as null</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlSerializer#getProperty(java.lang.String)" title="Reference documentation">Java documentation for <code>org.xmlpull.v1.XmlSerializer.getProperty(java.lang.String)</code>.</a>
@@ -870,12 +869,12 @@
             it must result in declaring <c>xmlns:prefix='namespace'</c>
             (or <c>xmlns:prefix="namespace"</c> depending what character is used
             to quote attribute value).</para>
-          <para>&lt;b&gt;NOTE:&lt;/b&gt; this method MUST be called directly before startTag()
+          <para><b>NOTE:</b> this method MUST be called directly before startTag()
               and if anything but startTag() or setPrefix() is called next there will be exception.</para>
-          <para>&lt;b&gt;NOTE:&lt;/b&gt; prefixes "xml" and "xmlns" are already bound
+          <para><b>NOTE:</b> prefixes "xml" and "xmlns" are already bound
               and can not be redefined see:
             <see href="http://www.w3.org/XML/xml-names-19990114-errata#NE05">Namespaces in XML Errata</see>.</para>
-          <para>&lt;b&gt;NOTE:&lt;/b&gt; to set default namespace use as prefix empty string.</para>
+          <para><b>NOTE:</b> to set default namespace use as prefix empty string.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlSerializer#setPrefix(java.lang.String,%20java.lang.String)" title="Reference documentation">Java documentation for <code>org.xmlpull.v1.XmlSerializer.setPrefix(java.lang.String, java.lang.String)</code>.</a>

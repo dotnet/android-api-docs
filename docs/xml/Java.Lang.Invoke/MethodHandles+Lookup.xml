@@ -26,10 +26,10 @@
     </Attribute>
   </Attributes>
   <Docs>
-    <summary>A &lt;em&gt;lookup object&lt;/em&gt; is a factory for creating method handles,
+    <summary>A <i>lookup object</i> is a factory for creating method handles,
             when the creation requires access checking.</summary>
     <remarks>
-      <para>A &lt;em&gt;lookup object&lt;/em&gt; is a factory for creating method handles,
+      <para>A <i>lookup object</i> is a factory for creating method handles,
             when the creation requires access checking.
             Method handles do not perform
             access checks when they are called, but rather when they are created.
@@ -50,7 +50,7 @@
             The factory methods on a <c>Lookup</c> object correspond to all major
             use cases for methods, constructors, and fields.
             Each method handle created by a factory method is the functional
-            equivalent of a particular &lt;em&gt;bytecode behavior&lt;/em&gt;.
+            equivalent of a particular <i>bytecode behavior</i>.
             (Bytecode behaviors are described in section 5.4.3.5 of the Java Virtual Machine Specification.)
             Here is a summary of the correspondence between these factory methods and
             the behavior the resulting method handles:
@@ -134,7 +134,7 @@
       <para>In cases where the given member is of variable arity (i.e., a method or constructor)
             the returned method handle will also be of MethodHandle#asVarargsCollector variable arity.
             In all other cases, the returned method handle will be of fixed arity.</para>
-      <para>&lt;em&gt;Discussion:&lt;/em&gt;
+      <para><i>Discussion:</i>
             The equivalence between looked-up method handles and underlying
             class members and bytecode behaviors
             can break down in a few ways:
@@ -199,7 +199,7 @@
             is exactly equivalent
             to executing the compiled, verified, and resolved call to <c>M</c>.
             The same point is true of fields and constructors.</para>
-      <para>&lt;em&gt;Discussion:&lt;/em&gt;
+      <para><i>Discussion:</i>
             Access checks only apply to named and reflected methods,
             constructors, and fields.
             Other method handle creation methods, such as
@@ -218,7 +218,7 @@
             (which will necessarily be a superclass of the lookup class)
             to the lookup class itself.</para>
       <para>The JVM imposes a similar requirement on <c>invokespecial</c> instruction,
-            that the receiver argument must match both the resolved method &lt;em&gt;and&lt;/em&gt;
+            that the receiver argument must match both the resolved method <i>and</i>
             the current class.  Again, this requirement is enforced by narrowing the
             type of the leading parameter to the resulting method handle.
             (See the Java Virtual Machine Specification, section 4.10.1.9.)</para>
@@ -251,7 +251,7 @@
             Also, the <c>Lookup#in Lookup.in</c> method may produce a lookup object
             with fewer access modes than the original lookup object.</para>
       <para>"privacc"&gt;&lt;em&gt;Discussion of private access:&lt;/em&gt;
-            We say that a lookup has &lt;em&gt;private access&lt;/em&gt;
+            We say that a lookup has <i>private access</i>
             if its #lookupModes lookup modes
             include the possibility of accessing <c>private</c> members.
             As documented in the relevant methods elsewhere,
@@ -292,7 +292,7 @@
             <c>refc</c> as the containing class in which the member
             is being sought, and <c>defc</c> as the class in which the
             member is actually defined.
-            The value <c>lookc</c> is defined as &lt;em&gt;not present&lt;/em&gt;
+            The value <c>lookc</c> is defined as <i>not present</i>
             if the current lookup object does not have
             private access.
             The calls are made according to the following rules:
@@ -323,7 +323,7 @@
             
             &lt;h1&gt;"callsens"&gt;Caller sensitive methods&lt;/h1&gt;
             A small number of Java methods have a special property called caller sensitivity.
-            A &lt;em&gt;caller-sensitive&lt;/em&gt; method can behave differently depending on the
+            A <i>caller-sensitive</i> method can behave differently depending on the
             identity of its immediate caller.</para>
       <para>If a method handle for a caller-sensitive method is requested,
             the general rules for bytecode behaviors apply,
@@ -343,7 +343,7 @@
             In such cases, no caller-sensitive method handle can be created,
             access is forbidden, and the lookup fails with an
             <c>IllegalAccessException</c>.</para>
-      <para>&lt;em&gt;Discussion:&lt;/em&gt;
+      <para><i>Discussion:</i>
             For example, the caller-sensitive method
             <c>java.lang.Class#forName(String) Class.forName(x)</c>
             can return varying classes or throw varying exceptions,
@@ -421,7 +421,7 @@
           <para>The returned method handle will have
             MethodHandle#asVarargsCollector variable arity if and only if
             the method's variable arity modifier bit (<c>0x0080</c>) is set
-            &lt;em&gt;and&lt;/em&gt; the trailing array argument is not the only argument.
+            <i>and</i> the trailing array argument is not the only argument.
             (If the trailing array argument is the only argument,
             the given receiver value will be bound to it.)</para>
           <para>This is equivalent to the following code:
@@ -501,7 +501,7 @@
             the constructor's variable arity modifier bit (<c>0x0080</c>) is set.</para>
           <para>If the returned method handle is invoked, the constructor's class will
             be initialized, if it has not already been initialized.</para>
-          <para>&lt;b&gt;Example:&lt;/b&gt;
+          <para><b>Example:</b>
             &lt;blockquote&gt;</para>
           <code lang="text/java">{@code
             import static java.lang.invoke.MethodHandles.*;
@@ -673,7 +673,7 @@
       </Parameters>
       <Docs>
         <param name="refc">the class or interface from which the method is accessed</param>
-        <param name="name">the name of the method (which must not be "&amp;lt;init&amp;gt;")</param>
+        <param name="name">the name of the method (which must not be "&lt;init&gt;")</param>
         <param name="type">the type of the method, with the receiver argument omitted</param>
         <param name="specialCaller">the proposed calling class to perform the <c>invokespecial</c></param>
         <summary>Produces an early-bound method handle for a virtual method.</summary>
@@ -700,7 +700,7 @@
             even though the <c>invokespecial</c> instruction can refer to them
             in special circumstances.  Use <c>#findConstructor findConstructor</c>
             to access instance initialization methods in a safe manner.)&lt;/em&gt;</para>
-          <para>&lt;b&gt;Example:&lt;/b&gt;
+          <para><b>Example:</b>
             &lt;blockquote&gt;</para>
           <code lang="text/java">{@code
             import static java.lang.invoke.MethodHandles.*;
@@ -794,7 +794,7 @@
             the method's variable arity modifier bit (<c>0x0080</c>) is set.</para>
           <para>If the returned method handle is invoked, the method's class will
             be initialized, if it has not already been initialized.</para>
-          <para>&lt;b&gt;Example:&lt;/b&gt;
+          <para><b>Example:</b>
             &lt;blockquote&gt;</para>
           <code lang="text/java">{@code
             import static java.lang.invoke.MethodHandles.*;
@@ -1149,7 +1149,7 @@
             <c>java.lang.invoke.MethodHandles#invoker MethodHandles.invoker</c>
             with the same <c>type</c> argument.
             
-            &lt;b&gt;Example:&lt;/b&gt;
+            <b>Example:</b>
             &lt;blockquote&gt;</para>
           <code lang="text/java">{@code
             import static java.lang.invoke.MethodHandles.*;
@@ -1735,7 +1735,7 @@
             to <i>m</i>, if the lookup class has permission.
             If <i>m</i> is non-static, the receiver argument is treated as an initial argument.
             If <i>m</i> is virtual, overriding is respected on every call.
-            Unlike the Core Reflection API, exceptions are &lt;em&gt;not&lt;/em&gt; wrapped.
+            Unlike the Core Reflection API, exceptions are <i>not</i> wrapped.
             The type of the method handle will be that of the method,
             with the receiver type prepended (but only if it is non-static).
             If the method's <c>accessible</c> flag is not set,

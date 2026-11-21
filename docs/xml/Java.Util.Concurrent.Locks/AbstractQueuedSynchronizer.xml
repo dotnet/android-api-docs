@@ -63,11 +63,11 @@
             <c>#acquireInterruptibly</c> that can be invoked as
             appropriate by concrete locks and related synchronizers to
             implement their public methods.</para>
-      <para>This class supports either or both a default &lt;em&gt;exclusive&lt;/em&gt;
-            mode and a &lt;em&gt;shared&lt;/em&gt; mode. When acquired in exclusive mode,
+      <para>This class supports either or both a default <i>exclusive</i>
+            mode and a <i>shared</i> mode. When acquired in exclusive mode,
             attempted acquires by other threads cannot succeed. Shared mode
             acquires by multiple threads may (but need not) succeed. This class
-            does not &amp;quot;understand&amp;quot; these differences except in the
+            does not &quot;understand&quot; these differences except in the
             mechanical sense that when a shared mode acquire succeeds, the next
             waiting thread (if one exists) must also determine whether it can
             acquire as well. Threads waiting in the different modes share the
@@ -107,7 +107,7 @@
             
             Each of these methods by default throws <c>UnsupportedOperationException</c>.  Implementations of these methods
             must be internally thread-safe, and should in general be short and
-            not block. Defining these methods is the &lt;em&gt;only&lt;/em&gt; supported
+            not block. Defining these methods is the <i>only</i> supported
             means of using this class. All other methods are declared
             <c>final</c> because they cannot be independently varied.</para>
       <para>You may also find the inherited methods from <c>AbstractOwnableSynchronizer</c> useful to keep track of the thread
@@ -129,23 +129,23 @@
             </code>
       <para>(Shared mode is similar but may involve cascading signals.)</para>
       <para>Because checks in acquire are invoked before
-            enqueuing, a newly acquiring thread may &lt;em&gt;barge&lt;/em&gt; ahead of
+            enqueuing, a newly acquiring thread may <i>barge</i> ahead of
             others that are blocked and queued.  However, you can, if desired,
             define <c>tryAcquire</c> and/or <c>tryAcquireShared</c> to
             disable barging by internally invoking one or more of the inspection
-            methods, thereby providing a &lt;em&gt;fair&lt;/em&gt; FIFO acquisition order.
+            methods, thereby providing a <i>fair</i> FIFO acquisition order.
             In particular, most fair synchronizers can define <c>tryAcquire</c>
             to return <c>false</c> if <c>#hasQueuedPredecessors</c> (a method
             specifically designed to be used by fair synchronizers) returns
             <c>true</c>.  Other variations are possible.</para>
       <para>Throughput and scalability are generally highest for the
-            default barging (also known as &lt;em&gt;greedy&lt;/em&gt;,
-            &lt;em&gt;renouncement&lt;/em&gt;, and &lt;em&gt;convoy-avoidance&lt;/em&gt;) strategy.
+            default barging (also known as <i>greedy</i>,
+            <i>renouncement</i>, and <i>convoy-avoidance</i>) strategy.
             While this is not guaranteed to be fair or starvation-free, earlier
             queued threads are allowed to recontend before later queued
             threads, and each recontention has an unbiased chance to succeed
             against incoming threads.  Also, while acquires do not
-            &amp;quot;spin&amp;quot; in the usual sense, they may perform multiple
+            &quot;spin&quot; in the usual sense, they may perform multiple
             invocations of <c>tryAcquire</c> interspersed with other
             computations before blocking.  This gives most of the benefits of
             spins when exclusive synchronization is only briefly held, without

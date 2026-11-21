@@ -201,7 +201,6 @@
         <summary>Remove any alarms with a matching <c>Intent</c>.</summary>
         <remarks>
           <para>Remove any alarms with a matching Intent. Any alarm, of any type, whose Intent matches this one (as defined by Intent.filterEquals), will be canceled.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#cancel(android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.cancel</code>.</a>
@@ -279,7 +278,6 @@
           <c>true</c> if the caller can schedule exact alarms, <c>false</c> otherwise.</returns>
         <remarks>
           <para>Called to check if the caller can schedule exact alarms. Your app schedules exact alarms when it calls any of the setExact... or setAlarmClock API methods. Apps targeting Build.VERSION_CODES.S or higher can schedule exact alarms only if they have the Manifest.permission.SCHEDULE_EXACT_ALARM permission or they are on the device's power-save exemption list. These apps can also start Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM to request this permission from the user. Apps targeting lower sdk versions, can always schedule exact alarms.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#canScheduleExactAlarms()" title="Reference documentation">Android reference for <code>android.app.AlarmManager.canScheduleExactAlarms</code>.</a>
@@ -564,7 +562,6 @@
         <value>An AlarmClockInfo object describing the next upcoming alarm clock event that will occur. If there are no alarm clock events currently scheduled, this method will return null.</value>
         <remarks>
           <para>Gets information about the next alarm clock currently scheduled. The alarm clocks considered are those scheduled by any application using the setAlarmClock(AlarmClockInfo, PendingIntent) method.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#getNextAlarmClock()" title="Reference documentation">Android reference for <code>android.app.AlarmManager.getNextAlarmClock</code>.</a>
@@ -616,7 +613,6 @@
         <summary>Schedule an alarm.</summary>
         <remarks>
           <para>Schedule an alarm. Note: for timing operations (ticks, timeouts, etc) it is easier and much more efficient to use Handler. If there is already an alarm scheduled for the same IntentSender, that previous alarm will first be canceled. If the stated trigger time is in the past, the alarm will be triggered immediately. If there is already an alarm for this Intent scheduled (with the equality of two intents being defined by Intent.filterEquals), then it will be removed and replaced by this one. The alarm is an Intent broadcast that goes to a broadcast receiver that you registered with Context.registerReceiver(BroadcastReceiver, IntentFilter) or through the &lt;receiver&gt; tag in an AndroidManifest.xml file. Alarm intents are delivered with a data extra of type int called Intent.EXTRA_ALARM_COUNT that indicates how many past alarm events have been accumulated into this intent broadcast. Recurring alarms that have gone undelivered because the phone was asleep may have a count greater than one when delivered. Note: Beginning in API 19, the trigger time passed to this method is treated as inexact: the alarm will not be delivered before this time, but may be deferred and delivered some time later. The OS will use this policy in order to "batch" alarms together across the entire system, minimizing the number of times the device needs to "wake up" and minimizing battery use. In general, alarms scheduled in the near future will not be deferred as long as alarms scheduled far in the future. With the new batching policy, delivery ordering guarantees are not as strong as they were previously. If the application sets multiple alarms, it is possible that these alarms' actual delivery ordering may not match the order of their requested delivery times. If your application has strong ordering requirements there are other APIs that you can use to get the necessary behavior; see setWindow(int,long,long,PendingIntent) and setExact(int,long,PendingIntent). Applications whose targetSdkVersion is before API 19 will continue to get the previous alarm behavior: all of their scheduled alarms will be treated as exact.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#set(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.set</code>.</a>
@@ -625,6 +621,10 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+        <altmember cref="T:Android.OS.Handler" />
+        <altmember cref="M:Android.App.AlarmManager.Cancel(Android.App.PendingIntent)" />
+        <altmember cref="M:Android.Content.Context.SendBroadcast(Android.Content.Intent)" />
+        <altmember cref="M:Android.Content.Intent.FilterEquals(Android.Content.Intent)" />
       </Docs>
     </Member>
     <Member MemberName="Set">
@@ -727,7 +727,6 @@
         <remarks>
           <para>Schedule an alarm that represents an alarm clock, which will be used to notify the user when it goes off. The expectation is that when this alarm triggers, the application will further wake up the device to tell the user about the alarm -- turning on the screen, playing a sound, vibrating, etc. As such, the system will typically also use the information supplied here to tell the user about this upcoming alarm if appropriate. Due to the nature of this kind of alarm, similar to setExactAndAllowWhileIdle(int, long, PendingIntent), these alarms will be allowed to trigger even if the system is in a low-power idle (a.k.a. doze) mode. The system may also do some prep-work when it sees that such an alarm coming up, to reduce the amount of background work that could happen if this causes the device to fully wake up -- this is to avoid situations such as a large number of devices having an alarm set at the same time in the morning, all waking up at that time and suddenly swamping the network with pending background work. As such, these types of alarms can be extremely expensive on battery use and should only be used for their intended purpose.</para>
           <para>This method is like setExact(int,long,PendingIntent), but implies RTC_WAKEUP. Note: Starting with Build.VERSION_CODES.S, apps targeting SDK level 31 or higher need to request the SCHEDULE_EXACT_ALARM permission to use this API. The user and the system can revoke this permission via the special app access screen in Settings. Note: Exact alarms should only be used for user-facing features. For more details, see Exact alarm permission. Alarms scheduled via this API will be allowed to start a foreground service even if the app is in the background. Requires Manifest.permission.SCHEDULE_EXACT_ALARM</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#setAlarmClock(android.app.AlarmManager.AlarmClockInfo,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setAlarmClock</code>.</a>
@@ -735,6 +734,10 @@
           </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <altmember cref="M:Android.App.AlarmManager.Cancel(Android.App.PendingIntent)" />
+        <altmember cref="P:Android.App.AlarmManager.NextAlarmClock" />
+        <altmember cref="M:Android.Content.Context.SendBroadcast(Android.Content.Intent)" />
+        <altmember cref="M:Android.Content.Intent.FilterEquals(Android.Content.Intent)" />
       </Docs>
     </Member>
     <Member MemberName="SetAndAllowWhileIdle">
@@ -786,7 +789,6 @@
           <para>These alarms can significantly impact the power use of the device when idle (and thus cause significant battery blame to the app scheduling them), so they should be used with care. To reduce abuse, there are restrictions on how frequently these alarms will go off for a particular application. Under normal system operation, it will not dispatch these alarms more than about every minute (at which point every such pending alarm is dispatched); when in low-power idle modes this duration may be significantly longer, such as 15 minutes.</para>
           <para>Unlike other alarms, the system is free to reschedule this type of alarm to happen out of order with any other alarms, even those from the same app. This will clearly happen when the device is idle (since this alarm can go off while idle, when any other alarms from the app will be held until later), but may also happen even when not idle.</para>
           <para>Regardless of the app's target SDK version, this call always allows batching of the alarm.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#setAndAllowWhileIdle(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setAndAllowWhileIdle</code>.</a>
@@ -841,7 +843,6 @@
         <summary>Schedule an alarm to be delivered precisely at the stated time.</summary>
         <remarks>
           <para>Schedule an alarm to be delivered precisely at the stated time. This method is like set(int,long,PendingIntent), but does not permit the OS to adjust the delivery time. The alarm will be delivered as nearly as possible to the requested trigger time. Note: only alarms for which there is a strong demand for exact-time delivery (such as an alarm clock ringing at the requested time) should be scheduled as exact. Applications are strongly discouraged from using exact alarms unnecessarily as they reduce the OS's ability to minimize battery use. Note: Starting with Build.VERSION_CODES.S, apps targeting SDK level 31 or higher need to request the SCHEDULE_EXACT_ALARM permission to use this API, unless the app is exempt from battery restrictions. The user and the system can revoke this permission via the special app access screen in Settings. Note: Exact alarms should only be used for user-facing features. For more details, see Exact alarm permission.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#setExact(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setExact</code>.</a>
@@ -849,6 +850,9 @@
           </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <altmember cref="M:Android.App.AlarmManager.Cancel(Android.App.PendingIntent)" />
+        <altmember cref="M:Android.Content.Context.SendBroadcast(Android.Content.Intent)" />
+        <altmember cref="M:Android.Content.Intent.FilterEquals(Android.Content.Intent)" />
       </Docs>
     </Member>
     <Member MemberName="SetExact">
@@ -970,7 +974,6 @@
           <para>These alarms can significantly impact the power use of the device when idle (and thus cause significant battery blame to the app scheduling them), so they should be used with care. To reduce abuse, there are restrictions on how frequently these alarms will go off for a particular application. Under normal system operation, it will not dispatch these alarms more than about every minute (at which point every such pending alarm is dispatched); when in low-power idle modes this duration may be significantly longer, such as 15 minutes.</para>
           <para>Unlike other alarms, the system is free to reschedule this type of alarm to happen out of order with any other alarms, even those from the same app. This will clearly happen when the device is idle (since this alarm can go off while idle, when any other alarms from the app will be held until later), but may also happen even when not idle. Note that the OS will allow itself more flexibility for scheduling these alarms than regular exact alarms, since the application has opted into this behavior. When the device is idle it may take even more liberties with scheduling in order to optimize for battery life.</para>
           <para>Note: Starting with Build.VERSION_CODES.S, apps targeting SDK level 31 or higher need to request the SCHEDULE_EXACT_ALARM permission to use this API, unless the app is exempt from battery restrictions. The user and the system can revoke this permission via the special app access screen in Settings. Note: Exact alarms should only be used for user-facing features. For more details, see Exact alarm permission. Alarms scheduled via this API will be allowed to start a foreground service even if the app is in the background.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#setExactAndAllowWhileIdle(int,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setExactAndAllowWhileIdle</code>.</a>
@@ -1087,7 +1090,6 @@
             the top of every hour.</summary>
         <remarks>
           <para>Schedule a repeating alarm that has inexact trigger time requirements; for example, an alarm that repeats every hour, but not necessarily at the top of every hour. These alarms are more power-efficient than the strict recurrences traditionally supplied by setRepeating(int, long, long, PendingIntent), since the system can adjust alarms' delivery times to cause them to fire simultaneously, avoiding waking the device from sleep more than necessary. Your alarm's first trigger will not be before the requested time, but it might not occur for almost a full interval after that time. In addition, while the overall period of the repeating alarm will be as requested, the time between any two successive firings of the alarm may vary. If your application demands very low jitter, use one-shot alarms with an appropriate window instead; see setWindow(int,long,long,PendingIntent) and setExact(int,long,PendingIntent). As of API 19, all repeating alarms are inexact. Because this method has been available since API 3, your application can safely call it and be assured that it will get similar behavior on both current and older versions of Android. Apps targeting Build.VERSION_CODES.S will need to set the flag PendingIntent.FLAG_MUTABLE on the PendingIntent being used to set this alarm, if they want the alarm count to be supplied with the key Intent.EXTRA_ALARM_COUNT.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#setInexactRepeating(int,%20long,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setInexactRepeating</code>.</a>
@@ -1096,6 +1098,15 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 3" />
+        <altmember cref="T:Android.OS.Handler" />
+        <altmember cref="M:Android.App.AlarmManager.Cancel(Android.App.PendingIntent)" />
+        <altmember cref="M:Android.Content.Context.SendBroadcast(Android.Content.Intent)" />
+        <altmember cref="M:Android.Content.Intent.FilterEquals(Android.Content.Intent)" />
+        <altmember cref="F:Android.App.AlarmManager.IntervalFifteenMinutes" />
+        <altmember cref="F:Android.App.AlarmManager.IntervalHalfHour" />
+        <altmember cref="F:Android.App.AlarmManager.IntervalHour" />
+        <altmember cref="F:Android.App.AlarmManager.IntervalHalfDay" />
+        <altmember cref="F:Android.App.AlarmManager.IntervalDay" />
       </Docs>
     </Member>
     <Member MemberName="SetRepeating">
@@ -1142,7 +1153,6 @@
         <summary>Schedule a repeating alarm.</summary>
         <remarks>
           <para>Schedule a repeating alarm. Note: for timing operations (ticks, timeouts, etc) it is easier and much more efficient to use Handler. If there is already an alarm scheduled for the same IntentSender, it will first be canceled. Like set(int, long, PendingIntent), except you can also supply a period at which the alarm will automatically repeat. This alarm continues repeating until explicitly removed with cancel(OnAlarmListener). If the stated trigger time is in the past, the alarm will be triggered immediately, with an alarm count depending on how far in the past the trigger time is relative to the repeat interval. If an alarm is delayed (by system sleep, for example, for non _WAKEUP alarm types), a skipped repeat will be delivered as soon as possible. After that, future alarms will be delivered according to the original schedule; they do not drift over time. For example, if you have set a recurring alarm for the top of every hour but the phone was asleep from 7:45 until 8:45, an alarm will be sent as soon as the phone awakens, then the next alarm will be sent at 9:00. If your application wants to allow the delivery times to drift in order to guarantee that at least a certain time interval always elapses between alarms, then the approach to take is to use one-time alarms, scheduling the next one yourself when handling each alarm delivery. Note: as of API 19, all repeating alarms are inexact. If your application needs precise delivery times then it must use one-time exact alarms, rescheduling each time as described above. Legacy applications whose targetSdkVersion is earlier than API 19 will continue to have all of their alarms, including repeating alarms, treated as exact. Apps targeting Build.VERSION_CODES.S will need to set the flag PendingIntent.FLAG_MUTABLE on the PendingIntent being used to set this alarm, if they want the alarm count to be supplied with the key Intent.EXTRA_ALARM_COUNT.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#setRepeating(int,%20long,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setRepeating</code>.</a>
@@ -1151,6 +1161,10 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+        <altmember cref="T:Android.OS.Handler" />
+        <altmember cref="M:Android.App.AlarmManager.Cancel(Android.App.PendingIntent)" />
+        <altmember cref="M:Android.Content.Context.SendBroadcast(Android.Content.Intent)" />
+        <altmember cref="M:Android.Content.Intent.FilterEquals(Android.Content.Intent)" />
       </Docs>
     </Member>
     <Member MemberName="SetTime">
@@ -1287,7 +1301,6 @@
         <summary>Schedule an alarm to be delivered within a given window of time.</summary>
         <remarks>
           <para>Schedule an alarm to be delivered within a given window of time. This method is similar to set(int,long,PendingIntent), but allows the application to precisely control the degree to which its delivery might be adjusted by the OS. This method allows an application to take advantage of the battery optimizations that arise from delivery batching even when it has modest timeliness requirements for its alarms. Note: Starting with API Build.VERSION_CODES.S, apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes. This method can also be used to achieve strict ordering guarantees among multiple alarms by ensuring that the windows requested for each alarm do not intersect. When precise delivery is not required, applications should use the standard set(int,long,PendingIntent) method. This will give the OS the most flexibility to minimize wakeups and battery use. For alarms that must be delivered at precisely-specified times with no acceptable variation, applications can use setExact(int,long,PendingIntent).</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20android.app.PendingIntent)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setWindow</code>.</a>
@@ -1295,6 +1308,9 @@
           </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <altmember cref="M:Android.App.AlarmManager.Cancel(Android.App.PendingIntent)" />
+        <altmember cref="M:Android.Content.Context.SendBroadcast(Android.Content.Intent)" />
+        <altmember cref="M:Android.Content.Intent.FilterEquals(Android.Content.Intent)" />
       </Docs>
     </Member>
     <Member MemberName="SetWindow">
@@ -1356,7 +1372,6 @@
         <summary>Direct callback version of setWindow(int,long,long,PendingIntent).</summary>
         <remarks>
           <para>Direct callback version of setWindow(int,long,long,PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an OnAlarmListener instance that will be invoked at that time. Listener based alarms may be canceled by the Android system whenever the calling process no longer has any components running, such as Activity, Service, or ContentProvider, so only use these APIs when you do not need to receive alarms after the current component finishes, and also make sure to cancel(OnAlarmListener) them when it does. For example, if you use these APIs from an Activity, make sure to cancel the respective alarms when the activity finishes. If you need to receive the alarm even after that, use the PendingIntent based APIs. The OnAlarmListener onAlarm() method will be invoked via the specified target Handler, or on the application's main looper if null is passed as the targetHandler parameter. Note: Starting with API Build.VERSION_CODES.S, apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</para>
-          <para>See also:</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20java.lang.String,%20android.app.AlarmManager.OnAlarmListener,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setWindow</code>.</a>
@@ -1421,9 +1436,6 @@
         <summary>Direct callback version of setWindow(int,long,long,PendingIntent).</summary>
         <remarks>
           <para>Direct callback version of setWindow(int,long,long,PendingIntent). Rather than supplying a PendingIntent to be sent when the alarm time is reached, this variant supplies an OnAlarmListener instance that will be invoked at that time. Listener based alarms may be canceled by the Android system whenever the calling process no longer has any components running, such as Activity, Service, or ContentProvider, so only use these APIs when you do not need to receive alarms after the current component finishes, and also make sure to cancel(OnAlarmListener) them when it does. For example, if you use these APIs from an Activity, make sure to cancel the respective alarms when the activity finishes. If you need to receive the alarm even after that, use the PendingIntent based APIs. The OnAlarmListener onAlarm() method will be invoked via the specified target Executor. Note: Starting with API Build.VERSION_CODES.S, apps should not pass in a window of less than 10 minutes. The system will try its best to accommodate smaller windows if the alarm is supposed to fire in the near future, but there are no guarantees and the app should expect any window smaller than 10 minutes to get elongated to 10 minutes.</para>
-          <para>See also:</para>
-          <para>Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.</para>
-          <para>Last updated 2026-08-03 UTC.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/AlarmManager#setWindow(int,%20long,%20long,%20java.lang.String,%20java.util.concurrent.Executor,%20android.app.AlarmManager.OnAlarmListener)" title="Reference documentation">Android reference for <code>android.app.AlarmManager.setWindow</code>.</a>

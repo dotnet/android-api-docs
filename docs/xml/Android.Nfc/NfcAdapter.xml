@@ -301,16 +301,16 @@
           <para>To receive this intent an activity must include an intent filter
             for this action and specify the desired tech types in a
             manifest <c>meta-data</c> entry. Here is an example manfiest entry:</para>
-          <code lang="text/java">&amp;lt;activity android:name=".nfc.TechFilter" android:label="NFC/TechFilter"&amp;gt;
-                &amp;lt;!-- Add a technology filter --&amp;gt;
-                &amp;lt;intent-filter&amp;gt;
-                    &amp;lt;action android:name="android.nfc.action.TECH_DISCOVERED" /&amp;gt;
-                &amp;lt;/intent-filter&amp;gt;
+          <code lang="text/java">&lt;activity android:name=".nfc.TechFilter" android:label="NFC/TechFilter"&gt;
+                &lt;!-- Add a technology filter --&gt;
+                &lt;intent-filter&gt;
+                    &lt;action android:name="android.nfc.action.TECH_DISCOVERED" /&gt;
+                &lt;/intent-filter&gt;
 
-                &amp;lt;meta-data android:name="android.nfc.action.TECH_DISCOVERED"
+                &lt;meta-data android:name="android.nfc.action.TECH_DISCOVERED"
                     android:resource="@xml/filter_nfc"
-                /&amp;gt;
-            &amp;lt;/activity&amp;gt;</code>
+                /&gt;
+            &lt;/activity&gt;</code>
           <para>The meta-data XML file should contain one or more <c>tech-list</c> entries
             each consisting or one or more <c>tech</c> entries. The <c>tech</c> entries refer
             to the qualified class name implementing the technology, for example "android.nfc.tech.NfcA".</para>
@@ -321,21 +321,21 @@
             discovered. This provides AND and OR semantics for filtering desired techs. Here is an
             example that will match any tag using <c>NfcF</c> or any tag using <c>NfcA</c>,
             <c>MifareClassic</c>, and <c>Ndef</c>:</para>
-          <code lang="text/java">&amp;lt;resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"&amp;gt;
-                &amp;lt;!-- capture anything using NfcF --&amp;gt;
-                &amp;lt;tech-list&amp;gt;
-                    &amp;lt;tech&amp;gt;android.nfc.tech.NfcF&amp;lt;/tech&amp;gt;
-                &amp;lt;/tech-list&amp;gt;
+          <code lang="text/java">&lt;resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"&gt;
+                &lt;!-- capture anything using NfcF --&gt;
+                &lt;tech-list&gt;
+                    &lt;tech&gt;android.nfc.tech.NfcF&lt;/tech&gt;
+                &lt;/tech-list&gt;
 
-                &amp;lt;!-- OR --&amp;gt;
+                &lt;!-- OR --&gt;
 
-                &amp;lt;!-- capture all MIFARE Classics with NDEF payloads --&amp;gt;
-                &amp;lt;tech-list&amp;gt;
-                    &amp;lt;tech&amp;gt;android.nfc.tech.NfcA&amp;lt;/tech&amp;gt;
-                    &amp;lt;tech&amp;gt;android.nfc.tech.MifareClassic&amp;lt;/tech&amp;gt;
-                    &amp;lt;tech&amp;gt;android.nfc.tech.Ndef&amp;lt;/tech&amp;gt;
-                &amp;lt;/tech-list&amp;gt;
-            &amp;lt;/resources&amp;gt;</code>
+                &lt;!-- capture all MIFARE Classics with NDEF payloads --&gt;
+                &lt;tech-list&gt;
+                    &lt;tech&gt;android.nfc.tech.NfcA&lt;/tech&gt;
+                    &lt;tech&gt;android.nfc.tech.MifareClassic&lt;/tech&gt;
+                    &lt;tech&gt;android.nfc.tech.Ndef&lt;/tech&gt;
+                &lt;/tech-list&gt;
+            &lt;/resources&gt;</code>
           <para>This intent is started after <c>#ACTION_NDEF_DISCOVERED</c> and before
             <c>#ACTION_TAG_DISCOVERED</c>. If any activities respond to <c>#ACTION_NDEF_DISCOVERED</c>
             this intent will not be started. If any activities respond to this intent
@@ -3417,11 +3417,6 @@
           <para>Only one NDEF message can be pushed by the resumed activity. If a message callback is also set with <c>SetNdefPushMessageCallback</c>, the callback takes priority. Passing <see langword="null" /> clears the static message provider; a registered callback continues to supply the NDEF message.</para>
           <para>Use <c>SetNdefPushMessageCallback</c> when the message must be generated dynamically. Do not pass an activity that has already reached <c>Activity.OnDestroy</c>.</para>
           <para>Requires the <c>android.Manifest.permission#NFC</c> permission.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://android.googlesource.com/platform/frameworks/base/+/android-9.0.0_r1/core/java/android/nfc/NfcAdapter.java#1083" title="Android Open Source Project source">Android Open Source Project source documentation for <code>android.nfc.NfcAdapter.setNdefPushMessage</code>.</a>
-            </format>
-          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <exception cref="T:Java.Lang.UnsupportedOperationException">The device does not support NFC.</exception>
@@ -3487,11 +3482,6 @@
           <para>Only one NDEF message can be pushed by the resumed activity. If a static message is also set with <c>SetNdefPushMessage</c>, this callback takes priority. Passing <see langword="null" /> clears the callback provider; a registered static message continues to be used.</para>
           <para>Use <c>SetNdefPushMessage</c> when the message does not need to change. Do not pass an activity that has already reached <c>Activity.OnDestroy</c>.</para>
           <para>Requires the <c>android.Manifest.permission#NFC</c> permission.</para>
-          <para>
-            <format type="text/html">
-              <a href="https://android.googlesource.com/platform/frameworks/base/+/android-9.0.0_r1/core/java/android/nfc/NfcAdapter.java#1196" title="Android Open Source Project source">Android Open Source Project source documentation for <code>android.nfc.NfcAdapter.setNdefPushMessageCallback</code>.</a>
-            </format>
-          </para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <exception cref="T:Java.Lang.UnsupportedOperationException">The device does not support NFC.</exception>
