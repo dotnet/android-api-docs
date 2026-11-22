@@ -770,7 +770,7 @@
       <Docs>
         <param name="keys">The config keys to retrieve values. This value cannot be null.</param>
         <summary>Gets the configuration values of the specified config keys applied for the default subscription.</summary>
-        <returns>A PersistableBundle with key/value mapping for the specified carrier configs on success, or an empty (but never null) bundle on failure.</returns>
+        <returns>A PersistableBundle with key/value mapping for the specified carrier configs. An empty bundle can be returned when a permission check fails.</returns>
         <remarks>
           <para>Gets the configuration values of the specified config keys applied for the default subscription. If the value for the key can't be found, the returned bundle will filter the key out. After using this method to get the configuration bundle, isConfigForIdentifiedCarrier(PersistableBundle) should be called to confirm whether any carrier specific configuration has been applied. Note that on success, the key/value for KEY_CARRIER_CONFIG_VERSION_STRING and KEY_CARRIER_CONFIG_APPLIED_BOOL are always in the returned bundle, no matter if they were explicitly requested. Requires Permission: READ_PHONE_STATE, or the calling app has carrier privileges for the default subscription (see TelephonyManager.hasCarrierPrivileges() ). Requires Manifest.permission.READ_PHONE_STATE or carrier privileges</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#getConfig(java.lang.String[])" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.getConfig</code>.</a></format></para>
@@ -943,7 +943,7 @@
         <param name="subId">The subscription ID on which the carrier config should be retrieved.</param>
         <param name="keys">The carrier config keys to retrieve values. This value cannot be null.</param>
         <summary>Gets the configuration values of the specified keys for a particular subscription.</summary>
-        <returns>A PersistableBundle with key/value mapping for the specified configuration on success, or an empty (but never null) bundle on failure (for example, when the calling app has no permission).</returns>
+        <returns>A PersistableBundle with key/value mapping for the specified configuration. An empty bundle can be returned when a permission check fails.</returns>
         <remarks>
           <para>Gets the configuration values of the specified keys for a particular subscription. If an invalid subId is used, the returned configuration will contain default values for the specified keys. If the value for the key can't be found, the returned configuration will filter the key out. After using this method to get the configuration bundle, isConfigForIdentifiedCarrier(PersistableBundle) should be called to confirm whether any carrier specific configuration has been applied. Note that on success, the key/value for KEY_CARRIER_CONFIG_VERSION_STRING and KEY_CARRIER_CONFIG_APPLIED_BOOL are always in the returned bundle, no matter if they were explicitly requested. Requires Permission: READ_PHONE_STATE, or the calling app has carrier privileges on the specified subscription (see TelephonyManager.hasCarrierPrivileges() ). Requires Manifest.permission.READ_PHONE_STATE or carrier privileges</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#getConfigForSubId(int,%20java.lang.String[])" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.getConfigForSubId</code>.</a></format></para>
@@ -12745,9 +12745,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Satellite notification display restriction reset time in seconds.</summary>
+        <summary>Satellite notification display restriction reset time in milliseconds.</summary>
         <remarks>
-          <para>Satellite notification display restriction reset time in seconds.</para>
+          <para>Satellite notification display restriction reset time in milliseconds.</para>
           <para>The device shows a notification when it connects to a satellite.  If the user interacts
             with the notification, it won't be shown again immediately.  Instead, the notification
             will only reappear after below key mentioned amount of time has passed.</para>
