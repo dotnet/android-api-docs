@@ -72,7 +72,7 @@
       <Parameters />
       <Docs>
         <summary>Creates a builder with the default scheduling mode and minimum interval.</summary>
-        <remarks>The scheduling mode is one time, and the minimum interval is zero until you set them. See the <format type="text/html"><a href="https://android.googlesource.com/platform/packages/modules/OnDevicePersonalization/+/cc93f1e4164d0a4bb76dd277abc221f4eaf32efb/framework/java/android/adservices/ondevicepersonalization/TrainingInterval.java#L204">builder</a></format>.</remarks>
+        <remarks>If you do not set them, the built interval has a one-time scheduling mode and a minimum interval of zero.</remarks>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -183,12 +183,12 @@
         <Parameter Name="value" Type="Java.Time.Duration" />
       </Parameters>
       <Docs>
-        <param name="value">The minimum time between task runs. It must be positive and is used only for recurrent tasks.</param>
+        <param name="value">The minimum time between task runs. For recurrent tasks, use a positive interval.</param>
         <summary>Sets the minimum time interval between two training runs.</summary>
         <returns>This builder, with the minimum interval assigned.</returns>
         <remarks>
           <para>Sets the minimum time interval between two training runs.</para>
-          <para>This field will only be used when the scheduling mode is TrainingInterval.SCHEDULING_MODE_RECURRENT. Only positive values are accepted, zero or negative values will result in IllegalArgumentException.</para>
+          <para>This field will only be used when the scheduling mode is TrainingInterval.SCHEDULING_MODE_RECURRENT. Use a positive value for a recurrent task.</para>
           <para>Please also note this value is advisory, which does not guarantee the job will be run immediately after the interval expired. Federated compute will still enforce a minimum required interval and training constraints to ensure system health. The current training constraints are device on unmetered network, idle and battery not low.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/adservices/ondevicepersonalization/TrainingInterval.Builder#setMinimumInterval(java.time.Duration)" title="Reference documentation">Android reference for <code>android.adservices.ondevicepersonalization.TrainingInterval.Builder.setMinimumInterval</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
