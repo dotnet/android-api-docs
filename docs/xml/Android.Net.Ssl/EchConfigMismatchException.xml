@@ -33,7 +33,7 @@
     <summary>Exception thrown when the provided ECH (Encrypted Client Hello) config does not match the server.</summary>
     <remarks>
       <para>Exception thrown when the provided ECH (Encrypted Client Hello) config does not match the server.</para>
-      <para>Before accessing the retry configuration, clients must call getPublicHostname() and verify that the hostname matches the connection hostname (using their preferred HostnameVerifier). If the returned hostname is null, any provided retry configuration must be ignored.</para>
+      <para>Before using the retry configuration, clients must verify that the server certificate is valid for <see cref="P:Android.Net.Ssl.EchConfigMismatchException.PublicHostname" />. If that hostname is null, any provided retry configuration must be ignored.</para>
       <para>Clients can then attempt to establish a new connection, using the provided retry EchConfigList, if available. A retry EchConfigList may not be available if the server has not provided any.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ssl/EchConfigMismatchException" title="Reference documentation">Android reference for <code>android.net.ssl.EchConfigMismatchException</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -130,10 +130,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns <c>true</c> if a retry <c>EchConfigList</c> is available, false otherwise.</summary>
-        <value>Returns true if a retry EchConfigList is available, false otherwise.</value>
+        <summary>Indicates whether a retry configuration was supplied.</summary>
+        <value><see langword="true" /> if a retry configuration was supplied; otherwise, <see langword="false" />.</value>
         <remarks>
-          <para>Returns true if a retry EchConfigList is available, false otherwise.</para>
+          <para>This property can be <see langword="true" /> even when <see cref="P:Android.Net.Ssl.EchConfigMismatchException.PublicHostname" /> is null and <see cref="P:Android.Net.Ssl.EchConfigMismatchException.RetryConfigList" /> returns null.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ssl/EchConfigMismatchException#hasRetryConfigList()" title="Reference documentation">Android reference for <code>android.net.ssl.EchConfigMismatchException.hasRetryConfigList</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -243,11 +243,10 @@
         <ReturnType>Android.Net.Ssl.EchConfigList</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the <c>EchConfigList</c> provided by the server for retrying the connection, or
-            <c>null</c> if no retry configuration was set by the server.</summary>
-        <value>Returns the EchConfigList provided by the server for retrying the connection, or null if no retry configuration was set by the server.</value>
+        <summary>Gets the ECH configuration list for retrying the connection.</summary>
+        <value>The retry configuration, or <see langword="null" /> if none was supplied or the public hostname is null.</value>
         <remarks>
-          <para>Returns the EchConfigList provided by the server for retrying the connection, or null if no retry configuration was set by the server. Prior to reading this value, the client must verify that the certificate is valid for the name returned by getPublicHostname().</para>
+          <para>Before using this value, the client must verify that the server certificate is valid for <see cref="P:Android.Net.Ssl.EchConfigMismatchException.PublicHostname" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/ssl/EchConfigMismatchException#getRetryConfigList()" title="Reference documentation">Android reference for <code>android.net.ssl.EchConfigMismatchException.getRetryConfigList</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
