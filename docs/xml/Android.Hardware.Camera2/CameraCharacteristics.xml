@@ -87,7 +87,7 @@
       </ReturnValue>
       <Docs>
         <summary>The direction of the camera faces relative to the vehicle body frame and the passenger seats.</summary>
-        <value>The direction of the camera faces relative to the vehicle body frame and the passenger seats.</value>
+        <value>The key for the direction the camera faces relative to the vehicle body frame and the passenger seats.</value>
         <remarks>
           <para>The direction of the camera faces relative to the vehicle body frame and the passenger seats.</para>
           <para>This enum defines the lens facing characteristic of the cameras on the automotive devices with locations android.automotive.location defines. If the system has FEATURE_AUTOMOTIVE, the camera will have this entry in its static metadata.</para>
@@ -521,7 +521,7 @@
         <value>List of color correction modes for android.colorCorrection.mode that are supported by this camera device.</value>
         <remarks>
           <para>List of color correction modes for android.colorCorrection.mode that are supported by this camera device.</para>
-          <para>This key lists the valid modes for android.colorCorrection.mode. If no color correction modes are available for a device, this key will be null.</para>
+          <para>The value for this key lists the valid modes for <see cref="P:Android.Hardware.Camera2.CaptureRequest.ColorCorrectionMode" />. If no color correction modes are available for a device, the value will be null.</para>
           <para>Camera devices that have a FULL hardware level will always include at least FAST, HIGH_QUALITY, and TRANSFORM_MATRIX modes.</para>
           <para>Range of valid values: Any value listed in android.colorCorrection.mode</para>
           <para>Optional - The value for this key may be null on some devices.</para>
@@ -567,7 +567,7 @@
         <remarks>
           <para>The range of supported color temperature values for android.colorCorrection.colorTemperature.</para>
           <para>This key lists the valid range of color temperature values for android.colorCorrection.colorTemperature supported by this camera device.</para>
-          <para>This key will be null on devices that do not support CCT mode for android.colorCorrection.mode.</para>
+          <para>The value for this key will be null on devices that do not support CCT mode for <see cref="P:Android.Hardware.Camera2.CaptureRequest.ColorCorrectionMode" />.</para>
           <para>The minimum supported range will be [2856K,6500K]. The maximum supported range will be [1000K,40000K].</para>
           <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE</code>.</a></format></para>
@@ -1707,10 +1707,10 @@
         <ReturnType>Android.Hardware.Camera2.CameraCharacteristics+Key</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Default flashlight brightness level to be set via CameraManager.turnOnTorchWithStrengthLevel(String, int).</summary>
-        <value>Default flashlight brightness level to be set via CameraManager.turnOnTorchWithStrengthLevel(String, int).</value>
+        <summary>Default flashlight brightness level to set with <see cref="M:Android.Hardware.Camera2.CameraManager.TurnOnTorchWithStrengthLevel(System.String,System.Int32)" />.</summary>
+        <value>The key for the default flashlight brightness level.</value>
         <remarks>
-          <para>Default flashlight brightness level to be set via CameraManager.turnOnTorchWithStrengthLevel(String, int).</para>
+          <para>Default flashlight brightness level to set with <see cref="M:Android.Hardware.Camera2.CameraManager.TurnOnTorchWithStrengthLevel(System.String,System.Int32)" />.</para>
           <para>If flash unit is available this will be greater than or equal to 1 and less or equal to android.flash.info.strengthMaximumLevel.</para>
           <para>Setting flashlight brightness above the default level (i.e.android.flash.info.strengthDefaultLevel) may make the device more likely to reach thermal throttling conditions and slow down, or drain the battery quicker than normal. To minimize such issues, it is recommended to start the flashlight at this default brightness until a user explicitly requests a brighter level. Note that the value for this key will be null for devices with no flash unit. The default level should always be &gt; 0.</para>
           <para>Optional - The value for this key may be null on some devices.</para>
@@ -1755,7 +1755,7 @@
         <value>Maximum flashlight brightness level.</value>
         <remarks>
           <para>Maximum flashlight brightness level.</para>
-          <para>If this value is greater than 1, then the device supports controlling the flashlight brightness level via CameraManager.turnOnTorchWithStrengthLevel(String, int). If this value is equal to 1, flashlight brightness control is not supported. The value for this key will be null for devices with no flash unit.</para>
+          <para>If this value is greater than 1, then the device supports controlling the flashlight brightness level with <see cref="M:Android.Hardware.Camera2.CameraManager.TurnOnTorchWithStrengthLevel(System.String,System.Int32)" />. If this value is equal to 1, flashlight brightness control is not supported. The value for this key will be null for devices with no flash unit.</para>
           <para>The maximum value is guaranteed to be safe to use for an indefinite duration in terms of device flashlight lifespan, but may be too bright for comfort for many use cases. Use the default torch brightness value to avoid problems with an over-bright flashlight.</para>
           <para>Optional - The value for this key may be null on some devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#FLASH_INFO_STRENGTH_MAXIMUM_LEVEL" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL</code>.</a></format></para>
@@ -2259,15 +2259,16 @@
         <ReturnType>Android.Hardware.Camera2.CameraCharacteristics+Key</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The version of the session configuration query CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported(SessionConfiguration) and CameraDevice.CameraDeviceSetup.getSessionCharacteristics(SessionConfiguration) APIs.</summary>
-        <value>The version of the session configuration query CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported(SessionConfiguration) and CameraDevice.CameraDeviceSetup.getSessionCharacteristics(SessionConfiguration) APIs.</value>
+        <summary>Gets the key for the session configuration query API version.</summary>
+        <value>The key for the session configuration query API version.</value>
         <remarks>
-          <para>The version of the session configuration query CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported(SessionConfiguration) and CameraDevice.CameraDeviceSetup.getSessionCharacteristics(SessionConfiguration) APIs.</para>
-          <para>The possible values in this key correspond to the values defined in android.os.Build.VERSION_CODES. Each version defines a set of feature combinations the camera device must reliably report whether they are supported via CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported(SessionConfiguration). It also defines the set of session specific keys in CameraCharacteristics when returned from CameraDevice.CameraDeviceSetup.getSessionCharacteristics(SessionConfiguration). The version is always less or equal to android.os.Build.VERSION.SDK_INT.</para>
-          <para>If set to UPSIDE_DOWN_CAKE, this camera device doesn't support the CameraDevice.CameraDeviceSetup API. Trying to create a CameraDeviceSetup instance throws an UnsupportedOperationException.</para>
-          <para>From VANILLA_ICE_CREAM onwards, the camera compliance tests verify a set of commonly used SessionConfigurations to ensure that the outputs of CameraDevice.CameraDeviceSetup.isSessionConfigurationSupported(SessionConfiguration) and CameraDevice.CameraDeviceSetup.getSessionCharacteristics(SessionConfiguration) are accurate. The application is encouraged to use these SessionConfigurations when turning on multiple features at the same time.</para>
-          <para>When set to VANILLA_ICE_CREAM, the combinations of the following configurations are verified by the compliance tests: A set of commonly used stream combinations:; MAXIMUM_4_3 refers to the camera device's maximum output resolution with 4:3 aspect ratio for that format from StreamConfigurationMap#getOutputSizes; MAXIMUM_16_9 is the maximum output resolution with 16:9 aspect ratio; S1440P refers to 2560x1440 (16:9); S1080P refers to 1920x1080 (16:9); S720P refers to 1280x720 (16:9); UHD refers to 3840x2160 (16:9); XVGA refers to 1024x768 (4:3); S1080P_43 refers to 1440x1080 (4:3); VIDEO_STABILIZATION_MODE: {OFF, PREVIEW}; AE_TARGET_FPS_RANGE: { {*, 30}, {*, 60} }; DYNAMIC_RANGE_PROFILE: {STANDARD, HLG10}</para>
-          <para>When set to BAKLAVA, the additional stream combinations below are verified by the compliance tests: VIDEO_STABILIZATION_MODE: {OFF, ON} for the newly added stream combinations given the presence of dedicated video stream</para>
+          <para>The version of session configuration queries using <see cref="M:Android.Hardware.Camera2.CameraDevice.CameraDeviceSetup.IsSessionConfigurationSupported(Android.Hardware.Camera2.Params.SessionConfiguration)" /> and <see cref="M:Android.Hardware.Camera2.CameraDevice.CameraDeviceSetup.GetSessionCharacteristics(Android.Hardware.Camera2.Params.SessionConfiguration)" />.</para>
+          <para>The possible values in this key correspond to <see cref="T:Android.OS.BuildVersionCodes" /> values. Each version defines a set of feature combinations the camera device must reliably report whether it supports through <see cref="M:Android.Hardware.Camera2.CameraDevice.CameraDeviceSetup.IsSessionConfigurationSupported(Android.Hardware.Camera2.Params.SessionConfiguration)" />. It also defines the set of session-specific keys in CameraCharacteristics returned from <see cref="M:Android.Hardware.Camera2.CameraDevice.CameraDeviceSetup.GetSessionCharacteristics(Android.Hardware.Camera2.Params.SessionConfiguration)" />. The version is always less than or equal to <see cref="P:Android.OS.Build.VERSION.SdkInt" />.</para>
+          <para>If set to <see cref="F:Android.OS.BuildVersionCodes.UpsideDownCake" />, this camera device doesn't support the CameraDevice.CameraDeviceSetup API. Trying to create a CameraDeviceSetup instance throws an UnsupportedOperationException.</para>
+          <para>From <see cref="F:Android.OS.BuildVersionCodes.VanillaIceCream" /> onwards, the camera compliance tests verify a set of commonly used SessionConfigurations to ensure that the outputs of <see cref="M:Android.Hardware.Camera2.CameraDevice.CameraDeviceSetup.IsSessionConfigurationSupported(Android.Hardware.Camera2.Params.SessionConfiguration)" /> and <see cref="M:Android.Hardware.Camera2.CameraDevice.CameraDeviceSetup.GetSessionCharacteristics(Android.Hardware.Camera2.Params.SessionConfiguration)" /> are accurate. The application is encouraged to use these SessionConfigurations when turning on multiple features at the same time.</para>
+          <para>When set to <see cref="F:Android.OS.BuildVersionCodes.VanillaIceCream" />, the compliance tests verify these stream combinations: PRIV S1080P or S720P alone; PRIV S1080P with JPEG/JPEG_R at MAXIMUM_16_9, UHD, S1440P, or S1080P; PRIV S720P with JPEG/JPEG_R at MAXIMUM_16_9, UHD, or S1080P; and PRIV XVGA or S1080P_4_3 with JPEG/JPEG_R at MAXIMUM_4_3.</para>
+          <para>MAXIMUM_4_3 refers to the camera device's maximum output resolution with 4:3 aspect ratio for that format from <see cref="M:Android.Hardware.Camera2.Params.StreamConfigurationMap.GetOutputSizes(System.Int32)" />; MAXIMUM_16_9 is the maximum output resolution with 16:9 aspect ratio; S1440P refers to 2560x1440 (16:9); S1080P refers to 1920x1080 (16:9); S720P refers to 1280x720 (16:9); UHD refers to 3840x2160 (16:9); XVGA refers to 1024x768 (4:3); S1080P_43 refers to 1440x1080 (4:3). The tests verify combinations of these stream configurations with VIDEO_STABILIZATION_MODE: {OFF, PREVIEW}; AE_TARGET_FPS_RANGE: { {*, 30}, {*, 60} }; and DYNAMIC_RANGE_PROFILE: {STANDARD, HLG10}.</para>
+          <para>When set to <see cref="F:Android.OS.BuildVersionCodes.Baklava" />, the compliance tests also verify PRIV Preview S1080P with PRIV Video S1080P, S1440P, or UHD; and PRIV Preview S1080P with YUV Analysis S1080P and PRIV Video 1080P. For these additional combinations, VIDEO_STABILIZATION_MODE values OFF and ON are verified when a dedicated video stream is present.</para>
           <para>All of the above configurations can be set up with a SessionConfiguration. The list of OutputConfiguration contains the stream configurations and DYNAMIC_RANGE_PROFILE, and the AE_TARGET_FPS_RANGE and VIDEO_STABILIZATION_MODE are set as session parameters.</para>
           <para>This key is available on all devices.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_SESSION_CONFIGURATION_QUERY_VERSION" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraCharacteristics.INFO_SESSION_CONFIGURATION_QUERY_VERSION</code>.</a></format></para>

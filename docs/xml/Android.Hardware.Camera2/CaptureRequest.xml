@@ -1314,6 +1314,7 @@
           <para>The desired CaptureRequest settings override with which certain keys are applied earlier so that they can take effect sooner.</para>
           <para>There are some CaptureRequest keys which can be applied earlier than others when controls within a CaptureRequest aren't required to take effect at the same time. One such example is zoom. Zoom can be applied at a later stage of the camera pipeline. As soon as the camera device receives the CaptureRequest, it can apply the requested zoom value onto an earlier request that's already in the pipeline, thus improves zoom latency.</para>
           <para>This key's value in the capture result reflects whether the controls for this capture are overridden "by" a newer request. This means that if a capture request turns on settings override, the capture result of an earlier request will contain the key value of ZOOM. On the other hand, if a capture request has settings override turned on, but all newer requests have it turned off, the key's value in the capture result will be OFF because this capture isn't overridden by a newer capture. In the two examples below, the capture results columns illustrate the settingsOverride values in different scenarios.</para>
+          <para>Assuming settings override can speed up zoom by one frame, the following example shows the speed-up at the start of a capture session:</para>
           <code lang="text/java">Camera session created
 Request 1 (zoom=1.0x, override=ZOOM) -&gt;
 Request 2 (zoom=1.2x, override=ZOOM) -&gt;
@@ -1322,9 +1323,10 @@ Request 4 (zoom=1.6x, override=ZOOM) -&gt;  Result 2 (zoom=1.4x, override=ZOOM)
 Request 5 (zoom=1.8x, override=ZOOM) -&gt;  Result 3 (zoom=1.6x, override=ZOOM)
                                      -&gt;  Result 4 (zoom=1.8x, override=ZOOM)
                                      -&gt;  Result 5 (zoom=1.8x, override=OFF)</code>
-          <para>The application can turn on settings override and use zoom as normal. The example shows that the later zoom values (1.2x, 1.4x, 1.6x, and 1.8x) overwrite the zoom values (1.0x, 1.2x, 1.4x, and 1.8x) of earlier requests (#1, #2, #3, and #4).</para>
+          <para>The application can turn on settings override and use zoom as normal. The example shows that the later zoom values (1.2x, 1.4x, 1.6x, and 1.8x) overwrite the zoom values (1.0x, 1.2x, 1.4x, and 1.6x) of earlier requests (#1, #2, #3, and #4).</para>
           <para>The application must make sure the settings override doesn't interfere with user journeys requiring simultaneous application of all controls in CaptureRequest on the requested output targets. For example, if the application takes a still capture using CameraCaptureSession#capture, and the repeating request immediately sets a different zoom value using override, the inflight still capture could have its zoom value overwritten unexpectedly.</para>
           <para>So the application is strongly recommended to turn off settingsOverride when taking still/burst captures, and turn it back on when there is only repeating viewfinder request and no inflight still/burst captures.</para>
+          <para>The following example shows transitions in and out of settings override:</para>
           <code lang="text/java">Request 1 (zoom=1.0x, override=OFF)
 Request 2 (zoom=1.2x, override=OFF)
 Request 3 (zoom=1.4x, override=ZOOM)  -&gt; Result 1 (zoom=1.0x, override=OFF)
@@ -1681,7 +1683,7 @@ Request 5 (zoom=1.8x, override=OFF)   -&gt; Result 3 (zoom=1.6x, override=ZOOM)
       </ReturnValue>
       <Docs>
         <summary>The desired mode for for the camera device's flash control.</summary>
-        <value>The desired mode for for the camera device's flash control.</value>
+        <value>The key for the desired mode of the camera device's flash control.</value>
         <remarks>
           <para>
             <format type="text/html">
