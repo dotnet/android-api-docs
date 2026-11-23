@@ -441,15 +441,15 @@
         <ReturnType>Java.Time.Format.DateTimeFormatter</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The ISO date formatter that formats or parses a date without an
-            offset, such as '20111203'.</summary>
-        <value>The ISO date formatter that formats or parses a date without an
-            offset, such as '20111203'.</value>
+        <summary>The ISO date formatter that formats or parses a date with an optional
+            offset, such as '20111203' or '20111203+0100'.</summary>
+        <value>The ISO date formatter that formats or parses a date with an optional
+            offset, such as '20111203' or '20111203+0100'.</value>
         <remarks>
-          <para>The ISO date formatter that formats or parses a date without an
-            offset, such as '20111203'.</para>
+          <para>The ISO date formatter that formats or parses a date with an optional
+            offset, such as '20111203' or '20111203+0100'.</para>
           <para>This returns an immutable formatter capable of formatting and parsing
-            the ISO-8601 basic local date format.
+            the ISO-8601 basic date format with an optional offset.
             The format consists of:
             &lt;ul&gt;
             &lt;li&gt;Four digits for the <c>ChronoField#YEAR year</c>.
@@ -951,7 +951,7 @@
           <para>The ISO date-time formatter that formats or parses a date-time without
             an offset, such as '2011-12-03T10:15:30'.</para>
           <para>This returns an immutable formatter capable of formatting and parsing
-            the ISO-8601 extended offset date-time format.
+            the ISO-8601 extended local date-time format.
             The format consists of:
             &lt;ul&gt;
             &lt;li&gt;The <c>#ISO_LOCAL_DATE</c>&lt;li&gt;The letter 'T'. Parsing is case insensitive.
@@ -1226,12 +1226,12 @@
       </ReturnValue>
       <Docs>
         <summary>The ISO date formatter that formats or parses the ordinal date
-            without an offset, such as '2012-337'.</summary>
+            with an optional offset, such as '2012-337' or '2012-337+01:00'.</summary>
         <value>The ISO date formatter that formats or parses the ordinal date
-            without an offset, such as '2012-337'.</value>
+            with an optional offset, such as '2012-337' or '2012-337+01:00'.</value>
         <remarks>
           <para>The ISO date formatter that formats or parses the ordinal date
-            without an offset, such as '2012-337'.</para>
+            with an optional offset, such as '2012-337' or '2012-337+01:00'.</para>
           <para>This returns an immutable formatter capable of formatting and parsing
             the ISO-8601 extended ordinal date format.
             The format consists of:
@@ -1347,12 +1347,12 @@
       </ReturnValue>
       <Docs>
         <summary>The ISO date formatter that formats or parses the week-based date
-            without an offset, such as '2012-W48-6'.</summary>
+            with an optional offset, such as '2012-W48-6' or '2012-W48-6+01:00'.</summary>
         <value>The ISO date formatter that formats or parses the week-based date
-            without an offset, such as '2012-W48-6'.</value>
+            with an optional offset, such as '2012-W48-6' or '2012-W48-6+01:00'.</value>
         <remarks>
           <para>The ISO date formatter that formats or parses the week-based date
-            without an offset, such as '2012-W48-6'.</para>
+            with an optional offset, such as '2012-W48-6' or '2012-W48-6+01:00'.</para>
           <para>This returns an immutable formatter capable of formatting and parsing
             the ISO-8601 extended week-based date format.
             The format consists of:
@@ -1363,7 +1363,7 @@
             &lt;li&gt;A dash
             &lt;li&gt;The letter 'W'. Parsing is case insensitive.
             &lt;li&gt;Two digits for the <c>IsoFields#WEEK_OF_WEEK_BASED_YEAR week-of-week-based-year</c>.
-             This is pre-padded by zero to ensure three digits.
+             This is pre-padded by zero to ensure two digits.
             &lt;li&gt;A dash
             &lt;li&gt;One digit for the <c>ChronoField#DAY_OF_WEEK day-of-week</c>.
              The value run from Monday (1) to Sunday (7).
@@ -2369,9 +2369,9 @@
       <Docs>
         <param name="text">the text to parse, not null</param>
         <param name="queries">the queries to use, at least two queries must be specified, not null</param>
-        <summary>Fully parses the text producing an object of one of the specified types.</summary>
-        <returns>the parsed date-time, not null</returns>
-        <remarks>The queries are invoked in order until one successfully obtains a result.</remarks>
+        <summary>Fully parses the text and tries the specified queries in order.</summary>
+        <returns>The first result that implements <see cref="T:Java.Time.Temporal.ITemporalAccessor" />, or <see langword="null" /> if a query returns null first.</returns>
+        <remarks>The queries are tried in order until one returns a temporal object or <see langword="null" />. Results of other types and runtime exceptions from queries are ignored.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ParseBest">
@@ -2411,9 +2411,9 @@
       <Docs>
         <param name="text">the text to parse, not null</param>
         <param name="queries">the queries to use, at least two queries must be specified, not null</param>
-        <summary>Fully parses the text producing an object of one of the specified types.</summary>
-        <returns>the parsed date-time, not null</returns>
-        <remarks>The queries are invoked in order until one successfully obtains a result.</remarks>
+        <summary>Fully parses the text and tries the specified queries in order.</summary>
+        <returns>The first result that implements <see cref="T:Java.Time.Temporal.ITemporalAccessor" />, or <see langword="null" /> if a query returns null first.</returns>
+        <remarks>The queries are tried in order until one returns a temporal object or <see langword="null" />. Results of other types and runtime exceptions from queries are ignored.</remarks>
       </Docs>
     </Member>
     <Member MemberName="ParsedExcessDays">
@@ -3232,10 +3232,10 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="resolverFields">the resolver fields to use, null for no resolver fields</param>
+        <param name="resolverFields">The resolver fields to use, or <see langword="null" /> to apply no field filter.</param>
         <summary>Returns a copy of this formatter with a new set of resolver fields.</summary>
         <returns>a formatter based on this formatter with the requested resolver fields, not null</returns>
-        <remarks>The resolver fields restrict the fields used during the resolving phase of parsing.</remarks>
+        <remarks>The resolver fields restrict the fields used during the resolving phase of parsing. An empty array removes all parsed field-value pairs before resolution.</remarks>
       </Docs>
     </Member>
     <Member MemberName="WithResolverFields">
