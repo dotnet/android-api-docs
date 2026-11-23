@@ -233,12 +233,13 @@
         <Parameter Name="preemptive" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="preemptive">true to play immediately; false to wait for the current effect to finish, or for the current iteration of an infinite effect to finish.</param>
+        <param name="preemptive">true to preempt the previous light state; false to wait for the current effect to finish, or for the current iteration of an infinite effect to finish.</param>
         <summary>Sets whether this effect will preempt any previous effect / state currently active on the light.</summary>
         <returns>This builder with the preemption option set.</returns>
         <remarks>
           <para>Sets whether this effect will preempt any previous effect / state currently active on the light.</para>
           <para>By default, the builder sets this value to true and the effect is preemptive.</para>
+          <para>These playback rules apply when the session controls all the lights required by the effect. See <see cref="M:Android.Hardware.Lights.LightsRequest.Builder.SetEffect(Android.Hardware.Lights.MultiLightEffect)" /> for how higher-priority sessions affect playback.</para>
           <para>When preemption is disabled, playback starts immediately if the previous state is a permanent color. Otherwise, it starts after all iterations of a finite effect, or after the current iteration of an infinite effect.</para>
           <para>A preemptive effect is applied immediately, but its first control point can occur later. Interpolation can start from the last known color or the last interpolated value of the previous effect.</para>
           <para>A light session can queue one non-preemptive effect. A later non-preemptive request replaces an earlier effect waiting in that queue.</para>
