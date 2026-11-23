@@ -483,19 +483,20 @@
         <Parameter Name="message" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="peerHandle">The peer's handle for the pairing request. Must be a result of an
-            <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnServiceDiscovered(Android.Net.Wifi.Aware.ServiceDiscoveryInfo)" /> or
-            <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnMessageReceived(Android.Net.Wifi.Aware.PeerHandle,System.Byte[])" /> events.</param>
+        <param name="peerHandle">The peer's handle for the pairing request. Use a handle from
+            <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnServiceDiscovered(Android.Net.Wifi.Aware.ServiceDiscoveryInfo)" />,
+            <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnServiceDiscoveredWithinRange(Android.Net.Wifi.Aware.ServiceDiscoveryInfo,System.Int32)" />, or
+            <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnMessageReceived(Android.Net.Wifi.Aware.PeerHandle,System.Byte[])" />.</param>
         <param name="method">one of the <see cref="T:Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods" /> values, should match one
                           of the methods received from <see cref="P:Android.Net.Wifi.Aware.ServiceDiscoveryInfo.PairingConfig" /> <see cref="P:Android.Net.Wifi.Aware.AwarePairingConfig.BootstrappingMethods" /></param>
         <param name="message">An arbitrary byte array which can be sent as service info in Service
                             Descriptor Extension attribute (SDEA) - see Wi-Fi Aware specification 9.5.4.2
-                            for more details. Recommnaded to use
-                            <see cref="M:Android.Net.Wifi.Aware.WifiAwareManager.CreateTxtRecordTlvBuffer(System.Collections.Generic.IDictionary{System.String,System.String})" /> to create key-value
+                            for more details. It is recommended to use
+                            <see cref="M:Android.Net.Wifi.Aware.WifiAwareManager.CreateTxtRecordTlvBuffer(System.Collections.Generic.IDictionary{System.String,System.String})" /> to create a key-value
                             message in DNS-SD format.</param>
         <summary>Defined as per Wi-Fi Aware specifications version 4.0 Section 7.6.4.1.</summary>
         <remarks>
-          <para>Defined as per Wi-Fi Aware specifications version 4.0 Section 7.6.4.1. Initiate a Wi-Fi Aware bootstrapping setup request to create a pairing with the target peer. The Aware bootstrapping request should be done in the context of a discovery session - after a publish/subscribe DiscoverySessionCallback.onServiceDiscovered(ServiceDiscoveryInfo) event is received. The peer will check if the method can be fulfilled by AwarePairingConfig.Builder.setBootstrappingMethods(int) When the Aware Bootstrapping setup finished, both side will receive DiscoverySessionCallback.onBootstrappingSucceeded(PeerHandle,int)</para>
+          <para>Defined as per Wi-Fi Aware specifications version 4.0 Section 7.6.4.1. Initiate the bootstrapping request for a peer in a discovery session. The peer checks whether it supports the requested method configured by <see cref="M:Android.Net.Wifi.Aware.AwarePairingConfig.Builder.SetBootstrappingMethods(Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods)" />. When bootstrapping succeeds, both peers receive <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnBootstrappingSucceeded(Android.Net.Wifi.Aware.PeerHandle,Android.Net.Wifi.Aware.AwarePairingBootstrappingMethods,System.Byte[])" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#initiateBootstrappingRequest(android.net.wifi.aware.PeerHandle,%20int,%20byte[])" title="Reference documentation">Android reference for <code>android.net.wifi.aware.DiscoverySession.initiateBootstrappingRequest</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -721,9 +722,9 @@
                               <see cref="M:Android.Net.Wifi.Aware.PublishDiscoverySession.AcceptDataPathRequest(Android.Net.Wifi.Aware.PeerHandle,Android.Net.Wifi.Aware.AwareDataPathRequest)" />
                               or <see cref="M:Android.Net.Wifi.Aware.SubscribeDiscoverySession.InitiateDataPathRequest(Android.Net.Wifi.Aware.PeerHandle,Android.Net.Wifi.Aware.AwareDataPathRequest)" /></param>
         <summary>Release the Aware data path to the specified peer.</summary>
-        <returns>true if the data path is released successfully, false otherwise.</returns>
+        <returns><c>true</c> if the release request was sent to the Wi-Fi Aware service; <c>false</c> if the session has terminated or the Wi-Fi Aware manager is unavailable. A <c>true</c> result does not confirm that the data path has disconnected.</returns>
         <remarks>
-          <para>Release the Aware data path to the specified peer. The datapath will be disconnected if no other applications are requesting it. DiscoverySessionCallback.onDataPathDisconnected(PeerHandle) will be called when the datapath is disconnected.</para>
+          <para>The service attempts to end the data paths for this peer. It can call <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnDataPathDisconnected(Android.Net.Wifi.Aware.PeerHandle)" /> before the Wi-Fi hardware confirms disconnection.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/DiscoverySession#releaseDataPath(android.net.wifi.aware.PeerHandle)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.DiscoverySession.releaseDataPath</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

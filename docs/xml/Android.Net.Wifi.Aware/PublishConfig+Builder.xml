@@ -179,11 +179,11 @@
         <Parameter Name="securityConfig" Type="Android.Net.Wifi.Aware.WifiAwareDataPathSecurityConfig" />
       </Parameters>
       <Docs>
-        <param name="securityConfig">The (optional) security config to be used to create security context Identifier. This value cannot be null.</param>
+        <param name="securityConfig">The security configuration used to create the security context identifier. This value cannot be null.</param>
         <summary>Configure security config for the Wi-Fi Aware publish session.</summary>
         <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
         <remarks>
-          <para>Configure security config for the Wi-Fi Aware publish session. The security config set here must be the same as the one used to request Wi-Fi Aware data-path connection using WifiAwareNetworkSpecifier.Builder.setDataPathSecurityConfig(WifiAwareDataPathSecurityConfig). This security config will create a security identifier (SCID) which contains a PMKID and transmitted in the publish message. The device which subscribe this session can get this info by ServiceDiscoveryInfo.getScid() This method is optional - if not called, then no security context identifier will be passed in the publish message, then no security context identifier will be provided in the ServiceDiscoveryInfo on the subscriber. Security can still be negotiated using out-of-band (OOB) mechanisms.</para>
+          <para>Configure security for the Wi-Fi Aware publish session. The configuration must match the one used to request a data path with <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetDataPathSecurityConfig(Android.Net.Wifi.Aware.WifiAwareDataPathSecurityConfig)" />. The security context identifier (SCID), which contains a PMKID, is transmitted in the publish message. The subscriber can obtain it with <see cref="M:Android.Net.Wifi.Aware.ServiceDiscoveryInfo.GetScid" />. This method is optional. If it is not called, no SCID is passed in the publish message or provided to the subscriber. Security can still be negotiated using out-of-band mechanisms.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setDataPathSecurityConfig(android.net.wifi.aware.WifiAwareDataPathSecurityConfig)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setDataPathSecurityConfig</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -257,12 +257,12 @@
       </Parameters>
       <Docs>
         <param name="enabled">true for enable instant communication mode, default is false.</param>
-        <param name="band">When setting to ScanResult.WIFI_BAND_5_GHZ, device will try to enable instant communication mode on 5Ghz, but may fall back to 2.4Ghz due to regulatory requirements. Value is one of the following: ScanResult.WIFI_BAND_24_GHZ; ScanResult.WIFI_BAND_5_GHZ</param>
+        <param name="band">The integer value of <see cref="F:Android.Net.Wifi.WifiBand.Band24Ghz" /> or <see cref="F:Android.Net.Wifi.WifiBand.Band5Ghz" />. If 5 GHz is selected, the device may fall back to 2.4 GHz due to regulatory requirements.</param>
         <summary>Configure whether to enable and use instant communication for this publish session.</summary>
         <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
         <remarks>
-          <para>Configure whether to enable and use instant communication for this publish session. Instant communication will speed up service discovery and any data-path set up as part of this session. Use Characteristics.isInstantCommunicationModeSupported() to check if the device supports this feature.</para>
-          <para>Note: due to increased power requirements of this mode - it will only remain enabled for 30 seconds from the time the discovery session is started.</para>
+          <para>Configure whether to enable and use instant communication for this publish session. Instant communication will speed up service discovery and any data-path set up as part of this session. Use <see cref="P:Android.Net.Wifi.Aware.Characteristics.IsInstantCommunicationModeSupported" /> to check if the device supports this feature.</para>
+          <para>Because instant mode uses more power, a session's request is time-limited (30 seconds by default). Updating a session can restart the limit. Other sessions can also keep instant mode enabled.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setInstantCommunicationModeEnabled(boolean,%20int)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setInstantCommunicationModeEnabled</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -351,7 +351,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="config">The pairing config set to the peer. Only valid when Characteristics.isAwarePairingSupported() is true. This value may be null.</param>
+        <param name="config">The pairing configuration advertised to the peer, or <see langword="null" />. A non-null configuration requires <see cref="P:Android.Net.Wifi.Aware.Characteristics.IsAwarePairingSupported" /> to be <see langword="true" />.</param>
         <summary>Set the AwarePairingConfig for this publish session, the peer can use this info to determine the config of the following bootstrapping, pairing setup/verification request.</summary>
         <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
         <remarks>
@@ -443,7 +443,7 @@
         <summary>Configure whether the publish discovery session supports ranging and allows peers to measure distance to it.</summary>
         <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
         <remarks>
-          <para>Configure whether the publish discovery session supports ranging and allows peers to measure distance to it. This API is used in conjunction with SubscribeConfig.Builder.setEgressDistanceMm(int) and SubscribeConfig.Builder.setIngressDistanceMm(int) to specify a minimum and/or maximum distance at which discovery will be triggered.</para>
+          <para>Configure whether the publish discovery session supports ranging and allows peers to measure distance to it. Use this API with <see cref="M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetEgressDistanceMm(System.Int32)" /> and <see cref="M:Android.Net.Wifi.Aware.SubscribeConfig.Builder.SetIngressDistanceMm(System.Int32)" /> to specify a minimum and/or maximum distance at which discovery will be triggered.</para>
           <para>Optional. Disabled by default - i.e. any peer attempt to measure distance to this device will be refused and discovery will proceed without ranging constraints.</para>
           <para>The device must support Wi-Fi RTT for this feature to be used. Feature support is checked as described in android.net.wifi.rtt.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setRangingEnabled(boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setRangingEnabled</code>.</a></format></para>
@@ -611,12 +611,12 @@
         <Parameter Name="ttlSec" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="ttlSec">Lifetime of a publish session in seconds.</param>
-        <summary>Sets the time interval (in seconds) an unsolicited ( PublishConfig.Builder.setPublishType(int)) publish session will be alive - broadcasting a packet.</summary>
+        <param name="ttlSec">Lifetime of a publish session in seconds. In the Android 8, 16, and 17 implementations, only the low 16 bits are sent to the Wi-Fi hardware; 65,536 becomes 0.</param>
+        <summary>Sets the lifetime of a publish session in seconds.</summary>
         <returns>The builder to facilitate chaining builder.setXXX(..).setXXX(..).</returns>
         <remarks>
-          <para>Sets the time interval (in seconds) an unsolicited ( PublishConfig.Builder.setPublishType(int)) publish session will be alive - broadcasting a packet. When the TTL is reached an event will be generated for DiscoverySessionCallback.onSessionTerminated() [unless setTerminateNotificationEnabled(boolean) disables the callback].</para>
-          <para>Optional. 0 by default - indicating the session doesn't terminate on its own. Session will be terminated when DiscoverySession.close() is called.</para>
+          <para>When the time limit is reached, the session terminates. The <see cref="M:Android.Net.Wifi.Aware.DiscoverySessionCallback.OnSessionTerminated" /> callback is reported unless <see cref="M:Android.Net.Wifi.Aware.PublishConfig.Builder.SetTerminateNotificationEnabled(System.Boolean)" /> disables it.</para>
+          <para>The default value is 0, which sets no time limit. Closing the discovery session also terminates it.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/PublishConfig.Builder#setTtlSec(int)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.PublishConfig.Builder.setTtlSec</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
