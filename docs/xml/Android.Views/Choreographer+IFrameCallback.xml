@@ -72,23 +72,11 @@
         <Parameter Name="frameTimeNanos" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="frameTimeNanos">The time in nanoseconds when the frame started being rendered.
-            Deprecated for use in animations in favor of <c>FrameData#getAnimationTimeNanos()</c>.</param>
+        <param name="frameTimeNanos">The adjusted frame start time, in nanoseconds. Android does not recommend using this timestamp for animations.</param>
         <summary>Called when a new display frame is being rendered.</summary>
         <remarks>
           <para>Called when a new display frame is being rendered.</para>
-          <para>This method provides the time in nanoseconds when the frame started being rendered.
-            The frame time provides a stable time base for synchronizing animations
-            and drawing.  It should be used instead of <c>SystemClock#uptimeMillis()</c>
-            or <c>System#nanoTime()</c> for animations and drawing in the UI.  Using the frame
-            time helps to reduce inter-frame jitter because the frame time is fixed at the time
-            the frame was scheduled to start, regardless of when the animations or drawing
-            callback actually runs.  All callbacks that run as part of rendering a frame will
-            observe the same frame time so using the frame time also helps to synchronize effects
-            that are performed by different callbacks.</para>
-          <para>Please note that the framework already takes care to process animations and
-            drawing using the frame time as a stable time base.  Most applications should
-            not need to use the frame time information directly.</para>
+          <para>Android previously recommended using the frame time for animations. Using it for animations can make them skip forward after late frames. Use this timestamp for frame timing, such as comparing it with the current time or frame deadlines.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/Choreographer.FrameCallback#doFrame(long)" title="Reference documentation">Java documentation for <code>android.view.Choreographer.FrameCallback.doFrame(long)</code>.</a>

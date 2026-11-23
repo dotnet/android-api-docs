@@ -770,7 +770,7 @@
       <Docs>
         <param name="keys">The config keys to retrieve values. This value cannot be null.</param>
         <summary>Gets the configuration values of the specified config keys applied for the default subscription.</summary>
-        <returns>A PersistableBundle with key/value mapping for the specified carrier configs on success, or an empty (but never null) bundle on failure.</returns>
+        <returns>A PersistableBundle with key/value mapping for the specified carrier configs. An empty bundle can be returned when a permission check fails.</returns>
         <remarks>
           <para>Gets the configuration values of the specified config keys applied for the default subscription. If the value for the key can't be found, the returned bundle will filter the key out. After using this method to get the configuration bundle, isConfigForIdentifiedCarrier(PersistableBundle) should be called to confirm whether any carrier specific configuration has been applied. Note that on success, the key/value for KEY_CARRIER_CONFIG_VERSION_STRING and KEY_CARRIER_CONFIG_APPLIED_BOOL are always in the returned bundle, no matter if they were explicitly requested. Requires Permission: READ_PHONE_STATE, or the calling app has carrier privileges for the default subscription (see TelephonyManager.hasCarrierPrivileges() ). Requires Manifest.permission.READ_PHONE_STATE or carrier privileges</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#getConfig(java.lang.String[])" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.getConfig</code>.</a></format></para>
@@ -943,7 +943,7 @@
         <param name="subId">The subscription ID on which the carrier config should be retrieved.</param>
         <param name="keys">The carrier config keys to retrieve values. This value cannot be null.</param>
         <summary>Gets the configuration values of the specified keys for a particular subscription.</summary>
-        <returns>A PersistableBundle with key/value mapping for the specified configuration on success, or an empty (but never null) bundle on failure (for example, when the calling app has no permission).</returns>
+        <returns>A PersistableBundle with key/value mapping for the specified configuration. An empty bundle can be returned when a permission check fails.</returns>
         <remarks>
           <para>Gets the configuration values of the specified keys for a particular subscription. If an invalid subId is used, the returned configuration will contain default values for the specified keys. If the value for the key can't be found, the returned configuration will filter the key out. After using this method to get the configuration bundle, isConfigForIdentifiedCarrier(PersistableBundle) should be called to confirm whether any carrier specific configuration has been applied. Note that on success, the key/value for KEY_CARRIER_CONFIG_VERSION_STRING and KEY_CARRIER_CONFIG_APPLIED_BOOL are always in the returned bundle, no matter if they were explicitly requested. Requires Permission: READ_PHONE_STATE, or the calling app has carrier privileges on the specified subscription (see TelephonyManager.hasCarrierPrivileges() ). Requires Manifest.permission.READ_PHONE_STATE or carrier privileges</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#getConfigForSubId(int,%20java.lang.String[])" title="Reference documentation">Android reference for <code>android.telephony.CarrierConfigManager.getConfigForSubId</code>.</a></format></para>
@@ -1398,7 +1398,7 @@
             call or when there is an ongoing call on wifi which was downgraded from video and VoWifi is
             turned off.</summary>
         <remarks>
-          <para>When true, indicates that adding a call is disabled when there is an ongoing video call
+          <para>When false, indicates that adding a call is disabled when there is an ongoing video call
             or when there is an ongoing call on wifi which was downgraded from video and VoWifi is
             turned off.</para>
           <para>
@@ -12166,8 +12166,7 @@
             integer arrays of earfcns in the corresponding regions.
 
             An example config for two regions "1" and "2":</para>
-          <code lang="text/java">{@code
-            &lt;carrier_config&gt;
+          <code lang="text/xml">&lt;carrier_config&gt;
               &lt;pbundle_as_map name="regional_satellite_earfcn_bundle"&gt;
                 &lt;int-array name = "1" num = "2"&gt;
                   &lt;item value = "100"/&gt;
@@ -12177,8 +12176,7 @@
                   &lt;item value = "200"/&gt;
                 &lt;/int-array&gt;
               &lt;/pbundle_as_map&gt;
-            &lt;/carrier_config&gt;
-            }</code>
+            &lt;/carrier_config&gt;</code>
           <para>This config is empty by default.</para>
           <para>
             <format type="text/html">
@@ -12684,7 +12682,8 @@
         <remarks>
           <para>A PersistableBundle that contains a list of key-value pairs, where keys are satellite provider PLMNs and values are bundles containing satellite configurations for that PLMN. This allows for per-provider settings within a single carrier, which is necessary for hybrid scenarios where a carrier supports multiple satellite networks with different capabilities (e.g., AST and Skylo).</para>
           <para>The keys in this bundle are PLMNs of satellite providers as strings. The values are PersistableBundles containing some of the existing satellite configurations for that PLMN.</para>
-          <code lang="text/java">&lt;pbundle_as_map name="satellite_configs_per_plmn_bundle"&gt;
+          <para>The documented configuration keys are <see cref="F:Android.Telephony.CarrierConfigManager.KeyCarrierRoamingNtnEmergencyCallToSatelliteHandoverTypeInt" />, <see cref="F:Android.Telephony.CarrierConfigManager.KeyCarrierRoamingNtnConnectTypeInt" />, <c>satellite_technology_type_int_array</c>, and <c>satellite_supported_frequencies_type_int_array</c>.</para>
+          <code lang="text/xml">&lt;pbundle_as_map name="satellite_configs_per_plmn_bundle"&gt;
     &lt;!-- AST PLMN's satellite configurations --&gt;
     &lt;pbundle_as_map name="XXXXXX"&gt;
         &lt;!-- SatelliteManager#EMERGENCY_CALL_TO_SATELLITE_HANDOVER_TYPE_T911 --&gt;
@@ -12697,7 +12696,7 @@
             &lt;item value="2" /&gt;
         &lt;/int-array&gt;
         &lt;!-- CarrierConfigManager#KEY_SATELLITE_SUPPORTED_FREQUENCIES_INT_ARRAY --&gt;
-        &lt;int-array name="satellite_supported_frequencies_int_array" num="2"&gt;
+        &lt;int-array name="satellite_supported_frequencies_type_int_array" num="2"&gt;
             &lt;item value="229015" /&gt;
             &lt;item value="229016" /&gt;
         &lt;/int-array&gt;
@@ -12745,9 +12744,9 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Satellite notification display restriction reset time in seconds.</summary>
+        <summary>Satellite notification display restriction reset time in milliseconds.</summary>
         <remarks>
-          <para>Satellite notification display restriction reset time in seconds.</para>
+          <para>Satellite notification display restriction reset time in milliseconds.</para>
           <para>The device shows a notification when it connects to a satellite.  If the user interacts
             with the notification, it won't be shown again immediately.  Instead, the notification
             will only reappear after below key mentioned amount of time has passed.</para>
@@ -13116,7 +13115,7 @@
             If the carrier would like to allow the device to use satellite connection when data roaming
             is off, this key should be set to <c>true</c>.
 
-            The default value is <c>false</c> i.e. disallow satellite data when data roaming is off.</para>
+            The default value can differ by Android version.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/telephony/CarrierConfigManager#KEY_SATELLITE_IGNORE_DATA_ROAMING_SETTING_BOOL" title="Reference documentation">Java documentation for <code>android.telephony.CarrierConfigManager.KEY_SATELLITE_IGNORE_DATA_ROAMING_SETTING_BOOL</code>.</a>

@@ -4212,6 +4212,8 @@
         <remarks>
           <para>Specifies the process that the backup agent will run in.</para>
           <para>Must be one of the following constant values.</para>
+          <para><c>main</c> (0): The application's default main process, which runs under the application's regular UID.</para>
+          <para><c>privateComputeCore</c> (1): The application's private compute core process.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/R.attr#backupAgentProcess" title="Reference documentation">Android reference for <code>android.R.attr.backupAgentProcess</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -23287,7 +23289,7 @@
       <MemberValue>16844478</MemberValue>
       <Docs>
         <summary>Attribute that sets the base memory budget, in mebibytes (MiB).</summary>
-        <remarks>When supplied, this attribute must be a positive integer. The budget combines this base amount with any configured display-based additions.</remarks>
+        <remarks>For a supported budget, the manifest parser requires a positive integer for this attribute. The budget combines this base amount with any configured display-based additions.</remarks>
       </Docs>
     </Member>
     <Member MemberName="MaxRecents">
@@ -24343,9 +24345,9 @@
       </ReturnValue>
       <MemberValue>16844462</MemberValue>
       <Docs>
-        <summary>If true, the system does not initialize the Android Runtime in the process that runs the service.</summary>
+        <summary>When enabled for a service with an isolated process, the system does not initialize the Android Runtime in that process.</summary>
         <remarks>
-          <para>If true, the system does not initialize the Android Runtime in the process that runs the service. Instead the system loads a library named libmain.so into the process and then starts the service from a function named ANativeService_onCreate in the library. The library and function names can be configured by setting the properties PackageManager.PROPERTY_NATIVE_SERVICE_LIBRARY_NAME and PackageManager.PROPERTY_NATIVE_SERVICE_FUNCTION_NAME respectively.</para>
+          <para>When enabled for a service with an isolated process, the system does not initialize the Android Runtime in that process. Instead the system loads a library named libmain.so into the process and then starts the service from a function named ANativeService_onCreate in the library. The library and function names can be configured by setting the properties PackageManager.PROPERTY_NATIVE_SERVICE_LIBRARY_NAME and PackageManager.PROPERTY_NATIVE_SERVICE_FUNCTION_NAME respectively.</para>
           <para>Attempts to start services that enable this attribute may fail in system running older Android version than that this feature is introduced. Users must check the API level before starting the services.</para>
           <para>This flag is ignored if isolatedProcess is false or isn't specified.</para>
           <para>May be a boolean value, such as "true" or "false".</para>
@@ -34821,7 +34823,7 @@
       <MemberValue>16844479</MemberValue>
       <Docs>
         <summary>Value of the process state that this memory budget should apply to.</summary>
-        <remarks>The defined state codes are foreground (100), perceptible (200), and background (300). The manifest parser selects foreground when the attribute is absent. A budget can also apply to a less important state when no budget exists for that state.</remarks>
+        <remarks>The defined state codes are foreground (100), perceptible (200), and background (300). The manifest parser selects foreground when the attribute is absent. For a process, a budget with a matching or unspecified feature applies when its declared state is at least as important as the process's state.</remarks>
       </Docs>
     </Member>
     <Member MemberName="StateAboveAnchor">

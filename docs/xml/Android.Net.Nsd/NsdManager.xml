@@ -190,9 +190,9 @@
         <param name="resultReceiver">The <c>IntConsumer</c> to receive the permission check result code;
                                   will be either <see cref="F:Android.Net.Nsd.PermissionCheckCode.Granted" /> or
                                   <see cref="F:Android.Net.Nsd.PermissionCheckCode.Denied" />.</param>
-        <summary>Check whether the caller can register service info callbacks or resolve a service.</summary>
+        <summary>Checks whether the caller has stored approval for a service.</summary>
         <remarks>
-          <para>Check whether the caller can register service info callbacks or resolve a service.</para>
+          <para>Checks whether the caller has stored approval for a service. This does not check all permissions that can allow access.</para>
           <para>Starting from target SDK Build.VERSION_CODES.CINNAMON_BUN, unless apps have the Manifest.permission.ACCESS_LOCAL_NETWORK permission, they can only register service info callbacks or resolve services that were selected in a UI picker, as per DiscoveryRequest.FLAG_SHOW_PICKER.</para>
           <para>The system will remember whether a user has selected a service in the past, but access may be revoked for storage reasons or by the user. This method allows checking whether access to the service was granted in the picker and not revoked.</para>
           <para>The resultReceiver will be called using the provided Executor with either SERVICE_PERMISSION_GRANTED or SERVICE_PERMISSION_DENIED.</para>
@@ -1207,7 +1207,7 @@
         <param name="listener">to receive callback upon success or failure. This value cannot be null.</param>
         <summary>Resolve a discovered service.</summary>
         <remarks>
-          <para>This method was deprecated in API level 34. the returned ServiceInfo may get stale at any time after resolution, including immediately after the callback is called, and may not contain some service information that could be delivered later, like additional host addresses. Prefer using registerServiceInfoCallback(DiscoveryRequest, Executor, ServiceInfoCallback), which will keep the application up-to-date with the state of the service.</para>
+          <para>This method was deprecated in API level 34. The returned ServiceInfo may get stale at any time after resolution, including immediately after the callback is called, and may not contain some service information that could be delivered later, like additional host addresses. Prefer using <see cref="M:Android.Net.Nsd.NsdManager.RegisterServiceInfoCallback(Android.Net.Nsd.NsdServiceInfo,Java.Util.Concurrent.IExecutor,Android.Net.Nsd.NsdManager.IServiceInfoCallback)" />, which will keep the application up-to-date with the state of the service.</para>
           <para>Resolve a discovered service. An application can resolve a service right before establishing a connection to fetch the IP and port details on which to setup the connection.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#resolveService(android.net.nsd.NsdServiceInfo,%20java.util.concurrent.Executor,%20android.net.nsd.NsdManager.ResolveListener)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.resolveService</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1243,9 +1243,9 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>Indicates the caller is not allowed to register service info callbacks or resolve a service.</summary>
+        <summary>Indicates that the check did not report stored approval for the service.</summary>
         <remarks>
-          <para>Indicates the caller is not allowed to register service info callbacks or resolve a service.</para>
+          <para>Indicates that the check did not report stored approval for the service. An independent local network permission can still allow access.</para>
           <para>This is a result code for checkPermissionForService(String,String,Executor,IntConsumer).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#SERVICE_PERMISSION_DENIED" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.SERVICE_PERMISSION_DENIED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1281,9 +1281,9 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>Indicates the caller can register service info callbacks or resolve a service.</summary>
+        <summary>Indicates that the check found stored approval for the service.</summary>
         <remarks>
-          <para>Indicates the caller can register service info callbacks or resolve a service.</para>
+          <para>Indicates that the check found stored approval for the service.</para>
           <para>This is a result code for checkPermissionForService(String,String,Executor,IntConsumer).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#SERVICE_PERMISSION_GRANTED" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.SERVICE_PERMISSION_GRANTED</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1358,10 +1358,10 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IResolveListener" />
       </Parameters>
       <Docs>
-        <param name="listener">This should be a listener object that was passed to resolveService(NsdServiceInfo, ResolveListener). It identifies the resolution that should be stopped and notifies of a successful or unsuccessful stop. This value cannot be null.</param>
-        <summary>Stop service resolution initiated with resolveService(NsdServiceInfo, ResolveListener).</summary>
+        <param name="listener">The listener passed to <c>ResolveService</c>. It identifies the resolution that should be stopped and notifies of a successful or unsuccessful stop. This value cannot be null.</param>
+        <summary>Stop service resolution initiated with <c>ResolveService</c>.</summary>
         <remarks>
-          <para>Stop service resolution initiated with resolveService(NsdServiceInfo, ResolveListener). A successful stop is notified with a call to ResolveListener.onResolutionStopped.</para>
+          <para>Stop service resolution initiated with <c>ResolveService</c>. A successful stop is notified with a call to ResolveListener.onResolutionStopped.</para>
           <para>Upon failure to stop service resolution for example if resolution is done or the requester stops resolution repeatedly, the application is notified ResolveListener.onStopResolutionFailed with FAILURE_OPERATION_NOT_RUNNING</para>
           <para>If the listener is not already registered, for apps running on devices with T SDK extension &lt; 22, this will throw with IllegalArgumentException.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#stopServiceResolution(android.net.nsd.NsdManager.ResolveListener)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.stopServiceResolution</code>.</a></format></para>
@@ -1500,10 +1500,10 @@
         <Parameter Name="listener" Type="Android.Net.Nsd.NsdManager+IServiceInfoCallback" />
       </Parameters>
       <Docs>
-        <param name="listener">This should be a listener object that was passed to registerServiceInfoCallback(DiscoveryRequest, Executor, ServiceInfoCallback). It identifies the registration that should be unregistered and notifies of a successful or unsuccessful stop. This value cannot be null.</param>
-        <summary>Unregister a callback registered with registerServiceInfoCallback(DiscoveryRequest, Executor, ServiceInfoCallback).</summary>
+        <param name="listener">The listener passed to <c>RegisterServiceInfoCallback</c>. It identifies the registration to unregister and notifies of a successful or unsuccessful stop. This value cannot be null.</param>
+        <summary>Unregister a callback registered with <c>RegisterServiceInfoCallback</c>.</summary>
         <remarks>
-          <para>Unregister a callback registered with registerServiceInfoCallback(DiscoveryRequest, Executor, ServiceInfoCallback). A successful unregistration is notified with a call to ServiceInfoCallback.onServiceInfoCallbackUnregistered. The same callback can only be reused after this is called.</para>
+          <para>Unregister a callback registered with <c>RegisterServiceInfoCallback</c>. A successful unregistration is notified with a call to ServiceInfoCallback.onServiceInfoCallbackUnregistered. The same callback can only be reused after this is called.</para>
           <para>If the listener is not already registered, for apps running on devices with T SDK extension &lt; 22, this will throw with IllegalArgumentException.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager#unregisterServiceInfoCallback(android.net.nsd.NsdManager.ServiceInfoCallback)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.unregisterServiceInfoCallback</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>

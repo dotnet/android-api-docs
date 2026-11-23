@@ -48,7 +48,7 @@
           <para>The confidence value is an estimate of correctness for this sample. It is encoded in the 3 most significant bits of the sample, with a value of 0 representing 100% confidence, a value of 1 representing 0% confidence, a value of 2 representing 1/7, a value of 3 representing 2/7, and so on.</para>
           <para>As an example, the following sample extracts the range and confidence from the first pixel of a DEPTH16-format Image, and converts the confidence to a floating-point value between 0 and 1.f inclusive, with 1.f representing maximum confidence:</para>
           <code lang="text/java">ShortBuffer shortDepthBuffer = img.getPlanes()[0].getBuffer().asShortBuffer();
-short depthSample = shortDepthBuffer.get()
+short depthSample = shortDepthBuffer.get();
 short depthRange = (short) (depthSample &amp; 0x1FFF);
 short depthConfidence = (short) ((depthSample &gt;&gt; 13) &amp; 0x7);
 float depthPercentage = depthConfidence == 0 ? 1.f : (depthConfidence - 1) / 7.f;</code>
