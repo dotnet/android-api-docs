@@ -371,7 +371,7 @@
         <param name="bg">The background color.  If 0, no background.  Currently must
             be black, with any desired alpha level.</param>
         <summary>Returns the background color behind the animation. -or- Set background behind animation.</summary>
-        <value>The background color behind the animation. A value of 0 means no background; otherwise, the color must currently be black with any desired alpha level.</value>
+        <value>The background color behind the animation, or 0 for no background. On Android 11 through 16, the base implementation always returns 0 and ignores changes.</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Returns the background color behind the animation.</para>
@@ -514,13 +514,11 @@
       </ReturnValue>
       <Docs>
         <param name="detachWallpaper">true if the wallpaper should be detached from the animation</param>
-        <summary>Return value of <c>#setDetachWallpaper(boolean)</c>. -or- If detachWallpaper is true, and this is a window animation of a window
-            that has a wallpaper background, then the window will be detached from
-            the wallpaper while it runs.</summary>
-        <value>true if the wallpaper is detached from the animation; otherwise, false.</value>
+        <summary>Gets or sets whether to detach the wallpaper during a window animation.</summary>
+        <value>Whether the wallpaper should be detached. On Android 10 through 16, the base implementation always returns <see langword="true" /> and ignores changes.</value>
         <remarks>
           <para>Property getter documentation:</para>
-          <para>Return value of <c>#setDetachWallpaper(boolean)</c>.</para>
+          <para>Gets whether to detach the wallpaper during a window animation.</para>
           <para>This member is deprecated. All window animations are running with detached wallpaper.</para>
           <para>
             <format type="text/html">
@@ -528,7 +526,7 @@
             </format>
           </para>
           <para>Property setter documentation:</para>
-          <para>If detachWallpaper is true, and this is a window animation of a window
+          <para>On versions where this property takes effect, if detachWallpaper is true, and this is a window animation of a window
             that has a wallpaper background, then the window will be detached from
             the wallpaper while it runs.  That is, the animation will only be applied
             to the window, and the wallpaper behind it will remain static.</para>
