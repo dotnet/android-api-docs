@@ -263,9 +263,9 @@
       </Parameters>
       <Docs>
         <param name="canvas">The canvas to draw into. This value cannot be null.</param>
-        <summary>Draw in its bounds (set via setBounds) respecting optional effects such as alpha (set via setAlpha) and color filter (set via setColorFilter).</summary>
+        <summary>Draws the icon layers through the icon mask.</summary>
         <remarks>
-          <para>Draw in its bounds (set via setBounds) respecting optional effects such as alpha (set via setAlpha) and color filter (set via setColorFilter).</para>
+          <para>Alpha is applied to the masked icon. The effect of a color filter depends on each layer's implementation.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/drawable/AdaptiveIconDrawable#draw(android.graphics.Canvas)" title="Reference documentation">Android reference for <code>android.graphics.drawable.AdaptiveIconDrawable.draw</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -437,9 +437,9 @@
       </Parameters>
       <Docs>
         <param name="who">The drawable passed to this callback; the default implementation does not use this argument.</param>
-        <summary>Called when the drawable needs to be redrawn.</summary>
+        <summary>Requests invalidation of this drawable.</summary>
         <remarks>
-          <para>Called when the drawable needs to be redrawn. A view at this point should invalidate itself (or at least the part of itself where the drawable appears).</para>
+          <para>When forwarded to the callback, the invalidation identifies this drawable rather than <paramref name="who" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/drawable/AdaptiveIconDrawable#invalidateDrawable(android.graphics.drawable.Drawable)" title="Reference documentation">Android reference for <code>android.graphics.drawable.AdaptiveIconDrawable.invalidateDrawable</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -629,9 +629,9 @@
         <param name="who">The drawable passed to this callback; the default implementation does not use this argument.</param>
         <param name="what">The runnable to schedule.</param>
         <param name="when">The time (in milliseconds) to run. The timebase is SystemClock.uptimeMillis()</param>
-        <summary>A Drawable can call this to schedule the next frame of its animation.</summary>
+        <summary>Forwards a scheduling request to this drawable's callback, if one is attached.</summary>
         <remarks>
-          <para>A Drawable can call this to schedule the next frame of its animation. An implementation can generally simply call android.os.Handler.postAtTime(Runnable,Object,long) with the parameters (what, who, when) to perform the scheduling.</para>
+          <para>The callback receives this drawable instead of <paramref name="who" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/drawable/AdaptiveIconDrawable#scheduleDrawable(android.graphics.drawable.Drawable,%20java.lang.Runnable,%20long)" title="Reference documentation">Android reference for <code>android.graphics.drawable.AdaptiveIconDrawable.scheduleDrawable</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -700,13 +700,10 @@
         <Parameter Name="colorFilter" Type="Android.Graphics.ColorFilter" />
       </Parameters>
       <Docs>
-        <param name="colorFilter">The color filter to apply, or null to remove the existing color filter</param>
-        <summary>Specify an optional color filter for the drawable.</summary>
+        <param name="colorFilter">The color filter to pass to each layer, or null to request that each layer clear its filter.</param>
+        <summary>Passes a color filter to the icon layers.</summary>
         <remarks>
-          <para>Specify an optional color filter for the drawable.</para>
-          <para>If a Drawable has a ColorFilter, each output pixel of the Drawable's drawing contents will be modified by the color filter before it is blended onto the render target of a Canvas.</para>
-          <para>Pass null to remove any existing color filter.</para>
-          <para>Note: Setting a non-null color filter disables tint.</para>
+          <para>The effect depends on each layer's implementation.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/drawable/AdaptiveIconDrawable#setColorFilter(android.graphics.ColorFilter)" title="Reference documentation">Android reference for <code>android.graphics.drawable.AdaptiveIconDrawable.setColorFilter</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -853,9 +850,9 @@
       <Docs>
         <param name="who">The drawable passed to this callback; the default implementation does not use this argument.</param>
         <param name="what">The runnable to unschedule.</param>
-        <summary>A Drawable can call this to unschedule an action previously scheduled with scheduleDrawable(Drawable, Runnable, long).</summary>
+        <summary>Forwards an unscheduling request to this drawable's callback, if one is attached.</summary>
         <remarks>
-          <para>A Drawable can call this to unschedule an action previously scheduled with scheduleDrawable(Drawable, Runnable, long). An implementation can generally simply call android.os.Handler.removeCallbacks(Runnable,Object) with the parameters (what, who) to unschedule the drawable.</para>
+          <para>The callback receives this drawable instead of <paramref name="who" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/graphics/drawable/AdaptiveIconDrawable#unscheduleDrawable(android.graphics.drawable.Drawable,%20java.lang.Runnable)" title="Reference documentation">Android reference for <code>android.graphics.drawable.AdaptiveIconDrawable.unscheduleDrawable</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
