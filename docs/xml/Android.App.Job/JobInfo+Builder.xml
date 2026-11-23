@@ -659,8 +659,8 @@ public class PhotosContentJob extends JobService {
         <Parameter Name="uploadBytes" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="downloadBytes">The estimated size of network traffic that will be downloaded by this job, in bytes. Value is a non-negative number of bytes.</param>
-        <param name="uploadBytes">The estimated size of network traffic that will be uploaded by this job, in bytes. Value is a non-negative number of bytes.</param>
+        <param name="downloadBytes">The estimated size of network traffic that will be downloaded by this job, in bytes. Use a non-negative value, or <see cref="F:Android.App.Job.JobInfo.NetworkBytesUnknown" /> if unknown.</param>
+        <param name="uploadBytes">The estimated size of network traffic that will be uploaded by this job, in bytes. Use a non-negative value, or <see cref="F:Android.App.Job.JobInfo.NetworkBytesUnknown" /> if unknown.</param>
         <summary>Set the estimated size of network traffic that will be performed by this job, in bytes.</summary>
         <returns>This builder instance.</returns>
         <remarks>
@@ -882,7 +882,7 @@ public class PhotosContentJob extends JobService {
         <Parameter Name="chunkSizeBytes" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="chunkSizeBytes">The smallest piece of data that cannot be easily paused and resumed, in bytes. Value is a non-negative number of bytes.</param>
+        <param name="chunkSizeBytes">The smallest piece of data that cannot be easily paused and resumed, in bytes. Use a positive value, or <see cref="F:Android.App.Job.JobInfo.NetworkBytesUnknown" /> if unknown.</param>
         <summary>Set the minimum size of non-resumable network traffic this job requires, in bytes.</summary>
         <returns>This builder instance.</returns>
         <remarks>
@@ -1068,7 +1068,7 @@ public class PhotosContentJob extends JobService {
         <returns>This builder instance.</returns>
         <remarks>
           <para>Setting this to true indicates that this job is designed to prefetch content that will make a material improvement to the experience of the specific user of this device. For example, fetching top headlines of interest to the current user.</para>
-          <para>Apps targeting Android version Build.VERSION_CODES.TIRAMISU or later are not allowed to have deadlines (set via setOverrideDeadline(long) on their prefetch jobs.</para>
+          <para>Apps targeting Android version Build.VERSION_CODES.TIRAMISU or later are not allowed to have deadlines (set via setOverrideDeadline(long)) on their prefetch jobs.</para>
           <para>The system may use this signal to relax the network constraints you originally requested, such as allowing a JobInfo.NETWORK_TYPE_UNMETERED job to run over a metered network when there is a surplus of metered data available. The system may also use this signal in combination with end user usage patterns to ensure data is prefetched before the user launches your app.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setPrefetch(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setPrefetch</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1298,7 +1298,7 @@ public class PhotosContentJob extends JobService {
         <summary>When set true, ensure that this job will not run if the device is in active use.</summary>
         <returns>This builder instance.</returns>
         <remarks>
-          <para>When set true, ensure that this job will not run if the device is in active use. The default state is false: that is, the for the job to be runnable even when someone is interacting with the device. Setting this to false DOES NOT mean the job will only run when the device is not idle.</para>
+          <para>When set true, ensure that this job will not run if the device is in active use. The default state is false: that is, the job can run even when someone is interacting with the device. Setting this to false DOES NOT mean the job will only run when the device is not idle.</para>
           <para>This state is a loose definition provided by the system. In general, it means that the device is not currently being used interactively, and has not been in use for some time. As such, it is a good time to perform resource heavy jobs. Bear in mind that battery usage will still be attributed to your application, and surfaced to the user in battery stats.</para>
           <para>Despite the similar naming, this job constraint is not related to the system's "device idle" or "doze" states. This constraint only determines whether a job is allowed to run while the device is directly in use.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/job/JobInfo.Builder#setRequiresDeviceIdle(boolean)" title="Reference documentation">Android reference for <code>android.app.job.JobInfo.Builder.setRequiresDeviceIdle</code>.</a></format></para>
