@@ -200,9 +200,9 @@
       </Parameters>
       <Docs>
         <param name="parcel">The parcel that supplies the data.</param>
-        <param name="offset">The starting offset.</param>
-        <param name="length">The number of values to process.</param>
-        <summary>Appends data from another parcel.</summary>
+        <param name="offset">The byte offset in the source parcel.</param>
+        <param name="length">The number of bytes to copy.</param>
+        <summary>Copies data from another parcel at the current data position.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
           <para>
@@ -498,7 +498,7 @@
         <param name="cls">the Class object for the target array type. (e.g. int[][].class)</param>
         <param name="dimensions">an array of int representing length of each dimension.</param>
         <summary>Read and return a new multi-dimensional array from a parcel.</summary>
-        <returns>The newly created fixed array.</returns>
+        <returns>The newly created fixed array, or <see langword="null" /> if the previously written array was null.</returns>
         <remarks>
           <para>Read and return a new multi-dimensional array from a parcel.  Returns null if the
             previously written array object is null.  If you want to read Parcelable or
@@ -570,10 +570,10 @@
         <param name="cls">the Class object for the target array type. (e.g. Foo[][].class). This value cannot be null.</param>
         <param name="c">The value cannot be null.</param>
         <param name="dimensions">an array of int representing length of each dimension. This value cannot be null.</param>
-        <summary>Read and return a new multi-dimensional array of typed parcelables from a parcel. Returns null if the previously written array object is null. If you want to read IInterface values, use createFixedArray(Class,Function,int[]) . For values of other types use createFixedArray(Class,int[]) .</summary>
-        <returns>The newly created fixed array.</returns>
+        <summary>Read and return a new multi-dimensional array of typed parcelables from a parcel. Returns null if the previously written array object is null. For interface values, use <see cref="M:Android.OS.Parcel.CreateFixedArray(Java.Lang.Class,Java.Util.Functions.IFunction,System.Int32[])" />. For values of other types, use <see cref="M:Android.OS.Parcel.CreateFixedArray(Java.Lang.Class,System.Int32[])" />.</summary>
+        <returns>The newly created fixed array, or <see langword="null" /> if the previously written array was null.</returns>
         <remarks>
-          <para>Read and return a new multi-dimensional array of typed parcelables from a parcel. Returns null if the previously written array object is null. If you want to read IInterface values, use createFixedArray(Class,Function,int[]) . For values of other types use createFixedArray(Class,int[]) .</para>
+          <para>Read and return a new multi-dimensional array of typed parcelables from a parcel. Returns null if the previously written array object is null. For interface values, use <see cref="M:Android.OS.Parcel.CreateFixedArray(Java.Lang.Class,Java.Util.Functions.IFunction,System.Int32[])" />. For values of other types, use <see cref="M:Android.OS.Parcel.CreateFixedArray(Java.Lang.Class,System.Int32[])" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Parcel#createFixedArray(java.lang.Class%3CT%3E,%20android.os.Parcelable.Creator%3CS%3E,%20int[])" title="Reference documentation">Java documentation for <code>android.os.Parcel.createFixedArray(java.lang.Class&lt;T&gt;, android.os.Parcelable.Creator&lt;S&gt;, int[])</code>.</a>
@@ -637,7 +637,7 @@
         <param name="cls">the Class object for the target array type. (e.g. IFoo[][].class)</param>
         <param name="dimensions">an array of int representing length of each dimension.</param>
         <summary>Read and return a new multi-dimensional array of typed interfaces from a parcel.</summary>
-        <returns>The newly created fixed array.</returns>
+        <returns>The newly created fixed array, or <see langword="null" /> if the previously written array was null.</returns>
         <remarks>
           <para>Read and return a new multi-dimensional array of typed interfaces from a parcel.
             Returns null if the previously written array object is null.  If you want to read
@@ -2121,7 +2121,7 @@
         <Parameter Name="list" Type="System.Collections.Generic.IList&lt;Android.OS.IBinder&gt;" />
       </Parameters>
       <Docs>
-        <param name="list">The value cannot be null.</param>
+        <param name="list">The destination list. This value cannot be null. Use a <see cref="T:Android.Runtime.JavaList`1" /> with <see cref="T:Android.OS.IBinder" /> elements. Other lists are copied for the Java call, so the supplied list is not updated.</param>
         <summary>Read into the given List items IBinder objects that were written with
             <c>#writeBinderList</c> at the current dataPosition().</summary>
         <remarks>
@@ -2779,9 +2779,9 @@
       <Docs>
         <param name="val">the destination array to hold the read values. This value cannot be null.</param>
         <param name="c">The value cannot be null.</param>
-        <summary>Read a new multi-dimensional array of typed parcelables from a parcel. If you want to read IInterface values, use readFixedArray(Object,Function) . For values of other types, use readFixedArray(Object) .</summary>
+        <summary>Read typed parcelables from a parcel into the supplied array. For interface values, use <see cref="M:Android.OS.Parcel.ReadFixedArray(Java.Lang.Object,Java.Util.Functions.IFunction)" />. For values of other types, use <see cref="M:Android.OS.Parcel.ReadFixedArray(Java.Lang.Object)" />.</summary>
         <remarks>
-          <para>Read a new multi-dimensional array of typed parcelables from a parcel. If you want to read IInterface values, use readFixedArray(Object,Function) . For values of other types, use readFixedArray(Object) .</para>
+          <para>Read typed parcelables from a parcel into the supplied array. For interface values, use <see cref="M:Android.OS.Parcel.ReadFixedArray(Java.Lang.Object,Java.Util.Functions.IFunction)" />. For values of other types, use <see cref="M:Android.OS.Parcel.ReadFixedArray(Java.Lang.Object)" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Parcel#readFixedArray(T,%20android.os.Parcelable.Creator%3CS%3E)" title="Reference documentation">Java documentation for <code>android.os.Parcel.readFixedArray(T, android.os.Parcelable.Creator&lt;S&gt;)</code>.</a>
@@ -3224,7 +3224,7 @@
         <Parameter Name="asInterface" Type="Java.Util.Functions.IFunction" />
       </Parameters>
       <Docs>
-        <param name="list">The value cannot be null.</param>
+        <param name="list">The destination list. This value cannot be null. Use a <see cref="T:Android.Runtime.JavaList" />. Other lists are copied for the Java call, so the supplied list is not updated.</param>
         <param name="asInterface">The value cannot be null.</param>
         <summary>Read into the given List items IInterface objects that were written with
             <c>#writeInterfaceList</c> at the current dataPosition().</summary>
@@ -3283,7 +3283,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="outVal">The value cannot be null.</param>
+        <param name="outVal">The destination list. This value cannot be null. Use a <see cref="T:Android.Runtime.JavaList" />. Other lists are copied for the Java call, so the supplied list is not updated.</param>
         <param name="loader">The value may be null.</param>
         <summary>Read into an existing List object from the parcel at the current
             dataPosition(), using the given class loader to load any enclosed
@@ -3355,7 +3355,7 @@
         <Parameter Name="clazz" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
-        <param name="outVal">The value cannot be null.</param>
+        <param name="outVal">The destination list. This value cannot be null. Use a <see cref="T:Android.Runtime.JavaList" />. Other lists are copied for the Java call, so the supplied list is not updated.</param>
         <param name="loader">The value may be null.</param>
         <param name="clazz">The value cannot be null.</param>
         <summary>Same as <c>#readList(List, ClassLoader)</c> but accepts <c>clazz</c> parameter as
@@ -3500,7 +3500,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="outVal">The value cannot be null.</param>
+        <param name="outVal">The destination dictionary. This value cannot be null. Use a <see cref="T:Android.Runtime.JavaDictionary" />. Other dictionaries are copied for the Java call, so the supplied dictionary is not updated.</param>
         <param name="loader">The value may be null.</param>
         <summary>Please use <c>#readBundle(ClassLoader)</c> instead (whose data must have
             been written with <c>#writeBundle</c>.</summary>
@@ -3570,7 +3570,7 @@
         <Parameter Name="clazzValue" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
-        <param name="outVal">The value cannot be null.</param>
+        <param name="outVal">The destination dictionary. This value cannot be null. Use a <see cref="T:Android.Runtime.JavaDictionary" />. Other dictionaries are copied for the Java call, so the supplied dictionary is not updated.</param>
         <param name="loader">The value may be null.</param>
         <param name="clazzKey">The value cannot be null.</param>
         <param name="clazzValue">The value cannot be null.</param>
@@ -3943,10 +3943,10 @@
       <Docs>
         <param name="loader">The value may be null.</param>
         <param name="clazz">The value cannot be null.</param>
-        <summary>Same as readParcelableCreator(ClassLoader) but accepts clazz parameter as the required type.</summary>
+        <summary>Same as <see cref="M:Android.OS.Parcel.ReadParcelableCreator(Java.Lang.ClassLoader)" />, but accepts the <paramref name="clazz" /> parameter as the required type.</summary>
         <returns>The returned value may be null.</returns>
         <remarks>
-          <para>Same as readParcelableCreator(ClassLoader) but accepts clazz parameter as the required type.</para>
+          <para>Same as <see cref="M:Android.OS.Parcel.ReadParcelableCreator(Java.Lang.ClassLoader)" />, but accepts the <paramref name="clazz" /> parameter as the required type.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/os/Parcel#readParcelableCreator(java.lang.ClassLoader,%20java.lang.Class%3CT%3E)" title="Reference documentation">Java documentation for <code>android.os.Parcel.readParcelableCreator(java.lang.ClassLoader, java.lang.Class&lt;T&gt;)</code>.</a>
@@ -4003,7 +4003,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="list">The value cannot be null.</param>
+        <param name="list">The destination list. This value cannot be null. If it is not a <see cref="T:Android.Runtime.JavaList" />, a copy is used for the Java call and the supplied list is not updated; use the return value instead.</param>
         <param name="cl">The value may be null.</param>
         <summary>Read the list of <c>Parcelable</c> objects at the current data position into the
             given <c>list</c>.</summary>
@@ -4074,7 +4074,7 @@
         <Parameter Name="clazz" Type="Java.Lang.Class" />
       </Parameters>
       <Docs>
-        <param name="list">The value cannot be null.</param>
+        <param name="list">The destination list. This value cannot be null. If it is not a <see cref="T:Android.Runtime.JavaList" />, a copy is used for the Java call and the supplied list is not updated; use the return value instead.</param>
         <param name="cl">The value may be null.</param>
         <param name="clazz">The value cannot be null.</param>
         <summary>Same as <c>#readParcelableList(List, ClassLoader)</c> but accepts <c>clazz</c> parameter as
@@ -4654,7 +4654,7 @@
         <Parameter Name="list" Type="System.Collections.Generic.IList&lt;System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="list">The value cannot be null.</param>
+        <param name="list">The destination list. This value cannot be null. Use a <see cref="T:Android.Runtime.JavaList`1" /> with <c>string</c> elements. Other lists are copied for the Java call, so the supplied list is not updated.</param>
         <summary>Read into the given List items String objects that were written with
             <c>#writeStringList</c> at the current dataPosition().</summary>
         <remarks>
@@ -4789,7 +4789,7 @@
         <Parameter Name="c" Type="Android.OS.IParcelableCreator" />
       </Parameters>
       <Docs>
-        <param name="list">The value cannot be null.</param>
+        <param name="list">The destination list. This value cannot be null. Use a <see cref="T:Android.Runtime.JavaList" />. Other lists are copied for the Java call, so the supplied list is not updated.</param>
         <param name="c">The value cannot be null.</param>
         <summary>Read into the given List items containing a particular object type
             that were written with <c>#writeTypedList</c> at the
@@ -5303,8 +5303,8 @@
       </Parameters>
       <Docs>
         <param name="data">The value cannot be null.</param>
-        <param name="offset">The starting offset.</param>
-        <param name="length">The number of values to process.</param>
+        <param name="offset">The byte offset in the supplied array.</param>
+        <param name="length">The number of bytes to read.</param>
         <summary>Fills the raw bytes of this Parcel with the supplied data.</summary>
         <remarks>
           <para>Fills the raw bytes of this Parcel with the supplied data.</para>
