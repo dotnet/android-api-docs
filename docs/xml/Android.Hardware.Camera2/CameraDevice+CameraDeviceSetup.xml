@@ -99,13 +99,13 @@
         <Parameter Name="templateType" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="templateType">An enumeration selecting the use case for this request. Not all template types are supported on every device. See the documentation for each template type for details. Value is one of the following: CameraDevice.TEMPLATE_PREVIEW; CameraDevice.TEMPLATE_STILL_CAPTURE; CameraDevice.TEMPLATE_RECORD; CameraDevice.TEMPLATE_VIDEO_SNAPSHOT; CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG; CameraDevice.TEMPLATE_MANUAL</param>
+        <param name="templateType">The integer value of a <see cref="T:Android.Hardware.Camera2.CameraTemplate" /> that selects the use case for this request. Not all template types are supported on every device. See the documentation for each template type for details. Value is one of the following: CameraDevice.TEMPLATE_PREVIEW; CameraDevice.TEMPLATE_STILL_CAPTURE; CameraDevice.TEMPLATE_RECORD; CameraDevice.TEMPLATE_VIDEO_SNAPSHOT; CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG; CameraDevice.TEMPLATE_MANUAL</param>
         <summary>Create a CaptureRequest.Builder for new capture requests, initialized with a template for target use case.</summary>
         <returns>a builder for a capture request, initialized with default settings for that template, and no output streams. This value cannot be null.</returns>
         <remarks>
           <para>Create a CaptureRequest.Builder for new capture requests, initialized with a template for target use case.</para>
           <para>The settings are chosen to be the best options for the specific camera device, so it is not recommended to reuse the same request for a different camera device; create a builder specific for that device and template and override the settings as desired, instead.</para>
-          <para>Supported if CameraCharacteristics.INFO_SESSION_CONFIGURATION_QUERY_VERSION is at least Build.VERSION_CODES.VANILLA_ICE_CREAM. If less or equal to Build.VERSION_CODES.UPSIDE_DOWN_CAKE, this function throws an UnsupportedOperationException.</para>
+          <para>Supported if the value of <see cref="P:Android.Hardware.Camera2.CameraCharacteristics.InfoSessionConfigurationQueryVersion" /> is at least <see cref="F:Android.OS.BuildVersionCodes.VanillaIceCream" />. If less than or equal to <see cref="F:Android.OS.BuildVersionCodes.UpsideDownCake" />, this function throws an <see cref="T:Java.Lang.UnsupportedOperationException" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice.CameraDeviceSetup#createCaptureRequest(int)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraDevice.CameraDeviceSetup.createCaptureRequest</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -245,26 +245,26 @@
             device.</para>
           <para>This method performs a runtime check of a given <c>SessionConfiguration</c>. The
             result confirms whether or not the <c>SessionConfiguration</c>, &lt;b&gt;including the
-            parameters specified via <c>SessionConfiguration#setSessionParameters</c>&lt;/b&gt;, can
+            parameters specified via <see cref="P:Android.Hardware.Camera2.Params.SessionConfiguration.SessionParameters" />&lt;/b&gt;, can
             be used to create a camera capture session using
-            <c>CameraDevice#createCaptureSession(SessionConfiguration)</c>.</para>
-          <para>This method is supported if the
-            <c>CameraCharacteristics#INFO_SESSION_CONFIGURATION_QUERY_VERSION</c>
-            is at least <c>android.os.Build.VERSION_CODES#VANILLA_ICE_CREAM</c>. If less or equal
-            to <c>android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE</c>, this function throws
+            <see cref="M:Android.Hardware.Camera2.CameraDevice.CreateCaptureSession(Android.Hardware.Camera2.Params.SessionConfiguration)" />.</para>
+          <para>This method is supported if the value of
+            <see cref="P:Android.Hardware.Camera2.CameraCharacteristics.InfoSessionConfigurationQueryVersion" />
+            is at least <see cref="F:Android.OS.BuildVersionCodes.VanillaIceCream" />. If less or equal
+            to <see cref="F:Android.OS.BuildVersionCodes.UpsideDownCake" />, this function throws
             <c>UnsupportedOperationException</c>.</para>
           <para>Although this method is much faster than creating a new capture session, it can still
             take a few milliseconds per call. Applications should therefore not use this method to
             explore the entire space of supported session combinations.</para>
           <para>Instead, applications should use this method to query whether combinations of
-            certain features are supported. <c>CameraCharacteristics#INFO_SESSION_CONFIGURATION_QUERY_VERSION</c> provides the list of
+            certain features are supported. The documentation for <see cref="P:Android.Hardware.Camera2.CameraCharacteristics.InfoSessionConfigurationQueryVersion" /> lists the
             feature combinations the camera device will reliably report.</para>
           <para>If this function returns <c>true</c> for a particular stream combination, the camera
             device supports concurrent captures on all of the streams in the same CaptureRequest,
             with two exceptions below where concurrent captures are not supported:</para>
           <para>&lt;ul&gt;
             &lt;li&gt;Supported stream combinations with exclusive dynamic range profiles as specified by
-            <c>android.hardware.camera2.params.DynamicRangeProfiles#getProfileCaptureRequestConstraints</c>.&lt;/li&gt;
+            <see cref="M:Android.Hardware.Camera2.Params.DynamicRangeProfiles.GetProfileCaptureRequestConstraints(System.Int64)" />.&lt;/li&gt;
             &lt;li&gt;Supported combinations of 'default' mode and 'max resolution' mode streams for
             devices with ULTRA_HIGH_RESOLUTION_SENSOR capability.&lt;/li&gt;
             &lt;/ul&gt;</para>
@@ -284,10 +284,10 @@
             <c>android.media.MediaRecorder</c>, <c>android.media.MediaCodec</c>, or <c>android.media.ImageReader</c> surfaces. For <c>android.view.SurfaceView</c>,
             <c>android.graphics.SurfaceTexture</c>, <c>android.media.MediaRecorder</c>, and
             <c>android.media.MediaCodec</c>, the application can call
-            <c>OutputConfiguration#OutputConfiguration(Size, Class)</c>. For <c>android.media.ImageReader</c>, the application can call <c>OutputConfiguration#OutputConfiguration(int, Size)</c>, <c>OutputConfiguration#OutputConfiguration(int, int, Size)</c>, <c>OutputConfiguration#OutputConfiguration(int, Size, long)</c>, or <c>OutputConfiguration#OutputConfiguration(int, int, Size, long)</c>. The <c>SessionConfiguration</c> can then be created using the OutputConfiguration objects and
+            <see cref="M:Android.Hardware.Camera2.Params.OutputConfiguration.#ctor(Android.Util.Size,Java.Lang.Class)" />. For <c>android.media.ImageReader</c>, the application can call <see cref="M:Android.Hardware.Camera2.Params.OutputConfiguration.#ctor(Android.Graphics.ImageFormatType,Android.Util.Size)" />, <see cref="M:Android.Hardware.Camera2.Params.OutputConfiguration.#ctor(System.Int32,Android.Graphics.ImageFormatType,Android.Util.Size)" />, <see cref="M:Android.Hardware.Camera2.Params.OutputConfiguration.#ctor(Android.Graphics.ImageFormatType,Android.Util.Size,System.Int64)" />, or <see cref="M:Android.Hardware.Camera2.Params.OutputConfiguration.#ctor(System.Int32,Android.Graphics.ImageFormatType,Android.Util.Size,System.Int64)" />. The <c>SessionConfiguration</c> can then be created using the OutputConfiguration objects and
             be used to query whether it's supported by the camera device. To create the
             CameraCaptureSession, the application still needs to make sure all output surfaces
-            are added via <c>OutputConfiguration#addSurface</c> with the exception of deferred
+            are added via <see cref="M:Android.Hardware.Camera2.Params.OutputConfiguration.AddSurface(Android.Views.Surface)" /> with the exception of deferred
             surfaces for <c>android.view.SurfaceView</c> and
             <c>android.graphics.SurfaceTexture</c>.&lt;/li&gt;
             &lt;/ul&gt;</para>
@@ -363,11 +363,11 @@
         <Parameter Name="callback" Type="Android.Hardware.Camera2.CameraDevice+StateCallback" />
       </Parameters>
       <Docs>
-        <param name="executor">The executor which will be used when invoking the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="executor">The executor which will be used when invoking the callback. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use <see cref="P:Android.Content.Context.MainExecutor" />. Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="callback">The callback which is invoked once the camera is opened. This value cannot be null.</param>
-        <summary>Utility function to forward the call to CameraManager.openCamera(String,Executor,StateCallback).</summary>
+        <summary>Forwards the call to <see cref="M:Android.Hardware.Camera2.CameraManager.OpenCamera(System.String,Java.Util.Concurrent.IExecutor,Android.Hardware.Camera2.CameraDevice.StateCallback)" />.</summary>
         <remarks>
-          <para>Utility function to forward the call to CameraManager.openCamera(String,Executor,StateCallback). This function simply calls CameraManager.openCamera for the cameraId for which this class was constructed. All semantics are consistent with CameraManager.openCamera. Requires Manifest.permission.CAMERA</para>
+          <para>This method calls <see cref="M:Android.Hardware.Camera2.CameraManager.OpenCamera(System.String,Java.Util.Concurrent.IExecutor,Android.Hardware.Camera2.CameraDevice.StateCallback)" /> for the camera ID for which this instance was created. Its behavior matches that method. Requires Manifest.permission.CAMERA</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice.CameraDeviceSetup#openCamera(java.util.concurrent.Executor,%20android.hardware.camera2.CameraDevice.StateCallback)" title="Reference documentation">Android reference for <code>android.hardware.camera2.CameraDevice.CameraDeviceSetup.openCamera</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
