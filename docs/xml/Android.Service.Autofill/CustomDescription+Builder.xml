@@ -190,12 +190,12 @@
       </Parameters>
       <Docs>
         <param name="id">resource id of the child view.</param>
-        <param name="action">action to be performed. Must be an an implementation provided by the Android System. This value cannot be null.</param>
+        <param name="action">action to be performed. Must be an implementation provided by the Android System. This value cannot be null.</param>
         <summary>Sets an action to be applied to the presentation template when the child view with the given id is clicked.</summary>
         <returns>this builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets an action to be applied to the presentation template when the child view with the given id is clicked.</para>
-          <para>Typically used when the presentation uses a masked field (like ****) for sensitive fields like passwords or credit cards numbers, but offers a an icon that the user can tap to show the value for that field.</para>
+          <para>Typically used when the presentation uses a masked field (like ****) for sensitive fields like passwords or credit cards numbers, but offers an icon that the user can tap to show the value for that field.</para>
           <para>Example:</para>
           <code lang="text/java">customDescriptionBuilder
   .addChild(R.id.password_plain, new CharSequenceTransformation
@@ -260,7 +260,7 @@ Pattern notEmptyPattern = Pattern.compile(".+");
 Validator hasAddress = new RegexValidator(addressAutofillId, notEmptyPattern);
 Validator hasCcNumber = new RegexValidator(ccNumberAutofillId, notEmptyPattern);
 
-RemoteViews addressUpdates = new RemoteViews(pgkName, R.layout.my_full_template)
+RemoteViews addressUpdates = new RemoteViews(pgkName, R.layout.my_full_template);
 addressUpdates.setViewVisibility(R.id.address, View.VISIBLE);
 
 // Make address visible
@@ -268,7 +268,7 @@ BatchUpdates addressBatchUpdates = new BatchUpdates.Builder()
     .updateTemplate(addressUpdates)
     .build();
 
-RemoteViews ccUpdates = new RemoteViews(pgkName, R.layout.my_full_template)
+RemoteViews ccUpdates = new RemoteViews(pgkName, R.layout.my_full_template);
 ccUpdates.setViewVisibility(R.id.cc_number, View.VISIBLE);
 
 // Mask credit card number (as .....LAST_4_DIGITS) and make it visible
@@ -286,15 +286,15 @@ CustomDescription customDescription = new CustomDescription.Builder(template)
           <para>Another approach is to add a child first, then apply the transformations. Example:</para>
           <code lang="text/java">RemoteViews template = new RemoteViews(pgkName, R.layout.my_base_template);
 
-RemoteViews addressPresentation = new RemoteViews(pgkName, R.layout.address)
-RemoteViews addressUpdates = new RemoteViews(pgkName, R.layout.my_template)
+RemoteViews addressPresentation = new RemoteViews(pgkName, R.layout.address);
+RemoteViews addressUpdates = new RemoteViews(pgkName, R.layout.my_template);
 addressUpdates.addView(R.id.parentId, addressPresentation);
 BatchUpdates addressBatchUpdates = new BatchUpdates.Builder()
     .updateTemplate(addressUpdates)
     .build();
 
-RemoteViews ccPresentation = new RemoteViews(pgkName, R.layout.cc)
-RemoteViews ccUpdates = new RemoteViews(pgkName, R.layout.my_template)
+RemoteViews ccPresentation = new RemoteViews(pgkName, R.layout.cc);
+RemoteViews ccUpdates = new RemoteViews(pgkName, R.layout.my_template);
 ccUpdates.addView(R.id.parentId, ccPresentation);
 BatchUpdates ccBatchUpdates = new BatchUpdates.Builder()
     .updateTemplate(ccUpdates)

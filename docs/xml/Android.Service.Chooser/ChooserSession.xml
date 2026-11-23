@@ -78,7 +78,7 @@
       <Docs>
         <param name="executor">The executor used to dispatch the listener callbacks.</param>
         <param name="listener">make sure that the callback is cleared at the end of a component's lifecycle (e.g. Activity) or provide a properly maintained WeakReference wrapper to avoid memory leaks. This value cannot be null.</param>
-        <summary>Registers a listener for changes to the session state and chooser bounds. Callbacks use the supplied executor; registration does not send an initial state or bounds callback.</summary>
+        <summary>Registers a listener for changes to the session state and chooser bounds. Callbacks use the executor supplied for the current registration. Re-registering an already registered listener does not replace that executor. Registration does not send an initial state or bounds callback.</summary>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/chooser/ChooserSession#addStateListener(java.util.concurrent.Executor,%20android.service.chooser.ChooserSession.StateListener)" title="Reference documentation">Android reference for <code>android.service.chooser.ChooserSession.addStateListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -280,7 +280,7 @@
       <Docs>
         <param name="listener">The state listener previously passed to <see cref="M:Android.Service.Chooser.ChooserSession.AddStateListener(Java.Util.Concurrent.IExecutor,Android.Service.Chooser.ChooserSession.IStateListener)" />.</param>
         <summary>Removes a registered session state listener.</summary>
-        <remarks>Removes the listener's current registration, if present. Callbacks that are queued but not yet run for that registration are not delivered; a callback that is already running can complete. However, when the chooser closes the session, it queues a closed-state callback and clears the registrations. Removing the listener after that does not cancel the queued callback. See the <format type="text/html"><a href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/service/chooser/ChooserSession.java">Android implementation of listener removal and dispatch</a></format>.</remarks>
+        <remarks>Removes the listener's current registration, if present. A queued callback checks whether its registration is still active before delivery; a callback that has passed this check can still run after removal. However, when the chooser closes the session, it queues a closed-state callback and clears the registrations. Removing the listener after that does not cancel the queued callback.</remarks>
       </Docs>
     </Member>
     <Member MemberName="SetTargetsEnabled">
