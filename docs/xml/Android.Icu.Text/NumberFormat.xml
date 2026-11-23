@@ -254,11 +254,11 @@
       </ReturnValue>
       <MemberValue>7</MemberValue>
       <Docs>
-        <summary><b>[icu]</b> Constant to specify currency style of format which uses currency symbol to represent currency for accounting, for example: "($3.00), instead of "-$3.00" (<see cref="F:Android.Icu.Text.NumberFormat.Currencystyle" />).</summary>
+        <summary><b>[icu]</b> Constant to specify currency style of format which uses currency symbol to represent currency for accounting, for example: "($3.00)", instead of "-$3.00" (<see cref="F:Android.Icu.Text.NumberFormatStyles.Currency" />).</summary>
         <remarks>
           <para><b>[icu]</b> Constant to specify currency style of format which uses currency symbol
-            to represent currency for accounting, for example: "($3.00), instead of
-            "-$3.00" (<c>#CURRENCYSTYLE</c>).
+            to represent currency for accounting, for example: "($3.00)", instead of
+            "-$3.00" (<see cref="F:Android.Icu.Text.NumberFormatStyles.Currency" />).
             Overrides any style specified using -cf- key in locale.</para>
           <para>
             <format type="text/html">
@@ -302,10 +302,10 @@
       </ReturnValue>
       <MemberValue>8</MemberValue>
       <Docs>
-        <summary><b>[icu]</b> Constant to specify currency cash style of format which uses currency ISO code to represent currency, for example: "NT$3" instead of "NT$3.23".</summary>
+        <summary><b>[icu]</b> Constant to specify currency cash style of format, which uses cash rounding, for example: "NT$3" instead of "NT$3.23".</summary>
         <remarks>
-          <para><b>[icu]</b> Constant to specify currency cash style of format which uses currency
-            ISO code to represent currency, for example: "NT$3" instead of "NT$3.23".</para>
+          <para><b>[icu]</b> Constant to specify currency cash style of format, which uses cash
+            rounding, for example: "NT$3" instead of "NT$3.23".</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/NumberFormat#CASHCURRENCYSTYLE" title="Reference documentation">Java documentation for <code>android.icu.text.NumberFormat.CASHCURRENCYSTYLE</code>.</a>
@@ -1215,10 +1215,10 @@
       </Parameters>
       <Docs>
         <param name="type">the DisplayContext.Type whose value to return</param>
-        <summary>[icu] Get the formatter's DisplayContext value for the specified DisplayContext.Type, such as CAPITALIZATION.</summary>
+        <summary>[icu] Get the formatter's DisplayContext value for the specified DisplayContext.Type, such as <see cref="P:Android.Icu.Text.DisplayContext.Type.Capitalization" />.</summary>
         <returns>the current DisplayContext setting for the specified type</returns>
         <remarks>
-          <para>[icu] Get the formatter's DisplayContext value for the specified DisplayContext.Type, such as CAPITALIZATION.</para>
+          <para>[icu] Get the formatter's DisplayContext value for the specified DisplayContext.Type, such as <see cref="P:Android.Icu.Text.DisplayContext.Type.Capitalization" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/icu/text/NumberFormat#getContext(android.icu.text.DisplayContext.Type)" title="Reference documentation">Android reference for <code>android.icu.text.NumberFormat.getContext</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1413,10 +1413,7 @@
           <para><b>NOTE:</b> New users are strongly encouraged to use
             <c>NumberFormatter</c> instead of NumberFormat.
             &lt;hr&gt;
-            <b>[icu]</b> Returns the default number format for the specified locale.
-            The default format is one of the styles provided by the other
-            factory methods: getNumberInstance, getCurrencyInstance or getPercentInstance.
-            Exactly which one is locale-dependent.</para>
+            <b>[icu]</b> Returns the general-purpose number format for the specified locale.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/NumberFormat#getInstance(android.icu.util.ULocale)" title="Reference documentation">Java documentation for <code>android.icu.text.NumberFormat.getInstance(android.icu.util.ULocale)</code>.</a>
@@ -1465,10 +1462,7 @@
           <para><b>NOTE:</b> New users are strongly encouraged to use
             <c>NumberFormatter</c> instead of NumberFormat.
             &lt;hr&gt;
-            Returns the default number format for the specified locale.
-            The default format is one of the styles provided by the other
-            factory methods: getNumberInstance, getCurrencyInstance or getPercentInstance.
-            Exactly which one is locale-dependent.</para>
+            Returns the general-purpose number format for the specified locale.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/NumberFormat#getInstance(java.util.Locale)" title="Reference documentation">Java documentation for <code>android.icu.text.NumberFormat.getInstance(java.util.Locale)</code>.</a>
@@ -2137,11 +2131,7 @@
           <para><b>NOTE:</b> New users are strongly encouraged to use
             <c>NumberFormatter</c> instead of NumberFormat.
             &lt;hr&gt;
-            Returns the default number format for the current default <c>FORMAT</c> locale.
-            The default format is one of the styles provided by the other
-            factory methods: getNumberInstance, getIntegerInstance,
-            getCurrencyInstance or getPercentInstance.
-            Exactly which one is locale-dependent.</para>
+            Returns the general-purpose number format for the current default <c>FORMAT</c> locale.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/NumberFormat#getInstance()" title="Reference documentation">Java documentation for <code>android.icu.text.NumberFormat.getInstance()</code>.</a>
@@ -2825,19 +2815,15 @@
       </Parameters>
       <Docs>
         <param name="text">The text in which to parse a number.</param>
-        <param name="parsePosition">Its index selects where parsing begins and advances on success; its error index reports a parsing failure.</param>
-        <summary>Returns a Long if possible (e.g., within the range [Long.MIN_VALUE, Long.MAX_VALUE] and with no decimals); otherwise, returns another type, such as a BigDecimal, BigInteger, or Double.</summary>
+        <param name="parsePosition">Its index selects where parsing begins and advances on success; its error index can report a parsing failure.</param>
+        <summary>Returns a parsed number. The returned numeric type depends on the implementation and its settings.</summary>
         <returns>The parsed number, or <see langword="null" /> if no number could be parsed.</returns>
         <remarks>
-          <para>Returns a Long if possible (e.g., within the range [Long.MIN_VALUE,
-            Long.MAX_VALUE] and with no decimals); otherwise, returns another type,
-            such as a BigDecimal, BigInteger, or Double. The return type is not
-            guaranteed other than for the Long case.</para>
+          <para>The returned numeric type depends on the implementation and its settings. For example, <see cref="P:Android.Icu.Text.DecimalFormat.ParseBigDecimal" /> makes <see cref="T:Android.Icu.Text.DecimalFormat" /> prefer a BigDecimal result when possible.</para>
           <para>If IntegerOnly is set, will stop at a decimal
             point (or equivalent; e.g., for rational numbers "1 2/3", will stop
             after the 1).</para>
-          <para>Does not throw an exception; if no object can be parsed, index is
-            unchanged!</para>
+          <para>If no object can be parsed, the index is unchanged. An implementation can throw an exception for invalid arguments.</para>
           <para>For more detail on parsing, see the "Parsing" header in the class
             documentation of <c>DecimalFormat</c>.</para>
           <para>
