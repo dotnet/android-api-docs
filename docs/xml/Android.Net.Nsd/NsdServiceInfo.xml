@@ -105,7 +105,7 @@
       </ReturnValue>
       <Docs>
         <summary>Retrieve attributes as a map of String keys to byte[] values.</summary>
-        <value>The service's DNS-SD TXT attributes, with string keys and byte-array values. Use <see cref="M:Android.Net.Nsd.NsdServiceInfo.SetAttribute(System.String,System.String)" /> and <see cref="M:Android.Net.Nsd.NsdServiceInfo.RemoveAttribute(System.String)" /> to change attributes.</value>
+        <value>The service's DNS-SD TXT attributes, with string keys and byte-array values. An attribute with no value has a <see langword="null" /> value. Use <see cref="M:Android.Net.Nsd.NsdServiceInfo.SetAttribute(System.String,System.String)" /> and <see cref="M:Android.Net.Nsd.NsdServiceInfo.RemoveAttribute(System.String)" /> to change attributes.</value>
         <remarks>
           <para>Retrieve attributes as a map of String keys to byte[] values. The attributes map is only
             valid for a resolved service.</para>
@@ -360,12 +360,13 @@
       </ReturnValue>
       <Docs>
         <summary>Get the hostname.</summary>
-        <value>The resolved hostname without the <c>.local.</c> suffix, or <see langword="null" /> if the service has not been resolved.</value>
+        <value>The hostname without the <c>.local.</c> suffix, or <see langword="null" /> if no hostname is available.</value>
         <remarks>
           <para>Get the hostname.</para>
           <para>When a service is resolved through <c>NsdManager#resolveService</c> or
             <c>NsdManager#registerServiceInfoCallback</c>, this returns the hostname of the resolved
-            service. In all other cases, this will be null. The top level domain ".local." is omitted.
+            service. Starting with T SDK extension 22, the registration callback also returns the
+            hostname used for advertising. In other callback cases, this will be null. The top level domain ".local." is omitted.
             For example, this returns "MyHost" when the service's hostname is "MyHost.local.".</para>
           <para>
             <format type="text/html">
@@ -749,7 +750,7 @@
           <para>Service attributes are included as DNS-SD TXT record pairs.</para>
           <para>This method preserves the provided bytes exactly, ensuring that data is maintained even if the bytes do not represent a valid UTF-8 string.</para>
           <para>The key must be US-ASCII printable characters, excluding the '=' character. The total length of key + value must be less than 255 bytes.</para>
-          <para>Keys should be short, ideally no more than 9 characters, and unique per instance of NsdServiceInfo. Calling setAttribute(String, byte) twice with the same key will overwrite the previous value.</para>
+          <para>Keys should be short, ideally no more than 9 characters, and unique per instance of NsdServiceInfo. Calling <see cref="M:Android.Net.Nsd.NsdServiceInfo.SetAttribute(System.String,System.Byte[])" /> twice with the same key will overwrite the previous value.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdServiceInfo#setAttribute(java.lang.String,%20byte[])" title="Reference documentation">Android reference for <code>android.net.nsd.NsdServiceInfo.setAttribute</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
