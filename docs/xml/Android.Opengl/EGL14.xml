@@ -251,7 +251,7 @@
       </ReturnValue>
       <MemberValue>12292</MemberValue>
       <Docs>
-        <summary>Reports an unrecognized attribute or attribute value in an EGL attribute list.</summary>
+        <summary>Reports an unrecognized or invalid EGL attribute or attribute value.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -683,7 +683,7 @@
       </ReturnValue>
       <MemberValue>12437</MemberValue>
       <Docs>
-        <summary>Specifies that a surface's color-buffer contents are not preserved after a swap.</summary>
+        <summary>Specifies that a surface's color-buffer contents may be changed or destroyed by a swap.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -988,7 +988,7 @@
       </ReturnValue>
       <MemberValue>12440</MemberValue>
       <Docs>
-        <summary>Selects the OpenGL ES client version requested when a context is created.</summary>
+        <summary>Selects the requested major version of an OpenGL ES context, or of an OpenGL context when EGL 1.5 or a supporting extension is available.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1699,7 +1699,7 @@
       <Docs>
         <param name="readdraw">EglRead to select the current read surface, or EglDraw to select the current draw surface.</param>
         <summary>Gets the read or draw surface of the calling thread's current rendering context.</summary>
-        <returns>The selected EGL surface, or a surface wrapper with a zero native handle when no context is current.</returns>
+        <returns>The selected EGL surface, or a surface wrapper with a zero native handle when no surface is bound, including when no context is current.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2030,9 +2030,9 @@
       </Parameters>
       <Docs>
         <param name="dpy">The EGL display associated with the context and surfaces.</param>
-        <param name="draw">The surface for rendering, or EglNoSurface when no draw surface is used.</param>
-        <param name="read">The surface for pixel reads, or EglNoSurface when no read surface is used.</param>
-        <param name="ctx">The context to make current, or EglNoContext to release the current binding.</param>
+        <param name="draw">The surface for rendering, or EglNoSurface when both draw and read surfaces are omitted.</param>
+        <param name="read">The surface for pixel reads, or EglNoSurface when both draw and read surfaces are omitted.</param>
+        <param name="ctx">The context to make current, or EglNoContext to release the current binding. A context can be bound without surfaces only if it supports that mode.</param>
         <summary>Binds an EGL rendering context and its read and draw surfaces to the calling thread.</summary>
         <returns>true if the requested context binding succeeds; otherwise, false.</returns>
         <remarks>
@@ -2987,7 +2987,7 @@
       <Parameters />
       <Docs>
         <summary>Gets the EGL client rendering API currently selected for the calling thread.</summary>
-        <returns>The token identifying this thread's current client API.</returns>
+        <returns>The token identifying this thread's current client API, or EglNone if no client API is selected.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -3058,7 +3058,7 @@
         <Parameter Name="name" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="dpy">The EGL display connection being queried.</param>
+        <param name="dpy">The EGL display connection being queried, or EglNoDisplay with EglExtensions to query client extensions where supported.</param>
         <param name="name">The requested information: EglClientApis, EglVendor, EglVersion, or EglExtensions.</param>
         <summary>Gets a string describing EGL client APIs, vendor, version, or extensions.</summary>
         <returns>The requested EGL information string, or null if the native query returns no string.</returns>
