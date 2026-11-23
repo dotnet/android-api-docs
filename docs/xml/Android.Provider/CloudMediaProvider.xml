@@ -716,24 +716,23 @@
       </Parameters>
       <Docs>
         <param name="mediaId">the media item to return</param>
-        <param name="size">the dimensions of the thumbnail to return. The returned file descriptor doesn't
+        <param name="size">the requested dimensions when returning a thumbnail. The thumbnail doesn't
             have to match the <c>size</c> precisely because the OS will adjust the dimensions before
             usage. Implementations can return close approximations especially if the approximation is
             already locally on the device and doesn't require downloading from the cloud.</param>
-        <param name="extras">to modify the way the fd is opened, e.g. for video files we may request a
-            thumbnail image instead of a video with
-            <c>CloudMediaProviderContract#EXTRA_PREVIEW_THUMBNAIL</c>. In the absence of this extra,
-            this method must return a descriptor representing the actual media file, otherwise it should
-            return the thumbnail. Failure in returning the same may cause unexpected media preview
-            behaviour in the photopicker.</param>
+        <param name="extras">Options that control how the descriptor is opened. For a video, when
+            <see cref="F:Android.Provider.CloudMediaProviderContract.ExtraPreviewThumbnail" /> is
+            <see langword="true" />, return a thumbnail image; when it is <see langword="false" /> or
+            absent, return a descriptor for the media file. Returning the wrong kind may cause
+            unexpected preview behavior in the photo picker.</param>
         <param name="signal">used by the OS to signal if the request should be cancelled</param>
-        <summary>Returns a thumbnail of <c>size</c> for a media item identified by <c>mediaId</c></summary>
-        <returns>read-only file descriptor for accessing the thumbnail for the media file</returns>
+        <summary>Returns a descriptor for a preview of the specified media item.</summary>
+        <returns>A read-only asset file descriptor for the requested preview.</returns>
         <remarks>
-          <para>Returns a thumbnail of <c>size</c> for a media item identified by <c>mediaId</c></para>
-          <para>The cloud media provider should strictly return thumbnail in the original
-            <c>CloudMediaProviderContract.MediaColumns#MIME_TYPE</c> of the item.</para>
-          <para>This is expected to be a much lower resolution version than the item returned by
+          <para>Returns a descriptor for a preview of the specified media item.</para>
+          <para>For an image thumbnail, the cloud media provider should use the original
+            MIME type of the item.</para>
+          <para>A thumbnail is expected to be a much lower resolution version than the item returned by
             <c>#onOpenMedia</c>.</para>
           <para>If you block while downloading content, you should periodically check
             <c>CancellationSignal#isCanceled()</c> to abort abandoned open requests.</para>
