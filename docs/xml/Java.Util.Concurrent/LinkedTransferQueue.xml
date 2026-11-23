@@ -657,7 +657,7 @@
         <c>timeout</c> parameter</param>
         <summary>Retrieves and removes the head of this queue, waiting up to the
  specified wait time if necessary for an element to become available.</summary>
-        <returns>the head of this queue, or null if the specified waiting time elapses before an element is available</returns>
+        <returns>the head of this queue, or null if the wait timed out without a match</returns>
         <remarks>
           <para>Retrieves and removes the head of this queue, waiting up to the specified wait time if necessary for an element to become available.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/LinkedTransferQueue.html#poll(long,java.util.concurrent.TimeUnit)" title="Reference documentation">Java reference for <code>java.util.concurrent.LinkedTransferQueue.poll</code>.</a></format></para>
@@ -1118,7 +1118,7 @@
         <param name="unit">a TimeUnit determining how to interpret the timeout parameter</param>
         <summary>Transfers the element to a consumer if it is possible to do so
             before the timeout elapses.</summary>
-        <returns>true if successful, or false if the specified waiting time elapses before completion, in which case the element is not left enqueued</returns>
+        <returns>true if successful, or false if the wait timed out before transfer, in which case the element is not left enqueued</returns>
         <remarks>
           <para>Transfers the element to a consumer if it is possible to do so
             before the timeout elapses.</para>
@@ -1127,8 +1127,7 @@
             <c>#take</c> or timed <c>#poll(long,TimeUnit) poll</c>),
             else inserts the specified element at the tail of this queue
             and waits until the element is received by a consumer,
-            returning <c>false</c> if the specified wait time elapses
-            before the element can be transferred.</para>
+            returning <c>false</c> if the wait times out without a transfer.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/LinkedTransferQueue.html#tryTransfer(E,long,java.util.concurrent.TimeUnit)" title="Reference documentation">Java reference for <code>java.util.concurrent.LinkedTransferQueue.tryTransfer</code>.</a></format></para>
           <para>
                     Portions of this page are modifications based on work created and shared by the 
