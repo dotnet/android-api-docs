@@ -168,14 +168,14 @@
       </Parameters>
       <Docs>
         <param name="type">A valid reference to the Java class used for field lookup.</param>
-        <param name="name">The zero-terminated Java field name encoded as modified UTF-8.</param>
-        <param name="signature">The zero-terminated JNI field descriptor encoded as modified UTF-8.</param>
+        <param name="name">The Java field name encoded as modified UTF-8.</param>
+        <param name="signature">The JNI field descriptor encoded as modified UTF-8.</param>
         <summary>
-            Looks up a JNI static field ID using null-terminated UTF-8 name and signature spans.
+            Looks up a JNI static field ID using UTF-8 name and signature spans.
             Use with <c>"fieldName"u8</c> literals to avoid string marshalling overhead.
             </summary>
         <returns>Valid JNI field information for the static field.</returns>
-        <remarks>Both spans must include terminating zero bytes. Their bytes are passed to JNI without transcoding or length arguments. A pending Java exception from lookup is converted to a managed exception.</remarks>
+        <remarks>Both byte sequences must be terminated in memory. Each zero terminator can be inside the span or immediately after it, as with a <c>u8</c> string literal. Their bytes are passed to JNI without transcoding or length arguments. A pending Java exception from lookup is converted to a managed exception.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetStaticFieldID">
