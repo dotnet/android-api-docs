@@ -82,13 +82,13 @@
         <Parameter Name="classname" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="classname">A nonempty, zero-terminated class name encoded as modified UTF-8.</param>
+        <param name="classname">A nonempty class name encoded as modified UTF-8.</param>
         <summary>
-            Finds a Java class using a null-terminated UTF-8 class name span.
+            Finds a Java class using a UTF-8 class name span.
             Use with <c>"java/lang/Object"u8</c> literals to avoid string marshalling overhead.
             </summary>
         <returns>A local JNI class reference, which the caller must release.</returns>
-        <remarks>The span must include a terminating zero byte because JNI receives a pointer without the span length. If the initial lookup fails, lookup falls back to the runtime's class loader.</remarks>
+        <remarks>When the span is passed directly to JNI, the class name must be terminated in memory. The zero terminator can be inside the span or immediately after it, as with a <c>u8</c> string literal. If the initial lookup fails, lookup falls back to the runtime's class loader.</remarks>
       </Docs>
     </Member>
     <Member MemberName="FindClass">
@@ -464,14 +464,14 @@
         <Parameter Name="instance" Type="Java.Interop.JniObjectReference" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="classname">A nonempty, zero-terminated class name encoded as modified UTF-8.</param>
+        <param name="classname">A nonempty class name encoded as modified UTF-8.</param>
         <param name="instance">On success, a local JNI class reference that the caller must release; otherwise, an invalid reference.</param>
         <summary>
-            Tries to find a Java class using a null-terminated UTF-8 class name span.
+            Tries to find a Java class using a UTF-8 class name span.
             Returns <c>true</c> if the class was found, <c>false</c> otherwise.
             </summary>
         <returns><see langword="true" /> if a valid class reference was found; otherwise, <see langword="false" />.</returns>
-        <remarks>The span must include a terminating zero byte. Lookup uses the runtime's class loader if the initial JNI lookup fails. Class lookup failure returns <see langword="false" />, but invalid input and other runtime errors can still throw exceptions.</remarks>
+        <remarks>When the span is passed directly to JNI, the class name must be terminated in memory. The zero terminator can be inside the span or immediately after it, as with a <c>u8</c> string literal. Lookup uses the runtime's class loader if the initial JNI lookup fails. Class lookup failure returns <see langword="false" />, but invalid input and other runtime errors can still throw exceptions.</remarks>
       </Docs>
     </Member>
     <Member MemberName="TryFindClass">
