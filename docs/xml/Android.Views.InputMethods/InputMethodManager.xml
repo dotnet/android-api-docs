@@ -543,7 +543,6 @@
         <param name="e">The key event to dispatch from the input method.</param>
         <param name="targetView">the default target view. If <c>null</c> is specified, then this method
             tries to find a good event target based on the current focus state.</param>
-        <param name="event">the key event to be dispatched.</param>
         <summary>Provides the default implementation of <c>InputConnection#sendKeyEvent(KeyEvent)</c>, which
             is expected to dispatch an keyboard event sent from the IME to an appropriate event target
             depending on the given <c>View</c> and the current focus state.</summary>
@@ -2145,7 +2144,7 @@
         <summary>Sets or clears the IME hide animation duration override.</summary>
         <remarks>
           <para>Sets or clears the IME hide animation duration override.</para>
-          <para>When set, this value is used as the requested duration for the animation of the IME hiding. This also includes animations during which where the IME is animated simultaneously with other insets. Note that there are factors which may cause the actual animation duration to differ from this requested value, including: The value getting clamped to a reasonable range by the system. Call getImeHideAnimationDurationOverrideMillis(View) after calling this setter to obtain the value after it has been clamped; The current animation duration scale; Whether the relevant window is in multi-window mode, in which case the system directly controls IME animations, rather than the application.</para>
+          <para>When set, this value is used as the requested duration for the animation of the IME hiding. This also includes animations during which the IME is animated simultaneously with other insets. Note that there are factors which may cause the actual animation duration to differ from this requested value, including: The value getting clamped to a reasonable range by the system. Call getImeHideAnimationDurationOverrideMillis(View) after calling this setter to obtain the value after it has been clamped; The current animation duration scale; Whether the relevant window is in multi-window mode, in which case the system directly controls IME animations, rather than the application.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodManager#setImeHideAnimationDurationOverrideMillis(android.view.View,%20long)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputMethodManager.setImeHideAnimationDurationOverrideMillis</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2637,8 +2636,8 @@
         <summary>Explicitly request that the current input method's soft input area be
             shown to the user, if needed.</summary>
         <returns>
-          <c>true</c> if a request was sent to system_server, <c>false</c> otherwise. Note:
-            this does not return result of the request. If result is needed, use
+          A status value for the request. A <c>true</c> value does not guarantee that the request
+            was delivered or that the input method is shown. To check visibility, use
             <c>android.view.WindowInsetsController#show</c> instead and set a
             <c>View.OnApplyWindowInsetsListener</c> and verify the provided <c>WindowInsets</c> for
             the visibility of IME.</returns>
@@ -2703,16 +2702,17 @@
                         <c>View#isFocused view focus</c>, and its containing window has
                         <c>View#hasWindowFocus window focus</c>. Otherwise the call fails and
                         returns <c>false</c>.</param>
-        <param name="resultReceiver">If non-null, this will be called by the IME when
-            it has processed your request to tell you what it has done.  The result
-            code you receive may be either <c>#RESULT_UNCHANGED_SHOWN</c>,
+        <param name="resultReceiver">An optional receiver for a result code. The receiver
+            is not a reliable way to determine whether the input method is shown or hidden.
+            The result code may be either <c>#RESULT_UNCHANGED_SHOWN</c>,
             <c>#RESULT_UNCHANGED_HIDDEN</c>, <c>#RESULT_SHOWN</c>, or
             <c>#RESULT_HIDDEN</c>.</param>
         <summary>Explicitly request that the current input method's soft input area be
             shown to the user, if needed.</summary>
         <returns>
-          <c>true</c> if a request was sent to system_server, <c>false</c> otherwise. Note:
-            this does not return result of the request. For result use <c>resultReceiver</c> instead.</returns>
+          A status value for the request. A <c>true</c> value does not guarantee that the request
+            was delivered or that the input method is shown. The result receiver is not a
+            reliable way to determine whether the input method is shown or hidden.</returns>
         <remarks>
           <para>Explicitly request that the current input method's soft input area be
             shown to the user, if needed.  Call this if the user interacts with

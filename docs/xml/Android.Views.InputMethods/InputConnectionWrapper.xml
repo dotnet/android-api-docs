@@ -148,7 +148,7 @@
       <Parameters />
       <Docs>
         <summary>Tell the editor that you are starting a batch of editor operations.</summary>
-        <returns>true if a batch edit is now in progress, false otherwise. Since this method starts a batch edit, that means it will always return true unless the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Tell the editor that you are starting a batch of editor operations. The editor will try to avoid sending you updates about its state until endBatchEdit() is called. Batch edits nest.</para>
           <para>
@@ -201,7 +201,7 @@
         <param name="states">The states to be cleared, may be one or more bits as
  per <see cref="P:Android.Views.KeyEvent.MetaState" />.</param>
         <summary>Clear the given meta key pressed states in the given input connection.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Clear the given meta key pressed states in the given input connection.</para>
           <para>
@@ -290,7 +290,7 @@
       <Docs>
         <param name="text">The committed completion.</param>
         <summary>Commit a completion the user has selected from the possible ones previously reported to InputMethodSession#displayCompletions(CompletionInfo[]) or InputMethodManager#displayCompletions(View, CompletionInfo[]).</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Commit a completion the user has selected from the possible ones previously reported to InputMethodSession#displayCompletions(CompletionInfo[]) or InputMethodManager#displayCompletions(View, CompletionInfo[]). This will result in the same behavior as if the user had selected the completion from the actual UI. In all other respects, this behaves like commitText(CharSequence,int).</para>
           <para>
@@ -350,7 +350,7 @@
         <param name="flags">InputConnection.INPUT_CONTENT_GRANT_READ_URI_PERMISSION if the content provider allows grantUriPermissions or 0 if the application does not need to call InputContentInfo.requestPermission().</param>
         <param name="opts">optional bundle data. This can be null.</param>
         <summary>Called by the input method to commit content such as a PNG image to the editor.</summary>
-        <returns>true if this request is accepted by the application, whether the request is already handled or still being handled in background, false otherwise.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Called by the input method to commit content such as a PNG image to the editor.</para>
           <para>
@@ -394,7 +394,7 @@
       <Docs>
         <param name="correctionInfo">Detailed information about the correction.</param>
         <summary>Commit a correction automatically performed on the raw user's input.</summary>
-        <returns>true on success, false if the input connection is no longer valid. Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Commit a correction automatically performed on the raw user's input. A typical example would be to correct typos using a dictionary.</para>
           <para>
@@ -449,7 +449,7 @@
         you are providing so it is not possible to correctly specify
         locations there.</param>
         <summary>Commit text to the text box and set the new cursor position.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Commit text to the text box and set the new cursor position.</para>
           <para>
@@ -487,7 +487,7 @@
         <param name="text">The text to commit.</param>
         <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <summary>Commit text to the text box and set the new cursor position.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The result of the character sequence overload. Its default implementation returns the value returned by the target connection.</returns>
         <remarks>
           <para>Commit text to the text box and set the new cursor position.</para>
           <para>
@@ -550,7 +550,7 @@
         <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>The variant of InputConnection.commitText(CharSequence,int).</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>The variant of InputConnection.commitText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up text.</para>
           <para>
@@ -605,11 +605,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="text">The string to commit through the target connection.</param>
+        <param name="text">The string to commit.</param>
         <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
-        <param name="textAttribute">Optional text metadata passed to the target connection.</param>
+        <param name="textAttribute">Optional text metadata passed to the character sequence overload.</param>
         <summary>The variant of InputConnection.commitText(CharSequence,int).</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The result of the character sequence overload. Its default implementation returns the value returned by the target connection.</returns>
         <remarks>
           <para>The variant of InputConnection.commitText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up text.</para>
           <para>
@@ -657,7 +657,7 @@
         <param name="afterLength">The number of characters to be deleted after the
         current cursor position.</param>
         <summary>Delete beforeLength characters of text before the current cursor position, and delete afterLength characters of text after the current cursor position, excluding the selection.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Delete beforeLength characters of text before the current cursor position, and delete afterLength characters of text after the current cursor position, excluding the selection. Before and after refer to the order of the characters in the string, not to their visual representation: this means you don't have to figure out the direction of the text and can just use the indices as-is.</para>
           <para>
@@ -708,7 +708,7 @@
         <param name="beforeLength">The number of characters before the cursor to be deleted, in code points. If this is greater than the number of existing characters between the beginning of the text and the cursor, then this method does not fail but deletes all the characters in that range.</param>
         <param name="afterLength">The number of characters after the cursor to be deleted, in code points. If this is greater than the number of existing characters between the cursor and the end of the text, then this method does not fail but deletes all the characters in that range.</param>
         <summary>A variant of deleteSurroundingText(int, int).</summary>
-        <returns>true on success, false if the input connection is no longer valid. Before Android Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>A variant of deleteSurroundingText(int, int). Major differences are: The lengths are supplied in code points, not in Java chars or in glyphs; This method does nothing if there are one or more invalid surrogate pairs in the requested range.</para>
           <para>
@@ -749,7 +749,7 @@
       <Parameters />
       <Docs>
         <summary>Tell the editor that you are done with a batch edit previously initiated with beginBatchEdit().</summary>
-        <returns>For editor authors, you must return true if a batch edit is still in progress after closing the latest one (in other words, if the nesting count is still a positive number). Return false otherwise. For IME authors, you will always receive true as long as the request was sent to the editor, and receive false only if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Tell the editor that you are done with a batch edit previously initiated with beginBatchEdit(). This ends the latest batch only.</para>
           <para>
@@ -791,7 +791,7 @@
       <Parameters />
       <Docs>
         <summary>Have the text editor finish whatever composing text is currently active.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Have the text editor finish whatever composing text is currently active. This simply leaves the text as-is, removing any special composing styling or other state that was around it. The cursor position remains unchanged.</para>
           <para>
@@ -1457,7 +1457,7 @@
  <see cref="P:Android.Views.InputMethods.EditorInfo.ImeOptions" />, such as
  <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='Android Views InputMethods EditorInfo IME_ACTION_GO';scope=Xamarin" title="Android.Views.InputMethods.EditorInfo.IME_ACTION_GO">Android.Views.InputMethods.EditorInfo.IME_ACTION_GO</a></format>.</param>
         <summary>Have the editor perform an action it has said it can do.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Have the editor perform an action it has said it can do.</para>
           <para>
@@ -1564,9 +1564,9 @@
  different developers will not create conflicting commands.</param>
         <param name="data">Any data to include with the command.</param>
         <summary>API to send private commands from an input method to its connected editor.</summary>
-        <returns>true if the command was sent (whether or not the associated editor understood it), false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>API to send private commands from an input method to its connected editor. This can be used to provide domain-specific features that are only known between certain input methods and their clients. Note that because the InputConnection protocol is asynchronous, you have no way to get a result back or know if the client understood the command; you can use the information in EditorInfo to determine if a client supports a particular command.</para>
+          <para>API to send private commands from an input method to its connected editor. This can be used to provide domain-specific features that are only known between certain input methods and their clients. When the target is a remote input connection, the request can be asynchronous and the return value does not indicate whether the client understood the command. You can use the information in EditorInfo to determine if a client supports a particular command.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#performPrivateCommand(java.lang.String,%20android.os.Bundle)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.performPrivateCommand(java.lang.String, android.os.Bundle)</code>.</a>
@@ -1610,7 +1610,7 @@
       <Parameters />
       <Docs>
         <summary>Have the editor perform spell checking for the full content.</summary>
-        <returns>For editor authors, the return value will always be ignored. For IME authors, this method returns true if the spell check request was sent (whether or not the associated editor supports spell checking), false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Have the editor perform spell checking for the full content.</para>
           <para>
@@ -1671,7 +1671,7 @@
         <param name="gesture">The gesture whose preview is requested from the target connection.</param>
         <param name="cancellationSignal">The optional signal used to cancel the preview.</param>
         <summary>Preview a handwriting gesture on text.</summary>
-        <returns>true on successfully sending command to Editor, false if not implemented by editor or the input connection is no longer valid or preview was cancelled with CancellationSignal.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Preview a handwriting gesture on text. Provides a real-time preview for a gesture to user for an ongoing gesture. e.g. as user begins to draw a circle around text, resulting selection SelectGesture is previewed while stylus is moving over applicable text.</para>
           <para>
@@ -1738,7 +1738,7 @@
         <param name="newCursorPosition">the new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text.</param>
         <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>Replace the specific range in the editor with suggested text.</summary>
-        <returns>true if the replace command was sent to the associated editor (regardless of whether the replacement is success or not), false otherwise.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Replace the specific range in the editor with suggested text.</para>
           <para>
@@ -1799,9 +1799,9 @@
         <param name="end">Value is 0 or greater</param>
         <param name="text">The replacement string for the specified range.</param>
         <param name="newCursorPosition">the new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text.</param>
-        <param name="textAttribute">Optional text metadata passed to the target connection.</param>
+        <param name="textAttribute">Optional text metadata passed to the character sequence overload.</param>
         <summary>Replace the specific range in the editor with suggested text.</summary>
-        <returns>true if the replace command was sent to the associated editor (regardless of whether the replacement is success or not), false otherwise.</returns>
+        <returns>The result of the character sequence overload. Its default implementation returns the value returned by the target connection.</returns>
         <remarks>
           <para>Replace the specific range in the editor with suggested text.</para>
           <para>
@@ -1845,7 +1845,7 @@
       <Docs>
         <param name="enabled">Whether the connected input method is in fullscreen mode.</param>
         <summary>Called back when the connected IME switches between fullscreen and normal modes.</summary>
-        <returns>For editor authors, the return value will always be ignored. For IME authors, this always returns true on Build.VERSION_CODES.N_MR1 and prior devices and false on Build.VERSION_CODES.O and later devices.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Called back when the connected IME switches between fullscreen and normal modes.</para>
           <para>
@@ -1895,7 +1895,7 @@
  <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='Android Views InputMethods InputConnection CURSOR_UPDATE_MONITOR';scope=Xamarin" title="Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR">Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR</a></format>. Pass <c>0</c> to disable the effect of
  <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='Android Views InputMethods InputConnection CURSOR_UPDATE_MONITOR';scope=Xamarin" title="Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR">Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR</a></format>.</param>
         <summary>Called by the input method to ask the editor for calling back InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo) to notify cursor/anchor locations.</summary>
-        <returns>true if the request is scheduled. false to indicate that when the application will not call InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo). Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Called by the input method to ask the editor for calling back InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo) to notify cursor/anchor locations.</para>
           <para>
@@ -1959,7 +1959,7 @@
         <param name="cursorUpdateMode">Value is either 0 or a combination of the following: InputConnection.CURSOR_UPDATE_IMMEDIATE; InputConnection.CURSOR_UPDATE_MONITOR</param>
         <param name="cursorUpdateFilter">Value is either 0 or a combination of the following: InputConnection.CURSOR_UPDATE_FILTER_EDITOR_BOUNDS; InputConnection.CURSOR_UPDATE_FILTER_CHARACTER_BOUNDS; InputConnection.CURSOR_UPDATE_FILTER_INSERTION_MARKER; InputConnection.CURSOR_UPDATE_FILTER_VISIBLE_LINE_BOUNDS; InputConnection.CURSOR_UPDATE_FILTER_TEXT_APPEARANCE</param>
         <summary>Called by the input method to ask the editor for calling back InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo) to notify cursor/anchor locations.</summary>
-        <returns>true if the request is scheduled. false to indicate that when the application will not call InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo). Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Called by the input method to ask the editor for calling back InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo) to notify cursor/anchor locations.</para>
           <para>
@@ -2058,7 +2058,7 @@
       <Docs>
         <param name="e">The key event.</param>
         <summary>Send a key event to the process that is currently attached through this input connection.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Send a key event to the process that is currently attached through this input connection. The event will be dispatched like a normal key event, to the currently focused view; this generally is the view that is providing this InputConnection, but due to the asynchronous nature of this protocol that can not be guaranteed and the focus may have changed by the time the event is received.</para>
           <para>
@@ -2105,7 +2105,7 @@
         <param name="start">the position in the text at which the composing region begins</param>
         <param name="end">the position in the text at which the composing region ends</param>
         <summary>Mark a certain region of text as composing text.</summary>
-        <returns>true on success, false if the input connection is no longer valid. Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Mark a certain region of text as composing text. If there was a composing region, the characters are left as they were and the composing span removed, as if finishComposingText() has been called. The default style for composing text is used.</para>
           <para>
@@ -2158,7 +2158,7 @@
         <param name="end">the position in the text at which the composing region ends</param>
         <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>The variant of InputConnection.setComposingRegion(int,int).</summary>
-        <returns>true on success, false if the input connection is no longer valid. Since Android Build.VERSION_CODES.N until Build.VERSION_CODES.TIRAMISU, this API returned false when the target application does not implement this method.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>The variant of InputConnection.setComposingRegion(int,int). This method is used to allow the IME to provide extra information while setting up text.</para>
           <para>
@@ -2216,7 +2216,7 @@
         the text you are providing so it is not possible to correctly
         specify locations there.</param>
         <summary>Replace the currently composing text with the given text, and set the new cursor position.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Replace the currently composing text with the given text, and set the new cursor position. Any composing text set previously will be removed automatically.</para>
           <para>
@@ -2254,7 +2254,7 @@
         <param name="text">The composing text. The default style for composing text is used.</param>
         <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <summary>Replace the currently composing text with the given text, and set the new cursor position.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The result of the character sequence overload. Its default implementation returns the value returned by the target connection.</returns>
         <remarks>
           <para>Replace the currently composing text with the given text, and set the new cursor position. Any composing text set previously will be removed automatically.</para>
           <para>
@@ -2317,7 +2317,7 @@
         <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <param name="textAttribute">Optional text metadata passed to the target connection.</param>
         <summary>The variant of setComposingText(CharSequence,int).</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>The variant of setComposingText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up composing text.</para>
           <para>
@@ -2372,11 +2372,11 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="text">The composing string to send to the target connection.</param>
+        <param name="text">The composing string.</param>
         <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
-        <param name="textAttribute">Optional text metadata passed to the target connection.</param>
+        <param name="textAttribute">Optional text metadata passed to the character sequence overload.</param>
         <summary>The variant of setComposingText(CharSequence,int).</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The result of the character sequence overload. Its default implementation returns the value returned by the target connection.</returns>
         <remarks>
           <para>The variant of setComposingText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up composing text.</para>
           <para>
@@ -2424,7 +2424,7 @@
       <Docs>
         <param name="imeConsumesInput">true when the IME is consuming input and the cursor should be hidden, false when input to the editor resumes and the cursor should be shown again.</param>
         <summary>Called by the input method to indicate that it consumes all input for itself, or no longer does so.</summary>
-        <returns>For editor authors, the return value will always be ignored. For IME authors, this method returns true if the request was sent (whether or not the associated editor does something based on this request), false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Called by the input method to indicate that it consumes all input for itself, or no longer does so.</para>
           <para>
@@ -2470,7 +2470,7 @@
         <param name="start">the character index where the selection should start.</param>
         <param name="end">the character index where the selection should end.</param>
         <summary>Set the selection of the text editor.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the target connection.</returns>
         <remarks>
           <para>Set the selection of the text editor. To set the cursor position, start and end should have the same value.</para>
           <para>
