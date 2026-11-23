@@ -42,12 +42,12 @@
         <Parameter Name="classname" Type="System.ReadOnlySpan&lt;System.Byte&gt;" />
       </Parameters>
       <Docs>
-        <param name="classname">The JNI class-name bytes, with a null terminator available to native code.</param>
+        <param name="classname">The class-name bytes encoded as modified UTF-8, with a null terminator available to native code.</param>
         <summary>
-            Creates a <see cref="T:Java.Interop.JniType" /> from a null-terminated UTF-8 class name span.
-            Use with <c>"java/lang/Object"u8</c> literals to avoid string marshalling overhead.
+            Creates a <see cref="T:Java.Interop.JniType" /> from a class name encoded as modified UTF-8.
+            Use <c>u8</c> literals such as <c>"java/lang/Object"u8</c> for ASCII class names to avoid string marshalling overhead.
             </summary>
-        <remarks>The lookup obtains a local class reference. This wrapper retains a global copy and disposes that local reference.</remarks>
+        <remarks>The lookup obtains a local class reference. This wrapper retains a global copy and disposes that local reference. A C# <c>u8</c> literal uses standard UTF-8, which encodes supplementary characters differently.</remarks>
       </Docs>
     </Member>
     <Member MemberName=".ctor">
