@@ -204,9 +204,9 @@
         <remarks>
           <para>Adds a sanitizer for one or more field.</para>
           <para>When a sanitizer is set for a field, the AutofillValue is sent to the sanitizer before a save request is triggered.</para>
-          <para>Typically used to avoid displaying the save UI for values that are autofilled but reformattedby the app. For example, to remove spaces between every 4 digits of a credit card number:</para>
+          <para>Typically used to avoid displaying the save UI for values that are autofilled but reformatted by the app. For example, to remove spaces between every 4 digits of a credit card number:</para>
           <code lang="text/java">builder.addSanitizer(new TextValueSanitizer(
-    Pattern.compile("^(\\d{4})\\s?(\\d{4})\\s?(\\d{4})\\s?(\\d{4})$", "$1$2$3$4")),
+    Pattern.compile("^(\\d{4})\\s?(\\d{4})\\s?(\\d{4})\\s?(\\d{4})$"), "$1$2$3$4"),
     ccNumberId);</code>
           <para>The same sanitizer can be reused to sanitize multiple fields. For example, to trim both the username and password fields:</para>
           <code lang="text/java">builder.addSanitizer(
@@ -516,7 +516,7 @@
         <returns>This builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets the style and listener for the negative save action.</para>
-          <para>This allows an autofill service to customize the style and be notified when the user selects the negative action in the save UI. Note that selecting the negative action regardless of its style and listener being customized would dismiss the save UI and if a custom listener intent is provided then this intent is started. The default style is SaveInfo.NEGATIVE_BUTTON_STYLE_CANCEL</para>
+          <para>This allows an autofill service to customize the style and be notified when the user selects the negative action in the save UI. Note that selecting the negative action regardless of its style and listener being customized would dismiss the save UI and if a custom listener intent is provided then this intent is started. The default style is <see cref="F:Android.Service.Autofill.NegativeButtonStyle.Cancel" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setNegativeAction(int,%20android.content.IntentSender)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setNegativeAction</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -592,7 +592,7 @@
         <returns>This builder. This value cannot be null.</returns>
         <remarks>
           <para>Sets the style for the positive save action.</para>
-          <para>This allows an autofill service to customize the style of the positive action in the save UI. Note that selecting the positive action regardless of its style would dismiss the save UI and calling into the save request. The service should take the next action if selecting style SaveInfo.POSITIVE_BUTTON_STYLE_CONTINUE. The default style is SaveInfo.POSITIVE_BUTTON_STYLE_SAVE</para>
+          <para>This allows an autofill service to customize the style of the positive action in the save UI. Note that selecting the positive action regardless of its style would dismiss the save UI and calling into the save request. The service should take the next action if selecting the <see cref="F:Android.Service.Autofill.PositiveButtonStyle.Continue" /> style. The default style is <see cref="F:Android.Service.Autofill.PositiveButtonStyle.Save" />. Pass the integer value of the selected style.</para>
           <para>
   <format type="text/html">
     <a href="https://developer.android.com/reference/android/service/autofill/SaveInfo.Builder#setPositiveAction(int)" title="Reference documentation">Android reference for <code>android.service.autofill.SaveInfo.Builder.setPositiveAction</code>.</a>
@@ -679,7 +679,7 @@
           <para>Sets an object used to validate the user input - if the input is not valid, the autofill save UI is not shown.</para>
           <para>Typically used to validate credit card numbers. Examples:</para>
           <para>Validator for a credit number that must have exactly 16 digits:</para>
-          <code lang="text/java">Validator validator = new RegexValidator(ccNumberId, Pattern.compile(""^\\d{16}$"))</code>
+          <code lang="text/java">Validator validator = new RegexValidator(ccNumberId, Pattern.compile("^\\d{16}$"));</code>
           <para>Validator for a credit number that must pass a Luhn checksum and either have 16 digits, or 15 digits starting with 108:</para>
           <code lang="text/java">import static android.service.autofill.Validators.and;
 import static android.service.autofill.Validators.or;
@@ -696,7 +696,7 @@ Validator validator =
           <code lang="text/java">Validator validator =
   and(
     new LuhnChecksumValidator(ccNumberId),
-    new RegexValidator(ccNumberId, Pattern.compile(""^(\\d{16}|108\\d{12})$"))
+    new RegexValidator(ccNumberId, Pattern.compile("^(\\d{16}|108\\d{12})$"))
   );</code>
           <para>Validator for a credit number contained in just 4 fields and that must have exactly 4 digits on each field:</para>
           <code lang="text/java">import static android.service.autofill.Validators.and;
