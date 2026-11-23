@@ -553,10 +553,10 @@
         <param name="activity">The activity to use as the parent for the certificate selection UI.</param>
         <param name="keyTypes">The acceptable types of asymmetric keys, or <see langword="null" /> to allow any type.</param>
         <param name="issuers">The acceptable certificate issuers for the certificate matching the private key, or <see langword="null" /> to allow any issuer.</param>
-        <param name="uri">The URI to filter by, or <see langword="null" /> to allow the user to choose any alias.</param>
+        <param name="uri">The URI for which the server requests the certificate, or <see langword="null" /> if unavailable.</param>
         <param name="alias">The initial alias to preselect if available, or <see langword="null" /> for no preselection.</param>
         <summary>
-            Displays the system UI for the user to select a private key alias, filtering by URI.
+            Requests selection of a private key alias.
             </summary>
         <returns>
             A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is the alias chosen by the user,
@@ -630,11 +630,11 @@
         <param name="activity">The activity to use as the parent for the certificate selection UI.</param>
         <param name="keyTypes">The acceptable types of asymmetric keys, or <see langword="null" /> to allow any type.</param>
         <param name="issuers">The acceptable certificate issuers for the certificate matching the private key, or <see langword="null" /> to allow any issuer.</param>
-        <param name="host">The host name of the server requesting the certificate, or <see langword="null" /> for no host filtering.</param>
+        <param name="host">The host name of the server requesting the certificate, or <see langword="null" /> if unavailable.</param>
         <param name="port">The port number of the server requesting the certificate, or <c>-1</c> if unavailable.</param>
         <param name="alias">The initial alias to preselect if available, or <see langword="null" /> for no preselection.</param>
         <summary>
-            Displays the system UI for the user to select a private key alias, filtering by host and port.
+            Requests selection of a private key alias.
             </summary>
         <returns>
             A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is the alias chosen by the user,
@@ -710,11 +710,11 @@
         <param name="activity">The activity to use as the parent for the certificate selection UI.</param>
         <param name="keyTypes">The acceptable types of asymmetric keys, or <see langword="null" /> to allow any type.</param>
         <param name="issuers">The acceptable certificate issuers for the certificate matching the private key, or <see langword="null" /> to allow any issuer.</param>
-        <param name="uri">The URI to filter by, or <see langword="null" /> to allow the user to choose any alias.</param>
+        <param name="uri">The URI for which the server requests the certificate, or <see langword="null" /> if unavailable.</param>
         <param name="alias">The initial alias to preselect if available, or <see langword="null" /> for no preselection.</param>
         <summary>
-            Displays the system UI for the user to select a certificate, then retrieves the corresponding
-            <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" /> with its private key, filtering by URI.
+            Requests selection of a certificate, then retrieves the corresponding
+            <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" /> with its private key.
             </summary>
         <returns>
             A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is an <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" />
@@ -790,12 +790,12 @@
         <param name="activity">The activity to use as the parent for the certificate selection UI.</param>
         <param name="keyTypes">The acceptable types of asymmetric keys, or <see langword="null" /> to allow any type.</param>
         <param name="issuers">The acceptable certificate issuers for the certificate matching the private key, or <see langword="null" /> to allow any issuer.</param>
-        <param name="host">The host name of the server requesting the certificate, or <see langword="null" /> for no host filtering.</param>
+        <param name="host">The host name of the server requesting the certificate, or <see langword="null" /> if unavailable.</param>
         <param name="port">The port number of the server requesting the certificate, or <c>-1</c> if unavailable.</param>
         <param name="alias">The initial alias to preselect if available, or <see langword="null" /> for no preselection.</param>
         <summary>
-            Displays the system UI for the user to select a certificate, then retrieves the corresponding
-            <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" /> with its private key, filtering by host and port.
+            Requests selection of a certificate, then retrieves the corresponding
+            <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" /> with its private key.
             </summary>
         <returns>
             A <see cref="T:System.Threading.Tasks.Task`1" /> representing the asynchronous operation. The result is an <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2" />
@@ -1391,16 +1391,10 @@
       </Parameters>
       <Docs>
         <param name="algorithm">The key algorithm name for the legacy hardware-support check, such as <c>RSA</c>.</param>
-        <summary>Returns <c>true</c> if the current device's <c>KeyChain</c> binds any
-            <c>PrivateKey</c> of the given <c>algorithm</c> to the device once
-            imported or generated.</summary>
-        <returns>A legacy indication of hardware support for the algorithm. This result does not determine whether an individual key is hardware-backed; inspect that key's <see cref="T:Android.Security.Keystore.KeyInfo" /> instead.</returns>
+        <summary>Returns a legacy indication of hardware support for the specified key algorithm.</summary>
+        <returns>A legacy indication of hardware support for the algorithm. In the Android 12 and Android 16 implementations, this method always returns <see langword="true" />, regardless of the algorithm. The result does not determine whether an individual key is hardware-backed; inspect that key's <see cref="T:Android.Security.Keystore.KeyInfo" /> instead.</returns>
         <remarks>
-          <para>Returns <c>true</c> if the current device's <c>KeyChain</c> binds any
-            <c>PrivateKey</c> of the given <c>algorithm</c> to the device once
-            imported or generated. This can be used to tell if there is special
-            hardware support that can be used to bind keys to the device in a way
-            that makes it non-exportable.</para>
+          <para>On Android 8, this method checks whether the algorithm is supported and hardware-backed. Other Android versions can return a different result.</para>
           <para>This member is deprecated. Whether the key is bound to the secure hardware is known only
             once the key has been imported. To find out, use:
             &lt;pre&gt;<c>PrivateKey key = ...; // private key from KeyChain
