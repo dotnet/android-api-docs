@@ -58,7 +58,6 @@
         <summary>Creates a builder for an effect on one or more lights.</summary>
         <remarks>
           <para>The builder starts with no light sequences, one iteration, and preemption enabled. Add a light sequence before calling <see cref="M:Android.Hardware.Lights.MultiLightEffect.Builder.Build" />.</para>
-          <para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/hardware/lights/MultiLightEffect.java">Android 17 effect builder implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -99,6 +98,7 @@
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/MultiLightEffect.Builder#addLightSequence(android.hardware.lights.Light,%20android.hardware.lights.ColorSequence)" title="Reference documentation">Android reference for <code>android.hardware.lights.MultiLightEffect.Builder.addLightSequence</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException"><paramref name="light" /> does not support animations.</exception>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -233,12 +233,15 @@
         <Parameter Name="preemptive" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="preemptive">true to play immediately or false wait for the previous effect to finish.</param>
+        <param name="preemptive">true to play immediately; false to wait for the current effect to finish, or for the current iteration of an infinite effect to finish.</param>
         <summary>Sets whether this effect will preempt any previous effect / state currently active on the light.</summary>
         <returns>This builder with the preemption option set.</returns>
         <remarks>
           <para>Sets whether this effect will preempt any previous effect / state currently active on the light.</para>
           <para>By default, the builder sets this value to true and the effect is preemptive.</para>
+          <para>When preemption is disabled, playback starts immediately if the previous state is a permanent color. Otherwise, it starts after all iterations of a finite effect, or after the current iteration of an infinite effect.</para>
+          <para>A preemptive effect is applied immediately, but its first control point can occur later. Interpolation can start from the last known color or the last interpolated value of the previous effect.</para>
+          <para>A light session can queue one non-preemptive effect. A later non-preemptive request replaces an earlier effect waiting in that queue.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/MultiLightEffect.Builder#setPreemptive(boolean)" title="Reference documentation">Android reference for <code>android.hardware.lights.MultiLightEffect.Builder.setPreemptive</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
