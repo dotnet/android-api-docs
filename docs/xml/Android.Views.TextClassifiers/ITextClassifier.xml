@@ -130,7 +130,7 @@
             used to generate a widget for handling the classified text.</summary>
         <returns>This value cannot be null.</returns>
         <remarks>
-          <para>Classifies the specified text and returns a TextClassification object that can be used to generate a widget for handling the classified text. NOTE: Call on a worker thread. NOTE: Do not implement. The default implementation of this method calls classifyText(TextClassification.Request). If that method calls this method, a stack overflow error will happen. NOTE: If a TextClassifier has been destroyed, calls to this method should throw an IllegalStateException. See isDestroyed(). This method may take several seconds to complete, so it should only be called from a worker thread.</para>
+          <para>Classifies the specified text and returns a TextClassification object that can be used to generate a widget for handling the classified text. NOTE: Call on a worker thread. NOTE: The Java default implementation of this overload calls classifyText(TextClassification.Request). If the request overload calls back to that default implementation, the calls recurse and cause a stack overflow. NOTE: If a TextClassifier has been destroyed, calls to this method should throw an IllegalStateException. See isDestroyed(). This method may take several seconds to complete, so it should only be called from a worker thread.</para>
           <para>Throws: IllegalArgumentException if text is null; startIndex is negative; endIndex is greater than text.length() or not greater than startIndex</para>
           <para>
             <format type="text/html">
@@ -801,7 +801,7 @@
             associated confidence scores.</summary>
         <returns>This value cannot be null.</returns>
         <remarks>
-          <para>Returns suggested text selection start and end indices, recognized entity types, and their associated confidence scores. The entity types are ordered from highest to lowest scoring. NOTE: Call on a worker thread. NOTE: If a TextClassifier has been destroyed, calls to this method should throw an IllegalStateException. See isDestroyed(). NOTE: Do not implement. The default implementation of this method calls suggestSelection(TextSelection.Request). If that method calls this method, a stack overflow error will happen. This method may take several seconds to complete, so it should only be called from a worker thread.</para>
+          <para>Returns suggested text selection start and end indices, recognized entity types, and their associated confidence scores. The entity types are ordered from highest to lowest scoring. NOTE: Call on a worker thread. NOTE: If a TextClassifier has been destroyed, calls to this method should throw an IllegalStateException. See isDestroyed(). NOTE: The Java default implementation of this overload calls suggestSelection(TextSelection.Request). If the request overload calls back to that default implementation, the calls recurse and cause a stack overflow. This method may take several seconds to complete, so it should only be called from a worker thread.</para>
           <para>Throws: IllegalArgumentException if text is null; selectionStartIndex is negative; selectionEndIndex is greater than text.length() or not greater than selectionStartIndex</para>
           <para>
             <format type="text/html">
