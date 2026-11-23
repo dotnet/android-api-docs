@@ -33,7 +33,7 @@
     <summary>The contract between the Contacts Picker session provider and client applications.</summary>
     <remarks>
       <para>The contract between the Contacts Picker session provider and client applications. This contract defines the intent actions, extras, and URI structure used to interact with the Contacts Picker to select contacts and retrieve their data.</para>
-      <para>It allows apps to select one or more contacts without requiring Manifest.permission.READ_CONTACTS, enhancing user privacy and security. The client app receives one-time access to the user-selected contacts data.</para>
+      <para>It allows apps to select one or more contacts without requiring <see cref="F:Android.Manifest.Permission.ReadContacts" />, enhancing user privacy and security. The client app receives one-time access to the user-selected contacts data.</para>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
     </remarks>
@@ -65,10 +65,16 @@
       <Docs>
         <summary>Intent action to launch the system Contacts Picker to select one or more contacts.</summary>
         <remarks>
-          <para>Intent action to launch the system Contacts Picker to select one or more contacts. This action provides a modern way for applications to obtain contact information, differing from Intent.ACTION_PICK and Intent.ACTION_GET_CONTENT in several key ways: It is specifically designed for picking contacts, offering a streamlined user experience; The calling application gains one-time read access to the user-selected contact data, without requiring Manifest.permission.READ_CONTACTS; Users benefit from a consistent UI to grant temporary access to their contact data; Client applications can specify and receive multiple data fields (MIME types) corresponding to the selected contacts</para>
-          <para>To use this intent, create an Intent with this action and launch it using Activity.startActivityForResult(android.content.Intent, int). The system Contacts Picker UI will be displayed, allowing the user to select one or more contacts. This contacts picker UI will:; Have eligible contacts displayed as a scrollable list to the user; Enable users to select single/multiple contacts; Enable users to search for contacts using display name</para>
-          <para>The display and selection behavior can be customized using the following extras:; EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS: (Required) Specifies the MIME types of contact data to be displayed in the picker and returned to the calling app. Contacts must have at least one of the specified MIME types, to be shown as available for selection; EXTRA_PICK_CONTACTS_MATCH_ALL_DATA_FIELDS: (Optional) If set to true, only contacts possessing data for *all* MIME types specified in EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS will be shown as available for selection. Defaults to false; EXTRA_PICK_CONTACTS_SELECTION_LIMIT: (Optional) Defines the maximum number of contacts the user can select. Defaults to 50, with a maximum allowed value of 100; Intent.EXTRA_ALLOW_MULTIPLE: (Optional) If set to true, the user can select multiple contacts. The default behavior is single-select.</para>
-          <para>Upon successful contact(s) selection, the Activity.onActivityResult(int, int, android.content.Intent) callback will be invoked with Activity.RESULT_OK. The returned Intent will contain a session URI in its data field (see Session.CONTENT_URI), which should be used to query the selected contact data.</para>
+          <para>Unlike <see cref="F:Android.Content.Intent.ActionPick" /> and <see cref="F:Android.Content.Intent.ActionGetContent" />, this action is designed for selecting contacts. It gives the caller one-time read access to selected data without <see cref="F:Android.Manifest.Permission.ReadContacts" />, provides a consistent selection UI, and can return multiple data fields.</para>
+          <para>Create an <see cref="T:Android.Content.Intent" /> with this action and launch it with <see cref="M:Android.App.Activity.StartActivityForResult(Android.Content.Intent,System.Int32)" />. The picker lists eligible contacts, permits single or multiple selection, and supports searching by display name.</para>
+          <para>Use these extras to customize display and selection:</para>
+          <list type="bullet">
+            <item><description><see cref="F:Android.Provider.ContactsPickerSessionContract.ExtraPickContactsRequestedDataFields" /> is required and specifies the contact-data MIME types to display and return. A contact must have at least one of these types to be eligible.</description></item>
+            <item><description><see cref="F:Android.Provider.ContactsPickerSessionContract.ExtraPickContactsMatchAllDataFields" /> is optional. When true, only contacts with all requested MIME types are eligible. The default is false.</description></item>
+            <item><description><see cref="F:Android.Provider.ContactsPickerSessionContract.ExtraPickContactsSelectionLimit" /> is optional and sets the maximum selection count. The default is 50 and the maximum is 100.</description></item>
+            <item><description><see cref="F:Android.Content.Intent.ExtraAllowMultiple" /> is optional. When true, the user can select multiple contacts. The default is single selection.</description></item>
+          </list>
+          <para>After a successful selection, <see cref="M:Android.App.Activity.OnActivityResult(System.Int32,Android.App.Result,Android.Content.Intent)" /> is called with <see cref="F:Android.App.Result.Ok" />. The returned intent contains a session URI in its data field; see <see cref="P:Android.Provider.ContactsPickerSessionContract.Session.ContentUri" />. Use the returned URI to query the selected data.</para>
           <code lang="text/java">    Uri sessionUri = data.getData();
     Cursor cursor = getContentResolver().query(sessionUri, projection, null, null, null);
     // Process cursor data</code>
@@ -167,12 +173,10 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>A boolean extra that, when set to <c>true</c>, instructs the system Contacts Picker to only
-            display contacts that possess data fields corresponding to *all* MIME type specified in
-            <c>#EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS</c>.</summary>
+        <summary>The key for a Boolean extra that, when true, limits the picker to contacts with data for all MIME types specified in <see cref="F:Android.Provider.ContactsPickerSessionContract.ExtraPickContactsRequestedDataFields" />.</summary>
         <remarks>
-          <para>A boolean extra that, when set to true, instructs the system Contacts Picker to only display contacts that possess data fields corresponding to *all* MIME type specified in EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS.</para>
-          <para>If false (the default value), contacts will be displayed if they have data for *at least one* of the MIME types specified in EXTRA_PICK_CONTACTS_REQUESTED_DATA_FIELDS.</para>
+          <para>When true, only contacts with data for all MIME types specified in <see cref="F:Android.Provider.ContactsPickerSessionContract.ExtraPickContactsRequestedDataFields" /> are displayed.</para>
+          <para>When false, the default, contacts are displayed if they have data for at least one of the requested MIME types.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract#EXTRA_PICK_CONTACTS_MATCH_ALL_DATA_FIELDS" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_MATCH_ALL_DATA_FIELDS</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -202,13 +206,25 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>A <c>List&lt;String&gt;</c> extra that specifies the types of contact data the client
-            application is requesting.</summary>
+        <summary>The key for an intent extra containing the requested contact-data MIME types.</summary>
         <remarks>
-          <para>A List&lt;String&gt; extra that specifies the types of contact data the client application is requesting. This extra serves two primary purposes: **Filtering:** Only contacts possessing data corresponding to at least one of the specified MIME types will be displayed in the Contacts Picker; **Data Return:** For selected contacts, only data corresponding to these specified MIME types will be returned to the calling application This extra must be populated with one or more of the following MIME types:; ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Relation.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Event.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Website.CONTENT_ITEM_TYPE; ContactsContract.CommonDataKinds.Nickname.CONTENT_ITEM_TYPE</para>
-          <para>If EXTRA_PICK_CONTACTS_MATCH_ALL_DATA_FIELDS is set to true, only contacts having data corresponding to *all* of the MIME types specified in this extra will be displayed.</para>
-          <para>The Contacts Picker will throw an IllegalArgumentException if any of the MIME types provided in this extra are not among the allowed types listed above.</para>
-          <para>Clients are required to set this extra to ensure the picker can determine which information should be made available for selection.</para>
+          <para>The picker displays contacts with data for at least one requested MIME type and returns only data for the requested types. Supply one or more of these MIME types:</para>
+          <list type="bullet">
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.StructuredName.ContentItemType" /></description></item>
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.Email.ContentItemType" /></description></item>
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.Phone.ContentItemType" /></description></item>
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.StructuredPostal.ContentItemType" /></description></item>
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.Organization.ContentItemType" /></description></item>
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.Relation.ContentItemType" /></description></item>
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.Event.ContentItemType" /></description></item>
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.Photo.ContentItemType" /></description></item>
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.GroupMembership.ContentItemType" /></description></item>
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.Website.ContentItemType" /></description></item>
+            <item><description><see cref="F:Android.Provider.ContactsContract.CommonDataKinds.Nickname.ContentItemType" /></description></item>
+          </list>
+          <para>If <see cref="F:Android.Provider.ContactsPickerSessionContract.ExtraPickContactsMatchAllDataFields" /> is true, only contacts with data for all requested MIME types are displayed.</para>
+          <para>The picker throws <see cref="T:Java.Lang.IllegalArgumentException" /> if a requested MIME type is not in this list.</para>
+          <para>Clients must set this extra so that the picker can determine which information to make available. Use <see cref="M:Android.Content.Intent.PutStringArrayListExtra(System.String,System.Collections.Generic.IList{System.String})" /> to supply the list.</para>
           <code lang="text/java">    List&lt;String&gt; requestedMimeTypes = new ArrayList&lt;&gt;();
     requestedMimeTypes.add(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE);
     requestedMimeTypes.add(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
@@ -249,7 +265,7 @@
         <remarks>
           <para>An integer extra that defines the maximum number of contacts a user can select in a single session. The Contacts Picker uses this value to configure its UI.</para>
           <para>If this extra is not set, the default selection limit is 50. The absolute maximum allowed value is 100.</para>
-          <para>Clients should not set this value higher than the documented maximum limit. The application handling ACTION_PICK_CONTACTS will throw an IllegalArgumentException if the provided value exceeds the maximum allowed limit.</para>
+          <para>Clients should not set this value higher than the documented maximum limit. The application handling <see cref="F:Android.Provider.ContactsPickerSessionContract.ActionPickContacts" /> throws <see cref="T:Java.Lang.IllegalArgumentException" /> if the value exceeds the maximum.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/provider/ContactsPickerSessionContract#EXTRA_PICK_CONTACTS_SELECTION_LIMIT" title="Reference documentation">Android reference for <code>android.provider.ContactsPickerSessionContract.EXTRA_PICK_CONTACTS_SELECTION_LIMIT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
