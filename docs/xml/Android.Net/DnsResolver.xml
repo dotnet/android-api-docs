@@ -316,7 +316,7 @@
       </ReturnValue>
       <MemberValue>2</MemberValue>
       <Docs>
-        <summary>Skips the cache lookup and does not store the query result in the resolver cache.</summary>
+        <summary>Does not store the query result in the resolver cache. On some devices, it also skips the cache lookup.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -355,7 +355,7 @@
       </ReturnValue>
       <MemberValue>1</MemberValue>
       <Docs>
-        <summary>Sends one query to one resolver, without retrying after a timeout or network error.</summary>
+        <summary>Requests no retries. Some Android versions may retry encrypted DNS queries or try multiple encrypted DNS servers.</summary>
         <remarks>
           <para>
             <format type="text/html">
@@ -459,10 +459,8 @@
       </ReturnValue>
       <MemberValue>-2</MemberValue>
       <Docs>
-        <summary>Indicates that the HTTPS query will be retransmitted until it gets a response, or until it
-            times out.</summary>
+        <summary>Requests waiting for the HTTPS query to complete without an additional wait limit after the address queries complete.</summary>
         <remarks>
-          <para>Indicates that the HTTPS query will be retransmitted until it gets a response, or until it times out.</para>
           <para>This option may increase latency if the HTTPS query is dropped by the network.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/DnsResolver#HTTPS_QUERY_WAIT_UNTIL_TIMEOUT" title="Reference documentation">Android reference for <code>android.net.DnsResolver.HTTPS_QUERY_WAIT_UNTIL_TIMEOUT</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -601,8 +599,9 @@
         <param name="executor">The Executor that the callback should be executed on. This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="cancellationSignal">used by the caller to signal if the query should be cancelled. May be null.</param>
         <param name="callback">a Callback which will be called to notify the caller of the result of dns query. This value cannot be null.</param>
-        <summary>Send a DNS query with the specified name on a network with both IPv4 and IPv6, get back a set of InetAddresses with rfc6724 sorting asynchronously.</summary>
+        <summary>Asynchronously queries for IP addresses on the specified network and returns a list sorted according to RFC 6724.</summary>
         <remarks>
+          <para>For domains other than localhost, the resolver requests A records when IPv4 connectivity is available and AAAA records when IPv6 connectivity is available.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/DnsResolver#query(android.net.Network,%20java.lang.String,%20int,%20java.util.concurrent.Executor,%20android.os.CancellationSignal,%20android.net.DnsResolver.Callback&lt;?%20super%20java.util.List&lt;java.net.InetAddress&gt;&gt;)" title="Reference documentation">Android reference for <code>android.net.DnsResolver.query</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
