@@ -1611,10 +1611,11 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>This signals the end of stream, i.e. no buffers will be available after this, unless of course, <c>#flush</c> follows.</summary>
+        <summary>Signals the end of the input or output stream.</summary>
         <remarks>
-          <para>This signals the end of stream, i.e. no buffers will be available
-            after this, unless of course, <c>#flush</c> follows.</para>
+          <para>After an input buffer signals the end of the stream, the codec can still
+            produce output buffers until it signals the end of the output stream. Do not
+            submit more input buffers until the codec is flushed or stopped and restarted.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaCodec#BUFFER_FLAG_END_OF_STREAM" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.BUFFER_FLAG_END_OF_STREAM</code>.</a>
@@ -4870,9 +4871,8 @@
         <param name="cb">The callback that will run.  Use <c>null</c> to clear a previously
                       set callback (before <c>#configure configure</c> is called and run
                       in synchronous mode).</param>
-        <param name="handler">Callbacks will happen on the handler's thread. If null, callbacks are done on the default thread (the caller's thread or the main thread.)</param>
-        <summary>Sets an asynchronous callback for actionable MediaCodec events on the default
-            looper.</summary>
+        <param name="handler">Callbacks run on the handler's thread. On Android API 37.2, if this is null, the default handler uses the codec creation thread's looper, or the main looper if available and the creation thread has none.</param>
+        <summary>Sets an asynchronous callback for actionable MediaCodec events.</summary>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/MediaCodec#setCallback(android.media.MediaCodec.Callback,%20android.os.Handler)" title="Reference documentation">Android reference for <code>android.media.MediaCodec.setCallback</code>.</a></format></para>
           <para>

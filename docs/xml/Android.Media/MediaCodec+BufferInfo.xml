@@ -162,10 +162,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The start-offset of the data in the buffer.</summary>
-        <value>The byte offset at which this buffer's valid data begins.</value>
+        <summary>The recorded start offset of the data in the buffer.</summary>
+        <value>The byte offset recorded for the start of the buffer's valid data.</value>
         <remarks>
-          <para>The start-offset of the data in the buffer.</para>
+          <para>The recorded start offset of the data in the buffer. On Android API 37.2, a fallback record created by <see cref="P:Android.Media.MediaCodec.OutputFrame.BufferInfos" /> has offset zero, which may not be the actual buffer offset.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo#offset" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.BufferInfo.offset</code>.</a>
@@ -201,12 +201,12 @@
       </ReturnValue>
       <Docs>
         <summary>The presentation timestamp in microseconds for the buffer.</summary>
-        <value>The buffer's presentation timestamp, in microseconds; it is not meaningful when the buffer's size is zero.</value>
+        <value>The buffer's presentation timestamp, in microseconds.</value>
         <remarks>
           <para>The presentation timestamp in microseconds for the buffer.
             This is derived from the presentation timestamp passed in
             with the corresponding input buffer.  This should be ignored for
-            a 0-sized buffer.</para>
+            a 0-sized buffer. On Android API 37.2, a fallback record created by <see cref="P:Android.Media.MediaCodec.OutputFrame.BufferInfos" /> has size zero and retains the frame timestamp; its size does not establish that the buffer is empty.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo#presentationTimeUs" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.BufferInfo.presentationTimeUs</code>.</a>
@@ -297,12 +297,10 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The amount of data (in bytes) in the buffer.</summary>
-        <value>The number of valid data bytes in the buffer. A zero-byte buffer can carry an end-of-stream marker.</value>
+        <summary>The recorded amount of data in the buffer, in bytes.</summary>
+        <value>The recorded number of valid data bytes in the buffer.</value>
         <remarks>
-          <para>The amount of data (in bytes) in the buffer.  If this is <c>0</c>,
-            the buffer has no data in it and can be discarded.  The only
-            use of a 0-size buffer is to carry the end-of-stream marker.</para>
+          <para>For ordinary codec output buffer metadata, zero indicates an empty buffer, which can carry an end-of-stream marker. On Android API 37.2, a fallback record created by <see cref="P:Android.Media.MediaCodec.OutputFrame.BufferInfos" /> has size zero even when the buffer contains data.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo#size" title="Reference documentation">Java documentation for <code>android.media.MediaCodec.BufferInfo.size</code>.</a>
