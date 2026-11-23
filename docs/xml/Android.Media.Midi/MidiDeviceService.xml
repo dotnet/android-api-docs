@@ -33,12 +33,12 @@
     <summary>A service that implements a virtual MIDI device.</summary>
     <remarks>
       <para>A service that implements a virtual MIDI device.
-            Subclasses must implement the <c>#onGetInputPortReceivers</c> method to provide a
+            Subclasses must implement the <see cref="M:Android.Media.Midi.MidiDeviceService.OnGetInputPortReceivers" /> method to provide a
             list of <c>MidiReceiver</c>s to receive data sent to the device's input ports.
-            Similarly, subclasses can call <c>#getOutputPortReceivers</c> to fetch a list
+            Similarly, subclasses can call <see cref="M:Android.Media.Midi.MidiDeviceService.GetOutputPortReceivers" /> to fetch a list
             of <c>MidiReceiver</c>s for sending data out the output ports.</para>
       <para>To extend this class, you must declare the service in your manifest file with
-            an intent filter with the <c>#SERVICE_INTERFACE</c> action
+            an intent filter with the <see cref="F:Android.Media.Midi.MidiDeviceService.ServiceInterface" /> action
             and meta-data to describe the virtual device.
             For example:</para>
       <code lang="text/java">&lt;service android:name=".VirtualDeviceService"
@@ -272,9 +272,9 @@
         <Parameter Name="intent" Type="Android.Content.Intent" />
       </Parameters>
       <Docs>
-        <param name="intent">The Intent that was used to bind to this service, as given to Context.bindService. Note that any extras that were included with the Intent at that point will not be seen here.</param>
+        <param name="intent">The binding request. Its action must match <see cref="F:Android.Media.Midi.MidiDeviceService.ServiceInterface" /> to obtain the MIDI device server's binder.</param>
         <summary>Return the communication channel to the service.</summary>
-        <returns>Return an IBinder through which clients can call on to the service.</returns>
+        <returns>For a non-null intent, the MIDI device server's binder if the action matches <see cref="F:Android.Media.Midi.MidiDeviceService.ServiceInterface" /> and the server is available; otherwise, <see langword="null" />.</returns>
         <remarks>
           <para>Return the communication channel to the service. May return null if clients can not bind to the service. The returned IBinder is usually for a complex interface that has been described using aidl.</para>
           <para>Note that unlike other application components, calls on to the IBinder interface returned here may not happen on the main thread of the process. More information about the main thread can be found in Processes and Threads.</para>
