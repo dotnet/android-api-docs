@@ -58,7 +58,7 @@
         <param name="text">The text to commit.</param>
         <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <summary>Commit text to the text box and set the new cursor position.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the input connection's character sequence overload.</returns>
         <remarks>
           <para>Commit text to the text box and set the new cursor position.</para>
           <para>This method removes the contents of the currently composing text and replaces it with the passed CharSequence, and then moves the cursor according to newCursorPosition. If there is no composing text when this method is called, the new text is inserted at the cursor position, removing text inside the selection if any. This behaves like calling setComposingText(text, newCursorPosition) then finishComposingText().</para>
@@ -106,7 +106,7 @@
         <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <param name="textAttribute">The extra information about the text. This value may be null.</param>
         <summary>The variant of InputConnection.commitText(CharSequence,int).</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the input connection's character sequence overload.</returns>
         <remarks>
           <para>The variant of InputConnection.commitText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up text.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputConnection#commitText(java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputConnection.commitText</code>.</a></format></para>
@@ -153,7 +153,7 @@
           <para>Gets the selected text, if any.</para>
           <para>This method may fail if either the input connection has become invalid (such as its process crashing) or the client is taking too long to respond with the text (it is given a couple of seconds to return). In either case, null is returned.</para>
           <para>This method must not cause any changes in the editor's state.</para>
-          <para>If GET_TEXT_WITH_STYLES is supplied as flags, the editor should return a SpannableString with all the spans set on the text.</para>
+          <para>If GET_TEXT_WITH_STYLES is supplied as flags, the editor should return a SpannableString with all the spans set on the text. This extension converts that result to a string without the spans. To access any returned spans, call <see cref="M:Android.Views.InputMethods.IInputConnection.GetSelectedTextFormatted(Android.Views.InputMethods.GetTextFlags)" />.</para>
           <para>IME authors: please consider this will trigger an IPC round-trip that will take some time. Assume this method consumes a lot of time. If you are using this to get the initial text around the cursor, you may consider using EditorInfo.getInitialTextBeforeCursor(int,int), EditorInfo.getInitialSelectedText(int), and EditorInfo.getInitialTextAfterCursor(int,int) to prevent IPC costs.</para>
           <para>Editor authors: please be careful of race conditions in implementing this call. An IME can make a change to the text or change the selection position and use this method right away; you need to make sure the returned value is consistent with the results of the latest edits.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputConnection#getSelectedText(int)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputConnection.getSelectedText</code>.</a></format></para>
@@ -202,7 +202,7 @@
           <para>Get n characters of text after the current cursor position.</para>
           <para>This method may fail either if the input connection has become invalid (such as its process crashing) or the client is taking too long to respond with the text (it is given a couple seconds to return). In either case, null is returned.</para>
           <para>This method does not affect the text in the editor in any way, nor does it affect the selection or composing spans.</para>
-          <para>If GET_TEXT_WITH_STYLES is supplied as flags, the editor should return a SpannableString with all the spans set on the text.</para>
+          <para>If GET_TEXT_WITH_STYLES is supplied as flags, the editor should return a SpannableString with all the spans set on the text. This extension converts that result to a string without the spans. To access any returned spans, call <see cref="M:Android.Views.InputMethods.IInputConnection.GetTextAfterCursorFormatted(System.Int32,Android.Views.InputMethods.GetTextFlags)" />.</para>
           <para>IME authors: please consider this will trigger an IPC round-trip that will take some time. Assume this method consumes a lot of time. If you are using this to get the initial text around the cursor, you may consider using EditorInfo.getInitialTextBeforeCursor(int,int), EditorInfo.getInitialSelectedText(int), and EditorInfo.getInitialTextAfterCursor(int,int) to prevent IPC costs.</para>
           <para>Editor authors: please be careful of race conditions in implementing this call. An IME can make a change to the text and use this method right away; you need to make sure the returned value is consistent with the result of the latest edits. Also, you may return less than n characters if performance dictates so, but keep in mind IMEs are relying on this for many functions: you should not, for example, limit the returned value to the current line, and specifically do not return 0 characters unless the cursor is really at the end of the text.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputConnection#getTextAfterCursor(int,%20int)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputConnection.getTextAfterCursor</code>.</a></format></para>
@@ -250,7 +250,7 @@
         <remarks>
           <para>Get n characters of text before the current cursor position.</para>
           <para>This method may fail either if the input connection has become invalid (such as its process crashing) or the editor is taking too long to respond with the text (it is given a couple seconds to return). In either case, null is returned. This method does not affect the text in the editor in any way, nor does it affect the selection or composing spans.</para>
-          <para>If GET_TEXT_WITH_STYLES is supplied as flags, the editor should return a SpannableString with all the spans set on the text.</para>
+          <para>If GET_TEXT_WITH_STYLES is supplied as flags, the editor should return a SpannableString with all the spans set on the text. This extension converts that result to a string without the spans. To access any returned spans, call <see cref="M:Android.Views.InputMethods.IInputConnection.GetTextBeforeCursorFormatted(System.Int32,Android.Views.InputMethods.GetTextFlags)" />.</para>
           <para>IME authors: please consider this will trigger an IPC round-trip that will take some time. Assume this method consumes a lot of time. Also, please keep in mind the Editor may choose to return less characters than requested even if they are available for performance reasons. If you are using this to get the initial text around the cursor, you may consider using EditorInfo.getInitialTextBeforeCursor(int,int), EditorInfo.getInitialSelectedText(int), and EditorInfo.getInitialTextAfterCursor(int,int) to prevent IPC costs.</para>
           <para>Editor authors: please be careful of race conditions in implementing this call. An IME can make a change to the text and use this method right away; you need to make sure the returned value is consistent with the result of the latest edits. Also, you may return less than n characters if performance dictates so, but keep in mind IMEs are relying on this for many functions: you should not, for example, limit the returned value to the current line, and specifically do not return 0 characters unless the cursor is really at the start of the text.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputConnection#getTextBeforeCursor(int,%20int)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputConnection.getTextBeforeCursor</code>.</a></format></para>
@@ -296,14 +296,14 @@
         <param name="self">The input connection on which to call the method.</param>
         <param name="start">the character index where the replacement should start. Value is 0 or greater</param>
         <param name="end">the character index where the replacement should end. Value is 0 or greater</param>
-        <param name="text">the text to replace. This value cannot be null.</param>
+        <param name="text">The replacement text. This value cannot be null.</param>
         <param name="newCursorPosition">the new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text.</param>
         <param name="textAttribute">The extra information about the text. This value may be null.</param>
         <summary>Replace the specific range in the editor with suggested text.</summary>
-        <returns>true if the replace command was sent to the associated editor (regardless of whether the replacement is success or not), false otherwise.</returns>
+        <returns>The value returned by the input connection's character sequence overload.</returns>
         <remarks>
           <para>Replace the specific range in the editor with suggested text.</para>
-          <para>This method finishes any active composing text, leaves the text as-is, replaces the specified range of text with the supplied CharSequence, and then moves the cursor according to newCursorPosition. This behaves like calling finishComposingText(), setSelection(start, end), and then commitText(text, newCursorPosition, textAttribute).</para>
+          <para>The default interface implementation calls finishComposingText(), setSelection(start, end), and then commitText(text, newCursorPosition, textAttribute) within a batch edit. An input connection can override this behavior.</para>
           <para>Similar to setSelection(int, int), the order of start and end is not important. In effect, the region from start to end and the region from end to start is the same. Editor authors, be ready to accept a start that is greater than end.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputConnection#replaceText(int,%20int,%20java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputConnection.replaceText</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -340,7 +340,7 @@
         <param name="text">The composing text. The default style for composing text is used.</param>
         <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <summary>Replace the currently composing text with the given text, and set the new cursor position.</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the input connection's character sequence overload.</returns>
         <remarks>
           <para>Replace the currently composing text with the given text, and set the new cursor position. Any composing text set previously will be removed automatically.</para>
           <para>If there is any composing span currently active, all characters that it comprises are removed. The passed text is added in its place, and a composing span is added to this text. If there is no composing span active, the passed text is added at the cursor position (removing selected characters first if any), and a composing span is added on the new text. Finally, the cursor is moved to the location specified by newCursorPosition.</para>
@@ -389,7 +389,7 @@
         <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <param name="textAttribute">The extra information about the text. This value may be null.</param>
         <summary>The variant of setComposingText(CharSequence,int).</summary>
-        <returns>true on success, false if the input connection is no longer valid.</returns>
+        <returns>The value returned by the input connection's character sequence overload.</returns>
         <remarks>
           <para>The variant of setComposingText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up composing text.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputConnection#setComposingText(java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputConnection.setComposingText</code>.</a></format></para>
