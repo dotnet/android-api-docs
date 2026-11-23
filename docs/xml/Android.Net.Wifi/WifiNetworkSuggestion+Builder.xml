@@ -256,6 +256,8 @@
         <remarks>
           <para>Specifies whether the suggestion represents a carrier merged network. A carrier merged Wi-Fi network is treated as part of the mobile carrier network. Such configuration may impact the user interface and data usage accounting.</para>
           <para>Only carriers with the CarrierConfigManager.KEY_CARRIER_PROVISIONS_WIFI_MERGED_NETWORKS_BOOL flag set to true may use this API.</para>
+          <para>A suggestion marked as carrier merged must be a metered enterprise network with a valid subscription ID set.</para>
+          <para>If not set, defaults to false (i.e. not a carrier merged network).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setCarrierMerged(boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setCarrierMerged</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -828,6 +830,9 @@
         <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
         <remarks>
           <para>Configure the suggestion to only be used with the SIMs that belong to the Subscription Group specified in this method. The suggested network will only be used by the SIM in this Subscription Group and no other SIMs - even from the same carrier.</para>
+          <para>The caller must be a carrier provisioning app or a carrier-privileged app. A carrier-privileged app may only specify subscriptions belonging to the same carrier that signed the app; see TelephonyManager.hasCarrierPrivileges().</para>
+          <para>Specifying a subscription group that does not match these restrictions causes the suggestion to be rejected with WifiManager.STATUS_NETWORK_SUGGESTIONS_ERROR_ADD_NOT_ALLOWED.</para>
+          <para>Only one of setSubscriptionGroup(ParcelUuid) and setSubscriptionId(int) should be called for a suggestion.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setSubscriptionGroup(android.os.ParcelUuid)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setSubscriptionGroup</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -865,6 +870,9 @@
         <returns>Instance of Builder to enable chaining of the builder method. This value cannot be null.</returns>
         <remarks>
           <para>Configure the suggestion to only be used with the SIM identified by the subscription ID specified in this method. The suggested network will only be used by that SIM and no other SIM - even from the same carrier.</para>
+          <para>The caller must be a carrier provisioning app holding android.permission.NETWORK_CARRIER_PROVISIONING or a carrier-privileged app. A carrier-privileged app may only specify a subscription belonging to the same carrier that signed the app; see TelephonyManager.hasCarrierPrivileges().</para>
+          <para>Specifying a subscription ID that does not match these restrictions causes the suggestion to be rejected with WifiManager.STATUS_NETWORK_SUGGESTIONS_ERROR_ADD_NOT_ALLOWED.</para>
+          <para>Only one of setSubscriptionGroup(ParcelUuid) and setSubscriptionId(int) should be called for a suggestion.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/WifiNetworkSuggestion.Builder#setSubscriptionId(int)" title="Reference documentation">Android reference for <code>android.net.wifi.WifiNetworkSuggestion.Builder.setSubscriptionId</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
