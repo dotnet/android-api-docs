@@ -127,7 +127,7 @@
       </Parameters>
       <Docs>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="stateCallback">This value cannot be null. Value is one of the following: RegistrationManager.REGISTRATION_STATE_NOT_REGISTERED; RegistrationManager.REGISTRATION_STATE_REGISTERING; RegistrationManager.REGISTRATION_STATE_REGISTERED</param>
+        <param name="stateCallback">The callback that receives the IMS registration state as a <see cref="T:Java.Lang.Integer" />. The callback cannot be null. The integer corresponds to <see cref="F:Android.Telephony.Ims.RegistrationState.NotRegistered" />, <see cref="F:Android.Telephony.Ims.RegistrationState.Registering" />, or <see cref="F:Android.Telephony.Ims.RegistrationState.Registered" />.</param>
         <summary>Gets the registration state of the IMS service.</summary>
         <remarks>
           <para>Gets the registration state of the IMS service. Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE</para>
@@ -176,7 +176,7 @@
       </Parameters>
       <Docs>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="transportTypeCallback">This value cannot be null. Value is one of the following: AccessNetworkConstants.TRANSPORT_TYPE_WWAN; AccessNetworkConstants.TRANSPORT_TYPE_WLAN</param>
+        <param name="transportTypeCallback">The callback that receives the IMS registration transport type as a <see cref="T:Java.Lang.Integer" />. The callback cannot be null. The integer can correspond to <see cref="F:Android.Telephony.Ims.AccessNetworkConstantsTransportType.Wwan" /> or <see cref="F:Android.Telephony.Ims.AccessNetworkConstantsTransportType.Wlan" />, or be -1 if the type is unavailable.</param>
         <summary>Requires Permission: <c>android.Manifest.permission#READ_PRECISE_PHONE_STATE
             READ_PRECISE_PHONE_STATE</c> or that the calling app has carrier privileges
             (see <c>android.telephony.TelephonyManager#hasCarrierPrivileges</c>).</summary>
@@ -354,7 +354,7 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE or Manifest.permission.READ_PRECISE_PHONE_STATE</summary>
+        <summary>Gets whether TTY over VoLTE is supported.</summary>
         <value>true if TTY over VoLTE is supported
             
             &lt;p&gt;This API requires one of the following:
@@ -461,7 +461,7 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Requires android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE or Manifest.permission.READ_PRECISE_PHONE_STATE</summary>
+        <summary>Gets whether the user's Voice over Wi-Fi setting is enabled.</summary>
         <value>true if the user's setting for Voice over WiFi is enabled and false if it is not.
             
             &lt;p&gt;This API requires one of the following:
@@ -636,9 +636,10 @@
       <Docs>
         <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
         <param name="c">The callback to register. It receives IMS registration state events on the supplied executor, including the current state when it is registered.</param>
-        <summary>Requires Permission: READ_PRECISE_PHONE_STATE or that the calling app has carrier privileges (see TelephonyManager.hasCarrierPrivileges()).</summary>
+        <summary>Registers an IMS registration callback.</summary>
         <remarks>
           <para>Registers a RegistrationCallback with the system.</para>
+          <para>Requires READ_PRECISE_PHONE_STATE or carrier privileges (see TelephonyManager.hasCarrierPrivileges()).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/ims/ImsMmTelManager#registerImsRegistrationCallback(java.util.concurrent.Executor,%20android.telephony.ims.RegistrationManager.RegistrationCallback)" title="Reference documentation">Android reference for <code>android.telephony.ims.ImsMmTelManager.registerImsRegistrationCallback</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -840,9 +841,10 @@
       </Parameters>
       <Docs>
         <param name="c">The previously registered IMS registration callback to remove.</param>
-        <summary>Requires Permission: READ_PRECISE_PHONE_STATE or that the calling app has carrier privileges (see TelephonyManager.hasCarrierPrivileges()).</summary>
+        <summary>Unregisters an IMS registration callback.</summary>
         <remarks>
           <para>Access by profile owners is deprecated and will be removed in a future release. Removes an existing RegistrationCallback. When the subscription associated with this callback is removed (SIM removed, ESIM swap, etc...), this callback will automatically be removed. If this method is called for an inactive subscription, it will result in a no-op.</para>
+          <para>Requires READ_PRECISE_PHONE_STATE or carrier privileges (see TelephonyManager.hasCarrierPrivileges()).</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/telephony/ims/ImsMmTelManager#unregisterImsRegistrationCallback(android.telephony.ims.RegistrationManager.RegistrationCallback)" title="Reference documentation">Android reference for <code>android.telephony.ims.ImsMmTelManager.unregisterImsRegistrationCallback</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
