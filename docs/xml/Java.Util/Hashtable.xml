@@ -1197,12 +1197,12 @@
       </Parameters>
       <Docs>
         <param name="key">key with which the resulting value is to be associated</param>
-        <param name="value">the non-null value to be merged with the existing value associated with the key or, if no existing value or a null value is associated with the key, to be associated with the key</param>
+        <param name="value">the value to associate with an absent key or pass to the remapping function for an existing key</param>
         <param name="remappingFunction">the remapping function to recompute a value if present</param>
-        <summary>If the specified key is not already associated with a value or is associated with null, associates it with the given non-null value.</summary>
+        <summary>Associates an absent key with a non-null value, or recomputes an existing mapping.</summary>
         <returns>the new value associated with the specified key, or null if no value is associated with the key</returns>
         <remarks>
-          <para>If the specified key is not already associated with a value or is associated with null, associates it with the given non-null value. Otherwise, replaces the associated value with the results of the given remapping function, or removes if the result is null. This method may be of use when combining multiple mapped values for a key. For example, to either create or append a String msg to a value mapping:</para>
+          <para>If the specified key is absent and <paramref name="value" /> is non-null, associates the key with that value. If the key is present, replaces the associated value with the result of the given remapping function, or removes the mapping if the result is null. In the Hashtable implementation on Android 8 through 16, a null <paramref name="value" /> leaves an absent key unmapped and is passed to the remapping function for a present key. This method may be of use when combining multiple mapped values for a key. For example, to either create or append a String msg to a value mapping:</para>
           <code lang="text/java"> map.merge(key, msg, String::concat)</code>
           <para>If the remapping function returns null, the mapping is removed. If the remapping function itself throws an (unchecked) exception, the exception is rethrown, and the current mapping is left unchanged. The remapping function should not modify this map during computation.</para>
           <para>This method will, on a best-effort basis, throw a
@@ -1486,14 +1486,12 @@
       <Docs>
         <param name="key">the key that needs to be removed</param>
         <param name="value">The non-null value that the key must currently map to for removal to occur.</param>
-        <summary>Removes the key (and its corresponding value) from this
-            hashtable.</summary>
-        <returns>the value to which the key had been mapped in this hashtable,
-                     or <c>null</c> if the key did not have a mapping</returns>
+        <summary>Removes the mapping only if the specified key maps to the specified value.</summary>
+        <returns><see langword="true" /> if the mapping was removed; otherwise, <see langword="false" />.</returns>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/util/Hashtable#remove(java.lang.Object)" title="Reference documentation">Java documentation for <code>java.util.Hashtable.remove(java.lang.Object)</code>.</a>
+              <a href="https://developer.android.com/reference/java/util/Hashtable#remove(java.lang.Object,%20java.lang.Object)" title="Reference documentation">Java documentation for <code>java.util.Hashtable.remove(java.lang.Object, java.lang.Object)</code>.</a>
             </format>
           </para>
           <para>
