@@ -720,15 +720,14 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="pattern">The message pattern whose arguments are looked up in the supplied map.</param>
-        <param name="arguments">The map from string argument identifiers to replacement values.</param>
+        <param name="pattern">The message pattern with named or numbered arguments.</param>
+        <param name="arguments">The map from string argument identifiers to replacement values. Numbered arguments use their decimal digits as the key.</param>
         <summary>Creates a MessageFormat with the given pattern and uses it to
             format the given arguments.</summary>
         <returns>The message produced from the pattern and argument map.</returns>
         <remarks>
           <para>Creates a MessageFormat with the given pattern and uses it to
-            format the given arguments.  The pattern must identifyarguments
-            by name instead of by number.</para>
+            format the given arguments. The pattern can identify arguments by name or by number.</para>
           <para />
           <para>
             <format type="text/html">
@@ -1332,7 +1331,7 @@
       </Parameters>
       <Docs>
         <param name="source">The text to parse using this message pattern.</param>
-        <param name="pos">Its index selects where parsing starts and advances on success; its error index reports failure.</param>
+        <param name="pos">Its index selects where parsing starts and advances on success; on a mismatch, its error index identifies where parsing stopped.</param>
         <summary>Parses the string.</summary>
         <returns>The array of parsed numbered-argument values, or <see langword="null" /> if parsing does not advance.</returns>
         <remarks>
@@ -1359,7 +1358,7 @@
             is comparing with. For example, if the parsing string "AAA {0} BBB"
             is comparing against the pattern "AAD {0} BBB", the error index is
             0. When an error occurs, the call to this method will return null.
-            If the source is null, return an empty array.</para>
+            In the base implementation, when the pattern uses numbered arguments and <paramref name="pos" /> is non-null, a null source returns null without advancing the position.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/MessageFormat#parse(java.lang.String,%20java.text.ParsePosition)" title="Reference documentation">Java documentation for <code>android.icu.text.MessageFormat.parse(java.lang.String, java.text.ParsePosition)</code>.</a>

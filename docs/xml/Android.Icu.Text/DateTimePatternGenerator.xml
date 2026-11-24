@@ -163,9 +163,9 @@
         <param name="override">When existing values are to be overridden use true, otherwise use false.</param>
         <param name="returnInfo">Returned information.</param>
         <summary>Adds a pattern to the generator.</summary>
-        <returns>This generator after the insertion attempt; <paramref name="returnInfo" /> contains the resulting status and conflict information.</returns>
+        <returns>This generator after the insertion attempt; <paramref name="returnInfo" /> contains the resulting status and, when reported, conflict information.</returns>
         <remarks>
-          <para>Adds a pattern to the generator. If the pattern has the same skeleton as an existing pattern, and the override parameter is set, then the previous value is overridden. Otherwise, the previous value is retained. In either case, the conflicting information is returned in PatternInfo.</para>
+          <para>Adds a pattern to the generator. If the pattern has the same skeleton as an existing pattern, and the override parameter is set, then the previous value is overridden. Otherwise, the previous value is retained. When a conflict prevents insertion, information about it is returned in PatternInfo. A successful override resets the status and conflict information.</para>
           <para>Note that single-field patterns (like "MMM") are automatically added, and don't need to be added explicitly!</para>
           <para>Example code:</para>
           <code lang="text/java">Date date= new GregorianCalendar(1999,9,13,23,58,59).getTime();
@@ -993,11 +993,12 @@ System.out.println("Date Time in new Pattern: "+format.format(date));
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="result">The set to which the generator's base skeletons are added, or <see langword="null" /> to allocate a set.</param>
+        <param name="result">A collection of values to include, or <see langword="null" /> to start with an empty set.</param>
         <summary>Return a list of all the base skeletons (in canonical form) from this class</summary>
-        <returns>The supplied set with base skeletons added, or a new set when <paramref name="result" /> is <see langword="null" />.</returns>
+        <returns>A set containing the supplied values and the generator's base skeletons.</returns>
         <remarks>
           <para>Return a list of all the base skeletons (in canonical form) from this class</para>
+          <para>If <paramref name="result" /> is non-null and is not an <c>Android.Runtime.JavaSet&lt;string&gt;</c>, the binding copies its contents to a Java set. Changes are not written back to the original collection.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/DateTimePatternGenerator#getBaseSkeletons(java.util.Set%3Cjava.lang.String%3E)" title="Reference documentation">Java documentation for <code>android.icu.text.DateTimePatternGenerator.getBaseSkeletons(java.util.Set&lt;java.lang.String&gt;)</code>.</a>

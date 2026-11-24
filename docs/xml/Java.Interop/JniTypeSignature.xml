@@ -353,9 +353,10 @@
         <Parameter Name="signature" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="signature">A simple JNI type name or a JNI type descriptor, including any array prefixes.</param>
+        <param name="signature">A simple JNI type name or a JNI type descriptor, including any array prefixes. The value <c>V</c> is parsed as a class name, not as the void descriptor.</param>
         <summary>Parses a JNI type name or descriptor into its components.</summary>
         <returns>The parsed JNI type signature.</returns>
+        <exception cref="T:System.IndexOutOfRangeException"><paramref name="signature" /> contains only array prefixes, such as <c>[</c>.</exception>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -468,10 +469,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="signature">A simple JNI type name or a JNI type descriptor, including any array prefixes.</param>
+        <param name="signature">A simple JNI type name or a JNI type descriptor, including any array prefixes. The value <c>V</c> is parsed as a class name, not as the void descriptor.</param>
         <param name="result">The parsed signature on success; otherwise, the default <see cref="T:Java.Interop.JniTypeSignature" /> value when the method returns <see langword="false" />.</param>
         <summary>Attempts to parse a JNI type name or descriptor into its components.</summary>
-        <returns><see langword="true" /> if parsing succeeds; <see langword="false" /> if the parser reports an invalid argument.</returns>
+        <returns><see langword="true" /> if parsing succeeds; <see langword="false" /> if the parser reports an invalid argument. Some malformed signatures throw instead.</returns>
+        <exception cref="T:System.ArgumentException"><paramref name="signature" /> contains an empty class descriptor, such as <c>L;</c> or <c>[L;</c>.</exception>
+        <exception cref="T:System.IndexOutOfRangeException"><paramref name="signature" /> contains only array prefixes, such as <c>[</c>.</exception>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

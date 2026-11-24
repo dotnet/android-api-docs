@@ -266,7 +266,7 @@
         <summary>Configure the Channel frequency for the Wi-Fi Aware connection being requested.</summary>
         <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
         <remarks>
-          <para>Configure the Channel frequency for the Wi-Fi Aware connection being requested. This method is optional - if not called, then channelInMhz to use will be decided by firmware. Only use this when WifiAwareManager.isSetChannelOnDataPathSupported() is true, otherwise the set channelInMhz will be ignored.</para>
+          <para>Configure the channel frequency for the Wi-Fi Aware connection being requested. This method is optional. If it is not called, the firmware decides which channel to use. Only use it when <see cref="P:Android.Net.Wifi.Aware.WifiAwareManager.IsSetChannelOnDataPathSupported" /> is <see langword="true" />; otherwise, the channel is ignored.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setChannelFrequencyMhz(int,%20boolean)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setChannelFrequencyMhz</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -299,11 +299,11 @@
         <Parameter Name="securityConfig" Type="Android.Net.Wifi.Aware.WifiAwareDataPathSecurityConfig" />
       </Parameters>
       <Docs>
-        <param name="securityConfig">The (optional) security config to be used to encrypt the link. This value cannot be null.</param>
+        <param name="securityConfig">The security configuration to use for the data path. This value cannot be null.</param>
         <summary>Configure security config for the Wi-Fi Aware connection being requested.</summary>
         <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
         <remarks>
-          <para>Configure security config for the Wi-Fi Aware connection being requested. This method is optional - if not called, then an Open (unencrypted) connection will be created. Note: this method is the superset of the setPmk(byte[]) and setPskPassphrase(String).</para>
+          <para>Configure security config for the Wi-Fi Aware connection being requested. This method is optional. If no PMK, passphrase, or security configuration is supplied, the builder requests an open (unencrypted) connection. Do not combine this method with <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPmk(System.Byte[])" /> or <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPskPassphrase(System.String)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setDataPathSecurityConfig(android.net.wifi.aware.WifiAwareDataPathSecurityConfig)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setDataPathSecurityConfig</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -336,11 +336,11 @@
         <Parameter Name="pmk" Type="System.Byte[]" />
       </Parameters>
       <Docs>
-        <param name="pmk">A PMK (pairwise master key, see IEEE 802.11i) specifying the key to use for encrypting the data-path. Use the setPskPassphrase(String) to specify a Passphrase. This value cannot be null.</param>
+        <param name="pmk">A PMK (pairwise master key, see IEEE 802.11i) specifying the key to use for encrypting the data-path. Use <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPskPassphrase(System.String)" /> to specify a passphrase instead. This value cannot be null.</param>
         <summary>Configure the PMK for the Wi-Fi Aware connection being requested.</summary>
         <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
         <remarks>
-          <para>Configure the PMK for the Wi-Fi Aware connection being requested. This method is optional - if not called, then an Open (unencrypted) connection will be created. Note: Use setDataPathSecurityConfig(WifiAwareDataPathSecurityConfig) to avoid interoperability issues when devices support different cipher suites by explicitly specifying a cipher suite as opposed to relying on a default cipher suite.</para>
+          <para>Configure the PMK for the Wi-Fi Aware connection being requested. This method is optional. If no PMK, passphrase, or security configuration is supplied, the builder requests an open (unencrypted) connection. Use <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetDataPathSecurityConfig(Android.Net.Wifi.Aware.WifiAwareDataPathSecurityConfig)" /> to specify a cipher suite explicitly and avoid interoperability issues when devices support different cipher suites.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setPmk(byte[])" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setPmk</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -378,7 +378,7 @@
         <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
         <remarks>
           <para>Configure the port number which will be used to create a connection over this link. This configuration should only be done on the server device, e.g. the device creating the ServerSocket.</para>
-          <para>Notes: The server device must be the Publisher device!; The port information can only be specified on secure links, specified using setDataPathSecurityConfig(WifiAwareDataPathSecurityConfig)</para>
+          <para>The server must be the publisher. Specify the port only for a secure link. Configure security with <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetDataPathSecurityConfig(Android.Net.Wifi.Aware.WifiAwareDataPathSecurityConfig)" />, <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPmk(System.Byte[])" />, or <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPskPassphrase(System.String)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setPort(int)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setPort</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -411,11 +411,11 @@
         <Parameter Name="pskPassphrase" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="pskPassphrase">The (optional) passphrase to be used to encrypt the link. Use the setPmk(byte[]) to specify a PMK. This value cannot be null.</param>
+        <param name="pskPassphrase">The passphrase to use to encrypt the link. Use <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPmk(System.Byte[])" /> to specify a PMK. This value cannot be null.</param>
         <summary>Configure the PSK Passphrase for the Wi-Fi Aware connection being requested.</summary>
         <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
         <remarks>
-          <para>Configure the PSK Passphrase for the Wi-Fi Aware connection being requested. This method is optional - if not called, then an Open (unencrypted) connection will be created. Note: Use setDataPathSecurityConfig(WifiAwareDataPathSecurityConfig) to avoid interoperability issues when devices support different cipher suites by explicitly specifying a cipher suite as opposed to relying on a default cipher suite. WifiAwareDataPathSecurityConfig.Builder.Builder(int)</para>
+          <para>Configure the PSK Passphrase for the Wi-Fi Aware connection being requested. This method is optional. If no PMK, passphrase, or security configuration is supplied, the builder requests an open (unencrypted) connection. Use <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetDataPathSecurityConfig(Android.Net.Wifi.Aware.WifiAwareDataPathSecurityConfig)" /> to specify a cipher suite explicitly and avoid interoperability issues when devices support different cipher suites. See <see cref="M:Android.Net.Wifi.Aware.WifiAwareDataPathSecurityConfig.Builder.#ctor(System.Int32)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setPskPassphrase(java.lang.String)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setPskPassphrase</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -453,7 +453,7 @@
         <returns>the current Builder builder, enabling chaining of builder methods. This value cannot be null.</returns>
         <remarks>
           <para>Configure the transport protocol which will be used to create a connection over this link. This configuration should only be done on the server device, e.g. the device creating the ServerSocket for TCP.</para>
-          <para>Notes: The server device must be the Publisher device!; The transport protocol information can only be specified on secure links, specified using setDataPathSecurityConfig(WifiAwareDataPathSecurityConfig) The transport protocol number is assigned by the Internet Assigned Numbers Authority (IANA) https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml.</para>
+          <para>The server must be the publisher. Specify the transport protocol only for a secure link. Configure security with <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetDataPathSecurityConfig(Android.Net.Wifi.Aware.WifiAwareDataPathSecurityConfig)" />, <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPmk(System.Byte[])" />, or <see cref="M:Android.Net.Wifi.Aware.WifiAwareNetworkSpecifier.Builder.SetPskPassphrase(System.String)" />. The transport protocol number is assigned by the Internet Assigned Numbers Authority (IANA) https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/wifi/aware/WifiAwareNetworkSpecifier.Builder#setTransportProtocol(int)" title="Reference documentation">Android reference for <code>android.net.wifi.aware.WifiAwareNetworkSpecifier.Builder.setTransportProtocol</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

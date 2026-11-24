@@ -58,7 +58,6 @@
         <summary>Creates a builder for a color sequence.</summary>
         <remarks>
           <para>The builder starts with no control points and uses linear interpolation. Add control points before calling <see cref="M:Android.Hardware.Lights.ColorSequence.Builder.Build" />.</para>
-          <para>See the <see href="https://android.googlesource.com/platform/frameworks/base/+/94b4c163b7dfe5ce3607f7bb8456f9573f7de57d/core/java/android/hardware/lights/ColorSequence.java">Android 17 builder implementation</see>.</para>
         </remarks>
       </Docs>
     </Member>
@@ -96,11 +95,12 @@
         <returns>a reference to this builder. This value cannot be null.</returns>
         <remarks>
           <para>Adds the next control point for the effect. The transition between control point colors takes delayMillis milliseconds. During that time, the light colors will be smoothly interpolated from the start to the end value according to the interpolation algorithm and the light's update interval.</para>
-          <para>When specifying a delay: Any negative value is considered an error and will cause an IllegalArgumentException; Any positive value corresponds to the transition time in milliseconds, relative to the end of the previous control point; A value of 0 can only be specified for the very first control point in the sequence as a way to provide an initial state for the effect. It will cause an IllegalArgumentException if found in any other index; All delays MUST be whole multiples of the light's update period (frame period) (Light.getMinUpdatePeriodMillis()). If any specified delay is a fractional number of frames, the system will truncate the delay potentially altering initially expected interpolation values and relative timing with other lights.</para>
+          <para>When specifying a delay: Any negative value is considered an error and will cause an IllegalArgumentException; Any positive value corresponds to the transition time in milliseconds, relative to the end of the previous control point; A value of 0 can only be specified for the very first control point in the sequence as a way to provide an initial state for the effect. It will cause an IllegalArgumentException if found in any other index; All delays MUST be whole multiples of the light's update period (frame period) (<see cref="P:Android.Hardware.Lights.Light.MinUpdatePeriodMillis" />). If any specified delay is a fractional number of frames, the system will truncate the delay potentially altering initially expected interpolation values and relative timing with other lights.</para>
           <para>Providing an initial state is not required and the effect will take the last known state as the starting point for the interpolation, creating smooth transitions between effects.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence.Builder#addControlPoint(long,%20int)" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.Builder.addControlPoint</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException"><paramref name="delayMillis" /> is negative, or is zero after a control point has already been added.</exception>
       </Docs>
     </Member>
     <Member MemberName="AddControlPoints">
@@ -139,6 +139,7 @@
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence.Builder#addControlPoints(android.hardware.lights.ColorSequence)" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.Builder.addControlPoints</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException"><paramref name="sequence" /> would make the combined sequence invalid.</exception>
       </Docs>
     </Member>
     <Member MemberName="AddControlPoints">
@@ -179,6 +180,7 @@
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence.Builder#addControlPoints(long[],%20int[])" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.Builder.addControlPoints</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException">The arrays have different lengths or contain invalid delays.</exception>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -213,6 +215,7 @@
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence.Builder#build()" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.Builder.build</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalStateException">No control points have been added to the builder.</exception>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -273,12 +276,12 @@
         <Parameter Name="interpolationMode" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="interpolationMode">specifying how to ramp the light between control points. Value is one of the following: ColorSequence.INTERPOLATION_MODE_NONE; ColorSequence.INTERPOLATION_MODE_LINEAR</param>
+        <param name="interpolationMode"><see cref="F:Android.Hardware.Lights.InterpolationMode.None" /> or <see cref="F:Android.Hardware.Lights.InterpolationMode.Linear" />, cast to <c>int</c>, specifying how to change the light between control points.</param>
         <summary>Sets the interpolation mode to use to transition between control point colors.</summary>
         <returns>This builder with the interpolation mode set.</returns>
         <remarks>
           <para>Sets the interpolation mode to use to transition between control point colors.</para>
-          <para>By default, the builder configures the sequence with ColorSequence.INTERPOLATION_MODE_LINEAR.</para>
+          <para>By default, the builder uses <see cref="F:Android.Hardware.Lights.InterpolationMode.Linear" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/hardware/lights/ColorSequence.Builder#setInterpolationMode(int)" title="Reference documentation">Android reference for <code>android.hardware.lights.ColorSequence.Builder.setInterpolationMode</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

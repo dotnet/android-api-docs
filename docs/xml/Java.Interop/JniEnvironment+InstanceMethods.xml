@@ -1470,14 +1470,14 @@
       </Parameters>
       <Docs>
         <param name="type">A valid reference to the Java class used for method lookup.</param>
-        <param name="name">The zero-terminated Java method name, or <c>&lt;init&gt;</c> for a constructor, encoded as modified UTF-8.</param>
-        <param name="signature">The zero-terminated JNI method descriptor encoded as modified UTF-8.</param>
+        <param name="name">The Java method name, or <c>&lt;init&gt;</c> for a constructor, encoded as modified UTF-8.</param>
+        <param name="signature">The JNI method descriptor encoded as modified UTF-8.</param>
         <summary>
-            Looks up a JNI instance method ID using null-terminated UTF-8 name and signature spans.
+            Looks up a JNI instance method ID using UTF-8 name and signature spans.
             Use with <c>"methodName"u8</c> literals to avoid string marshalling overhead.
             </summary>
         <returns>Valid JNI information for the instance method or constructor.</returns>
-        <remarks>Both spans must include terminating zero bytes. Their bytes are passed to JNI without transcoding or length arguments. A pending Java exception from lookup is converted to a managed exception.</remarks>
+        <remarks>Both byte sequences must be terminated in memory. Each zero terminator can be inside the span or immediately after it, as with a <c>u8</c> string literal. Their bytes are passed to JNI without transcoding or length arguments. A pending Java exception from lookup is converted to a managed exception.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GetMethodID">

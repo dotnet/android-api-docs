@@ -2383,11 +2383,11 @@
       </Parameters>
       <Docs>
         <param name="text">The text in which to parse a number using this formatter's parsing settings.</param>
-        <param name="parsePosition">Its index selects where parsing begins and advances on success; its error index reports a parsing failure.</param>
-        <summary>Returns a Long if possible (e.g., within the range [Long.MIN_VALUE, Long.MAX_VALUE] and with no decimals); otherwise, returns another type, such as a BigDecimal, BigInteger, or Double.</summary>
+        <param name="parsePosition">Its index selects where parsing begins and advances on success; its error index reports a parsing failure when parsing starts within the text.</param>
+        <summary>Returns a Long if possible (e.g., within the range [Long.MIN_VALUE, Long.MAX_VALUE] and with no decimals), unless <see cref="P:Android.Icu.Text.DecimalFormat.ParseBigDecimal" /> is enabled; otherwise, returns another type, such as a BigDecimal, BigInteger, or Double.</summary>
         <returns>The parsed numeric value, or <see langword="null" /> when parsing fails.</returns>
         <remarks>
-          <para>Returns a Long if possible (e.g., within the range [Long.MIN_VALUE, Long.MAX_VALUE] and with no decimals); otherwise, returns another type, such as a BigDecimal, BigInteger, or Double. The return type is not guaranteed other than for the Long case. If IntegerOnly is set, will stop at a decimal point (or equivalent; e.g., for rational numbers "1 2/3", will stop after the 1). Does not throw an exception; if no object can be parsed, index is unchanged! For more detail on parsing, see the "Parsing" header in the class documentation of DecimalFormat.</para>
+          <para>Returns a Long if possible (e.g., within the range [Long.MIN_VALUE, Long.MAX_VALUE] and with no decimals), unless <see cref="P:Android.Icu.Text.DecimalFormat.ParseBigDecimal" /> is enabled; otherwise, returns another type, such as a BigDecimal, BigInteger, or Double. The return type is not guaranteed other than for the Long case. If IntegerOnly is set, will stop at a decimal point (or equivalent; e.g., for rational numbers "1 2/3", will stop after the 1). If no object can be parsed, index is unchanged. Null text or a negative starting index causes an exception. For more detail on parsing, see the "Parsing" header in the class documentation of DecimalFormat.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#parse(java.lang.String,%20java.text.ParsePosition)" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.parse(java.lang.String, java.text.ParsePosition)</code>.</a>
@@ -2435,12 +2435,12 @@
       <Docs>
         <param name="value">true to cause <c>#parse</c> to prefer BigDecimal; false to let <c>#parse</c>
                 return additional data types like Long or BigInteger.</param>
-        <summary>Returns whether <c>#parse</c> will always return a BigDecimal. -or- Whether to make <c>#parse</c> prefer returning a <c>android.icu.math.BigDecimal</c> when
+        <summary>Returns whether <c>#parse</c> prefers returning a BigDecimal. -or- Whether to make <c>#parse</c> prefer returning a <c>android.icu.math.BigDecimal</c> when
             possible.</summary>
         <value><see langword="true" /> to prefer ICU decimal results where possible; special floating-point values can still produce a <see cref="T:Java.Lang.Double" />.</value>
         <remarks>
           <para>Property getter documentation:</para>
-          <para>Returns whether <c>#parse</c> will always return a BigDecimal.</para>
+          <para>Returns whether <c>#parse</c> prefers returning a BigDecimal.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/icu/text/DecimalFormat#isParseBigDecimal()" title="Reference documentation">Java documentation for <code>android.icu.text.DecimalFormat.isParseBigDecimal()</code>.</a>

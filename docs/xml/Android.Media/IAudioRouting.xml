@@ -78,8 +78,9 @@
         <param name="listener">The <c>AudioRouting.OnRoutingChangedListener</c> interface to receive
             notifications of rerouting events.</param>
         <param name="handler">Specifies the <c>Handler</c> object for the thread on which to execute
-            the callback. If <c>null</c>, the <c>Handler</c> associated with the main
-            <c>Looper</c> will be used.</param>
+            the callback. On Android API 37.2, if this is <c>null</c>, AudioTrack and AudioRecord use
+            the creation thread's looper, or the main looper if that thread has none. Other
+            implementations may behave differently.</param>
         <summary>Adds an <c>AudioRouting.OnRoutingChangedListener</c> to receive notifications of routing
             changes on this AudioTrack/AudioRecord.</summary>
         <remarks>
@@ -201,7 +202,7 @@
         <summary>Returns an AudioDeviceInfo identifying the current routing of this AudioTrack/AudioRecord.</summary>
         <value>The audio device reported by the routing implementation. Interpret its availability according to the concrete player's or recorder's activity state.</value>
         <remarks>
-          <para>Returns an AudioDeviceInfo identifying the current routing of this AudioTrack/AudioRecord. Note: The query is only valid if the AudioTrack/AudioRecord is currently playing. If it is not, getRoutedDevice() will return null.</para>
+          <para>Returns an AudioDeviceInfo identifying the current routing of an AudioTrack or AudioRecord. For AudioTrack, the query is valid while it is playing; for AudioRecord, it is valid while it is recording. Otherwise, the result is null.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/AudioRouting#getRoutedDevice()" title="Reference documentation">Android reference for <code>android.media.AudioRouting.getRoutedDevice</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

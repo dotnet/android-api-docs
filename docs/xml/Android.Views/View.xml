@@ -2604,9 +2604,10 @@
         <ReturnType>Android.Views.View+ApplyWindowInsetsHandler</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets or sets the handler used when window insets are applied to this view.</summary>
-        <value>The managed delegate installed for the view's window-insets callback, or null if no delegate is installed.</value>
+        <summary>Accesses a managed window-insets handler wrapper without registering a listener.</summary>
+        <value>The delegate stored by the wrapper, or null if the wrapper or its handler is unavailable.</value>
         <remarks>
+          <para>The wrapper is held by a weak reference and may be collected. To register a listener with the view, use <see cref="M:Android.Views.View.SetOnApplyWindowInsetsListener(Android.Views.View.IOnApplyWindowInsetsListener)" />.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -2896,7 +2897,7 @@
             or <c>#AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR</c>).</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE</c>).</para>
+            value should be <c>creditCardExpirationDate</c>).</para>
           <para>When annotating a view with this hint, it's recommended to use a date autofill value to
             avoid ambiguity when the autofill service provides a value for it. To understand why a
             value can be ambiguous, consider "April of 2020", which could be represented as either of
@@ -2959,7 +2960,7 @@
           <para>Hint indicating that this view can be autofilled with a credit card expiration day.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY</c>).</para>
+            value should be <c>creditCardExpirationDay</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -3007,7 +3008,7 @@
           <para>Hint indicating that this view can be autofilled with a credit card expiration month.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH</c>).</para>
+            value should be <c>creditCardExpirationMonth</c>).</para>
           <para>When annotating a view with this hint, it's recommended to use a text autofill value
             whose value is the numerical representation of the month, starting on <c>1</c> to avoid
             ambiguity when the autofill service provides a value for it. To understand why a
@@ -3069,7 +3070,7 @@
           <para>Hint indicating that this view can be autofilled with a credit card expiration year.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR</c>).</para>
+            value should be <c>creditCardExpirationYear</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -3117,7 +3118,7 @@
           <para>Hint indicating that this view can be autofilled with a credit card number.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_CREDIT_CARD_NUMBER</c>).</para>
+            value should be <c>creditCardNumber</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -3165,7 +3166,7 @@
           <para>Hint indicating that this view can be autofilled with a credit card security code.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE</c>).</para>
+            value should be <c>creditCardSecurityCode</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -3213,7 +3214,7 @@
           <para>Hint indicating that this view can be autofilled with an email address.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_EMAIL_ADDRESS</c>).</para>
+            value should be <c>emailAddress</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -3261,7 +3262,7 @@
           <para>Hint indicating that this view can be autofilled with a user's real name.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_NAME</c>).</para>
+            value should be <c>name</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -3309,7 +3310,7 @@
           <para>Hint indicating that this view can be autofilled with a password.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_PASSWORD</c>).</para>
+            value should be <c>password</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -3357,7 +3358,7 @@
           <para>Hint indicating that this view can be autofilled with a phone number.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_PHONE</c>).</para>
+            value should be <c>phone</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -3405,7 +3406,7 @@
           <para>Hint indicating that this view can be autofilled with a postal address.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_POSTAL_ADDRESS</c>).</para>
+            value should be <c>postalAddress</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -3453,7 +3454,7 @@
           <para>Hint indicating that this view can be autofilled with a postal code.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_POSTAL_CODE</c>).</para>
+            value should be <c>postalCode</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -3501,7 +3502,7 @@
           <para>Hint indicating that this view can be autofilled with a username.</para>
           <para>Can be used with either <c>#setAutofillHints(String[])</c> or
              &lt;c&gt;android:autofillHint&lt;/c&gt; (in which case the
-            value should be <c>AUTOFILL_HINT_USERNAME</c>).</para>
+            value should be <c>username</c>).</para>
           <para>See <c>#setAutofillHints(String...)</c> for more info about autofill hints.</para>
           <para>
             <format type="text/html">
@@ -11051,9 +11052,9 @@
         <typeparam name="T">The expected view type.</typeparam>
         <param name="id">The resource identifier of the view to find.</param>
         <summary>Finds the view with the specified ID as the requested type.</summary>
-        <returns>The matching view as <typeparamref name="T" />, or <c>null</c> when no view with <paramref name="id" /> exists.</returns>
+        <returns>The matching view as <typeparamref name="T" />, or <c>null</c> if <paramref name="id" /> is <see cref="F:Android.Views.View.NoId" /> or no matching view is found in this view's hierarchy.</returns>
         <remarks>
-          <para>This managed convenience overload performs the same search as the non-generic overload. It returns <c>null</c> only when no view with <paramref name="id" /> exists; it throws <see cref="T:System.InvalidCastException" /> when the matching view cannot be cast to <typeparamref name="T" />.</para>
+          <para>This managed convenience overload performs the same search as the non-generic overload. It returns <c>null</c> if <paramref name="id" /> is <see cref="F:Android.Views.View.NoId" /> or no matching view is found in this view's hierarchy; it throws <see cref="T:System.InvalidCastException" /> when the matching view cannot be cast to <typeparamref name="T" />.</para>
         </remarks>
       </Docs>
     </Member>
@@ -16425,8 +16426,8 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Check for state of <see cref="P:Android.Views.View.FitsSystemWindows" />.</summary>
-        <returns><c>true</c> if the default implementation of <see cref="M:Android.Views.View.FitSystemWindows(Android.Graphics.Rect)" /> will be executed.</returns>
+        <summary>Checks whether the view has the FITS_SYSTEM_WINDOWS flag set.</summary>
+        <returns><c>true</c> if the flag is set; otherwise, <c>false</c>.</returns>
         <remarks>
           <para>
             <format type="text/html">
@@ -18878,7 +18879,7 @@
         <ReturnType>System.EventHandler&lt;Android.Views.View+LongClickUseDefaultHapticFeedbackEventArgs&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Occurs when a long click requests the default haptic feedback behavior.</summary>
+        <summary>Occurs when the view asks whether to use the default haptic feedback after a long-click listener consumes the click.</summary>
         <remarks>
           <para>For details, see the Android reference documentation for android.view.View.</para>
         </remarks>
@@ -22689,7 +22690,7 @@
         <Parameter Name="pointerIndex" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="e">The <see cref="T:Android.Views.MotionEvent" /> that requires a pointer icon to be resolved for one of pointers.</param>
+        <param name="e">The <see cref="T:Android.Views.MotionEvent" /> that requires a pointer icon to be resolved for one of its pointers.</param>
         <param name="pointerIndex">The index of the pointer in <c>event</c> for which to retrieve the
                 <c>PointerIcon</c>. This will be between 0 and <c>MotionEvent#getPointerCount()</c>.</param>
         <summary>Resolve the pointer icon that should be used for specified pointer in the motion event.</summary>
@@ -24784,7 +24785,7 @@
       <Docs>
         <param name="request">the HapticFeedbackRequest encapsulating the request for haptic. This value cannot be null.</param>
         <summary>Like performHapticFeedback(int, int), but takes a HapticFeedbackRequest.</summary>
-        <returns>false if isHapticFeedbackEnabled() is false, or this View is not attached to a visible window, or the vibration usage in the provided request is not valid (i.e. neither has VibrationAttributes.USAGE_CLASS_FEEDBACK nor is VibrationAttributes.USAGE_UNKNOWN); otherwise, true, indicating that the haptic feedback request has been sent to the system. Note that true could be returned but no vibration may be produced if the service decides that the device's states do not allow for this haptic feedback (for example, the user disabled vibrations for this usage).</returns>
+        <returns>true if the haptic feedback request was sent to the system; otherwise, false, for example if the vibration usage is invalid or feedback is suppressed. A return value of true does not guarantee that vibration occurs.</returns>
         <remarks>
           <para>Like performHapticFeedback(int, int), but takes a HapticFeedbackRequest.</para>
           <para>Using a HapticFeedbackRequest allows you to make more elaborate haptic feedback requests, including setting the usage type for the requested feedback.</para>
@@ -27195,7 +27196,7 @@
       <Docs>
         <param name="action">The action to remove from the message handling queue</param>
         <summary>Attempts to remove a pending execution of the specified action that was posted with <see cref="M:Android.Views.View.Post(System.Action)" /> or <see cref="M:Android.Views.View.PostDelayed(System.Action,System.Int64)" />.</summary>
-        <returns><c>false</c> if no managed wrapper is currently registered for this <paramref name="action" /> delegate instance; nothing is removed in that case, even if a post of the action is still pending. Otherwise <c>true</c>: the wrapper created by the most recent post of <paramref name="action" /> is removed from the pending queue of the view and, if the view is attached to a window, from the message queue. A result of <c>true</c> does not mean that the action was still pending. Only one wrapper is tracked per delegate instance, and that registration is cleared whenever any posted execution of the action finishes running. Earlier posts are therefore never removed, and the most recent post is not removed if another execution of the action finished after it was posted (for example, an action that posts itself again). To cancel repeated work reliably, post one <see cref="T:Java.Lang.IRunnable" /> instance (for example, a <see cref="T:Java.Lang.Runnable" />) and pass that same instance to <see cref="M:Android.Views.View.RemoveCallbacks(Java.Lang.IRunnable)" />, or check a cancellation flag inside the action.</returns>
+        <returns><c>false</c> if no managed wrapper is currently registered for this <paramref name="action" /> delegate instance; nothing is removed in that case, even if a post of the action is still pending. Otherwise, the result of passing the registered wrapper to <see cref="M:Android.Views.View.RemoveCallbacks(Java.Lang.IRunnable)" />. A result of <c>true</c> does not mean that a pending callback was removed. Only the most recently registered wrapper is tracked for a delegate instance, including wrappers registered by other views or for drawable scheduling. When a wrapper executes normally, it clears the registration even if a newer wrapper replaced it. Pending callbacks can therefore become unavailable to this overload. To cancel repeated work reliably, post one <see cref="T:Java.Lang.IRunnable" /> instance (for example, a <see cref="T:Java.Lang.Runnable" />) and pass that same instance to <see cref="M:Android.Views.View.RemoveCallbacks(Java.Lang.IRunnable)" />, or check a cancellation flag inside the action.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -28093,7 +28094,7 @@
           <para>Events from other types of devices, such as touchscreens, will not be affected.</para>
           <para>Pointer ballistics curves and the user's pointer speed settings will not be applied in this mode.</para>
           <para>When pointer capture changes, connected mouse and touchpad devices may be reconfigured, and their properties (such as their sources or motion ranges) may change. Use an InputManager.InputDeviceListener to be notified when a device changes (which may happen after enabling or disabling pointer capture), and use InputDevice.getDevice(int) to get the updated InputDevice.</para>
-          <para>Events captured through pointer capture will be dispatched to OnCapturedPointerListener.onCapturedPointer(View,MotionEvent) if an OnCapturedPointerListener is set, and otherwise to onCapturedPointerEvent(MotionEvent).</para>
+          <para>Events captured through pointer capture are dispatched to OnCapturedPointerListener.onCapturedPointer(View,MotionEvent) if an OnCapturedPointerListener is set. If the listener is not set or returns false, the event is dispatched to onCapturedPointerEvent(MotionEvent).</para>
           <para>If the window already has pointer capture in the same mode, this call does nothing. If it already has pointer capture in a different mode, it will transition to the new mode.</para>
           <para>The capture may be released through releasePointerCapture(), or will be lost automatically when the window loses focus.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/View#requestPointerCapture(int)" title="Reference documentation">Android reference for <code>android.view.View.requestPointerCapture</code>.</a></format></para>
@@ -28249,7 +28250,7 @@
         <param name="immediate">True to forbid animated scrolling, false otherwise</param>
         <param name="source">The type of user interaction that requested this rectangle. Value is one of the following: RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED; RECTANGLE_ON_SCREEN_REQUEST_SOURCE_SCROLL_ONLY; RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR; RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS</param>
         <summary>Request that a rectangle of this view be visible on the screen, scrolling if necessary just enough.</summary>
-        <returns>Whether any parent scrolled.</returns>
+        <returns><c>true</c> if at least one parent reports that it scrolled or will scroll to handle the request; otherwise, <c>false</c>. Scrolling may be animated.</returns>
         <remarks>
           <para>Request that a rectangle of this view be visible on the screen, scrolling if necessary just enough.</para>
           <para>A View should call this if it maintains some notion of which part of its content is interesting. For example, a text editing view should call this when its cursor moves.</para>
@@ -30614,7 +30615,7 @@
         <ReturnType>System.EventHandler&lt;Android.Views.View+ScrollChangeEventArgs&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Occurs when this view scroll position changes.</summary>
+        <summary>Occurs when this view's scroll position changes.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -34143,7 +34144,7 @@
       <Docs>
         <param name="callback">Callback that will control the lifecycle of the action mode</param>
         <param name="type">One of <see cref="F:Android.Views.ActionModeType.Primary" /> or <see cref="F:Android.Views.ActionModeType.Floating" />.</param>
-        <summary>Start an action mode with the default type <c>ActionMode#TYPE_PRIMARY</c>.</summary>
+        <summary>Starts an action mode with the specified type.</summary>
         <returns>The new action mode if it is started, null otherwise</returns>
         <remarks>
           <para>
@@ -35652,7 +35653,7 @@
         <ReturnType>System.EventHandler&lt;Android.Views.View+SystemUiVisibilityChangeEventArgs&gt;</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Occurs when this view system UI visibility changes.</summary>
+        <summary>Occurs when the system UI visibility changes.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -37583,7 +37584,7 @@
       <Docs>
         <param name="who">the recipient of the action</param>
         <param name="what">the action to cancel</param>
-        <summary>Cancels a previously scheduled drawable action.</summary>
+        <summary>Attempts to cancel a drawable action using its currently registered managed wrapper.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -37716,13 +37717,13 @@
       </ReturnValue>
       <Docs>
         <summary>Indicate whether the vertical edges are faded when the view is
-            scrolled horizontally.</summary>
+            scrolled vertically.</summary>
         <value>true if the vertical edges should are faded on scroll, false
                     otherwise</value>
         <remarks>
           <para>Property getter documentation:</para>
           <para>Indicate whether the vertical edges are faded when the view is
-            scrolled horizontally.</para>
+            scrolled vertically.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/View#isVerticalFadingEdgeEnabled()" title="Reference documentation">Java documentation for <code>android.view.View.isVerticalFadingEdgeEnabled()</code>.</a>

@@ -602,9 +602,9 @@
         <Parameter Name="buffer" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER.</param>
+        <param name="target">GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, or another target supported by the current context.</param>
         <param name="buffer">The unsigned buffer-name bit pattern; zero clears the target's binding.</param>
-        <summary>Binds a buffer object to an array or element-array target.</summary>
+        <summary>Binds a buffer object to a supported buffer target.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -635,7 +635,7 @@
         <Parameter Name="framebuffer" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_FRAMEBUFFER.</param>
+        <param name="target">GL_FRAMEBUFFER or a supported extension target, such as GL_READ_FRAMEBUFFER_ANGLE or GL_DRAW_FRAMEBUFFER_ANGLE.</param>
         <param name="framebuffer">The unsigned framebuffer-name bit pattern; zero selects the window-system framebuffer.</param>
         <summary>Binds a framebuffer object or the default framebuffer.</summary>
         <remarks>
@@ -701,7 +701,7 @@
         <Parameter Name="texture" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
         <param name="texture">The unsigned texture-name bit pattern; zero selects the target's default texture.</param>
         <summary>Binds a texture name to the active unit's texture target.</summary>
         <remarks>
@@ -879,7 +879,7 @@
         <Parameter Name="mode" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mode">GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT, or a supported extension equation.</param>
+        <param name="mode">A blend equation supported by the current context, such as GL_FUNC_ADD, GL_FUNC_SUBTRACT, or GL_FUNC_REVERSE_SUBTRACT.</param>
         <summary>Selects one blend equation for both RGB and alpha.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1293,10 +1293,10 @@
         <Parameter Name="usage" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER, with a nonzero buffer bound.</param>
+        <param name="target">GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, or another supported target, with a nonzero buffer bound.</param>
         <param name="size">The nonnegative new data-store size in bytes.</param>
         <param name="data">A direct or accessible array-backed input buffer at its current position with size bytes available, or null to allocate undefined contents. JNI checks remaining bytes for non-null input.</param>
-        <param name="usage">GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW; this is a usage hint, not an access restriction.</param>
+        <param name="usage">A usage hint such as GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW; the current context determines the supported tokens. This is not an access restriction.</param>
         <summary>Replaces the bound buffer's data store, optionally copying initial bytes.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1358,7 +1358,7 @@
         <Parameter Name="data" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="target">GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER, with a nonzero buffer bound.</param>
+        <param name="target">GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, or another supported target, with a nonzero buffer bound.</param>
         <param name="offset">The nonnegative destination byte offset.</param>
         <param name="size">The nonnegative number of bytes to copy; offset plus size must fit the existing store.</param>
         <param name="data">A non-null direct or accessible array-backed input buffer at its current position with size bytes available. JNI checks remaining bytes.</param>
@@ -1476,7 +1476,7 @@
         <Parameter Name="target" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_FRAMEBUFFER.</param>
+        <param name="target">GL_FRAMEBUFFER or a supported extension target, such as GL_READ_FRAMEBUFFER_ANGLE or GL_DRAW_FRAMEBUFFER_ANGLE.</param>
         <summary>Gets the completeness status of the bound framebuffer.</summary>
         <returns>GL_FRAMEBUFFER_COMPLETE, an incompleteness status token, or zero if the query generates an error.</returns>
         <remarks>
@@ -1536,7 +1536,7 @@
         <Parameter Name="mask" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mask">A bitwise combination of GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, and GL_STENCIL_BUFFER_BIT.</param>
+        <param name="mask">A bitwise combination of supported buffer bits, such as GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, and GL_STENCIL_BUFFER_BIT.</param>
         <summary>Clears selected buffers using their current clear values and applicable write masks.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -1882,8 +1882,8 @@
       </Parameters>
       <Docs>
         <param name="target">GL_TEXTURE_2D or one of the six GL_TEXTURE_CUBE_MAP face tokens.</param>
-        <param name="level">The nonnegative mipmap level; zero is the base image.</param>
-        <param name="internalformat">The supported extension-defined compressed-format token; core OpenGL ES 2.0 requires no particular compressed format.</param>
+        <param name="level">A nonnegative mipmap level for ordinary compressed formats, with zero as the base image. GL_OES_compressed_paletted_texture instead requires zero or a negative level; its absolute value plus one gives the number of levels.</param>
+        <param name="internalformat">A supported compressed-format token; core OpenGL ES 2.0 requires no particular compressed format.</param>
         <param name="width">The image width in texels, satisfying the selected format's size restrictions.</param>
         <param name="height">The image height in texels, satisfying the selected format's size restrictions.</param>
         <param name="border">Zero; OpenGL ES texture images have no border.</param>
@@ -1933,7 +1933,7 @@
         <param name="yoffset">The destination vertical texel offset, satisfying the format's block-alignment restrictions.</param>
         <param name="width">The nonnegative update width in texels, fitting the image and the format's block rules.</param>
         <param name="height">The nonnegative update height in texels, fitting the image and the format's block rules.</param>
-        <param name="format">The existing image's extension-defined compressed-format token, with its subimage-update restrictions.</param>
+        <param name="format">The existing image's supported compressed-format token, with its subimage-update restrictions.</param>
         <param name="imageSize">The compressed update's size in bytes, matching its format and dimensions.</param>
         <param name="data">A non-null direct or accessible array-backed input buffer at its current position, with imageSize bytes available. Capacity is not checked; pixel-row alignment does not apply. In contexts supporting pixel-unpack buffers, leave that binding zero for this client-memory overload.</param>
         <summary>Updates an existing compressed texture region when its format supports subimage updates.</summary>
@@ -2169,8 +2169,8 @@
         <Parameter Name="type" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="type">GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.</param>
-        <summary>Creates an empty vertex or fragment shader object.</summary>
+        <param name="type">GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, or another shader type supported by the current context.</param>
+        <summary>Creates an empty shader object of the specified type.</summary>
         <returns>The new nonzero shader-name bit pattern, or zero if creation fails.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -3312,7 +3312,7 @@
         <Parameter Name="count" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mode">The supported point, line, or triangle primitive-mode token.</param>
+        <param name="mode">A primitive-mode token supported by the current context, such as a point, line, or triangle mode.</param>
         <param name="first">The first vertex element; the complete range must be valid in each enabled attribute array.</param>
         <param name="count">The nonnegative number of sequential vertex elements to use.</param>
         <summary>Draws primitives for a sequential vertex range using the current program and attribute state.</summary>
@@ -3348,9 +3348,9 @@
         <Parameter Name="indices" Type="Java.Nio.Buffer" />
       </Parameters>
       <Docs>
-        <param name="mode">The supported point, line, or triangle primitive-mode token.</param>
+        <param name="mode">A primitive-mode token supported by the current context, such as a point, line, or triangle mode.</param>
         <param name="count">The nonnegative number of indices to read.</param>
-        <param name="type">GL_UNSIGNED_BYTE or GL_UNSIGNED_SHORT, or a supported extension index type.</param>
+        <param name="type">GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, or another index type supported by the current context.</param>
         <param name="indices">A non-null direct or accessible array-backed input buffer at its current position with count indices of the selected type. JNI compares remaining bytes with count, not count times the index width. Every index must address valid enabled-attribute data; leave GL_ELEMENT_ARRAY_BUFFER unbound.</param>
         <summary>Draws indexed primitives using client-memory indices and the current program.</summary>
         <remarks>
@@ -3385,9 +3385,9 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="mode">The supported point, line, or triangle primitive-mode token.</param>
+        <param name="mode">A primitive-mode token supported by the current context, such as a point, line, or triangle mode.</param>
         <param name="count">The nonnegative number of indices to read.</param>
-        <param name="type">GL_UNSIGNED_BYTE or GL_UNSIGNED_SHORT, or a supported extension index type.</param>
+        <param name="type">GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, or another index type supported by the current context.</param>
         <param name="offset">The nonnegative byte offset in the bound element-array buffer, aligned for type; supply enough index storage and valid attribute ranges.</param>
         <summary>Draws indexed primitives using indices in the bound element-array buffer.</summary>
         <remarks>
@@ -4324,8 +4324,8 @@
         <Parameter Name="renderbuffer" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_FRAMEBUFFER.</param>
-        <param name="attachment">GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, or GL_STENCIL_ATTACHMENT.</param>
+        <param name="target">GL_FRAMEBUFFER or a supported extension target, such as GL_READ_FRAMEBUFFER_ANGLE or GL_DRAW_FRAMEBUFFER_ANGLE.</param>
+        <param name="attachment">GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT, or a supported extension attachment such as GL_COLOR_ATTACHMENT1_EXT.</param>
         <param name="renderbuffertarget">GL_RENDERBUFFER.</param>
         <param name="renderbuffer">The unsigned renderbuffer-name bit pattern; zero removes the attachment.</param>
         <summary>Attaches or detaches a renderbuffer image on the bound nondefault framebuffer.</summary>
@@ -4362,8 +4362,8 @@
         <Parameter Name="level" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_FRAMEBUFFER.</param>
-        <param name="attachment">GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, or GL_STENCIL_ATTACHMENT.</param>
+        <param name="target">GL_FRAMEBUFFER or a supported extension target, such as GL_READ_FRAMEBUFFER_ANGLE or GL_DRAW_FRAMEBUFFER_ANGLE.</param>
+        <param name="attachment">GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT, or a supported extension attachment such as GL_COLOR_ATTACHMENT1_EXT.</param>
         <param name="textarget">GL_TEXTURE_2D or one of the six GL_TEXTURE_CUBE_MAP face tokens.</param>
         <param name="texture">The unsigned texture-name bit pattern; zero removes the attachment.</param>
         <param name="level">Zero for the core OpenGL ES 2.0 framebuffer contract.</param>
@@ -4689,7 +4689,7 @@
         <Parameter Name="target" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
+        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP in OpenGL ES 2.0; OpenGL ES 3.0 also accepts GL_TEXTURE_3D and GL_TEXTURE_2D_ARRAY.</param>
         <summary>Regenerates the bound texture's mipmap levels from its base image.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -4992,7 +4992,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveAttrib(int,%20int,%20int,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20byte)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveAttrib(int, int, int, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer, byte)</code>.</a>
+              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveAttrib(int,%20int,%20java.nio.IntBuffer,%20java.nio.IntBuffer)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveAttrib(int, int, java.nio.IntBuffer, java.nio.IntBuffer)</code>.</a>
             </format>
           </para>
           <para>
@@ -5043,7 +5043,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveAttrib(int,%20int,%20int,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20byte)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveAttrib(int, int, int, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer, byte)</code>.</a>
+              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveAttrib(int,%20int,%20int[],%20int,%20int[],%20int)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveAttrib(int, int, int[], int, int[], int)</code>.</a>
             </format>
           </para>
           <para>
@@ -5155,7 +5155,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveAttrib(int,%20int,%20int,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20byte)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveAttrib(int, int, int, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer, byte)</code>.</a>
+              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveAttrib(int,%20int,%20int,%20int[],%20int,%20int[],%20int,%20int[],%20int,%20byte[],%20int)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveAttrib(int, int, int, int[], int, int[], int, int[], int, byte[], int)</code>.</a>
             </format>
           </para>
           <para>
@@ -5202,7 +5202,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveUniform(int,%20int,%20int,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20byte)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveUniform(int, int, int, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer, byte)</code>.</a>
+              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveUniform(int,%20int,%20java.nio.IntBuffer,%20java.nio.IntBuffer)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveUniform(int, int, java.nio.IntBuffer, java.nio.IntBuffer)</code>.</a>
             </format>
           </para>
           <para>
@@ -5253,7 +5253,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveUniform(int,%20int,%20int,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20byte)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveUniform(int, int, int, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer, byte)</code>.</a>
+              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveUniform(int,%20int,%20int[],%20int,%20int[],%20int)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveUniform(int, int, int[], int, int[], int)</code>.</a>
             </format>
           </para>
           <para>
@@ -5365,7 +5365,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveUniform(int,%20int,%20int,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20java.nio.IntBuffer,%20byte)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveUniform(int, int, int, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer, byte)</code>.</a>
+              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetActiveUniform(int,%20int,%20int,%20int[],%20int,%20int[],%20int,%20int[],%20int,%20byte[],%20int)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetActiveUniform(int, int, int, int[], int, int[], int, int[], int, byte[], int)</code>.</a>
             </format>
           </para>
           <para>
@@ -5582,10 +5582,10 @@
         <Parameter Name="params" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="target">GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER, with a nonzero buffer bound.</param>
-        <param name="pname">GL_BUFFER_SIZE for the byte size, or GL_BUFFER_USAGE for the usage token.</param>
+        <param name="target">GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, or another supported target, with a nonzero buffer bound.</param>
+        <param name="pname">GL_BUFFER_SIZE for the byte size, GL_BUFFER_USAGE for the usage token, or another selector supported by the current context.</param>
         <param name="params">A non-null direct, native-order output buffer at its current position with room for one integer value. The JNI minimum-size test compares bytes with scalar counts. Array-backed cleanup is unsafe.</param>
-        <summary>Gets the bound buffer's size or usage value.</summary>
+        <summary>Gets a parameter of the bound buffer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5618,11 +5618,11 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER, with a nonzero buffer bound.</param>
-        <param name="pname">GL_BUFFER_SIZE for the byte size, or GL_BUFFER_USAGE for the usage token.</param>
+        <param name="target">GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, or another supported target, with a nonzero buffer bound.</param>
+        <param name="pname">GL_BUFFER_SIZE for the byte size, GL_BUFFER_USAGE for the usage token, or another selector supported by the current context.</param>
         <param name="params">A non-null output array starting at offset with room for one integer value.</param>
         <param name="offset">The nonnegative starting array index, measured in result elements rather than bytes.</param>
-        <summary>Gets the bound buffer's size or usage value.</summary>
+        <summary>Gets a parameter of the bound buffer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -5752,9 +5752,9 @@
         <Parameter Name="params" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="target">GL_FRAMEBUFFER, with a nondefault framebuffer bound.</param>
-        <param name="attachment">GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, or GL_STENCIL_ATTACHMENT.</param>
-        <param name="pname">The supported attachment object-type, name, texture-level, or cube-face selector.</param>
+        <param name="target">GL_FRAMEBUFFER or a supported extension target, with a nondefault framebuffer bound to the selected target.</param>
+        <param name="attachment">GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT, or a supported extension attachment such as GL_COLOR_ATTACHMENT1_EXT.</param>
+        <param name="pname">The supported attachment property selector, such as object type, name, texture level, cube face, or an extension selector.</param>
         <param name="params">A non-null direct, native-order output buffer at its current position with room for one integer value. Capacity is not checked. Array-backed cleanup is unsafe.</param>
         <summary>Gets a property of the bound framebuffer's selected attachment.</summary>
         <remarks>
@@ -5790,9 +5790,9 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_FRAMEBUFFER, with a nondefault framebuffer bound.</param>
-        <param name="attachment">GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, or GL_STENCIL_ATTACHMENT.</param>
-        <param name="pname">The supported attachment object-type, name, texture-level, or cube-face selector.</param>
+        <param name="target">GL_FRAMEBUFFER or a supported extension target, with a nondefault framebuffer bound to the selected target.</param>
+        <param name="attachment">GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT, or a supported extension attachment such as GL_COLOR_ATTACHMENT1_EXT.</param>
+        <param name="pname">The supported attachment property selector, such as object type, name, texture level, cube face, or an extension selector.</param>
         <param name="params">A non-null output array starting at offset with room for one integer value. Capacity is not checked.</param>
         <param name="offset">The nonnegative starting array index, measured in result elements rather than bytes.</param>
         <summary>Gets a property of the bound framebuffer's selected attachment.</summary>
@@ -6000,7 +6000,7 @@
       </Parameters>
       <Docs>
         <param name="target">GL_RENDERBUFFER, with a nonzero renderbuffer bound.</param>
-        <param name="pname">The supported image-size, internal-format, or component-bit-size selector.</param>
+        <param name="pname">The supported renderbuffer property selector, such as image size, internal format, component bit size, or an extension selector.</param>
         <param name="params">A non-null direct, native-order output buffer at its current position with room for one integer value. The JNI minimum-size test compares bytes with scalar counts. Array-backed cleanup is unsafe.</param>
         <summary>Gets one property of the bound renderbuffer image.</summary>
         <remarks>
@@ -6036,7 +6036,7 @@
       </Parameters>
       <Docs>
         <param name="target">GL_RENDERBUFFER, with a nonzero renderbuffer bound.</param>
-        <param name="pname">The supported image-size, internal-format, or component-bit-size selector.</param>
+        <param name="pname">The supported renderbuffer property selector, such as image size, internal format, component bit size, or an extension selector.</param>
         <param name="params">A non-null output array starting at offset with room for one integer value.</param>
         <param name="offset">The nonnegative starting array index, measured in result elements rather than bytes.</param>
         <summary>Gets one property of the bound renderbuffer image.</summary>
@@ -6257,7 +6257,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetShaderSource(int,%20int,%20java.nio.IntBuffer,%20byte)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetShaderSource(int, int, java.nio.IntBuffer, byte)</code>.</a>
+              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetShaderSource(int)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetShaderSource(int)</code>.</a>
             </format>
           </para>
           <para>
@@ -6353,7 +6353,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetShaderSource(int,%20int,%20java.nio.IntBuffer,%20byte)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetShaderSource(int, int, java.nio.IntBuffer, byte)</code>.</a>
+              <a href="https://developer.android.com/reference/android/opengl/GLES20#glGetShaderSource(int,%20int,%20int[],%20int,%20byte[],%20int)" title="Reference documentation">Java documentation for <code>android.opengl.GLES20.glGetShaderSource(int, int, int[], int, byte[], int)</code>.</a>
             </format>
           </para>
           <para>
@@ -6390,7 +6390,7 @@
       <Docs>
         <param name="name">GL_VENDOR, GL_RENDERER, GL_VERSION, GL_SHADING_LANGUAGE_VERSION, or GL_EXTENSIONS.</param>
         <summary>Gets a string describing the current GL implementation or shading-language version.</summary>
-        <returns>The selected implementation string, or null when GL supplies no string; GL_EXTENSIONS is a space-separated list.</returns>
+        <returns>The selected implementation string. JNI passes the GL string pointer directly to NewStringUTF; GL_EXTENSIONS is a space-separated list.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -6422,9 +6422,9 @@
         <Parameter Name="params" Type="Java.Nio.FloatBuffer" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
-        <param name="pname">The supported scalar filtering or wrapping parameter selector.</param>
-        <param name="params">A non-null direct, native-order output buffer at its current position with room for one floating-point parameter value. The JNI minimum-size test compares bytes with scalar counts. Array-backed cleanup is unsafe.</param>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
+        <param name="pname">The supported texture-parameter selector.</param>
+        <param name="params">A non-null direct, native-order output buffer at its current position with room for all values selected by pname. Core parameters require one value; GL_TEXTURE_BORDER_COLOR_EXT requires four when supported. The JNI minimum-size test compares bytes with scalar counts and does not check the full extension result. Array-backed cleanup is unsafe.</param>
         <summary>Gets one parameter of the active unit's bound texture in floating-point form.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -6458,9 +6458,9 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
-        <param name="pname">The supported scalar filtering or wrapping parameter selector.</param>
-        <param name="params">A non-null output array starting at offset with room for one floating-point parameter value.</param>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
+        <param name="pname">The supported texture-parameter selector.</param>
+        <param name="params">A non-null output array starting at offset with room for all values selected by pname. Core parameters require one value; GL_TEXTURE_BORDER_COLOR_EXT requires four when supported. JNI checks only one value.</param>
         <param name="offset">The nonnegative starting array index, measured in result elements rather than bytes.</param>
         <summary>Gets one parameter of the active unit's bound texture in floating-point form.</summary>
         <remarks>
@@ -6494,9 +6494,9 @@
         <Parameter Name="params" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
-        <param name="pname">The supported scalar filtering or wrapping parameter selector.</param>
-        <param name="params">A non-null direct, native-order output buffer at its current position with room for one integer parameter value. The JNI minimum-size test compares bytes with scalar counts. Array-backed cleanup is unsafe.</param>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
+        <param name="pname">The supported texture-parameter selector.</param>
+        <param name="params">A non-null direct, native-order output buffer at its current position with room for all values selected by pname. Core parameters require one value; GL_TEXTURE_BORDER_COLOR_EXT requires four when supported. The JNI minimum-size test compares bytes with scalar counts and does not check the full extension result. Array-backed cleanup is unsafe.</param>
         <summary>Gets one parameter of the active unit's bound texture in integer form.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -6530,9 +6530,9 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
-        <param name="pname">The supported scalar filtering or wrapping parameter selector.</param>
-        <param name="params">A non-null output array starting at offset with room for one integer parameter value.</param>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
+        <param name="pname">The supported texture-parameter selector.</param>
+        <param name="params">A non-null output array starting at offset with room for all values selected by pname. Core parameters require one value; GL_TEXTURE_BORDER_COLOR_EXT requires four when supported. JNI checks only one value.</param>
         <param name="offset">The nonnegative starting array index, measured in result elements rather than bytes.</param>
         <summary>Gets one parameter of the active unit's bound texture in integer form.</summary>
         <remarks>
@@ -6999,7 +6999,7 @@
         <Parameter Name="mode" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_GENERATE_MIPMAP_HINT, or a supported extension hint target.</param>
+        <param name="target">GL_GENERATE_MIPMAP_HINT or another hint target supported by the current context.</param>
         <param name="mode">GL_FASTEST, GL_NICEST, or GL_DONT_CARE.</param>
         <summary>Sets a rendering hint whose interpretation is implementation-dependent.</summary>
         <remarks>
@@ -8152,7 +8152,7 @@
       </ReturnValue>
       <MemberValue>34076</MemberValue>
       <Docs>
-        <summary>Selects the maximum supported cube-map face dimension in texels.</summary>
+        <summary>Selects a rough estimate of the largest cube-map texture dimension in texels.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -8264,7 +8264,7 @@
       </ReturnValue>
       <MemberValue>3379</MemberValue>
       <Docs>
-        <summary>Selects the maximum supported two-dimensional texture dimension in texels.</summary>
+        <summary>Selects a rough estimate of the largest two-dimensional texture dimension in texels.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -9051,9 +9051,9 @@
         <Parameter Name="param" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="pname">GL_PACK_ALIGNMENT for pixel reads, or GL_UNPACK_ALIGNMENT for texture input.</param>
-        <param name="param">The row alignment in bytes: one, two, four, or eight.</param>
-        <summary>Sets the byte alignment used for packed or unpacked pixel rows.</summary>
+        <param name="pname">A pixel-storage property supported by the current context, such as GL_PACK_ALIGNMENT for pixel reads or GL_UNPACK_ALIGNMENT for texture input.</param>
+        <param name="param">The value for the selected property. For an alignment property, use one, two, four, or eight bytes.</param>
+        <summary>Sets a pixel packing or unpacking property.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -9238,8 +9238,8 @@
         <param name="y">The source rectangle's bottom window coordinate in pixels.</param>
         <param name="width">The nonnegative read width in pixels.</param>
         <param name="height">The nonnegative read height in pixels.</param>
-        <param name="format">GL_RGBA with GL_UNSIGNED_BYTE, or the implementation's supported color-read format paired with its supported type.</param>
-        <param name="type">GL_UNSIGNED_BYTE with GL_RGBA, or the implementation's supported color-read type paired with its supported format.</param>
+        <param name="format">A color-read format supported for the bound framebuffer and type; GL_RGBA pairs with GL_UNSIGNED_BYTE for normalized fixed-point buffers. OpenGL ES 3.0 also supports GL_RGBA_INTEGER for integer buffers.</param>
+        <param name="type">A color-read type supported for the bound framebuffer and format; GL_UNSIGNED_BYTE pairs with GL_RGBA for normalized fixed-point buffers. OpenGL ES 3.0 also defines GL_FLOAT, GL_INT, and GL_UNSIGNED_INT pairs for floating-point and integer buffers.</param>
         <param name="pixels">A non-null direct or accessible array-backed output buffer at its current position, with enough bytes for the selected format, type, dimensions, and active packing settings including GL_PACK_ALIGNMENT. Capacity is not checked. Leave any supported pixel-pack buffer unbound.</param>
         <summary>Copies a color-buffer rectangle into client memory in bottom-to-top row order.</summary>
         <remarks>
@@ -9297,7 +9297,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Releases supported shader-compiler resources; a later compilation restores the compiler.</summary>
+        <summary>Hints that resources of a supported shader compiler may be released; the compiler must be restored for later compilation.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -10250,7 +10250,7 @@
         <param name="n">The nonnegative number of existing shader objects to load; shader types must be distinct.</param>
         <param name="shaders">A non-null direct, native-order input buffer at its current position with n unsigned shader-name bit patterns. Shader-list capacity is not checked. Array-backed shader-list cleanup is unsafe.</param>
         <param name="binaryformat">A supported shader-binary format token from GL_SHADER_BINARY_FORMATS; no binary format is required by core ES2.</param>
-        <param name="binary">A non-null direct or accessible array-backed input buffer at its current position with length bytes available. JNI checks binary bytes and correctly recovers the array base during cleanup.</param>
+        <param name="binary">A non-null direct or accessible array-backed input buffer at its current position with length bytes available. JNI checks binary bytes; an undersized array-backed buffer can reach cleanup before pinning, so use a direct buffer or ensure sufficient data.</param>
         <param name="length">The nonnegative size of the complete shader-binary payload in bytes.</param>
         <summary>Loads implementation-supported precompiled binary code into existing shader objects.</summary>
         <remarks>
@@ -10291,7 +10291,7 @@
         <param name="shaders">A non-null input array at offset with n unsigned shader-name bit patterns. Shader-list capacity is not checked.</param>
         <param name="offset">The nonnegative starting shader-name array index, measured in entries rather than bytes.</param>
         <param name="binaryformat">A supported shader-binary format token from GL_SHADER_BINARY_FORMATS; no binary format is required by core ES2.</param>
-        <param name="binary">A non-null direct or accessible array-backed input buffer at its current position with length bytes available. JNI checks binary bytes and correctly recovers the array base during cleanup.</param>
+        <param name="binary">A non-null direct or accessible array-backed input buffer at its current position with length bytes available. JNI checks binary bytes; an undersized array-backed buffer can reach cleanup before pinning, so use a direct buffer or ensure sufficient data.</param>
         <param name="length">The nonnegative size of the complete shader-binary payload in bytes.</param>
         <summary>Loads implementation-supported precompiled binary code into existing shader objects.</summary>
         <remarks>
@@ -11459,7 +11459,7 @@
       </ReturnValue>
       <MemberValue>3408</MemberValue>
       <Docs>
-        <summary>Selects the number of fractional bits used for subpixel rasterization positions.</summary>
+        <summary>Selects an estimate of the number of subpixel resolution bits used to position rasterized geometry.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -11538,9 +11538,9 @@
         <Parameter Name="param" Type="System.Single" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
         <param name="pname">The supported single-valued texture-parameter selector.</param>
-        <param name="param">The selected symbolic texture-parameter value represented as a float.</param>
+        <param name="param">The selected symbolic or numeric texture-parameter value represented as a float.</param>
         <summary>Sets a scalar parameter of the active unit's bound texture.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -11573,10 +11573,10 @@
         <Parameter Name="params" Type="Java.Nio.FloatBuffer" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
-        <param name="pname">The supported single-valued texture-parameter selector.</param>
-        <param name="params">A non-null direct, native-order input buffer at its current position containing the selected parameter's symbolic value. The JNI size test compares bytes with scalar counts; array-backed cleanup is unsafe.</param>
-        <summary>Sets a parameter of the active unit's bound texture from a single-value array or buffer.</summary>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
+        <param name="pname">The supported texture-parameter selector.</param>
+        <param name="params">A non-null direct, native-order input buffer at its current position containing all values selected by pname. Core parameters require one value; GL_TEXTURE_BORDER_COLOR_EXT requires four when supported. The JNI size test compares bytes with scalar counts and does not check the full extension input; array-backed cleanup is unsafe.</param>
+        <summary>Sets a parameter of the active unit's bound texture from a buffer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -11609,11 +11609,11 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
-        <param name="pname">The supported single-valued texture-parameter selector.</param>
-        <param name="params">A non-null input array starting at offset containing the selected parameter's symbolic value.</param>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
+        <param name="pname">The supported texture-parameter selector.</param>
+        <param name="params">A non-null input array starting at offset containing all values selected by pname. Core parameters require one value; GL_TEXTURE_BORDER_COLOR_EXT requires four when supported. JNI checks only one value.</param>
         <param name="offset">The nonnegative starting array index, measured in elements rather than bytes.</param>
-        <summary>Sets a parameter of the active unit's bound texture from a single-value array or buffer.</summary>
+        <summary>Sets a parameter of the active unit's bound texture from an array.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -11645,9 +11645,9 @@
         <Parameter Name="param" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
         <param name="pname">The supported single-valued texture-parameter selector.</param>
-        <param name="param">The selected symbolic texture-parameter value.</param>
+        <param name="param">The selected symbolic or numeric texture-parameter value.</param>
         <summary>Sets a scalar integer parameter of the active unit's bound texture.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -11680,10 +11680,10 @@
         <Parameter Name="params" Type="Java.Nio.IntBuffer" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
-        <param name="pname">The supported single-valued texture-parameter selector.</param>
-        <param name="params">A non-null direct, native-order input buffer at its current position containing the selected parameter's symbolic value. The JNI size test compares bytes with scalar counts; array-backed cleanup is unsafe.</param>
-        <summary>Sets a parameter of the active unit's bound texture from a single-value array or buffer.</summary>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
+        <param name="pname">The supported texture-parameter selector.</param>
+        <param name="params">A non-null direct, native-order input buffer at its current position containing all values selected by pname. Core parameters require one value; GL_TEXTURE_BORDER_COLOR_EXT requires four when supported. The JNI size test compares bytes with scalar counts and does not check the full extension input; array-backed cleanup is unsafe.</param>
+        <summary>Sets a parameter of the active unit's bound texture from a buffer.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -11716,11 +11716,11 @@
         <Parameter Name="offset" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="target">GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.</param>
-        <param name="pname">The supported single-valued texture-parameter selector.</param>
-        <param name="params">A non-null input array starting at offset containing the selected parameter's symbolic value.</param>
+        <param name="target">GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, or a supported extension target such as GL_TEXTURE_EXTERNAL_OES.</param>
+        <param name="pname">The supported texture-parameter selector.</param>
+        <param name="params">A non-null input array starting at offset containing all values selected by pname. Core parameters require one value; GL_TEXTURE_BORDER_COLOR_EXT requires four when supported. JNI checks only one value.</param>
         <param name="offset">The nonnegative starting array index, measured in elements rather than bytes.</param>
-        <summary>Sets a parameter of the active unit's bound texture from a single-value array or buffer.</summary>
+        <summary>Sets a parameter of the active unit's bound texture from an array.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -11764,7 +11764,7 @@
         <param name="yoffset">The nonnegative vertical destination texel offset.</param>
         <param name="width">The nonnegative update width in texels; the destination range must fit the image.</param>
         <param name="height">The nonnegative update height in texels; the destination range must fit the image.</param>
-        <param name="format">The supported input color format compatible with the existing image.</param>
+        <param name="format">The supported input pixel format compatible with the existing image.</param>
         <param name="type">The supported component or packed-pixel type compatible with format.</param>
         <param name="pixels">For a nonempty update, a non-null direct or accessible array-backed input buffer at its current position. Supply the complete update including GL_UNPACK_ALIGNMENT row padding. JNI also accepts null, but supplies no pixel data and checks no capacity. In contexts supporting pixel-unpack buffers, leave that binding zero for this client-memory overload. Supply enough data for all active pixel-store settings.</param>
         <summary>Replaces a rectangular region of an existing texture image with pixel data.</summary>
