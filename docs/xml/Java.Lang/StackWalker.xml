@@ -33,28 +33,28 @@
     <summary>A stack walker.</summary>
     <remarks>
       <para>A stack walker.</para>
-      <para>The <c>StackWalker#walk walk</c> method opens a sequential stream
-            of <c>StackFrame StackFrame</c>s for the current thread and then applies
-            the given function to walk the <c>StackFrame</c> stream.
-            The stream reports stack frame elements in order, from the top most frame
-            that represents the execution point at which the stack was generated to
-            the bottom most frame.
-            The <c>StackFrame</c> stream is closed when the <c>walk</c> method returns.
-            If an attempt is made to reuse the closed stream,
-            <c>IllegalStateException</c> will be thrown.</para>
-      <para>The Option <i>stack walking options</i> of a
-            <c>StackWalker</c> determines the information of
-            <c>StackFrame StackFrame</c> objects to be returned.
-            By default, stack frames of the reflection API and implementation
-            classes are Option#SHOW_HIDDEN_FRAMES hidden
-            and <c>StackFrame</c>s have the class name and method name
-            available but not the <c>StackFrame#getDeclaringClass() Class reference</c>.</para>
+      <para>In the Java API, <c>walk</c> opens a sequential stream of stack frames
+            for the current thread and applies the supplied function to the stream.
+            The stream reports frames in order, from the top of the stack, where
+            execution is when the stack is generated, to the bottom. The stream is
+            closed when <c>walk</c> returns. Reusing the closed stream throws
+            <c>IllegalStateException</c>. The Android binding does not expose this
+            Java method.</para>
+      <para>The stack-walking options of a <c>StackWalker</c> determine the
+            information returned for each frame. By default, frames from the
+            reflection API and implementation classes are hidden; the
+            <c>ShowHiddenFrames</c> option includes them. Frames provide the
+            class and method names, but not a reference to the declaring class.
+            The declaring-class reference is available when the walker is configured
+            with the <c>RetainClassReference</c> option.</para>
       <para>
-        <c>StackWalker</c> is thread-safe. Multiple threads can share
-            a single <c>StackWalker</c> object to traverse its own stack.
-            A permission check is performed when a <c>StackWalker</c> is created,
-            according to the options it requests.
-            No further permission check is done at stack walking time.</para>
+        <c>StackWalker</c> is thread-safe. Multiple threads can share a single
+            <c>StackWalker</c> object to traverse their own stacks. In Java
+            environments with a security manager, a permission check is performed
+            when a <c>StackWalker</c> is created, according to the options it
+            requests. Android has no active security manager, so this permission
+            check is not performed on Android. No further permission check is done
+            at stack-walking time.</para>
       <para>Added in 9.</para>
       <para>
         <format type="text/html">

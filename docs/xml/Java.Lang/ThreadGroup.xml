@@ -350,14 +350,16 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Determines if the currently running thread has permission to
-            modify this thread group.</summary>
+        <summary>Checks whether the currently running thread can modify this
+            thread group when a security manager is present.</summary>
         <remarks>
           <para>Determines if the currently running thread has permission to
             modify this thread group.</para>
           <para>If there is a security manager, its <c>checkAccess</c> method
             is called with this thread group as its argument. This may result
             in throwing a <c>SecurityException</c>.</para>
+          <para>Android does not have an active security manager, so this
+            permission check is not performed on Android.</para>
           <para>Added in 1.0.</para>
           <para>This member is deprecated. This method is only useful in conjunction with
                   SecurityManager the Security Manager, which is
@@ -433,6 +435,8 @@
           <para>Changes the daemon status of this thread group.</para>
           <para>First, the <c>checkAccess</c> method of this thread group is
             called with no arguments; this may result in a security exception.</para>
+          <para>On Android, no active security manager is available, so this
+            permission check is not performed.</para>
           <para>A daemon thread group is automatically destroyed when its last
             thread is stopped or its last thread group is destroyed.</para>
           <para>Added in 1.0.</para>
@@ -488,6 +492,8 @@
             this thread group have since stopped.</para>
           <para>First, the <c>checkAccess</c> method of this thread group is
             called with no arguments; this may result in a security exception.</para>
+          <para>On Android, no active security manager is available, so this
+            permission check is not performed.</para>
           <para>Added in 1.0.</para>
           <para>This member is deprecated. The API and mechanism for destroying a ThreadGroup is inherently
                         flawed. The ability to explicitly or automatically destroy a

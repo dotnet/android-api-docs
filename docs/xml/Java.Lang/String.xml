@@ -2622,9 +2622,10 @@
                      than or equal to <c>beginIndex</c> and less than <c>endIndex</c>,
                      or <c>-1</c> if the character does not occur.</returns>
         <remarks>
-          <para>Returns the index within this string of the first occurrence of the specified character, starting the search at beginIndex and stopping before endIndex. If a character with value ch occurs in the character sequence represented by this String object at an index no smaller than beginIndex but smaller than endIndex, then the index of the first such occurrence is returned. For values of ch in the range from 0 to 0xFFFF (inclusive), this is the smallest value k such that: is true. For other values of ch, it is the smallest value k such that: is true. In either case, if no such character occurs in this string at or after position beginIndex and before position endIndex, then -1 is returned. All indices are specified in char values (Unicode code units).</para>
+          <para>Returns the index within this string of the first occurrence of the specified character, starting the search at <c>beginIndex</c> and stopping before <c>endIndex</c>. If a character with value <c>ch</c> occurs in the character sequence represented by this <c>String</c> object at an index no smaller than <c>beginIndex</c> but smaller than <c>endIndex</c>, then the index of the first such occurrence is returned. For values of <c>ch</c> from 0 through 0xFFFF, inclusive, this is the smallest value <c>k</c> such that <code lang="text/java">(this.charAt(k) == ch) &amp;&amp; (beginIndex &lt;= k &lt; endIndex)</code> is true. For other values of <c>ch</c>, this is the smallest value <c>k</c> such that <code lang="text/java">(this.codePointAt(k) == ch) &amp;&amp; (beginIndex &lt;= k &lt; endIndex)</code> is true. If no such character occurs in this string within the range, this method returns <c>-1</c>. All indices are specified in <c>char</c> values (Unicode code units).</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html#indexOf(int,int,int)" title="Reference documentation">Java reference for <code>java.lang.String.indexOf</code>.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.StringIndexOutOfBoundsException">if <c>beginIndex</c> is negative, <c>endIndex</c> is greater than the length of this string, or <c>beginIndex</c> is greater than <c>endIndex</c>.</exception>
       </Docs>
     </Member>
     <Member MemberName="IndexOf">
@@ -2662,9 +2663,10 @@
         <summary>Returns the index of the first occurrence of the specified substring within the specified index range of this string.</summary>
         <returns>the index of the first occurrence of the specified substring within the specified index range, or -1 if there is no such occurrence.</returns>
         <remarks>
-          <para>Returns the index of the first occurrence of the specified substring within the specified index range of this string. This method returns the same result as the one of the invocation if the index returned by indexOf(String) is non-negative, and returns -1 otherwise. (No substring is instantiated, though.)</para>
+          <para>Returns the index of the first occurrence of the specified substring within the specified index range of this string. The result is the same as the Java expression <code lang="text/java">this.substring(beginIndex, endIndex).indexOf(str) + beginIndex</code> if <c>indexOf(str)</c> on that substring returns a non-negative index; otherwise, this method returns <c>-1</c>. No substring is instantiated.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html#indexOf(java.lang.String,int,int)" title="Reference documentation">Java reference for <code>java.lang.String.indexOf</code>.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.StringIndexOutOfBoundsException">if <c>beginIndex</c> is negative, <c>endIndex</c> is greater than the length of this string, or <c>beginIndex</c> is greater than <c>endIndex</c>.</exception>
       </Docs>
     </Member>
     <Member MemberName="Intern">
@@ -4481,19 +4483,17 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Returns a string whose value is this string, with incidental
-            Character#isWhitespace(int) white space removed from
+        <summary>Returns this string with incidental white space removed from
             the beginning and end of every line.</summary>
         <returns>string with incidental indentation removed and line
                     terminators normalized</returns>
         <remarks>
-          <para>Returns a string whose value is this string, with incidental
-            Character#isWhitespace(int) white space removed from
+          <para>Returns this string with incidental white space removed from
             the beginning and end of every line.</para>
-          <para>Incidental Character#isWhitespace(int) white space
+          <para>Incidental white space recognized by <c>Character.IsWhitespace(int)</c>
             is often present in a text block to align the content with the opening
             delimiter. For example, in the following code, dots represent incidental
-            Character#isWhitespace(int) white space:
+            white space:
             &lt;blockquote&gt;</para>
           <code lang="text/java">String html = """
             ..............&lt;html&gt;
@@ -4504,9 +4504,9 @@
             ..............""";
             </code>
           <para>&lt;/blockquote&gt;
-            This method treats the incidental
-            Character#isWhitespace(int) white space as indentation to be
-            stripped, producing a string that preserves the relative indentation of
+            This method treats incidental white space recognized by
+            <c>Character.IsWhitespace(int)</c> as indentation to be stripped,
+            producing a string that preserves the relative indentation of
             the content. Using | to visualize the start of each line of the string:
             &lt;blockquote&gt;</para>
           <code lang="text/java">|&lt;html&gt;
@@ -4528,22 +4528,24 @@
           <para>Then, the <i>minimum indentation</i> (min) is determined as follows:
             &lt;ul&gt;
               &lt;li&gt;</para>
-          <para>For each non-blank line (as defined by <c>String#isBlank()</c>),
-              the leading Character#isWhitespace(int) white space
-              characters are counted.</para>
+          <para>For each non-blank line (a line whose <c>IsBlank</c> property is
+              <c>false</c>),
+              the leading characters recognized as white space by
+              <c>Character.IsWhitespace(int)</c> are counted.</para>
           <para>&lt;/li&gt;
               &lt;li&gt;</para>
-          <para>The leading Character#isWhitespace(int) white space
-              characters on the last line are also counted even if
-              String#isBlank() blank.</para>
+          <para>The leading characters recognized as white space by
+              <c>Character.IsWhitespace(int)</c> on the last line are also
+              counted, even if the last line's <c>IsBlank</c> property is
+              <c>true</c>.</para>
           <para>&lt;/li&gt;
             &lt;/ul&gt;</para>
           <para>The <i>min</i> value is the smallest of these counts.</para>
-          <para>For each String#isBlank() non-blank line, <i>min</i> leading
-            Character#isWhitespace(int) white space characters are
-            removed, and any trailing Character#isWhitespace(int) white
-            space characters are removed. String#isBlank() Blank lines
-            are replaced with the empty string.</para>
+          <para>For each non-blank line, <i>min</i> leading characters
+            recognized as white space by <c>Character.IsWhitespace(int)</c>
+            are removed, along with any trailing characters recognized as
+            white space. Lines whose <c>IsBlank</c> property is <c>true</c> are
+            replaced with the empty string.</para>
           <para>Finally, the lines are joined into a new string, using the LF character
             <c>"\n"</c> (U+000A) to separate lines.</para>
           <para>Added in 15.</para>
