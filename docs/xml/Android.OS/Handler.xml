@@ -1606,9 +1606,10 @@
         <Parameter Name="action" Type="System.Action" />
       </Parameters>
       <Docs>
-        <param name="action">The runnable to execute.</param>
-        <summary>Removes pending callbacks for the specified runnable.</summary>
+        <param name="action">The action whose callback should be removed.</param>
+        <summary>Attempts to remove the tracked callback for the specified action from this handler's queue.</summary>
         <remarks>
+          <para>The managed binding tracks only one runnable per <paramref name="action" /> instance, including across handlers. Posting the same instance multiple times or executing an earlier post can leave pending callbacks without a tracked runnable.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -1688,10 +1689,12 @@
         <Parameter Name="token" Type="Java.Lang.Object" />
       </Parameters>
       <Docs>
-        <param name="action">The runnable to execute.</param>
+        <param name="action">The action whose callback should be removed.</param>
         <param name="token">The token associated with the callback.</param>
-        <summary>Removes pending callbacks for the specified runnable.</summary>
+        <summary>Attempts to remove the tracked callback for the specified action and token from this handler's queue.</summary>
         <remarks>
+          <para>The managed binding tracks only one runnable per <paramref name="action" /> instance, including across handlers. Posting the same instance multiple times or executing an earlier post can leave pending callbacks without a tracked runnable.</para>
+          <para>Tracking is removed before the token is matched, so a nonmatching token can leave a callback in the queue without a tracked runnable.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
