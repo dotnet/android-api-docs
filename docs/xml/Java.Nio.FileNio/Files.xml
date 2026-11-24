@@ -154,12 +154,12 @@
         <param name="source">the path to the file to copy</param>
         <param name="target">the path to the target file (may be associated with a different provider to the source path)</param>
         <param name="options">options specifying how the copy should be done</param>
-        <summary>Reads all bytes from an input stream and writes them to an output stream.</summary>
+        <summary>Copy a file to a target file.</summary>
         <returns>the path to the target file</returns>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/nio/file/Files#copy(java.io.InputStream,%20java.io.OutputStream)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.copy(java.io.InputStream, java.io.OutputStream)</code>.</a>
+              <a href="https://developer.android.com/reference/java/nio/file/Files#copy(java.nio.file.Path,%20java.nio.file.Path,%20java.nio.file.CopyOption...)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.copy(java.nio.file.Path, java.nio.file.Path, java.nio.file.CopyOption...)</code>.</a>
             </format>
           </para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#copy(java.nio.file.Path,java.nio.file.Path,java.nio.file.CopyOption...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.copy</code>.</a></format></para>
@@ -169,6 +169,11 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">if the array contains a copy option that is not supported</exception>
+        <exception cref="T:Java.Nio.FileNio.FileAlreadyExistsException">if the target file exists but cannot be replaced because the REPLACE_EXISTING option is not specified (optional specific exception)</exception>
+        <exception cref="T:Java.Nio.FileNio.DirectoryNotEmptyException">the REPLACE_EXISTING option is specified but the file cannot be replaced because it is a non-empty directory (optional specific exception)</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkRead method is invoked to check read access to the source file, the checkWrite method is invoked to check write access to the target file. If a symbolic link is copied the security manager is invoked to check LinkPermission("symbolic").</exception>
       </Docs>
     </Member>
     <Member MemberName="Copy">
@@ -214,12 +219,12 @@
         <param name="in">The stream that supplies the bytes to copy to the target file.</param>
         <param name="target">the path to the file</param>
         <param name="options">options specifying how the copy should be done</param>
-        <summary>Reads all bytes from an input stream and writes them to an output stream.</summary>
+        <summary>Copies all bytes from an input stream to a file.</summary>
         <returns>the number of bytes read or written</returns>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/nio/file/Files#copy(java.io.InputStream,%20java.io.OutputStream)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.copy(java.io.InputStream, java.io.OutputStream)</code>.</a>
+              <a href="https://developer.android.com/reference/java/nio/file/Files#copy(java.io.InputStream,%20java.nio.file.Path,%20java.nio.file.CopyOption...)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.copy(java.io.InputStream, java.nio.file.Path, java.nio.file.CopyOption...)</code>.</a>
             </format>
           </para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#copy(java.io.InputStream,java.nio.file.Path,java.nio.file.CopyOption...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.copy</code>.</a></format></para>
@@ -229,6 +234,11 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs when reading or writing</exception>
+        <exception cref="T:Java.Nio.FileNio.FileAlreadyExistsException">if the target file exists but cannot be replaced because the REPLACE_EXISTING option is not specified (optional specific exception)</exception>
+        <exception cref="T:Java.Nio.FileNio.DirectoryNotEmptyException">the REPLACE_EXISTING option is specified but the file cannot be replaced because it is a non-empty directory (optional specific exception)</exception>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">if options contains a copy option that is not supported</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkWrite method is invoked to check write access to the file. Where the REPLACE_EXISTING option is specified, the security manager's checkDelete method is invoked to check that an existing file can be deleted.</exception>
       </Docs>
     </Member>
     <Member MemberName="CreateDirectories">
@@ -631,14 +641,13 @@
                      may be <c>null</c></param>
         <param name="attrs">an optional list of file attributes to set atomically when
                      creating the directory</param>
-        <summary>Creates a new directory in the default temporary-file directory, using
-            the given prefix to generate its name.</summary>
+        <summary>Creates a new directory in the specified directory, using the given prefix to generate its name.</summary>
         <returns>the path to the newly created directory that did not exist before
                      this method was invoked</returns>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/nio/file/Files#createTempDirectory(java.lang.String,%20java.nio.file.attribute.FileAttribute)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.createTempDirectory(java.lang.String, java.nio.file.attribute.FileAttribute)</code>.</a>
+              <a href="https://developer.android.com/reference/java/nio/file/Files#createTempDirectory(java.nio.file.Path,%20java.lang.String,%20java.nio.file.attribute.FileAttribute%3C?%3E...)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.createTempDirectory(java.nio.file.Path, java.lang.String, java.nio.file.attribute.FileAttribute&lt;?&gt;...)</code>.</a>
             </format>
           </para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#createTempDirectory(java.nio.file.Path,java.lang.String,java.nio.file.attribute.FileAttribute...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.createTempDirectory</code>.</a></format></para>
@@ -648,6 +657,10 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the prefix cannot be used to generate a candidate directory name</exception>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">if the array contains an attribute that cannot be set atomically when creating the directory</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs or dir does not exist</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkWrite method is invoked to check write access when creating the directory.</exception>
       </Docs>
     </Member>
     <Member MemberName="CreateTempFile">
@@ -762,14 +775,13 @@
                      may be <c>null</c>, in which case "<c>.tmp</c>" is used</param>
         <param name="attrs">an optional list of file attributes to set atomically when
                      creating the file</param>
-        <summary>Creates an empty file in the default temporary-file directory, using
-            the given prefix and suffix to generate its name.</summary>
+        <summary>Creates a new empty file in the specified directory, using the given prefix and suffix strings to generate its name.</summary>
         <returns>the path to the newly created file that did not exist before
                      this method was invoked</returns>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/nio/file/Files#createTempFile(java.lang.String,%20java.lang.String,%20java.nio.file.attribute.FileAttribute)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.createTempFile(java.lang.String, java.lang.String, java.nio.file.attribute.FileAttribute)</code>.</a>
+              <a href="https://developer.android.com/reference/java/nio/file/Files#createTempFile(java.nio.file.Path,%20java.lang.String,%20java.lang.String,%20java.nio.file.attribute.FileAttribute%3C?%3E...)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.createTempFile(java.nio.file.Path, java.lang.String, java.lang.String, java.nio.file.attribute.FileAttribute&lt;?&gt;...)</code>.</a>
             </format>
           </para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#createTempFile(java.nio.file.Path,java.lang.String,java.lang.String,java.nio.file.attribute.FileAttribute...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.createTempFile</code>.</a></format></para>
@@ -779,6 +791,10 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the prefix or suffix parameters cannot be used to generate a candidate file name</exception>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">if the array contains an attribute that cannot be set atomically when creating the directory</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs or dir does not exist</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkWrite method is invoked to check write access to the file.</exception>
       </Docs>
     </Member>
     <Member MemberName="Delete">
@@ -1484,6 +1500,8 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkRead method is invoked to check read access to the file.</exception>
       </Docs>
     </Member>
     <Member MemberName="IsReadable">
@@ -2223,7 +2241,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/nio/file/Files#newByteChannel(java.nio.file.Path,%20java.nio.file.OpenOption)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.newByteChannel(java.nio.file.Path, java.nio.file.OpenOption)</code>.</a>
+              <a href="https://developer.android.com/reference/java/nio/file/Files#newByteChannel(java.nio.file.Path,%20java.util.Set%3C?%20extends%20java.nio.file.OpenOption%3E,%20java.nio.file.attribute.FileAttribute%3C?%3E...)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.newByteChannel(java.nio.file.Path, java.util.Set&lt;? extends java.nio.file.OpenOption&gt;, java.nio.file.attribute.FileAttribute&lt;?&gt;...)</code>.</a>
             </format>
           </para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#newByteChannel(java.nio.file.Path,java.util.Set,java.nio.file.attribute.FileAttribute...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.newByteChannel</code>.</a></format></para>
@@ -2233,6 +2251,11 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the set contains an invalid combination of options</exception>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">if an unsupported open option is specified or the array contains attributes that cannot be set atomically when creating the file</exception>
+        <exception cref="T:Java.Nio.FileNio.FileAlreadyExistsException">if a file of that name already exists and the CREATE_NEW option is specified (optional specific exception)</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkRead method is invoked to check read access to the path if the file is opened for reading. The checkWrite method is invoked to check write access to the path if the file is opened for writing. The checkDelete method is invoked to check delete access if the file is opened with the DELETE_ON_CLOSE option.</exception>
       </Docs>
     </Member>
     <Member MemberName="NewDirectoryStream">
@@ -2327,7 +2350,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/nio/file/Files#newDirectoryStream(java.nio.file.Path)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.newDirectoryStream(java.nio.file.Path)</code>.</a>
+              <a href="https://developer.android.com/reference/java/nio/file/Files#newDirectoryStream(java.nio.file.Path,%20java.nio.file.DirectoryStream.Filter%3C?%20super%20java.nio.file.Path%3E)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.newDirectoryStream(java.nio.file.Path, java.nio.file.DirectoryStream.Filter&lt;? super java.nio.file.Path&gt;)</code>.</a>
             </format>
           </para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#newDirectoryStream(java.nio.file.Path,java.nio.file.DirectoryStream.Filter)" title="Reference documentation">Java reference for <code>java.nio.file.Files.newDirectoryStream</code>.</a></format></para>
@@ -2405,6 +2428,10 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Util.Regex.PatternSyntaxException">if the pattern is invalid</exception>
+        <exception cref="T:Java.Nio.FileNio.NotDirectoryException">if the file could not otherwise be opened because it is not a directory (optional specific exception)</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkRead method is invoked to check read access to the directory.</exception>
       </Docs>
     </Member>
     <Member MemberName="NewInputStream">
@@ -2832,6 +2859,8 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkRead method is invoked to check read access to the file.</exception>
       </Docs>
     </Member>
     <Member MemberName="ReadAttributes">
@@ -2952,7 +2981,7 @@
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/nio/file/Files#readAttributes(java.nio.file.Path,%20java.lang.Class,%20java.nio.file.LinkOption)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.readAttributes(java.nio.file.Path, java.lang.Class, java.nio.file.LinkOption)</code>.</a>
+              <a href="https://developer.android.com/reference/java/nio/file/Files#readAttributes(java.nio.file.Path,%20java.lang.String,%20java.nio.file.LinkOption...)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.readAttributes(java.nio.file.Path, java.lang.String, java.nio.file.LinkOption...)</code>.</a>
             </format>
           </para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#readAttributes(java.nio.file.Path,java.lang.String,java.nio.file.LinkOption...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.readAttributes</code>.</a></format></para>
@@ -2962,6 +2991,10 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">if the attribute view is not available</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">if no attributes are specified or an unrecognized attribute is specified</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, its checkRead method denies read access to the file. If this method is invoked to read security sensitive attributes then the security manager may be invoked to check for additional permissions.</exception>
       </Docs>
     </Member>
     <Member MemberName="ReadString">
@@ -3014,6 +3047,9 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read</exception>
+        <exception cref="T:Java.Lang.OutOfMemoryError">if the file is extremely large, for example larger than 2GB</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkRead method is invoked to check read access to the file.</exception>
       </Docs>
     </Member>
     <Member MemberName="ReadString">
@@ -3069,6 +3105,9 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read</exception>
+        <exception cref="T:Java.Lang.OutOfMemoryError">if the file is extremely large, for example larger than 2GB</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkRead method is invoked to check read access to the file.</exception>
       </Docs>
     </Member>
     <Member MemberName="ReadSymbolicLink">
@@ -3239,6 +3278,8 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, its checkWrite method denies write access to the file.</exception>
       </Docs>
     </Member>
     <Member MemberName="SetOwner">
@@ -3297,6 +3338,9 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">if the associated file system does not support the FileOwnerAttributeView</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, it denies RuntimePermission("accessUserInformation") or its checkWrite method denies write access to the file.</exception>
       </Docs>
     </Member>
     <Member MemberName="SetPosixFilePermissions">
@@ -3356,6 +3400,10 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">if the associated file system does not support the PosixFileAttributeView</exception>
+        <exception cref="T:Java.Lang.ClassCastException">if the set contains elements that are not of type PosixFilePermission</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, it denies RuntimePermission("accessUserInformation") or its checkWrite method denies write access to the file.</exception>
       </Docs>
     </Member>
     <Member MemberName="Size">
@@ -3636,6 +3684,9 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException">if the maxDepth parameter is negative</exception>
+        <exception cref="T:Java.Lang.SecurityException">If the security manager denies access to the starting file. In the case of the default provider, the checkRead method is invoked to check read access to the directory.</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error is thrown by a visitor method</exception>
       </Docs>
     </Member>
     <Member MemberName="Write">
@@ -3740,12 +3791,12 @@
         <param name="path">the path to the file</param>
         <param name="bytes">the byte array with the bytes to write</param>
         <param name="options">options specifying how the file is opened</param>
-        <summary>Write lines of text to a file.</summary>
+        <summary>Writes bytes to a file.</summary>
         <returns>the path</returns>
         <remarks>
           <para>
             <format type="text/html">
-              <a href="https://developer.android.com/reference/java/nio/file/Files#write(java.nio.file.Path,%20java.lang.Iterable,%20java.nio.charset.Charset,%20java.nio.file.OpenOption)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.write(java.nio.file.Path, java.lang.Iterable, java.nio.charset.Charset, java.nio.file.OpenOption)</code>.</a>
+              <a href="https://developer.android.com/reference/java/nio/file/Files#write(java.nio.file.Path,%20byte%5B%5D,%20java.nio.file.OpenOption...)" title="Reference documentation">Java documentation for <code>java.nio.file.Files.write(java.nio.file.Path, byte[], java.nio.file.OpenOption...)</code>.</a>
             </format>
           </para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#write(java.nio.file.Path,byte[],java.nio.file.OpenOption...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.write</code>.</a></format></para>
@@ -3755,6 +3806,10 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException">if options contains an invalid combination of options</exception>
+        <exception cref="T:Java.IO.IOException">if an I/O error occurs writing to or creating the file</exception>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">if an unsupported option is specified</exception>
+        <exception cref="T:Java.Lang.SecurityException">In the case of the default provider, and a security manager is installed, the checkWrite method is invoked to check write access to the file. The checkDelete method is invoked to check delete access if the file is opened with the DELETE_ON_CLOSE option.</exception>
       </Docs>
     </Member>
     <Member MemberName="Write">
@@ -3867,6 +3922,10 @@
           <para>Write a CharSequence to a file. Characters are encoded into bytes using the UTF-8 charset. This method is equivalent to: writeString(path, csq, StandardCharsets.UTF_8, options).</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#writeString(java.nio.file.Path,java.lang.CharSequence,java.nio.file.OpenOption...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.writeString</code>.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException">If <paramref name="options" /> contains an invalid combination of options.</exception>
+        <exception cref="T:Java.IO.IOException">If an I/O error occurs while writing to or creating the file, or if the text cannot be encoded using the specified charset.</exception>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">If an unsupported option is specified.</exception>
+        <exception cref="T:Java.Lang.SecurityException">If the default provider is used and a security manager denies write access to the file, or denies delete access when <see cref="P:Java.Nio.FileNio.StandardOpenOption.DeleteOnClose" /> is specified.</exception>
       </Docs>
     </Member>
     <Member MemberName="WriteString">
@@ -3969,6 +4028,10 @@
           <para>Write a CharSequence to a file. Characters are encoded into bytes using the specified charset. All characters are written as they are, including the line separators in the char sequence. No extra characters are added. The options parameter specifies how the file is created or opened. If no options are present then this method works as if the CREATE, TRUNCATE_EXISTING, and WRITE options are present. In other words, it opens the file for writing, creating the file if it doesn't exist, or initially truncating an existing regular-file to a size of 0.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html#writeString(java.nio.file.Path,java.lang.CharSequence,java.nio.charset.Charset,java.nio.file.OpenOption...)" title="Reference documentation">Java reference for <code>java.nio.file.Files.writeString</code>.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException">If <paramref name="options" /> contains an invalid combination of options.</exception>
+        <exception cref="T:Java.IO.IOException">If an I/O error occurs while writing to or creating the file, or if the text cannot be encoded using the specified charset.</exception>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">If an unsupported option is specified.</exception>
+        <exception cref="T:Java.Lang.SecurityException">If the default provider is used and a security manager denies write access to the file, or denies delete access when <see cref="P:Java.Nio.FileNio.StandardOpenOption.DeleteOnClose" /> is specified.</exception>
       </Docs>
     </Member>
     <Member MemberName="WriteString">
