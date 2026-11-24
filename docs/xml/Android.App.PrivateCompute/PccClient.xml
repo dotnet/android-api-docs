@@ -174,9 +174,8 @@ bindService(intent, mConnection, flags);</code>
       <Docs>
         <param name="data">The Bundle of data to send.</param>
         <summary>Sends a Bundle of data to the connected PCC service.</summary>
-        <exception cref="T:Java.Lang.IllegalStateException">if <c>sendData</c> is called after the service has been killed by the system.</exception>
-        <exception cref="T:Java.Lang.RuntimeException">if the PCC service is unavailable for any other reason.</exception>
-        <exception cref="T:Java.Lang.SecurityException">if the package name from the passed context does not match the app's actual package name.</exception>
+        <exception cref="T:Java.Lang.IllegalStateException">if <c>SendData</c> is called after the service has been killed by the system.</exception>
+        <exception cref="T:Java.Lang.RuntimeException">if the PCC service is unavailable for any other reason, or if the package name from the passed context is not associated with the calling app's UID. In the latter case, the cause is a <see cref="T:Java.Lang.SecurityException" />.</exception>
         <exception cref="T:Java.Lang.IllegalArgumentException">if the Bundle contains unsafe data types and the caller isn't allowed two-way communication with PCC components. To enforce a strictly one-way data flow, the Bundle is sanitized to prevent objects that can establish a two-way communication channel, such as IBinder and Messenger. Allowed data types are primitives and their arrays (e.g., int, char, boolean, String, byte[]); PersistableBundle; read-only ParcelFileDescriptor; SharedMemory (which must be read-only or is set to read-only); Bitmap; custom Parcelable objects serialized as byte[]; and nested Bundles, which are sanitized recursively. This exception is thrown if the nesting depth exceeds 100.</exception>
         <remarks>
           <para>Sends a Bundle of data to the connected PCC service. The Bundle is sanitized to enforce one-way data flow if the caller isn't allowed two-way communication with PCC components.</para>
