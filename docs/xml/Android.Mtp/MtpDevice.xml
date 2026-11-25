@@ -29,7 +29,7 @@
     <summary>This class represents an MTP or PTP device connected on the USB host bus.</summary>
     <remarks>
       <para>The .NET methods with an Async suffix run the corresponding synchronous method through <c>Task.Run</c>. They do not use a separate native asynchronous transfer API.</para>
-      <para>This class represents an MTP or PTP device connected on the USB host bus. An application can
+      <para>An application can
             instantiate an object of this type, by referencing an attached <c>android.hardware.usb.UsbDevice</c> and then use methods in this class to get information about the
             device and objects stored on it, as well as open the connection and transfer data.</para>
       <para>
@@ -397,7 +397,7 @@
       </Parameters>
       <Docs>
         <param name="objectHandle">The handle of the object to read.</param>
-        <param name="objectSize">The nonnegative object size in bytes. This must match the object's compressed size.</param>
+        <param name="objectSize">The nonnegative object size in bytes. This should match the object's compressed size.</param>
         <summary>Runs <see cref="M:Android.Mtp.MtpDevice.GetObject(System.Int32,System.Int32)" /> on a thread-pool thread.</summary>
         <returns>A task whose result is the object's data, or <see langword="null" /> if reading fails.</returns>
         <remarks>
@@ -1030,7 +1030,7 @@
       </Parameters>
       <Docs>
         <param name="objectHandle">The handle of the object to read from the device.</param>
-        <param name="destPath">The destination file path in external storage.</param>
+        <param name="destPath">The destination path for the file transfer. It should be in external storage.</param>
         <summary>Runs <see cref="M:Android.Mtp.MtpDevice.ImportFile(System.Int32,System.String)" /> on a thread-pool thread.</summary>
         <returns>A task whose result is the Boolean returned by <see cref="M:Android.Mtp.MtpDevice.ImportFile(System.Int32,System.String)" />. A result of <see langword="true" /> does not confirm that all destination writes succeeded. A failed or short write can leave an incomplete file even when the result is <see langword="true" />.</returns>
         <remarks>
