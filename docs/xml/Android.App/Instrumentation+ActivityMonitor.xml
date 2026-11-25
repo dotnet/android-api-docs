@@ -24,7 +24,7 @@
   <Docs>
     <summary>Information about a particular kind of Intent that is being monitored.</summary>
     <remarks>
-      <para>Information about a particular kind of Intent that is being monitored. An instance of this class is added to the current instrumentation through Instrumentation.addMonitor(ActivityMonitor); after being added, when a new activity is being started the monitor will be checked and, if matching, its hit count updated and (optionally) the call stopped and a canned result returned. An ActivityMonitor can also be used to look for the creation of an activity, through the waitForActivity() method. This will return after a matching activity has been created with that activity object.</para>
+      <para>Information about a particular kind of Intent that is being monitored. An instance of this class is added to the current instrumentation through <see cref="M:Android.App.Instrumentation.AddMonitor(Android.App.Instrumentation.ActivityMonitor)" />; after being added, when a new activity is being started the monitor will be checked and, if matching, its hit count updated and (optionally) the call stopped and a canned result returned. An ActivityMonitor can also be used to look for the creation of an activity, through <see cref="M:Android.App.Instrumentation.ActivityMonitor.WaitForActivity" />, which returns a recorded matching activity.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/Instrumentation.ActivityMonitor" title="Reference documentation">Android reference for <code>android.app.Instrumentation.ActivityMonitor</code>.</a>
@@ -259,11 +259,10 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Check whether this monitor blocks activity starts (not allowing the 
-            actual activity to run) or allows them to execute normally.</summary>
-        <value>The flag indicating that matching activity starts should be blocked and use the monitor's configured result.</value>
+        <summary>Gets the blocking flag supplied to the monitor's constructor.</summary>
+        <value>The flag that controls whether a matching activity start is blocked for a filter or class monitor.</value>
         <remarks>
-          <para>Check whether this monitor blocks activity starts (not allowing the actual activity to run) or allows them to execute normally.</para>
+          <para>A monitor created with the parameterless constructor has this flag set to false, but can still block a start by returning a result from <see cref="M:Android.App.Instrumentation.ActivityMonitor.OnStartActivity(Android.Content.Intent)" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Instrumentation.ActivityMonitor#isBlocking()" title="Reference documentation">Android reference for <code>android.app.Instrumentation.ActivityMonitor.isBlocking</code>.</a>
@@ -334,11 +333,10 @@
         <ReturnType>Android.App.Activity</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Retrieve the most recent activity class that was seen by this 
-            monitor.</summary>
-        <value>The most recent activity object recorded for a match, or <see langword="null" /> before one is recorded.</value>
+        <summary>Retrieve the most recent activity seen by this monitor.</summary>
+        <value>The most recent activity object recorded for a match, or <see langword="null" /> when none is recorded.</value>
         <remarks>
-          <para>Retrieve the most recent activity class that was seen by this monitor.</para>
+          <para>Retrieve the most recent activity seen by this monitor.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Instrumentation.ActivityMonitor#getLastActivity()" title="Reference documentation">Android reference for <code>android.app.Instrumentation.ActivityMonitor.getLastActivity</code>.</a>
