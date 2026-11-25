@@ -70,7 +70,7 @@ protected void onCreate(Bundle savedInstanceState) {
 
     setContentView(R.layout.fragment_layout);
 }</code>
-      <para>The titles fragment, showing a list of titles, is fairly simple, relying on ListFragment for most of its work. Note the implementation of clicking an item: depending on the current activity's layout, it can either create and display a new fragment to show the details in-place (more about this later), or start a new activity to show the details.</para>
+      <para>The titles fragment, showing a list of titles, is fairly simple, relying on ListFragment for most of its work. Note the implementation of clicking an item: depending on the current activity's layout, it can either create and display a new fragment to show the details in-place (more about this later), or start a new activity to show the details. This example is adapted from the Android sample.</para>
       <code lang="text/java">public static class TitlesFragment extends ListFragment {
     boolean mDualPane;
     int mCurCheckPosition = 0;
@@ -135,11 +135,7 @@ protected void onCreate(Bundle savedInstanceState) {
                 // Execute a transaction, replacing any existing fragment
                 // with this one inside the frame.
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
-                if (index == 0) {
-                    ft.replace(R.id.details, details);
-                } else {
-                    ft.replace(R.id.a_item, details);
-                }
+                ft.replace(R.id.details, details);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 ft.commit();
             }

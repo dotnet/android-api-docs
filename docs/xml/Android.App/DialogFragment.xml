@@ -50,9 +50,24 @@
             activity's window.</summary>
     <remarks>
       <para>This class was deprecated in API level 28. Use the <see href="https://developer.android.com/tools/extras/support-library.html">Support Library</see> <c>androidx.fragment.app.DialogFragment</c> for consistent behavior across all devices and access to <see href="https://developer.android.com/topic/libraries/architecture/lifecycle.html">Lifecycle</see>.</para>
-      <para>A fragment that displays a dialog window, floating on top of its activity's window. This fragment contains a Dialog object, which it displays as appropriate based on the fragment's state. Control of the dialog (deciding when to show, hide, dismiss it) should be done through the API here, not with direct calls on the dialog. Implementations should override this class and implement onCreateView(LayoutInflater,ViewGroup,Bundle) to supply the content of the dialog. Alternatively, they can override onCreateDialog(Bundle) to create an entirely custom dialog, such as an AlertDialog, with its own content. Topics covered here: Lifecycle Basic Dialog Alert Dialog Selecting Between Dialog or Embedding Lifecycle DialogFragment does various things to keep the fragment's lifecycle driving it, instead of the Dialog. Note that dialogs are generally autonomous entities -- they are their own window, receiving their own input events, and often deciding on their own when to disappear (by receiving a back key event or the user clicking on a button). DialogFragment needs to ensure that what is happening with the Fragment and Dialog states remains consistent. To do this, it watches for dismiss events from the dialog and takes care of removing its own state when they happen. This means you should use show(FragmentManager,String) or show(FragmentTransaction,String) to add an instance of DialogFragment to your UI, as these keep track of how DialogFragment should remove itself when the dialog is dismissed. Basic Dialog The simplest use of DialogFragment is as a floating container for the fragment's view hierarchy. A simple implementation may look like this:</para>
+      <para>A fragment that displays a dialog window, floating on top of its activity's window. This fragment contains a Dialog object, which it displays as appropriate based on the fragment's state. Control of the dialog (deciding when to show, hide, dismiss it) should be done through the API here, not with direct calls on the dialog. Implementations should override this class and implement onCreateView(LayoutInflater,ViewGroup,Bundle) to supply the content of the dialog. Alternatively, they can override onCreateDialog(Bundle) to create an entirely custom dialog, such as an AlertDialog, with its own content. Topics covered here: Lifecycle Basic Dialog Alert Dialog Selecting Between Dialog or Embedding Lifecycle DialogFragment does various things to keep the fragment's lifecycle driving it, instead of the Dialog. Note that dialogs are generally autonomous entities -- they are their own window, receiving their own input events, and often deciding on their own when to disappear (by receiving a back key event or the user clicking on a button). DialogFragment needs to ensure that what is happening with the Fragment and Dialog states remains consistent. To do this, it watches for dismiss events from the dialog and takes care of removing its own state when they happen. This means you should use show(FragmentManager,String) or show(FragmentTransaction,String) to add an instance of DialogFragment to your UI, as these keep track of how DialogFragment should remove itself when the dialog is dismissed. Basic Dialog The simplest use of DialogFragment is as a floating container for the fragment's view hierarchy. This example is adapted from the Android sample. A simple implementation may look like this:</para>
       <code lang="text/java">public static class MyDialogFragment extends DialogFragment {
     int mNum;
+
+    static String getNameForNum(int num) {
+        switch ((num-1)%9) {
+            case 1: return "STYLE_NO_TITLE";
+            case 2: return "STYLE_NO_FRAME";
+            case 3: return "STYLE_NO_INPUT (this window can't receive input, so "
+                    + "you will need to press the bottom show button)";
+            case 4: return "STYLE_NORMAL with dark fullscreen theme";
+            case 5: return "STYLE_NORMAL with light theme";
+            case 6: return "STYLE_NO_TITLE with light theme";
+            case 7: return "STYLE_NO_FRAME with light theme";
+            case 8: return "STYLE_NORMAL with light fullscreen theme";
+        }
+        return "STYLE_NORMAL";
+    }
 
     /**
      * Create a new instance of MyDialogFragment, providing "num"
@@ -76,7 +91,7 @@
 
         // Pick a style based on the num.
         int style = DialogFragment.STYLE_NORMAL, theme = 0;
-        switch ((mNum-1)%6) {
+        switch ((mNum-1)%9) {
             case 1: style = DialogFragment.STYLE_NO_TITLE; break;
             case 2: style = DialogFragment.STYLE_NO_FRAME; break;
             case 3: style = DialogFragment.STYLE_NO_INPUT; break;
@@ -86,7 +101,7 @@
             case 7: style = DialogFragment.STYLE_NO_FRAME; break;
             case 8: style = DialogFragment.STYLE_NORMAL; break;
         }
-        switch ((mNum-1)%6) {
+        switch ((mNum-1)%9) {
             case 4: theme = android.R.style.Theme_Holo; break;
             case 5: theme = android.R.style.Theme_Holo_Light_Dialog; break;
             case 6: theme = android.R.style.Theme_Holo_Light; break;
@@ -814,7 +829,7 @@ ft.commit();</code>
         <summary>Return the current value of <c>#setShowsDialog(boolean)</c>. -or- Controls whether this fragment should be shown in a dialog.</summary>
         <value>The flag selecting dialog presentation rather than an embedded fragment view; it does not indicate that a dialog currently exists.</value>
         <remarks>
-          <para>When this property is <see langword="false" />, no dialog is created in <c>OnActivityCreated</c>, and the fragment's view can be embedded in its activity. During creation, the value is normally set to <see langword="false" /> when the fragment is added with a container view ID, and <see langword="true" /> otherwise. A saved value overrides that default.</para>
+          <para>When this property is <see langword="false" />, no dialog is created, and the fragment's view can be embedded in its activity. The dialog is normally created by <c>OnCreateDialog</c> before <c>OnCreateView</c>. During creation, the value is normally set to <see langword="false" /> when the fragment is added with a container view ID, and <see langword="true" /> otherwise. A saved value overrides that default.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/DialogFragment#getShowsDialog()" title="Reference documentation">Android reference for <code>android.app.DialogFragment.getShowsDialog</code>.</a>
