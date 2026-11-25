@@ -311,7 +311,7 @@ temporal = temporal.with(thisField, newValue);</code>
         <summary>Gets the unit that the field is measured in.</summary>
         <value>the unit defining the base unit of the field, not null</value>
         <remarks>
-          <para>Gets the unit that the field is measured in. The unit of the field is the period that varies within the range. For example, in the field 'MonthOfYear', the unit is 'Months'. See also TemporalField.getRangeUnit().</para>
+          <para>Gets the unit that the field is measured in. The unit of the field is the period that varies within the range. For example, in the field 'MonthOfYear', the unit is 'Months'. See also <see cref="P:Java.Time.Temporal.ITemporalField.RangeUnit" />.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoField.html#getBaseUnit()" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoField.getBaseUnit</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -723,10 +723,10 @@ temporal = temporal.with(thisField, newValue);</code>
         <summary>Gets the value of this field from the specified temporal object.</summary>
         <returns>the value of this field, not null</returns>
         <remarks>
-          <para>Gets the value of this field from the specified temporal object. This queries the temporal object for the value of this field. There are two equivalent ways of using this method. The first is to invoke this method directly. The second is to use TemporalAccessor.getLong(TemporalField) (or TemporalAccessor.get(TemporalField)):</para>
+          <para>Gets the value of this field from the specified temporal object. This queries the temporal object for the value of this field. There are two equivalent ways of using this method. The first is to invoke this method directly. The second is to use TemporalAccessor.getLong(TemporalField):</para>
           <code lang="text/java">   // these two lines are equivalent, but the second approach is recommended
-   temporal = thisField.getFrom(temporal);
-   temporal = temporal.getLong(thisField);</code>
+   long value = thisField.getFrom(temporal);
+   value = temporal.getLong(thisField);</code>
           <para>It is recommended to use the second approach, getLong(TemporalField), as it is a lot clearer to read in code. Implementations should perform any queries or calculations using the fields available in ChronoField. If the field is not supported an UnsupportedTemporalTypeException must be thrown.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoField.html#getFrom(java.time.temporal.TemporalAccessor)" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoField.getFrom</code>.</a></format></para>
         </remarks>
@@ -912,8 +912,8 @@ temporal = temporal.with(thisField, newValue);</code>
         <remarks>
           <para>Checks if this field is supported by the temporal object. This determines whether the temporal accessor supports this field. If this returns false, then the temporal cannot be queried for this field. There are two equivalent ways of using this method. The first is to invoke this method directly. The second is to use TemporalAccessor.isSupported(TemporalField):</para>
           <code lang="text/java">   // these two lines are equivalent, but the second approach is recommended
-   temporal = thisField.isSupportedBy(temporal);
-   temporal = temporal.isSupported(thisField);</code>
+   boolean supported = thisField.isSupportedBy(temporal);
+   supported = temporal.isSupported(thisField);</code>
           <para>It is recommended to use the second approach, isSupported(TemporalField), as it is a lot clearer to read in code. Implementations should determine whether they are supported using the fields available in ChronoField.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoField.html#isSupportedBy(java.time.temporal.TemporalAccessor)" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoField.isSupportedBy</code>.</a></format></para>
         </remarks>
@@ -1483,8 +1483,8 @@ temporal = temporal.with(thisField, newValue);</code>
         <remarks>
           <para>Get the range of valid values for this field using the temporal object to refine the result. This uses the temporal object to find the range of valid values for the field. This is similar to TemporalField.range(), however this method refines the result using the temporal. For example, if the field is DAY_OF_MONTH the range method is not accurate as there are four possible month lengths, 28, 29, 30 and 31 days. Using this method with a date allows the range to be accurate, returning just one of those four options. There are two equivalent ways of using this method. The first is to invoke this method directly. The second is to use TemporalAccessor.range(TemporalField):</para>
           <code lang="text/java">   // these two lines are equivalent, but the second approach is recommended
-   temporal = thisField.rangeRefinedBy(temporal);
-   temporal = temporal.range(thisField);</code>
+   ValueRange range = thisField.rangeRefinedBy(temporal);
+   range = temporal.range(thisField);</code>
           <para>It is recommended to use the second approach, range(TemporalField), as it is a lot clearer to read in code. Implementations should perform any queries or calculations using the fields available in ChronoField. If the field is not supported an UnsupportedTemporalTypeException must be thrown.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoField.html#rangeRefinedBy(java.time.temporal.TemporalAccessor)" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoField.rangeRefinedBy</code>.</a></format></para>
         </remarks>
@@ -1520,7 +1520,7 @@ temporal = temporal.with(thisField, newValue);</code>
         <summary>Gets the range that the field is bound by.</summary>
         <value>the unit defining the range of the field, not null</value>
         <remarks>
-          <para>Gets the range that the field is bound by. The range of the field is the period that the field varies within. For example, in the field 'MonthOfYear', the range is 'Years'. See also TemporalField.getBaseUnit(). The range is never null. For example, the 'Year' field is shorthand for 'YearOfForever'. It therefore has a unit of 'Years' and a range of 'Forever'.</para>
+          <para>Gets the range that the field is bound by. The range of the field is the period that the field varies within. For example, in the field 'MonthOfYear', the range is 'Years'. See also <see cref="P:Java.Time.Temporal.ITemporalField.BaseUnit" />. The range is never null. For example, the 'Year' field is shorthand for 'YearOfForever'. It therefore has a unit of 'Years' and a range of 'Forever'.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/temporal/ChronoField.html#getRangeUnit()" title="Reference documentation">Java reference for <code>java.time.temporal.ChronoField.getRangeUnit</code>.</a></format></para>
         </remarks>
       </Docs>

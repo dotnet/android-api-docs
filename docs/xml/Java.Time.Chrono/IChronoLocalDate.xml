@@ -853,9 +853,8 @@
         <summary>Returns an object of the same type as this object with an amount subtracted.</summary>
         <returns>an object of the same type with the specified adjustment made, not null</returns>
         <remarks>
-          <para>Returns an object of the same type as this object with an amount subtracted. This adjusts this temporal, subtracting according to the rules of the specified amount. The amount is typically a Period but may be any other type implementing the TemporalAmount interface, such as Duration.</para>
-          <code lang="text/java">  date = date.minus(period);               // subtract a Period instance
-  date = date.minus(duration);             // subtract a Duration instance
+          <para>Returns an object of the same type as this object with an amount subtracted. This adjusts this temporal, subtracting according to the rules of the specified amount. The amount is typically a period compatible with the chronology but may be another compatible TemporalAmount. A nonzero Duration is not supported by LocalDate because it uses seconds or nanoseconds.</para>
+          <code lang="text/java">  date = date.minus(period);               // subtract a chronology-compatible period
   date = date.minus(workingDays(6));       // example user-written workingDays method</code>
           <para>Note that calling plus followed by minus is not guaranteed to return the same date-time.</para>
           <para>
@@ -957,9 +956,8 @@
         <summary>Returns an object of the same type as this object with an amount added.</summary>
         <returns>an object of the same type with the specified adjustment made, not null</returns>
         <remarks>
-          <para>Returns an object of the same type as this object with an amount added. This adjusts this temporal, adding according to the rules of the specified amount. The amount is typically a Period but may be any other type implementing the TemporalAmount interface, such as Duration.</para>
-          <code lang="text/java">  date = date.plus(period);                // add a Period instance
-  date = date.plus(duration);              // add a Duration instance
+          <para>Returns an object of the same type as this object with an amount added. This adjusts this temporal, adding according to the rules of the specified amount. The amount is typically a period compatible with the chronology but may be another compatible TemporalAmount. A nonzero Duration is not supported by LocalDate because it uses seconds or nanoseconds.</para>
+          <code lang="text/java">  date = date.plus(period);                // add a chronology-compatible period
   date = date.plus(workingDays(6));        // example user-written workingDays method</code>
           <para>Note that calling plus followed by minus is not guaranteed to return the same date-time.</para>
           <para>
@@ -1115,7 +1113,7 @@
         <summary>Returns an object of the same type as this object with the specified field altered.</summary>
         <returns>an object of the same type with the specified field set, not null</returns>
         <remarks>
-          <para>Returns an object of the same type as this object with the specified field altered. This returns a new object based on this one with the value for the specified field changed. For example, on a LocalDate, this could be used to set the year, month or day-of-month. The returned object will have the same observable type as this object. In some cases, changing a field is not fully defined. For example, if the target object is a date representing the 31st January, then changing the month to February would be unclear. In cases like this, the field is responsible for resolving the result. Typically it will choose the previous valid date, which would be the last valid day of February in this example.</para>
+          <para>Returns an object of the same type as this object with the specified field altered. This returns a new object based on this one with the value for the specified field changed. For example, on a LocalDate, this could be used to set the year, month or day-of-month. The returned object will have the same observable type as this object. In some cases, changing a field is not fully defined. For example, if the target object is a date representing the 31st January, then changing the month to February would be unclear. In cases like this, the temporal implementation or the field resolves the result. The result is typically the previous valid date, which would be the last valid day of February in this example.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/time/chrono/ChronoLocalDate#with(java.time.temporal.TemporalField,%20long)" title="Reference documentation">Java documentation for <code>java.time.chrono.ChronoLocalDate.with(java.time.temporal.TemporalField, long)</code>.</a>

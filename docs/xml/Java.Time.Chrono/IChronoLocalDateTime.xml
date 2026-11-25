@@ -213,14 +213,10 @@
       <Docs>
         <param name="other">the other date-time to compare to, not null</param>
         <summary>Compares this date-time to another date-time, including the chronology.</summary>
-        <returns>the comparator value, that is the comparison of this local date-time with
-                     the <c>other</c> local date-time and this chronology with the <c>other</c> chronology,
-                     in order, returning the first non-zero result, and otherwise returning zero</returns>
+        <returns>the first nonzero comparison of the local dates, local times, and chronologies, in that order; otherwise zero. The local-date comparison can itself compare chronologies.</returns>
         <remarks>
           <para>Compares this date-time to another date-time, including the chronology.</para>
-          <para>The comparison is based first on the underlying time-line date-time, then
-            on the chronology.
-            It is "consistent with equals", as defined by <c>Comparable</c>.</para>
+          <para>The default implementation compares the local dates first, then the local times if the dates compare equal, and then the chronologies if both compare equal. The local-date comparison can itself compare chronologies after comparing epoch days, before the local times are compared. The comparison is "consistent with equals", as defined by <c>Comparable</c>.</para>
           <para>For example, the following is the comparator order:
             &lt;ol&gt;
             &lt;li&gt;<c>2012-12-03T12:00 (ISO)</c>&lt;/li&gt;
@@ -741,8 +737,8 @@
         <summary>Returns an object of the same type as this object with an amount subtracted.</summary>
         <returns>an object of the same type with the specified adjustment made, not null</returns>
         <remarks>
-          <para>Returns an object of the same type as this object with an amount subtracted. This adjusts this temporal, subtracting according to the rules of the specified amount. The amount is typically a Period but may be any other type implementing the TemporalAmount interface, such as Duration.</para>
-          <code lang="text/java">  date = date.minus(period);               // subtract a Period instance
+          <para>Returns an object of the same type as this object with an amount subtracted. This adjusts this temporal, subtracting according to the rules of the specified amount. The amount is typically a period compatible with the chronology but may be another compatible TemporalAmount, such as Duration.</para>
+          <code lang="text/java">  date = date.minus(period);               // subtract a chronology-compatible period
   date = date.minus(duration);             // subtract a Duration instance
   date = date.minus(workingDays(6));       // example user-written workingDays method</code>
           <para>Note that calling plus followed by minus is not guaranteed to return the same date-time.</para>
@@ -845,8 +841,8 @@
         <summary>Returns an object of the same type as this object with an amount added.</summary>
         <returns>an object of the same type with the specified adjustment made, not null</returns>
         <remarks>
-          <para>Returns an object of the same type as this object with an amount added. This adjusts this temporal, adding according to the rules of the specified amount. The amount is typically a Period but may be any other type implementing the TemporalAmount interface, such as Duration.</para>
-          <code lang="text/java">  date = date.plus(period);                // add a Period instance
+          <para>Returns an object of the same type as this object with an amount added. This adjusts this temporal, adding according to the rules of the specified amount. The amount is typically a period compatible with the chronology but may be another compatible TemporalAmount, such as Duration.</para>
+          <code lang="text/java">  date = date.plus(period);                // add a chronology-compatible period
   date = date.plus(duration);              // add a Duration instance
   date = date.plus(workingDays(6));        // example user-written workingDays method</code>
           <para>Note that calling plus followed by minus is not guaranteed to return the same date-time.</para>
@@ -1404,7 +1400,7 @@
         <summary>Returns an object of the same type as this object with the specified field altered.</summary>
         <returns>an object of the same type with the specified field set, not null</returns>
         <remarks>
-          <para>Returns an object of the same type as this object with the specified field altered. This returns a new object based on this one with the value for the specified field changed. For example, on a LocalDate, this could be used to set the year, month or day-of-month. The returned object will have the same observable type as this object. In some cases, changing a field is not fully defined. For example, if the target object is a date representing the 31st January, then changing the month to February would be unclear. In cases like this, the field is responsible for resolving the result. Typically it will choose the previous valid date, which would be the last valid day of February in this example.</para>
+          <para>Returns an object of the same type as this object with the specified field altered. This returns a new object based on this one with the value for the specified field changed. For example, on a LocalDate, this could be used to set the year, month or day-of-month. The returned object will have the same observable type as this object. In some cases, changing a field is not fully defined. For example, if the target object is a date representing the 31st January, then changing the month to February would be unclear. In cases like this, the temporal implementation or the field resolves the result. The result is typically the previous valid date, which would be the last valid day of February in this example.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/java/time/chrono/ChronoLocalDateTime#with(java.time.temporal.TemporalField,%20long)" title="Reference documentation">Java documentation for <code>java.time.chrono.ChronoLocalDateTime.with(java.time.temporal.TemporalField, long)</code>.</a>

@@ -131,7 +131,7 @@
       </ReturnValue>
       <Docs>
         <summary>The field that represents the day-of-quarter.</summary>
-        <value>The ISO field for the day within a quarter, starting at 1. The last day is 90 or 91 in the first quarter, 91 in the second, and 92 in the third and fourth.</value>
+        <value>The ISO field for the day within a quarter. For ISO dates, the day starts at 1. The last day is 90 or 91 in the first quarter, 91 in the second, and 92 in the third and fourth.</value>
         <remarks>
           <para>The field that represents the day-of-quarter.</para>
           <para>This field allows the day-of-quarter value to be queried and set.
@@ -139,6 +139,7 @@
             in Q1 of a leap year, from 1 to 91 in Q2 and from 1 to 92 in Q3 and Q4.</para>
           <para>The day-of-quarter can only be calculated if the day-of-year, month-of-year and year
             are available.</para>
+          <para>In the Android API 37.2 implementation, this field can also be supported by other ISO-based chronologies. For these dates, <see cref="M:Java.Time.Temporal.ITemporalAccessor.GetLong(Java.Time.Temporal.ITemporalField)" /> can return an incorrect value or a value outside the stated range. For example, the Japanese date corresponding to 2019-05-01 returns -89, and the Thai Buddhist date corresponding to 2020-04-01 returns 2 rather than 1. Runtime updates can change this behavior.</para>
           <para>When setting this field, the value is allowed to be partially lenient, taking any
             value from 1 to 92. If the quarter has less than 92 days, then day 92, and
             potentially day 91, is in the following quarter.</para>
@@ -290,6 +291,7 @@
           <para>Unit that represents the concept of a quarter-year.
             For the ISO calendar system, it is equal to 3 months.
             The estimated duration of a quarter-year is one quarter of <c>365.2425 Days</c>.</para>
+          <para>On Android 8 through 12.1, adding or subtracting at least 256 quarter-years can produce an incorrect date. For example, adding 256 quarter-years to 2000-01-01 yields 2001-01-01. Android 13 through 17 source uses four quarters per year, which yields 2064-01-01 in this example. Runtime updates can change this behavior.</para>
           <para>This unit is an immutable and thread-safe singleton.</para>
           <para>
             <format type="text/html">
