@@ -80,7 +80,7 @@
           <term>The system can drop the activity from memory by either asking it to finish, or simply killing its process, making it destroyed. When it is displayed again to the user, it must be completely restarted and restored to its previous state.</term>
         </item>
       </list>
-      <para>The following diagram shows the important state paths of an activity. The square rectangles represent callback methods you can implement to perform operations when the activity moves between states. The colored ovals are major states the activity can be in.</para>
+      <para>For a diagram of the activity lifecycle, see the <format type="text/html"><a href="https://developer.android.com/guide/components/activities/activity-lifecycle">Android activity lifecycle guide</a></format>.</para>
       <para>There are three key loops you may be interested in monitoring within your activity: The entire lifetime of an activity happens between the first call to onCreate(Bundle) through to a single final call to onDestroy(). An activity will do all setup of "global" state in onCreate(), and release all remaining resources in onDestroy(). For example, if it has a thread running in the background to download data from the network, it may create that thread in onCreate() and then stop the thread in onDestroy(). The visible lifetime of an activity happens between a call to onStart() until a corresponding call to onStop(). During this time the user can see the activity on-screen, though it may not be in the foreground and interacting with the user. Between these two methods you can maintain resources that are needed to show the activity to the user. For example, you can register a BroadcastReceiver in onStart() to monitor for changes that impact your UI, and unregister it in onStop() when the user no longer sees what you are displaying. The onStart() and onStop() methods can be called multiple times, as the activity becomes visible and hidden to the user. The foreground lifetime of an activity happens between a call to onResume() until a corresponding call to onPause(). During this time the activity is visible, active and interacting with the user. An activity can frequently go between the resumed and paused states -- for example when the device goes to sleep, when an activity result is delivered, when a new intent is delivered -- so the code in these methods should be fairly lightweight. The entire lifecycle of an activity is defined by the following Activity methods. All of these are hooks that you can override to do appropriate work when the activity changes state. All activities will implement onCreate(Bundle) to do their initial setup; many will also implement onPause() to commit changes to data and prepare to pause interacting with the user, and onStop() to handle no longer being visible on screen. You should always call up to your superclass when implementing these methods.</para>
       <code lang="text/java">public class Activity extends ApplicationContext {
     protected void onCreate(Bundle savedInstanceState);
@@ -128,7 +128,7 @@
           <description>The final call you receive before your activity is destroyed. This can happen either because the activity is finishing (someone called Activity.finish on it), or because the system is temporarily destroying this instance of the activity to save space. You can distinguish between these two scenarios with the Activity.isFinishing method. Killable: Yes. Next: nothing.</description>
         </item>
       </list>
-      <para>Note the "Killable" column in the above table -- for those methods that are marked as being killable, after that method returns the process hosting the activity may be killed by the system at any time without another line of its code being executed. Because of this, you should use the onPause() method to write any persistent data (such as user edits) to storage. In addition, the method onSaveInstanceState(Bundle) is called before placing the activity in such a background state, allowing you to save away any dynamic instance state in your activity into the given Bundle, to be later received in onCreate(Bundle) if the activity needs to be re-created. See the Process Lifecycle section for more information on how the lifecycle of a process is tied to the activities it is hosting. Note that it is important to save persistent data in onPause() instead of onSaveInstanceState(Bundle) because the latter is not part of the lifecycle callbacks, so will not be called in every situation as described in its documentation.</para>
+      <para>Note the "Killable" information in the list above -- for those methods that are marked as being killable, after that method returns the process hosting the activity may be killed by the system at any time without another line of its code being executed. Because of this, you should use the onPause() method to write any persistent data (such as user edits) to storage. In addition, the method onSaveInstanceState(Bundle) is called before placing the activity in such a background state, allowing you to save away any dynamic instance state in your activity into the given Bundle, to be later received in onCreate(Bundle) if the activity needs to be re-created. See the Process Lifecycle section for more information on how the lifecycle of a process is tied to the activities it is hosting. Note that it is important to save persistent data in onPause() instead of onSaveInstanceState(Bundle) because the latter is not part of the lifecycle callbacks, so will not be called in every situation as described in its documentation.</para>
       <para>Be aware that these semantics will change slightly between applications targeting platforms starting with Build.VERSION_CODES.HONEYCOMB vs. those targeting prior platforms. Starting with Honeycomb, an application is not in the killable state until its onStop() has returned. This impacts when onSaveInstanceState(Bundle) may be called (it may be safely called after onPause()) and allows an application to safely wait until onStop() to save persistent state.</para>
       <para>For applications targeting platforms starting with Build.VERSION_CODES.P onSaveInstanceState(Bundle) will always be called after onStop(), so an application may safely perform fragment transactions in onStop() and will be able to save persistent state later.</para>
       <para>For those methods that are not marked as being killable, the activity's process will not be killed by the system starting from the time the method is called and continuing after it returns. Thus an activity is in the killable state, for example, between after onStop() to the start of onResume(). Keep in mind that under extreme memory pressure the system can kill the application process at any time.</para>
@@ -859,7 +859,7 @@
           <c>ComponentCaller</c> instance</value>
         <remarks>
           <para>Returns the ComponentCaller instance of the app that re-launched this activity with a new intent via onNewIntent(Intent) or onActivityResult(int, int, Intent). Note that this method only works within the onNewIntent(Intent) and onActivityResult(int, int, Intent) methods. If you call this method outside onNewIntent(Intent) and onActivityResult(int, int, Intent), it will throw an IllegalStateException. You can also retrieve the caller if you override onNewIntent(Intent,ComponentCaller) or onActivityResult(int,int,Intent,ComponentCaller). To keep the ComponentCaller instance for future use, call setIntent(Intent,ComponentCaller), and use getCaller() to retrieve it.</para>
-          <para>Throws: IllegalStateException if the caller is null, indicating the method was called outside onNewIntent(Intent)</para>
+          <para>Throws: IllegalStateException if the current caller is null.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getCurrentCaller()" title="Reference documentation">Android reference for <code>android.app.Activity.getCurrentCaller</code>.</a>
@@ -938,7 +938,6 @@
         <remarks>
           <para>This method was deprecated in API level 15. Use the new DialogFragment class with FragmentManager instead; this is also available on older platforms through the Android compatibility package.</para>
           <para>Dismiss a dialog that was previously shown via showDialog(int).</para>
-          <para>Throws: IllegalArgumentException if the id was not previously shown via showDialog(int).</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#dismissDialog(int)" title="Reference documentation">Android reference for <code>android.app.Activity.dismissDialog</code>.</a>
@@ -947,6 +946,7 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+        <exception cref="T:Java.Lang.IllegalArgumentException">If the ID was not previously shown via <see cref="M:Android.App.Activity.ShowDialog(System.Int32)" />.</exception>
         <altmember cref="M:Android.App.Activity.ShowDialog(System.Int32)" />
         <altmember cref="M:Android.App.Activity.RemoveDialog(System.Int32)" />
       </Docs>
@@ -1287,7 +1287,7 @@
         <param name="args">additional arguments to the dump request.</param>
         <summary>Print the Activity's state into the given stream.</summary>
         <remarks>
-          <para>Print the Activity's state into the given stream. This gets invoked if you run adb shell dumpsys activity &lt;activity_component_name&gt;. This method won't be called if the app targets Build.VERSION_CODES.TIRAMISU or later if the dump request starts with one of the following arguments: --autofill --contentcapture --translation --list-dumpables --dump-dumpable</para>
+          <para>Print the Activity's state into the given stream. This gets invoked if you run adb shell dumpsys activity &lt;activity_component_name&gt;. This method won't be called if the app targets Build.VERSION_CODES.TIRAMISU or later if the dump request starts with one of the following arguments: <c>--autofill</c>, <c>--contentcapture</c>, <c>--translation</c>, <c>--list-dumpables</c>, or <c>--dump-dumpable</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#dump(java.lang.String,%20java.io.FileDescriptor,%20java.io.PrintWriter,%20java.lang.String[])" title="Reference documentation">Android reference for <code>android.app.Activity.dump</code>.</a>
@@ -1471,7 +1471,7 @@
         <typeparam name="T">The view type to which the lookup result is cast.</typeparam>
         <param name="id">The resource ID passed to the non-generic view lookup.</param>
         <summary>Finds a view that was identified by the id attribute from the XML layout resource.</summary>
-        <returns>The matching view, cast to the requested view type.</returns>
+        <returns>The matching view, cast to the requested view type, or <see langword="null" /> if no view is found.</returns>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2028,6 +2028,7 @@
         <value><see langword="true" /> when the platform reports this activity as immersive; otherwise, <see langword="false" />.</value>
         <remarks>
           <para>Bit indicating that this activity is "immersive" and should not be interrupted by notifications if possible. This value is initially set by the manifest property android:immersive but may be changed at runtime by setImmersive(boolean).</para>
+          <para>Changing this value does not change the activity's <see cref="P:Android.Content.PM.ActivityInfo.Flags" />. If android:immersive is set to true in the activity's manifest entry, those flags retain <see cref="F:Android.Content.PM.ActivityInfoFlags.Immersive" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#isImmersive()" title="Reference documentation">Android reference for <code>android.app.Activity.isImmersive</code>.</a>
@@ -2146,6 +2147,7 @@
           <c>Intent</c> instance that started this activity, or that was kept for future use</value>
         <remarks>
           <para>Returns the intent that started this activity. To keep the Intent instance for future use, call setIntent(Intent), and use this method to retrieve it. Note that in onNewIntent(Intent), this method will return the original Intent. You can use setIntent(Intent) to update it to the new Intent.</para>
+          <para>Setting this property retains a reference to the underlying Android intent; it does not copy it.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getIntent()" title="Reference documentation">Android reference for <code>android.app.Activity.getIntent</code>.</a>
@@ -2406,7 +2408,7 @@
         <summary>Returns if Handoff has been enabled for this Activity.</summary>
         <value>Whether Handoff is enabled for the Activity</value>
         <remarks>
-          <para>Returns if Handoff has been enabled for this Activity. See setHandoffEnabled(boolean, HandoffActivityParams) to change if Handoff is enabled on this Activity. When Handoff is enabled, the user may request this Activity to be sent to other devices that they owe. The system will request data from this Activity to recreate it on the other device. TODO (b/412338142): Add link to onHandoffActivityDataRequested once method is added.</para>
+          <para>Returns if Handoff has been enabled for this Activity. See setHandoffEnabled(boolean, HandoffActivityParams) to change if Handoff is enabled on this Activity. When Handoff is enabled, the user may request this Activity to be sent to other devices that they own. The system will request data from this Activity to recreate it on the other device. See <see cref="M:Android.App.Activity.OnHandoffActivityDataRequested(Android.App.HandoffActivityDataRequestInfo)" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/Activity#isHandoffEnabled()" title="Reference documentation">Android reference for <code>android.app.Activity.isHandoffEnabled</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -2801,7 +2803,7 @@
         <value>the package name of the launching app or null if the current activity
             cannot access the identity of the launching app</value>
         <remarks>
-          <para>Returns the package name of the app that initially launched this activity. In order to receive the launching app's package name, at least one of the following has to be met: The app must call ActivityOptions.setShareIdentityEnabled(boolean) with a value of true and launch this activity with the resulting ActivityOptions. The launched activity has the same uid as the launching app. The launched activity is running in a package that is signed with the same key used to sign the platform (typically only system packages such as Settings will meet this requirement). Starting in Build.VERSION_CODES.CINNAMON_BUN, the activity was launched directly with Activity.startActivityForResult(Intent,int). . These are the same requirements for getLaunchedFromUid(); if any of these are met, then these methods can be used to obtain the uid and package name of the launching app. If none are met, then null is returned. Note, if an activity is launched via startActivityForResult(Intent,int) but the launch is intercepted and forwarded by an intermediate app using Intent.FLAG_ACTIVITY_FORWARD_RESULT, the identity of the intermediate app will not be implicitly shared. In this forwarding scenario, the intermediate app must explicitly opt-in using ActivityOptions.setShareIdentityEnabled(boolean). Prior to Build.VERSION_CODES.CINNAMON_BUN, the launching app's identity was not implicitly shared for any result-based launches and could only be retrieved via getCallingPackage()</para>
+          <para>Returns the package name of the app that initially launched this activity. In order to receive the launching app's package name, at least one of the following has to be met: The app must call ActivityOptions.setShareIdentityEnabled(boolean) with a value of true and launch this activity with the resulting ActivityOptions. The launched activity has the same uid as the launching app. The launched activity is running in a package that is signed with the same key used to sign the platform (typically only system packages such as Settings will meet this requirement). Starting in Build.VERSION_CODES.CINNAMON_BUN, the activity was launched directly with Activity.startActivityForResult(Intent,int). These are the same requirements for getLaunchedFromUid(); if any of these are met, then these methods can be used to obtain the uid and package name of the launching app. If none are met, then null is returned. Note, if an activity is launched via startActivityForResult(Intent,int) but the launch is intercepted and forwarded by an intermediate app using Intent.FLAG_ACTIVITY_FORWARD_RESULT, the identity of the intermediate app will not be implicitly shared. In this forwarding scenario, the intermediate app must explicitly opt-in using ActivityOptions.setShareIdentityEnabled(boolean). Prior to Build.VERSION_CODES.CINNAMON_BUN, the launching app's identity was not implicitly shared for any result-based launches and could only be retrieved via getCallingPackage()</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getLaunchedFromPackage()" title="Reference documentation">Android reference for <code>android.app.Activity.getLaunchedFromPackage</code>.</a>
@@ -2839,7 +2841,7 @@
         <value>the uid of the launching app or <c>Process#INVALID_UID</c> if the current
             activity cannot access the identity of the launching app</value>
         <remarks>
-          <para>Returns the uid of the app that initially launched this activity. In order to receive the launching app's uid, at least one of the following has to be met: The app must call ActivityOptions.setShareIdentityEnabled(boolean) with a value of true and launch this activity with the resulting ActivityOptions. The launched activity has the same uid as the launching app. The launched activity is running in a package that is signed with the same key used to sign the platform (typically only system packages such as Settings will meet this requirement). Starting in Build.VERSION_CODES.CINNAMON_BUN, the activity was launched directly with Activity.startActivityForResult(Intent,int). . These are the same requirements for getLaunchedFromPackage(); if any of these are met, then these methods can be used to obtain the uid and package name of the launching app. If none are met, then Process.INVALID_UID is returned. Note, if an activity is launched via startActivityForResult(Intent,int) but the launch is intercepted and forwarded by an intermediate app using Intent.FLAG_ACTIVITY_FORWARD_RESULT, the identity of the intermediate app will not be implicitly shared. In this forwarding scenario, the intermediate app must explicitly opt-in using ActivityOptions.setShareIdentityEnabled(boolean). Prior to Build.VERSION_CODES.CINNAMON_BUN, the launching app's identity was not implicitly shared for any result-based launches and could only be retrieved via getCallingPackage()</para>
+          <para>Returns the uid of the app that initially launched this activity. In order to receive the launching app's uid, at least one of the following has to be met: The app must call ActivityOptions.setShareIdentityEnabled(boolean) with a value of true and launch this activity with the resulting ActivityOptions. The launched activity has the same uid as the launching app. The launched activity is running in a package that is signed with the same key used to sign the platform (typically only system packages such as Settings will meet this requirement). Starting in Build.VERSION_CODES.CINNAMON_BUN, the activity was launched directly with Activity.startActivityForResult(Intent,int). These are the same requirements for getLaunchedFromPackage(); if any of these are met, then these methods can be used to obtain the uid and package name of the launching app. If none are met, then Process.INVALID_UID is returned. Note, if an activity is launched via startActivityForResult(Intent,int) but the launch is intercepted and forwarded by an intermediate app using Intent.FLAG_ACTIVITY_FORWARD_RESULT, the identity of the intermediate app will not be implicitly shared. In this forwarding scenario, the intermediate app must explicitly opt-in using ActivityOptions.setShareIdentityEnabled(boolean). Prior to Build.VERSION_CODES.CINNAMON_BUN, the launching app's identity was not implicitly shared for any result-based launches and could only be retrieved via getCallingPackage()</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getLaunchedFromUid()" title="Reference documentation">Android reference for <code>android.app.Activity.getLaunchedFromUid</code>.</a>
@@ -3147,6 +3149,7 @@
         <value>The controller which should receive events.</value>
         <remarks>
           <para>Gets the controller which should be receiving media key and volume events while this activity is in the foreground.</para>
+          <para>The controller is tied to this activity's window. Hardware volume controls do not always change the controller's session volume; for example, they may change the call volume instead. Set this property to <see langword="null" /> to restore the default behavior.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getMediaController()" title="Reference documentation">Android reference for <code>android.app.Activity.getMediaController</code>.</a>
@@ -3360,7 +3363,7 @@
         <param name="mode">The action mode that just finished.</param>
         <summary>Notifies the activity that an action mode has finished.</summary>
         <remarks>
-          <para>Notifies the activity that an action mode has finished. Activity subclasses overriding this method should call the superclass implementation. If you override this method you must call through to the superclass implementation.</para>
+          <para>Notifies the activity that an action mode has finished. Activity subclasses overriding this method should call the superclass implementation.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onActionModeFinished(android.view.ActionMode)" title="Reference documentation">Android reference for <code>android.app.Activity.onActionModeFinished</code>.</a>
@@ -3400,7 +3403,7 @@
         <param name="mode">The new action mode.</param>
         <summary>Notifies the Activity that an action mode has been started.</summary>
         <remarks>
-          <para>Notifies the Activity that an action mode has been started. Activity subclasses overriding this method should call the superclass implementation. If you override this method you must call through to the superclass implementation.</para>
+          <para>Notifies the Activity that an action mode has been started. Activity subclasses overriding this method should call the superclass implementation.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onActionModeStarted(android.view.ActionMode)" title="Reference documentation">Android reference for <code>android.app.Activity.onActionModeStarted</code>.</a>
@@ -3568,7 +3571,7 @@
         <summary>Same as <c>#onActivityResult(int, int, Intent)</c>, but with an extra parameter for the
             ComponentCaller instance associated with the app that sent the result.</summary>
         <remarks>
-          <para>Same as onActivityResult(int,int,Intent), but with an extra parameter for the ComponentCaller instance associated with the app that sent the result. If you want to retrieve the caller without overriding this method, call getCurrentCaller() inside your existing onActivityResult(int,int,Intent). Note that you should only override one onActivityResult(int, int, Intent) method.</para>
+          <para>Same as <see cref="M:Android.App.Activity.OnActivityResult(System.Int32,Android.App.Result,Android.Content.Intent)" />, but with an extra parameter for the ComponentCaller instance associated with the app that sent the result. To retrieve the caller without overriding this overload, use <see cref="P:Android.App.Activity.CurrentCaller" /> inside the three-parameter overload. Override only one <c>OnActivityResult</c> overload.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onActivityResult(int,%20int,%20android.content.Intent,%20android.app.ComponentCaller)" title="Reference documentation">Android reference for <code>android.app.Activity.onActivityResult</code>.</a>
@@ -4112,7 +4115,7 @@
         <param name="menuInfo">ContextMenu.ContextMenuInfo: Extra information about the item for which the context menu should be shown. This information will vary depending on the class of v.</param>
         <summary>Called when a context menu for the view is about to be shown.</summary>
         <remarks>
-          <para>Called when a context menu for the view is about to be shown. Unlike onCreateOptionsMenu(Menu), this will be called every time the context menu is about to be shown and should be populated for the view (or item inside the view for AdapterView subclasses, this can be found in the menuInfo)). Use onContextItemSelected(android.view.MenuItem) to know when an item has been selected. It is not safe to hold onto the context menu after this method returns.</para>
+          <para>Called when a context menu for the view is about to be shown. Unlike onCreateOptionsMenu(Menu), this will be called every time the context menu is about to be shown and should be populated for the view (or item inside the view for AdapterView subclasses, this can be found in the menuInfo). Use onContextItemSelected(android.view.MenuItem) to know when an item has been selected. It is not safe to hold onto the context menu after this method returns.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onCreateContextMenu(android.view.ContextMenu,%20android.view.View,%20android.view.ContextMenu.ContextMenuInfo)" title="Reference documentation">Android reference for <code>android.app.Activity.onCreateContextMenu</code>.</a>
@@ -4395,7 +4398,7 @@
       </Parameters>
       <Docs>
         <param name="featureId">int: The panel being created.</param>
-        <param name="menu">Menu: This value cannot be null.</param>
+        <param name="menu">The menu inside the panel. This value cannot be null.</param>
         <summary>Default implementation of
             <c>android.view.Window.Callback#onCreatePanelMenu</c>
             for activities.</summary>
@@ -4442,7 +4445,7 @@
         <summary>Default implementation of
             <c>android.view.Window.Callback#onCreatePanelView</c>
             for activities.</summary>
-        <returns>view The top-level view to place in the panel.</returns>
+        <returns>The top-level view to place in the panel, or <see langword="null" /> to use the default content. The default implementation returns <see langword="null" />.</returns>
         <remarks>
           <para>Default implementation of Window.Callback.onCreatePanelView(int) for activities. This simply returns null so that all panel sub-windows will have the default menu behavior.</para>
           <para>
@@ -4540,9 +4543,9 @@
         <Parameter Name="attrs" Type="Android.Util.IAttributeSet" />
       </Parameters>
       <Docs>
-        <param name="name">String: This value cannot be null.</param>
-        <param name="context">Context: This value cannot be null.</param>
-        <param name="attrs">AttributeSet: This value cannot be null.</param>
+        <param name="name">The tag name to inflate. This value cannot be null.</param>
+        <param name="context">The context in which the view is created. This value cannot be null.</param>
+        <param name="attrs">The inflation attributes specified in the XML file. This value cannot be null.</param>
         <summary>Standard implementation of
             <c>android.view.LayoutInflater.Factory#onCreateView</c> used when
             inflating with the LayoutInflater returned by <c>#getSystemService</c>.</summary>
@@ -4606,16 +4609,16 @@
         <Parameter Name="attrs" Type="Android.Util.IAttributeSet" />
       </Parameters>
       <Docs>
-        <param name="parent">View: This value may be null.</param>
-        <param name="name">String: This value cannot be null.</param>
-        <param name="context">Context: This value cannot be null.</param>
-        <param name="attrs">AttributeSet: This value cannot be null.</param>
+        <param name="parent">The parent in which the created view will be placed. This value may be null.</param>
+        <param name="name">The tag name to inflate. This value cannot be null.</param>
+        <param name="context">The context in which the view is created. This value cannot be null.</param>
+        <param name="attrs">The inflation attributes specified in the XML file. This value cannot be null.</param>
         <summary>Standard implementation of
             <c>android.view.LayoutInflater.Factory2#onCreateView(View, String, Context, AttributeSet)</c>
             used when inflating with the LayoutInflater returned by <c>#getSystemService</c>.</summary>
         <returns>This value may be null.</returns>
         <remarks>
-          <para>Standard implementation of android.view.LayoutInflater.Factory2.onCreateView(View,String,Context,AttributeSet) used when inflating with the LayoutInflater returned by Context.getSystemService(Class). This implementation handles tags to embed fragments inside of the activity.</para>
+          <para>Standard implementation of android.view.LayoutInflater.Factory2.onCreateView(View,String,Context,AttributeSet) used when inflating with the LayoutInflater returned by Context.getSystemService(Class). This implementation handles <c>&lt;fragment&gt;</c> tags to embed fragments inside of the activity.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onCreateView(android.view.View,%20java.lang.String,%20android.content.Context,%20android.util.AttributeSet)" title="Reference documentation">Android reference for <code>android.app.Activity.onCreateView</code>.</a>
@@ -4909,7 +4912,7 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">int: The value in event.getKeyCode().</param>
+        <param name="keyCode">The key code from the event.</param>
         <param name="e">The key event associated with the down action.</param>
         <summary>Called when a key was pressed down and not handled by any of the views
             inside of the activity.</summary>
@@ -4963,7 +4966,7 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">int: The value in event.getKeyCode().</param>
+        <param name="keyCode">The key code from the event.</param>
         <param name="e">The key event associated with the long-press callback.</param>
         <summary>Default implementation of <c>KeyEvent.Callback#onKeyLongPress(int, KeyEvent)
             KeyEvent.Callback.onKeyLongPress()</c>: always returns false (doesn't handle
@@ -5016,7 +5019,7 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">int: The value in event.getKeyCode().</param>
+        <param name="keyCode">The key code from the event.</param>
         <param name="repeatCount">int: Number of pairs as returned by event.getRepeatCount().</param>
         <param name="e">The repeated-key event supplied with the key code and count.</param>
         <summary>Default implementation of <c>KeyEvent.Callback#onKeyMultiple(int, int, KeyEvent)
@@ -5117,7 +5120,7 @@
         <Parameter Name="e" Type="Android.Views.KeyEvent" />
       </Parameters>
       <Docs>
-        <param name="keyCode">int: The value in event.getKeyCode().</param>
+        <param name="keyCode">The key code from the event.</param>
         <param name="e">The key event associated with the release action.</param>
         <summary>Called when a key was released and not handled by any of the views
             inside of the activity.</summary>
@@ -5238,9 +5241,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>This is called when the overall system is running low on memory, and actively running processes should trim their memory usage.</summary>
+        <summary>On Android 13 and earlier, notifies the activity that the system is running low on memory.</summary>
         <remarks>
-          <para>This is called when the overall system is running low on memory, and actively running processes should trim their memory usage. While the exact point at which this will be called is not defined, generally it will happen when all background process have been killed. That is, before reaching the point of killing processes hosting service and foreground UI that we would like to avoid killing.</para>
+          <para>On Android 13 and earlier, this is called when the overall system is running low on memory, and actively running processes should trim their memory usage. While the exact point at which this will be called is not defined, generally it will happen when all background process have been killed. That is, before reaching the point of killing processes hosting service and foreground UI that we would like to avoid killing.</para>
+          <para>Starting with Android 14 (API level 34), the system does not call this method. Use <see cref="M:Android.App.Activity.OnTrimMemory(Android.Content.TrimMemory)" /> instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onLowMemory()" title="Reference documentation">Android reference for <code>android.app.Activity.onLowMemory</code>.</a>
@@ -5283,7 +5287,7 @@
       </Parameters>
       <Docs>
         <param name="featureId">int: The panel that the menu is in.</param>
-        <param name="item">MenuItem: This value cannot be null.</param>
+        <param name="item">The menu item that was selected. This value cannot be null.</param>
         <summary>Default implementation of
             <c>android.view.Window.Callback#onMenuItemSelected</c>
             for activities.</summary>
@@ -5332,7 +5336,7 @@
       </Parameters>
       <Docs>
         <param name="featureId">int: The panel that the menu is in.</param>
-        <param name="menu">Menu: This value cannot be null.</param>
+        <param name="menu">The menu that is opened. This value cannot be null.</param>
         <summary>Called when a panel's menu is opened by the user.</summary>
         <returns>The default implementation returns true.</returns>
         <remarks>
@@ -5383,7 +5387,7 @@
             visa-versa.</summary>
         <remarks>
           <para>This method was deprecated in API level 26. Use onMultiWindowModeChanged(boolean,Configuration) instead.</para>
-          <para>Called by the system when the activity changes from fullscreen mode to multi-window mode and visa-versa.</para>
+          <para>Called by the system when the activity changes from fullscreen mode to multi-window mode and vice versa.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onMultiWindowModeChanged(boolean)" title="Reference documentation">Android reference for <code>android.app.Activity.onMultiWindowModeChanged</code>.</a>
@@ -5427,7 +5431,7 @@
         <summary>Called by the system when the activity changes from fullscreen mode to multi-window mode and
             visa-versa.</summary>
         <remarks>
-          <para>Called by the system when the activity changes from fullscreen mode to multi-window mode and visa-versa. This method provides the same configuration that will be sent in the following onConfigurationChanged(Configuration) call after the activity enters this mode.</para>
+          <para>Called by the system when the activity changes from fullscreen mode to multi-window mode and vice versa. This method provides the same configuration that will be sent in the following onConfigurationChanged(Configuration) call after the activity enters this mode.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onMultiWindowModeChanged(boolean,%20android.content.res.Configuration)" title="Reference documentation">Android reference for <code>android.app.Activity.onMultiWindowModeChanged</code>.</a>
@@ -5598,7 +5602,7 @@
         <summary>Same as <c>#onNewIntent(Intent)</c>, but with an extra parameter for the ComponentCaller
             instance associated with the app that sent the intent.</summary>
         <remarks>
-          <para>Same as onNewIntent(Intent), but with an extra parameter for the ComponentCaller instance associated with the app that sent the intent. If you want to retrieve the caller without overriding this method, call getCurrentCaller() inside your existing onNewIntent(Intent). Note that you should only override one onNewIntent(Intent) method.</para>
+          <para>Same as <see cref="M:Android.App.Activity.OnNewIntent(Android.Content.Intent)" />, but with an extra parameter for the ComponentCaller instance associated with the app that sent the intent. To retrieve the caller without overriding this overload, use <see cref="P:Android.App.Activity.CurrentCaller" /> inside the one-parameter overload. Override only one <c>OnNewIntent</c> overload.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onNewIntent(android.content.Intent,%20android.app.ComponentCaller)" title="Reference documentation">Android reference for <code>android.app.Activity.onNewIntent</code>.</a>
@@ -5723,7 +5727,7 @@
       </Parameters>
       <Docs>
         <param name="featureId">int: The panel that is being displayed.</param>
-        <param name="menu">Menu: This value cannot be null.</param>
+        <param name="menu">If <c>onCreatePanelView()</c> returned null, the menu displayed in the panel. This value cannot be null.</param>
         <summary>Default implementation of
             <c>android.view.Window.Callback#onPanelClosed(int, Menu)</c> for
             activities.</summary>
@@ -6337,8 +6341,8 @@
       </Parameters>
       <Docs>
         <param name="featureId">int: The panel that is being displayed.</param>
-        <param name="view">View: This value may be null.</param>
-        <param name="menu">Menu: This value cannot be null.</param>
+        <param name="view">The view returned by <c>onCreatePanelView()</c>. This value may be null.</param>
+        <param name="menu">If <c>onCreatePanelView()</c> returned null, the menu displayed in the panel. This value cannot be null.</param>
         <summary>Default implementation of
             <c>android.view.Window.Callback#onPreparePanel</c>
             for activities.</summary>
@@ -6575,7 +6579,7 @@
                                 <c>android.content.pm.PackageManager#PERMISSION_DENIED</c>. Never null.</param>
         <summary>Callback for the result from requesting permissions.</summary>
         <remarks>
-          <para>Callback for the result from requesting permissions. This method is invoked for every call on requestPermissions(String, int) Note: It is possible that the permissions request interaction with the user is interrupted. In this case you will receive empty permissions and results arrays which should be treated as a cancellation.</para>
+          <para>Callback for the result from requesting permissions. This method is invoked for every call to <c>RequestPermissions</c>. Note: It is possible that the permissions request interaction with the user is interrupted. In this case you will receive empty permissions and results arrays which should be treated as a cancellation.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onRequestPermissionsResult(int,%20java.lang.String[],%20int[])" title="Reference documentation">Android reference for <code>android.app.Activity.onRequestPermissionsResult</code>.</a>
@@ -6636,7 +6640,7 @@
                             are assigned unique device Ids.</param>
         <summary>Callback for the result from requesting permissions.</summary>
         <remarks>
-          <para>Callback for the result from requesting permissions. This method is invoked for every call on requestPermissions(String, int). Note: It is possible that the permissions request interaction with the user is interrupted. In this case you will receive empty permissions and results arrays which should be treated as a cancellation.</para>
+          <para>Callback for the result from requesting permissions. This method is invoked for every call to <c>RequestPermissions</c>. Note: It is possible that the permissions request interaction with the user is interrupted. In this case you will receive empty permissions and results arrays which should be treated as a cancellation.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onRequestPermissionsResult(int,%20java.lang.String[],%20int[],%20int)" title="Reference documentation">Android reference for <code>android.app.Activity.onRequestPermissionsResult</code>.</a>
@@ -7020,10 +7024,10 @@
         <param name="searchEvent">The <c>SearchEvent</c> that signaled this search.</param>
         <summary>This hook is called when the user signals the desire to start a search.</summary>
         <returns>Returns <c>true</c> if search launched, and <c>false</c> if the activity does
-            not respond to search.  The default implementation always returns <c>true</c>, except
-            when in <c>Configuration#UI_MODE_TYPE_TELEVISION</c> mode where it returns false.</returns>
+            not respond to search. The default implementation returns <c>false</c> in television
+            mode and, starting in Android 9, in watch mode; otherwise it returns <c>true</c>.</returns>
         <remarks>
-          <para>This hook is called when the user signals the desire to start a search. You can use this function as a simple way to launch the search UI, in response to a menu item, search button, or other widgets within your activity. Unless overridden, calling this function is the same as calling startSearch(null, false, null, false), which launches search for the current activity as specified in its manifest, see SearchManager. You can override this function to force global search, e.g. in response to a dedicated search key, or to block search entirely (by simply returning false). Note: when running in a Configuration.UI_MODE_TYPE_TELEVISION or Configuration.UI_MODE_TYPE_WATCH, the default implementation changes to simply return false and you must supply your own custom implementation if you want to support search.</para>
+          <para>This hook is called when the user signals the desire to start a search. You can use this function as a simple way to launch the search UI, in response to a menu item, search button, or other widgets within your activity. Unless overridden, calling this function is the same as calling startSearch(null, false, null, false), which launches search for the current activity as specified in its manifest, see SearchManager. You can override this function to force global search, e.g. in response to a dedicated search key, or to block search entirely (by simply returning false). In television mode, and in watch mode starting in Android 9, the default implementation returns false. You must supply your own implementation if you want to support search in these modes.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onSearchRequested(android.view.SearchEvent)" title="Reference documentation">Android reference for <code>android.app.Activity.onSearchRequested</code>.</a>
@@ -7380,7 +7384,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="level">int: The context of the trim, giving a hint of the amount of trimming the application may like to perform. Value is one of the following: <see cref="F:Android.Content.TrimMemory.Complete" /> <see cref="F:Android.Content.TrimMemory.Moderate" /> <see cref="F:Android.Content.TrimMemory.Background" /> <see cref="F:Android.Content.TrimMemory.UiHidden" /> <see cref="F:Android.Content.TrimMemory.RunningCritical" /> <see cref="F:Android.Content.TrimMemory.RunningLow" /> <see cref="F:Android.Content.TrimMemory.RunningModerate" /></param>
+        <param name="level">The context of the trim, giving a hint of the amount of trimming the application may like to perform. Value is one of the following: <see cref="F:Android.Content.TrimMemory.Complete" /> <see cref="F:Android.Content.TrimMemory.Moderate" /> <see cref="F:Android.Content.TrimMemory.Background" /> <see cref="F:Android.Content.TrimMemory.UiHidden" /> <see cref="F:Android.Content.TrimMemory.RunningCritical" /> <see cref="F:Android.Content.TrimMemory.RunningLow" /> <see cref="F:Android.Content.TrimMemory.RunningModerate" /></param>
         <summary>Called when the operating system has determined that it is a good time for a process to trim unneeded memory from its process.</summary>
         <remarks>
           <para>Called when the operating system has determined that it is a good time for a process to trim unneeded memory from its process. You should never compare to exact values of the level, since new intermediate values may be added -- you will typically want to compare if the value is greater or equal to a level you are interested in. To retrieve the processes current trim level at any point, you can use ActivityManager.getMyMemoryState(RunningAppProcessInfo).</para>
@@ -7495,7 +7499,7 @@
             activity is being launched.</summary>
         <remarks>
           <para>This method was deprecated in API level 26. This method's functionality is no longer supported as of Build.VERSION_CODES.O and will be removed in a future release.</para>
-          <para>Called when a translucent activity over this activity is becoming opaque or another activity is being launched. Activities that override this method must call super.onVisibleBehindCanceled() or a SuperNotCalledException will be thrown. When this method is called the activity has 500 msec to release any resources it may be using while visible in the background. If the activity has not returned from this method in 500 msec the system will destroy the activity and kill the process in order to recover the resources for another process. Otherwise onStop() will be called following return. If you override this method you must call through to the superclass implementation.</para>
+          <para>Called when a translucent activity over this activity is becoming opaque or another activity is being launched. Activities that override this method must call super.onVisibleBehindCanceled() or a SuperNotCalledException will be thrown. When this method is called the activity has 500 msec to release any resources it may be using while visible in the background. If the activity has not returned from this method in 500 msec the system will destroy the activity and kill the process in order to recover the resources for another process. Otherwise onStop() will be called following return.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#onVisibleBehindCanceled()" title="Reference documentation">Android reference for <code>android.app.Activity.onVisibleBehindCanceled</code>.</a>
@@ -7670,9 +7674,9 @@
       </Parameters>
       <Docs>
         <param name="callback">ActionMode.Callback: Callback to control the lifecycle of this action mode</param>
-        <param name="type">int: One of ActionMode.TYPE_PRIMARY or ActionMode.TYPE_FLOATING.</param>
+        <param name="type">One of ActionMode.TYPE_PRIMARY or ActionMode.TYPE_FLOATING.</param>
         <summary>Called when an action mode is being started for this window.</summary>
-        <returns>This value may be null.</returns>
+        <returns>The action mode that was started, or <see langword="null" /> to let the system choose how to present the mode or whether to start it.</returns>
         <remarks>
           <para>Called when an action mode is being started for this window. Gives the callback an opportunity to handle the action mode in its own unique and beautiful way. If this method returns null the system can choose a way to present the mode or choose not to start the mode at all.</para>
           <para>
@@ -7819,7 +7823,7 @@
               <term>This method, along with overridePendingTransition(int, int) and Window.setWindowAnimations(int), is ignored if the activity is started with ActivityOptions.makeSceneTransitionAnimation(Activity, android.util.Pair[]).</term>
             </item>
             <item>
-              <term>As of Android 11, this method cannot be used to customize cross-task transitions.</term>
+              <term>This method cannot be used to customize cross-task transitions.</term>
             </item>
           </list>
           <para>
@@ -7898,7 +7902,7 @@
               <term>This method, along with overridePendingTransition(int, int) and Window.setWindowAnimations(int), is ignored if the activity is started with ActivityOptions.makeSceneTransitionAnimation(Activity, android.util.Pair[]).</term>
             </item>
             <item>
-              <term>As of Android 11, this method cannot be used to customize cross-task transitions.</term>
+              <term>This method cannot be used to customize cross-task transitions.</term>
             </item>
           </list>
           <para>
@@ -7946,8 +7950,8 @@
             or <c>#finish</c> to specify an explicit transition animation to
             perform next.</summary>
         <remarks>
-          <para>This method was deprecated in API level 34. Use overrideActivityTransition(int, int, int)} instead.</para>
-          <para>Call immediately after one of the flavors of startActivity(Intent) or finish() to specify an explicit transition animation to perform next. As of Build.VERSION_CODES.JELLY_BEAN an alternative to using this with starting activities is to supply the desired animation information through a ActivityOptions bundle to startActivity(Intent,Bundle) or a related function. This allows you to specify a custom animation even when starting an activity from outside the context of the current top activity. Af of Build.VERSION_CODES.S application can only specify a transition animation when the transition happens within the same task. System default animation is used for cross-task transition animations.</para>
+          <para>This method was deprecated in API level 34. Use <see cref="M:Android.App.Activity.OverrideActivityTransition(Android.App.OverrideTransition,System.Int32,System.Int32)" /> instead.</para>
+          <para>Call immediately after one of the flavors of startActivity(Intent) or finish() to specify an explicit transition animation to perform next. As of Build.VERSION_CODES.JELLY_BEAN an alternative to using this with starting activities is to supply the desired animation information through a ActivityOptions bundle to startActivity(Intent,Bundle) or a related function. This allows you to specify a custom animation even when starting an activity from outside the context of the current top activity. Starting in Android 12, an application can only specify a transition animation when the transition happens within the same task. System default animation is used for cross-task transition animations.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#overridePendingTransition(int,%20int)" title="Reference documentation">Android reference for <code>android.app.Activity.overridePendingTransition</code>.</a>
@@ -8001,7 +8005,7 @@
             or <c>#finish</c> to specify an explicit transition animation to
             perform next.</summary>
         <remarks>
-          <para>This method was deprecated in API level 34. Use overrideActivityTransition(int, int, int, int)} instead.</para>
+          <para>This method was deprecated in API level 34. Use <see cref="M:Android.App.Activity.OverrideActivityTransition(Android.App.OverrideTransition,System.Int32,System.Int32,System.Int32)" /> instead.</para>
           <para>Call immediately after one of the flavors of startActivity(Intent) or finish() to specify an explicit transition animation to perform next. As of Build.VERSION_CODES.JELLY_BEAN an alternative to using this with starting activities is to supply the desired animation information through a ActivityOptions bundle to startActivity(Intent,Bundle) or a related function. This allows you to specify a custom animation even when starting an activity from outside the context of the current top activity.</para>
           <para>
             <format type="text/html">
@@ -8134,7 +8138,7 @@
       <Docs>
         <summary>Returns the parent <c>Activity</c> if this is a child <c>Activity</c> of an
             <c>ActivityGroup</c>.</summary>
-        <value>This Android.App.Activity instance, allowing calls to be chained.</value>
+        <value>The parent activity, or <see langword="null" /> if this activity has no parent.</value>
         <remarks>
           <para>This method was deprecated in API level 35. ActivityGroup is deprecated.</para>
           <para>Returns the parent Activity if this is a child Activity of an ActivityGroup.</para>
@@ -8325,7 +8329,7 @@
         <param name="callback">Application.ActivityLifecycleCallbacks: The callback instance to register. This value cannot be null.</param>
         <summary>Register an Application.ActivityLifecycleCallbacks instance that receives lifecycle callbacks for only this Activity.</summary>
         <remarks>
-          <para>Register an Application.ActivityLifecycleCallbacks instance that receives lifecycle callbacks for only this Activity. In relation to any Application registered callbacks, the callbacks registered here will always occur nested within those callbacks. This means: Pre events will first be sent to Application registered callbacks, then to callbacks registered here. Application.ActivityLifecycleCallbacks.onActivityCreated(Activity,Bundle), Application.ActivityLifecycleCallbacks.onActivityStarted(Activity), and Application.ActivityLifecycleCallbacks.onActivityResumed(Activity) will be sent first to Application registered callbacks, then to callbacks registered here. For all other events, callbacks registered here will be sent first. Post events will first be sent to callbacks registered here, then to Application registered callbacks. If multiple callbacks are registered here, they receive events in a first in (up through Application.ActivityLifecycleCallbacks.onActivityPostResumed, last out ordering. It is strongly recommended to register this in the constructor of your Activity to ensure you get all available callbacks. As this callback is associated with only this Activity, it is not usually necessary to unregister it unless you specifically do not want to receive further lifecycle callbacks.</para>
+          <para>Register an Application.ActivityLifecycleCallbacks instance that receives lifecycle callbacks for only this Activity. In relation to any Application registered callbacks, the callbacks registered here will always occur nested within those callbacks. This means: Pre events will first be sent to Application registered callbacks, then to callbacks registered here. Application.ActivityLifecycleCallbacks.onActivityCreated(Activity,Bundle), Application.ActivityLifecycleCallbacks.onActivityStarted(Activity), and Application.ActivityLifecycleCallbacks.onActivityResumed(Activity) will be sent first to Application registered callbacks, then to callbacks registered here. For all other events, callbacks registered here will be sent first. Post events will first be sent to callbacks registered here, then to Application registered callbacks. If multiple callbacks are registered here, they receive events in registration order through Application.ActivityLifecycleCallbacks.onActivityPostResumed and in reverse registration order for later lifecycle events. It is strongly recommended to register this in the constructor of your Activity to ensure you get all available callbacks. As this callback is associated with only this Activity, it is not usually necessary to unregister it unless you specifically do not want to receive further lifecycle callbacks.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#registerActivityLifecycleCallbacks(android.app.Application.ActivityLifecycleCallbacks)" title="Reference documentation">Android reference for <code>android.app.Activity.registerActivityLifecycleCallbacks</code>.</a>
@@ -8615,7 +8619,8 @@
         <value>Returns an orientation constant as used in
             <c>ActivityInfo#screenOrientation ActivityInfo.screenOrientation</c>.</value>
         <remarks>
-          <para>Returns the current requested orientation of the activity, which is either the orientation requested in the app manifest or the last orientation given to setRequestedOrientation(int). Note: To improve the layout of apps on form factors with smallest width &gt;= 600dp, the system ignores calls to this method for apps that target Android 16 (API level 36) or higher. Device manufacturers can configure devices to ignore calls to this method to improve the layout of orientation-restricted apps. On devices with Android 16 (API level 36) or higher installed, virtual device owners (select trusted and privileged apps) can optimize app layout on displays they manage by ignoring calls to this method. See also Companion app streaming. See Device compatibility mode.</para>
+          <para>Returns the current requested orientation of the activity, which is either the orientation requested in the app manifest or the last orientation given to setRequestedOrientation(int). To improve layout on form factors with smallest width &gt;= 600dp, the system may ignore requests to set the orientation for apps that target Android 16 (API level 36) or higher. Device manufacturers can configure devices to ignore orientation requests to improve the layout of orientation-restricted apps. On devices with Android 16 (API level 36) or higher installed, virtual device owners (select trusted and privileged apps) can optimize app layout on displays they manage by ignoring orientation requests. See also Companion app streaming. See Device compatibility mode.</para>
+          <para>When the system honors a change to the requested orientation, it changes the screen immediately if the activity is in the foreground or otherwise affects screen orientation. This may restart the activity. Otherwise, the new orientation is used the next time the activity is visible.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getRequestedOrientation()" title="Reference documentation">Android reference for <code>android.app.Activity.getRequestedOrientation</code>.</a>
@@ -8711,7 +8716,7 @@
       <Docs>
         <summary>Requests to show the “Open in browser” education.</summary>
         <remarks>
-          <para>Requests to show the \u201cOpen in browser\u201d education. \u201cOpen in browser\u201d is a feature within the app header that allows users to switch from an app to the web. The feature is made available when an application is opened by a user clicking a link or when a link is provided by an application. Links can be provided by calling AssistContent.setSessionTransferUri or AssistContent.setWebUri. This method should be utilized when an activity wants to nudge the user to switch to the web application in cases where the web may provide the user with a better experience. Note that this method does not guarantee that the education will be shown. The number of times that the "Open in browser" education can be triggered by this method is limited per application, and, when shown, the education appears above the app's content. For these reasons, developers should use this method sparingly when it is least disruptive to the user to show the education and when it is optimal to switch the user to a browser session. Before requesting to show the education, developers should assert that they have set a link that can be used by the "Open in browser" feature through either AssistContent.setSessionTransferUri or AssistContent.setWebUri so that users are navigated to a relevant page if they choose to switch to the browser. If a URI is not set using either method, "Open in browser" will utilize a generic link if available which will direct users to the homepage of the site associated with the app. The generic link is provided for a limited number of applications by the system and cannot be edited by developers. If none of these options contains a valid URI, the user will not be provided with the option to switch to the browser and the education will not be shown if requested.</para>
+          <para>Requests to show the “Open in browser” education. “Open in browser” is a feature within the app header that allows users to switch from an app to the web. The feature is made available when an application is opened by a user clicking a link or when a link is provided by an application. Links can be provided by calling AssistContent.setSessionTransferUri or AssistContent.setWebUri. This method should be utilized when an activity wants to nudge the user to switch to the web application in cases where the web may provide the user with a better experience. Note that this method does not guarantee that the education will be shown. The number of times that the "Open in browser" education can be triggered by this method is limited per application, and, when shown, the education appears above the app's content. For these reasons, developers should use this method sparingly when it is least disruptive to the user to show the education and when it is optimal to switch the user to a browser session. Before requesting to show the education, developers should assert that they have set a link that can be used by the "Open in browser" feature through either AssistContent.setSessionTransferUri or AssistContent.setWebUri so that users are navigated to a relevant page if they choose to switch to the browser. If a URI is not set using either method, "Open in browser" will utilize a generic link if available which will direct users to the homepage of the site associated with the app. The generic link is provided for a limited number of applications by the system and cannot be edited by developers. If none of these options contains a valid URI, the user will not be provided with the option to switch to the browser and the education will not be shown if requested.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#requestOpenInBrowserEducation()" title="Reference documentation">Android reference for <code>android.app.Activity.requestOpenInBrowserEducation</code>.</a>
@@ -8761,11 +8766,11 @@
         <remarks>
           <para>Requests permissions to be granted to this application. These permissions must be requested in your manifest, they should not be granted to your app, and they should have protection level dangerous, regardless whether they are declared by the platform or a third-party app. Normal permissions PermissionInfo.PROTECTION_NORMAL are granted at install time if requested in the manifest. Signature permissions PermissionInfo.PROTECTION_SIGNATURE are granted at install time if requested in the manifest and the signature of your app matches the signature of the app declaring the permissions.</para>
           <para>Call shouldShowRequestPermissionRationale(String) before calling this API to check if the system recommends to show a rationale UI before asking for a permission.</para>
-          <para>If your app does not have the requested permissions the user will be presented with UI for accepting them. After the user has accepted or rejected the requested permissions you will receive a callback on onRequestPermissionsResult(int, String, int) reporting whether the permissions were granted or not.</para>
+          <para>If your app does not have the requested permissions the user will be presented with UI for accepting them. After the user has accepted or rejected the requested permissions you will receive a callback on <c>OnRequestPermissionsResult</c> reporting whether the permissions were granted or not.</para>
           <para>Note that requesting a permission does not guarantee it will be granted and your app should be able to run without having this permission.</para>
-          <para>This method may start an activity allowing the user to choose which permissions to grant and which to reject. Hence, you should be prepared that your activity may be paused and resumed. Further, granting some permissions may require a restart of you application. In such a case, the system will recreate the activity stack before delivering the result to onRequestPermissionsResult(int, String, int).</para>
+          <para>This method may start an activity allowing the user to choose which permissions to grant and which to reject. Hence, you should be prepared that your activity may be paused and resumed. Further, granting some permissions may require a restart of you application. In such a case, the system will recreate the activity stack before delivering the result to <c>OnRequestPermissionsResult</c>.</para>
           <para>When checking whether you have a permission you should use checkSelfPermission(String).</para>
-          <para>You cannot request a permission if your activity sets noHistory to true because in this case the activity would not receive result callbacks including onRequestPermissionsResult(int, String, int).</para>
+          <para>You cannot request a permission if your activity sets noHistory to true because in this case the activity would not receive result callbacks including <c>OnRequestPermissionsResult</c>.</para>
           <para>The permissions samples repo demonstrates how to use this method to request permissions at run time.</para>
           <para>Throws: IllegalArgumentException if requestCode is negative.</para>
           <para>
@@ -8821,11 +8826,11 @@
         <remarks>
           <para>Requests permissions to be granted to this application. These permissions must be requested in your manifest, they should not be granted to your app, and they should have protection level dangerous, regardless whether they are declared by the platform or a third-party app. Normal permissions PermissionInfo.PROTECTION_NORMAL are granted at install time if requested in the manifest. Signature permissions PermissionInfo.PROTECTION_SIGNATURE are granted at install time if requested in the manifest and the signature of your app matches the signature of the app declaring the permissions.</para>
           <para>Call shouldShowRequestPermissionRationale(String) before calling this API to check if the system recommends to show a rationale UI before asking for a permission.</para>
-          <para>If your app does not have the requested permissions the user will be presented with UI for accepting them. After the user has accepted or rejected the requested permissions you will receive a callback on onRequestPermissionsResult(int, String, int) reporting whether the permissions were granted or not.</para>
+          <para>If your app does not have the requested permissions the user will be presented with UI for accepting them. After the user has accepted or rejected the requested permissions you will receive a callback on <c>OnRequestPermissionsResult</c> reporting whether the permissions were granted or not.</para>
           <para>Note that requesting a permission does not guarantee it will be granted and your app should be able to run without having this permission.</para>
-          <para>This method may start an activity allowing the user to choose which permissions to grant and which to reject. Hence, you should be prepared that your activity may be paused and resumed. Further, granting some permissions may require a restart of you application. In such a case, the system will recreate the activity stack before delivering the result to onRequestPermissionsResult(int, String, int).</para>
+          <para>This method may start an activity allowing the user to choose which permissions to grant and which to reject. Hence, you should be prepared that your activity may be paused and resumed. Further, granting some permissions may require a restart of you application. In such a case, the system will recreate the activity stack before delivering the result to <c>OnRequestPermissionsResult</c>.</para>
           <para>When checking whether you have a permission you should use checkSelfPermission(String).</para>
-          <para>You cannot request a permission if your activity sets noHistory to true because in this case the activity would not receive result callbacks including onRequestPermissionsResult(int, String, int).</para>
+          <para>You cannot request a permission if your activity sets noHistory to true because in this case the activity would not receive result callbacks including <c>OnRequestPermissionsResult</c>.</para>
           <para>The permissions samples repo demonstrates how to use this method to request permissions at run time.</para>
           <para>Throws: IllegalArgumentException if requestCode is negative.</para>
           <para>
@@ -11163,7 +11168,7 @@ try {
       </Parameters>
       <Docs>
         <param name="callback">ActionMode.Callback: Callback that will manage lifecycle events for this action mode</param>
-        <param name="type">int: One of ActionMode.TYPE_PRIMARY or ActionMode.TYPE_FLOATING.</param>
+        <param name="type">One of ActionMode.TYPE_PRIMARY or ActionMode.TYPE_FLOATING.</param>
         <summary>Start an action mode of the given type.</summary>
         <returns>The ActionMode that was started, or null if it was canceled</returns>
         <remarks>
@@ -11209,7 +11214,6 @@ try {
             with no options.</summary>
         <remarks>
           <para>Same as calling startActivityForResult(Intent,int,Bundle) with no options.</para>
-          <para>Throws: android.content.ActivityNotFoundException</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startActivityForResult(android.content.Intent,%20int)" title="Reference documentation">Android reference for <code>android.app.Activity.startActivityForResult</code>.</a>
@@ -11218,6 +11222,7 @@ try {
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+        <exception cref="T:Android.Content.ActivityNotFoundException">No activity was found to handle the intent.</exception>
       </Docs>
     </Member>
     <Member MemberName="StartActivityForResult">
@@ -11293,7 +11298,6 @@ try {
         <summary>Launch an activity for which you would like a result when it finished.</summary>
         <remarks>
           <para>Launch an activity for which you would like a result when it finished. When this activity exits, your onActivityResult() method will be called with the given requestCode. Using a negative requestCode is the same as calling startActivity(Intent) (the activity is not launched as a sub-activity). Note that this method should only be used with Intent protocols that are defined to return a result. In other protocols (such as Intent.ACTION_MAIN or Intent.ACTION_VIEW), you may not get the result when you expect. For example, if the activity you are launching uses Intent.FLAG_ACTIVITY_NEW_TASK, it will not run in your task and thus you will immediately receive a cancel result. As a special case, if you call startActivityForResult() with a requestCode &gt;= 0 during the initial onCreate(Bundle savedInstanceState)/onResume() of your activity, then your window will not be displayed until a result is returned back from the started activity. This is to avoid visible flickering when redirecting to another activity. This method throws ActivityNotFoundException if there was no Activity found to run the given Intent.</para>
-          <para>Throws: android.content.ActivityNotFoundException</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startActivityForResult(android.content.Intent,%20int,%20android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.Activity.startActivityForResult</code>.</a>
@@ -11302,6 +11306,7 @@ try {
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
+        <exception cref="T:Android.Content.ActivityNotFoundException">No activity was found to handle the intent.</exception>
       </Docs>
     </Member>
     <Member MemberName="StartActivityFromChild">
@@ -11352,7 +11357,6 @@ try {
         <remarks>
           <para>This method was deprecated in API level 30. Use androidx.fragment.app.FragmentActivity.startActivityFromFragment( androidx.fragment.app.Fragment,Intent,int)</para>
           <para>Same as calling startActivityFromChild(Activity,Intent,int,Bundle) with no options.</para>
-          <para>Throws: android.content.ActivityNotFoundException</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startActivityFromChild(android.app.Activity,%20android.content.Intent,%20int)" title="Reference documentation">Android reference for <code>android.app.Activity.startActivityFromChild</code>.</a>
@@ -11361,6 +11365,7 @@ try {
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+        <exception cref="T:Android.Content.ActivityNotFoundException">No activity was found to handle the intent.</exception>
       </Docs>
     </Member>
     <Member MemberName="StartActivityFromChild">
@@ -11411,7 +11416,6 @@ try {
         <remarks>
           <para>This method was deprecated in API level 30. Use androidx.fragment.app.FragmentActivity.startActivityFromFragment( androidx.fragment.app.Fragment,Intent,int,Bundle)</para>
           <para>This is called when a child activity of this one calls its startActivity(Intent) or startActivityForResult(Intent, int) method. This method throws ActivityNotFoundException if there was no Activity found to run the given Intent.</para>
-          <para>Throws: android.content.ActivityNotFoundException</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startActivityFromChild(android.app.Activity,%20android.content.Intent,%20int,%20android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.Activity.startActivityFromChild</code>.</a>
@@ -11420,6 +11424,7 @@ try {
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
+        <exception cref="T:Android.Content.ActivityNotFoundException">No activity was found to handle the intent.</exception>
       </Docs>
     </Member>
     <Member MemberName="StartActivityFromFragment">
@@ -11470,7 +11475,6 @@ try {
         <remarks>
           <para>This method was deprecated in API level 28. Use androidx.fragment.app.FragmentActivity.startActivityFromFragment( androidx.fragment.app.Fragment,Intent,int)</para>
           <para>Same as calling startActivityFromFragment(Fragment,Intent,int,Bundle) with no options.</para>
-          <para>Throws: android.content.ActivityNotFoundException</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startActivityFromFragment(android.app.Fragment,%20android.content.Intent,%20int)" title="Reference documentation">Android reference for <code>android.app.Activity.startActivityFromFragment</code>.</a>
@@ -11480,6 +11484,7 @@ try {
         </remarks>
         <since version="Added in API level 11" />
         <altmember cref="M:Android.App.Fragment.StartActivity(Android.Content.Intent)" />
+        <exception cref="T:Android.Content.ActivityNotFoundException">No activity was found to handle the intent.</exception>
       </Docs>
     </Member>
     <Member MemberName="StartActivityFromFragment">
@@ -11531,7 +11536,6 @@ try {
         <remarks>
           <para>This method was deprecated in API level 28. Use androidx.fragment.app.FragmentActivity.startActivityFromFragment( androidx.fragment.app.Fragment,Intent,int,Bundle)</para>
           <para>This is called when a Fragment in this activity calls its Fragment.startActivity or Fragment.startActivityForResult method. This method throws ActivityNotFoundException if there was no Activity found to run the given Intent.</para>
-          <para>Throws: android.content.ActivityNotFoundException</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startActivityFromFragment(android.app.Fragment,%20android.content.Intent,%20int,%20android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.Activity.startActivityFromFragment</code>.</a>
@@ -11541,6 +11545,7 @@ try {
         </remarks>
         <since version="Added in API level 16" />
         <altmember cref="M:Android.App.Fragment.StartActivity(Android.Content.Intent)" />
+        <exception cref="T:Android.Content.ActivityNotFoundException">No activity was found to handle the intent.</exception>
       </Docs>
     </Member>
     <Member MemberName="StartActivityIfNeeded">
@@ -11708,7 +11713,6 @@ try {
             Intent, int, int, int, Bundle)</c> with no options.</summary>
         <remarks>
           <para>Same as calling startIntentSenderForResult(IntentSender,int,Intent,int,int,int,Bundle) with no options.</para>
-          <para>Throws: IntentSender.SendIntentException</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startIntentSenderForResult(android.content.IntentSender,%20int,%20android.content.Intent,%20int,%20int,%20int)" title="Reference documentation">Android reference for <code>android.app.Activity.startIntentSenderForResult</code>.</a>
@@ -11717,6 +11721,7 @@ try {
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 5" />
+        <exception cref="T:Android.Content.IntentSender.SendIntentException">The start request was canceled.</exception>
       </Docs>
     </Member>
     <Member MemberName="StartIntentSenderForResult">
@@ -11782,7 +11787,6 @@ try {
             to use a IntentSender to describe the activity to be started.</summary>
         <remarks>
           <para>Like startActivityForResult(Intent,int), but allowing you to use a IntentSender to describe the activity to be started. If the IntentSender is for an activity, that activity will be started as if you had called the regular startActivityForResult(Intent,int) here; otherwise, its associated action will be executed (such as sending a broadcast) as if you had called IntentSender.sendIntent on it.</para>
-          <para>Throws: IntentSender.SendIntentException</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startIntentSenderForResult(android.content.IntentSender,%20int,%20android.content.Intent,%20int,%20int,%20int,%20android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.Activity.startIntentSenderForResult</code>.</a>
@@ -11791,6 +11795,7 @@ try {
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
+        <exception cref="T:Android.Content.IntentSender.SendIntentException">The start request was canceled.</exception>
       </Docs>
     </Member>
     <Member MemberName="StartIntentSenderFromChild">
@@ -11852,7 +11857,6 @@ try {
         <remarks>
           <para>This method was deprecated in API level 30. Use startIntentSenderForResult(IntentSender,int,Intent,int,int,int) instead.</para>
           <para>Same as calling startIntentSenderFromChild(Activity,IntentSender,int,Intent,int,int,int,Bundle) with no options.</para>
-          <para>Throws: IntentSender.SendIntentException</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startIntentSenderFromChild(android.app.Activity,%20android.content.IntentSender,%20int,%20android.content.Intent,%20int,%20int,%20int)" title="Reference documentation">Android reference for <code>android.app.Activity.startIntentSenderFromChild</code>.</a>
@@ -11861,6 +11865,7 @@ try {
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 5" />
+        <exception cref="T:Android.Content.IntentSender.SendIntentException">The start request was canceled.</exception>
       </Docs>
     </Member>
     <Member MemberName="StartIntentSenderFromChild">
@@ -11926,7 +11931,6 @@ try {
         <remarks>
           <para>This method was deprecated in API level 30. Use startIntentSenderForResult(IntentSender,int,Intent,int,int,int,Bundle) instead.</para>
           <para>Like startActivityFromChild(Activity,Intent,int), but taking a IntentSender; see startIntentSenderForResult(IntentSender,int,Intent,int,int,int) for more information.</para>
-          <para>Throws: IntentSender.SendIntentException</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startIntentSenderFromChild(android.app.Activity,%20android.content.IntentSender,%20int,%20android.content.Intent,%20int,%20int,%20int,%20android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.Activity.startIntentSenderFromChild</code>.</a>
@@ -11935,6 +11939,7 @@ try {
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 16" />
+        <exception cref="T:Android.Content.IntentSender.SendIntentException">The start request was canceled.</exception>
       </Docs>
     </Member>
     <Member MemberName="StartLocalVoiceInteraction">
@@ -12043,7 +12048,7 @@ try {
             <c>Cursor</c>'s lifecycle for you based on the activity's lifecycle.</summary>
         <remarks>
           <para>This method was deprecated in API level 15. Use the new CursorLoader class with LoaderManager instead; this is also available on older platforms through the Android compatibility package.</para>
-          <para>This method allows the activity to take care of managing the given Cursor's lifecycle for you based on the activity's lifecycle. That is, when the activity is stopped it will automatically call Cursor.deactivate on the given Cursor, and when it is later restarted it will call Cursor.requery for you. When the activity is destroyed, all managed Cursors will be closed automatically. If you are targeting Build.VERSION_CODES.HONEYCOMB or later, consider instead using LoaderManager instead, available via getLoaderManager(). Warning: Do not call Cursor.close() on cursor obtained from managedQuery(Uri, String, String, String, String), because the activity will do that for you at the appropriate time. However, if you call stopManagingCursor(Cursor) on a cursor from a managed query, the system will not automatically close the cursor and, in that case, you must call Cursor.close().</para>
+          <para>This method allows the activity to take care of managing the given Cursor's lifecycle for you based on the activity's lifecycle. That is, when the activity is stopped it will automatically call Cursor.deactivate on the given Cursor, and when it is later restarted it will call Cursor.requery for you. When the activity is destroyed, all managed Cursors will be closed automatically. If you are targeting Build.VERSION_CODES.HONEYCOMB or later, consider instead using LoaderManager instead, available via getLoaderManager(). Warning: Do not call Cursor.close() on a cursor obtained from managedQuery, because the activity will do that for you at the appropriate time. However, if you call stopManagingCursor(Cursor) on a cursor from a managed query, the system will not automatically close the cursor and, in that case, you must call Cursor.close().</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startManagingCursor(android.database.Cursor)" title="Reference documentation">Android reference for <code>android.app.Activity.startManagingCursor</code>.</a>
@@ -12153,7 +12158,7 @@ try {
             wasn't.  In general, if true is returned you will then want to call
             finish() on yourself.</returns>
         <remarks>
-          <para>Special version of starting an activity, for use when you are replacing other activity components. You can use this to hand the Intent off to the next Activity that can handle it. You typically call this in onCreate(Bundle) with the Intent returned by getIntent(). Note: For security reasons, the caller identity propagated to the next activity will reflect this intermediary app's identity unless it shares the same UID as the original caller. The receiving activity should validate the immediate caller rather than assuming the original intent sender is preserved.</para>
+          <para>Special version of starting an activity, for use when you are replacing other activity components. You can use this to hand the Intent off to the next Activity that can handle it. You typically call this in onCreate(Bundle) with the Intent returned by getIntent(). The information reported about the caller can depend on the Android version and the apps involved. The receiving activity should validate the caller and not assume that the original caller identity is preserved.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#startNextMatchingActivity(android.content.Intent,%20android.os.Bundle)" title="Reference documentation">Android reference for <code>android.app.Activity.startNextMatchingActivity</code>.</a>
@@ -12567,6 +12572,7 @@ try {
         <summary>Change the color of the title associated with this activity.</summary>
         <value>The color stored with the activity's title.</value>
         <remarks>
+          <para>Setting this property is deprecated as of API level 11. Use action bar styles instead.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getTitleColor()" title="Reference documentation">Android reference for <code>android.app.Activity.getTitleColor</code>.</a>
@@ -12604,6 +12610,7 @@ try {
         <summary>Change the title associated with this activity.</summary>
         <value>The character-sequence title stored for this activity.</value>
         <remarks>
+          <para>Setting the title changes the window title for a top-level activity. For an embedded activity, the parent decides how to handle the title.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getTitle()" title="Reference documentation">Android reference for <code>android.app.Activity.getTitle</code>.</a>
@@ -12813,7 +12820,7 @@ try {
       <Docs>
         <summary>Retrieve the active <c>VoiceInteractor</c> that the user is going through to
             interact with this activity.</summary>
-        <value>The voice interactor attached to this activity.</value>
+        <value>The voice interactor attached to this activity, or <see langword="null" /> if no voice interaction session is active.</value>
         <remarks>
           <para>Retrieve the active VoiceInteractor that the user is going through to interact with this activity.</para>
           <para>
@@ -12858,6 +12865,7 @@ try {
                     the hardware volume controls.</value>
         <remarks>
           <para>Gets the suggested audio stream whose volume should be changed by the hardware volume controls.</para>
+          <para>The suggested stream is tied to this activity's window. Hardware volume controls do not always change its volume; for example, they may change the call volume instead. To restore the default, set this property to <see cref="F:Android.Media.AudioManager.UseDefaultStreamType" /> cast to <see cref="T:Android.Media.Stream" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Activity#getVolumeControlStream()" title="Reference documentation">Android reference for <code>android.app.Activity.getVolumeControlStream</code>.</a>
