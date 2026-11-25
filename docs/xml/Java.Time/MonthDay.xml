@@ -119,9 +119,9 @@
       </Parameters>
       <Docs>
         <param name="temporal">the target object to be adjusted, not null</param>
-        <summary>Adjusts the specified temporal object to have this month-day.</summary>
+        <summary>Adjusts the specified temporal object to have this month and, when valid, this day.</summary>
         <returns>the adjusted object, not null</returns>
-        <remarks><para>Adjusts the specified temporal object to have this month-day. This returns a temporal object of the same observable type as the input with the month and day-of-month changed to be the same as this. The adjustment is equivalent to using Temporal.with(TemporalField, long) twice, passing ChronoField.MONTH_OF_YEAR and ChronoField.DAY_OF_MONTH as the fields. If the specified temporal object does not use the ISO calendar system then a DateTimeException is thrown. In most cases, it is clearer to reverse the calling pattern by using Temporal.with(TemporalAdjuster):</para>
+        <remarks><para>Adjusts the specified temporal object to have this month and, when valid, this day. This returns a temporal object of the same observable type as the input. The adjustment uses Temporal.with(TemporalField, long) twice: first to set ChronoField.MONTH_OF_YEAR, then to set ChronoField.DAY_OF_MONTH to the smaller of this day and the maximum valid day in the adjusted temporal object. For example, February 29 becomes February 28 in a non-leap year. If the specified temporal object does not use the ISO calendar system then a DateTimeException is thrown. In most cases, it is clearer to reverse the calling pattern by using Temporal.with(TemporalAdjuster):</para>
 <code lang="text/java">   // these two lines are equivalent, but the second approach is recommended
    temporal = thisMonthDay.adjustInto(temporal);
    temporal = temporal.with(thisMonthDay);</code>
@@ -1086,7 +1086,7 @@
         <summary>Queries this month-day using the specified query.</summary>
         <returns>the query result, null may be returned (defined by the query)</returns>
         <remarks>
-          <para>Queries this month-day using the specified query. This queries this month-day using the specified query strategy object. The TemporalQuery object defines the logic to be used to obtain the result. Read the documentation of the query to understand what the result of this method will be. The result of this method is obtained by invoking the TemporalQuery.queryFrom(TemporalAccessor) method on the specified query passing this as the argument.</para>
+          <para>Queries this month-day using the specified query. This queries this month-day using the specified query strategy object. The TemporalQuery object defines the logic to be used to obtain the result. Read the documentation of the query to understand what the result of this method will be. The chronology query returns the ISO chronology. The zone ID and precision queries return null. For other queries, this method invokes TemporalQuery.queryFrom(TemporalAccessor) on the query, passing this as the argument.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/MonthDay.html#query(java.time.temporal.TemporalQuery)" title="Reference documentation">Java reference for <code>java.time.MonthDay.query</code>.</a></format></para>
         </remarks>
       </Docs>
