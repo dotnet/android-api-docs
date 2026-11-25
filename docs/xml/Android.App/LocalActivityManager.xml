@@ -602,7 +602,7 @@
         <summary>Retrieve the state of all activities known by the group.</summary>
         <returns>a Bundle holding the newly created state of all known activities</returns>
         <remarks>
-          <para>Retrieve the state of all activities known by the group. For activities that have previously run and are now stopped or finished, the last saved state is used. For the current running activity, its <see cref="M:Android.App.Activity.OnSaveInstanceState(Android.OS.Bundle)" /> is called to retrieve its current state.</para>
+          <para>Retrieve the state of all activities known by the group. For activities that have previously run and are now stopped or finished, the last saved state is used. For the current running activity, its Activity.onSaveInstanceState is called to retrieve its current state.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/LocalActivityManager#saveInstanceState()" title="Reference documentation">Android reference for <code>android.app.LocalActivityManager.saveInstanceState</code>.</a>
@@ -651,8 +651,7 @@
         <remarks>
           <para>Start a new activity running in the group. Every activity you start must have a unique string ID associated with it. If you call <see cref="M:Android.App.LocalActivityManager.StartActivity(System.String,Android.Content.Intent)" /> again with the same ID, the current activity may be reused or destroyed and replaced, based on these conditions, in order:</para>
                     <list type="bullet"><item><term>If the Intent maps to a different activity component than is currently running, the current activity is finished and a new one started.</term></item><item><term>If the current activity uses a non-multiple launch mode (such as singleTop), or the Intent has the <see cref="F:Android.Content.ActivityFlags.SingleTop" /> flag set, then the current activity will remain running and its <see cref="M:Android.App.Activity.OnNewIntent(Android.Content.Intent)" /> method is called.</term></item><item><term>If the new Intent is the same (excluding extras) as the previous one, and the new Intent does not have <see cref="F:Android.Content.ActivityFlags.ClearTop" /> set, then the current activity will remain running as-is.</term></item><item><term>Otherwise, the current activity will be finished and a new one started.</term></item></list>
-          <para>If the given Intent can not be resolved to an available Activity, this method throws ActivityNotFoundException. Warning: There is an issue where, if the Intent does not include an explicit component, we can restore the state for a different activity class than was previously running when the state was saved (if the set of available activities changes between those points).</para>
-          <para>Throws: android.content.ActivityNotFoundException</para>
+          <para>If the given Intent can not be resolved to an available Activity, this method throws <see cref="T:Android.Content.ActivityNotFoundException" />. Warning: There is an issue where, if the Intent does not include an explicit component, we can restore the state for a different activity class than was previously running when the state was saved (if the set of available activities changes between those points).</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/LocalActivityManager#startActivity(java.lang.String,%20android.content.Intent)" title="Reference documentation">Android reference for <code>android.app.LocalActivityManager.startActivity</code>.</a>
@@ -661,6 +660,7 @@
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
+        <exception cref="T:Android.Content.ActivityNotFoundException" />
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">

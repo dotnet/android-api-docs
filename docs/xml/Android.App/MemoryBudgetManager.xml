@@ -217,7 +217,9 @@
         <value>The memory limit for the caller's application in bytes. The getter may return <see cref="F:Android.App.MemoryBudgetManager.LimitIsDisabled" />.</value>
         <remarks>
           <para>The getter reports the active package memory limit.</para>
+          <para>Set a positive budget in bytes for the application's processes together. This does not change individual process budgets. Use <see cref="M:Android.App.MemoryBudgetManager.ClearPackageBudget" /> to remove the package budget; do not set it to <see cref="F:Android.App.MemoryBudgetManager.LimitIsDisabled" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#getPackageBudgetBytes()" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.getPackageBudgetBytes</code>.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#setPackageBudgetBytes(long)" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.setPackageBudgetBytes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -292,7 +294,9 @@
         <value>The memory limit for the caller's process in bytes. The getter may return <see cref="F:Android.App.MemoryBudgetManager.LimitIsDisabled" />.</value>
         <remarks>
           <para>The getter reports the active process memory limit.</para>
+          <para>Set a positive budget in bytes for the caller's process. Use <see cref="M:Android.App.MemoryBudgetManager.ClearProcessBudget" /> to remove the process budget; do not set it to <see cref="F:Android.App.MemoryBudgetManager.LimitIsDisabled" />.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#getProcessBudgetBytes()" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.getProcessBudgetBytes</code>.</a></format></para>
+          <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#setProcessBudgetBytes(long)" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.setProcessBudgetBytes</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
       </Docs>
@@ -365,12 +369,12 @@
         <Parameter Name="listener" Type="Android.App.MemoryBudgetManager+IOnOverBudgetListener" />
       </Parameters>
       <Docs>
-        <param name="looper">OnOverBudgetListener callbacks will be dispatched on this Looper's thread. If null, the looper from Looper.getMainLooper() will be used.</param>
+        <param name="looper"><see cref="T:Android.App.MemoryBudgetManager.IOnOverBudgetListener" /> callbacks will be dispatched on this Looper's thread. If null, <see cref="P:Android.OS.Looper.MainLooper" /> will be used.</param>
         <param name="listener">callback to be notified of an over-budget event. This value cannot be null.</param>
         <summary>Registers to be notified if the caller's application exceeds its package budget.</summary>
         <remarks>
           <para>Registers to be notified if the caller's application exceeds its package budget. The package budget is based on the aggregate memory usage of all processes running under the same UID. An over-budget event can be triggered by memory allocations in any of these processes.</para>
-          <para>An OnOverBudgetListener callback can only be registered once.</para>
+          <para>An <see cref="T:Android.App.MemoryBudgetManager.IOnOverBudgetListener" /> callback can only be registered once.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#registerPackageOverBudgetListener(android.os.Looper,%20android.app.MemoryBudgetManager.OnOverBudgetListener)" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.registerPackageOverBudgetListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -411,12 +415,12 @@
         <Parameter Name="listener" Type="Android.App.MemoryBudgetManager+IOnOverBudgetListener" />
       </Parameters>
       <Docs>
-        <param name="looper">OnOverBudgetListener callbacks will be dispatched on this Looper's thread. If null, the looper from Looper.getMainLooper() will be used.</param>
+        <param name="looper"><see cref="T:Android.App.MemoryBudgetManager.IOnOverBudgetListener" /> callbacks will be dispatched on this Looper's thread. If null, <see cref="P:Android.OS.Looper.MainLooper" /> will be used.</param>
         <param name="listener">callback to be notified of an over-budget event. This value cannot be null.</param>
         <summary>Registers to be notified if the caller's process exceeds its process budget.</summary>
         <remarks>
           <para>Registers to be notified if the caller's process exceeds its process budget. This listener will only be notified of breaches due to memory allocations within the calling process.</para>
-          <para>An OnOverBudgetListener callback can only be registered once.</para>
+          <para>An <see cref="T:Android.App.MemoryBudgetManager.IOnOverBudgetListener" /> callback can only be registered once.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/app/MemoryBudgetManager#registerProcessOverBudgetListener(android.os.Looper,%20android.app.MemoryBudgetManager.OnOverBudgetListener)" title="Reference documentation">Android reference for <code>android.app.MemoryBudgetManager.registerProcessOverBudgetListener</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
