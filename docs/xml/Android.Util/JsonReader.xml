@@ -851,12 +851,13 @@
       <Docs>
         <summary>Returns the <c>JsonToken#NUMBER int</c> value of the next token,
             consuming it.</summary>
-        <returns>The next token's integer value when it can be exactly represented as a 32-bit integer.</returns>
+        <returns>The parsed 32-bit integer. Parsing through a double can round the token's value.</returns>
         <remarks>
           <para>Returns the <c>JsonToken#NUMBER int</c> value of the next token,
             consuming it. If the next token is a string, this method will attempt to
-            parse it as an int. If the next token's numeric value cannot be exactly
-            represented by a Java <c>int</c>, this method throws.</para>
+            parse it as an int. If integer parsing fails, the method parses a double
+            and checks it against its integer conversion cast back to double. Double
+            parsing can round the token's value before this check.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/util/JsonReader#nextInt()" title="Reference documentation">Java documentation for <code>android.util.JsonReader.nextInt()</code>.</a>
@@ -870,9 +871,7 @@
         </remarks>
         <since version="Added in API level 11" />
         <exception cref="T:Java.Lang.IllegalStateException">if the next token is not a literal value.</exception>
-        <exception cref="T:Java.Lang.NumberFormatException">if the next literal value cannot be parsed
-     as a number, or exactly represented as an int.
-</exception>
+        <exception cref="T:Java.Lang.NumberFormatException">if the token cannot be parsed as a number, or the parsed double differs from its 32-bit integer conversion cast back to double.</exception>
         <exception cref="T:Java.IO.IOException" />
       </Docs>
     </Member>
@@ -921,12 +920,13 @@
       <Docs>
         <summary>Returns the <c>JsonToken#NUMBER long</c> value of the next token,
             consuming it.</summary>
-        <returns>The next token's integer value when it can be exactly represented as a 64-bit integer.</returns>
+        <returns>The parsed 64-bit integer. Parsing through a double can round the token's value.</returns>
         <remarks>
           <para>Returns the <c>JsonToken#NUMBER long</c> value of the next token,
             consuming it. If the next token is a string, this method will attempt to
-            parse it as a long. If the next token's numeric value cannot be exactly
-            represented by a Java <c>long</c>, this method throws.</para>
+            parse it as a long. If integer parsing fails, the method parses a double
+            and checks it against its integer conversion cast back to double. Double
+            parsing can round the token's value before this check.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/util/JsonReader#nextLong()" title="Reference documentation">Java documentation for <code>android.util.JsonReader.nextLong()</code>.</a>
@@ -940,9 +940,7 @@
         </remarks>
         <since version="Added in API level 11" />
         <exception cref="T:Java.Lang.IllegalStateException">if the next token is not a literal value.</exception>
-        <exception cref="T:Java.Lang.NumberFormatException">if the next literal value cannot be parsed
-     as a number, or exactly represented as a long.
-</exception>
+        <exception cref="T:Java.Lang.NumberFormatException">if the token cannot be parsed as a number, or the parsed double differs from its 64-bit integer conversion cast back to double.</exception>
         <exception cref="T:Java.IO.IOException" />
       </Docs>
     </Member>
