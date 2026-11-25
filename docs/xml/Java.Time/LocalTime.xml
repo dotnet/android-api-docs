@@ -870,7 +870,7 @@
         <summary>Returns a copy of this time with the specified amount subtracted.</summary>
         <returns>a LocalTime based on this time with the specified amount subtracted, not null</returns>
         <remarks>
-          <para>Returns a copy of this time with the specified amount subtracted. This returns a LocalTime, based on this one, with the amount in terms of the unit subtracted. If it is not possible to subtract the amount, because the unit is not supported or for some other reason, an exception is thrown. This method is equivalent to plus(long, TemporalUnit) with the amount negated. See that method for a full description of how addition, and thus subtraction, works. This instance is immutable and unaffected by this method call.</para>
+          <para>Returns a copy of this time with the specified amount subtracted. This returns a LocalTime, based on this one, with the amount in terms of the unit subtracted. If it is not possible to subtract the amount, because the unit is not supported or for some other reason, an exception is thrown. Except for the minimum long value, this method calls plus(long, TemporalUnit) with the amount negated. For the minimum long value, it adds the maximum long value, then adds one more unit. See the plus method for a full description of how addition works. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalTime.html#minus(long,java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.LocalTime.minus</code>.</a></format></para>
         </remarks>
       </Docs>
@@ -1675,12 +1675,12 @@
           <para>Returns a copy of this time with the specified amount added. This returns a LocalTime, based on this one, with the amount in terms of the unit added. If it is not possible to add the amount, because the unit is not supported or for some other reason, an exception is thrown. If the unit is a ChronoUnit then the addition is implemented here. The supported units behave as follows:</para>
           <list type="bullet">
             <item><term>NANOS - Returns a LocalTime with the specified number of nanoseconds added. This is equivalent to plusNanos(long).</term></item>
-            <item><term>MICROS - Returns a LocalTime with the specified number of microseconds added. This is equivalent to plusNanos(long) with the amount multiplied by 1,000.</term></item>
-            <item><term>MILLIS - Returns a LocalTime with the specified number of milliseconds added. This is equivalent to plusNanos(long) with the amount multiplied by 1,000,000.</term></item>
+            <item><term>MICROS - Returns a LocalTime with the specified number of microseconds added. Each microsecond is 1,000 nanoseconds.</term></item>
+            <item><term>MILLIS - Returns a LocalTime with the specified number of milliseconds added. Each millisecond is 1,000,000 nanoseconds.</term></item>
             <item><term>SECONDS - Returns a LocalTime with the specified number of seconds added. This is equivalent to plusSeconds(long).</term></item>
             <item><term>MINUTES - Returns a LocalTime with the specified number of minutes added. This is equivalent to plusMinutes(long).</term></item>
             <item><term>HOURS - Returns a LocalTime with the specified number of hours added. This is equivalent to plusHours(long).</term></item>
-            <item><term>HALF_DAYS - Returns a LocalTime with the specified number of half-days added. This is equivalent to plusHours(long) with the amount multiplied by 12.</term></item>
+            <item><term>HALF_DAYS - Returns a LocalTime with the specified number of half-days added. Each half-day is 12 hours.</term></item>
           </list>
           <para>All other ChronoUnit instances will throw an UnsupportedTemporalTypeException. If the unit is not a ChronoUnit, then the result of this method is obtained by invoking TemporalUnit.addTo(Temporal, long) passing this as the argument. In this case, the unit determines whether and how to perform the addition. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalTime.html#plus(long,java.time.temporal.TemporalUnit)" title="Reference documentation">Java reference for <code>java.time.LocalTime.plus</code>.</a></format></para>
@@ -2218,7 +2218,7 @@
         <param name="unit">the unit to measure the amount in, not null</param>
         <summary>Calculates the amount of time until another time in terms of the specified unit.</summary>
         <returns>the amount of time between this time and the end time</returns>
-        <remarks><para>Calculates the amount of time until another time in terms of the specified unit. This calculates the amount of time between two LocalTime objects in terms of a single TemporalUnit. The start and end points are this and the specified time. The result can be negative if the end is before the start. The Temporal passed to this method is converted to a LocalTime using from(TemporalAccessor). For example, the amount in hours between two times can be calculated using startTime.until(endTime, HOURS). The calculation returns a whole number, representing the number of complete units between the two times. For example, the amount in hours between 11:30 and 13:29 will only be one hour as it is one minute short of two hours. There are two equivalent ways of using this method. The first is to invoke this method. The second is to use TemporalUnit.between(Temporal, Temporal):</para>
+        <remarks><para>Calculates the amount of time until another time in terms of the specified unit. This calculates the amount of time between two LocalTime objects in terms of a single TemporalUnit. The start and end points are this and the specified time. The result can be negative if the end is before the start. The Temporal passed to this method is converted to a LocalTime using from(TemporalAccessor). For example, the amount in hours between two times can be calculated using startTime.until(endTime, HOURS). For the supported ChronoUnit values, the calculation returns a whole number of complete units between the two times. For example, the amount in hours between 11:30 and 13:29 will only be one hour as it is one minute short of two hours. For a supported ChronoUnit, you can invoke this method or use the unit's between method:</para>
 <code lang="text/java">   // these two lines are equivalent
    amount = start.until(end, MINUTES);
    amount = MINUTES.between(start, end);</code>
@@ -2317,7 +2317,7 @@
             <item><term>CLOCK_HOUR_OF_DAY - Returns a LocalTime with the specified clock-hour-of-day. The minute-of-hour, second-of-minute and nano-of-second will be unchanged.</term></item>
             <item><term>AMPM_OF_DAY - Returns a LocalTime with the specified AM/PM. The hour-of-am-pm, minute-of-hour, second-of-minute and nano-of-second will be unchanged.</term></item>
           </list>
-          <para>In all cases, if the new value is outside the valid range of values for the field then a DateTimeException will be thrown. All other ChronoField instances will throw an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.adjustInto(Temporal, long) passing this as the argument. In this case, the field determines whether and how to adjust the time. This instance is immutable and unaffected by this method call.</para>
+          <para>For a ChronoField, if the new value is outside the valid range for the field then a DateTimeException will be thrown. After the value is validated, an unsupported ChronoField throws an UnsupportedTemporalTypeException. If the field is not a ChronoField, then the result of this method is obtained by invoking TemporalField.adjustInto(Temporal, long) passing this as the argument. In this case, the field determines whether and how to adjust the time. This instance is immutable and unaffected by this method call.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/LocalTime.html#with(java.time.temporal.TemporalField,long)" title="Reference documentation">Java reference for <code>java.time.LocalTime.with</code>.</a></format></para>
         </remarks>
       </Docs>
