@@ -2686,7 +2686,7 @@
       <MemberValue>35003</MemberValue>
       <Docs>
         <summary>Exposes the native buffer-mapping access query token.</summary>
-        <remarks>The value matches <c>GL_BUFFER_ACCESS_OES</c> from <c>GL_OES_mapbuffer</c>, not a base OpenGL ES 1.1 size/usage query. Android 16 AOSP <c>GLImpl</c> throws Java <c>UnsupportedOperationException</c> from both <c>glGetBufferParameteriv</c> overloads.</remarks>
+        <remarks>The value matches <c>GL_BUFFER_ACCESS_OES</c> from <c>GL_OES_mapbuffer</c>, not a base OpenGL ES 1.1 size/usage query. Android's AOSP <c>GLImpl</c> throws Java <c>UnsupportedOperationException</c> from both <c>glGetBufferParameteriv</c> overloads.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlBufferData">
@@ -2984,7 +2984,7 @@
       <MemberValue>34660</MemberValue>
       <Docs>
         <summary>Identifies the native query for a buffer object's data-store size in bytes.</summary>
-        <remarks>The native selector is used with <c>glGetBufferParameteriv</c>. Android 16 AOSP <c>GLImpl</c> does not implement either Java overload and throws <c>UnsupportedOperationException</c>.</remarks>
+        <remarks>The native selector is used with <c>glGetBufferParameteriv</c>. Android's AOSP <c>GLImpl</c> does not implement either Java overload and throws <c>UnsupportedOperationException</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlBufferSubData">
@@ -3282,7 +3282,7 @@
       <MemberValue>34661</MemberValue>
       <Docs>
         <summary>Identifies the native query for a buffer object's usage hint.</summary>
-        <remarks>The native selector returns the <c>glBufferData</c> usage code. Android 16 AOSP <c>GLImpl</c> does not implement either Java <c>glGetBufferParameteriv</c> overload and throws <c>UnsupportedOperationException</c>.</remarks>
+        <remarks>The native selector returns the <c>glBufferData</c> usage code. Android's AOSP <c>GLImpl</c> does not implement either Java <c>glGetBufferParameteriv</c> overload and throws <c>UnsupportedOperationException</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlClientActiveTexture">
@@ -5137,7 +5137,7 @@
       </Parameters>
       <Docs>
         <param name="plane">The user clip plane, <c>GL_CLIP_PLANE0</c> plus an index from zero through <c>GL_MAX_CLIP_PLANES</c> minus one.</param>
-        <param name="equation">Four floating-point object-space plane coefficients in x, y, z, constant order, starting at the buffer's current position. The current model-view matrix is used to store an eye-space equation when this call is made.</param>
+        <param name="equation">Four floating-point object-space plane coefficients in x, y, z, constant order, starting at the buffer's current position. The current model-view matrix is used to store an eye-space equation when this call is made. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Defines a user clip plane without enabling it.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -5205,7 +5205,7 @@
       </Parameters>
       <Docs>
         <param name="plane">The user clip plane, <c>GL_CLIP_PLANE0</c> plus an index from zero through <c>GL_MAX_CLIP_PLANES</c> minus one.</param>
-        <param name="equation">Four S15.16 fixed-point object-space plane coefficients in x, y, z, constant order, starting at the buffer's current position. The current model-view matrix is used to store an eye-space equation when this call is made.</param>
+        <param name="equation">Four S15.16 fixed-point object-space plane coefficients in x, y, z, constant order, starting at the buffer's current position. The current model-view matrix is used to store an eye-space equation when this call is made. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Defines a user clip plane without enabling it.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -5804,7 +5804,7 @@
       <MemberValue>32912</MemberValue>
       <Docs>
         <summary>Identifies the native query for the color-array pointer.</summary>
-        <remarks>This is a <c>glGetPointerv</c> selector. Android 16 AOSP <c>GLImpl</c> does not implement its Java <c>glGetPointerv</c> wrapper and throws <c>UnsupportedOperationException</c>.</remarks>
+        <remarks>This is a <c>glGetPointerv</c> selector. Android's AOSP <c>GLImpl</c> does not implement its Java <c>glGetPointerv</c> wrapper and throws <c>UnsupportedOperationException</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlColorArraySize">
@@ -9523,7 +9523,7 @@
       </Parameters>
       <Docs>
         <param name="n">The number of buffer names to read.</param>
-        <param name="buffers">A buffer containing the object names to delete, starting at its current position.</param>
+        <param name="buffers">A buffer containing the object names to delete, starting at its current position. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Deletes buffer objects, ignoring zero and names that do not identify buffer objects.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -12238,7 +12238,7 @@
       </Parameters>
       <Docs>
         <param name="n">The number of buffer names to reserve.</param>
-        <param name="buffers">A buffer that receives the reserved names, starting at its current position.</param>
+        <param name="buffers">A buffer that receives the reserved names, starting at its current position. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reserves unused buffer names without creating buffer objects until they are bound.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -12828,10 +12828,10 @@
       </Parameters>
       <Docs>
         <param name="pname">The state parameter to retrieve, such as <c>GL_COLOR_WRITEMASK</c>.</param>
-        <param name="params">The destination buffer's native storage, starting at its current position. See the layout warning in the remarks.</param>
+        <param name="params">The destination buffer's native storage, starting at its current position. See the layout warning in the remarks. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Retrieves OpenGL state as Boolean values.</summary>
         <remarks>
-          <para>The Android 16 AOSP <c>GLImpl</c> implementation writes native Boolean bytes into this integer buffer's storage without expanding each result to an integer. Prefer the Boolean-array overload for element-wise results.</para>
+          <para>Android's AOSP <c>GLImpl</c> implementation writes native Boolean bytes into this integer buffer's storage without expanding each result to an integer. Prefer the Boolean-array overload for element-wise results.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -12899,10 +12899,10 @@
       <Docs>
         <param name="target">The requested buffer target: <c>GL_ARRAY_BUFFER</c> or <c>GL_ELEMENT_ARRAY_BUFFER</c>.</param>
         <param name="pname">The requested property: <c>GL_BUFFER_SIZE</c> or <c>GL_BUFFER_USAGE</c>.</param>
-        <param name="params">The intended result destination. The Android 16 implementation does not write a result.</param>
+        <param name="params">The intended result destination. The Android AOSP implementation does not write a result.</param>
         <summary>Requests a parameter of the bound buffer object.</summary>
         <remarks>
-          <para>The Android 16 AOSP <c>GLImpl</c> implementation throws <c>java.lang.UnsupportedOperationException</c> before processing this request and does not write a result.</para>
+          <para>Android's AOSP <c>GLImpl</c> implementation throws <c>java.lang.UnsupportedOperationException</c> before processing this request and does not write a result.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -12936,11 +12936,11 @@
       <Docs>
         <param name="target">The requested buffer target: <c>GL_ARRAY_BUFFER</c> or <c>GL_ELEMENT_ARRAY_BUFFER</c>.</param>
         <param name="pname">The requested property: <c>GL_BUFFER_SIZE</c> or <c>GL_BUFFER_USAGE</c>.</param>
-        <param name="params">The intended result destination. The Android 16 implementation does not write a result.</param>
-        <param name="offset">Unused by the Android 16 AOSP <c>GLImpl</c> implementation, which throws before processing the query.</param>
+        <param name="params">The intended result destination. The Android AOSP implementation does not write a result.</param>
+        <param name="offset">Unused by Android's AOSP <c>GLImpl</c> implementation, which throws before processing the query.</param>
         <summary>Requests a parameter of the bound buffer object.</summary>
         <remarks>
-          <para>The Android 16 AOSP <c>GLImpl</c> implementation throws <c>java.lang.UnsupportedOperationException</c> before processing this request and does not write a result.</para>
+          <para>Android's AOSP <c>GLImpl</c> implementation throws <c>java.lang.UnsupportedOperationException</c> before processing this request and does not write a result.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -12971,7 +12971,7 @@
       </Parameters>
       <Docs>
         <param name="pname">The user clip plane, <c>GL_CLIP_PLANE0</c> plus an index from zero through <c>GL_MAX_CLIP_PLANES</c> minus one.</param>
-        <param name="eqn">Receives four floating-point eye-space plane coefficients in x, y, z, constant order, starting at the buffer's current position. These are the coefficients stored when the plane was defined, not a transformation with the current matrix.</param>
+        <param name="eqn">Receives four floating-point eye-space plane coefficients in x, y, z, constant order, starting at the buffer's current position. These are the coefficients stored when the plane was defined, not a transformation with the current matrix. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads the stored eye-space equation of a user clip plane.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13039,7 +13039,7 @@
       </Parameters>
       <Docs>
         <param name="pname">The user clip plane, <c>GL_CLIP_PLANE0</c> plus an index from zero through <c>GL_MAX_CLIP_PLANES</c> minus one.</param>
-        <param name="eqn">Receives four S15.16 fixed-point eye-space plane coefficients in x, y, z, constant order, starting at the buffer's current position. These are the coefficients stored when the plane was defined, not a transformation with the current matrix.</param>
+        <param name="eqn">Receives four S15.16 fixed-point eye-space plane coefficients in x, y, z, constant order, starting at the buffer's current position. These are the coefficients stored when the plane was defined, not a transformation with the current matrix. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads the stored eye-space equation of a user clip plane.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13107,7 +13107,7 @@
       </Parameters>
       <Docs>
         <param name="pname">The state parameter to retrieve, such as <c>GL_DEPTH_RANGE</c>.</param>
-        <param name="params">A buffer that receives converted values, starting at its current position. Numeric and Boolean values use <c>S15.16</c> conversion; enumeration codes are not scaled.</param>
+        <param name="params">A buffer that receives converted values, starting at its current position. Numeric and Boolean values use <c>S15.16</c> conversion; enumeration codes are not scaled. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Retrieves OpenGL state, converting numeric values to fixed point without scaling enumeration codes.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13175,7 +13175,7 @@
       </Parameters>
       <Docs>
         <param name="pname">The state parameter to retrieve, such as <c>GL_MODELVIEW_MATRIX</c>.</param>
-        <param name="params">A buffer that receives floating-point results, starting at its current position. The number of values depends on <paramref name="pname" />.</param>
+        <param name="params">A buffer that receives floating-point results, starting at its current position. The number of values depends on <paramref name="pname" />. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Retrieves OpenGL state as floating-point values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13245,7 +13245,7 @@
       <Docs>
         <param name="light">The light source, <c>GL_LIGHT0</c> plus an index from zero through <c>GL_MAX_LIGHTS</c> minus one.</param>
         <param name="pname">The light property: <c>GL_AMBIENT</c>, <c>GL_DIFFUSE</c>, <c>GL_SPECULAR</c>, <c>GL_POSITION</c>, <c>GL_SPOT_DIRECTION</c>, <c>GL_SPOT_EXPONENT</c>, <c>GL_SPOT_CUTOFF</c>, <c>GL_CONSTANT_ATTENUATION</c>, <c>GL_LINEAR_ATTENUATION</c>, or <c>GL_QUADRATIC_ATTENUATION</c>.</param>
-        <param name="params">Receives floating-point values from the buffer's current position: four for a color or position, three for the spot direction, or one for another property. Position and direction are the eye-space values computed when they were set.</param>
+        <param name="params">Receives floating-point values from the buffer's current position: four for a color or position, three for the spot direction, or one for another property. Position and direction are the eye-space values computed when they were set. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads a light-source property as floating-point values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13317,7 +13317,7 @@
       <Docs>
         <param name="light">The light source, <c>GL_LIGHT0</c> plus an index from zero through <c>GL_MAX_LIGHTS</c> minus one.</param>
         <param name="pname">The light property: <c>GL_AMBIENT</c>, <c>GL_DIFFUSE</c>, <c>GL_SPECULAR</c>, <c>GL_POSITION</c>, <c>GL_SPOT_DIRECTION</c>, <c>GL_SPOT_EXPONENT</c>, <c>GL_SPOT_CUTOFF</c>, <c>GL_CONSTANT_ATTENUATION</c>, <c>GL_LINEAR_ATTENUATION</c>, or <c>GL_QUADRATIC_ATTENUATION</c>.</param>
-        <param name="params">Receives S15.16 fixed-point values from the buffer's current position: four for a color or position, three for the spot direction, or one for another property. Position and direction are the eye-space values computed when they were set.</param>
+        <param name="params">Receives S15.16 fixed-point values from the buffer's current position: four for a color or position, three for the spot direction, or one for another property. Position and direction are the eye-space values computed when they were set. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads a light-source property as S15.16 fixed-point values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13389,7 +13389,7 @@
       <Docs>
         <param name="face"><c>GL_FRONT</c> or <c>GL_BACK</c>. The base OpenGL ES material setters update both faces together.</param>
         <param name="pname">The material property: <c>GL_AMBIENT</c>, <c>GL_DIFFUSE</c>, <c>GL_SPECULAR</c>, <c>GL_EMISSION</c>, or <c>GL_SHININESS</c>.</param>
-        <param name="params">Receives floating-point values from the buffer's current position: four RGBA components for a color property, or one exponent for <c>GL_SHININESS</c>.</param>
+        <param name="params">Receives floating-point values from the buffer's current position: four RGBA components for a color property, or one exponent for <c>GL_SHININESS</c>. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads a material property as floating-point values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13461,7 +13461,7 @@
       <Docs>
         <param name="face"><c>GL_FRONT</c> or <c>GL_BACK</c>. The base OpenGL ES material setters update both faces together.</param>
         <param name="pname">The material property: <c>GL_AMBIENT</c>, <c>GL_DIFFUSE</c>, <c>GL_SPECULAR</c>, <c>GL_EMISSION</c>, or <c>GL_SHININESS</c>.</param>
-        <param name="params">Receives S15.16 fixed-point values from the buffer's current position: four RGBA components for a color property, or one exponent for <c>GL_SHININESS</c>.</param>
+        <param name="params">Receives S15.16 fixed-point values from the buffer's current position: four RGBA components for a color property, or one exponent for <c>GL_SHININESS</c>. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads a material property as S15.16 fixed-point values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13538,10 +13538,10 @@
       </Parameters>
       <Docs>
         <param name="pname">The requested client-array pointer state, such as <c>GL_VERTEX_ARRAY_POINTER</c>.</param>
-        <param name="params">Unused by the Android 16 AOSP <c>GLImpl</c> implementation, which throws instead of returning pointer information.</param>
+        <param name="params">Unused by Android's AOSP <c>GLImpl</c> implementation, which throws instead of returning pointer information.</param>
         <summary>Requests client-array pointer information.</summary>
         <remarks>
-          <para>The Android 16 AOSP <c>GLImpl</c> implementation throws <c>java.lang.UnsupportedOperationException</c> for this query without returning buffer objects.</para>
+          <para>Android's AOSP <c>GLImpl</c> implementation throws <c>java.lang.UnsupportedOperationException</c> for this query without returning buffer objects.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
         <since version="Added in API level 1" />
@@ -13574,7 +13574,7 @@
       <Docs>
         <param name="env"><c>GL_TEXTURE_ENV</c>, or <c>GL_POINT_SPRITE_OES</c> for point-sprite coordinate replacement.</param>
         <param name="pname">The texture environment's mode, color, combine-function/source/operand, or RGB/alpha scale selector. For <c>GL_POINT_SPRITE_OES</c>, use <c>GL_COORD_REPLACE_OES</c>.</param>
-        <param name="params">Receives values starting at the buffer's current position: four normalized integer components for <c>GL_TEXTURE_ENV_COLOR</c>, with a color component of one mapped to <see cref="F:System.Int32.MaxValue" />; otherwise one mode code, scale, or zero/nonzero coordinate-replacement flag.</param>
+        <param name="params">Receives values starting at the buffer's current position: four normalized integer components for <c>GL_TEXTURE_ENV_COLOR</c>, with a color component of one mapped to <see cref="F:System.Int32.MaxValue" />; otherwise one mode code, scale, or zero/nonzero coordinate-replacement flag. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads texture environment state for the active texture unit in integer form.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13646,7 +13646,7 @@
       <Docs>
         <param name="env"><c>GL_TEXTURE_ENV</c>, or <c>GL_POINT_SPRITE_OES</c> for point-sprite coordinate replacement.</param>
         <param name="pname">The texture environment's mode, color, combine-function/source/operand, or RGB/alpha scale selector. For <c>GL_POINT_SPRITE_OES</c>, use <c>GL_COORD_REPLACE_OES</c>.</param>
-        <param name="params">Receives values starting at the buffer's current position: four S15.16 components for <c>GL_TEXTURE_ENV_COLOR</c>; otherwise one unscaled mode code, S15.16 scale, or zero/nonzero coordinate-replacement flag. Enumeration codes are not multiplied by 65536.</param>
+        <param name="params">Receives values starting at the buffer's current position: four S15.16 components for <c>GL_TEXTURE_ENV_COLOR</c>; otherwise one unscaled mode code, S15.16 scale, or zero/nonzero coordinate-replacement flag. Enumeration codes are not multiplied by 65536. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads texture environment state for the active texture unit using the fixed-point query form.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13718,7 +13718,7 @@
       <Docs>
         <param name="target"><c>GL_TEXTURE_2D</c>, or a supported extension target such as <c>GL_TEXTURE_CUBE_MAP</c> or <c>GL_TEXTURE_EXTERNAL_OES</c>. Crop-rectangle queries use <c>GL_TEXTURE_2D</c>.</param>
         <param name="pname">The property to query, such as <c>GL_TEXTURE_MIN_FILTER</c>, <c>GL_TEXTURE_MAG_FILTER</c>, <c>GL_TEXTURE_WRAP_S</c>, <c>GL_TEXTURE_WRAP_T</c>, <c>GL_GENERATE_MIPMAP</c>, or <c>GL_TEXTURE_CROP_RECT_OES</c> with <c>GL_OES_draw_texture</c> support.</param>
-        <param name="params">Receives floating-point values starting at the buffer's current position: for example, one mode code or mipmap-generation flag, or four crop values in x, y, width, height order.</param>
+        <param name="params">Receives floating-point values starting at the buffer's current position: for example, one mode code or mipmap-generation flag, or four crop values in x, y, width, height order. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads a parameter of the texture object bound to the target on the active texture unit as floating-point values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13790,7 +13790,7 @@
       <Docs>
         <param name="target"><c>GL_TEXTURE_2D</c>, or a supported extension target such as <c>GL_TEXTURE_CUBE_MAP</c> or <c>GL_TEXTURE_EXTERNAL_OES</c>. Crop-rectangle queries use <c>GL_TEXTURE_2D</c>.</param>
         <param name="pname">The property to query, such as <c>GL_TEXTURE_MIN_FILTER</c>, <c>GL_TEXTURE_MAG_FILTER</c>, <c>GL_TEXTURE_WRAP_S</c>, <c>GL_TEXTURE_WRAP_T</c>, <c>GL_GENERATE_MIPMAP</c>, or <c>GL_TEXTURE_CROP_RECT_OES</c> with <c>GL_OES_draw_texture</c> support.</param>
-        <param name="params">Receives integer values starting at the buffer's current position: for example, one mode code or zero/nonzero mipmap-generation flag, or four crop values in x, y, width, height order.</param>
+        <param name="params">Receives integer values starting at the buffer's current position: for example, one mode code or zero/nonzero mipmap-generation flag, or four crop values in x, y, width, height order. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads a parameter of the texture object bound to the target on the active texture unit as integers.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -13862,7 +13862,7 @@
       <Docs>
         <param name="target"><c>GL_TEXTURE_2D</c>, or a supported extension target such as <c>GL_TEXTURE_CUBE_MAP</c> or <c>GL_TEXTURE_EXTERNAL_OES</c>. Crop-rectangle queries use <c>GL_TEXTURE_2D</c>.</param>
         <param name="pname">The property to query, such as <c>GL_TEXTURE_MIN_FILTER</c>, <c>GL_TEXTURE_MAG_FILTER</c>, <c>GL_TEXTURE_WRAP_S</c>, <c>GL_TEXTURE_WRAP_T</c>, <c>GL_GENERATE_MIPMAP</c>, or <c>GL_TEXTURE_CROP_RECT_OES</c> with <c>GL_OES_draw_texture</c> support.</param>
-        <param name="params">Receives values starting at the buffer's current position: for example, one unscaled filter/wrap mode code or zero/nonzero mipmap-generation flag, or four S15.16 crop values in x, y, width, height order. Enumeration codes are not multiplied by 65536.</param>
+        <param name="params">Receives values starting at the buffer's current position: for example, one unscaled filter/wrap mode code or zero/nonzero mipmap-generation flag, or four S15.16 crop values in x, y, width, height order. Enumeration codes are not multiplied by 65536. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Reads a parameter of the bound texture object on the active texture unit using the fixed-point query form.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -16610,7 +16610,7 @@
       <MemberValue>32911</MemberValue>
       <Docs>
         <summary>Identifies the native query for the normal-array pointer.</summary>
-        <remarks>This is a <c>glGetPointerv</c> selector. Android 16 AOSP <c>GLImpl</c> does not implement its Java <c>glGetPointerv</c> wrapper and throws <c>UnsupportedOperationException</c>.</remarks>
+        <remarks>This is a <c>glGetPointerv</c> selector. Android's AOSP <c>GLImpl</c> does not implement its Java <c>glGetPointerv</c> wrapper and throws <c>UnsupportedOperationException</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlNormalArrayStride">
@@ -19316,7 +19316,7 @@
       </Parameters>
       <Docs>
         <param name="pname">The point property: <c>GL_POINT_SIZE_MIN</c>, <c>GL_POINT_SIZE_MAX</c>, <c>GL_POINT_FADE_THRESHOLD_SIZE</c>, or <c>GL_POINT_DISTANCE_ATTENUATION</c>.</param>
-        <param name="params">Floating-point values starting at the buffer's current position: three coefficients in constant, linear, quadratic order for distance attenuation, or one nonnegative value for a size limit or fade threshold. A lower size limit greater than the upper limit makes the clamped size undefined.</param>
+        <param name="params">Floating-point values starting at the buffer's current position: three coefficients in constant, linear, quadratic order for distance attenuation, or one nonnegative value for a size limit or fade threshold. A lower size limit greater than the upper limit makes the clamped size undefined. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Sets point-size limits, a multisample fade threshold, or distance-attenuation coefficients.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -19417,7 +19417,7 @@
       </Parameters>
       <Docs>
         <param name="pname">The point property: <c>GL_POINT_SIZE_MIN</c>, <c>GL_POINT_SIZE_MAX</c>, <c>GL_POINT_FADE_THRESHOLD_SIZE</c>, or <c>GL_POINT_DISTANCE_ATTENUATION</c>.</param>
-        <param name="params">S15.16 fixed-point values starting at the buffer's current position: three coefficients in constant, linear, quadratic order for distance attenuation, or one nonnegative value for a size limit or fade threshold. A lower size limit greater than the upper limit makes the clamped size undefined.</param>
+        <param name="params">S15.16 fixed-point values starting at the buffer's current position: three coefficients in constant, linear, quadratic order for distance attenuation, or one nonnegative value for a size limit or fade threshold. A lower size limit greater than the upper limit makes the clamped size undefined. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Sets point-size limits, a multisample fade threshold, or distance-attenuation coefficients.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -20501,7 +20501,7 @@
       <MemberValue>35212</MemberValue>
       <Docs>
         <summary>Identifies the native query for the point-size array pointer.</summary>
-        <remarks>This is a <c>glGetPointerv</c> selector. Android 16 AOSP <c>GLImpl</c> does not implement its Java <c>glGetPointerv</c> wrapper and throws <c>UnsupportedOperationException</c>.</remarks>
+        <remarks>This is a <c>glGetPointerv</c> selector. Android's AOSP <c>GLImpl</c> does not implement its Java <c>glGetPointerv</c> wrapper and throws <c>UnsupportedOperationException</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlPointSizeArrayStrideOes">
@@ -29773,7 +29773,7 @@
       <Docs>
         <param name="target"><c>GL_TEXTURE_ENV</c>, or <c>GL_POINT_SPRITE_OES</c> for point-sprite coordinate replacement.</param>
         <param name="pname">The texture environment's mode, color, combine-function/source/operand, or RGB/alpha scale selector. For <c>GL_POINT_SPRITE_OES</c>, use <c>GL_COORD_REPLACE_OES</c>.</param>
-        <param name="params">Values starting at the buffer's current position: four normalized signed-integer RGBA components for <c>GL_TEXTURE_ENV_COLOR</c>, with <see cref="F:System.Int32.MaxValue" /> representing one and colors clamped to zero through one; otherwise one mode code, scale of one/two/four, or zero/nonzero coordinate-replacement flag. Color components are not S15.16 values.</param>
+        <param name="params">Values starting at the buffer's current position: four normalized signed-integer RGBA components for <c>GL_TEXTURE_ENV_COLOR</c>, with <see cref="F:System.Int32.MaxValue" /> representing one and colors clamped to zero through one; otherwise one mode code, scale of one/two/four, or zero/nonzero coordinate-replacement flag. Color components are not S15.16 values. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Sets a texture environment property for the active texture unit from integer values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -29845,7 +29845,7 @@
       <Docs>
         <param name="target"><c>GL_TEXTURE_2D</c>, or a supported extension target such as <c>GL_TEXTURE_CUBE_MAP</c> or <c>GL_TEXTURE_EXTERNAL_OES</c>. Valid parameters and values depend on the target. Crop rectangles use <c>GL_TEXTURE_2D</c>.</param>
         <param name="pname">The property to set, such as <c>GL_TEXTURE_MIN_FILTER</c>, <c>GL_TEXTURE_MAG_FILTER</c>, <c>GL_TEXTURE_WRAP_S</c>, <c>GL_TEXTURE_WRAP_T</c>, <c>GL_GENERATE_MIPMAP</c>, or <c>GL_TEXTURE_CROP_RECT_OES</c> with <c>GL_OES_draw_texture</c> support.</param>
-        <param name="params">Values starting at the buffer's current position: for example, one filter/wrap mode code or zero/nonzero mipmap-generation flag; for a crop rectangle, four floating-point values converted to integer x, y, width, height.</param>
+        <param name="params">Values starting at the buffer's current position: for example, one filter/wrap mode code or zero/nonzero mipmap-generation flag; for a crop rectangle, four floating-point values converted to integer x, y, width, height. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Sets a parameter of the texture object bound to the target on the active texture unit from floating-point values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -29952,7 +29952,7 @@
       <Docs>
         <param name="target"><c>GL_TEXTURE_2D</c>, or a supported extension target such as <c>GL_TEXTURE_CUBE_MAP</c> or <c>GL_TEXTURE_EXTERNAL_OES</c>. Valid parameters and values depend on the target. Crop rectangles use <c>GL_TEXTURE_2D</c>.</param>
         <param name="pname">The property to set, such as <c>GL_TEXTURE_MIN_FILTER</c>, <c>GL_TEXTURE_MAG_FILTER</c>, <c>GL_TEXTURE_WRAP_S</c>, <c>GL_TEXTURE_WRAP_T</c>, <c>GL_GENERATE_MIPMAP</c>, or <c>GL_TEXTURE_CROP_RECT_OES</c> with <c>GL_OES_draw_texture</c> support.</param>
-        <param name="params">Values starting at the buffer's current position: for example, one filter/wrap mode code or zero/nonzero mipmap-generation flag, or four integer crop values in x, y, width, height order.</param>
+        <param name="params">Values starting at the buffer's current position: for example, one filter/wrap mode code or zero/nonzero mipmap-generation flag, or four integer crop values in x, y, width, height order. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Sets a parameter of the texture object bound to the target on the active texture unit from integer values.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -30024,7 +30024,7 @@
       <Docs>
         <param name="target"><c>GL_TEXTURE_2D</c>, or a supported extension target such as <c>GL_TEXTURE_CUBE_MAP</c> or <c>GL_TEXTURE_EXTERNAL_OES</c>. Valid parameters and values depend on the target. Crop rectangles use <c>GL_TEXTURE_2D</c>.</param>
         <param name="pname">The property to set, such as <c>GL_TEXTURE_MIN_FILTER</c>, <c>GL_TEXTURE_MAG_FILTER</c>, <c>GL_TEXTURE_WRAP_S</c>, <c>GL_TEXTURE_WRAP_T</c>, <c>GL_GENERATE_MIPMAP</c>, or <c>GL_TEXTURE_CROP_RECT_OES</c> with <c>GL_OES_draw_texture</c> support.</param>
-        <param name="params">Values starting at the buffer's current position: for example, one unscaled filter/wrap mode code or zero/nonzero mipmap-generation flag; for a crop rectangle, four S15.16 values converted to integer x, y, width, height. Do not multiply enumeration codes by 65536.</param>
+        <param name="params">Values starting at the buffer's current position: for example, one unscaled filter/wrap mode code or zero/nonzero mipmap-generation flag; for a crop rectangle, four S15.16 values converted to integer x, y, width, height. Do not multiply enumeration codes by 65536. Use a native-order direct buffer if its position or backing-array offset is nonzero.</param>
         <summary>Sets a parameter of the bound texture object on the active texture unit using the fixed-point vector form.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -30849,7 +30849,7 @@
       <MemberValue>32914</MemberValue>
       <Docs>
         <summary>Identifies the native query for a texture-coordinate array pointer.</summary>
-        <remarks>The client-active texture unit selects the array. Android 16 AOSP <c>GLImpl</c> does not implement its Java <c>glGetPointerv</c> wrapper and throws <c>UnsupportedOperationException</c>.</remarks>
+        <remarks>The client-active texture unit selects the array. Android's AOSP <c>GLImpl</c> does not implement its Java <c>glGetPointerv</c> wrapper and throws <c>UnsupportedOperationException</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlTextureCoordArraySize">
@@ -32937,7 +32937,7 @@
       <MemberValue>32910</MemberValue>
       <Docs>
         <summary>Identifies the native query for the vertex-array pointer.</summary>
-        <remarks>This is a <c>glGetPointerv</c> selector. Android 16 AOSP <c>GLImpl</c> does not implement its Java <c>glGetPointerv</c> wrapper and throws <c>UnsupportedOperationException</c>.</remarks>
+        <remarks>This is a <c>glGetPointerv</c> selector. Android's AOSP <c>GLImpl</c> does not implement its Java <c>glGetPointerv</c> wrapper and throws <c>UnsupportedOperationException</c>.</remarks>
       </Docs>
     </Member>
     <Member MemberName="GlVertexArraySize">
