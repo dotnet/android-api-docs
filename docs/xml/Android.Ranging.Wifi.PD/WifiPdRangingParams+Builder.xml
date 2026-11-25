@@ -29,13 +29,15 @@
     <summary>Builder for <c>WifiPdRangingParams</c>.</summary>
     <remarks>
       <para>Builder for WifiPdRangingParams.</para>
-      <para>This class provides a convenient way to construct WifiPdRangingParams objects. The MAC address of the peer device and the ranging service role are mandatory parameters and must be provided during the Builder's construction. Other parameters are optional and can be set using the respective setter methods.</para>
+      <para>This class provides a convenient way to construct WifiPdRangingParams objects. The peer device's MAC address must be provided during the Builder's construction. Other parameters can be set using the respective setter methods.</para>
+      <para>Example usage:</para>
       <code lang="text/java">MacAddress peerMacAddress = MacAddress.fromString("01:02:03:04:05:06");
 WifiPdRangingParams params = new WifiPdRangingParams.Builder(peerMacAddress)
         .setDiscoveryChannelFrequencyMhz(5180)
         .setPasnMode(WifiPdRangingCapabilities.AUTHENTICATED_PASN_MODE)
         .setPassword("myPassword")
-        .setDeviceIk(new byte[] {0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C})
+        .setDeviceIk(new byte[] {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F})
         .build();</code>
       <para><format type="text/html"><a href="https://developer.android.com/reference/android/ranging/wifi/pd/WifiPdRangingParams.Builder" title="Reference documentation">Android reference for <code>android.ranging.wifi.pd.WifiPdRangingParams.Builder</code>.</a></format></para>
       <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -102,6 +104,8 @@ WifiPdRangingParams params = new WifiPdRangingParams.Builder(peerMacAddress)
       <Docs>
         <summary>Builds the <c>WifiPdRangingParams</c> object.</summary>
         <returns>The built <c>WifiPdRangingParams</c> object.</returns>
+        <exception cref="T:Java.Lang.NullPointerException">Authenticated PASN mode is selected and the password or device identity key is null.</exception>
+        <exception cref="T:Java.Lang.IllegalArgumentException">Authenticated PASN mode is selected and the device identity key is not 16 bytes or the password is empty.</exception>
         <remarks>
           <para>Builds the WifiPdRangingParams object.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/ranging/wifi/pd/WifiPdRangingParams.Builder#build()" title="Reference documentation">Android reference for <code>android.ranging.wifi.pd.WifiPdRangingParams.Builder.build</code>.</a></format></para>
@@ -167,7 +171,7 @@ WifiPdRangingParams params = new WifiPdRangingParams.Builder(peerMacAddress)
         <Parameter Name="channelWidth" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="channelWidth">The channel width. Value is one of the following: ScanResult.CHANNEL_WIDTH_20MHZ; ScanResult.CHANNEL_WIDTH_40MHZ; ScanResult.CHANNEL_WIDTH_80MHZ; ScanResult.CHANNEL_WIDTH_160MHZ; ScanResult.CHANNEL_WIDTH_80MHZ_PLUS_MHZ; ScanResult.CHANNEL_WIDTH_320MHZ</param>
+        <param name="channelWidth">The channel-width code, as a value of <see cref="T:Android.Net.Wifi.WifiChannelWidth" /> converted to <see cref="T:System.Int32" />.</param>
         <summary>Sets the channel width.</summary>
         <returns>The builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
@@ -285,7 +289,7 @@ WifiPdRangingParams params = new WifiPdRangingParams.Builder(peerMacAddress)
         <Parameter Name="pasnMode" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="pasnMode">The PASN mode. Value is one of the following: WifiPdRangingCapabilities.UNAUTHENTICATED_PASN_MODE; WifiPdRangingCapabilities.AUTHENTICATED_PASN_MODE</param>
+        <param name="pasnMode">The PASN mode, as a value of <see cref="T:Android.Ranging.Wifi.PD.WifiPdRangingPasnMode" /> converted to <see cref="T:System.Int32" />.</param>
         <summary>Sets the PASN (Pre-association security negotiation) mode.</summary>
         <returns>The builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
@@ -366,7 +370,7 @@ WifiPdRangingParams params = new WifiPdRangingParams.Builder(peerMacAddress)
         <Parameter Name="preambleType" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="preambleType">The preamble type. Value is one of the following: ScanResult.PREAMBLE_LEGACY; ScanResult.PREAMBLE_HT; ScanResult.PREAMBLE_VHT; ScanResult.PREAMBLE_HE; ScanResult.PREAMBLE_EHT</param>
+        <param name="preambleType">The preamble type, as a value of <see cref="T:Android.Net.Wifi.Preamble" /> converted to <see cref="T:System.Int32" />.</param>
         <summary>Sets the preamble type.</summary>
         <returns>The builder to facilitate chaining. This value cannot be null.</returns>
         <remarks>
