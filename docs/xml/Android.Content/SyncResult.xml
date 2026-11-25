@@ -124,10 +124,10 @@
       <Docs>
         <summary>This instance of a SyncResult is returned by the SyncAdapter in response to a
             sync request when a sync is already underway.</summary>
-        <value>This instance of a SyncResult is returned by the SyncAdapter in response to a sync request when a sync is already underway. The SyncManager will reschedule the sync request to try again later.</value>
+        <value>This instance of a SyncResult is returned by the SyncAdapter in response to a sync request when a sync is already underway. The SyncManager can reschedule the request to try again later.</value>
         <remarks>
           <para>This instance of a SyncResult is returned by the SyncAdapter in response to a
-            sync request when a sync is already underway. The SyncManager will reschedule the
+            sync request when a sync is already underway. The SyncManager can reschedule the
             sync request to try again later.</para>
           <para>
             <format type="text/html">
@@ -237,11 +237,10 @@
       <Docs>
         <summary>Used to indicate that the SyncAdapter experienced a hard error due to an error it
             received from interacting with the storage layer.</summary>
-        <value>Used to indicate that the SyncAdapter experienced a hard error due to an error it received from interacting with the storage layer. The SyncManager will record that the sync request failed and it will not reschedule the request.</value>
+        <value>Indicates that the sync adapter experienced a hard error in the storage layer. The sync manager records the failure, but can retry the operation in some cases.</value>
         <remarks>
-          <para>Used to indicate that the SyncAdapter experienced a hard error due to an error it
-            received from interacting with the storage layer. The SyncManager will record that
-            the sync request failed and it will not reschedule the request.</para>
+          <para>The sync manager can retry an upload-only sync as a two-way sync. It can also
+            retry a sync that made progress or encountered a soft error.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/SyncResult#databaseError" title="Reference documentation">Java documentation for <code>android.content.SyncResult.databaseError</code>.</a>
@@ -278,17 +277,14 @@
       <Docs>
         <summary>Used to indicate to the SyncManager that future sync requests that match the request's
             Account and authority should be delayed until a time in seconds since Java epoch.</summary>
-        <value>Used to indicate to the SyncManager that future sync requests that match the request's Account and authority should be delayed until a time in seconds since Java epoch. For example, if you want to delay the next sync for at least 5 minutes, then: result.delayUntil = (System.currentTimeMillis() / 1000) + 5 * 60; By default, when a sync fails, the system retries later with an exponential back-off with the system default initial delay time, which always wins over delayUntil -- i.e. if the system back-off time is larger than delayUntil , delayUntil will essentially be ignored.</value>
+        <value>The time, in seconds since the Unix epoch, until which matching sync requests should be delayed. System backoff can delay a request beyond this time.</value>
         <remarks>
           <para>Used to indicate to the SyncManager that future sync requests that match the request's
             Account and authority should be delayed until a time in seconds since Java epoch.</para>
           <para>For example, if you want to delay the next sync for at least 5 minutes, then:</para>
           <code lang="text/java">result.delayUntil = (System.currentTimeMillis() / 1000) + 5 * 60;
             </code>
-          <para>By default, when a sync fails, the system retries later with an exponential back-off
-            with the system default initial delay time, which always wins over <c>#delayUntil</c> --
-            i.e. if the system back-off time is larger than <c>#delayUntil</c>, <c>#delayUntil</c>
-            will essentially be ignored.</para>
+          <para>When a sync fails, system backoff can delay a retry beyond <c>DelayUntil</c>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/SyncResult#delayUntil" title="Reference documentation">Java documentation for <code>android.content.SyncResult.delayUntil</code>.</a>
@@ -361,12 +357,12 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>If set the SyncManager will request an immediate sync with the same Account and authority
+        <summary>If set the SyncManager will request another sync with the same Account and authority
             (but empty extras Bundle) as was used in the sync request.</summary>
-        <value>If set the SyncManager will request an immediate sync with the same Account and authority (but empty extras Bundle) as was used in the sync request.</value>
+        <value>If set, the SyncManager requests another sync with the same account and authority but an empty extras Bundle.</value>
         <remarks>
-          <para>If set the SyncManager will request an immediate sync with the same Account and authority
-            (but empty extras Bundle) as was used in the sync request.</para>
+          <para>The request has no explicit delay, but backoff or other scheduling constraints
+            can delay the sync.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/SyncResult#fullSyncRequested" title="Reference documentation">Java documentation for <code>android.content.SyncResult.fullSyncRequested</code>.</a>
@@ -757,11 +753,11 @@
         <summary>Used to indicate that the SyncAdapter is already performing a sync operation, though
             not necessarily for the requested account and authority and that it wasn't able to
             process this request.</summary>
-        <value>Used to indicate that the SyncAdapter is already performing a sync operation, though not necessarily for the requested account and authority and that it wasn't able to process this request. The SyncManager will reschedule the request to run later.</value>
+        <value>Used to indicate that the SyncAdapter is already performing a sync operation, though not necessarily for the requested account and authority and that it wasn't able to process this request. The SyncManager can reschedule the request to run later.</value>
         <remarks>
           <para>Used to indicate that the SyncAdapter is already performing a sync operation, though
             not necessarily for the requested account and authority and that it wasn't able to
-            process this request. The SyncManager will reschedule the request to run later.</para>
+            process this request. The SyncManager can reschedule the request to run later.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/SyncResult#syncAlreadyInProgress" title="Reference documentation">Java documentation for <code>android.content.SyncResult.syncAlreadyInProgress</code>.</a>
@@ -914,13 +910,13 @@
         <summary>Used to indicate that the SyncAdapter determined that it would need to issue
             too many delete operations to the server in order to satisfy the request
             (as defined by the SyncAdapter).</summary>
-        <value>Used to indicate that the SyncAdapter determined that it would need to issue too many delete operations to the server in order to satisfy the request (as defined by the SyncAdapter). The SyncManager will record that the sync request failed and will cause a System Notification to be created asking the user what they want to do about this. It will give the user a chance to choose between (1) go ahead even with those deletes, (2) revert the deletes, or (3) take no action. If the user decides (1) or (2) the SyncManager will issue another sync request with either ContentResolver.SYNC_EXTRAS_OVERRIDE_TOO_MANY_DELETIONS or ContentResolver.SYNC_EXTRAS_DISCARD_LOCAL_DELETIONS set in the extras. It is then up to the SyncAdapter to decide how to honor that request.</value>
+        <value>Used to indicate that the SyncAdapter determined that it would need to issue too many delete operations to the server in order to satisfy the request (as defined by the SyncAdapter). The SyncManager will record that the sync request failed and may create a system notification asking the user what they want to do about this. The notification gives the user a chance to choose between (1) go ahead even with those deletes, (2) revert the deletes, or (3) take no action. If the user decides (1) or (2) the SyncManager will issue another sync request with either ContentResolver.SYNC_EXTRAS_OVERRIDE_TOO_MANY_DELETIONS or ContentResolver.SYNC_EXTRAS_DISCARD_LOCAL_DELETIONS set in the extras. It is then up to the SyncAdapter to decide how to honor that request.</value>
         <remarks>
           <para>Used to indicate that the SyncAdapter determined that it would need to issue
             too many delete operations to the server in order to satisfy the request
             (as defined by the SyncAdapter). The SyncManager will record
-            that the sync request failed and will cause a System Notification to be created
-            asking the user what they want to do about this. It will give the user a chance to
+            that the sync request failed and may create a system notification
+            asking the user what they want to do about this. The notification gives the user a chance to
             choose between (1) go ahead even with those deletes, (2) revert the deletes,
             or (3) take no action. If the user decides (1) or (2) the SyncManager will issue another
             sync request with either <c>ContentResolver#SYNC_EXTRAS_OVERRIDE_TOO_MANY_DELETIONS</c>
@@ -962,11 +958,11 @@
       <Docs>
         <summary>Used to indicate that the SyncAdapter experienced a hard error due to trying the same
             operation too many times (as defined by the SyncAdapter).</summary>
-        <value>Used to indicate that the SyncAdapter experienced a hard error due to trying the same operation too many times (as defined by the SyncAdapter). The SyncManager will record that the sync request failed and it will not reschedule the request.</value>
+        <value>Indicates that the sync adapter experienced a hard error because it tried the same operation too many times. The sync manager records the failure.</value>
         <remarks>
-          <para>Used to indicate that the SyncAdapter experienced a hard error due to trying the same
-            operation too many times (as defined by the SyncAdapter). The SyncManager will record
-            that the sync request failed and it will not reschedule the request.</para>
+          <para>The sync adapter determines when it has tried an operation too many times.
+            The sync manager normally does not retry the operation, but it can retry an
+            upload-only sync as a two-way sync.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/content/SyncResult#tooManyRetries" title="Reference documentation">Java documentation for <code>android.content.SyncResult.tooManyRetries</code>.</a>
