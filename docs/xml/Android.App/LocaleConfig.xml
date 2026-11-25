@@ -45,7 +45,7 @@
   <Docs>
     <summary>The LocaleConfig of an application.</summary>
     <remarks>
-      <para>The LocaleConfig of an application. There are two sources. One is from an XML resource file with an &lt;locale-config&gt; element and referenced in the manifest via android:localeConfig on &lt;application&gt;. The other is that the application dynamically provides an override version which is persisted in LocaleManager.setOverrideLocaleConfig(LocaleConfig). For more information about the LocaleConfig from an XML resource file, see the section on per-app language preferences.</para>
+      <para>The LocaleConfig of an application. There are two sources. One is from an XML resource file with an &lt;locale-config&gt; element and referenced in the manifest via android:localeConfig on &lt;application&gt;. The other is that the application dynamically provides an override version, which is persisted through <see cref="P:Android.App.LocaleManager.OverrideLocaleConfig" />. For more information about the LocaleConfig from an XML resource file, see <see href="https://developer.android.com/about/versions/13/features/app-languages#use-localeconfig">the section on per-app language preferences</see>.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/LocaleConfig" title="Reference documentation">Android reference for <code>android.app.LocaleConfig</code>.</a>
@@ -120,7 +120,7 @@
         <param name="locales">the desired locales for a specified application</param>
         <summary>Return the LocaleConfig with any sequence of locales combined into a <c>LocaleList</c>.</summary>
         <remarks>
-          <para>Return the LocaleConfig with any sequence of locales combined into a LocaleList. Note: Applications seeking to create an override LocaleConfig via LocaleManager.setOverrideLocaleConfig(LocaleConfig) should use this constructor to first create the LocaleConfig they intend the system to see as the override. Note: The creation of this LocaleConfig does not automatically mean it will become the override config for an application. Any LocaleConfig desired to be the override must be passed into the LocaleManager.setOverrideLocaleConfig(LocaleConfig), otherwise it will not persist or affect the system's understanding of app-supported resources.</para>
+          <para>Return the LocaleConfig with any sequence of locales combined into a LocaleList. Applications seeking to create an override LocaleConfig should use this constructor to first create the LocaleConfig they intend the system to see as the override. Creating it does not automatically make it the override config for an application. To persist it and affect the system's understanding of app-supported resources, set <see cref="P:Android.App.LocaleManager.OverrideLocaleConfig" /> to the new LocaleConfig.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/LocaleConfig#LocaleConfig(android.os.LocaleList)" title="Reference documentation">Android reference for <code>android.app.LocaleConfig.LocaleConfig</code>.</a>
@@ -306,9 +306,9 @@
         <param name="context">the context of the application.</param>
         <summary>Returns a LocaleConfig from the application resources regardless of whether any LocaleConfig
             is overridden via <c>LocaleManager#setOverrideLocaleConfig(LocaleConfig)</c>.</summary>
-        <returns>A new LocaleConfig read from the application resources. Any override that was set with LocaleManager.setOverrideLocaleConfig(LocaleConfig) is not used.</returns>
+        <returns>A new LocaleConfig read from the application resources. Any override set through <see cref="P:Android.App.LocaleManager.OverrideLocaleConfig" /> is not used.</returns>
         <remarks>
-          <para>Returns a LocaleConfig from the application resources regardless of whether any LocaleConfig is overridden via LocaleManager.setOverrideLocaleConfig(LocaleConfig).</para>
+          <para>Returns a LocaleConfig from the application resources regardless of whether an override is set via <see cref="P:Android.App.LocaleManager.OverrideLocaleConfig" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/LocaleConfig#fromContextIgnoringOverride(android.content.Context)" title="Reference documentation">Android reference for <code>android.app.LocaleConfig.fromContextIgnoringOverride</code>.</a>
@@ -586,7 +586,7 @@
         <summary>Returns the locales supported by the specified application.</summary>
         <value>the <c>LocaleList</c></value>
         <remarks>
-          <para>Returns the locales supported by the specified application. Note: The locale format should follow the IETF BCP47 regular expression</para>
+          <para>Returns the locales supported by the specified application. The locale format should follow the <see href="https://www.rfc-editor.org/rfc/bcp/bcp47.txt">IETF BCP 47 specification</see>.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/LocaleConfig#getSupportedLocales()" title="Reference documentation">Android reference for <code>android.app.LocaleConfig.getSupportedLocales</code>.</a>
@@ -777,7 +777,7 @@
       </Parameters>
       <Docs>
         <param name="dest">Parcel: This value cannot be null.</param>
-        <param name="flags">int: Additional flags about how the object should be written. May be 0 or Parcelable.PARCELABLE_WRITE_RETURN_VALUE. Value is either 0 or a combination of the following: <see cref="F:Android.OS.ParcelableWriteFlags.ReturnValue" /></param>
+        <param name="flags">Additional flags about how the object should be written. The value is 0 or <see cref="F:Android.OS.ParcelableWriteFlags.ReturnValue" />.</param>
         <summary>Flatten this object in to a Parcel.</summary>
         <remarks>
           <para>Flatten this object in to a Parcel.</para>
