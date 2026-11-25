@@ -166,8 +166,8 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the number of attributes of the current start tag, or
- -1 if the current event type is not START_TAG</summary>
-        <value>The number of attributes on the current start tag, or -1 if the current event is not <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartTag" />.</value>
+ the parser's value for other events.</summary>
+        <value>The number of attributes on the current start tag, or -1 if the current event is not <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartTag" />, under the XML pull-parser contract. <see cref="T:Android.Runtime.XmlReaderPullParser" /> instead returns the wrapped reader's attribute count.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -291,7 +291,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the current depth of the element.</summary>
-        <value>The current element depth. The depth is 0 outside the root element and 1 at the root element. A start tag increases the depth; the matching end tag retains that depth until the parser advances past it.</value>
+        <value>The current element depth. Under the XML pull-parser contract, the depth is 0 outside the root element and 1 at the root element. A start tag increases the depth; the matching end tag retains that depth until the parser advances past it. <see cref="T:Android.Runtime.XmlReaderPullParser" /> instead returns the wrapped reader's depth.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -874,7 +874,7 @@
         <Parameter Name="prefix" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="prefix">The namespace prefix to look up, or <see langword="null" /> for the default namespace.</param>
+        <param name="prefix">The namespace prefix to look up, or <see langword="null" /> for the default namespace. <see cref="T:Android.Runtime.XmlReaderPullParser" /> returns <see langword="null" /> when this argument is <see langword="null" />.</param>
         <summary>Returns the URI corresponding to the given prefix,
             depending on current state of the parser.</summary>
         <returns>The namespace URI bound to <paramref name="prefix" /> in the current scope, or <see langword="null" /> if no binding exists.</returns>
@@ -940,7 +940,7 @@
         <param name="depth">The element depth whose cumulative namespace declaration count is required. Use <see cref="P:Org.XmlPull.V1.IXmlPullParser.Depth" /> for the current element.</param>
         <summary>Returns the numbers of elements in the namespace stack for the given
             depth.</summary>
-        <returns>The cumulative number of entries in the namespace stack at <paramref name="depth" />, or 0 if namespace processing is disabled. The difference between the counts at the current depth and the previous depth is the number of declarations on the current element.</returns>
+        <returns>The cumulative number of entries in the namespace stack at <paramref name="depth" />, or 0 if namespace processing is disabled. The difference between the counts at the current depth and the previous depth is the number of declarations on the current element. <see cref="T:Android.Runtime.XmlReaderPullParser" /> does not support this method.</returns>
         <remarks>
           <para>Returns the numbers of elements in the namespace stack for the given
             depth.
@@ -999,7 +999,7 @@
         <param name="pos">The zero-based position in the namespace stack. It must identify an available entry.</param>
         <summary>Returns the namespace prefix for the given position
             in the namespace stack.</summary>
-        <returns>The prefix at <paramref name="pos" />, or <see langword="null" /> for a default namespace declaration. Declarations on a start tag remain accessible at its matching end tag.</returns>
+        <returns>The prefix at <paramref name="pos" />, or <see langword="null" /> for a default namespace declaration. Declarations on a start tag remain accessible at its matching end tag. <see cref="T:Android.Runtime.XmlReaderPullParser" /> does not support this method.</returns>
         <remarks>
           <para>Returns the namespace prefix for the given position
             in the namespace stack.
@@ -1051,7 +1051,7 @@
         <summary>Returns the namespace URI for the given position in the
             namespace stack
             If the position is out of range, an exception is thrown.</summary>
-        <returns>The namespace URI at <paramref name="pos" />. Declarations on a start tag remain accessible at its matching end tag.</returns>
+        <returns>The namespace URI at <paramref name="pos" />. Declarations on a start tag remain accessible at its matching end tag. <see cref="T:Android.Runtime.XmlReaderPullParser" /> does not support this method.</returns>
         <remarks>
           <para>Returns the namespace URI for the given position in the
             namespace stack
@@ -1271,7 +1271,7 @@
         <summary>Returns true if the current event is START_TAG and the tag
  is degenerated
  (e.g. &lt;foobar/&gt;).</summary>
-        <value><see langword="true" /> if the current start tag uses empty-element syntax, such as <c>&lt;item /&gt;</c>; otherwise, <see langword="false" />. Access is valid only at a <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartTag" /> event.</value>
+        <value><see langword="true" /> if the current start tag uses empty-element syntax, such as <c>&lt;item /&gt;</c>; otherwise, <see langword="false" />. The XML pull-parser contract permits access only at a <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartTag" /> event. <see cref="T:Android.Runtime.XmlReaderPullParser" /> instead returns the wrapped reader's <see cref="P:System.Xml.XmlReader.IsEmptyElement" /> value.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1301,7 +1301,7 @@
       <Docs>
         <summary>Checks whether the current TEXT event contains only whitespace
  characters.</summary>
-        <value><see langword="true" /> if the current text contains only whitespace; otherwise, <see langword="false" />. It is always <see langword="true" /> for <see cref="F:Org.XmlPull.V1.XmlPullParserNode.IgnorableWhitespace" />. Access is valid only for text, CDATA, or ignorable-whitespace events.</value>
+        <value>For the XML pull-parser contract, <see langword="true" /> if the current text contains only whitespace; otherwise, <see langword="false" />. It is always <see langword="true" /> for <see cref="F:Org.XmlPull.V1.XmlPullParserNode.IgnorableWhitespace" />. Access is valid only for text, CDATA, or ignorable-whitespace events. <see cref="T:Android.Runtime.XmlReaderPullParser" /> instead tests whether the wrapped reader's node type is <see cref="F:System.Xml.XmlNodeType.Whitespace" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1329,8 +1329,8 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Returns the current line number, starting from 1.</summary>
-        <value>The current line number, starting at 1, or -1 if the parser cannot determine it.</value>
+        <summary>Returns the current line number.</summary>
+        <value>The current line number, or -1 if the parser cannot determine it. The XML pull-parser contract specifies a one-based line number; <see cref="T:Android.Runtime.XmlReaderPullParser" /> subtracts 1 from the wrapped reader's line number.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1359,7 +1359,7 @@
       <Docs>
         <summary>For START_TAG or END_TAG events, the (local) name of the current
  element is returned when namespaces are enabled.</summary>
-        <value>The local element name at a start or end tag when namespace processing is enabled, or the raw element name when it is disabled. At an entity-reference event, this is the entity name. For other events, it is <see langword="null" />.</value>
+        <value>The local element name at a start or end tag when namespace processing is enabled, or the raw element name when it is disabled. Under the XML pull-parser contract, at an entity-reference event this is the entity name, and for other events it is <see langword="null" />. <see cref="T:Android.Runtime.XmlReaderPullParser" /> instead returns the wrapped reader's <see cref="P:System.Xml.XmlReader.LocalName" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1387,7 +1387,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the namespace URI of the current element.</summary>
-        <value>The namespace URI of the current start or end tag, or an empty string if the element has no namespace or namespace processing is disabled. For other events, it is <see langword="null" />.</value>
+        <value>The namespace URI of the current start or end tag, or an empty string if the element has no namespace or namespace processing is disabled. Under the XML pull-parser contract, for other events it is <see langword="null" />. <see cref="T:Android.Runtime.XmlReaderPullParser" /> instead returns the wrapped reader's <see cref="P:System.Xml.XmlReader.NamespaceURI" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1425,7 +1425,7 @@
             TEXT event must be returned for whole element content
             (comments and processing instructions will be ignored and entity references
             must be expanded or exception must be thrown if entity reference can not be expanded).</summary>
-        <returns>The next start-tag, text, end-tag, or end-document event. Adjacent character data, CDATA, and expanded entity references are combined into text; comments and processing instructions are skipped. Empty elements produce separate start-tag and end-tag events. Calls after the end-document event can throw an exception.</returns>
+        <returns>The next start-tag, text, end-tag, or end-document event. The XML pull-parser contract combines adjacent character data, CDATA, and expanded entity references into text; comments and processing instructions are skipped. Empty elements produce separate start-tag and end-tag events. Calls after the end-document event can throw an exception. <see cref="T:Android.Runtime.XmlReaderPullParser" /> does not combine these events and skips CDATA and entity-reference events.</returns>
         <remarks>
           <para>Get next parsing event - element content will be coalesced and only one
             TEXT event must be returned for whole element content
@@ -1481,7 +1481,7 @@
       <Docs>
         <summary>Call next() and return event if it is START_TAG or END_TAG
             otherwise throw an exception.</summary>
-        <returns>The next <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartTag" /> or <see cref="F:Org.XmlPull.V1.XmlPullParserNode.EndTag" /> event after whitespace-only text is skipped. An exception is thrown if the next event is not a tag.</returns>
+        <returns>The next <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartTag" /> or <see cref="F:Org.XmlPull.V1.XmlPullParserNode.EndTag" /> event after whitespace-only text is skipped. An exception is thrown if the next event is not a tag. <see cref="T:Android.Runtime.XmlReaderPullParser" /> identifies whitespace by the wrapped reader's node type and may not skip whitespace reported as text.</returns>
         <remarks>
           <para>Call next() and return event if it is START_TAG or END_TAG
             otherwise throw an exception.
@@ -1535,7 +1535,7 @@
       <Docs>
         <summary>If current event is START_TAG then if next element is TEXT then element content is returned
             or if next event is END_TAG then empty string is returned, otherwise exception is thrown.</summary>
-        <returns>The text-only content of the current element, or an empty string if it has no content. The parser must start on a start tag and, on success, ends on its matching end tag.</returns>
+        <returns>The text-only content of the current element, or an empty string if it has no content. The parser must start on a start tag and, on success, ends on its matching end tag. <see cref="T:Android.Runtime.XmlReaderPullParser" /> uses its <see cref="M:Org.XmlPull.V1.IXmlPullParser.Next" /> implementation, which skips CDATA and entity-reference events rather than combining them into text.</returns>
         <remarks>
           <para>If current event is START_TAG then if next element is TEXT then element content is returned
             or if next event is END_TAG then empty string is returned, otherwise exception is thrown.
@@ -1627,7 +1627,7 @@
         <summary>This method works similarly to next() but will expose
             additional event types (COMMENT, CDSECT, DOCDECL, ENTITY_REF, PROCESSING_INSTRUCTION, or
             IGNORABLE_WHITESPACE) if they are available in input.</summary>
-        <returns>The next event, including individual CDATA, entity-reference, whitespace, processing-instruction, comment, and document-type tokens. Text can span multiple events. Token text is end-of-line normalized unless the XML round-trip feature is enabled. At the end of input, returns <see cref="F:Org.XmlPull.V1.XmlPullParserNode.EndDocument" />; further calls can throw an exception.</returns>
+        <returns>The next event, which can include individual CDATA, entity-reference, whitespace, processing-instruction, comment, and document-type tokens. Text can span multiple events. Under the XML pull-parser contract, token text is end-of-line normalized unless the XML round-trip feature is enabled. At the end of input, returns <see cref="F:Org.XmlPull.V1.XmlPullParserNode.EndDocument" />; further calls can throw an exception. <see cref="T:Android.Runtime.XmlReaderPullParser" /> skips document-type nodes.</returns>
         <remarks>
           <para>This method works similarly to next() but will expose
             additional event types (COMMENT, CDSECT, DOCDECL, ENTITY_REF, PROCESSING_INSTRUCTION, or
@@ -1806,7 +1806,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the prefix of the current element.</summary>
-        <value>The prefix of the current start or end tag, or <see langword="null" /> if the element has no prefix, namespace processing is disabled, or the current event is not a tag.</value>
+        <value>Under the XML pull-parser contract, the prefix of the current start or end tag, or <see langword="null" /> if the element has no prefix, namespace processing is disabled, or the current event is not a tag. <see cref="T:Android.Runtime.XmlReaderPullParser" /> instead returns the wrapped reader's <see cref="P:System.Xml.XmlReader.Prefix" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1846,8 +1846,8 @@
       </Parameters>
       <Docs>
         <param name="type">The required event type.</param>
-        <param name="namespace">The required namespace URI, or <see langword="null" /> to accept any namespace.</param>
-        <param name="name">The required name, or <see langword="null" /> to accept any name.</param>
+        <param name="namespace">The required namespace URI, or <see langword="null" /> to accept any namespace under the XML pull-parser contract. <see cref="T:Android.Runtime.XmlReaderPullParser" /> compares <see langword="null" /> directly with the current namespace instead.</param>
+        <param name="name">The required name, or <see langword="null" /> to accept any name under the XML pull-parser contract. <see cref="T:Android.Runtime.XmlReaderPullParser" /> compares <see langword="null" /> directly with the current name instead.</param>
         <summary>Test if the current event is of the given type and if the
             namespace and name do match.</summary>
         <remarks>
@@ -1956,7 +1956,7 @@
         <Parameter Name="in" Type="Java.IO.Reader" />
       </Parameters>
       <Docs>
-        <param name="in">The character reader to use as input, or <see langword="null" /> to stop parsing and reset the parser state. Setting input resets the current event to <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartDocument" />.</param>
+        <param name="in">The character reader to use as input, or <see langword="null" /> to stop parsing and reset the parser state. Setting input resets the current event to <see cref="F:Org.XmlPull.V1.XmlPullParserNode.StartDocument" />. <see cref="T:Android.Runtime.XmlReaderPullParser" /> does not support this overload.</param>
         <summary>Set the input source for parser to the given reader and
             resets the parser.</summary>
         <remarks>
@@ -2104,7 +2104,7 @@
       </ReturnValue>
       <Docs>
         <summary>Returns the text content of the current event as String.</summary>
-        <value>The text associated with the current event, or <see langword="null" /> if no text is available. For an entity reference, this is its replacement text if known. Token text depends on the event type and the XML round-trip feature.</value>
+        <value>Under the XML pull-parser contract, the text associated with the current event, or <see langword="null" /> if no text is available. For an entity reference, this is its replacement text if known. Token text depends on the event type and the XML round-trip feature. <see cref="T:Android.Runtime.XmlReaderPullParser" /> instead returns the wrapped reader's <see cref="P:System.Xml.XmlReader.Value" />.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
