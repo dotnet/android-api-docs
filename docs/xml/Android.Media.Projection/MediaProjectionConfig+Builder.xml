@@ -188,7 +188,7 @@
         <Parameter Name="projectionSource" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="projectionSource">Value is either 0 or a combination of the following: MediaProjectionConfig.PROJECTION_SOURCE_DISPLAY; MediaProjectionConfig.PROJECTION_SOURCE_APP; MediaProjectionConfig.PROJECTION_SOURCE_APP_CONTENT</param>
+        <param name="projectionSource">A single <see cref="T:Android.Media.Projection.MediaProjectionSource" /> value. Do not pass 0 or a combination of sources.</param>
         <summary>Indicates which projection source the UI component should display to the user first.</summary>
         <returns>instance of this Builder. This value cannot be null.</returns>
         <remarks>
@@ -231,7 +231,8 @@
         <remarks>
           <para>Indicates to the system that the requesting application is offering its own content to be shared as MediaProjectionConfig.PROJECTION_SOURCE_APP_CONTENT.</para>
           <para>When setOwnAppContentProvided(boolean) is set to true, the requesting app's content will override any content from other apps that might have been displayed by the system.</para>
-          <code lang="text/java"> &lt;/application&gt;
+          <para>To offer its own content, the application must declare a service that inherits from <see cref="T:Android.Media.Projection.AppContentProjectionService" /> and add an intent filter for <c>AppContentProjectionService.SERVICE_INTERFACE</c>. The service must be exported and protected by <c>android.permission.MANAGE_MEDIA_PROJECTION</c>.</para>
+          <code lang="text/java"> &lt;application&gt;
   ...
    &lt;service
         android:exported="true"
@@ -242,7 +243,7 @@
       &lt;/intent-filter&gt;
     &lt;/service&gt;
   &lt;/application&gt;</code>
-          <para>If supported by the device, the content will be displayed to the user in the media projection picker and AppContentProjectionService.onContentRequest(AppContentRequest) will be called, offering the a chance to this application to provide or update the content to be shared.</para>
+          <para>If supported by the device, the content will be displayed to the user in the media projection picker and AppContentProjectionService.onContentRequest(AppContentRequest) will be called, giving this application a chance to provide or update the content to be shared.</para>
           <para>If the user selects an item from this list, AppContentProjectionService.onLoopbackProjectionStarted(AppContentProjectionSession,int) will be called and the projection session will be considered as started.</para>
           <para>If the shared content becomes unavailable, this application will be responsible for calling AppContentProjectionSession.notifySessionStop(). If the session is stopped outside of this application AppContentProjectionService.onSessionStopped(AppContentProjectionSession) will be called.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/media/projection/MediaProjectionConfig.Builder#setOwnAppContentProvided(boolean)" title="Reference documentation">Android reference for <code>android.media.projection.MediaProjectionConfig.Builder.setOwnAppContentProvided</code>.</a></format></para>
@@ -324,7 +325,7 @@
         <Parameter Name="enabled" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="source">the projection source to enable or disable. Value is either 0 or a combination of the following: MediaProjectionConfig.PROJECTION_SOURCE_DISPLAY; MediaProjectionConfig.PROJECTION_SOURCE_APP; MediaProjectionConfig.PROJECTION_SOURCE_APP_CONTENT</param>
+        <param name="source">A nonzero <see cref="T:Android.Media.Projection.MediaProjectionSource" /> value or bitwise combination of values to enable or disable.</param>
         <param name="enabled">true to enable the source, false otherwise</param>
         <summary>Set whether the UI component requesting the user permission to share their screen should display an option to share the specified source</summary>
         <returns>this instance for chaining. This value cannot be null.</returns>
