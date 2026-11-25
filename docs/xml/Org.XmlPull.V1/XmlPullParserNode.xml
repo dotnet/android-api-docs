@@ -39,7 +39,7 @@
       </ReturnValue>
       <MemberValue>5</MemberValue>
       <Docs>
-        <summary>A CDATA section was read. <see cref="M:Org.XmlPull.V1.IXmlPullParser.NextToken" /> reports this event; <see cref="M:Org.XmlPull.V1.IXmlPullParser.Next" /> combines its content with other character data into a text event. <see cref="P:Org.XmlPull.V1.IXmlPullParser.Text" /> provides the section content without its delimiters.</summary>
+        <summary>A CDATA section was read. <see cref="M:Org.XmlPull.V1.IXmlPullParser.NextToken" /> reports this event; the XML pull-parser contract says that <see cref="M:Org.XmlPull.V1.IXmlPullParser.Next" /> combines its content with other character data into a text event. <see cref="T:Android.Runtime.XmlReaderPullParser" /> skips CDATA events in <see cref="M:Org.XmlPull.V1.IXmlPullParser.Next" />. <see cref="P:Org.XmlPull.V1.IXmlPullParser.Text" /> provides the section content without its delimiters.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -147,7 +147,7 @@
       </ReturnValue>
       <MemberValue>3</MemberValue>
       <Docs>
-        <summary>An end tag was read. The parser still reports the matching element's depth at this event; the depth decreases when the parser advances past it.</summary>
+        <summary>An end tag was read. Under the XML pull-parser contract, the parser still reports the matching element's depth at this event; the depth decreases when the parser advances past it. <see cref="T:Android.Runtime.XmlReaderPullParser" /> instead reports the wrapped reader's depth.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -174,7 +174,7 @@
       </ReturnValue>
       <MemberValue>6</MemberValue>
       <Docs>
-        <summary>An entity reference was read by <see cref="M:Org.XmlPull.V1.IXmlPullParser.NextToken" />. <see cref="P:Org.XmlPull.V1.IXmlPullParser.Name" /> provides the entity name, and <see cref="P:Org.XmlPull.V1.IXmlPullParser.Text" /> provides its replacement text if available. <see cref="M:Org.XmlPull.V1.IXmlPullParser.Next" /> expands references into text instead.</summary>
+        <summary>An entity reference was read by <see cref="M:Org.XmlPull.V1.IXmlPullParser.NextToken" />. <see cref="P:Org.XmlPull.V1.IXmlPullParser.Name" /> provides the entity name, and <see cref="P:Org.XmlPull.V1.IXmlPullParser.Text" /> provides its replacement text if available. The XML pull-parser contract says that <see cref="M:Org.XmlPull.V1.IXmlPullParser.Next" /> expands references into text; <see cref="T:Android.Runtime.XmlReaderPullParser" /> skips entity-reference events instead.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -201,7 +201,7 @@
       </ReturnValue>
       <MemberValue>7</MemberValue>
       <Docs>
-        <summary>Ignorable whitespace was read by <see cref="M:Org.XmlPull.V1.IXmlPullParser.NextToken" />. Non-validating parsers report this event only outside the root element. <see cref="M:Org.XmlPull.V1.IXmlPullParser.Next" /> skips it. Whitespace-only text is not necessarily ignorable whitespace.</summary>
+        <summary>Ignorable whitespace was read by <see cref="M:Org.XmlPull.V1.IXmlPullParser.NextToken" />. The XML pull-parser contract specifies that non-validating parsers report this event only outside the root element; <see cref="T:Android.Runtime.XmlReaderPullParser" /> can report the wrapped reader's whitespace nodes inside the root element. <see cref="M:Org.XmlPull.V1.IXmlPullParser.Next" /> skips this event. Whitespace-only text is not necessarily ignorable whitespace.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -255,7 +255,7 @@
       </ReturnValue>
       <MemberValue>0</MemberValue>
       <Docs>
-        <summary>The initial parser state, before the first event is read. Query <see cref="P:Org.XmlPull.V1.IXmlPullParser.EventType" /> to observe this state; advancing the parser does not return it.</summary>
+        <summary>The initial parser state, before the first event is read. Query <see cref="P:Org.XmlPull.V1.IXmlPullParser.EventType" /> to observe this state. Unlike the XML pull-parser contract, <see cref="T:Android.Runtime.XmlReaderPullParser" /> can return it from its first call to <see cref="M:Org.XmlPull.V1.IXmlPullParser.NextToken" />.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -309,7 +309,7 @@
       </ReturnValue>
       <MemberValue>4</MemberValue>
       <Docs>
-        <summary>Character data was read. <see cref="M:Org.XmlPull.V1.IXmlPullParser.Next" /> combines adjacent character data, CDATA, and expanded references into text. <see cref="M:Org.XmlPull.V1.IXmlPullParser.NextToken" /> can report the character data in separate events; end-of-line normalization depends on the XML round-trip feature.</summary>
+        <summary>Character data was read. The XML pull-parser contract says that <see cref="M:Org.XmlPull.V1.IXmlPullParser.Next" /> combines adjacent character data, CDATA, and expanded references into text. <see cref="T:Android.Runtime.XmlReaderPullParser" /> does not combine these events and skips CDATA and entity-reference events. <see cref="M:Org.XmlPull.V1.IXmlPullParser.NextToken" /> can report the character data in separate events; end-of-line normalization depends on the XML round-trip feature.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
