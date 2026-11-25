@@ -87,8 +87,7 @@
       </Parameters>
       <Docs>
         <param name="node">The <c>AccessibilityNodeInfo</c> for the node of this selection.</param>
-        <param name="offset">The offset for a <c>SelectionPosition</c> within <c>view</c>'s text
-                content, which should be a value between 0 and the length of <c>view</c>'s text.</param>
+        <param name="offset">The offset within the node's text, which should be between 0 and the length of that text.</param>
         <summary>Instantiates a new SelectionPosition.</summary>
         <remarks>
           <para>Instantiates a new SelectionPosition.</para>
@@ -352,12 +351,11 @@
         <ReturnType>Android.Views.Accessibility.AccessibilityNodeInfo</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets the node for <c>this</c><c>SelectionPosition</c>&lt;br&gt;
-            <b>Note:</b> This api can only be called from <c>AccessibilityService</c>.</summary>
+        <summary>Gets the node for this selection position.</summary>
         <value>The node associated with <c>this</c><c>SelectionPosition</c></value>
         <remarks>
-          <para>Gets the node for <c>this</c><c>SelectionPosition</c>&lt;br&gt;
-            <b>Note:</b> This api can only be called from <c>AccessibilityService</c>.</para>
+          <para>Gets the node for this selection position.</para>
+          <para>A position obtained from a node with app-process querying enabled can also query its node from the app process.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo.SelectionPosition#getNode()" title="Reference documentation">Java documentation for <code>android.view.accessibility.AccessibilityNodeInfo.SelectionPosition.getNode()</code>.</a>
@@ -369,6 +367,7 @@
                      and used according to terms described in the
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalStateException">If the position is not attached to a sealed node and does not have a direct connection.</exception>
       </Docs>
     </Member>
     <Member MemberName="Offset">
@@ -396,8 +395,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the offset for <c>this</c><c>SelectionPosition</c>.</summary>
-        <value>A value from 0 to the length of <c>#getNode()</c>'s content representing the
-                offset of the <c>SelectionPosition</c></value>
+        <value>For a text offset, the position in the node's text. For a child offset, the position between the node's children.</value>
         <remarks>
           <para>Gets the offset for <c>this</c><c>SelectionPosition</c>.</para>
           <para>
@@ -631,6 +629,7 @@
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo.SelectionPosition#getView()" title="Reference documentation">Android reference for <code>android.view.accessibility.AccessibilityNodeInfo.SelectionPosition.getView</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalStateException">If this position is attached to a sealed node.</exception>
       </Docs>
     </Member>
     <Member MemberName="VirtualDescendantId">
@@ -665,6 +664,7 @@
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo.SelectionPosition#getVirtualDescendantId()" title="Reference documentation">Android reference for <code>android.view.accessibility.AccessibilityNodeInfo.SelectionPosition.getVirtualDescendantId</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalStateException">If this position is attached to a sealed node.</exception>
       </Docs>
     </Member>
     <Member MemberName="WriteToParcel">
