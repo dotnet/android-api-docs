@@ -32,7 +32,20 @@
   <Docs>
     <summary>Helper class for generating large-format notifications that include multiple back-and-forth messages of varying types between any number of people.</summary>
     <remarks>
-      <para>Helper class for generating large-format notifications that include multiple back-and-forth messages of varying types between any number of people. If the platform does not provide large-format notifications, this method has no effect. The user will always see the normal notification view. If the app is targeting Android Build.VERSION_CODES.P and above, it is required to use the Person class in order to get an optimal rendering of the notification and its avatars. For conversations involving multiple people, the app should also make sure that it marks the conversation as a group with setGroupConversation(boolean). From Android Build.VERSION_CODES.UPSIDE_DOWN_CAKE, messaging style notifications that are associated with a valid conversation shortcut (via Notification.Builder.setShortcutId(String)) are displayed in a dedicated conversation section in the shade above non-conversation alerting and silence notifications. To be a valid conversation shortcut, the shortcut must be a ShortcutInfo.Builder.setLongLived(boolean) dynamic or cached sharing shortcut. This class is a "rebuilder": It attaches to a Builder object and modifies its behavior. Here's an example of how this may be used: Note that this style doesn't display the large icon set via Builder.setLargeIcon(Icon), except as a fallback group icon if the shortcut doesn't include one. It can, however, display images set via MessagingStyle.Message.setData.</para>
+      <para>Helper class for generating large-format notifications that include multiple back-and-forth messages of varying types between any number of people. If the platform does not provide large-format notifications, this method has no effect. The user will always see the normal notification view. If the app is targeting Android Build.VERSION_CODES.P and above, it is required to use the Person class in order to get an optimal rendering of the notification and its avatars. For conversations involving multiple people, the app should also make sure that it marks the conversation as a group with setGroupConversation(boolean). From Android Build.VERSION_CODES.UPSIDE_DOWN_CAKE, messaging style notifications that are associated with a valid conversation shortcut (via Notification.Builder.setShortcutId(String)) are displayed in a dedicated conversation section in the shade above non-conversation alerting and silence notifications. To be a valid conversation shortcut, the shortcut must be a ShortcutInfo.Builder.setLongLived(boolean) dynamic or cached sharing shortcut. This class is a "rebuilder": It attaches to a Builder object and modifies its behavior. Here's an example of how this may be used:</para>
+      <code lang="text/java">Person user = new Person.Builder().setIcon(userIcon).setName(userName).build();
+MessagingStyle style = new MessagingStyle(user)
+     .addMessage(messages[1].getText(), messages[1].getTime(), messages[1].getPerson())
+     .addMessage(messages[2].getText(), messages[2].getTime(), messages[2].getPerson())
+     .setGroupConversation(hasMultiplePeople());
+
+Notification notif = new Notification.Builder(context, CHANNEL_ID)
+    .setContentTitle("2 new messages with " + sender.toString())
+    .setContentText(subject)
+    .setSmallIcon(R.drawable.new_message)
+    .setStyle(style)
+    .build();</code>
+      <para>Note that this style doesn't display the large icon set via Builder.setLargeIcon(Icon), except as a fallback group icon if the shortcut doesn't include one. It can, however, display images set via MessagingStyle.Message.setData.</para>
       <para>
         <format type="text/html">
           <a href="https://developer.android.com/reference/android/app/Notification.MessagingStyle" title="Reference documentation">Android reference for <code>android.app.Notification.MessagingStyle</code>.</a>
@@ -606,7 +619,7 @@
         <summary>Returns true if this notification represents a group conversation, otherwise false.</summary>
         <value>The configured group-conversation flag. When attached to a builder targeting an API below 28, a non-null conversation title determines this value instead.</value>
         <remarks>
-          <para>Returns true if this notification represents a group conversation, otherwise false. If the application that generated this MessagingStyle targets an SDK version less than Build.VERSION_CODES.P, this method becomes dependent on whether or not the conversation title is set; returning true if the conversation title is a non-null value, or false otherwise. From Build.VERSION_CODES.P forward, this method returns what's set by setGroupConversation(boolean) allowing for named, non-group conversations.</para>
+          <para>Returns true if this notification represents a group conversation, otherwise false. If this MessagingStyle is attached to a builder whose application targets an SDK version less than Build.VERSION_CODES.P, the result depends on whether the conversation title is set: it is true for a non-null title and false otherwise. In other cases, the result is set by setGroupConversation(boolean), allowing for named, non-group conversations.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.MessagingStyle#isGroupConversation()" title="Reference documentation">Android reference for <code>android.app.Notification.MessagingStyle.isGroupConversation</code>.</a>
@@ -765,7 +778,7 @@
         <summary>Sets the title to be displayed on this conversation.</summary>
         <returns>this object for method chaining</returns>
         <remarks>
-          <para>Sets the title to be displayed on this conversation. May be set to null. Starting in Build.VERSION_CODES.R, this conversation title will be ignored if a valid shortcutId is added via Notification.Builder.setShortcutId(String). In this case, ShortcutInfo.getLongLabel() (or, if missing, ShortcutInfo.getShortLabel()) will be shown as the conversation title instead. This API's behavior was changed in SDK version Build.VERSION_CODES.P. If your application's target version is less than Build.VERSION_CODES.P, setting a conversation title to a non-null value will make isGroupConversation() return true and passing null will make it return false. In Build.VERSION_CODES.P and beyond, use setGroupConversation(boolean) to set group conversation status.</para>
+          <para>Sets the title to be displayed on this conversation. May be set to null. Starting in Build.VERSION_CODES.R, this conversation title will be ignored if a valid shortcutId is added via Notification.Builder.setShortcutId(String). In this case, ShortcutInfo.getLongLabel() (or, if missing, ShortcutInfo.getShortLabel()) will be shown as the conversation title instead. This API's behavior was changed in SDK version Build.VERSION_CODES.P. When this style is attached to a builder whose application targets a version less than Build.VERSION_CODES.P, a non-null conversation title makes isGroupConversation() return true, and a null title makes it return false. In other cases, use setGroupConversation(boolean) to set group conversation status.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.MessagingStyle#setConversationTitle(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.app.Notification.MessagingStyle.setConversationTitle</code>.</a>
@@ -802,7 +815,7 @@
         <summary>Sets the title to be displayed on this conversation.</summary>
         <returns>this object for method chaining</returns>
         <remarks>
-          <para>Sets the title to be displayed on this conversation. May be set to null. Starting in Build.VERSION_CODES.R, this conversation title will be ignored if a valid shortcutId is added via Notification.Builder.setShortcutId(String). In this case, ShortcutInfo.getLongLabel() (or, if missing, ShortcutInfo.getShortLabel()) will be shown as the conversation title instead. This API's behavior was changed in SDK version Build.VERSION_CODES.P. If your application's target version is less than Build.VERSION_CODES.P, setting a conversation title to a non-null value will make isGroupConversation() return true and passing null will make it return false. In Build.VERSION_CODES.P and beyond, use setGroupConversation(boolean) to set group conversation status.</para>
+          <para>Sets the title to be displayed on this conversation. May be set to null. Starting in Build.VERSION_CODES.R, this conversation title will be ignored if a valid shortcutId is added via Notification.Builder.setShortcutId(String). In this case, ShortcutInfo.getLongLabel() (or, if missing, ShortcutInfo.getShortLabel()) will be shown as the conversation title instead. This API's behavior was changed in SDK version Build.VERSION_CODES.P. When this style is attached to a builder whose application targets a version less than Build.VERSION_CODES.P, a non-null conversation title makes isGroupConversation() return true, and a null title makes it return false. In other cases, use setGroupConversation(boolean) to set group conversation status.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/app/Notification.MessagingStyle#setConversationTitle(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.app.Notification.MessagingStyle.setConversationTitle</code>.</a>
@@ -990,7 +1003,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the display name of the style's current user.</summary>
-        <value>The name from the style's user person, converted to a string.</value>
+        <value>The name from the style's user person, converted to a string, or <see langword="null" /> if that name is null.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1025,7 +1038,7 @@
       </ReturnValue>
       <Docs>
         <summary>This method was deprecated in API level 28.</summary>
-        <value>The name character sequence from the person representing the current user.</value>
+        <value>The name character sequence from the person representing the current user, or <see langword="null" /> if that name is null.</value>
         <remarks>
           <para>This method was deprecated in API level 28. use getUser() instead</para>
           <para>Returns the name to be displayed for any replies sent by the user</para>
