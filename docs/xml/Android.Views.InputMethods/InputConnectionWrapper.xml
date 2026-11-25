@@ -150,7 +150,7 @@
         <summary>Tell the editor that you are starting a batch of editor operations.</summary>
         <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>Tell the editor that you are starting a batch of editor operations. The editor will try to avoid sending you updates about its state until endBatchEdit() is called. Batch edits nest.</para>
+          <para>The editor tries to defer state updates until all nested batches end.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#beginBatchEdit()" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.beginBatchEdit()</code>.</a>
@@ -347,7 +347,7 @@
       </Parameters>
       <Docs>
         <param name="inputContentInfo">Content to be inserted. This value cannot be null.</param>
-        <param name="flags">InputConnection.INPUT_CONTENT_GRANT_READ_URI_PERMISSION if the content provider allows grantUriPermissions or 0 if the application does not need to call InputContentInfo.requestPermission().</param>
+        <param name="flags"><see cref="F:Android.Views.InputMethods.InputContentFlags.GrantReadUriPermission" /> if the content provider permits URI grants, or <see cref="F:Android.Views.InputMethods.InputContentFlags.None" /> if the application does not need to call <see cref="M:Android.Views.InputMethods.InputContentInfo.RequestPermission" />.</param>
         <param name="opts">optional bundle data. This can be null.</param>
         <summary>Called by the input method to commit content such as a PNG image to the editor.</summary>
         <returns>The value returned by the target connection.</returns>
@@ -549,10 +549,10 @@
         <param name="text">The text to commit through the target connection.</param>
         <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <param name="textAttribute">Optional text metadata passed to the target connection.</param>
-        <summary>The variant of InputConnection.commitText(CharSequence,int).</summary>
+        <summary>Commits text with optional metadata.</summary>
         <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>The variant of InputConnection.commitText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up text.</para>
+          <para>This overload lets the input method provide extra information about the text.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#commitText(java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.commitText(java.lang.CharSequence, int, android.view.inputmethod.TextAttribute)</code>.</a>
@@ -608,10 +608,10 @@
         <param name="text">The string to commit.</param>
         <param name="newCursorPosition">The new cursor position around the text, in Java characters. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance the cursor to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <param name="textAttribute">Optional text metadata passed to the character sequence overload.</param>
-        <summary>The variant of InputConnection.commitText(CharSequence,int).</summary>
+        <summary>Commits text with optional metadata.</summary>
         <returns>The result of the character sequence overload. Its default implementation returns the value returned by the target connection.</returns>
         <remarks>
-          <para>The variant of InputConnection.commitText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up text.</para>
+          <para>This overload lets the input method provide extra information about the text.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#commitText(java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.commitText(java.lang.CharSequence, int, android.view.inputmethod.TextAttribute)</code>.</a>
@@ -705,12 +705,12 @@
         <Parameter Name="afterLength" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="beforeLength">The number of characters before the cursor to be deleted, in code points. If this is greater than the number of existing characters between the beginning of the text and the cursor, then this method does not fail but deletes all the characters in that range.</param>
-        <param name="afterLength">The number of characters after the cursor to be deleted, in code points. If this is greater than the number of existing characters between the cursor and the end of the text, then this method does not fail but deletes all the characters in that range.</param>
-        <summary>A variant of deleteSurroundingText(int, int).</summary>
+        <param name="beforeLength">The number of code points to delete before the cursor. If greater than the available text, the request covers the available text before the cursor.</param>
+        <param name="afterLength">The number of code points to delete after the cursor. If greater than the available text, the request covers the available text after the cursor.</param>
+        <summary>Requests deletion around the selection using code-point lengths.</summary>
         <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>A variant of deleteSurroundingText(int, int). Major differences are: The lengths are supplied in code points, not in Java chars or in glyphs; This method does nothing if there are one or more invalid surrogate pairs in the requested range.</para>
+          <para>Unlike <see cref="M:Android.Views.InputMethods.InputConnectionWrapper.DeleteSurroundingText(System.Int32,System.Int32)" />, the lengths are code points, not UTF-16 code units or glyphs. The method does nothing if the requested range contains an invalid surrogate pair.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#deleteSurroundingTextInCodePoints(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.deleteSurroundingTextInCodePoints(int, int)</code>.</a>
@@ -748,10 +748,10 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Tell the editor that you are done with a batch edit previously initiated with beginBatchEdit().</summary>
+        <summary>Ends a batch of editor operations started by <see cref="M:Android.Views.InputMethods.InputConnectionWrapper.BeginBatchEdit" />.</summary>
         <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>Tell the editor that you are done with a batch edit previously initiated with beginBatchEdit(). This ends the latest batch only.</para>
+          <para>Only the most recent batch ends.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#endBatchEdit()" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.endBatchEdit()</code>.</a>
@@ -793,7 +793,7 @@
         <summary>Have the text editor finish whatever composing text is currently active.</summary>
         <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>Have the text editor finish whatever composing text is currently active. This simply leaves the text as-is, removing any special composing styling or other state that was around it. The cursor position remains unchanged.</para>
+          <para>The target should leave the text and cursor unchanged while removing composing state. A <see cref="T:Android.Views.InputMethods.BaseInputConnection" /> in fallback mode may send the buffered text as key events and clear the buffer.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#finishComposingText()" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.finishComposingText()</code>.</a>
@@ -847,7 +847,7 @@
  <see cref="P:Android.Views.InputMethods.EditorInfo.InputType" /> value
  directly in to here.</param>
         <summary>Retrieve the current capitalization mode in effect at the current cursor position in the text.</summary>
-        <returns>the caps mode flags that are in effect at the current cursor position. See TYPE_TEXT_FLAG_CAPS_* in InputType.</returns>
+        <returns>The <see cref="T:Android.Text.CapitalizationMode" /> flags in effect at the current cursor position.</returns>
         <remarks>
           <para>Retrieve the current capitalization mode in effect at the current cursor position in the text. See TextUtils.getCapsMode for more information.</para>
           <para>
@@ -902,10 +902,11 @@
  <see cref="T:Android.Views.InputMethods.ExtractedTextRequest" /></param>
         <param name="flags">Additional options to control the client, either 0 or
  <see cref="F:Android.Views.InputMethods.InputConnection.GetExtractedTextMonitor" />.</param>
-        <summary>Retrieve the current text in the input connection's editor, and monitor for any changes to it.</summary>
+        <summary>Gets the editor's extracted text and can request updates when it changes.</summary>
         <returns>The extraction result returned by the target connection, or <see langword="null" />.</returns>
         <remarks>
-          <para>Retrieve the current text in the input connection's editor, and monitor for any changes to it. This function returns with the current text, and optionally the input connection can send updates to the input method when its text changes.</para>
+          <para>The target connection can send updates to the input method when its text changes.</para>
+          <para>To request updates, cast <see cref="F:Android.Views.InputMethods.TextExtractFlags.Monitor" /> to <see cref="T:Android.Views.InputMethods.GetTextFlags" /> for the <paramref name="flags" /> parameter.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getExtractedText(android.view.inputmethod.ExtractedTextRequest,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getExtractedText(android.view.inputmethod.ExtractedTextRequest, int)</code>.</a>
@@ -1049,11 +1050,11 @@
       <Docs>
         <param name="beforeLength">The expected length of the text before the cursor. Value is 0 or greater</param>
         <param name="afterLength">The expected length of the text after the cursor. Value is 0 or greater</param>
-        <param name="flags">Supplies additional options controlling how the text is returned. May be either 0 or InputConnection.GET_TEXT_WITH_STYLES. Value is either 0 or InputConnection.GET_TEXT_WITH_STYLES</param>
-        <summary>Gets the surrounding text around the current cursor, with beforeLength characters of text before the cursor (start of the selection), afterLength characters of text after the cursor (end of the selection), and all of the selected text.</summary>
+        <param name="flags">Options for the returned text: 0 or the integer value of <see cref="F:Android.Views.InputMethods.GetTextFlags.WithStyles" />.</param>
+        <summary>Gets text around the selection from the target connection.</summary>
         <returns>The surrounding text result returned by the target connection, or <see langword="null" />.</returns>
         <remarks>
-          <para>Gets the surrounding text around the current cursor, with beforeLength characters of text before the cursor (start of the selection), afterLength characters of text after the cursor (end of the selection), and all of the selected text. The range are for java characters, not glyphs that can be multiple characters.</para>
+          <para>Requests up to <paramref name="beforeLength" /> characters before the selection, up to <paramref name="afterLength" /> characters after it, and the selected text. The lengths are UTF-16 code units, not glyphs.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getSurroundingText(int,%20int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getSurroundingText(int, int, int)</code>.</a>
@@ -1148,10 +1149,10 @@
         <param name="n">The expected length of the text.</param>
         <param name="flags">Supplies additional options controlling how the text is
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
-        <summary>Get n characters of text after the current cursor position.</summary>
+        <summary>Gets text after the selection from the target connection.</summary>
         <returns>The character sequence after the selection returned by the target connection, or <see langword="null" />.</returns>
         <remarks>
-          <para>Get n characters of text after the current cursor position.</para>
+          <para>The returned sequence can contain fewer than <paramref name="n" /> characters.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getTextAfterCursor(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getTextAfterCursor(int, int)</code>.</a>
@@ -1247,10 +1248,10 @@
         <param name="n">The expected length of the text.</param>
         <param name="flags">Supplies additional options controlling how the text is
  returned. May be either 0 or <see cref="F:Android.Views.InputMethods.InputConnection.GetTextWithStyles" />.</param>
-        <summary>Get n characters of text before the current cursor position.</summary>
+        <summary>Gets text before the selection from the target connection.</summary>
         <returns>The character sequence before the selection returned by the target connection, or <see langword="null" />.</returns>
         <remarks>
-          <para>Get n characters of text before the current cursor position.</para>
+          <para>The returned sequence can contain fewer than <paramref name="n" /> characters.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#getTextBeforeCursor(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.getTextBeforeCursor(int, int)</code>.</a>
@@ -1405,7 +1406,7 @@
         <summary>Perform a context menu action on the field.</summary>
         <returns>The result reported by the target connection. A <see langword="true" /> result does not guarantee that the text changed.</returns>
         <remarks>
-          <para>Perform a context menu action on the field. The given id may be one of: R.id.selectAll, R.id.startSelectingText, R.id.stopSelectingText, R.id.cut, R.id.copy, R.id.paste, R.id.copyUrl, or R.id.switchInputMethod</para>
+          <para>The identifier can be <see cref="F:Android.Resource.Id.SelectAll" />, <see cref="F:Android.Resource.Id.StartSelectingText" />, <see cref="F:Android.Resource.Id.StopSelectingText" />, <see cref="F:Android.Resource.Id.Cut" />, <see cref="F:Android.Resource.Id.Copy" />, <see cref="F:Android.Resource.Id.Paste" />, <see cref="F:Android.Resource.Id.CopyUrl" />, or <see cref="F:Android.Resource.Id.SwitchInputMethod" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#performContextMenuAction(int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.performContextMenuAction(int)</code>.</a>
@@ -1514,8 +1515,8 @@
       </Parameters>
       <Docs>
         <param name="gesture">The handwriting gesture to send to the target connection.</param>
-        <param name="executor">This value may be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
-        <param name="consumer">The optional consumer of the gesture result code, called through the supplied executor.</param>
+        <param name="executor">The optional executor for the result callback. To use the application's main thread, use <see cref="P:Android.Content.Context.MainExecutor" />.</param>
+        <param name="consumer">The optional consumer of the gesture result code. Provide an executor to receive a callback from the default implementation.</param>
         <summary>Perform a handwriting gesture on text.</summary>
         <remarks>
           <para>Perform a handwriting gesture on text.</para>
@@ -1894,10 +1895,11 @@
           </format> and/or
  <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='Android Views InputMethods InputConnection CURSOR_UPDATE_MONITOR';scope=Xamarin" title="Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR">Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR</a></format>. Pass <c>0</c> to disable the effect of
  <format type="text/html"><a href="https://docs.microsoft.com/en-us/search/index?search='Android Views InputMethods InputConnection CURSOR_UPDATE_MONITOR';scope=Xamarin" title="Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR">Android.Views.InputMethods.InputConnection.CURSOR_UPDATE_MONITOR</a></format>.</param>
-        <summary>Called by the input method to ask the editor for calling back InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo) to notify cursor/anchor locations.</summary>
+        <summary>Requests cursor and anchor updates from the target connection.</summary>
         <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>Called by the input method to ask the editor for calling back InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo) to notify cursor/anchor locations.</para>
+          <para>The editor can call <see cref="M:Android.Views.InputMethods.InputMethodManager.UpdateCursorAnchorInfo(Android.Views.View,Android.Views.InputMethods.CursorAnchorInfo)" /> to send the updates.</para>
+          <para>Pass zero or a combination of the integer values of <see cref="T:Android.Views.InputMethods.CursorUpdate" /> and <see cref="T:Android.Views.InputMethods.CursorUpdateFilter" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#requestCursorUpdates(int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.requestCursorUpdates(int)</code>.</a>
@@ -1956,12 +1958,12 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="cursorUpdateMode">Value is either 0 or a combination of the following: InputConnection.CURSOR_UPDATE_IMMEDIATE; InputConnection.CURSOR_UPDATE_MONITOR</param>
-        <param name="cursorUpdateFilter">Value is either 0 or a combination of the following: InputConnection.CURSOR_UPDATE_FILTER_EDITOR_BOUNDS; InputConnection.CURSOR_UPDATE_FILTER_CHARACTER_BOUNDS; InputConnection.CURSOR_UPDATE_FILTER_INSERTION_MARKER; InputConnection.CURSOR_UPDATE_FILTER_VISIBLE_LINE_BOUNDS; InputConnection.CURSOR_UPDATE_FILTER_TEXT_APPEARANCE</param>
-        <summary>Called by the input method to ask the editor for calling back InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo) to notify cursor/anchor locations.</summary>
+        <param name="cursorUpdateMode">Zero or a combination of <see cref="F:Android.Views.InputMethods.CursorUpdate.Immediate" /> and <see cref="F:Android.Views.InputMethods.CursorUpdate.Monitor" />, cast to <c>int</c>.</param>
+        <param name="cursorUpdateFilter">Zero or a combination of <see cref="F:Android.Views.InputMethods.CursorUpdateFilter.EditorBounds" />, <see cref="F:Android.Views.InputMethods.CursorUpdateFilter.CharacterBounds" />, <see cref="F:Android.Views.InputMethods.CursorUpdateFilter.InsertionMarker" />, <see cref="F:Android.Views.InputMethods.CursorUpdateFilter.VisibleLineBounds" />, and <see cref="F:Android.Views.InputMethods.CursorUpdateFilter.TextAppearance" />, cast to <c>int</c>.</param>
+        <summary>Requests cursor and anchor updates from the target connection.</summary>
         <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>Called by the input method to ask the editor for calling back InputMethodManager.updateCursorAnchorInfo(android.view.View,CursorAnchorInfo) to notify cursor/anchor locations.</para>
+          <para>The editor can call <see cref="M:Android.Views.InputMethods.InputMethodManager.UpdateCursorAnchorInfo(Android.Views.View,Android.Views.InputMethods.CursorAnchorInfo)" /> to send the updates.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#requestCursorUpdates(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.requestCursorUpdates(int, int)</code>.</a>
@@ -2012,11 +2014,11 @@
       </Parameters>
       <Docs>
         <param name="bounds">The screen rectangle for which text bounds are requested.</param>
-        <param name="executor">This value cannot be null. Callback and listener events are dispatched through this Executor, providing an easy way to control which thread is used. To dispatch events through the main thread of your application, you can use Context.getMainExecutor(). Otherwise, provide an Executor that dispatches to an appropriate thread.</param>
+        <param name="executor">The executor for the result callback. To use the application's main thread, use <see cref="P:Android.Content.Context.MainExecutor" />.</param>
         <param name="consumer">The consumer that receives the target's <c>TextBoundsInfoResult</c> through the supplied executor.</param>
-        <summary>Called by input method to request the TextBoundsInfo for a range of text which is covered by or in vicinity of the given bounds.</summary>
+        <summary>Requests text bounds for text in or near the specified screen rectangle.</summary>
         <remarks>
-          <para>Called by input method to request the TextBoundsInfo for a range of text which is covered by or in vicinity of the given bounds. It can be used as a supplementary method to implement the handwriting gesture API - performHandwritingGesture(HandwritingGesture,Executor,IntConsumer).</para>
+          <para>This information can supplement <see cref="M:Android.Views.InputMethods.InputConnectionWrapper.PerformHandwritingGesture(Android.Views.InputMethods.HandwritingGesture,Java.Util.Concurrent.IExecutor,Java.Util.Functions.IIntConsumer)" />.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#requestTextBoundsInfo(android.graphics.RectF,%20java.util.concurrent.Executor,%20java.util.function.Consumer%3Candroid.view.inputmethod.TextBoundsInfoResult%3E)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.requestTextBoundsInfo(android.graphics.RectF, java.util.concurrent.Executor, java.util.function.Consumer&lt;android.view.inputmethod.TextBoundsInfoResult&gt;)</code>.</a>
@@ -2107,7 +2109,7 @@
         <summary>Mark a certain region of text as composing text.</summary>
         <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>Mark a certain region of text as composing text. If there was a composing region, the characters are left as they were and the composing span removed, as if finishComposingText() has been called. The default style for composing text is used.</para>
+          <para>The editor should remove any previous composing span without changing its characters and use the default style for the new region. A <see cref="T:Android.Views.InputMethods.BaseInputConnection" /> in fallback mode may send the buffered text as key events and clear the buffer.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#setComposingRegion(int,%20int)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.setComposingRegion(int, int)</code>.</a>
@@ -2157,10 +2159,10 @@
         <param name="start">the position in the text at which the composing region begins</param>
         <param name="end">the position in the text at which the composing region ends</param>
         <param name="textAttribute">Optional text metadata passed to the target connection.</param>
-        <summary>The variant of InputConnection.setComposingRegion(int,int).</summary>
+        <summary>Marks a region as composing text and supplies optional text metadata.</summary>
         <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>The variant of InputConnection.setComposingRegion(int,int). This method is used to allow the IME to provide extra information while setting up text.</para>
+          <para>The target may ignore the metadata. The default Android interface implementation calls the two-argument overload.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#setComposingRegion(int,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.setComposingRegion(int, int, android.view.inputmethod.TextAttribute)</code>.</a>
@@ -2316,10 +2318,10 @@
         <param name="text">The composing text to send to the target connection.</param>
         <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <param name="textAttribute">Optional text metadata passed to the target connection.</param>
-        <summary>The variant of setComposingText(CharSequence,int).</summary>
+        <summary>Sets the composing text and cursor position, with optional text metadata.</summary>
         <returns>The value returned by the target connection.</returns>
         <remarks>
-          <para>The variant of setComposingText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up composing text.</para>
+          <para>The target may ignore the metadata. The default Android interface implementation calls the two-argument overload.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#setComposingText(java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.setComposingText(java.lang.CharSequence, int, android.view.inputmethod.TextAttribute)</code>.</a>
@@ -2375,10 +2377,10 @@
         <param name="text">The composing string.</param>
         <param name="newCursorPosition">The new cursor position around the text. If &gt; 0, this is relative to the end of the text - 1; if &lt;= 0, this is relative to the start of the text. So a value of 1 will always advance you to the position after the full text being inserted. Note that this means you can't position the cursor within the text, because the editor can make modifications to the text you are providing so it is not possible to correctly specify locations there.</param>
         <param name="textAttribute">Optional text metadata passed to the character sequence overload.</param>
-        <summary>The variant of setComposingText(CharSequence,int).</summary>
+        <summary>Sets the composing text and cursor position, with optional text metadata.</summary>
         <returns>The result of the character sequence overload. Its default implementation returns the value returned by the target connection.</returns>
         <remarks>
-          <para>The variant of setComposingText(CharSequence,int). This method is used to allow the IME to provide extra information while setting up composing text.</para>
+          <para>The target may ignore the metadata. The default Android interface implementation calls the two-argument overload.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputConnectionWrapper#setComposingText(java.lang.CharSequence,%20int,%20android.view.inputmethod.TextAttribute)" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputConnectionWrapper.setComposingText(java.lang.CharSequence, int, android.view.inputmethod.TextAttribute)</code>.</a>

@@ -84,7 +84,7 @@
       </Parameters>
       <Docs>
         <param name="javaReference">A JNI reference to the Java object.</param>
-        <param name="transfer">Specifies whether ownership of the JNI reference transfers to this instance.</param>
+        <param name="transfer">Specifies how the runtime handles the incoming JNI reference, including whether it is released.</param>
         <summary>Creates a managed instance that represents an existing Java object.</summary>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
@@ -191,7 +191,7 @@
       </Parameters>
       <Docs>
         <param name="isAsciiCapable">should be true if this subtype is ASCII capable. If the subtype is ASCII capable, it should guarantee that the user can input ASCII characters with this subtype. This is important because many password fields only allow ASCII-characters.</param>
-        <summary>Sets whether the subtype supports ASCII input.</summary>
+        <summary>Sets whether the subtype is marked as ASCII capable.</summary>
         <returns>This builder after the ASCII capability is stored.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodSubtype.InputMethodSubtypeBuilder#setIsAsciiCapable(boolean)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputMethodSubtype.InputMethodSubtypeBuilder.setIsAsciiCapable</code>.</a></format></para>
@@ -226,7 +226,7 @@
         <Parameter Name="isAuxiliary" Type="System.Boolean" />
       </Parameters>
       <Docs>
-        <param name="isAuxiliary">should true when this subtype is auxiliary, false otherwise. An auxiliary subtype has the following differences with a regular subtype: - An auxiliary subtype cannot be chosen as the default IME in Settings. - The framework will never switch to this subtype through InputMethodManager.switchToLastInputMethod(IBinder). Note that the subtype will still be available in the IME switcher. The intent is to allow for IMEs to specify they are meant to be invoked temporarily in a one-shot way, and to return to the previous IME once finished (e.g. voice input).</param>
+        <param name="isAuxiliary">Set to <see langword="true" /> for an auxiliary subtype, or <see langword="false" /> otherwise. An auxiliary subtype cannot be chosen as the default IME in Settings, and the framework will never switch to it through <see cref="M:Android.Views.InputMethods.InputMethodManager.SwitchToLastInputMethod(Android.OS.IBinder)" />. The subtype is still available in the IME switcher. This setting is intended for IMEs invoked temporarily in a one-shot way, such as voice input, which return to the previous IME when finished.</param>
         <summary>Sets whether the subtype is an auxiliary input mode.</summary>
         <returns>This builder after the auxiliary setting is stored.</returns>
         <remarks>
@@ -410,7 +410,7 @@
       </Parameters>
       <Docs>
         <param name="overridesImplicitlyEnabledSubtype">should be true if this subtype should be enabled by default if no other subtypes in the IME are enabled explicitly. Note that a subtype with this parameter set will not be shown in the list of subtypes in each IME's subtype enabler. A canonical use of this would be for an IME to supply an "automatic" subtype that adapts to the current system language.</param>
-        <summary>Sets whether this subtype is enabled implicitly when no subtype is explicitly enabled.</summary>
+        <summary>Sets whether this subtype should override implicit subtype selection.</summary>
         <returns>This builder after the implicit enablement setting is stored.</returns>
         <remarks>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodSubtype.InputMethodSubtypeBuilder#setOverridesImplicitlyEnabledSubtype(boolean)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputMethodSubtype.InputMethodSubtypeBuilder.setOverridesImplicitlyEnabledSubtype</code>.</a></format></para>
@@ -453,8 +453,8 @@
         <Parameter Name="layoutType" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="languageTag">is the preferred physical keyboard BCP-47 language tag. This is used to match the keyboardLocale attribute in the physical keyboard definition. If it's null, the subtype's language tag will be used.</param>
-        <param name="layoutType">is the preferred physical keyboard layout, which is used to match the keyboardLayoutType attribute in the physical keyboard definition. See InputManager.ACTION_QUERY_KEYBOARD_LAYOUTS. This value cannot be null.</param>
+        <param name="languageTag">The preferred physical keyboard locale. Its BCP-47 language tag is used to match the keyboardLocale attribute in the physical keyboard definition. If this is <see langword="null" />, the system can use the subtype's language tag or legacy locale instead.</param>
+        <param name="layoutType">The preferred physical keyboard layout, which is used to match the keyboardLayoutType attribute in the physical keyboard definition. See <see cref="F:Android.Hardware.Input.InputManager.ActionQueryKeyboardLayouts" />. This value cannot be null.</param>
         <summary>Sets the physical keyboard hint information, such as language and layout.</summary>
         <returns>This builder after the physical keyboard hints are stored.</returns>
         <remarks>
@@ -491,7 +491,7 @@
         <Parameter Name="subtypeExtraValue" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="subtypeExtraValue">is the extra value of the subtype. This string is free-form, but the API supplies tools to deal with a key-value comma-separated list; see InputMethodSubtype.containsExtraValueKey(String) and InputMethodSubtype.getExtraValueOf(String).</param>
+        <param name="subtypeExtraValue">The extra value of the subtype. This string is free-form, but the API supplies tools to deal with a key-value comma-separated list; see <see cref="M:Android.Views.InputMethods.InputMethodSubtype.ContainsExtraValueKey(System.String)" /> and <see cref="M:Android.Views.InputMethods.InputMethodSubtype.GetExtraValueOf(System.String)" />.</param>
         <summary>Sets the subtype's extra value string.</summary>
         <returns>This builder after the extra value is stored.</returns>
         <remarks>
@@ -563,7 +563,7 @@
         <Parameter Name="subtypeId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="subtypeId">is the unique ID for this subtype. The input method framework keeps track of enabled subtypes by ID. When the IME package gets upgraded, enabled IDs will stay enabled even if other attributes are different. If the ID is unspecified or 0, Arrays.hashCode(new Object[] {locale, mode, extraValue, isAuxiliary, overridesImplicitlyEnabledSubtype, isAsciiCapable}) will be used instead.</param>
+        <param name="subtypeId">The unique ID to assign to this subtype. The input method framework keeps track of enabled subtypes by ID, so a stable ID can keep a subtype enabled across an IME package upgrade even if its other attributes change. If the ID is unspecified or 0, Android instead calculates a Java array hash from the legacy locale, mode, extra value, auxiliary flag, and implicit-enablement flag. The ASCII-capable flag is also included when it is <see langword="true" />.</param>
         <summary>Sets the identifier used to track this subtype.</summary>
         <returns>This builder after the subtype identifier is stored.</returns>
         <remarks>
@@ -675,7 +675,7 @@
         <summary>Sets the untranslatable name of the subtype.</summary>
         <returns>This builder after the name override is stored.</returns>
         <remarks>
-          <para>Sets the untranslatable name of the subtype. This string is used as the subtype's display name if subtype's name res Id is 0.</para>
+          <para>Sets the untranslatable name of the subtype. When the name resource ID is 0, the display name is the nonempty override, or the subtype locale's display name if the override is empty.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodSubtype.InputMethodSubtypeBuilder#setSubtypeNameOverride(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputMethodSubtype.InputMethodSubtypeBuilder.setSubtypeNameOverride</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -708,7 +708,7 @@
         <summary>Sets the untranslatable name of the subtype.</summary>
         <returns>This builder after the name override is stored.</returns>
         <remarks>
-          <para>Sets the untranslatable name of the subtype. This string is used as the subtype's display name if subtype's name res Id is 0.</para>
+          <para>Sets the untranslatable name of the subtype. When the name resource ID is 0, the display name is the nonempty override, or the subtype locale's display name if the override is empty.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodSubtype.InputMethodSubtypeBuilder#setSubtypeNameOverride(java.lang.CharSequence)" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputMethodSubtype.InputMethodSubtypeBuilder.setSubtypeNameOverride</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -741,7 +741,7 @@
         <Parameter Name="subtypeNameResId" Type="System.Int32" />
       </Parameters>
       <Docs>
-        <param name="subtypeNameResId">is the resource ID of the subtype name string. The string resource may have exactly one %s in it. If present, the %s part will be replaced with the locale's display name by the formatter. Please refer to InputMethodSubtype.getDisplayName(Context, String, ApplicationInfo) for details.</param>
+        <param name="subtypeNameResId">The resource ID of the subtype name string. The string resource may contain one <c>%s</c> placeholder. The formatter normally replaces it with the locale's display name, but a subtype can provide an untranslatable replacement in its extra value. See <see cref="M:Android.Views.InputMethods.InputMethodSubtype.GetDisplayName(Android.Content.Context,System.String,Android.Content.PM.ApplicationInfo)" /> for details.</param>
         <summary>Sets the string resource used for the subtype name.</summary>
         <returns>This builder after the name resource is stored.</returns>
         <remarks>

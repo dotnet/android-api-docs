@@ -101,7 +101,7 @@
         <param name="mode">The input mode string for this subtype.</param>
         <param name="extraValue">The extra value string associated with this subtype.</param>
         <param name="isAuxiliary">Whether this subtype is an auxiliary input mode.</param>
-        <param name="overridesImplicitlyEnabledSubtype">Whether the subtype is enabled implicitly when no subtype is explicitly enabled.</param>
+        <param name="overridesImplicitlyEnabledSubtype">Whether the subtype should override implicit subtype selection.</param>
         <summary>Constructor with no subtype ID specified.</summary>
         <remarks>
           <para>Constructor with no subtype ID specified.</para>
@@ -264,7 +264,7 @@
       </ReturnValue>
       <Docs>
         <summary>Gets the creator used to read input method subtypes from parcels.</summary>
-        <value>A creator that generates instances of android.view.inputmethod.InputMethodSubtype from a Parcel.</value>
+        <value>A creator that generates <see cref="T:Android.Views.InputMethods.InputMethodSubtype" /> instances from a parcel.</value>
         <remarks>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -297,9 +297,9 @@
       <Docs>
         <summary>Describe the kinds of special objects contained in this Parcelable's
  marshalled representation.</summary>
-        <returns>a bitmask indicating the set of special object types marshaled by this Parcelable object instance. Value is either 0 or CONTENTS_FILE_DESCRIPTOR</returns>
+        <returns>0. This implementation does not report any special object types.</returns>
         <remarks>
-          <para>Describe the kinds of special objects contained in this Parcelable instance's marshaled representation. For example, if the object will include a file descriptor in the output of writeToParcel(Parcel,int), the return value of this method must include the CONTENTS_FILE_DESCRIPTOR bit.</para>
+          <para>Describes the kinds of special objects contained in this parcelable instance's marshaled representation. For example, if an object includes a file descriptor in the output of <see cref="M:Android.Views.InputMethods.InputMethodSubtype.WriteToParcel(Android.OS.Parcel,Android.OS.ParcelableWriteFlags)" />, its return value must include the <see cref="F:Android.OS.Parcelable.ContentsFileDescriptor" /> bit.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodSubtype#describeContents()" title="Reference documentation">Android reference for <code>android.view.inputmethod.InputMethodSubtype.describeContents</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -671,7 +671,7 @@
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>Gets whether the subtype supports ASCII input.</summary>
+        <summary>Gets whether the subtype is marked as ASCII capable.</summary>
         <value>true if this subtype is Ascii capable, false otherwise. If the subtype is ASCII
             capable, it should guarantee that the user can input ASCII characters with this subtype.
             This is important because many password fields only allow ASCII-characters.</value>
@@ -1182,7 +1182,7 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Gets whether this subtype is enabled when no subtype is explicitly enabled.</summary>
+        <summary>Gets whether this subtype is marked to override implicit subtype selection.</summary>
         <returns>true when this subtype will be enabled by default if no other subtypes in the IME
             are enabled explicitly, false otherwise. Note that a subtype with this method returning true
             will not be shown in the list of subtypes in each IME's subtype enabler. Having an
@@ -1352,7 +1352,7 @@
         <summary>Gets the stored short label for compact subtype displays.</summary>
         <value>The subtype's short label, or an empty string if no short label is specified.</value>
         <remarks>
-          <para>An empty label indicates that no short label was supplied.</para>
+          <para>The stored label is empty if no short label was supplied. An explicitly supplied empty label is also permitted.</para>
           <para>
             <format type="text/html">
               <a href="https://developer.android.com/reference/android/view/inputmethod/InputMethodSubtype#getSubtypeShortLabel()" title="Reference documentation">Java documentation for <code>android.view.inputmethod.InputMethodSubtype.getSubtypeShortLabel()</code>.</a>
