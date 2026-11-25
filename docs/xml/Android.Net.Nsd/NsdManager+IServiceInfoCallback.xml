@@ -72,8 +72,8 @@
         <summary>Reports that the callback was successfully registered.</summary>
         <remarks>
           <para>Reports that the callback was successfully registered.</para>
-          <para>Called on the executor passed to NsdManager.registerServiceInfoCallback.</para>
-          <para>This indicates that onServiceInfoCallbackRegistrationFailed will not be called, and service update callbacks will be sent.</para>
+          <para>Called on the executor passed to <see cref="M:Android.Net.Nsd.NsdManager.RegisterServiceInfoCallback(Android.Net.Nsd.DiscoveryRequest,Java.Util.Concurrent.IExecutor,Android.Net.Nsd.NsdManager.IServiceInfoCallback)" /> or <see cref="M:Android.Net.Nsd.NsdManager.RegisterServiceInfoCallback(Android.Net.Nsd.NsdServiceInfo,Java.Util.Concurrent.IExecutor,Android.Net.Nsd.NsdManager.IServiceInfoCallback)" />.</para>
+          <para>This indicates that <see cref="M:Android.Net.Nsd.NsdManager.IServiceInfoCallback.OnServiceInfoCallbackRegistrationFailed(Android.Net.Nsd.NsdFailure)" /> will not be called. Service update callbacks may follow.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager.ServiceInfoCallback#onServiceInfoCallbackRegistered()" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.ServiceInfoCallback.onServiceInfoCallbackRegistered</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -113,7 +113,7 @@
         </Parameter>
       </Parameters>
       <Docs>
-        <param name="errorCode">Value is one of the following: <see cref="F:Android.Net.Nsd.NsdFailure.AlreadyActive" />; <see cref="F:Android.Net.Nsd.NsdFailure.BadParameters" />; <see cref="F:Android.Net.Nsd.NsdFailure.PermissionDenied" /></param>
+        <param name="errorCode">The failure code. Possible values include <see cref="F:Android.Net.Nsd.NsdFailure.AlreadyActive" />, <see cref="F:Android.Net.Nsd.NsdFailure.BadParameters" />, <see cref="F:Android.Net.Nsd.NsdFailure.PermissionDenied" />, <see cref="F:Android.Net.Nsd.NsdFailure.InternalError" />, and <see cref="F:Android.Net.Nsd.NsdFailure.MaxLimit" />.</param>
         <summary>Reports that registering the callback failed with an error.</summary>
         <remarks>
           <para>Reports that registering the callback failed with an error.
@@ -257,8 +257,8 @@
         <summary>Reports when the service that this callback listens to becomes unavailable.</summary>
         <remarks>
           <para>Reports when the service that this callback listens to becomes unavailable.</para>
-          <para>Called on the executor passed to NsdManager.registerServiceInfoCallback. The service may become available again, in which case onServiceUpdated(NsdServiceInfo) will be called.</para>
-          <para>This is called every time a service (as per NsdServiceInfo.getServiceName()) is lost on any Network (as per NsdServiceInfo.getNetwork()) on which it was previously discovered. Therefore, this method may be called multiple times for a given service name, if multiple onServiceUpdated(NsdServiceInfo) callbacks were received for that service name on different networks.</para>
+          <para>Called on the executor passed to <see cref="M:Android.Net.Nsd.NsdManager.RegisterServiceInfoCallback(Android.Net.Nsd.DiscoveryRequest,Java.Util.Concurrent.IExecutor,Android.Net.Nsd.NsdManager.IServiceInfoCallback)" /> or <see cref="M:Android.Net.Nsd.NsdManager.RegisterServiceInfoCallback(Android.Net.Nsd.NsdServiceInfo,Java.Util.Concurrent.IExecutor,Android.Net.Nsd.NsdManager.IServiceInfoCallback)" />. The service may become available again, in which case <see cref="M:Android.Net.Nsd.NsdManager.IServiceInfoCallback.OnServiceUpdated(Android.Net.Nsd.NsdServiceInfo)" /> will be called.</para>
+          <para>This is called every time a service identified by <see cref="P:Android.Net.Nsd.NsdServiceInfo.ServiceName" /> is lost on a network identified by <see cref="P:Android.Net.Nsd.NsdServiceInfo.Network" /> on which it was previously discovered. Therefore, this method may be called multiple times for a given service name if <see cref="M:Android.Net.Nsd.NsdManager.IServiceInfoCallback.OnServiceUpdated(Android.Net.Nsd.NsdServiceInfo)" /> was called for that service name on different networks.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/NsdManager.ServiceInfoCallback#onServiceLost(android.net.nsd.NsdServiceInfo)" title="Reference documentation">Android reference for <code>android.net.nsd.NsdManager.ServiceInfoCallback.onServiceLost</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>

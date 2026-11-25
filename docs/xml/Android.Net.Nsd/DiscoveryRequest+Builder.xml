@@ -81,6 +81,7 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException"><paramref name="serviceType" /> is <see langword="null" /> or empty.</exception>
       </Docs>
     </Member>
     <Member MemberName="Build">
@@ -123,6 +124,7 @@
                      and used according to terms described in the 
                     <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.IllegalArgumentException"><see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagShowPicker" /> is combined with <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagNoPicker" /> or <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagUserApprovedOnly" />.</exception>
       </Docs>
     </Member>
     <Member MemberName="JniPeerMembers">
@@ -195,7 +197,7 @@
         <returns>This builder, with the attribute filters set.</returns>
         <remarks>
           <para>Set filters based on service attributes.</para>
-          <para>Service attributes are as per NsdServiceInfo.getAttributes().</para>
+          <para>Service attributes are as per <see cref="P:Android.Net.Nsd.NsdServiceInfo.Attributes" />.</para>
           <para>Keys of the provided map should match attribute keys. As per RFC6763 6.4. attribute keys are expected to be printable US-ASCII values (0x20-0x7E), and the key matching is not case-sensitive.</para>
           <para>Values of the map are matchers that will be checked against attributes value bytes read as uppercase hexadecimal if the pattern starts with 0x, or using UTF-8 encoding if it does not. Value matching is case-sensitive.</para>
           <para>If a map value is null, the corresponding attribute will be expected to be a boolean attribute with no value as per RFC6763 6.4.</para>
@@ -278,7 +280,7 @@
         <Parameter Name="flags" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="flags">A bitmask of flags that should be enabled, or 0 to disable all flags. Value is either 0 or a combination of the following: DiscoveryRequest.FLAG_NO_PICKER; DiscoveryRequest.FLAG_SHOW_PICKER; DiscoveryRequest.FLAG_USER_APPROVED_ONLY</param>
+        <param name="flags">A bitmask of flags that should be enabled, or 0 to disable all flags. The flags are <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagNoPicker" />, <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagShowPicker" />, and <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagUserApprovedOnly" />.</param>
         <summary>Set all the discovery flags.</summary>
         <returns>This builder, with all discovery flags set to the supplied value.</returns>
         <remarks>
@@ -317,16 +319,16 @@
         <Parameter Name="mask" Type="System.Int64" />
       </Parameters>
       <Docs>
-        <param name="flags">a bitmask of values to set; may be a single flag, the logical OR of multiple flags, or 0 to clear. Value is either 0 or a combination of the following: DiscoveryRequest.FLAG_NO_PICKER; DiscoveryRequest.FLAG_SHOW_PICKER; DiscoveryRequest.FLAG_USER_APPROVED_ONLY</param>
-        <param name="mask">a bitmask indicating which flags to modify. Value is either 0 or a combination of the following: DiscoveryRequest.FLAG_NO_PICKER; DiscoveryRequest.FLAG_SHOW_PICKER; DiscoveryRequest.FLAG_USER_APPROVED_ONLY</param>
+        <param name="flags">A bitmask of values to set; it may be a single flag, the bitwise OR of multiple flags, or 0 to clear. The flags are <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagNoPicker" />, <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagShowPicker" />, and <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagUserApprovedOnly" />.</param>
+        <param name="mask">A bitmask indicating which flags to modify. The flags are <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagNoPicker" />, <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagShowPicker" />, and <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagUserApprovedOnly" />.</param>
         <summary>Sets the discovery flags.</summary>
         <returns>This builder, with the discovery flags selected by the mask updated.</returns>
         <remarks>
           <para>Sets the discovery flags.</para>
           <para>Multiple flags may be enabled or disabled by passing the logical OR of the flags.</para>
           <para><see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagShowPicker" /> cannot be combined with <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagNoPicker" /> or <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagUserApprovedOnly" />. <see cref="M:Android.Net.Nsd.DiscoveryRequest.Builder.Build" /> rejects these combinations.</para>
-          <para>For example, to set DiscoveryRequest.FLAG_NO_PICKER: setFlags(FLAG_NO_PICKER, FLAG_NO_PICKER)</para>
-          <para>To disable DiscoveryRequest.FLAG_NO_PICKER: setFlags(0, FLAG_NO_PICKER)</para>
+          <para>For example, to set <see cref="F:Android.Net.Nsd.DiscoveryRequest.FlagNoPicker" />, call <c>builder.SetFlags(DiscoveryRequest.FlagNoPicker, DiscoveryRequest.FlagNoPicker)</c>.</para>
+          <para>To disable it, call <c>builder.SetFlags(0, DiscoveryRequest.FlagNoPicker)</c>.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest.Builder#setFlags(long,%20long)" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.Builder.setFlags</code>.</a></format></para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -411,10 +413,10 @@
       </Parameters>
       <Docs>
         <param name="serviceNameFilter">The pattern used to filter the service instance names in <see cref="P:Android.Net.Nsd.NsdServiceInfo.ServiceName" />, or <see langword="null" /> to disable name filtering.</param>
-        <summary>Set the filter to apply to NsdServiceInfo.getServiceName() on received services.</summary>
+        <summary>Set the filter to apply to <see cref="P:Android.Net.Nsd.NsdServiceInfo.ServiceName" /> on received services.</summary>
         <returns>This builder, with the service name filter set.</returns>
         <remarks>
-          <para>Set the filter to apply to NsdServiceInfo.getServiceName() on received services.</para>
+          <para>Set the filter to apply to <see cref="P:Android.Net.Nsd.NsdServiceInfo.ServiceName" /> on received services.</para>
           <para>Service instance names can contain spaces and non-ASCII characters. Matching is not case-sensitive for ASCII letters.</para>
           <para>Defaults to null, which means services will not be filtered by name.</para>
           <para><format type="text/html"><a href="https://developer.android.com/reference/android/net/nsd/DiscoveryRequest.Builder#setServiceNameFilter(android.os.PatternMatcher)" title="Reference documentation">Android reference for <code>android.net.nsd.DiscoveryRequest.Builder.setServiceNameFilter</code>.</a></format></para>
