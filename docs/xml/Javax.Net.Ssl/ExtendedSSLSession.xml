@@ -1203,7 +1203,7 @@
         <summary>Gets the context associated with this session.</summary>
         <value>The session context, or <see langword="null" /> if the context is unavailable.</value>
         <remarks>
-          <para>This property implements <see cref="P:Javax.Net.Ssl.ISSLSession.SessionContext" />. When a Java security manager is installed and the context is available, access can require <c>SSLPermission("getSSLSessionContext")</c>. Access throws <see cref="T:Java.Lang.SecurityException" /> if the calling thread lacks the required permission.</para>
+          <para>This property implements <see cref="P:Javax.Net.Ssl.ISSLSession.SessionContext" />. The Java specification allows an installed security manager to require <c>SSLPermission("getSSLSessionContext")</c> and throw <see cref="T:Java.Lang.SecurityException" /> if permission is denied. Android does not support installing a Java security manager.</para>
           <para>See the <format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/javax/net/ssl/SSLSession.html#getSessionContext()">SSLSession.getSessionContext contract</a></format>.</para>
           <para>Portions of this page are modifications based on work created and shared by the <format type="text/html"><a href="https://developers.google.com/terms/site-policies" title="Android Open Source Project">Android Open Source Project</a></format> and used according to terms described in the <format type="text/html"><a href="https://creativecommons.org/licenses/by/2.5/" title="Creative Commons 2.5 Attribution License">Creative Commons 2.5 Attribution License.</a></format></para>
         </remarks>
@@ -1255,8 +1255,10 @@
                     supported by either endpoint for this handshake.</value>
         <remarks>
           <para>Returns a List containing DER-encoded OCSP responses (using the ASN.1 type OCSPResponse defined in RFC 6960) for the client to verify status of the server's certificate during handshaking. This method only applies to certificate-based server authentication. An X509ExtendedTrustManager will use the returned value for server certificate validation.</para>
+          <para>The base implementation throws <see cref="T:Java.Lang.UnsupportedOperationException" />. A provider must override it to support this operation.</para>
           <para><format type="text/html"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/javax/net/ssl/ExtendedSSLSession.html#getStatusResponses()" title="Reference documentation">Java reference for <code>javax.net.ssl.ExtendedSSLSession.getStatusResponses</code>.</a></format></para>
         </remarks>
+        <exception cref="T:Java.Lang.UnsupportedOperationException">The provider does not implement this operation.</exception>
       </Docs>
     </Member>
     <Member MemberName="ThresholdClass">
